@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nevamis AI — voice assistants and working agents, built in Canada</title>
+<meta name="description" content="Nevamis is a Canadian studio that builds voice assistants and automation agents around the way your business already runs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EFF3F5;
+    --ink: #14232E;
+    --muted: #55676F;
+    --pine: #0E5C4B;
+    --pine-soft: #E2ECE8;
+    --ember: #D96B2B;
+    --card: #FFFFFF;
+    --line: #D7E0E4;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: "Atkinson Hyperlegible", sans-serif;
+    font-size: 17px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, .wordmark { font-family: "Bricolage Grotesque", sans-serif; }
+  .mono { font-family: "Spline Sans Mono", monospace; }
+  a { color: var(--pine); }
+  a:focus-visible, button:focus-visible {
+    outline: 3px solid var(--ember); outline-offset: 3px; border-radius: 2px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* header */
+  header { padding: 28px 0; }
+  header .wrap { display: flex; align-items: baseline; gap: 10px; }
+  .wordmark { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; text-decoration: none; color: var(--ink); }
+  .wordmark span { color: var(--pine); }
+  header nav { margin-left: auto; }
+  header nav a { text-decoration: none; font-size: 15px; font-weight: 700; }
+
+  /* hero */
+  .hero { padding: 56px 0 72px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; }
+  .kicker {
+    font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--pine); font-weight: 500; margin-bottom: 18px;
+  }
+  h1 {
+    font-size: clamp(36px, 5vw, 56px); line-height: 1.05;
+    letter-spacing: -0.025em; font-weight: 700; margin-bottom: 20px;
+  }
+  .hero p.lede { font-size: 19px; color: var(--muted); max-width: 44ch; margin-bottom: 30px; }
+  .cta {
+    display: inline-block; background: var(--ember); color: #fff;
+    text-decoration: none; font-weight: 700; font-size: 17px;
+    padding: 14px 26px; border-radius: 10px;
+  }
+  .cta:hover { filter: brightness(1.07); }
+  .cta-side { margin-left: 16px; font-size: 15px; color: var(--muted); }
+
+  /* signature: the call transcript */
+  .call {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 22px 22px 18px; box-shadow: 0 18px 40px -28px rgba(20,35,46,.35);
+  }
+  .call-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .call-head .label { font-size: 12.5px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  .wave { display: flex; align-items: center; gap: 3px; height: 26px; margin-left: auto; }
+  .wave i {
+    width: 3px; border-radius: 2px; background: var(--pine); height: 30%;
+    animation: wave 1.15s ease-in-out infinite;
+  }
+  @keyframes wave { 50% { height: 100%; } }
+  .line { display: flex; gap: 10px; margin-bottom: 12px; opacity: 0; animation: rise .5s ease forwards; }
+  .line .who {
+    flex-shrink: 0; font-size: 11.5px; font-weight: 500; letter-spacing: 0.08em;
+    padding: 3px 8px; border-radius: 6px; height: fit-content; margin-top: 2px;
+  }
+  .line.caller .who { background: #E8EDF0; color: var(--muted); }
+  .line.agent .who { background: var(--pine-soft); color: var(--pine); }
+  .line p { font-size: 15.5px; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .chip {
+    display: inline-flex; gap: 8px; align-items: center;
+    font-size: 12.5px; color: var(--pine); background: var(--pine-soft);
+    padding: 6px 12px; border-radius: 999px; margin-top: 4px;
+    opacity: 0; animation: rise .5s ease forwards;
+  }
+  .foot-note { font-size: 12.5px; color: var(--muted); margin-top: 14px; }
+
+  /* sections */
+  section { padding: 64px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: clamp(26px, 3.4vw, 34px); letter-spacing: -0.02em; margin-bottom: 34px; }
+  .rows { display: grid; gap: 0; }
+  .row {
+    display: grid; grid-template-columns: 170px 1fr; gap: 24px;
+    padding: 22px 0; border-top: 1px solid var(--line);
+  }
+  .row:first-child { border-top: none; }
+  .row .tag { font-size: 13px; color: var(--pine); letter-spacing: 0.1em; padding-top: 4px; }
+  .row h3 { font-family: "Bricolage Grotesque", sans-serif; font-size: 21px; margin-bottom: 6px; letter-spacing: -0.01em; }
+  .row p { color: var(--muted); max-width: 62ch; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .step .num {
+    font-family: "Bricolage Grotesque", sans-serif; font-size: 42px; font-weight: 600;
+    color: var(--pine); line-height: 1; margin-bottom: 12px;
+  }
+  .step h3 { font-family: "Bricolage Grotesque", sans-serif; font-size: 19px; margin-bottom: 6px; }
+  .step p { color: var(--muted); font-size: 16px; }
+
+  .note { font-size: 16px; color: var(--muted); max-width: 62ch; margin-top: 30px; }
+
+  /* contact */
+  .contact { text-align: center; padding: 84px 0; }
+  .contact h2 { margin-bottom: 12px; }
+  .contact p { color: var(--muted); margin-bottom: 30px; }
+  footer {
+    border-top: 1px solid var(--line); padding: 26px 0; font-size: 14px; color: var(--muted);
+  }
+  footer .wrap { display: flex; gap: 18px; flex-wrap: wrap; }
+  footer .right { margin-left: auto; }
+
+  @media (max-width: 820px) {
+    .hero .wrap { grid-template-columns: 1fr; gap: 40px; }
+    .steps { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 1fr; gap: 6px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wave i { animation: none; height: 60%; }
+    .line, .chip { animation: none; opacity: 1; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="wordmark" href="/">Nevamis<span>&nbsp;AI</span></a>
+    <nav><a href="#contact">Start a conversation</a></nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <div class="kicker mono">A Canadian AI studio</div>
+        <h1>AI assistants that do the work, not just the talking.</h1>
+        <p class="lede">Nevamis builds voice assistants and automation agents around the way your business already runs: answering calls, booking work, and finishing the paperwork.</p>
+        <a class="cta" href="mailto:hello@nevamis.ca">Start a conversation</a>
+        <span class="cta-side mono">hello@nevamis.ca</span>
+      </div>
+
+      <div class="call" aria-label="Illustration of a voice assistant handling a booking call">
+        <div class="call-head">
+          <span class="label mono">Incoming call · 613</span>
+          <span class="wave" aria-hidden="true">
+            <i style="animation-delay:0s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.35s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i>
+          </span>
+        </div>
+        <div class="line caller" style="animation-delay:.4s">
+          <span class="who mono">Caller</span>
+          <p>Hi, any chance you could fit in a hitch install this Saturday morning?</p>
+        </div>
+        <div class="line agent" style="animation-delay:1.6s">
+          <span class="who mono">Agent</span>
+          <p>Saturday the 25th at 9 a.m. is open. You're booked, and I've just texted you the confirmation and what to bring.</p>
+        </div>
+        <span class="chip" style="animation-delay:2.8s">✓ Booked · calendar updated · confirmation sent</span>
+        <p class="foot-note">An illustration of a Nevamis voice assistant at work.</p>
+      </div>
+    </div>
+  </div>
+
+  <section id="build">
+    <div class="wrap">
+      <h2>What we build</h2>
+      <div class="rows">
+        <div class="row">
+          <div class="tag mono">VOICE</div>
+          <div>
+            <h3>Voice assistants</h3>
+            <p>Answer every call in a natural voice: take bookings, handle the questions you answer forty times a week, and hand off to a human the moment it matters.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="tag mono">AGENTS</div>
+          <div>
+            <h3>Working agents</h3>
+            <p>Quotes, follow-ups, invoices, reports: the repetitive workflows that eat your week, running on their own and showing their work.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="tag mono">CUSTOM</div>
+          <div>
+            <h3>Custom builds</h3>
+            <p>Your data, your tools. We wire AI into the software you already use instead of asking you to switch.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <h3>Tell us the job</h3>
+          <p>One conversation. We map where your hours actually go and pick the first thing worth automating.</p>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <h3>We build it</h3>
+          <p>A working assistant in weeks, tested against your real calls and real cases before it ever talks to a customer.</p>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <h3>It runs</h3>
+          <p>We watch it, tune it, and keep it sharp. You see everything it does.</p>
+        </div>
+      </div>
+      <p class="note">Nevamis is a new Canadian studio. We take on a small number of builds at a time and stay close to each one.</p>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="wrap">
+      <h2>Start a conversation</h2>
+      <p>Tell us what eats your week. We'll tell you honestly whether AI can take it off your plate.</p>
+      <a class="cta" href="mailto:hello@nevamis.ca">hello@nevamis.ca</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Nevamis AI</span>
+    <span>Canada</span>
+    <span class="right mono">nevamis.ca</span>
+  </div>
+</footer>
+
+</body>
+</html>
