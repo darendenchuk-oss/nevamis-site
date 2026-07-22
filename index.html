@@ -213,13 +213,21 @@
               <i style="animation-delay:0s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.35s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i>
             </span>
           </div>
-          <div class="line caller" id="lineCaller">
+          <div class="line caller" data-audio="assets/call-1.mp3">
             <span class="who mono">Caller</span>
-            <p>Oh, hi. Yeah, I was hoping you could maybe squeeze in a hitch install this Saturday morning? We're heading out camping Sunday, so... kinda last minute, I know.</p>
+            <p>Yeah, hi, um... any chance you could fit me in for a trailer hitch install this weekend? We're headed out Sunday, so it's kinda last minute, sorry.</p>
           </div>
-          <div class="line agent" id="lineAgent">
-            <span class="who mono">Agent</span>
-            <p>No worries at all, let me take a quick look here... okay, Saturday the 25th, I've got 9 a.m. wide open, so I've gone ahead and booked you in. I just texted you the confirmation, and a little list of what to bring. Anything else I can grab for you?</p>
+          <div class="line agent" data-audio="assets/call-2.mp3">
+            <span class="who mono">Nevamis</span>
+            <p>Oh, no worries at all. Let me take a quick look here... yeah, I've got Saturday morning open, nine o'clock. Want me to book you in?</p>
+          </div>
+          <div class="line caller" data-audio="assets/call-3.mp3">
+            <span class="who mono">Caller</span>
+            <p>Oh, that'd be perfect. Yeah, let's do it.</p>
+          </div>
+          <div class="line agent" data-audio="assets/call-4.mp3">
+            <span class="who mono">Nevamis</span>
+            <p>You got it, you're all set for Saturday at nine. I'll shoot you a text with the confirmation and a quick list of what to bring. Anything else I can help with?</p>
           </div>
           <div class="play-row">
             <button class="play" id="playBtn" aria-label="Play this example call">
@@ -309,39 +317,42 @@
   var btn = document.getElementById("playBtn");
   var label = document.getElementById("playLabel");
   var card = document.getElementById("callCard");
-  var lineCaller = document.getElementById("lineCaller");
-  var lineAgent = document.getElementById("lineAgent");
-  var a1 = new Audio("assets/call-caller.mp3");
-  var a2 = new Audio("assets/call-agent.mp3");
-  a1.preload = "none"; a2.preload = "none";
+  var lines = Array.prototype.slice.call(card.querySelectorAll(".line[data-audio]"));
+  var audio = new Audio();
+  var idx = -1;
   var playing = false;
+
+  function clearHighlights() { lines.forEach(function (l) { l.classList.remove("speaking"); }); }
 
   function reset() {
     playing = false;
+    idx = -1;
+    audio.pause();
     card.classList.remove("playing");
-    lineCaller.classList.remove("speaking");
-    lineAgent.classList.remove("speaking");
+    clearHighlights();
     label.textContent = "Hear this call";
   }
-  function stopAll() {
-    a1.pause(); a1.currentTime = 0;
-    a2.pause(); a2.currentTime = 0;
-    reset();
+
+  function playNext() {
+    idx += 1;
+    if (idx >= lines.length) { reset(); return; }
+    clearHighlights();
+    var line = lines[idx];
+    line.classList.add("speaking");
+    line.scrollIntoView({ block: "nearest" });
+    audio.src = line.getAttribute("data-audio");
+    audio.play().catch(function () { reset(); });
   }
-  a1.addEventListener("play", function () { lineCaller.classList.add("speaking"); });
-  a1.addEventListener("ended", function () {
-    lineCaller.classList.remove("speaking");
-    a2.play();
-  });
-  a2.addEventListener("play", function () { lineAgent.classList.add("speaking"); });
-  a2.addEventListener("ended", reset);
+
+  audio.addEventListener("ended", playNext);
 
   btn.addEventListener("click", function () {
-    if (playing) { stopAll(); return; }
+    if (playing) { reset(); return; }
     playing = true;
+    idx = -1;
     card.classList.add("playing");
     label.textContent = "Playing…";
-    a1.play();
+    playNext();
   });
 })();
 </script>
