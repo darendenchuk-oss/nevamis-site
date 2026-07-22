@@ -3,8 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nevamis AI — voice assistants and working agents, built in Canada</title>
-<meta name="description" content="Nevamis is a Canadian studio that builds voice assistants and automation agents around the way your business already runs.">
+<title>Nevamis AI — AI receptionists and voice agents for Canadian businesses</title>
+<meta name="description" content="Nevamis builds voice assistants and automation agents around the way your business already runs: answering calls, booking work, and finishing the paperwork.">
+<meta property="og:title" content="Nevamis AI — AI receptionists and voice agents">
+<meta property="og:description" content="AI assistants that do the work, not just the talking. Hear one take a real booking call.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nevamis.ca">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%230B1620"/><text x="32" y="44" font-family="Georgia,serif" font-size="36" font-weight="bold" fill="%232FBF8F" text-anchor="middle">N</text></svg>'>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -14,10 +19,15 @@
     --ink: #14232E;
     --muted: #55676F;
     --pine: #0E5C4B;
+    --pine-bright: #2FBF8F;
     --pine-soft: #E2ECE8;
     --ember: #D96B2B;
     --card: #FFFFFF;
     --line: #D7E0E4;
+    --night: #0B1620;
+    --night-2: #10222E;
+    --snow-text: #EAF2F0;
+    --snow-muted: #A9BDB9;
   }
   * { box-sizing: border-box; margin: 0; }
   html { scroll-behavior: smooth; }
@@ -35,77 +45,116 @@
   }
   .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
 
-  /* header */
-  header { padding: 28px 0; }
-  header .wrap { display: flex; align-items: baseline; gap: 10px; }
-  .wordmark { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; text-decoration: none; color: var(--ink); }
-  .wordmark span { color: var(--pine); }
-  header nav { margin-left: auto; }
-  header nav a { text-decoration: none; font-size: 15px; font-weight: 700; }
+  /* ---- night hero with CSS aurora ---- */
+  .night {
+    position: relative; overflow: hidden;
+    background: linear-gradient(180deg, var(--night) 0%, var(--night-2) 70%, #12242F 100%);
+    color: var(--snow-text);
+  }
+  .night::before, .night::after {
+    content: ""; position: absolute; pointer-events: none;
+    width: 900px; height: 520px; border-radius: 50%;
+    filter: blur(70px); opacity: .42;
+  }
+  .night::before {
+    right: -180px; top: -120px;
+    background: radial-gradient(ellipse at center, #2FBF8F 0%, #1F8A6D 40%, transparent 70%);
+    transform: rotate(-18deg);
+    animation: drift 26s ease-in-out infinite alternate;
+  }
+  .night::after {
+    right: 60px; top: 90px;
+    width: 640px; height: 360px; opacity: .28;
+    background: radial-gradient(ellipse at center, #74E0B8 0%, #2FBF8F 45%, transparent 72%);
+    transform: rotate(-32deg);
+    animation: drift 34s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes drift {
+    from { transform: rotate(-18deg) translateY(0); }
+    to   { transform: rotate(-10deg) translateY(46px); }
+  }
+  .ember-glow {
+    position: absolute; left: 0; right: 0; bottom: -140px; height: 280px;
+    background: radial-gradient(ellipse at 30% 100%, rgba(217,107,43,.16) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .night .inner { position: relative; z-index: 1; }
 
-  /* hero */
-  .hero { padding: 56px 0 72px; }
+  header { padding: 26px 0; }
+  header .wrap { display: flex; align-items: baseline; gap: 10px; }
+  .wordmark { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; text-decoration: none; color: var(--snow-text); }
+  .wordmark span { color: var(--pine-bright); }
+  header nav { margin-left: auto; }
+  header nav a { text-decoration: none; font-size: 15px; font-weight: 700; color: var(--snow-text); }
+
+  .hero { padding: 64px 0 88px; }
   .hero .wrap { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; }
   .kicker {
     font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--pine); font-weight: 500; margin-bottom: 18px;
+    color: var(--pine-bright); font-weight: 500; margin-bottom: 18px;
   }
   h1 {
-    font-size: clamp(36px, 5vw, 56px); line-height: 1.05;
+    font-size: clamp(38px, 5.2vw, 60px); line-height: 1.04;
     letter-spacing: -0.025em; font-weight: 700; margin-bottom: 20px;
   }
-  .hero p.lede { font-size: 19px; color: var(--muted); max-width: 44ch; margin-bottom: 30px; }
+  .hero p.lede { font-size: 19px; color: var(--snow-muted); max-width: 44ch; margin-bottom: 32px; }
   .cta {
     display: inline-block; background: var(--ember); color: #fff;
     text-decoration: none; font-weight: 700; font-size: 17px;
-    padding: 14px 26px; border-radius: 10px;
+    padding: 15px 28px; border-radius: 10px;
   }
-  .cta:hover { filter: brightness(1.07); }
-  .cta-side { margin-left: 16px; font-size: 15px; color: var(--muted); }
+  .cta:hover { filter: brightness(1.08); }
+  .cta-side { margin-left: 16px; font-size: 15px; color: var(--snow-muted); }
 
-  /* signature: the call transcript */
+  /* ---- the call card ---- */
   .call {
-    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-    padding: 22px 22px 18px; box-shadow: 0 18px 40px -28px rgba(20,35,46,.35);
+    background: var(--card); color: var(--ink);
+    border-radius: 16px; padding: 22px 22px 18px;
+    box-shadow: 0 30px 70px -30px rgba(0,0,0,.55);
   }
   .call-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
   .call-head .label { font-size: 12.5px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
   .wave { display: flex; align-items: center; gap: 3px; height: 26px; margin-left: auto; }
   .wave i {
     width: 3px; border-radius: 2px; background: var(--pine); height: 30%;
-    animation: wave 1.15s ease-in-out infinite;
+    animation: wave 1.15s ease-in-out infinite; animation-play-state: paused;
   }
+  .playing .wave i { animation-play-state: running; }
   @keyframes wave { 50% { height: 100%; } }
-  .line { display: flex; gap: 10px; margin-bottom: 12px; opacity: 0; animation: rise .5s ease forwards; }
+  .line { display: flex; gap: 10px; margin-bottom: 12px; border-radius: 10px; padding: 6px; margin-left: -6px; margin-right: -6px; transition: background .25s; }
+  .line.speaking { background: var(--pine-soft); }
   .line .who {
     flex-shrink: 0; font-size: 11.5px; font-weight: 500; letter-spacing: 0.08em;
     padding: 3px 8px; border-radius: 6px; height: fit-content; margin-top: 2px;
   }
   .line.caller .who { background: #E8EDF0; color: var(--muted); }
   .line.agent .who { background: var(--pine-soft); color: var(--pine); }
+  .line.speaking .who { background: var(--pine); color: #fff; }
   .line p { font-size: 15.5px; }
-  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .chip {
-    display: inline-flex; gap: 8px; align-items: center;
-    font-size: 12.5px; color: var(--pine); background: var(--pine-soft);
-    padding: 6px 12px; border-radius: 999px; margin-top: 4px;
-    opacity: 0; animation: rise .5s ease forwards;
+  .play-row { display: flex; align-items: center; gap: 14px; margin-top: 14px; }
+  .play {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--pine); color: #fff; border: none; cursor: pointer;
+    font-family: "Atkinson Hyperlegible", sans-serif; font-weight: 700; font-size: 15.5px;
+    padding: 11px 20px; border-radius: 999px;
   }
-  .foot-note { font-size: 12.5px; color: var(--muted); margin-top: 14px; }
+  .play:hover { background: #0C4F40; }
+  .play .tri { width: 0; height: 0; border-left: 10px solid #fff; border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
+  .playing .play .tri { border-left: none; border-right: none; width: 10px; height: 12px; border-left: 3px solid #fff; box-shadow: inset -7px 0 0 -4px #fff; }
+  .foot-note { font-size: 12.5px; color: var(--muted); }
 
-  /* sections */
-  section { padding: 64px 0; border-top: 1px solid var(--line); }
+  /* ---- light sections ---- */
+  section { padding: 68px 0; border-top: 1px solid var(--line); }
+  section.first { border-top: none; }
   h2 { font-size: clamp(26px, 3.4vw, 34px); letter-spacing: -0.02em; margin-bottom: 34px; }
-  .rows { display: grid; gap: 0; }
   .row {
     display: grid; grid-template-columns: 170px 1fr; gap: 24px;
     padding: 22px 0; border-top: 1px solid var(--line);
   }
-  .row:first-child { border-top: none; }
+  .rows .row:first-child { border-top: none; }
   .row .tag { font-size: 13px; color: var(--pine); letter-spacing: 0.1em; padding-top: 4px; }
   .row h3 { font-family: "Bricolage Grotesque", sans-serif; font-size: 21px; margin-bottom: 6px; letter-spacing: -0.01em; }
   .row p { color: var(--muted); max-width: 62ch; }
-
   .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
   .step .num {
     font-family: "Bricolage Grotesque", sans-serif; font-size: 42px; font-weight: 600;
@@ -113,16 +162,12 @@
   }
   .step h3 { font-family: "Bricolage Grotesque", sans-serif; font-size: 19px; margin-bottom: 6px; }
   .step p { color: var(--muted); font-size: 16px; }
-
   .note { font-size: 16px; color: var(--muted); max-width: 62ch; margin-top: 30px; }
 
-  /* contact */
-  .contact { text-align: center; padding: 84px 0; }
+  .contact { text-align: center; padding: 88px 0; }
   .contact h2 { margin-bottom: 12px; }
   .contact p { color: var(--muted); margin-bottom: 30px; }
-  footer {
-    border-top: 1px solid var(--line); padding: 26px 0; font-size: 14px; color: var(--muted);
-  }
+  footer { border-top: 1px solid var(--line); padding: 26px 0; font-size: 14px; color: var(--muted); }
   footer .wrap { display: flex; gap: 18px; flex-wrap: wrap; }
   footer .right { margin-left: auto; }
 
@@ -130,56 +175,66 @@
     .hero .wrap { grid-template-columns: 1fr; gap: 40px; }
     .steps { grid-template-columns: 1fr; }
     .row { grid-template-columns: 1fr; gap: 6px; }
+    .night::before { right: -320px; }
   }
   @media (prefers-reduced-motion: reduce) {
+    .night::before, .night::after { animation: none; }
     .wave i { animation: none; height: 60%; }
-    .line, .chip { animation: none; opacity: 1; }
     html { scroll-behavior: auto; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="wrap">
-    <a class="wordmark" href="/">Nevamis<span>&nbsp;AI</span></a>
-    <nav><a href="#contact">Start a conversation</a></nav>
-  </div>
-</header>
-
-<main>
-  <div class="hero">
-    <div class="wrap">
-      <div>
-        <div class="kicker mono">A Canadian AI studio</div>
-        <h1>AI assistants that do the work, not just the talking.</h1>
-        <p class="lede">Nevamis builds voice assistants and automation agents around the way your business already runs: answering calls, booking work, and finishing the paperwork.</p>
-        <a class="cta" href="mailto:Sales@nevamis.ca">Start a conversation</a>
-        <span class="cta-side mono">Sales@nevamis.ca</span>
+<div class="night">
+  <div class="ember-glow"></div>
+  <div class="inner">
+    <header>
+      <div class="wrap">
+        <a class="wordmark" href="/">Nevamis<span>&nbsp;AI</span></a>
+        <nav><a href="#contact">Start a conversation</a></nav>
       </div>
+    </header>
 
-      <div class="call" aria-label="Illustration of a voice assistant handling a booking call">
-        <div class="call-head">
-          <span class="label mono">Incoming call · 613</span>
-          <span class="wave" aria-hidden="true">
-            <i style="animation-delay:0s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.35s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i>
-          </span>
+    <div class="hero">
+      <div class="wrap">
+        <div>
+          <div class="kicker mono">A Canadian AI studio</div>
+          <h1>AI assistants that do the work, not just the talking.</h1>
+          <p class="lede">Nevamis builds voice assistants and automation agents around the way your business already runs: answering calls, booking work, and finishing the paperwork.</p>
+          <a class="cta" href="mailto:Sales@nevamis.ca">Start a conversation</a>
+          <span class="cta-side mono">Sales@nevamis.ca</span>
         </div>
-        <div class="line caller" style="animation-delay:.4s">
-          <span class="who mono">Caller</span>
-          <p>Hi, any chance you could fit in a hitch install this Saturday morning?</p>
+
+        <div class="call" id="callCard" aria-label="A voice assistant handling a booking call, with playable audio">
+          <div class="call-head">
+            <span class="label mono">Incoming call</span>
+            <span class="wave" aria-hidden="true">
+              <i style="animation-delay:0s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.35s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i>
+            </span>
+          </div>
+          <div class="line caller" id="lineCaller">
+            <span class="who mono">Caller</span>
+            <p>Hi, any chance you could fit in a hitch install this Saturday morning?</p>
+          </div>
+          <div class="line agent" id="lineAgent">
+            <span class="who mono">Agent</span>
+            <p>Saturday the 25th at 9 a.m. is open. You're booked, and I've just texted you the confirmation and what to bring.</p>
+          </div>
+          <div class="play-row">
+            <button class="play" id="playBtn" aria-label="Play this example call">
+              <span class="tri" aria-hidden="true"></span><span id="playLabel">Hear this call</span>
+            </button>
+            <span class="foot-note">Real AI voices. Illustrative booking.</span>
+          </div>
         </div>
-        <div class="line agent" style="animation-delay:1.6s">
-          <span class="who mono">Agent</span>
-          <p>Saturday the 25th at 9 a.m. is open. You're booked, and I've just texted you the confirmation and what to bring.</p>
-        </div>
-        <span class="chip" style="animation-delay:2.8s">✓ Booked · calendar updated · confirmation sent</span>
-        <p class="foot-note">An illustration of a Nevamis voice assistant at work.</p>
       </div>
     </div>
   </div>
+</div>
 
-  <section id="build">
+<main>
+  <section id="build" class="first">
     <div class="wrap">
       <h2>What we build</h2>
       <div class="rows">
@@ -248,6 +303,48 @@
     <span class="right mono">nevamis.ca</span>
   </div>
 </footer>
+
+<script>
+(function () {
+  var btn = document.getElementById("playBtn");
+  var label = document.getElementById("playLabel");
+  var card = document.getElementById("callCard");
+  var lineCaller = document.getElementById("lineCaller");
+  var lineAgent = document.getElementById("lineAgent");
+  var a1 = new Audio("assets/call-caller.mp3");
+  var a2 = new Audio("assets/call-agent.mp3");
+  a1.preload = "none"; a2.preload = "none";
+  var playing = false;
+
+  function reset() {
+    playing = false;
+    card.classList.remove("playing");
+    lineCaller.classList.remove("speaking");
+    lineAgent.classList.remove("speaking");
+    label.textContent = "Hear this call";
+  }
+  function stopAll() {
+    a1.pause(); a1.currentTime = 0;
+    a2.pause(); a2.currentTime = 0;
+    reset();
+  }
+  a1.addEventListener("play", function () { lineCaller.classList.add("speaking"); });
+  a1.addEventListener("ended", function () {
+    lineCaller.classList.remove("speaking");
+    a2.play();
+  });
+  a2.addEventListener("play", function () { lineAgent.classList.add("speaking"); });
+  a2.addEventListener("ended", reset);
+
+  btn.addEventListener("click", function () {
+    if (playing) { stopAll(); return; }
+    playing = true;
+    card.classList.add("playing");
+    label.textContent = "Playing…";
+    a1.play();
+  });
+})();
+</script>
 
 </body>
 </html>
