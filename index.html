@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="google-site-verification" content="vr6MDC3FTU0nLUvYzz7101_yCm6X10oStXyrIo66Arw">
 <title>Nevamis AI — AI receptionists and voice agents for Canadian businesses</title>
-<meta name="description" content="Nevamis builds voice assistants and automation agents around the way your business already runs: answering calls, booking work, and finishing the paperwork.">
+<meta name="description" content="An AI receptionist that answers your calls 24/7, books the job, and texts you the details. Built in Edmonton. Call the live demo: (587) 413-0035.">
 <meta property="og:title" content="Nevamis AI — AI receptionists and voice agents">
 <meta property="og:description" content="AI assistants that do the work, not just the talking. Hear one take a real booking call.">
 <meta property="og:type" content="website">
@@ -200,6 +200,22 @@
   .step p { color: var(--muted); font-size: 16px; }
   .note { font-size: 16px; color: var(--muted); max-width: 62ch; margin-top: 30px; }
 
+  .assure { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 36px; }
+  .assure p { color: var(--ink); font-size: 17px; max-width: 46ch; }
+  .assure .ok { color: var(--pine); font-weight: 700; margin-right: 10px; }
+
+  .callbar { display: none; }
+  @media (max-width: 820px) {
+    .assure { grid-template-columns: 1fr; }
+    .callbar {
+      display: flex; position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 50;
+      justify-content: center; background: var(--ember); color: #fff;
+      font-weight: 700; font-size: 17px; padding: 15px 10px; border-radius: 12px;
+      text-decoration: none; box-shadow: 0 10px 30px -10px rgba(0,0,0,.5);
+    }
+    body { padding-bottom: 78px; }
+  }
+
   .contact { text-align: center; padding: 88px 0; }
   .contact h2 { margin-bottom: 12px; }
   .contact p { color: var(--muted); margin-bottom: 30px; }
@@ -233,7 +249,7 @@
             <circle cx="32" cy="48" r="6" fill="#2FBF8F"/>
           </svg>
           Nevamis<span>&nbsp;AI</span></a>
-        <nav><a href="#contact">Start a conversation</a></nav>
+        <nav><a href="tel:+15874130035" class="mono">(587) 413-0035</a></nav>
       </div>
     </header>
 
@@ -241,10 +257,10 @@
       <div class="wrap">
         <div>
           <div class="kicker mono">A Canadian AI studio</div>
-          <h1>AI assistants that do the work, not just the talking.</h1>
-          <p class="lede">Nevamis builds voice assistants and automation agents around the way your business already runs: answering calls, booking work, and finishing the paperwork.</p>
+          <h1>An AI receptionist that answers your calls 24/7, books the job, and texts you the details.</h1>
+          <p class="lede">You're on a job. The phone rings. Our AI picks up, sounds human, books the customer in, and texts you what happened. No more jobs lost to voicemail.</p>
           <a class="cta" href="tel:+15874130035">Call our AI now&nbsp;&nbsp;→&nbsp;&nbsp;(587) 413-0035</a>
-          <span class="cta-side mono">It answers 24/7. Talk to it like one of your customers would.</span>
+          <span class="cta-side mono">Don't take our word for it. Call and judge it yourself.</span>
         </div>
 
         <div class="call" id="callCard" aria-label="A voice assistant handling a booking call, with playable audio">
@@ -297,27 +313,27 @@
 <main>
   <section id="build" class="first">
     <div class="wrap">
-      <h2>What we build</h2>
+      <h2>What it does for you</h2>
       <div class="rows">
         <div class="row">
-          <div class="tag mono">VOICE</div>
+          <div class="tag mono">ANSWERS</div>
           <div>
-            <h3>Voice assistants</h3>
-            <p>Answer every call in a natural voice: take bookings, handle the questions you answer forty times a week, and hand off to a human the moment it matters.</p>
+            <h3>Answers every call</h3>
+            <p>Day, night, weekends. It picks up on the first ring and sounds like a real person. Callers hang up on voicemail. They don't hang up on this.</p>
           </div>
         </div>
         <div class="row">
-          <div class="tag mono">AGENTS</div>
+          <div class="tag mono">BOOKS</div>
           <div>
-            <h3>Working agents</h3>
-            <p>Quotes, follow-ups, invoices, reports: the repetitive workflows that eat your week, running on their own and showing their work.</p>
+            <h3>Books the job on the spot</h3>
+            <p>It books the customer in and texts them a confirmation, so they don't call the next guy on the list.</p>
           </div>
         </div>
         <div class="row">
-          <div class="tag mono">CUSTOM</div>
+          <div class="tag mono">TEXTS</div>
           <div>
-            <h3>Custom builds</h3>
-            <p>Your data, your tools. We wire AI into the software you already use instead of asking you to switch.</p>
+            <h3>Texts you every lead</h3>
+            <p>After every call you get the name, the number, and what they want. Nothing slips through.</p>
           </div>
         </div>
       </div>
@@ -330,21 +346,33 @@
       <div class="steps">
         <div class="step">
           <div class="num">1</div>
-          <h3>Tell us the job</h3>
-          <p>One conversation. We map where your hours actually go and pick the first thing worth automating.</p>
+          <h3>Keep your number</h3>
+          <p>Your phone forwards to us after hours, or whenever you can't pick up. Nothing changes for your customers.</p>
         </div>
         <div class="step">
           <div class="num">2</div>
-          <h3>We build it</h3>
-          <p>A working assistant in weeks, tested against your real calls and real cases before it ever talks to a customer.</p>
+          <h3>We set it up for you</h3>
+          <p>We build your AI around your services, your prices, and your hours. Days, not months. You touch nothing technical.</p>
         </div>
         <div class="step">
           <div class="num">3</div>
-          <h3>It runs</h3>
-          <p>We watch it, tune it, and keep it sharp. You see everything it does.</p>
+          <h3>You stop missing calls</h3>
+          <p>It answers, books, and texts you the details. You just do the work.</p>
         </div>
       </div>
       <p class="note">Nevamis is a new Canadian studio. We take on a small number of builds at a time and stay close to each one.</p>
+    </div>
+  </section>
+
+  <section id="risk">
+    <div class="wrap">
+      <h2>Try it without risk</h2>
+      <div class="assure">
+        <p><span class="ok">✓</span>Free 7-day pilot. We set it up on your after-hours line tonight, you see every call it catches.</p>
+        <p><span class="ok">✓</span>Month to month. Cancel anytime. No contracts.</p>
+        <p><span class="ok">✓</span>30-day guarantee: if it doesn't capture calls worth more than it costs, that month is free. You judge, from the call log.</p>
+        <p><span class="ok">✓</span>Run by a real Edmonton founder. Questions go straight to Daren, not a ticket queue.</p>
+      </div>
     </div>
   </section>
 
@@ -365,6 +393,8 @@
     <span class="right mono">nevamis.ca</span>
   </div>
 </footer>
+
+<a class="callbar" href="tel:+15874130035">Call our AI now · (587) 413-0035</a>
 
 <script>
 (function () {
