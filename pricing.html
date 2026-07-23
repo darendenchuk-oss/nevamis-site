@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pricing | Nevamis AI</title>
 <meta name="description" content="Nevamis AI receptionist plans and what each includes.">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://nevamis.ca/pricing.html">
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%2302080D"/><path d="M 15 38 A 17 17 0 0 1 49 38" stroke="%2338E6A2" stroke-width="8" stroke-linecap="round" fill="none"/><circle cx="32" cy="48" r="6" fill="%2338E6A2"/></svg>'>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,6 +49,7 @@
     <button class="nav-toggle" aria-expanded="false" aria-controls="mainNav" aria-label="Menu">☰</button>
     <nav class="main-nav" id="mainNav" aria-label="Main">
       <a href="/#how">How It Works</a><a href="/#solutions">Solutions</a><a href="/#industries">Industries</a>
+      <a href="/pricing.html" aria-current="page">Pricing</a><a href="/pilot.html">7-Day Pilot</a>
       <a href="/demo.html">Demo</a><a href="/about.html">About</a>
       <a class="btn btn-ghost" href="tel:+15874130035">Call the AI</a>
       <a class="btn btn-primary" href="/book.html">Book a Call</a>
@@ -69,6 +71,16 @@
 
   <section class="light">
     <div class="wrap">
+      <div id="pilotBanner" style="background:var(--card);border:1px solid var(--signal-deep);border-radius:14px;padding:20px 24px;margin-bottom:30px">
+        <h3 style="font-size:19px;margin-bottom:6px" id="pilotName"></h3>
+        <p style="color:var(--muted);font-size:15px" id="pilotTagline"></p>
+        <p style="color:var(--muted);font-size:13.5px;margin-top:8px" id="pilotCaps"></p>
+        <p style="font-size:14.5px;margin-top:10px"><a href="/pilot.html">Everything about the pilot</a> · <a href="/book.html">Apply on a strategy call</a></p>
+      </div>
+      <div id="foundingBanner" style="background:#FFF6EF;border:1px solid #F6D9C6;border-radius:14px;padding:16px 24px;margin-bottom:30px" hidden>
+        <p style="font-size:15px;color:#A3441A;font-weight:700" id="foundingOffer"></p>
+        <p style="font-size:13px;color:var(--muted)" id="foundingNote"></p>
+      </div>
       <div class="plans" id="plans"><noscript><p>Plan details load with JavaScript. Email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a> for current pricing.</p></noscript></div>
 
       <div style="margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px">
@@ -139,6 +151,16 @@
   if (!P) return;
   if (!P.approved) document.getElementById("draftBanner").hidden = false;
   document.getElementById("pricingUpdated").textContent = "pricing updated " + P.lastUpdated;
+  if (P.pilot) {
+    document.getElementById("pilotName").textContent = P.pilot.name;
+    document.getElementById("pilotTagline").textContent = P.pilot.tagline + " " + P.pilot.dayEight;
+    document.getElementById("pilotCaps").textContent = P.pilot.caps + " " + P.pilot.start;
+  }
+  if (P.foundingClient && P.foundingClient.active) {
+    document.getElementById("foundingBanner").hidden = false;
+    document.getElementById("foundingOffer").textContent = "Founding clients: " + P.foundingClient.offer;
+    document.getElementById("foundingNote").textContent = P.foundingClient.note;
+  }
   document.getElementById("minuteDef").textContent = P.usagePolicy.minuteDef;
   document.getElementById("taxNote").textContent = P.taxNote;
   var notes = document.getElementById("usageNotes");

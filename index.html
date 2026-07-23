@@ -57,6 +57,7 @@
       <a href="/#how">How It Works</a>
       <a href="/#solutions">Solutions</a>
       <a href="/#industries">Industries</a>
+      <a href="/pricing.html">Pricing</a>
       <a href="/demo.html">Demo</a>
       <a href="/about.html">About</a>
       <a class="btn btn-ghost" href="tel:+15874130035" data-evt="hero_live_demo_call_click">Call the AI</a>
@@ -478,17 +479,34 @@
     </div>
   </section>
 
+  <!-- ================= PRICING PREVIEW ================= -->
+  <section class="light" id="pricing-preview" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">Pricing</p>
+        <h2>Clear plans. No surprises.</h2>
+      </div>
+      <div class="proc reveal" id="pricePreview">
+        <noscript><p>See <a href="/pricing.html">the pricing page</a> for current plans.</p></noscript>
+      </div>
+      <div class="midcta reveal" style="margin-top:22px">
+        <a class="btn btn-primary" href="/pricing.html" data-evt="pricing_view_click">Compare plans in detail</a>
+        <span class="mono" style="color:var(--muted);font-size:13px">Canadian dollars plus tax · month to month · cancel anytime</span>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= RISK REVERSAL + FOUNDER ================= -->
   <section class="light" id="risk" style="padding-top:0">
     <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">Try it without risk</p>
-        <h2>You judge it from the call log.</h2>
+        <h2>Prove it on your own phone line first.</h2>
       </div>
       <div class="assure">
-        <p class="reveal"><span class="ok">✓</span>Free 7-day pilot on your after-hours line. You see every call it catches.</p>
-        <p class="reveal"><span class="ok">✓</span>Month to month. Cancel anytime. No contracts.</p>
-        <p class="reveal"><span class="ok">✓</span>30-day guarantee: if it does not capture calls worth more than it costs, that month is free.</p>
+        <p class="reveal"><span class="ok">✓</span><strong>7-day live pilot.</strong> Seven live days on your after-hours line. No card. No automatic billing. You see every call it catches, then you decide.</p>
+        <p class="reveal"><span class="ok">✓</span>Month to month after that. Cancel anytime. No contracts.</p>
+        <p class="reveal"><span class="ok">✓</span><strong>Founding clients:</strong> the first five businesses get their setup fee waived, in exchange for honest feedback and permission to ask for a review.</p>
         <div class="founder reveal">
           <img src="assets/daren.jpg" alt="Daren, founder of Nevamis AI" width="104" height="104" loading="lazy">
           <p><strong>Daren · Founder</strong><br>A real Edmonton founder. Questions go to the person building your system, not a ticket queue.</p>
@@ -514,9 +532,10 @@
       <details><summary>Can it handle multiple locations or languages?</summary><p>Multi-location routing and additional languages are scoped during discovery, since the right setup depends on your call flows. Ask on the strategy call.</p></details>
       <details><summary>How long does setup take?</summary><p>Days, not months. Discovery, build, testing against your real scenarios, then a controlled pilot on your line.</p></details>
       <details><summary>Can I review calls and summaries?</summary><p>Yes. Every call produces a summary, and call review is part of how we tune your agent over time.</p></details>
-      <details><summary>What does it cost?</summary><p>Pricing is scoped to your call volume and configuration on a short strategy call, and service is month to month. It is designed to cost a fraction of staffing the phone.</p></details>
+      <details><summary>What does it cost?</summary><p>Plans start at $249 per month plus a one-time setup fee, in Canadian dollars. See the <a href="/pricing.html">pricing page</a> for what each plan includes; your exact fit is confirmed on a short strategy call. Month to month, cancel anytime.</p></details>
+      <details><summary>Is the 7-day pilot actually free?</summary><p>Yes. No card, no automatic billing, no charge. The pilot runs within set limits on one line, and on day eight it simply ends unless you explicitly choose a plan. Silence never becomes a subscription. Details on the <a href="/pilot.html">pilot page</a>.</p></details>
       <details><summary>How is customer information handled?</summary><p>Call details are used to run your service: booking, confirmations, and your summaries. See the privacy page for what this website itself collects. Businesses remain responsible for notices appropriate to their own jurisdiction and call-recording requirements.</p></details>
-      <details><summary>What if it is not a fit?</summary><p>Month to month, cancel anytime, and the 30-day guarantee above. The pilot exists so you can judge from real calls, not promises.</p></details>
+      <details><summary>What if it is not a fit?</summary><p>The free pilot exists so you can judge from real calls before paying anything. After that it is month to month and you can cancel anytime, effective at the next renewal.</p></details>
     </div>
   </section>
 
@@ -548,6 +567,7 @@
         <a href="/#how">How It Works</a>
         <a href="/#solutions">Solutions</a>
         <a href="/#industries">Industries</a>
+        <a href="/pricing.html">Pricing</a>
         <a href="/demo.html">Live Demo</a>
         <a href="/about.html">About</a>
         <a href="/book.html">Book a Call</a>
@@ -568,5 +588,23 @@
 <a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Call our AI now · (587) 413-0035</a>
 <script src="site.js" defer></script>
 <script src="motion.js" defer></script>
+<script src="pricing-config.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var P = window.NV_PRICING, wrap = document.getElementById("pricePreview");
+  if (!P || !P.approved || !wrap) return;
+  P.plans.forEach(function (pl) {
+    var d = document.createElement("div");
+    var h3 = document.createElement("h3");
+    h3.textContent = pl.name + (pl.recommended ? " · most common" : "");
+    var price = document.createElement("p");
+    price.innerHTML = "<strong style='font-size:24px;font-family:Bricolage Grotesque,sans-serif'>" + (pl.startingAt ? "from " : "") + "C$" + pl.monthly + "</strong>/month";
+    var meta = document.createElement("p");
+    meta.textContent = pl.includedMinutes + " AI minutes included · setup C$" + pl.setup + (pl.startingAt ? "+" : "");
+    d.appendChild(h3); d.appendChild(price); d.appendChild(meta);
+    wrap.appendChild(d);
+  });
+});
+</script>
 </body>
 </html>

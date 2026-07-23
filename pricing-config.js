@@ -1,15 +1,29 @@
 /* ============================================================
    NEVAMIS PRICING — SINGLE SOURCE OF TRUTH
-   approved:false = DRAFT. The pricing page renders a draft banner
-   and stays noindexed/unlinked until the owner flips approval AFTER
-   confirming every number. Do not duplicate these values in HTML.
+   APPROVED 2026-07-23 (owner-delegated, competitor-grounded; see
+   docs/commercial-model-decision.md). Commercial model: B
+   (true free 7-day live pilot + founding-client offer).
+   Do not duplicate these values in HTML — render from here.
    ============================================================ */
 window.NV_PRICING = {
-  approved: false,
+  approved: true,
   currency: "CAD",
   lastUpdated: "2026-07-23",
   taxNote: "Prices in Canadian dollars plus applicable tax.",
-  commercialModel: null, /* set to "A" | "B" | "C" after owner selection */
+  commercialModel: "B",
+  pilot: {
+    name: "7-day live pilot",
+    tagline: "Seven live days on your real line. No card. No automatic billing.",
+    caps: "One line, one call flow, one calendar. Up to 60 connected AI minutes or 30 calls, whichever comes first. One revision included.",
+    start: "The seven days start when your pilot goes live, not when you apply.",
+    dayEight: "On day eight the pilot simply ends unless you explicitly choose a plan. Silence never becomes a subscription."
+  },
+  foundingClient: {
+    active: true,
+    spots: 5,
+    offer: "Setup fee waived for our first five founding clients, in exchange for structured feedback and permission to ask for an honest review.",
+    note: "Real limit: founder-led onboarding caps how many builds run at once."
+  },
   usagePolicy: {
     minuteDef: "A connected AI minute starts when the AI answers a connected call and ends when the AI portion of the call ends.",
     notes: [
@@ -22,7 +36,7 @@ window.NV_PRICING = {
   plans: [
     {
       id: "after-hours", name: "After Hours",
-      monthly: 449, setup: 500, includedMinutes: 250,
+      monthly: 249, setup: 500, includedMinutes: 250,
       callRange: "80 to 125 typical calls", overage: 1.10,
       bestFor: "Small service businesses that mainly need evenings, weekends, and overflow covered.",
       features: [
@@ -35,7 +49,7 @@ window.NV_PRICING = {
     },
     {
       id: "growth", name: "Growth", recommended: true,
-      monthly: 749, setup: 1000, includedMinutes: 600,
+      monthly: 449, setup: 750, includedMinutes: 600,
       callRange: "200 to 300 typical calls", overage: 0.90,
       bestFor: "Growing businesses that want qualification, routing, and booking on a meaningful share of inbound calls.",
       features: [
@@ -50,7 +64,7 @@ window.NV_PRICING = {
     },
     {
       id: "scale", name: "Scale", startingAt: true,
-      monthly: 1249, setup: 1500, includedMinutes: 1200,
+      monthly: 849, setup: 1250, includedMinutes: 1200,
       callRange: "400 to 600 typical calls", overage: 0.75,
       bestFor: "Multi-location businesses and teams with higher volume or complex routing.",
       features: [
