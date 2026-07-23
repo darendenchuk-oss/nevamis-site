@@ -48,11 +48,14 @@
     <a class="wordmark" href="/"><svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M 15 38 A 17 17 0 0 1 49 38" stroke="#38E6A2" stroke-width="8" stroke-linecap="round"/><circle cx="32" cy="48" r="6" fill="#38E6A2"/></svg>Nevamis<span>&nbsp;AI</span></a>
     <button class="nav-toggle" aria-expanded="false" aria-controls="mainNav" aria-label="Menu">☰</button>
     <nav class="main-nav" id="mainNav" aria-label="Main">
-      <a href="/#how">How It Works</a><a href="/#solutions">Solutions</a><a href="/#industries">Industries</a>
-      <a href="/pricing.html" aria-current="page">Pricing</a><a href="/pilot.html">7-Day Pilot</a>
-      <a href="/demo.html">Demo</a><a href="/about.html">About</a>
-      <a class="btn btn-ghost" href="tel:+15874130035">Call the AI</a>
-      <a class="btn btn-primary" href="/book.html">Book a Call</a>
+      <a href="/#how">How It Works</a>
+      <a href="/pricing.html" aria-current="page">Pricing</a>
+      <a href="/pilot.html">7-Day Pilot</a>
+      <a href="/demo.html">Demo</a>
+      <a href="/coming-soon.html">Coming Soon</a>
+      <a href="/about.html">About</a>
+      <a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click">Call the AI</a>
+      <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a Call</a>
     </nav>
   </div>
 </header>
@@ -194,7 +197,7 @@
     var pick, why;
     if (loc === "3" || est > 900) { pick = P.plans[2]; why = "multiple locations or an estimated " + Math.round(est) + " minutes/month exceeds the Growth allowance"; }
     else if (mode === "full" || integ === "adv" || loc === "2" || est > 220) { pick = P.plans[1]; why = (mode === "full" ? "full-time coverage" : integ === "adv" ? "a CRM/automation connection" : loc === "2" ? "two lines or departments" : "an estimated " + Math.round(est) + " minutes/month") + " fits the Growth allowance and features"; }
-    else { pick = P.plans[0]; why = "after-hours coverage at an estimated " + Math.round(est) + " minutes/month fits comfortably in the included 250"; }
+    else { pick = P.plans[0]; why = "after-hours coverage at an estimated " + Math.round(est) + " minutes/month fits comfortably in the After Hours allowance"; }
     document.getElementById("rcResult").innerHTML =
       '<span class="mono">CLOSEST FIT</span><div style="font-size:20px;font-weight:700;font-family:\'Bricolage Grotesque\',sans-serif"></div><p></p>';
     document.querySelector("#rcResult div").textContent = pick.name + " · C$" + pick.monthly + "/month";

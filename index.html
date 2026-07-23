@@ -55,12 +55,12 @@
     <button class="nav-toggle" aria-expanded="false" aria-controls="mainNav" aria-label="Menu">☰</button>
     <nav class="main-nav" id="mainNav" aria-label="Main">
       <a href="/#how">How It Works</a>
-      <a href="/#solutions">Solutions</a>
-      <a href="/#industries">Industries</a>
       <a href="/pricing.html">Pricing</a>
+      <a href="/pilot.html">7-Day Pilot</a>
       <a href="/demo.html">Demo</a>
+      <a href="/coming-soon.html">Coming Soon</a>
       <a href="/about.html">About</a>
-      <a class="btn btn-ghost" href="tel:+15874130035" data-evt="hero_live_demo_call_click">Call the AI</a>
+      <a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click">Call the AI</a>
       <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a Call</a>
     </nav>
   </div>
@@ -87,13 +87,37 @@
       </div>
       <div>
         <div class="scene-frame hero-media">
-          <div class="state-chips" aria-hidden="true">
-            <span class="state-chip">CALL</span>
-            <span class="state-chip">QUALIFIED</span>
-            <span class="state-chip warm">BOOKED</span>
+          <div class="theatre" id="theatre" role="img" aria-label="An after-hours emergency call is answered by Nevamis, the need is captured, the job is booked, and the owner is notified, all while the crew keeps working">
+            <div class="th-top mono">
+              <span class="th-ring-dot" aria-hidden="true"></span>
+              <span id="thStatus">INCOMING CALL · 11:42 PM</span>
+              <span class="th-biz">PRAIRIE MECHANICAL · FICTIONAL DEMO</span>
+            </div>
+            <div class="th-stage" id="thStage">
+              <p class="th-context" id="thContext">The crew is on the tools. The business line rings.</p>
+              <blockquote class="th-quote" id="thQuote">&ldquo;Our furnace just died and it&rsquo;s minus twenty out.&rdquo;</blockquote>
+              <div class="th-cards">
+                <div class="th-card" id="thFacts" hidden>
+                  <span class="mono">CAPTURED</span>
+                  <span class="th-chip">Furnace failure</span>
+                  <span class="th-chip warm">Emergency</span>
+                  <span class="th-chip">Tonight</span>
+                </div>
+                <div class="th-card th-book" id="thBook" hidden>
+                  <span class="mono">BOOKED</span>
+                  <strong>On-call tech · tonight</strong>
+                </div>
+                <div class="th-card" id="thOwner" hidden>
+                  <span class="mono">OWNER NOTIFIED</span>
+                  <span>Urgent summary sent by text</span>
+                </div>
+              </div>
+            </div>
+            <ol class="th-rail" id="thRail" aria-hidden="true">
+              <li>Call</li><li>Answered</li><li>Captured</li><li>Booked</li><li>Notified</li>
+            </ol>
           </div>
-          <canvas id="signalScene" width="640" height="400" role="img" aria-label="Animated diagram: an incoming call signal travels through routing nodes and becomes a booked calendar appointment with a confirmation pulse"></canvas>
-          <div class="scene-caption mono"><span>SIGNAL → QUALIFIED → BOOKED</span><button class="motion-toggle-btn" aria-pressed="false">pause motion</button><span class="live">● SYSTEM ACTIVE</span></div>
+          <div class="scene-caption mono"><span>ANSWERED WHILE THE CREW KEEPS WORKING</span><button class="motion-toggle-btn" aria-pressed="false">pause motion</button><span class="live">● LIVE PRODUCT · (587) 413-0035</span></div>
         </div>
       </div>
     </div>
@@ -186,9 +210,9 @@
   <section class="light" id="simulator" data-spine>
     <div class="wrap">
       <div class="section-head reveal">
-        <p class="eyebrow mono">Interactive demonstration</p>
+        <p class="eyebrow mono">Behind the conversation</p>
         <h2>Watch Nevamis run the front desk.</h2>
-        <p>Three real situations, played step by step. Demonstration data with a fictional company: this shows how your rules drive every call.</p>
+        <p>You heard a real call above. This is what happens behind every conversation: answer, understand, check your rules, take action, confirm, report. Demonstration data, fictional company.</p>
       </div>
       <div class="sim reveal" id="sim">
         <div class="sim-head">
@@ -200,7 +224,25 @@
             <button data-scen="unusual" aria-pressed="false">Unusual request</button>
           </div>
         </div>
-        <div class="sim-body">
+        <div class="stage-rail" id="stageRail" aria-label="Call stages">
+          <span class="stage-pill">1 · Answer</span>
+          <span class="stage-pill">2 · Understand</span>
+          <span class="stage-pill">3 · Check rules</span>
+          <span class="stage-pill">4 · Take action</span>
+          <span class="stage-pill">5 · Confirm</span>
+          <span class="stage-pill">6 · Report</span>
+        </div>
+        <div class="sim-idle" id="simIdle">
+          <div class="ghost-rail" aria-hidden="true">
+            <span>Answer</span><span>Understand</span><span>Check rules</span><span>Take action</span><span>Confirm</span><span>Report</span>
+          </div>
+          <p>Pick a scenario above, then watch one call move through all six stages: what the AI hears, what it captures, which of your rules it checks, and exactly what the customer and the owner receive.</p>
+          <div class="cta-row" style="justify-content:center">
+            <button class="btn btn-primary" id="simWatch">Watch it run</button>
+            <button class="btn btn-light-ghost" id="simStepMode">Step through it</button>
+          </div>
+        </div>
+        <div class="sim-body" id="simBody" hidden>
           <div class="sim-col">
             <h3>Conversation</h3>
             <div class="sim-log"></div>
@@ -217,8 +259,8 @@
         </div>
         <div class="sim-controls">
           <button class="primary" data-sim-play>Play</button>
-          <button data-sim-back aria-label="Step back">◀ Step</button>
-          <button data-sim-fwd aria-label="Step forward">Step ▶</button>
+          <button data-sim-back><span aria-hidden="true">◀</span> <span data-back-label>Back</span></button>
+          <button data-sim-fwd><span data-fwd-label>Next: Answer</span> <span aria-hidden="true">▶</span></button>
           <button data-sim-replay>Replay</button>
           <div class="sim-progress" aria-hidden="true"><i></i></div>
           <span class="sim-elapsed">0:00 elapsed</span>
@@ -240,7 +282,7 @@
   </section>
 
   <!-- ================= SIGNAL PATH / HOW IT WORKS ================= -->
-  <section class="light" id="how" data-spine
+  <section class="light" id="how" data-spine>
     <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">The signal path</p>
@@ -515,6 +557,26 @@
     </div>
   </section>
 
+  <!-- ================= COMING SOON TEASER ================= -->
+  <section class="light" id="beyond" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">Where this goes</p>
+        <h2>The front desk is where we start.</h2>
+        <p>Nevamis is building connected AI systems for faster lead follow-up, cleaner customer tracking, quote recovery, reminders, reviews, and clearer owner reporting.</p>
+      </div>
+      <div class="proc reveal">
+        <div><h3>Instant Lead Follow-Up <span class="tagchip lit" style="opacity:1;font-size:10px;vertical-align:middle;background:#FBEFD8;color:#8A6210">PLANNED</span></h3><p>New leads get the approved follow-up immediately, instead of waiting until someone has time to respond.</p></div>
+        <div><h3>Automatic Lead Tracking <span class="tagchip lit" style="opacity:1;font-size:10px;vertical-align:middle;background:#FBEFD8;color:#8A6210">PLANNED</span></h3><p>Calls, forms, and follow-ups become organized customer records with visible next actions.</p></div>
+        <div><h3>Quote Recovery <span class="tagchip lit" style="opacity:1;font-size:10px;vertical-align:middle;background:#FBEFD8;color:#8A6210">PLANNED</span></h3><p>Open estimates get polite, timed follow-up until the customer decides, with staff alerted when they are ready.</p></div>
+      </div>
+      <div class="midcta reveal" style="margin-top:24px">
+        <a class="btn btn-light-ghost" href="/coming-soon.html" data-evt="roadmap_front_desk_cta_clicked">See what we are building</a>
+        <a class="btn btn-primary" href="/pilot.html">Start with the AI Front Desk</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= FAQ ================= -->
   <section class="light faq" id="faq" style="padding-top:0">
     <div class="wrap">
@@ -532,8 +594,8 @@
       <details><summary>Can it handle multiple locations or languages?</summary><p>Multi-location routing and additional languages are scoped during discovery, since the right setup depends on your call flows. Ask on the strategy call.</p></details>
       <details><summary>How long does setup take?</summary><p>Days, not months. Discovery, build, testing against your real scenarios, then a controlled pilot on your line.</p></details>
       <details><summary>Can I review calls and summaries?</summary><p>Yes. Every call produces a summary, and call review is part of how we tune your agent over time.</p></details>
-      <details><summary>What does it cost?</summary><p>Plans start at $249 per month plus a one-time setup fee, in Canadian dollars. See the <a href="/pricing.html">pricing page</a> for what each plan includes; your exact fit is confirmed on a short strategy call. Month to month, cancel anytime.</p></details>
-      <details><summary>Is the 7-day pilot actually free?</summary><p>Yes. No card, no automatic billing, no charge. The pilot runs within set limits on one line, and on day eight it simply ends unless you explicitly choose a plan. Silence never becomes a subscription. Details on the <a href="/pilot.html">pilot page</a>.</p></details>
+      <details><summary>What does it cost?</summary><p>Plans are month to month with a one-time setup fee, in Canadian dollars. Current numbers are on the <a href="/pricing.html">pricing page</a> for what each plan includes; your exact fit is confirmed on a short strategy call. Month to month, cancel anytime.</p></details>
+      <details><summary>Is the 7-day live pilot actually free?</summary><p>Yes. No card, no automatic billing, no charge. The pilot runs within set limits on one line, and on day eight it simply ends unless you explicitly choose a plan. Silence never becomes a subscription. Details on the <a href="/pilot.html">pilot page</a>.</p></details>
       <details><summary>How is customer information handled?</summary><p>Call details are used to run your service: booking, confirmations, and your summaries. See the privacy page for what this website itself collects. Businesses remain responsible for notices appropriate to their own jurisdiction and call-recording requirements.</p></details>
       <details><summary>What if it is not a fit?</summary><p>The free pilot exists so you can judge from real calls before paying anything. After that it is month to month and you can cancel anytime, effective at the next renewal.</p></details>
     </div>
@@ -565,13 +627,13 @@
       <div>
         <h4>Site</h4>
         <a href="/#how">How It Works</a>
-        <a href="/#solutions">Solutions</a>
         <a href="/#industries">Industries</a>
         <a href="/pricing.html">Pricing</a>
+        <a href="/pilot.html">7-Day Pilot</a>
         <a href="/demo.html">Live Demo</a>
+        <a href="/coming-soon.html">Coming Soon</a>
         <a href="/about.html">About</a>
-        <a href="/book.html">Book a Call</a>
-      </div>
+        <a href="/book.html">Book a Call</a>      </div>
       <div>
         <h4>Legal</h4>
         <a href="/privacy.html">Privacy</a>

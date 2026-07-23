@@ -6,7 +6,16 @@ Customer Portal) plus founder-verified state. Nothing here is live until the
 commercial model is selected (see commercial-model-decision.md) and prices are
 approved (pricing-config.js `approved: true`).
 
-## Recommended model (A): paid setup + 7-day risk-free launch
+> **SUPERSEDED 2026-07-23: the owner selected Model B (true free 7-day live
+> pilot) — see docs/commercial-model-decision.md. The Model A flow below is
+> retained as the documented alternative if pilot economics ever force a
+> change. Under Model B, payment enters only at step 8 of the published pilot
+> sequence: after the client explicitly chooses a plan, send the Stripe
+> checkout for setup fee (waived for the first 5 founding clients) + first
+> month; paid service and production onboarding start only after payment
+> succeeds.**
+
+## Documented alternative (A): paid setup + 7-day risk-free launch
 
 Timing:
 1. Strategy call → written service order (docs/service-order-template.md) → client accepts.

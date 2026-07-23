@@ -47,13 +47,9 @@
     } else sp.classList.add("in");
   });
 
-  /* ---------- hero media: video when the asset exists, canvas otherwise ---------- */
+  /* ---------- hero media: cinematic video when the asset exists, call theatre otherwise ---------- */
   var heroMedia = document.querySelector(".hero-media");
-  var chips = Array.prototype.slice.call(document.querySelectorAll(".state-chip"));
-  function setChip(i) {
-    chips.forEach(function (c, j) { c.classList.toggle("on", j <= i); });
-  }
-  if (heroMedia && chips.length) {
+  if (heroMedia) {
     fetch("assets/hero-loop.mp4", { method: "HEAD" }).then(function (r) {
       if (!r.ok) throw 0;
       var v = document.createElement("video");
@@ -62,32 +58,19 @@
       v.poster = "assets/hero-poster.webp";
       v.src = "assets/hero-loop.mp4";
       v.setAttribute("aria-hidden", "true");
-      var canvas = document.getElementById("signalScene");
-      if (canvas) canvas.style.display = "none";
+      var theatre = document.getElementById("theatre");
+      if (theatre) theatre.style.display = "none";
       heroMedia.prepend(v);
       if (motionOK()) {
         v.play().catch(function () {});
-        v.addEventListener("timeupdate", function () {
-          var p = v.duration ? v.currentTime / v.duration : 0;
-          setChip(p < 0.33 ? 0 : p < 0.75 ? 1 : 2);
-        });
         if ("IntersectionObserver" in window) {
           new IntersectionObserver(function (es) {
             es.forEach(function (e) { e.isIntersecting && motionOK() ? v.play().catch(function(){}) : v.pause(); });
           }).observe(v);
         }
       }
-    }).catch(function () {
-      /* no video yet: chips follow the canvas story clock (9 s cycle) */
-      if (!motionOK()) { setChip(2); return; }
-      var t0 = performance.now();
-      (function chipLoop() {
-        if (!motionOK()) { setChip(2); return; }
-        var c = ((performance.now() - t0) / 1000) % 9;
-        setChip(c < 1.6 ? 0 : c < 5.2 ? 1 : 2);
-        setTimeout(chipLoop, 400);
-      })();
-    });
+      document.addEventListener("visibilitychange", function () { if (document.hidden) v.pause(); });
+    }).catch(function () { /* no video asset yet: the call theatre carries the hero */ });
   }
 
   /* ---------- capability rail ---------- */
@@ -216,14 +199,33 @@
     booked: "Booked", confirming: "Confirmation sent", summarizing: "Owner summary sent",
     complete: "Complete", escalated: "Urgent transfer", fallback: "Safe fallback"
   };
-  var cur = "routine", idx = -1, timer = null, playing = false;
+  var STAGES = ["Answer", "Understand", "Check rules", "Take action", "Confirm", "Report"];
+  var STATE_STAGE = {
+    ringing: 0, answered: 0, listening: 1, extracting: 1, checking_rules: 2,
+    selecting_slot: 3, booked: 3, escalated: 3, fallback: 3, confirming: 4,
+    summarizing: 5, complete: 5
+  };
+  var cur = "routine", idx = -1, timer = null, playing = false, lastStage = -1;
   var el = {
     log: sim.querySelector(".sim-log"), chips: sim.querySelector(".sim-chips"),
     rules: sim.querySelector(".sim-rules"), outcome: sim.querySelector(".sim-outcome"),
     state: sim.querySelector("[data-sim-state]"), progress: sim.querySelector(".sim-progress i"),
     elapsed: sim.querySelector(".sim-elapsed"), live: sim.querySelector("[data-sim-live]"),
-    play: sim.querySelector("[data-sim-play]")
+    play: sim.querySelector("[data-sim-play]"),
+    rail: Array.prototype.slice.call(sim.querySelectorAll(".stage-pill")),
+    idle: document.getElementById("simIdle"), body: document.getElementById("simBody"),
+    watch: document.getElementById("simWatch"), stepMode: document.getElementById("simStepMode"),
+    backLabel: sim.querySelector("[data-back-label]"), fwdLabel: sim.querySelector("[data-fwd-label]")
   };
+  function showBody() {
+    if (el.idle) el.idle.hidden = true;
+    if (el.body) el.body.hidden = false;
+  }
+  function stageOf(i) {
+    var steps = scen ? scen().steps : null;
+    if (!steps || i < 0) return -1;
+    return STATE_STAGE[steps[Math.min(i, steps.length - 1)].st] || 0;
+  }
   function scen() { return SCEN[cur]; }
   /* SAFETY INVARIANT: everything rendered below via innerHTML comes from the
      hardcoded SCEN constants in this file. Never interpolate user input,
@@ -272,10 +274,23 @@
       '<div class="sim-out-card' + (out.transfer ? " on warm" : "") + '"><span class="mono">TRANSFER</span>' + (out.transfer ? "Live transfer to on-call tech" : "Not needed") + "</div>" +
       '<div class="sim-out-card' + (out.confirm || out.message ? " on" : "") + '"><span class="mono">CUSTOMER</span>' + (out.confirm ? "SMS confirmation sent" : out.message ? "Callback promised" : "Waiting") + "</div>" +
       '<div class="sim-out-card' + (out.sum ? " on" : "") + '"><span class="mono">OWNER SUMMARY</span>' + (out.sum || "Arrives when the call completes") + "</div>";
-    /* state, progress, elapsed */
+    /* state, stage rail, progress, elapsed */
     var label = idx < 0 ? "Idle" : (STATE_LABEL[steps[Math.min(idx, steps.length - 1)].st] || "");
     el.state.textContent = label;
-    if (el.live) el.live.textContent = scen().label + ": " + label;
+    var stg = stageOf(idx);
+    el.rail.forEach(function (p, j) {
+      p.classList.toggle("active", j === stg);
+      p.classList.toggle("done", j < stg);
+    });
+    if (el.live && stg !== lastStage) {
+      el.live.textContent = stg < 0 ? "" : "Stage " + (stg + 1) + " of 6: " + STAGES[stg];
+      lastStage = stg;
+    }
+    if (el.backLabel) el.backLabel.textContent = stg > 0 ? STAGES[Math.max(stageOf(idx - 1), 0)] : "Back";
+    if (el.fwdLabel) {
+      var nextStg = idx >= steps.length - 1 ? null : stageOf(idx + 1);
+      el.fwdLabel.textContent = nextStg === null ? "Done" : "Next: " + STAGES[nextStg];
+    }
     var frac = steps.length > 1 ? Math.max(idx, 0) / (steps.length - 1) : 0;
     el.progress.style.transform = "scaleX(" + frac + ")";
     var secs = Math.round(Math.max(idx, 0) * 3.5);
@@ -292,9 +307,16 @@
     b.addEventListener("click", function () {
       sim.querySelectorAll(".sim-scenarios button").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
       b.setAttribute("aria-pressed", "true");
-      cur = b.getAttribute("data-scen"); stop(); idx = -1; render();
+      cur = b.getAttribute("data-scen"); stop(); idx = -1; showBody(); render();
       playing = true; el.play.textContent = "Pause"; tick();
     });
+  });
+  if (el.watch) el.watch.addEventListener("click", function () {
+    showBody(); idx = -1; render();
+    playing = true; el.play.textContent = "Pause"; tick();
+  });
+  if (el.stepMode) el.stepMode.addEventListener("click", function () {
+    showBody(); stop(); idx = 0; render();
   });
   el.play.addEventListener("click", function () {
     if (playing) { stop(); return; }

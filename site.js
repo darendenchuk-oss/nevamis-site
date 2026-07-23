@@ -68,100 +68,70 @@
     reveals.forEach(function (el) { el.classList.add("in"); });
   }
 
-  /* ---------- signal scene: call becomes booking (code-native hero art) ---------- */
-  var scene = document.getElementById("signalScene");
-  if (scene && scene.getContext) {
-    var ctx = scene.getContext("2d");
-    var W = 640, H = 400, dpr = Math.min(window.devicePixelRatio || 1, 2);
-    scene.width = W * dpr; scene.height = H * dpr;
-    ctx.scale(dpr, dpr);
-    var nodes = [
-      { x: 70,  y: 300 }, { x: 180, y: 240 }, { x: 300, y: 280 },
-      { x: 400, y: 200 }, { x: 500, y: 240 }
+  /* ---------- hero call theatre (replaces the retired signal graph) ---------- */
+  var th = document.getElementById("theatre");
+  if (th) {
+    var thStatus = document.getElementById("thStatus");
+    var thContext = document.getElementById("thContext");
+    var thQuote = document.getElementById("thQuote");
+    var thFacts = document.getElementById("thFacts");
+    var thBook = document.getElementById("thBook");
+    var thOwner = document.getElementById("thOwner");
+    var thRail = Array.prototype.slice.call(document.querySelectorAll("#thRail li"));
+    var TH = [
+      { s: "INCOMING CALL · 11:42 PM", c: "The crew is on the tools. The business line rings.", q: null },
+      { s: "ANSWERED · FIRST RING", c: "Nevamis picks up in the business's own tone.", q: "“Prairie Mechanical, how can I help you tonight?”", agent: true },
+      { s: "LISTENING", c: "The caller explains. The facts are captured as they speak.", q: "“Our furnace just died and it’s minus twenty out.”" , facts: true },
+      { s: "ACTION TAKEN", c: "Emergency rule passes. The on-call tech is locked in.", q: null, facts: true, book: true },
+      { s: "CALL COMPLETE · BOOKED", c: "Work never stopped. The owner knows everything.", q: null, facts: true, book: true, owner: true }
     ];
-    var calx = 520, caly = 90, calw = 84, calh = 96;
-    var t0 = performance.now(), running = false;
-    function drawStatic(prog, pulse) {
-      ctx.clearRect(0, 0, W, H);
-      /* routing grid dots */
-      ctx.fillStyle = "rgba(241,245,242,.05)";
-      for (var gx = 20; gx < W; gx += 40) for (var gy = 20; gy < H; gy += 40) ctx.fillRect(gx, gy, 2, 2);
-      /* path */
-      ctx.strokeStyle = "rgba(56,230,162,.22)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(nodes[0].x, nodes[0].y);
-      for (var i = 1; i < nodes.length; i++) ctx.lineTo(nodes[i].x, nodes[i].y);
-      ctx.lineTo(calx + calw / 2, caly + calh + 8);
-      ctx.stroke();
-      /* nodes */
-      nodes.forEach(function (n) {
-        ctx.fillStyle = "rgba(2,8,13,.9)";
-        ctx.strokeStyle = "rgba(56,230,162,.5)";
-        ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.arc(n.x, n.y, 7, 0, 7); ctx.fill(); ctx.stroke();
+    var thTimer = null, thIdx = -1, thRunning = false;
+    function thCard(el, on) {
+      if (!el) return;
+      el.hidden = !on;
+      requestAnimationFrame(function () { el.classList.toggle("on", on); });
+    }
+    function thApply(i) {
+      var st = TH[i];
+      th.setAttribute("data-state", String(i));
+      thStatus.textContent = st.s;
+      thContext.textContent = st.c;
+      if (st.q) {
+        thQuote.textContent = st.q;
+        thQuote.classList.add("on");
+        thQuote.classList.toggle("agent", !!st.agent);
+      } else {
+        thQuote.classList.remove("on");
+      }
+      thCard(thFacts, !!st.facts);
+      thCard(thBook, !!st.book);
+      thCard(thOwner, !!st.owner);
+      thRail.forEach(function (li, j) {
+        li.classList.toggle("on", j <= i);
+        li.classList.toggle("warm", j === 3 && i >= 3);
       });
-      /* calendar block */
-      ctx.strokeStyle = "rgba(241,245,242,.35)";
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(calx, caly, calw, calh);
-      for (var r = 1; r < 4; r++) {
-        ctx.beginPath(); ctx.moveTo(calx, caly + r * (calh / 4)); ctx.lineTo(calx + calw, caly + r * (calh / 4)); ctx.stroke();
-      }
-      /* booked cell glow */
-      var glow = prog >= 1 ? (0.55 + 0.45 * Math.sin(pulse * 2.2)) : Math.max(0, (prog - .82) / .18);
-      if (glow > 0) {
-        ctx.fillStyle = "rgba(255,122,61," + (0.55 * glow) + ")";
-        ctx.fillRect(calx + 2, caly + calh / 4 + 2, calw - 4, calh / 4 - 4);
-        ctx.shadowColor = "rgba(255,122,61,.9)"; ctx.shadowBlur = 18 * glow;
-        ctx.fillRect(calx + 2, caly + calh / 4 + 2, calw - 4, calh / 4 - 4);
-        ctx.shadowBlur = 0;
-      }
-      /* travelling signal */
-      if (prog < 1) {
-        var segs = nodes.concat([{ x: calx + calw / 2, y: caly + calh + 8 }]);
-        var total = segs.length - 1, f = prog * total, si = Math.min(Math.floor(f), total - 1), sf = f - si;
-        var ax = segs[si].x + (segs[si + 1].x - segs[si].x) * sf;
-        var ay = segs[si].y + (segs[si + 1].y - segs[si].y) * sf;
-        ctx.fillStyle = "rgba(56,230,162,1)";
-        ctx.shadowColor = "rgba(56,230,162,.95)"; ctx.shadowBlur = 16;
-        ctx.beginPath(); ctx.arc(ax, ay, 5.5, 0, 7); ctx.fill();
-        ctx.shadowBlur = 0;
-        /* trailing waveform ticks near the dot */
-        ctx.strokeStyle = "rgba(56,230,162,.5)";
-        for (var w = 1; w <= 4; w++) {
-          var wx = ax - w * 10, wh = 6 + Math.sin(prog * 40 + w) * 5;
-          ctx.beginPath(); ctx.moveTo(wx, ay - wh); ctx.lineTo(wx, ay + wh); ctx.stroke();
-        }
-      }
-      /* confirmation ring after booking */
-      if (prog >= 1) {
-        var ring = (pulse % 2.4) / 2.4;
-        ctx.strokeStyle = "rgba(56,230,162," + (0.6 * (1 - ring)) + ")";
-        ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(calx + calw / 2, caly + calh / 2 + calh / 8, 16 + ring * 42, 0, 7); ctx.stroke();
-      }
     }
-    function loop(now) {
-      if (!running) return;
-      var t = (now - t0) / 1000;
-      var cycle = t % 9;                       /* 9 s story loop */
-      var prog = Math.min(cycle / 5.2, 1);     /* signal travels ~5 s, then booked state holds */
-      drawStatic(prog, cycle);
-      requestAnimationFrame(loop);
+    function thFinal() { thApply(TH.length - 1); }
+    function thStep() {
+      if (!thRunning) return;
+      thIdx = (thIdx + 1) % TH.length;
+      thApply(thIdx);
+      thTimer = setTimeout(thStep, thIdx === TH.length - 1 ? 3400 : 2400);
     }
-    function startScene() { if (!running && motionAllowed() && !document.hidden) { running = true; requestAnimationFrame(loop); } }
-    function stopScene() { running = false; }
-    if (motionOff) { drawStatic(1, 1.1); }
+    function thStart() { if (!thRunning && motionAllowed() && !document.hidden) { thRunning = true; thStep(); } }
+    function thStop() { thRunning = false; clearTimeout(thTimer); }
+    if (motionOff) { thFinal(); }
     else {
       if ("IntersectionObserver" in window) {
         new IntersectionObserver(function (es) {
-          es.forEach(function (e) { e.isIntersecting ? startScene() : stopScene(); });
-        }, { rootMargin: "60px" }).observe(scene);
-      } else startScene();
-      document.addEventListener("visibilitychange", function () { document.hidden ? stopScene() : startScene(); });
+          es.forEach(function (e) { e.isIntersecting ? thStart() : thStop(); });
+        }, { rootMargin: "60px" }).observe(th);
+      } else thStart();
+      document.addEventListener("visibilitychange", function () { document.hidden ? thStop() : thStart(); });
     }
-    if (mBtn) mBtn.addEventListener("click", function () { motionAllowed() ? startScene() : (stopScene(), drawStatic(1, 1.1)); });
+    if (mBtn) mBtn.addEventListener("click", function () {
+      if (motionAllowed()) { thIdx = -1; thStart(); } else { thStop(); thFinal(); }
+    });
   }
 
   /* ---------- call player with waveform progress ---------- */

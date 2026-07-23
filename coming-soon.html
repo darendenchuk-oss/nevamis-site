@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en-CA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coming Soon: AI Growth and Operations Systems | Nevamis</title>
+<meta name="description" content="See the AI follow-up, lead tracking, quote recovery, scheduling, customer reactivation, reporting, and operations systems Nevamis is exploring for service businesses.">
+<link rel="canonical" href="https://nevamis.ca/coming-soon.html">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="The front desk is only the beginning | Nevamis AI">
+<meta property="og:description" content="The connected AI systems Nevamis is building for service businesses: instant follow-up, lead tracking, quote recovery, and more.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nevamis.ca/coming-soon.html">
+<meta property="og:site_name" content="Nevamis AI">
+<meta property="og:locale" content="en_CA">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+ {"@type":"ListItem","position":1,"name":"Home","item":"https://nevamis.ca/"},
+ {"@type":"ListItem","position":2,"name":"Coming Soon","item":"https://nevamis.ca/coming-soon.html"}]}
+</script>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%2302080D"/><path d="M 15 38 A 17 17 0 0 1 49 38" stroke="%2338E6A2" stroke-width="8" stroke-linecap="round" fill="none"/><circle cx="32" cy="48" r="6" fill="%2338E6A2"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .truth { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; font-size: 14px; color: var(--muted); max-width: 62ch; }
+  .stage-band { font-family: "Spline Sans Mono", monospace; font-size: 11px; letter-spacing: .16em; color: var(--signal-deep); margin: 44px 0 16px; }
+  .svc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .svc {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .svc.now { border-color: var(--signal-deep); }
+  .svc .status { font-family: "Spline Sans Mono", monospace; font-size: 9.5px; letter-spacing: .12em; padding: 4px 9px; border-radius: 999px; width: fit-content; }
+  .svc .status.available { background: #DDF2E9; color: var(--signal-deep); }
+  .svc .status.planned { background: #FBEFD8; color: #8A6210; }
+  .svc .status.researching { background: #E8EDF0; color: var(--muted); }
+  .svc h3 { font-size: 18px; }
+  .svc p { font-size: 14px; color: var(--muted); flex: 1; }
+  .svc .outcome { font-size: 13px; color: var(--ink); font-weight: 700; }
+  .svc ul { list-style: none; padding: 0; margin: 0; }
+  .svc li { font-size: 13px; color: var(--muted); padding: 3px 0 3px 18px; position: relative; }
+  .svc li::before { content: "·"; position: absolute; left: 6px; color: var(--signal-deep); font-weight: 700; }
+  .svc .interest { align-self: flex-start; font-size: 13.5px; font-weight: 700; background: none; border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-family: inherit; color: var(--ink); min-height: 40px; }
+  .svc .interest:hover { border-color: var(--signal-deep); color: var(--signal-deep); }
+  @media (max-width: 900px) { .svc-grid { grid-template-columns: 1fr; } }
+  /* journey */
+  .journey { background: var(--ink); color: var(--frost); border-radius: 16px; padding: 26px; }
+  .journey h3 { font-size: 19px; margin-bottom: 4px; }
+  .journey .sub { color: var(--muted-dark); font-size: 14px; margin-bottom: 18px; }
+  .j-mods { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .j-mod {
+    font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer;
+    background: rgba(241,245,242,.06); color: var(--muted-dark);
+    border: 1px solid var(--line-dark); border-radius: 999px; padding: 8px 14px; min-height: 40px;
+  }
+  .j-mod[aria-pressed="true"] { background: rgba(56,230,162,.14); color: var(--signal); border-color: var(--signal-deep); }
+  .j-steps { display: grid; gap: 7px; }
+  .j-step { display: flex; gap: 10px; align-items: baseline; font-size: 14.5px; padding: 8px 12px; border-radius: 9px; border: 1px solid transparent; color: var(--muted-dark); transition: color .3s, border-color .3s, background .3s; }
+  .j-step .mono { font-size: 10px; letter-spacing: .1em; flex-shrink: 0; width: 130px; color: inherit; }
+  .j-step.base { color: var(--frost); border-color: rgba(56,230,162,.35); }
+  .j-step.on { color: var(--frost); background: rgba(56,230,162,.07); border-color: var(--signal-deep); }
+  .j-step.on .mono { color: var(--signal); }
+  /* scenario */
+  .scenario ol { padding-left: 22px; color: var(--muted); display: grid; gap: 8px; font-size: 15px; }
+  .scenario li strong { color: var(--ink); }
+  /* form */
+  .interest-form { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
+  .interest-form .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+  .interest-form label { font-weight: 700; font-size: 14px; display: block; margin-bottom: 5px; }
+  .interest-form input, .interest-form select, .interest-form textarea {
+    width: 100%; padding: 11px 12px; font-size: 15px; border: 1px solid var(--line);
+    border-radius: 9px; font-family: inherit; background: var(--frost); min-height: 44px;
+  }
+  .interest-form textarea { min-height: 74px; resize: vertical; }
+  .interest-form .full { grid-column: 1 / -1; }
+  .svc-checks { display: flex; flex-wrap: wrap; gap: 8px; }
+  .svc-checks label { display: inline-flex; align-items: center; gap: 7px; font-weight: 400; font-size: 13.5px; border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; cursor: pointer; margin: 0; min-height: 40px; }
+  .svc-checks input { width: auto; min-height: 0; accent-color: #0E8F6A; }
+  .form-note { font-size: 12.5px; color: var(--muted); margin-top: 12px; max-width: 68ch; }
+  @media (max-width: 700px) { .interest-form .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/"><svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M 15 38 A 17 17 0 0 1 49 38" stroke="#38E6A2" stroke-width="8" stroke-linecap="round"/><circle cx="32" cy="48" r="6" fill="#38E6A2"/></svg>Nevamis<span>&nbsp;AI</span></a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="mainNav" aria-label="Menu">☰</button>
+    <nav class="main-nav" id="mainNav" aria-label="Main">
+      <a href="/#how">How It Works</a>
+      <a href="/pricing.html">Pricing</a>
+      <a href="/pilot.html">7-Day Pilot</a>
+      <a href="/demo.html">Demo</a>
+      <a href="/coming-soon.html" aria-current="page">Coming Soon</a>
+      <a href="/about.html">About</a>
+      <a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click">Call the AI</a>
+      <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a Call</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="dark hero" style="padding-bottom:56px">
+    <div class="grid-lines" aria-hidden="true"></div>
+    <div class="glow" style="width:600px;height:380px;right:-140px;top:-80px" aria-hidden="true"></div>
+    <div class="wrap" style="grid-template-columns:1fr;max-width:880px">
+      <div>
+        <p class="eyebrow mono">What we are building</p>
+        <h1 style="font-size:clamp(38px,5.6vw,68px)">The front desk is only the beginning.</h1>
+        <p class="lede">Nevamis is building a connected set of AI systems that help service businesses capture more opportunities, follow up faster, reduce repetitive office work, and understand what is actually producing revenue.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary btn-lg" href="#interest" data-evt="roadmap_service_interest_clicked">Tell us what would help your business</a>
+          <a class="btn btn-ghost btn-lg" href="/#proof" data-evt="roadmap_front_desk_cta_clicked">Start with the AI Front Desk</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="light">
+    <div class="wrap">
+      <p class="truth reveal" id="truthStatement">These services are in development or planned. Availability, features, integrations, and pricing may change as we test them with real businesses.</p>
+
+      <div class="stage-band reveal">NOW · LIVE TODAY</div>
+      <div class="svc-grid" id="gridNow"></div>
+
+      <div class="stage-band reveal">NEXT · THE CLOSEST ADDITIONS</div>
+      <div class="svc-grid" id="gridNext"></div>
+
+      <div class="stage-band reveal">FUTURE · THE DIRECTION</div>
+      <div class="svc-grid" id="gridFuture"></div>
+      <noscript><p style="margin-top:16px;color:var(--muted)">The full roadmap loads with JavaScript. In short: the AI Front Desk is live today; instant lead follow-up, automatic lead tracking, and quote recovery are the next planned additions; scheduling protection, owner briefings, reviews, reactivation, and revenue reporting follow. Email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a> for details.</p></noscript>
+    </div>
+  </section>
+
+  <section class="light" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">One connected system</p>
+        <h2>See how Nevamis grows with your business.</h2>
+        <p>The AI Front Desk already runs the first three steps. Switch on a planned module to see where the same customer journey goes next.</p>
+      </div>
+      <div class="journey reveal" id="journey">
+        <h3>The journey of one customer inquiry</h3>
+        <p class="sub">Solid steps run today. Toggle the planned modules to extend the journey.</p>
+        <div class="j-mods" role="group" aria-label="Toggle planned modules">
+          <button class="j-mod" aria-pressed="false" data-mod="followup">+ Instant Follow-Up</button>
+          <button class="j-mod" aria-pressed="false" data-mod="tracking">+ Lead Tracking</button>
+          <button class="j-mod" aria-pressed="false" data-mod="quotes">+ Quote Recovery</button>
+          <button class="j-mod" aria-pressed="false" data-mod="reviews">+ Review Requests</button>
+          <button class="j-mod" aria-pressed="false" data-mod="brief">+ Daily Brief</button>
+          <button class="j-mod" aria-pressed="false" data-mod="revenue">+ Revenue Clarity</button>
+        </div>
+        <div class="j-steps">
+          <div class="j-step base"><span class="mono">TODAY</span>Call answered, caller qualified, job booked, owner notified</div>
+          <div class="j-step" data-for="followup"><span class="mono">FOLLOW-UP</span>Missed inquiries get an instant approved text or email response</div>
+          <div class="j-step" data-for="tracking"><span class="mono">TRACKED</span>Every inquiry becomes an organized record with a next action</div>
+          <div class="j-step" data-for="quotes"><span class="mono">QUOTE RECOVERED</span>Open estimates get polite, timed follow-up until a decision</div>
+          <div class="j-step" data-for="reviews"><span class="mono">REVIEW REQUESTED</span>Completed jobs trigger an approved review and referral request</div>
+          <div class="j-step" data-for="brief"><span class="mono">OWNER INFORMED</span>One daily brief: leads, bookings, follow-ups due, urgent issues</div>
+          <div class="j-step" data-for="revenue"><span class="mono">REVENUE ATTRIBUTED</span>Collected revenue traced back to the source that produced it</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="light scenario" style="padding-top:0">
+    <div class="wrap" style="max-width:820px">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">Illustrative future workflow · fictional company</p>
+        <h2>One after-hours call, start to finish.</h2>
+        <p>A local HVAC company gets a no-cooling call at 9 PM. Here is the connected journey these systems are designed to run.</p>
+      </div>
+      <ol class="reveal">
+        <li><strong>The AI Front Desk answers</strong> on the first ring. (Live today.)</li>
+        <li><strong>Service area and urgency are checked</strong> against the company's approved rules. (Live today.)</li>
+        <li><strong>An appointment is booked</strong> or the call escalates to the on-call tech. (Live today.)</li>
+        <li><strong>The customer record updates</strong> automatically with the call summary. (Planned.)</li>
+        <li><strong>The customer gets confirmation</strong> by text. (Live today.)</li>
+        <li><strong>The owner gets the summary.</strong> (Live today.)</li>
+        <li><strong>The open estimate gets approved follow-up</strong> until the customer decides. (Planned.)</li>
+        <li><strong>The completed job triggers a feedback request</strong>, and happy customers are invited to review. (Planned.)</li>
+        <li><strong>A maintenance reminder becomes eligible</strong> next season. (Planned.)</li>
+        <li><strong>Collected revenue is linked back</strong> to that original 9 PM call. (Planned.)</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="light" id="interest" style="padding-top:0">
+    <div class="wrap" style="max-width:880px">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">Help us prioritize</p>
+        <h2>Tell us what would help your business.</h2>
+        <p>This is how we decide what to build next. No contract, no commitment, no spam.</p>
+      </div>
+      <form class="interest-form reveal" id="interestForm" novalidate>
+        <div class="grid">
+          <div><label for="ifName">Name</label><input id="ifName" name="name" autocomplete="name" required></div>
+          <div><label for="ifBiz">Business name</label><input id="ifBiz" name="business" autocomplete="organization" required></div>
+          <div><label for="ifEmail">Business email</label><input id="ifEmail" name="email" type="email" autocomplete="email" required></div>
+          <div><label for="ifPhone">Phone (optional)</label><input id="ifPhone" name="phone" type="tel" autocomplete="tel"></div>
+          <div><label for="ifIndustry">Industry</label>
+            <select id="ifIndustry" name="industry">
+              <option>Electrical</option><option>HVAC / Plumbing</option><option>Restoration / Property services</option>
+              <option>Automotive</option><option>Other service business</option>
+            </select>
+          </div>
+          <div><label for="ifResult">Which result matters most?</label>
+            <select id="ifResult" name="result">
+              <option>More leads answered</option><option>Faster follow-up</option><option>More appointments</option>
+              <option>More accepted quotes</option><option>Fewer no-shows</option><option>More repeat customers</option>
+              <option>Less office administration</option><option>Better reporting</option>
+            </select>
+          </div>
+          <div class="full"><label>Services you are interested in</label>
+            <div class="svc-checks" id="svcChecks"></div>
+          </div>
+          <div class="full"><label for="ifProblem">Biggest current problem (one or two sentences)</label>
+            <textarea id="ifProblem" name="problem"></textarea>
+          </div>
+          <div class="full"><label style="display:inline-flex;gap:8px;align-items:baseline;font-weight:400;font-size:14px">
+            <input type="checkbox" id="ifConsent" required style="width:auto;min-height:0"> I agree Nevamis may contact me about the services I selected.
+          </label></div>
+        </div>
+        <div class="cta-row" style="margin-top:18px">
+          <button type="submit" class="btn btn-primary" data-evt="roadmap_form_submitted">Send it to Nevamis</button>
+        </div>
+        <p class="form-note">Sending opens a pre-filled email to Sales@nevamis.ca in your own mail app, so you can see exactly what you are sending. Submitting does not create a contract, guarantee access, or start a paid service.</p>
+        <p class="form-note" id="ifStatus" role="status"></p>
+      </form>
+    </div>
+  </section>
+
+  <section class="dark final-cta">
+    <div class="glow" style="width:600px;height:400px;left:50%;top:-140px;transform:translateX(-50%);opacity:.25" aria-hidden="true"></div>
+    <div class="wrap">
+      <p class="eyebrow mono">Available today</p>
+      <h2>The starting point is live right now.</h2>
+      <p>Everything above builds on the AI Front Desk. Hear it answer before you think about any of the rest.</p>
+      <div class="cta-row" style="justify-content:center">
+        <a class="btn btn-primary btn-lg" href="/pilot.html" data-evt="roadmap_front_desk_cta_clicked">Start with the 7-day live pilot</a>
+        <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Call the live AI · (587) 413-0035</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="light faq">
+    <div class="wrap" style="max-width:820px">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">Straight answers</p>
+        <h2>Coming Soon questions.</h2>
+      </div>
+      <details><summary>Are these services available now?</summary><p>No. Only the AI Front Desk is available today. Everything else on this page is planned or being researched, and may change as we test with real businesses.</p></details>
+      <details><summary>Can I start with just the AI Front Desk?</summary><p>Yes, that is the intended starting point. It works on its own, and future services are designed to build on it.</p></details>
+      <details><summary>Will I be able to buy one service without the whole stack?</summary><p>That is the plan. Services are designed to be modular, so you add what your business actually needs.</p></details>
+      <details><summary>Will these work with my current software?</summary><p>Compatibility is confirmed per business before anything is promised. We never claim an integration exists until it is implemented and tested.</p></details>
+      <details><summary>Will AI send messages or change records without approval?</summary><p>No. Sensitive actions like pricing, complaints, and unusual replies are designed to require human approval, and message templates are approved by you first.</p></details>
+      <details><summary>How will my customer information be protected?</summary><p>Data is used only to run the service you configure, with retention and access rules agreed before launch. See our privacy page for how this website itself behaves.</p></details>
+      <details><summary>Will this replace my employees?</summary><p>The goal is to remove repetitive phone and office work, not people. Humans stay in charge of judgment calls, pricing, and anything unusual.</p></details>
+      <details><summary>Can I get into an early pilot?</summary><p>Maybe. Use the interest form and tell us your biggest problem. If your business fits an early test, we will contact you directly.</p></details>
+      <details><summary>Does submitting interest lock me into anything?</summary><p>No. It is feedback that shapes what we build, nothing more.</p></details>
+      <details><summary>How will future pricing work?</summary><p>Future pricing is not set. Each service will get clear pricing before it launches, the same way the current plans are published.</p></details>
+      <details><summary>Can I suggest a different workflow?</summary><p>Yes, please do. The form has a free-text field for exactly that, and the best suggestions shape the roadmap.</p></details>
+      <details><summary>How will Nevamis know a service is working?</summary><p>Each service has a defined success metric before it launches, like response time for follow-up or recovered revenue for quotes, measured against your baseline.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h4>Nevamis AI</h4>
+        <p>AI receptionists for Canadian businesses. Answers 24/7, qualifies callers, books the job, and sends you the details.</p>
+        <p style="margin-top:10px"><a href="tel:+15874130035" class="mono">(587) 413-0035</a><a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>Edmonton, Alberta, Canada</p>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <a href="/#how">How It Works</a>
+        <a href="/#industries">Industries</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/pilot.html">7-Day Pilot</a>
+        <a href="/demo.html">Live Demo</a>
+        <a href="/coming-soon.html">Coming Soon</a>
+        <a href="/about.html">About</a>
+        <a href="/book.html">Book a Call</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+      </div>
+    </div>
+    <div class="base">
+      <span>© 2026 Nevamis AI</span>
+      <span class="right mono">nevamis.ca</span>
+    </div>
+  </div>
+</footer>
+
+<a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Call our AI now · (587) 413-0035</a>
+<script src="roadmap-config.js"></script>
+<script src="site.js" defer></script>
+<script src="motion.js" defer></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var R = window.NV_ROADMAP;
+  if (!R) return;
+  window.nvTrack && window.nvTrack("coming_soon_page_view");
+  document.getElementById("truthStatement").textContent = R.truthStatement;
+  var grids = { now: document.getElementById("gridNow"), next: document.getElementById("gridNext"), future: document.getElementById("gridFuture") };
+  var statusLabel = { available: "AVAILABLE NOW", private_pilot: "PRIVATE PILOT", planned: "PLANNED", researching: "BEING RESEARCHED", paused: "PAUSED" };
+  R.services.forEach(function (s) {
+    var g = grids[s.stage]; if (!g) return;
+    var d = document.createElement("div");
+    d.className = "svc" + (s.stage === "now" ? " now" : "");
+    var h = '<span class="status ' + s.status + '"></span><h3></h3><p class="desc"></p>';
+    if (s.functions) h += "<ul>" + s.functions.map(function () { return "<li></li>"; }).join("") + "</ul>";
+    h += '<p class="outcome"></p>';
+    h += s.status === "available"
+      ? '<a class="btn btn-primary" style="align-self:flex-start;font-size:14px;padding:10px 18px" href="' + s.cta + '">Start here</a>'
+      : '<button class="interest" data-svc="' + s.slug + '" data-name="' + s.name + '">Tell us this would help</button>';
+    d.innerHTML = h;
+    d.querySelector(".status").textContent = statusLabel[s.status] || s.status;
+    d.querySelector("h3").textContent = s.name;
+    d.querySelector(".desc").textContent = s.desc;
+    if (s.functions) { var lis = d.querySelectorAll("li"); s.functions.forEach(function (f, i) { lis[i].textContent = f; }); }
+    d.querySelector(".outcome").textContent = s.outcome || "";
+    g.appendChild(d);
+  });
+  /* service checkboxes in the form */
+  var checks = document.getElementById("svcChecks");
+  R.services.filter(function (s) { return s.status !== "available"; }).forEach(function (s) {
+    var l = document.createElement("label");
+    var c = document.createElement("input");
+    c.type = "checkbox"; c.value = s.name; c.setAttribute("data-slug", s.slug);
+    l.appendChild(c); l.appendChild(document.createTextNode(s.name));
+    checks.appendChild(l);
+  });
+  /* interest buttons preselect + scroll */
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest(".interest");
+    if (!b) return;
+    window.nvTrack && window.nvTrack("roadmap_service_interest_clicked", { service: b.getAttribute("data-svc") });
+    var c = checks.querySelector('input[data-slug="' + b.getAttribute("data-svc") + '"]');
+    if (c) c.checked = true;
+    document.getElementById("interest").scrollIntoView({ behavior: "smooth" });
+  });
+  /* preselect via ?service= */
+  var qs = new URLSearchParams(location.search).get("service");
+  if (qs) { var pc = checks.querySelector('input[data-slug="' + qs + '"]'); if (pc) pc.checked = true; }
+  /* journey toggles */
+  document.querySelectorAll(".j-mod").forEach(function (m) {
+    m.addEventListener("click", function () {
+      var on = m.getAttribute("aria-pressed") !== "true";
+      m.setAttribute("aria-pressed", String(on));
+      var step = document.querySelector('.j-step[data-for="' + m.getAttribute("data-mod") + '"]');
+      if (step) step.classList.toggle("on", on);
+      window.nvTrack && window.nvTrack("roadmap_module_activated", { module: m.getAttribute("data-mod"), on: on });
+    });
+  });
+  /* interest form: real outcome via prefilled mailto (no backend exists; nothing fake) */
+  var form = document.getElementById("interestForm");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var status = document.getElementById("ifStatus");
+    if (!form.reportValidity()) return;
+    var sel = Array.prototype.map.call(checks.querySelectorAll("input:checked"), function (c) { return c.value; });
+    var body = [
+      "Coming Soon interest submission",
+      "Name: " + document.getElementById("ifName").value,
+      "Business: " + document.getElementById("ifBiz").value,
+      "Email: " + document.getElementById("ifEmail").value,
+      "Phone: " + (document.getElementById("ifPhone").value || "not given"),
+      "Industry: " + document.getElementById("ifIndustry").value,
+      "Result that matters most: " + document.getElementById("ifResult").value,
+      "Services: " + (sel.join(", ") || "none selected"),
+      "Biggest problem: " + (document.getElementById("ifProblem").value || "not given")
+    ].join("\n");
+    window.nvTrack && window.nvTrack("roadmap_form_submitted", { services: sel.length });
+    location.href = "mailto:Sales@nevamis.ca?subject=" + encodeURIComponent("Coming Soon interest: " + document.getElementById("ifBiz").value) + "&body=" + encodeURIComponent(body);
+    status.textContent = "Your email app should open with everything pre-filled. Press send there and it lands directly with the founder. Thanks: this genuinely shapes what gets built next.";
+  });
+});
+</script>
+</body>
+</html>
