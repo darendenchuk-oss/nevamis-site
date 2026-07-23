@@ -1,0 +1,42 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; box-sizing:border-box; }
+  body { width:1440px; height:760px; overflow:hidden; background:#08111A;
+    display:flex; align-items:center; justify-content:center; gap:80px;
+    font-family:"Spline Sans Mono",monospace; }
+  .cell { width:600px; text-align:center; }
+  .tile { width:600px; height:600px; background:linear-gradient(165deg,#0B1620 0%,#10222E 100%);
+    border-radius:24px; display:flex; align-items:center; justify-content:center; }
+  .lab { margin-top:20px; font-size:22px; letter-spacing:.18em; color:#7FA99F; }
+</style></head>
+<body>
+  <div class="cell">
+    <div class="tile">
+      <svg width="420" height="420" viewBox="0 0 420 420" fill="none">
+        <defs>
+          <linearGradient id="ga" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#0E5C4B"/><stop offset=".55" stop-color="#2FBF8F"/><stop offset="1" stop-color="#9FF0CE"/>
+          </linearGradient>
+        </defs>
+        <path d="M 210 52 C 96 150, 322 230, 210 368" stroke="url(#ga)" stroke-width="58" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="lab">A · AURORA RIBBON</div>
+  </div>
+  <div class="cell">
+    <div class="tile">
+      <svg width="420" height="420" viewBox="0 0 420 420" fill="none">
+        <defs>
+          <linearGradient id="gb" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#0E5C4B"/><stop offset=".5" stop-color="#2FBF8F"/><stop offset="1" stop-color="#9FF0CE"/>
+          </linearGradient>
+        </defs>
+        <path d="M 80 250 A 130 130 0 0 1 340 250" stroke="url(#gb)" stroke-width="52" stroke-linecap="round"/>
+        <circle cx="210" cy="322" r="34" fill="#2FBF8F"/>
+      </svg>
+    </div>
+    <div class="lab">B · NORTHERN DAWN</div>
+  </div>
+</body></html>
