@@ -1,28 +1,42 @@
 # Prelaunch checklist — items needing Daren's confirmation
 
-Everything else is built, tested, and live. These need the owner:
+Updated for Phase 2 (2026-07-23). Everything not listed here is built, tested,
+and live.
 
-1. **Confirm the published offers** (home `#risk` + FAQ): free 7-day pilot,
-   month-to-month / cancel anytime, 30-day guarantee tied to captured call
-   value. They are live now because they were on the approved previous site.
-   If any is not an offer you will honour, say so and the copy changes.
+## Blocking decisions (Phase 2 checkpoint)
 
-2. **Higgsfield hero media** (optional but planned): either run the prompts in
-   `docs/higgsfield-prompts.md` on higgsfield.ai now (1,200 website-only trial
-   credits), or after the trial converts tell Claude to generate via API.
-   The code-native hero scene stands on its own until then.
+1. **Commercial model — pick A, B, or C** (docs/commercial-model-decision.md).
+   A = paid setup + 7-day risk-free launch (recommended) · B = true free pilot
+   · C = credited deposit. Until picked, the site keeps the previously
+   approved offer copy, and the pilot/launch page is not built.
 
-3. **Higgsfield trial decision — tonight:** the Plus trial auto-converts
-   around 11:17 PM MT July 23. Keep it (1,000 credits/mo, unlocks API
-   generation) or say "cancel auto-renewal" before then.
+2. **Pricing approval** (pricing-config.js, currently `approved: false`;
+   preview at nevamis.ca/pricing.html — unlinked + noindexed, draft-bannered):
+   - After Hours: C$449/mo, C$500 setup, 250 min, C$1.10 overage
+   - Growth: C$749/mo, C$1,000 setup, 600 min, C$0.90 overage
+   - Scale: from C$1,249/mo, C$1,500 setup, 1,200 min, C$0.75 overage
+   Approve, change numbers, or reject. Only after approval: flip
+   `approved: true`, link Pricing in the nav, remove noindex, add the homepage
+   pricing preview, and align FAQ/Terms.
+   **Pricing-approval checklist:** [ ] amounts confirmed [ ] setup-fee-vs-hours
+   sanity check (docs/pilot-unit-economics.md) [ ] model selected [ ] Terms
+   updated [ ] Stripe products created to match [ ] old test products archived.
 
-4. **Analytics provider:** choose GA4 or Plausible when you want measurement;
-   wiring instructions are in README. The event layer is inert until then.
+3. **Higgsfield media** — API still blocked by the trial
+   (`only_website_usage_on_trial_is_available`, verified 2026-07-23). Either:
+   (a) generate manually on higgsfield.ai now with the 1,200 website credits
+   (prompts in docs/higgsfield-prompts.md), or (b) after tonight's trial
+   conversion tell Claude "generate the hero media" (keyframes → your pick →
+   animation). Integration is pre-wired: files dropped in assets/ auto-swap in.
 
-5. **Legal review (eventually):** privacy.html and terms.html are accurate,
-   plain-language starting points written from what the site actually does.
-   Worth a lawyer's pass before serious scale, not before launch.
+## Standing items
 
-6. **og:image:** no social-share image is set yet (waiting on hero media).
-   After the Higgsfield still exists: save as `assets/og-card.jpg` and ask
-   Claude to add the `og:image` tags across pages.
+4. **Offers on the live site** (free 7-day pilot / month-to-month / 30-day
+   guarantee): carried from the approved site; superseded the moment you pick
+   a commercial model in item 1.
+5. **Analytics provider** (GA4 or Plausible): wiring in README; event layer inert.
+6. **Legal review** of privacy/terms before serious scale; plus pilot/launch
+   policy page once the model is chosen.
+7. **og:image** once hero media exists (assets/og-card.jpg + tags).
+8. **Founder video** (optional, real recording only): 30–60s; page is complete
+   without it.

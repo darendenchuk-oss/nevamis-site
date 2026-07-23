@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en-CA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing | Nevamis AI</title>
+<meta name="description" content="Nevamis AI receptionist plans and what each includes.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%2302080D"/><path d="M 15 38 A 17 17 0 0 1 49 38" stroke="%2338E6A2" stroke-width="8" stroke-linecap="round" fill="none"/><circle cx="32" cy="48" r="6" fill="%2338E6A2"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .draft-banner { background: #FBEFD8; color: #8A6210; padding: 12px 24px; text-align: center; font-weight: 700; font-size: 14.5px; }
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: start; }
+  .plan { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
+  .plan.rec { border-color: var(--signal-deep); box-shadow: 0 18px 48px -28px rgba(14,143,106,.45); }
+  .plan .rec-tag { font-family: "Spline Sans Mono", monospace; font-size: 10.5px; letter-spacing: .12em; color: var(--signal-deep); }
+  .plan h3 { font-size: 23px; margin: 6px 0 2px; }
+  .plan .price { font-family: "Bricolage Grotesque", sans-serif; font-size: 38px; font-weight: 700; letter-spacing: -.02em; }
+  .plan .price span { font-size: 15px; font-weight: 400; color: var(--muted); font-family: "Atkinson Hyperlegible", sans-serif; }
+  .plan .setup { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
+  .plan .usage { font-size: 14px; background: var(--frost); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; margin-bottom: 14px; }
+  .plan ul { list-style: none; padding: 0; margin: 0 0 16px; }
+  .plan li { font-size: 14px; color: var(--muted); padding: 5px 0 5px 20px; position: relative; }
+  .plan li::before { content: "✓"; position: absolute; left: 0; color: var(--signal-deep); font-weight: 700; }
+  .plan .best { font-size: 13.5px; color: var(--ink); border-top: 1px solid var(--line); padding-top: 12px; }
+  @media (max-width: 900px) { .plans { grid-template-columns: 1fr; } }
+  .rc { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 26px; margin-top: 40px; }
+  .rc h3 { font-size: 20px; margin-bottom: 14px; }
+  .rc .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 22px; }
+  .rc label { font-weight: 700; font-size: 14.5px; display: block; margin-bottom: 6px; }
+  .rc select, .rc input { width: 100%; padding: 11px 12px; font-size: 15px; border: 1px solid var(--line); border-radius: 9px; font-family: inherit; background: var(--frost); min-height: 44px; }
+  .rc-result { margin-top: 18px; background: var(--ink); color: var(--frost); border-radius: 12px; padding: 18px 20px; }
+  .rc-result .mono { color: var(--signal); font-size: 11.5px; letter-spacing: .1em; }
+  .rc-result p { font-size: 14.5px; color: var(--muted-dark); margin-top: 6px; }
+  @media (max-width: 700px) { .rc .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="draft-banner" id="draftBanner" hidden>DRAFT PRICING PREVIEW · Not approved for publication. Numbers come from pricing-config.js and require owner approval.</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/"><svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M 15 38 A 17 17 0 0 1 49 38" stroke="#38E6A2" stroke-width="8" stroke-linecap="round"/><circle cx="32" cy="48" r="6" fill="#38E6A2"/></svg>Nevamis<span>&nbsp;AI</span></a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="mainNav" aria-label="Menu">☰</button>
+    <nav class="main-nav" id="mainNav" aria-label="Main">
+      <a href="/#how">How It Works</a><a href="/#solutions">Solutions</a><a href="/#industries">Industries</a>
+      <a href="/demo.html">Demo</a><a href="/about.html">About</a>
+      <a class="btn btn-ghost" href="tel:+15874130035">Call the AI</a>
+      <a class="btn btn-primary" href="/book.html">Book a Call</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="dark hero" style="padding-bottom:48px">
+    <div class="grid-lines" aria-hidden="true"></div>
+    <div class="wrap" style="grid-template-columns:1fr;max-width:900px">
+      <div>
+        <p class="eyebrow mono">Pricing</p>
+        <h1 style="font-size:clamp(38px,5.6vw,68px)">Clear plans. Predictable usage.</h1>
+        <p class="lede">Every plan is a configured, maintained system: built with you, tested against your real calls, and tuned over time.</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="light">
+    <div class="wrap">
+      <div class="plans" id="plans"><noscript><p>Plan details load with JavaScript. Email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a> for current pricing.</p></noscript></div>
+
+      <div style="margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px">
+        <h3 style="font-size:17px;margin-bottom:8px">How usage works</h3>
+        <p id="minuteDef" style="font-size:14.5px;color:var(--muted)"></p>
+        <ul id="usageNotes" style="font-size:14px;color:var(--muted);padding-left:20px;margin-top:8px"></ul>
+        <p id="taxNote" style="font-size:13px;color:var(--muted);margin-top:10px"></p>
+      </div>
+
+      <div class="rc" id="recommender">
+        <h3>Which plan fits? Answer four questions.</h3>
+        <div class="grid">
+          <div>
+            <label for="rcVol">Approximate inbound calls per month</label>
+            <input type="number" id="rcVol" min="0" value="150" inputmode="numeric">
+          </div>
+          <div>
+            <label for="rcMode">Coverage needed</label>
+            <select id="rcMode">
+              <option value="after">After hours / overflow only</option>
+              <option value="full">Full-time front line</option>
+            </select>
+          </div>
+          <div>
+            <label for="rcLoc">Locations or departments</label>
+            <select id="rcLoc">
+              <option value="1">One</option>
+              <option value="2">Two</option>
+              <option value="3">Three or more</option>
+            </select>
+          </div>
+          <div>
+            <label for="rcInt">Need booking or a standard integration?</label>
+            <select id="rcInt">
+              <option value="basic">Booking into one calendar</option>
+              <option value="adv">Booking + CRM/automation connection</option>
+            </select>
+          </div>
+        </div>
+        <div class="rc-result" id="rcResult" aria-live="polite"></div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:10px">Guidance only. Your exact quote is scoped on the strategy call. Nothing you enter here is transmitted.</p>
+      </div>
+
+      <div class="midcta" style="margin-top:34px">
+        <a class="btn btn-primary btn-lg" href="/book.html">Book a strategy call</a>
+        <a class="btn btn-light-ghost btn-lg" href="tel:+15874130035">Call the live AI</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="base">
+      <span>© 2026 Nevamis AI</span>
+      <a href="/privacy.html" style="display:inline">Privacy</a>
+      <a href="/terms.html" style="display:inline">Terms</a>
+      <span class="right mono" id="pricingUpdated"></span>
+    </div>
+  </div>
+</footer>
+
+<script src="pricing-config.js"></script>
+<script src="site.js" defer></script>
+<script>
+(function () {
+  var P = window.NV_PRICING;
+  if (!P) return;
+  if (!P.approved) document.getElementById("draftBanner").hidden = false;
+  document.getElementById("pricingUpdated").textContent = "pricing updated " + P.lastUpdated;
+  document.getElementById("minuteDef").textContent = P.usagePolicy.minuteDef;
+  document.getElementById("taxNote").textContent = P.taxNote;
+  var notes = document.getElementById("usageNotes");
+  P.usagePolicy.notes.forEach(function (n) { var li = document.createElement("li"); li.textContent = n; notes.appendChild(li); });
+  var wrap = document.getElementById("plans");
+  P.plans.forEach(function (pl) {
+    var d = document.createElement("div");
+    d.className = "plan" + (pl.recommended ? " rec" : "");
+    var h = "";
+    if (pl.recommended) h += '<div class="rec-tag">MOST COMMON</div>';
+    h += "<h3></h3>";
+    h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + pl.monthly + "<span>/month</span></div>";
+    h += '<div class="setup">One-time setup: C$' + pl.setup + (pl.startingAt ? "+" : "") + "</div>";
+    h += '<div class="usage">' + pl.includedMinutes + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
+    h += "<ul>" + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
+    h += '<div class="best"><strong>Best for:</strong> <span></span></div>';
+    d.innerHTML = h;
+    d.querySelector("h3").textContent = pl.name;
+    var lis = d.querySelectorAll("li");
+    pl.features.forEach(function (f, i) { lis[i].textContent = f; });
+    d.querySelector(".best span").textContent = pl.bestFor;
+    wrap.appendChild(d);
+  });
+  /* recommender */
+  function recommend() {
+    var vol = parseFloat(document.getElementById("rcVol").value) || 0;
+    var mode = document.getElementById("rcMode").value;
+    var loc = document.getElementById("rcLoc").value;
+    var integ = document.getElementById("rcInt").value;
+    var est = vol * 2.5; /* est. minutes at ~2.5 min/call */
+    var pick, why;
+    if (loc === "3" || est > 900) { pick = P.plans[2]; why = "multiple locations or an estimated " + Math.round(est) + " minutes/month exceeds the Growth allowance"; }
+    else if (mode === "full" || integ === "adv" || loc === "2" || est > 220) { pick = P.plans[1]; why = (mode === "full" ? "full-time coverage" : integ === "adv" ? "a CRM/automation connection" : loc === "2" ? "two lines or departments" : "an estimated " + Math.round(est) + " minutes/month") + " fits the Growth allowance and features"; }
+    else { pick = P.plans[0]; why = "after-hours coverage at an estimated " + Math.round(est) + " minutes/month fits comfortably in the included 250"; }
+    document.getElementById("rcResult").innerHTML =
+      '<span class="mono">CLOSEST FIT</span><div style="font-size:20px;font-weight:700;font-family:\'Bricolage Grotesque\',sans-serif"></div><p></p>';
+    document.querySelector("#rcResult div").textContent = pick.name + " · C$" + pick.monthly + "/month";
+    document.querySelector("#rcResult p").textContent = "Why: " + why + ". Estimated usage assumes about 2.5 minutes per call; your real average is confirmed during the pilot.";
+  }
+  ["rcVol", "rcMode", "rcLoc", "rcInt"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", recommend);
+    document.getElementById(id).addEventListener("change", recommend);
+  });
+  recommend();
+})();
+</script>
+</body>
+</html>

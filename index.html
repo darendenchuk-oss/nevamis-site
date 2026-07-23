@@ -73,17 +73,24 @@
     <div class="glow" style="width:700px;height:420px;right:-160px;top:-100px" aria-hidden="true"></div>
     <div class="wrap">
       <div>
-        <p class="eyebrow mono">Edmonton-built AI receptionists</p>
-        <h1>Never miss another call.</h1>
-        <p class="lede">Nevamis answers your business line 24/7, <strong>qualifies the caller</strong>, <strong>books the job</strong>, and <strong>sends you the details</strong>. You keep working. Your customers get answered.</p>
-        <div class="cta-row">
-          <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a strategy call</a>
-          <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="hero_live_demo_call_click">Call the live AI</a>
+        <p class="eyebrow mono" data-stagger="1">Edmonton-built AI receptionists</p>
+        <h1 data-stagger="2">Never miss another call.</h1>
+        <p class="lede" data-stagger="3">Nevamis answers your business line 24/7, <strong>qualifies the caller</strong>, <strong>books the job</strong>, and <strong>sends you the details</strong>. You keep working. Your customers get answered.</p>
+        <div data-stagger="4">
+          <div class="cta-row">
+            <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a strategy call</a>
+            <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="hero_live_demo_call_click">Call the live AI</a>
+          </div>
+          <p class="proof">Live demo line: <a class="mono" href="tel:+15874130035">(587) 413-0035</a> · It answers on the first ring. Try to stump it.</p>
         </div>
-        <p class="proof">Live demo line: <a class="mono" href="tel:+15874130035">(587) 413-0035</a> · It answers on the first ring. Try to stump it.</p>
       </div>
       <div>
-        <div class="scene-frame">
+        <div class="scene-frame hero-media">
+          <div class="state-chips" aria-hidden="true">
+            <span class="state-chip">CALL</span>
+            <span class="state-chip">QUALIFIED</span>
+            <span class="state-chip warm">BOOKED</span>
+          </div>
           <canvas id="signalScene" width="640" height="400" role="img" aria-label="Animated diagram: an incoming call signal travels through routing nodes and becomes a booked calendar appointment with a confirmation pulse"></canvas>
           <div class="scene-caption mono"><span>SIGNAL → QUALIFIED → BOOKED</span><button class="motion-toggle-btn" aria-pressed="false">pause motion</button><span class="live">● SYSTEM ACTIVE</span></div>
         </div>
@@ -152,13 +159,13 @@
             <p>No, honestly, that was easy.</p>
           </div>
           <div class="call-tags" aria-label="What happened on this call">
-            <span class="tagchip">QUALIFIED: urgency + job type</span>
-            <span class="tagchip warm">BOOKED: tomorrow 8:00</span>
-            <span class="tagchip">CONFIRMATION SENT</span>
+            <span class="tagchip" data-callchip="qualified">QUALIFIED: urgency + job type</span>
+            <span class="tagchip warm" data-callchip="booked">BOOKED: tomorrow 8:00</span>
+            <span class="tagchip" data-callchip="confirm">CONFIRMATION SENT</span>
           </div>
           <p class="foot-note">Illustrative call, fictional company. Real AI voices.</p>
         </div>
-        <div class="owner-card reveal">
+        <div class="owner-card reveal summary-arrive">
           <h3>What the business receives</h3>
           <div class="sms" role="img" aria-label="Example text message summary sent to the business owner">
             <span class="mono">NEVAMIS SUMMARY · 8:42 PM</span>
@@ -174,8 +181,65 @@
     </div>
   </section>
 
+  <!-- ================= SIMULATOR ================= -->
+  <section class="light" id="simulator" data-spine>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">Interactive demonstration</p>
+        <h2>Watch Nevamis run the front desk.</h2>
+        <p>Three real situations, played step by step. Demonstration data with a fictional company: this shows how your rules drive every call.</p>
+      </div>
+      <div class="sim reveal" id="sim">
+        <div class="sim-head">
+          <span class="mono">SCENARIO · PRAIRIE MECHANICAL (FICTIONAL)</span>
+          <span class="mono" data-sim-state>Idle</span>
+          <div class="sim-scenarios" role="group" aria-label="Choose a scenario">
+            <button data-scen="emergency" aria-pressed="false">After-hours emergency</button>
+            <button data-scen="routine" aria-pressed="true">Routine appointment</button>
+            <button data-scen="unusual" aria-pressed="false">Unusual request</button>
+          </div>
+        </div>
+        <div class="sim-body">
+          <div class="sim-col">
+            <h3>Conversation</h3>
+            <div class="sim-log"></div>
+          </div>
+          <div class="sim-col">
+            <h3>What the AI captures + your rules</h3>
+            <div class="sim-chips"></div>
+            <div class="sim-rules" style="margin-top:12px"></div>
+          </div>
+          <div class="sim-col">
+            <h3>Outcomes</h3>
+            <div class="sim-outcome"></div>
+          </div>
+        </div>
+        <div class="sim-controls">
+          <button class="primary" data-sim-play>Play</button>
+          <button data-sim-back aria-label="Step back">◀ Step</button>
+          <button data-sim-fwd aria-label="Step forward">Step ▶</button>
+          <button data-sim-replay>Replay</button>
+          <div class="sim-progress" aria-hidden="true"><i></i></div>
+          <span class="sim-elapsed">0:00 elapsed</span>
+          <span data-sim-live aria-live="polite" style="position:absolute;left:-9999px"></span>
+        </div>
+      </div>
+      <details class="sim-static reveal">
+        <summary>Prefer to read it? The full sequence as a list</summary>
+        <ol style="padding-left:22px;margin-top:10px;color:var(--muted)">
+          <li>Call comes in and is answered in your business's tone.</li>
+          <li>The caller explains what they need.</li>
+          <li>The AI captures the facts: service, urgency, location, contact, timing.</li>
+          <li>Your approved business rules are checked: service area, offerings, emergency criteria, calendar.</li>
+          <li>Routine requests get booked into an open slot. Emergencies transfer or get flagged urgent. Unknown questions take the safe fallback instead of a made-up answer.</li>
+          <li>The customer gets a confirmation. You get the summary.</li>
+        </ol>
+      </details>
+    </div>
+  </section>
+
   <!-- ================= SIGNAL PATH / HOW IT WORKS ================= -->
-  <section class="light" id="how">
+  <section class="light" id="how" data-spine
     <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">The signal path</p>
@@ -340,6 +404,80 @@
     </div>
   </section>
 
+  <!-- ================= COMPARISON ================= -->
+  <section class="light" id="compare" style="padding-top:0" data-spine>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">The honest comparison</p>
+        <h2>Voicemail records the lost job. Nevamis books it.</h2>
+      </div>
+      <div class="compare-wrap reveal">
+        <table class="compare">
+          <thead>
+            <tr><th scope="col">On every call</th><th scope="col">Voicemail</th><th scope="col">DIY AI app</th><th scope="col">Nevamis</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Answers immediately</th><td class="no">No</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><th scope="row">Uses your business rules</th><td class="no">No</td><td class="part">You configure it</td><td class="yes">Built with you</td></tr>
+            <tr><th scope="row">Qualifies the caller</th><td class="no">No</td><td class="part">Generic script</td><td class="yes">Your questions</td></tr>
+            <tr><th scope="row">Books the appointment</th><td class="no">No</td><td class="part">Sometimes</td><td class="yes">Yes</td></tr>
+            <tr><th scope="row">Sends confirmation</th><td class="no">No</td><td class="part">If you set it up</td><td class="yes">Yes</td></tr>
+            <tr><th scope="row">Transfers by approved rules</th><td class="no">No</td><td class="no">Rarely</td><td class="yes">Yes</td></tr>
+            <tr><th scope="row">Sends you a summary</th><td class="part">A recording</td><td class="part">A transcript</td><td class="yes">A useful summary</td></tr>
+            <tr><th scope="row">Tested and tuned for you</th><td class="no">No</td><td class="no">You are support</td><td class="yes">Done for you</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="midcta reveal" style="margin-top:26px">
+        <a class="btn btn-light-ghost" href="/demo.html">See what it handles</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BUILD STACK ================= -->
+  <section class="light" id="build-stack" style="padding-top:0" data-spine>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">What you are actually paying for</p>
+        <h2>Not an app. A configured system.</h2>
+        <p>Every Nevamis build assembles these layers around your business, then we maintain them. This is what a generic AI subscription does not include.</p>
+      </div>
+      <div class="stack" aria-label="What a Nevamis build includes">
+        <div class="layer"><strong>Business knowledge</strong><span>Your services, prices you approve, FAQs, service area, hours.</span></div>
+        <div class="layer"><strong>Call flow</strong><span>How your calls actually run, from greeting to goodbye.</span></div>
+        <div class="layer"><strong>Qualification questions</strong><span>The questions that separate a job from a tire-kicker.</span></div>
+        <div class="layer"><strong>Business rules</strong><span>What gets booked, what transfers, what waits for you.</span></div>
+        <div class="layer"><strong>Calendar connection</strong><span>Real slots from your calendar, locked in on the call.</span></div>
+        <div class="layer"><strong>Confirmations</strong><span>Customer SMS before they can dial a competitor.</span></div>
+        <div class="layer"><strong>Owner summaries</strong><span>Name, number, need, and outcome after every call.</span></div>
+        <div class="layer"><strong>Test scenarios</strong><span>Your real situations, tested before launch.</span></div>
+        <div class="layer"><strong>Ongoing tuning</strong><span>Call review and rule adjustments as your business changes.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FIRST WEEK ================= -->
+  <section class="light" id="first-week" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">Speed, honestly stated</p>
+        <h2>What the first week looks like.</h2>
+        <p>Typical timeline for a standard single-line build. Complex setups get an honest schedule on the strategy call.</p>
+      </div>
+      <div class="week reveal">
+        <div><span class="mono">DAY 1</span><h3>Discovery</h3><p>Your call patterns, services, rules, and calendar mapped.</p></div>
+        <div><span class="mono">DAY 2–3</span><h3>Build</h3><p>Your agent configured: knowledge, flows, business rules.</p></div>
+        <div><span class="mono">DAY 4</span><h3>Test</h3><p>Run against your real scenarios. Fix what wobbles.</p></div>
+        <div><span class="mono">DAY 5</span><h3>Your review</h3><p>You hear it, push on it, and approve it.</p></div>
+        <div><span class="mono">DAY 6–7</span><h3>Controlled pilot</h3><p>Live on your line with training wheels. You see every call.</p></div>
+      </div>
+      <div class="midcta reveal" style="margin-top:26px">
+        <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a strategy call</a>
+        <a class="btn btn-light-ghost" href="#roi">Calculate missed-call value</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= RISK REVERSAL + FOUNDER ================= -->
   <section class="light" id="risk" style="padding-top:0">
     <div class="wrap">
@@ -429,5 +567,6 @@
 
 <a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Call our AI now · (587) 413-0035</a>
 <script src="site.js" defer></script>
+<script src="motion.js" defer></script>
 </body>
 </html>

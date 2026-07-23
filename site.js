@@ -207,9 +207,14 @@
     }
     function playNext() {
       idx += 1;
-      if (idx >= lines.length) { window.nvTrack("demo_audio_complete"); resetPlayer(); return; }
+      if (idx >= lines.length) {
+        window.nvTrack("demo_audio_complete");
+        document.dispatchEvent(new CustomEvent("nv:callend"));
+        resetPlayer(); return;
+      }
       clearHl();
       lines[idx].classList.add("speaking");
+      document.dispatchEvent(new CustomEvent("nv:callline", { detail: { idx: idx } }));
       audio.src = lines[idx].getAttribute("data-audio");
       audio.play().catch(resetPlayer);
     }
