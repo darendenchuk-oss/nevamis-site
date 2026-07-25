@@ -9,7 +9,7 @@ window.NV_PRICING = {
   approved: true,
   currency: "CAD",
   lastUpdated: "2026-07-23",
-  taxNote: "Prices in Canadian dollars. No GST/HST is charged (Nevamis is not currently GST/HST registered).",
+  taxNote: "Prices in Canadian dollars, plus applicable GST/HST.",
   commercialModel: "B",
   pilot: {
     name: "7-day live pilot",
