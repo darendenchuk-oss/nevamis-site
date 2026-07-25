@@ -2,7 +2,7 @@
 
 - Version: v2, 2026-07-23
 - Target agent: Nevamis Demo Receptionist (agent_9101ky43tys1fswstde818j7j8wt), public demo line (587) 413-0035
-- Status: staging. This prompt defines the upgrade only. It must not be applied to the live agent until the test suite passes and Daren approves activation.
+- Status: promoted to production 2026-07-23, owner-approved (6/6 smoke). This matches the engine agent manifest (version 1, status production) and the recorded promotion (nevamis-site commit 97b30a2). The engine's drift detection compares the live agent against this approved manifest. Any FUTURE change to this prompt restarts as a draft and must pass tests and be re-approved by Daren before it is applied to the live agent.
 - Pricing source: pricing-config.js (approved 2026-07-23). Pilot source: approved Model B, 7-day live pilot.
 - The transfer destination number is configured inside the agent itself and is deliberately not written in this public file. No keys, endpoints, or secrets belong here.
 
