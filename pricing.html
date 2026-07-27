@@ -85,7 +85,10 @@
         <p style="font-size:15px;color:#A3441A;font-weight:700" id="foundingOffer"></p>
         <p style="font-size:13px;color:var(--muted)" id="foundingNote"></p>
       </div>
-      <div class="plans" id="plans"><noscript>
+      <!-- Static fallback: real HTML so crawlers and failed-config loads still
+           see accurate plans. Removed by the renderer only after a successful
+           render. Validated against pricing-config.js by check-consistency. -->
+      <div class="plans" id="plans"><div id="plansFallback" style="grid-column:1/-1">
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px">
           <h3 style="font-size:18px">After Hours &mdash; C$249/month</h3>
           <p style="color:var(--muted);font-size:14.5px">C$500 one-time setup · 250 included AI minutes · C$1.10 per extra minute. Evenings, weekends, and overflow coverage.</p>
@@ -99,7 +102,7 @@
           <p style="color:var(--muted);font-size:14.5px">C$1,250 one-time setup · 1,200 included AI minutes · C$0.75 per extra minute. Multi-location and higher-volume routing.</p>
         </div>
         <p style="color:var(--muted);font-size:14px">Prices in Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime. 7-day live pilot, no card. Questions: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
-      </noscript></div>
+      </div></div>
 
       <div style="margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px">
         <h3 style="font-size:17px;margin-bottom:8px">How usage works</h3>
@@ -202,6 +205,10 @@
     d.querySelector(".best span").textContent = pl.bestFor;
     wrap.appendChild(d);
   });
+  /* Live cards rendered: the static fallback has done its job. Any earlier
+     throw leaves it in place, which is the point. */
+  var plansFallback = document.getElementById("plansFallback");
+  if (plansFallback) plansFallback.remove();
   /* recommender */
   function recommend() {
     var vol = parseFloat(document.getElementById("rcVol").value) || 0;

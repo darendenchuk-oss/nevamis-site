@@ -44,5 +44,45 @@ for (const p of contentPages) {
   if (emDashes > 0) err(p + ": contains " + emDashes + " em dash(es)");
   if (/free 7-day pilot/i.test(html) && !/7-day live pilot/i.test(html)) err(p + ": non-canonical pilot naming");
 }
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases.");
+/* 7. The static pricing fallback on pricing.html must match pricing-config.js.
+      Every plan named in the fallback must exist in the config with identical
+      monthly, setup, included-minute, and overage numbers. (The fallback may
+      list fewer plans than the config; it must never disagree with it.) */
+{
+  /* pricing-config.js is our own committed browser global (window.NV_PRICING = ...).
+     Execute it in an isolated vm context, exactly as the browser would. */
+  const vm = require("node:vm");
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const cfg = w.NV_PRICING;
+  if (!cfg || !Array.isArray(cfg.plans)) err("pricing-config.js: NV_PRICING.plans not found");
+  else {
+    const ph = fs.readFileSync(path.join(root, "pricing.html"), "utf8");
+    const fbMatch = ph.match(/<div id="plansFallback"[\s\S]*?<\/div><\/div>/);
+    if (!fbMatch) err("pricing.html: static #plansFallback block missing");
+    else {
+      const num = (s) => Number(String(s).replace(/,/g, ""));
+      const re = /<h3[^>]*>([\s\S]*?)<\/h3>\s*<p[^>]*>([\s\S]*?)<\/p>/g;
+      let m, seen = 0;
+      while ((m = re.exec(fbMatch[0])) !== null) {
+        seen++;
+        const name = m[1].split("&mdash;")[0].trim();
+        const body = m[1] + " " + m[2];
+        const plan = cfg.plans.find((p) => p.name === name);
+        if (!plan) { err('pricing fallback: plan "' + name + '" not in pricing-config.js'); continue; }
+        const monthly = body.match(/C\$([\d,]+)\/month/);
+        const setup = body.match(/C\$([\d,]+) one-time setup/);
+        const mins = body.match(/([\d,]+) included AI minutes/);
+        const over = body.match(/C\$([\d.]+) per extra minute/);
+        if (!monthly || num(monthly[1]) !== plan.monthly) err('pricing fallback "' + name + '": monthly differs from config (' + plan.monthly + ")");
+        if (!setup || num(setup[1]) !== plan.setup) err('pricing fallback "' + name + '": setup differs from config (' + plan.setup + ")");
+        if (!mins || num(mins[1]) !== plan.includedMinutes) err('pricing fallback "' + name + '": included minutes differ from config (' + plan.includedMinutes + ")");
+        if (!over || Number(over[1]) !== plan.overage) err('pricing fallback "' + name + '": overage differs from config (' + plan.overage + ")");
+      }
+      if (seen < 3) err("pricing fallback: expected at least 3 plans, found " + seen);
+    }
+  }
+}
+
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config.");
 process.exit(fail === 0 ? 0 : 1);
