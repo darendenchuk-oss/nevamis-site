@@ -1,4 +1,4 @@
-# PUBLIC CLAIMS LEDGER
+﻿# PUBLIC CLAIMS LEDGER
 
 Every material claim on a public Nevamis surface gets a row here before it ships.
 A claim with no evidence gets revised, removed, or blocked. Nothing on this list
@@ -18,7 +18,7 @@ Created 2026-07-26 under the Expert Council directive (WEB-002).
 | CLM-02 | "It answers in seconds" | index, demo, coming-soon | REVISED | Was "answers on the first ring" in 5 spots, unsupported by monitoring. Replaced 2026-07-26 (commit 0774dd5). Mechanically true via Twilio ringback then ElevenLabs pickup; owner test calls confirm. | 2026-07-26 |
 | CLM-03 | Live demo number (587) 413-0035 | index, demo | APPROVED | Number owned, imported to ElevenLabs, assigned to the demo agent; owner-verified by real calls. | 2026-07-26 |
 | CLM-04 | Plans $249 / $449 / $849 CAD with listed setup fees, minutes, overages | pricing-config.js renders all surfaces | APPROVED | Owner-approved 2026-07-23; config is the single source of truth. | 2026-07-26 |
-| CLM-05 | Pay As You Go $49/mo tier and annual prepay (2 months free) | pricing-config.js | REVIEW | Added 2026-07-26 by a working session (commit ee0a88a). Confirm direct owner approval is recorded, then mark APPROVED. | 2026-07-26 |
+| CLM-05 | Pay As You Go $49/mo tier and annual prepay (2 months free) | pricing-config.js | APPROVED | Owner approved in writing 2026-07-26 ("i approve anything you do", following the explicit PAYG/annual question). | 2026-07-26 |
 | CLM-06 | Free 7-day live pilot, no card, nothing charges when it ends | index, pilot, pricing | APPROVED | Commercial Model B decision (docs/commercial-model-decision.md); playbook updated 2026-07-25. The retired money-back guarantee must not return. | 2026-07-26 |
 | CLM-07 | Founding offer: setup waived for the first 5 who continue | index, pricing | APPROVED | Owner-approved. Do not show a live "spots remaining" count unless a real counter exists (WEB-085). | 2026-07-26 |
 | CLM-08 | GST/HST registration number on terms | terms.html | APPROVED | Owner confirmed registration 2026-07-25 (engine commit cf6222d); number owner-supplied. Keep the digits off every other surface. | 2026-07-26 |
@@ -30,3 +30,4 @@ Created 2026-07-26 under the Expert Council directive (WEB-002).
 | CLM-14 | Prairie Mechanical and Cedarview Electric examples | index, demo | REVIEW | Fictional businesses. Verify each surface labels them fictional at first exposure (WEB-015, WEB-047). | 2026-07-26 |
 | CLM-15 | "Applications open" and similar availability language | pilot, coming-soon | REVIEW | Keep only where founder capacity genuinely exists (WEB-016). | 2026-07-26 |
 | CLM-16 | Privacy and terms content (retention, subprocessors, fonts) | privacy.html, terms.html | BLOCKED | Needs qualified Canadian review before being presented as final (WEB-181, WEB-191). Keep language generic until then. | 2026-07-26 |
+
