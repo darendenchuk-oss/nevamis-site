@@ -8,9 +8,11 @@
    4. Banned commercial phrases never appear in public HTML.
    5. Canonical pilot naming: "7-day live pilot" (page copy) / "7-Day Pilot" (nav label).
    6. No em dashes in page copy. Multiplication signs and arrows are allowed. */
-const fs = require("fs");
-const path = require("path");
-const root = path.join(__dirname, "..");
+import fs from "node:fs";
+import path from "node:path";
+import vm from "node:vm";
+import { fileURLToPath } from "node:url";
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const contentPages = ["index.html", "demo.html", "book.html", "about.html", "pricing.html", "pilot.html", "privacy.html", "terms.html", "coming-soon.html", "revenue-engine.html"];
 const fullFooterPages = ["index.html", "demo.html", "book.html", "about.html", "pilot.html", "coming-soon.html", "revenue-engine.html"];
 const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\b/, /limited spots remaining/i, /join thousands/i, /launching next month/i];
@@ -51,7 +53,6 @@ for (const p of contentPages) {
 {
   /* pricing-config.js is our own committed browser global (window.NV_PRICING = ...).
      Execute it in an isolated vm context, exactly as the browser would. */
-  const vm = require("node:vm");
   const w = {};
   vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
   const cfg = w.NV_PRICING;
