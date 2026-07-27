@@ -225,11 +225,15 @@
           <div class="full"><label style="display:inline-flex;gap:8px;align-items:baseline;font-weight:400;font-size:14px">
             <input type="checkbox" id="ifConsent" required style="width:auto;min-height:0"> I agree Nevamis may contact me about the services I selected.
           </label></div>
+          <!-- Honeypot: hidden from people, tempting to bots -->
+          <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;height:1px;width:1px;overflow:hidden">
+            <label>Website<input id="ifWebsite" name="website" tabindex="-1" autocomplete="off"></label>
+          </div>
         </div>
         <div class="cta-row" style="margin-top:18px">
           <button type="submit" class="btn btn-primary" data-evt="roadmap_form_submitted">Send it to Nevamis</button>
         </div>
-        <p class="form-note">Sending opens a pre-filled email to Sales@nevamis.ca in your own mail app, so you can see exactly what you are sending. Submitting does not create a contract, guarantee access, or start a paid service.</p>
+        <p class="form-note">Submitting sends your answers straight to Nevamis. If it cannot send, you get a pre-filled email to Sales@nevamis.ca as a fallback. Submitting does not create a contract, guarantee access, or start a paid service.</p>
         <p class="form-note" id="ifStatus" role="status"></p>
       </form>
     </div>
@@ -363,27 +367,45 @@ document.addEventListener("DOMContentLoaded", function () {
       window.nvTrack && window.nvTrack("roadmap_module_activated", { module: m.getAttribute("data-mod"), on: on });
     });
   });
-  /* interest form: real outcome via prefilled mailto (no backend exists; nothing fake) */
+  /* interest form: posts to the Nevamis engine (real lead record with
+     attribution); the prefilled mailto remains as the visible fallback. */
   var form = document.getElementById("interestForm");
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var status = document.getElementById("ifStatus");
     if (!form.reportValidity()) return;
     var sel = Array.prototype.map.call(checks.querySelectorAll("input:checked"), function (c) { return c.value; });
-    var body = [
-      "Coming Soon interest submission",
-      "Name: " + document.getElementById("ifName").value,
-      "Business: " + document.getElementById("ifBiz").value,
-      "Email: " + document.getElementById("ifEmail").value,
-      "Phone: " + (document.getElementById("ifPhone").value || "not given"),
+    var name = document.getElementById("ifName").value;
+    var biz = document.getElementById("ifBiz").value;
+    var email = document.getElementById("ifEmail").value;
+    var noteLines = [
       "Industry: " + document.getElementById("ifIndustry").value,
       "Result that matters most: " + document.getElementById("ifResult").value,
-      "Services: " + (sel.join(", ") || "none selected"),
+      "Phone: " + (document.getElementById("ifPhone").value || "not given"),
       "Biggest problem: " + (document.getElementById("ifProblem").value || "not given")
-    ].join("\n");
+    ];
+    var mailtoHref = "mailto:Sales@nevamis.ca?subject=" + encodeURIComponent("Coming Soon interest: " + biz) +
+      "&body=" + encodeURIComponent(["Name: " + name, "Business: " + biz, "Email: " + email,
+        "Services: " + (sel.join(", ") || "none selected")].concat(noteLines).join("\n"));
     window.nvTrack && window.nvTrack("roadmap_form_submitted", { services: sel.length });
-    location.href = "mailto:Sales@nevamis.ca?subject=" + encodeURIComponent("Coming Soon interest: " + document.getElementById("ifBiz").value) + "&body=" + encodeURIComponent(body);
-    status.textContent = "Your email app should open with everything pre-filled. Press send there and it lands directly with the founder. Thanks: this genuinely shapes what gets built next.";
+    if (typeof window.fetch !== "function") { location.href = mailtoHref; return; }
+    status.textContent = "Sending...";
+    fetch("https://app.nevamis.ca/api/interest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name, email: email, business: biz, modules: sel,
+        note: noteLines.join(" | "),
+        source: "coming-soon" + (location.search || ""),
+        website: (document.getElementById("ifWebsite") || { value: "" }).value
+      })
+    }).then(function (r) {
+      if (!r.ok) throw 0;
+      status.textContent = "Got it. Your answers are with the founder now; if an early pilot fits your business, you will hear back directly. Thanks: this genuinely shapes what gets built next.";
+      form.querySelector("button[type=submit]").disabled = true;
+    }).catch(function () {
+      status.innerHTML = 'That did not go through. <a href="' + mailtoHref.replace(/"/g, "&quot;") + '">Email your answers instead</a> and they land in the same inbox.';
+    });
   });
 });
 </script>
