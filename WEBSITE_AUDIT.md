@@ -19,7 +19,8 @@ Statuses: FIXED / STALE (directive claim disproven by newer evidence) / OPEN.
 | F8 (was O3) | Pricing invisible to non-JS readers and failed-config loads | MED | Static fallback is real HTML removed only after successful render (both states browser-verified); check-consistency.js now fails on numeric drift between fallback and pricing-config.js. |
 | F9 (was O11) | 404 page lacked recovery links | LOW | Live demo / Pricing / Pilot / Book links added. |
 | F11 (was O6) | Fonts loaded from Google (privacy exposure, third-party dependency) | MED | Self-hosted woff2 (latin + latin-ext) on all 11 pages; privacy wording updated; browser-verified 0 Google requests. |
-| F14 (was O8, partial) | Booking was external-link only | MED | Inline Cal.com iframe embed with visible new-tab fallback and timezone note. Remaining from the O8 scope: prequalification fields + attribution passthrough (WEB-140..142), queued. |
+| F15 (was O10, partial) | Sitemap lastmod maintained by hand | LOW | scripts/gen-sitemap.mjs derives lastmod from git history. Vertical landing pages (WEB-061) still wait for sales evidence. |
+| F14 (was O8, partial) | Booking was external-link only | MED | Inline Cal.com iframe embed with visible new-tab fallback and timezone note. Prequal prefill + UTM attribution passthrough added 2026-07-27 (Cal.com prefill params). Deeper CRM wiring (WEB-141) still queued. |
 | F13 (was O7) | No OG/Twitter share images | MED | Branded 1200x630 og-default.png (SVG source committed) + og:image/twitter card tags on all 10 indexable pages. |
 | F12 (was O12) | Cedarview Electric example call unlabeled at first exposure | MED | Card header now reads Example call with a fictional tag on index and demo; Prairie Mechanical was already labeled at both surfaces. |
 | F10 (was O5) | Coming-soon interest form was a mailto: with no lead record or attribution | MED | Engine POST /api/interest (CORS allowlist, honeypot, 10/hr rate limit, dedupe-by-email, 6 route tests) + form posts with modules/UTM attribution, mailto fallback kept. Live-verified 2026-07-27: preflight 204, created, then updated on repeat. |
@@ -41,5 +42,4 @@ ACTIVATED (live charges and payouts). Twilio Trust Hub is still REJECTED
 |---|---|---|---|---|
 | O4 | nvEvents analytics queue is inert; no delivery, no funnel measurement | MED | WEB-249 to WEB-253 | Needs an approved destination plus consent alignment before wiring. |
 | O9 | GitHub Pages cannot set CSP or other security headers | LOW | WEB-243, WEB-244 | Evaluate a small edge layer only with cost and rollback documented. |
-| O10 | Sitemap dates maintained by hand; no vertical landing pages | LOW | WEB-226, WEB-061 | Generate lastmod from deploys; vertical pages wait for sales evidence. |
 
