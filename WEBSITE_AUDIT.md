@@ -41,5 +41,5 @@ ACTIVATED (live charges and payouts). Twilio Trust Hub is still REJECTED
 | # | Finding | Severity | WEB refs | Note |
 |---|---|---|---|---|
 | O4 | nvEvents analytics queue is inert; no delivery, no funnel measurement | MED | WEB-249 to WEB-253 | Needs an approved destination plus consent alignment before wiring. |
-| O9 | GitHub Pages cannot set CSP or other security headers | LOW | WEB-243, WEB-244 | Evaluate a small edge layer only with cost and rollback documented. |
+| O9 | GitHub Pages cannot set CSP or other security headers | LOW | WEB-243, WEB-244 | EVALUATED 2026-07-27: stay on GitHub Pages for now. A Cloudflare free-tier proxy would add the headers at zero dollar cost but introduces a DNS and ownership dependency plus rollback complexity that a static brochure site does not justify pre-revenue (no auth, no forms posting to it, engine handles all sensitive surfaces with its own headers). Revisit at the first paying client. |
 
