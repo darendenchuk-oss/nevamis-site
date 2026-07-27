@@ -1,4 +1,4 @@
-﻿# PUBLIC CLAIMS LEDGER
+# PUBLIC CLAIMS LEDGER
 
 Every material claim on a public Nevamis surface gets a row here before it ships.
 A claim with no evidence gets revised, removed, or blocked. Nothing on this list
@@ -27,7 +27,7 @@ Created 2026-07-26 under the Expert Council directive (WEB-002).
 | CLM-11 | "Client login" goes to app.nevamis.ca | all page headers | APPROVED | Deployed on Vercel with SSL; login and signup verified working 2026-07-26. | 2026-07-26 |
 | CLM-12 | Workspace linked "usually the same day" after signup | app signup page | REMOVED | Unverified service-level promise. Replaced 2026-07-26 with review-then-email wording (engine commit 9f7b2ca). | 2026-07-26 |
 | CLM-13 | ROI benchmark "50 to 70% of calls are real opportunities" | index calculator | REMOVED | No credible source. Replaced 2026-07-26 with a buyer-entered assumption (WEB-013). | 2026-07-26 |
-| CLM-14 | Prairie Mechanical and Cedarview Electric examples | index, demo | REVIEW | Fictional businesses. Verify each surface labels them fictional at first exposure (WEB-015, WEB-047). | 2026-07-26 |
+| CLM-14 | Prairie Mechanical and Cedarview Electric examples | index, demo | APPROVED | Audited 2026-07-27: Prairie Mechanical labeled at both surfaces; Cedarview call card now labeled Example call (fictional) at first exposure on index and demo (commit 384d060). | 2026-07-27 |
 | CLM-15 | "Applications open" and similar availability language | pilot, coming-soon | REVIEW | Keep only where founder capacity genuinely exists (WEB-016). | 2026-07-26 |
 | CLM-16 | Privacy and terms content (retention, subprocessors, fonts) | privacy.html, terms.html | BLOCKED | Needs qualified Canadian review before being presented as final (WEB-181, WEB-191). Keep language generic until then. | 2026-07-26 |
 
