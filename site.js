@@ -13,13 +13,33 @@
   var motionOff = reduced || safeGet("nv-motion") === "off";
   if (motionOff) document.documentElement.classList.add("motion-off");
 
-  /* ---------- analytics event layer (provider-neutral, inert until wired) ---------- */
+  /* ---------- analytics event layer (first-party, owner-approved 2026-07-27) ----------
+     Events go to the Nevamis engine only: anonymous counts (event name, page,
+     referrer host, utm), no cookies, no IPs stored. Sent as text/plain so the
+     beacon stays a simple request (no CORS preflight). Never breaks the page. */
+  var NV_EVENTS_URL = "https://app.nevamis.ca/api/events";
+  function nvSend(name) {
+    try {
+      var payload = JSON.stringify({
+        name: name,
+        page: location.pathname,
+        referrer: document.referrer || "",
+        source: location.search ? location.search.slice(1, 200) : ""
+      });
+      if (navigator.sendBeacon) { navigator.sendBeacon(NV_EVENTS_URL, payload); return; }
+      if (typeof window.fetch === "function") {
+        fetch(NV_EVENTS_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: payload, keepalive: true }).catch(function () {});
+      }
+    } catch (e) { /* analytics must never break the page */ }
+  }
   window.nvEvents = window.nvEvents || [];
   window.nvTrack = function (name, data) {
     window.nvEvents.push({ event: name, data: data || {}, t: Date.now() });
+    nvSend(name);
     if (window.gtag) { try { window.gtag("event", name, data || {}); } catch (e) {} }
     if (window.plausible) { try { window.plausible(name, { props: data || {} }); } catch (e) {} }
   };
+  nvSend("page_view");
   document.addEventListener("click", function (e) {
     var el = e.target.closest("[data-evt]");
     if (el) window.nvTrack(el.getAttribute("data-evt"));
