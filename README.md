@@ -1,4 +1,4 @@
-# nevamis.ca
+﻿# nevamis.ca
 
 Marketing site for Nevamis AI (Edmonton AI receptionist studio).
 Plain HTML/CSS/JS, no build step, hosted on **GitHub Pages** with the custom
@@ -16,13 +16,13 @@ domain `nevamis.ca` (DNS at Porkbun).
 | `site.js` | Nav, motion toggle, signal-scene canvas, call player, tabs, ROI calc, reveals, analytics layer |
 | `assets/` | Call audio (call-0..5.mp3), founder photo |
 | `docs/higgsfield-prompts.md` | Generative-asset production record + prompts |
-| `serve.js` | Local preview: `node serve.js` → http://localhost:3211 |
+| `serve.js` | Local preview: `node serve.js` â†’ http://localhost:3211 |
 
 ## Editing
 
 - **Phone number / email:** search-replace `(587) 413-0035`, `+15874130035`, `Sales@nevamis.ca` across the HTML files.
-- **Booking link:** `book.html` → `https://cal.com/daren-qvlah4/nevamis-intro`. Change here if the Cal.com event moves.
-- **Offers (pilot/guarantee):** `index.html` section `#risk` and the FAQ. Confirm before changing publicly (see PRELAUNCH.md).
+- **Booking link:** `book.html` â†’ `https://cal.com/daren-qvlah4/nevamis-intro`. Change here if the Cal.com event moves.
+- **Offers (free 7-day pilot, no guarantee):** `index.html` section `#risk` and the FAQ. The money-back guarantee is retired (Model B). Confirm with docs/CLAIMS-LEDGER.md before changing anything public.
 - **Demo transcript:** `index.html` + `demo.html` `.line` blocks must match the audio verbatim; regenerate text via speech-to-text if the audio changes.
 
 ## Deploy
@@ -51,3 +51,4 @@ See `.env.example` for names only.
 
 Open `PRELAUNCH.md` for the short list of items requiring the owner's
 confirmation.
+

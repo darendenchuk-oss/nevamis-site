@@ -1,3 +1,4 @@
+﻿> SUPERSEDED 2026-07-25: the guarantee-based commercial model described below is RETIRED. The current model is Model B, a free 7-day live pilot with no card and no auto-billing (see docs/commercial-model-decision.md). This file is kept for history; do not copy wording from it.
 # Payment + onboarding email map
 
 Every email matches the selected commercial model (see
@@ -22,3 +23,4 @@ copy approved by owner. Sender: Sales@nevamis.ca (or billing@ when created).
 | 14 | Cancellation scheduled | cancel requested | effective date; service to period end |
 | 15 | Cancellation complete + offboarding | period end | data export window; forwarding removal; number ownership note |
 | 16 | Refund issued | guarantee refund | amount + timeline |
+
