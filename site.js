@@ -169,7 +169,7 @@
     var timer = document.getElementById("callTimer");
     var waveC = document.getElementById("callWave");
     var lines = Array.prototype.slice.call(card.querySelectorAll(".line[data-audio]"));
-    var durs = [2.4, 5.2, 10.8, 1.7, 6.3, 2.3];
+    var durs = [2, 5.6, 9.3, 1.1, 4.6, 1.5];
     var totalDur = durs.reduce(function (a, b) { return a + b; }, 0);
     var audio = new Audio();
     var idx = -1, playing = false;
