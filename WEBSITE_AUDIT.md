@@ -14,6 +14,14 @@ Statuses: FIXED / STALE (directive claim disproven by newer evidence) / OPEN.
 | F3 | ROI calculator carried an unsupported 50 to 70% benchmark | HIGH | Buyer-entered assumption now (CLM-13). |
 | F4 | pricing.html fallback banner said "Not approved for publication" to non-JS readers | MED | Neutral wording. |
 | F5 | app.nevamis.ca greeted clients as an "invite-only Nevamis Ops console" while offering public signup; no noindex; no legal links; unverified same-day promise | HIGH | Engine: neutral brand + per-area titles, dual-audience login copy, review-then-email signup copy, robots noindex on the app domain, Terms/Privacy links and agree line. |
+| F6 (was O1) | Internal docs/ and config/ trees publicly served by GitHub Pages | HIGH | _config.yml Jekyll exclude list; verified live 2026-07-26: internal paths 404, ring.xml and pricing-config.js still 200. |
+| F7 (was O2) | Stale guarantee-era docs contradicted Model B | MED | SUPERSEDED banners on all five docs plus README offer line fixed; also no longer public per F6. |
+| F8 (was O3) | Pricing invisible to non-JS readers and failed-config loads | MED | Static fallback is real HTML removed only after successful render (both states browser-verified); check-consistency.js now fails on numeric drift between fallback and pricing-config.js. |
+| F9 (was O11) | 404 page lacked recovery links | LOW | Live demo / Pricing / Pilot / Book links added. |
+
+Verified same day, recorded in engine docs/OWNER_ACTIONS.md: Stripe is FULLY
+ACTIVATED (live charges and payouts). Twilio Trust Hub is still REJECTED
+(owner resubmission required).
 
 ## Stale directive claims (do not act on these)
 
@@ -26,9 +34,6 @@ Statuses: FIXED / STALE (directive claim disproven by newer evidence) / OPEN.
 
 | # | Finding | Severity | WEB refs | Note |
 |---|---|---|---|---|
-| O1 | The whole docs/ and config/elevenlabs/ trees are publicly served by GitHub Pages: internal playbooks, unapproved hypothetical pricing, agent prompts, stale guarantee-era docs | HIGH | WEB-002 | Recommend moving internal docs to a private repo, or excluding them from the published branch. Until then treat every file in this repo as public. |
-| O2 | Four internal docs still describe the retired 7-day-guarantee model (payment-flow, service-order-template, payment-email-map, onboarding README) plus PRELAUNCH.md and README.md | MED | WEB-005 | Contradict the live Model B pilot. Update or archive; worse because O1 makes them public. |
-| O3 | Pricing renders only via JS; non-JS readers and some crawlers see empty cards | MED | WEB-081, WEB-098 | Add a static approved fallback block validated against pricing-config.js in CI. |
 | O4 | nvEvents analytics queue is inert; no delivery, no funnel measurement | MED | WEB-249 to WEB-253 | Needs an approved destination plus consent alignment before wiring. |
 | O5 | Coming-soon interest form is a mailto:; no lead record, no attribution | MED | WEB-153 to WEB-155 | Needs a server-side endpoint; the engine is deployed now, so it can host one. |
 | O6 | Fonts load from Google; privacy page references that processing | MED | WEB-036, WEB-188 | Self-host and subset; update privacy wording with it. |
@@ -36,5 +41,4 @@ Statuses: FIXED / STALE (directive claim disproven by newer evidence) / OPEN.
 | O8 | Booking opens external Cal.com instead of an inline embed; no prequalification fields | MED | WEB-137 to WEB-148 | Embed with external fallback; add 3 to 5 qualifying fields. |
 | O9 | GitHub Pages cannot set CSP or other security headers | LOW | WEB-243, WEB-244 | Evaluate a small edge layer only with cost and rollback documented. |
 | O10 | Sitemap dates maintained by hand; no vertical landing pages | LOW | WEB-226, WEB-061 | Generate lastmod from deploys; vertical pages wait for sales evidence. |
-| O11 | 404 page lacks recovery links and analytics | LOW | WEB-213, WEB-214 | Add Home / Demo / Pricing / Book a Call links. |
 | O12 | Fictional-example labeling not verified at first exposure on every surface | MED | WEB-015, WEB-047 | Audit each occurrence (CLM-14). |
