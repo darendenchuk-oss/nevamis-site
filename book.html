@@ -80,9 +80,16 @@
       <div class="reveal" style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px">
         <h2 style="font-size:clamp(24px,3vw,32px);margin-bottom:8px;text-align:center">Pick a time that works.</h2>
         <p style="color:var(--muted);margin-bottom:18px;text-align:center">Times show in your timezone (Daren is in Edmonton, Mountain time). You get a calendar invite with a video link.</p>
+        <!-- Optional prefill: rewrites the scheduler URL with Cal.com prefill
+             params. Pure enhancement; the iframe works untouched without JS. -->
+        <div id="bkPrefill" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px" hidden>
+          <input id="bkName" placeholder="Your name (optional prefill)" autocomplete="name" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
+          <input id="bkBiz" placeholder="Business name" autocomplete="organization" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
+          <input id="bkEmail" type="email" placeholder="Email" autocomplete="email" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
+        </div>
         <!-- Inline scheduler (works without JS: plain iframe). The external
              link below stays as the always-available fallback (WEB-138). -->
-        <iframe src="https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1" title="Book a 15-minute intro call with Daren on the Cal.com scheduler" loading="lazy" style="width:100%;height:720px;border:0;border-radius:12px;background:#fff"></iframe>
+        <iframe id="bkFrame" src="https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1" title="Book a 15-minute intro call with Daren on the Cal.com scheduler" loading="lazy" style="width:100%;height:720px;border:0;border-radius:12px;background:#fff"></iframe>
         <p style="margin-top:16px;font-size:14.5px;color:var(--muted);text-align:center">Scheduler not loading, or prefer a full page? <a href="https://cal.com/daren-qvlah4/nevamis-intro" target="_blank" rel="noopener" data-evt="booking_start">Open booking in a new tab</a>.</p>
         <p style="margin-top:10px;font-size:14.5px;color:var(--muted);text-align:center">Rather talk first? Call the AI at <a class="mono" href="tel:+15874130035">(587) 413-0035</a> and ask it to have Daren call you back, or email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
       </div>
@@ -124,5 +131,40 @@
 <a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Call our AI now · (587) 413-0035</a>
 <script src="site.js" defer></script>
 <script>window.nvEvents = window.nvEvents || []; window.nvEvents.push({ event: "booking_page_view", data: {}, t: Date.now() });</script>
+<script>
+/* Prefill enhancement (WEB-140/142 lite): reveal the optional fields and pass
+   them plus UTM attribution into the scheduler as Cal.com prefill params.
+   Everything is guarded; with no JS the plain iframe still books fine. */
+(function () {
+  "use strict";
+  try {
+    var row = document.getElementById("bkPrefill");
+    var frame = document.getElementById("bkFrame");
+    if (!row || !frame) return;
+    row.hidden = false;
+    var base = "https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1";
+    var timer = null;
+    function apply() {
+      var name = (document.getElementById("bkName").value || "").trim();
+      var biz = (document.getElementById("bkBiz").value || "").trim();
+      var email = (document.getElementById("bkEmail").value || "").trim();
+      var notes = [];
+      if (biz) notes.push("Business: " + biz);
+      if (location.search.length > 1) notes.push("Source: " + location.search.slice(1, 200));
+      var url = base;
+      if (name) url += "&name=" + encodeURIComponent(name);
+      if (email) url += "&email=" + encodeURIComponent(email);
+      if (notes.length) url += "&notes=" + encodeURIComponent(notes.join(" | "));
+      if (frame.src !== url) frame.src = url;
+      if (window.nvTrack) window.nvTrack("booking_prefill_used");
+    }
+    ["bkName", "bkBiz", "bkEmail"].forEach(function (id) {
+      document.getElementById(id).addEventListener("change", function () {
+        clearTimeout(timer); timer = setTimeout(apply, 400);
+      });
+    });
+  } catch (e) { /* enhancement only; the iframe keeps working */ }
+})();
+</script>
 </body>
 </html>
