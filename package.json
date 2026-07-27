@@ -1,0 +1,14 @@
+{
+  "name": "nevamis-site-motion-tests",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-only motion proof harness for the Nevamis static site. Not part of the published site (see _config.yml exclude + .gitignore).",
+  "scripts": {
+    "serve": "node serve.js",
+    "proof": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

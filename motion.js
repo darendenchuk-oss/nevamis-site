@@ -23,7 +23,7 @@
   var sectionIds = ["how", "solutions", "industries"];
   var navLinks = {};
   sectionIds.forEach(function (id) {
-    var a = document.querySelector('.main-nav a[href="/#' + id + '"]');
+    var a = document.querySelector('.main-nav a[href="/#' + id + '"], .main-nav a[href="#' + id + '"]');
     var s = document.getElementById(id);
     if (a && s) navLinks[id] = { a: a, s: s };
   });

@@ -12,33 +12,38 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nevamis.ca/assets/og-default.png">
-<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%2302080D"/><path d="M 15 38 A 17 17 0 0 1 49 38" stroke="%2338E6A2" stroke-width="8" stroke-linecap="round" fill="none"/><circle cx="32" cy="48" r="6" fill="%2338E6A2"/></svg>'>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%230B1620"/><path d="M 15 38 A 17 17 0 0 1 49 38" stroke="%232FBF8F" stroke-width="8" stroke-linecap="round" fill="none"/><circle cx="32" cy="48" r="6" fill="%239FF0CE"/></svg>'>
 <link rel="stylesheet" href="assets/fonts/fonts.css">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="assets/motion/site.css">
 <style>
-  .draft-banner { background: #FBEFD8; color: #8A6210; padding: 12px 24px; text-align: center; font-weight: 700; font-size: 14.5px; }
+  /* ---------- page-specific (everything else lives in assets/motion/site.css) ---------- */
+  .draft-banner { background: rgba(240,180,98,.08); border-bottom: 1px solid rgba(240,180,98,.35); color: #F0B462; padding: 12px 24px; text-align: center; font-weight: 700; font-size: 14.5px; position: relative; z-index: 40; margin-top: 68px; }
+  .page-hero { position: relative; overflow: hidden; padding: 150px 0 48px; }
+  .page-hero h1 { font-weight: 700; letter-spacing: -.03em; line-height: 1.05; margin: 16px 0 0; }
+  .lede { color: var(--muted); font-size: clamp(16px,1.5vw,19px); margin-top: 16px; line-height: 1.55; max-width: 60ch; }
   .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: start; }
-  .plan { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
-  .plan.rec { border-color: var(--signal-deep); box-shadow: 0 18px 48px -28px rgba(14,143,106,.45); }
-  .plan .rec-tag { font-family: "Spline Sans Mono", monospace; font-size: 10.5px; letter-spacing: .12em; color: var(--signal-deep); }
+  .plan { background: linear-gradient(180deg, var(--navy-2), #0C1A25); border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
+  .plan.rec { border-color: rgba(47,191,143,.45); box-shadow: 0 18px 48px -28px rgba(14,143,106,.5); }
+  .plan .rec-tag { font-family: "Spline Sans Mono", monospace; font-size: 10.5px; letter-spacing: .12em; color: var(--mint); }
   .plan h3 { font-size: 23px; margin: 6px 0 2px; }
-  .plan .price { font-family: "Bricolage Grotesque", sans-serif; font-size: 38px; font-weight: 700; letter-spacing: -.02em; }
+  .plan .price { font-family: "Bricolage Grotesque", sans-serif; font-size: 38px; font-weight: 700; letter-spacing: -.02em; color: var(--ink); }
   .plan .price span { font-size: 15px; font-weight: 400; color: var(--muted); font-family: "Atkinson Hyperlegible", sans-serif; }
   .plan .setup { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
-  .plan .usage { font-size: 14px; background: var(--frost); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; margin-bottom: 14px; }
+  .plan .usage { font-size: 14px; color: var(--ink); background: rgba(159,240,206,.05); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; margin-bottom: 14px; }
   .plan ul { list-style: none; padding: 0; margin: 0 0 16px; }
   .plan li { font-size: 14px; color: var(--muted); padding: 5px 0 5px 20px; position: relative; }
-  .plan li::before { content: "✓"; position: absolute; left: 0; color: var(--signal-deep); font-weight: 700; }
+  .plan li::before { content: "✓"; position: absolute; left: 0; color: var(--emerald); font-weight: 700; }
   .plan .best { font-size: 13.5px; color: var(--ink); border-top: 1px solid var(--line); padding-top: 12px; }
   @media (max-width: 900px) { .plans { grid-template-columns: 1fr; } }
-  .rc { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 26px; margin-top: 40px; }
+  .rc { background: linear-gradient(180deg, var(--navy-2), #0C1A25); border: 1px solid var(--line); border-radius: 16px; padding: 26px; margin-top: 40px; }
   .rc h3 { font-size: 20px; margin-bottom: 14px; }
   .rc .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 22px; }
   .rc label { font-weight: 700; font-size: 14.5px; display: block; margin-bottom: 6px; }
-  .rc select, .rc input { width: 100%; padding: 11px 12px; font-size: 15px; border: 1px solid var(--line); border-radius: 9px; font-family: inherit; background: var(--frost); min-height: 44px; }
-  .rc-result { margin-top: 18px; background: var(--ink); color: var(--frost); border-radius: 12px; padding: 18px 20px; }
-  .rc-result .mono { color: var(--signal); font-size: 11.5px; letter-spacing: .1em; }
-  .rc-result p { font-size: 14.5px; color: var(--muted-dark); margin-top: 6px; }
+  .rc select, .rc input { width: 100%; padding: 11px 12px; font-size: 15px; color: var(--ink); border: 1px solid var(--line); border-radius: 9px; font-family: inherit; background: rgba(159,240,206,.04); min-height: 44px; color-scheme: dark; transition: border-color .2s var(--e-out), box-shadow .2s var(--e-out); }
+  .rc select:focus, .rc input:focus { outline: none; border-color: rgba(159,240,206,.5); box-shadow: 0 0 0 3px rgba(47,191,143,.18); }
+  .rc-result { margin-top: 18px; background: var(--navy-3); color: var(--ink); border: 1px solid rgba(159,240,206,.25); border-radius: 12px; padding: 18px 20px; }
+  .rc-result .mono { color: var(--mint); font-size: 11.5px; letter-spacing: .1em; }
+  .rc-result p { font-size: 14.5px; color: var(--muted); margin-top: 6px; }
   @media (max-width: 700px) { .rc .grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -48,73 +53,78 @@
 
 <header class="site-header">
   <div class="wrap">
-    <a class="wordmark" href="/"><svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M 15 38 A 17 17 0 0 1 49 38" stroke="#38E6A2" stroke-width="8" stroke-linecap="round"/><circle cx="32" cy="48" r="6" fill="#38E6A2"/></svg>Nevamis<span>&nbsp;AI</span></a>
+    <a class="wordmark" href="/">
+      <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <path d="M 15 38 A 17 17 0 0 1 49 38" stroke="#2FBF8F" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="32" cy="48" r="6" fill="#9FF0CE"/>
+      </svg>
+      Nevamis<span>&nbsp;AI</span></a>
     <button class="nav-toggle" aria-expanded="false" aria-controls="mainNav" aria-label="Menu">☰</button>
     <nav class="main-nav" id="mainNav" aria-label="Main">
-      <a href="/#how">How It Works</a>
+      <a href="/#how">How it works</a>
       <a href="/pricing.html" aria-current="page">Pricing</a>
-      <a href="/pilot.html">7-Day Pilot</a>
+      <a href="/pilot.html">7-day pilot</a>
       <a href="/demo.html">Demo</a>
-      <a href="/coming-soon.html">Coming Soon</a>
-      <a href="/about.html">About</a>
-      <a href="https://app.nevamis.ca/login" data-evt="client_login_click">Client login</a>
+      <a class="nav-min" href="/coming-soon.html">Coming soon</a>
+      <a class="nav-min" href="/about.html">About</a>
+      <a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click">Client login</a>
       <a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click">Call the AI</a>
-      <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a Call</a>
+      <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a call <span class="arw" aria-hidden="true">›</span></a>
     </nav>
   </div>
 </header>
 
 <main id="main">
-  <div class="dark hero" style="padding-bottom:48px">
+  <section class="page-hero" style="padding-bottom:48px">
     <div class="grid-lines" aria-hidden="true"></div>
-    <div class="wrap" style="grid-template-columns:1fr;max-width:900px">
+    <div class="wrap" style="max-width:900px">
       <div>
         <p class="eyebrow mono">Pricing</p>
         <h1 style="font-size:clamp(38px,5.6vw,68px)">Clear plans. Predictable usage.</h1>
         <p class="lede">Every plan is a configured, maintained system: built with you, tested against your real calls, and tuned over time.</p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <section class="light">
+  <section class="tight">
     <div class="wrap">
-      <div id="pilotBanner" style="background:var(--card);border:1px solid var(--signal-deep);border-radius:14px;padding:20px 24px;margin-bottom:30px">
+      <div id="pilotBanner" style="background:var(--navy-2);border:1px solid rgba(47,191,143,.45);border-radius:14px;padding:20px 24px;margin-bottom:30px">
         <h3 style="font-size:19px;margin-bottom:6px" id="pilotName"></h3>
         <p style="color:var(--muted);font-size:15px" id="pilotTagline"></p>
         <p style="color:var(--muted);font-size:13.5px;margin-top:8px" id="pilotCaps"></p>
-        <p style="font-size:14.5px;margin-top:10px"><a href="/pilot.html">Everything about the pilot</a> · <a href="/book.html">Apply on a strategy call</a></p>
+        <p style="font-size:14.5px;margin-top:10px"><a href="/pilot.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Everything about the pilot</a> · <a href="/book.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Apply on a strategy call</a></p>
       </div>
-      <div id="foundingBanner" style="background:#FFF6EF;border:1px solid #F6D9C6;border-radius:14px;padding:16px 24px;margin-bottom:30px" hidden>
-        <p style="font-size:15px;color:#A3441A;font-weight:700" id="foundingOffer"></p>
+      <div id="foundingBanner" style="background:rgba(240,180,98,.08);border:1px solid rgba(240,180,98,.35);border-radius:14px;padding:16px 24px;margin-bottom:30px" hidden>
+        <p style="font-size:15px;color:#F0B462;font-weight:700" id="foundingOffer"></p>
         <p style="font-size:13px;color:var(--muted)" id="foundingNote"></p>
       </div>
       <!-- Static fallback: real HTML so crawlers and failed-config loads still
            see accurate plans. Removed by the renderer only after a successful
            render. Validated against pricing-config.js by check-consistency. -->
       <div class="plans" id="plans"><div id="plansFallback" style="grid-column:1/-1">
-        <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px">
+        <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
           <h3 style="font-size:18px">After Hours &mdash; C$249/month</h3>
           <p style="color:var(--muted);font-size:14.5px">C$500 one-time setup · 250 included AI minutes · C$1.10 per extra minute. Evenings, weekends, and overflow coverage.</p>
         </div>
-        <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px">
+        <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
           <h3 style="font-size:18px">Growth &mdash; C$449/month (recommended)</h3>
           <p style="color:var(--muted);font-size:14.5px">C$750 one-time setup · 600 included AI minutes · C$0.90 per extra minute. Qualification, routing, and booking on a meaningful share of calls.</p>
         </div>
-        <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px">
+        <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
           <h3 style="font-size:18px">Scale &mdash; from C$849/month</h3>
           <p style="color:var(--muted);font-size:14.5px">C$1,250 one-time setup · 1,200 included AI minutes · C$0.75 per extra minute. Multi-location and higher-volume routing.</p>
         </div>
-        <p style="color:var(--muted);font-size:14px">Prices in Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime. 7-day live pilot, no card. Questions: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
+        <p style="color:var(--muted);font-size:14px">Prices in Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime. 7-day live pilot, no card. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
       </div></div>
 
-      <div style="margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px">
+      <div class="reveal" style="margin-top:26px;background:var(--navy-2);border:1px solid var(--line);border-radius:16px;padding:18px 22px">
         <h3 style="font-size:17px;margin-bottom:8px">How usage works</h3>
         <p id="minuteDef" style="font-size:14.5px;color:var(--muted)"></p>
         <ul id="usageNotes" style="font-size:14px;color:var(--muted);padding-left:20px;margin-top:8px"></ul>
         <p id="taxNote" style="font-size:13px;color:var(--muted);margin-top:10px"></p>
       </div>
 
-      <div class="rc" id="recommender">
+      <div class="rc reveal" id="recommender">
         <h3>Which plan fits? Answer four questions.</h3>
         <div class="grid">
           <div>
@@ -148,7 +158,7 @@
         <p style="font-size:12.5px;color:var(--muted);margin-top:10px">Guidance only. Your exact quote is scoped on the strategy call. Nothing you enter here is transmitted.</p>
       </div>
 
-      <div class="midcta" style="margin-top:34px">
+      <div class="midcta reveal" style="margin-top:34px">
         <a class="btn btn-primary btn-lg" href="/book.html">Book a strategy call</a>
         <a class="btn btn-light-ghost btn-lg" href="tel:+15874130035">Call the live AI</a>
       </div>
@@ -158,17 +168,46 @@
 
 <footer class="site-footer">
   <div class="wrap">
+    <div class="cols">
+      <div>
+        <h4>Nevamis AI</h4>
+        <p>AI receptionists for Canadian businesses. Answers 24/7, qualifies callers, books the job, and sends you the details.</p>
+        <p style="margin-top:10px"><a href="tel:+15874130035" class="mono">(587) 413-0035</a><br><a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a><br>Edmonton, Alberta, Canada</p>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <a href="/#how">How It Works</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/pilot.html">7-Day Pilot</a>
+        <a href="/demo.html">Live Demo</a>
+        <a href="/coming-soon.html">Coming Soon</a>
+        <a href="/about.html">About</a>
+        <a href="/book.html">Book a Call</a>
+        <a href="https://app.nevamis.ca/login" data-evt="client_login_click">Client login</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+      </div>
+    </div>
     <div class="base">
       <span>© 2026 Nevamis AI</span>
-      <a href="/privacy.html" style="display:inline">Privacy</a>
-      <a href="/terms.html" style="display:inline">Terms</a>
-      <span class="right mono" id="pricingUpdated"></span>
+      <span class="right mono">nevamis.ca</span>
+      <span class="mono" id="pricingUpdated"></span>
     </div>
   </div>
 </footer>
 
+<a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Call our AI now · (587) 413-0035</a>
+
+<script>document.documentElement.classList.remove('no-js');</script>
 <script src="pricing-config.js"></script>
+<script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/vendor/MotionPathPlugin.min.js"></script>
 <script src="site.js" defer></script>
+<script src="motion.js" defer></script>
+<script type="module" src="assets/motion/main.js"></script>
 <script>
 (function () {
   var P = window.NV_PRICING;

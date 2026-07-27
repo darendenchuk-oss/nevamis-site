@@ -5,31 +5,96 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Page not found | Nevamis AI</title>
 <meta name="robots" content="noindex">
-<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%2302080D"/><path d="M 15 38 A 17 17 0 0 1 49 38" stroke="%2338E6A2" stroke-width="8" stroke-linecap="round" fill="none"/><circle cx="32" cy="48" r="6" fill="%2338E6A2"/></svg>'>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%230B1620"/><path d="M 15 38 A 17 17 0 0 1 49 38" stroke="%232FBF8F" stroke-width="8" stroke-linecap="round" fill="none"/><circle cx="32" cy="48" r="6" fill="%239FF0CE"/></svg>'>
 <link rel="stylesheet" href="assets/fonts/fonts.css">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="assets/motion/site.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/">
+      <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <path d="M 15 38 A 17 17 0 0 1 49 38" stroke="#2FBF8F" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="32" cy="48" r="6" fill="#9FF0CE"/>
+      </svg>
+      Nevamis<span>&nbsp;AI</span></a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="mainNav" aria-label="Menu">☰</button>
+    <nav class="main-nav" id="mainNav" aria-label="Main">
+      <a href="/#how">How it works</a>
+      <a href="/pricing.html">Pricing</a>
+      <a href="/pilot.html">7-day pilot</a>
+      <a href="/demo.html">Demo</a>
+      <a class="nav-min" href="/coming-soon.html">Coming soon</a>
+      <a class="nav-min" href="/about.html">About</a>
+      <a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click">Client login</a>
+      <a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click">Call the AI</a>
+      <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a call <span class="arw" aria-hidden="true">›</span></a>
+    </nav>
+  </div>
+</header>
+
 <main id="main">
-  <div class="dark" style="min-height:100svh;display:flex;align-items:center">
+  <section style="min-height:100svh;display:flex;align-items:center;position:relative;overflow:hidden">
     <div class="grid-lines" aria-hidden="true"></div>
-    <div class="wrap" style="text-align:center;position:relative;z-index:1">
-      <p class="eyebrow mono">404 · Signal not found</p>
-      <h1 style="font-size:clamp(40px,7vw,84px);margin:14px 0 12px;color:var(--frost)">This call went to voicemail.</h1>
-      <p style="color:var(--muted-dark);margin-bottom:28px">The page you dialled does not exist. We know a thing or two about missed connections.</p>
+    <div class="wrap" style="text-align:center;position:relative;z-index:1;padding-top:96px">
+      <p class="eyebrow mono" style="justify-content:center">404 · Signal not found</p>
+      <h1 style="font-size:clamp(40px,7vw,84px);margin:14px 0 12px;color:var(--ink)">This call went to voicemail.</h1>
+      <p style="color:var(--muted);margin-bottom:28px">The page you dialled does not exist. We know a thing or two about missed connections.</p>
       <div class="cta-row" style="justify-content:center">
         <a class="btn btn-primary btn-lg" href="/">Back to the homepage</a>
         <a class="btn btn-ghost btn-lg" href="tel:+15874130035">Call the AI instead</a>
       </div>
-      <p style="margin-top:22px;font-size:14.5px;color:var(--muted-dark)">
+      <p style="margin-top:22px;font-size:14.5px;color:var(--muted)">
         Looking for something specific?
-        <a href="/demo.html" style="color:var(--frost)">Live demo</a> ·
-        <a href="/pricing.html" style="color:var(--frost)">Pricing</a> ·
-        <a href="/pilot.html" style="color:var(--frost)">7-Day Pilot</a> ·
-        <a href="/book.html" style="color:var(--frost)">Book a call</a>
+        <a href="/demo.html" style="color:var(--mint)">Live demo</a> ·
+        <a href="/pricing.html" style="color:var(--mint)">Pricing</a> ·
+        <a href="/pilot.html" style="color:var(--mint)">7-Day Pilot</a> ·
+        <a href="/book.html" style="color:var(--mint)">Book a call</a>
       </p>
     </div>
-  </div>
+  </section>
 </main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h4>Nevamis AI</h4>
+        <p>AI receptionists for Canadian businesses. Answers 24/7, qualifies callers, books the job, and sends you the details.</p>
+        <p style="margin-top:10px"><a href="tel:+15874130035" class="mono">(587) 413-0035</a><br><a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a><br>Edmonton, Alberta, Canada</p>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <a href="/#how">How It Works</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/pilot.html">7-Day Pilot</a>
+        <a href="/demo.html">Live Demo</a>
+        <a href="/coming-soon.html">Coming Soon</a>
+        <a href="/about.html">About</a>
+        <a href="/book.html">Book a Call</a>
+        <a href="https://app.nevamis.ca/login" data-evt="client_login_click">Client login</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+      </div>
+    </div>
+    <div class="base">
+      <span>© 2026 Nevamis AI</span>
+      <span class="right mono">nevamis.ca</span>
+    </div>
+  </div>
+</footer>
+
+<a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Call our AI now · (587) 413-0035</a>
+
+<script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/vendor/MotionPathPlugin.min.js"></script>
+<script src="site.js" defer></script>
+<script src="motion.js" defer></script>
+<script type="module" src="assets/motion/main.js"></script>
 </body>
 </html>

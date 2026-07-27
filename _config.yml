@@ -11,3 +11,10 @@ exclude:
   - README.md
   - WEBSITE_AUDIT.md
   - serve.js
+  # Local motion tooling and proof artifacts (belt-and-braces with .gitignore).
+  - tests/
+  - artifacts/
+  - node_modules/
+  - package.json
+  - package-lock.json
+  - playwright.config.js

@@ -1,0 +1,9 @@
+# Local tooling — never part of the published site.
+node_modules/
+package-lock.json
+test-results/
+playwright-report/
+.playwright/
+
+# Motion proof artifacts are generated locally for review, not shipped.
+artifacts/
