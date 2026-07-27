@@ -1,9 +1,16 @@
 /* Nevamis AI shared site JS. No dependencies. */
 (function () {
   "use strict";
+  /* Content must never depend on this script succeeding. Storage and feature
+     access are guarded, and any uncaught failure lands in the catch at the
+     bottom, which restores the .no-js CSS state so every .reveal stays
+     visible. Animation is progressive enhancement, never a gate. */
+  function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  try {
   document.documentElement.classList.remove("no-js");
-  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var motionOff = reduced || localStorage.getItem("nv-motion") === "off";
+  var reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var motionOff = reduced || safeGet("nv-motion") === "off";
   if (motionOff) document.documentElement.classList.add("motion-off");
 
   /* ---------- analytics event layer (provider-neutral, inert until wired) ---------- */
@@ -49,7 +56,7 @@
     applyMotionLabel();
     mBtn.addEventListener("click", function () {
       var off = document.documentElement.classList.toggle("motion-off");
-      localStorage.setItem("nv-motion", off ? "off" : "on");
+      safeSet("nv-motion", off ? "off" : "on");
       applyMotionLabel();
     });
   }
@@ -57,7 +64,7 @@
 
   /* ---------- scroll reveals (content visible without JS via .no-js) ---------- */
   var reveals = document.querySelectorAll(".reveal");
-  if ("IntersectionObserver" in window && !motionOff) {
+  if (typeof window.IntersectionObserver === "function" && !motionOff) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
@@ -122,7 +129,7 @@
     function thStop() { thRunning = false; clearTimeout(thTimer); }
     if (motionOff) { thFinal(); }
     else {
-      if ("IntersectionObserver" in window) {
+      if (typeof window.IntersectionObserver === "function") {
         new IntersectionObserver(function (es) {
           es.forEach(function (e) { e.isIntersecting ? thStart() : thStop(); });
         }, { rootMargin: "60px" }).observe(th);
@@ -224,7 +231,7 @@
 
   /* ---------- signal path step highlight ---------- */
   var psteps = document.querySelectorAll(".pstep");
-  if (psteps.length && "IntersectionObserver" in window && !motionOff) {
+  if (psteps.length && typeof window.IntersectionObserver === "function" && !motionOff) {
     new IntersectionObserver(function (es) {
       es.forEach(function (e) {
         if (e.isIntersecting) {
@@ -274,5 +281,12 @@
     roiForm.addEventListener("input", calc);
     roiForm.addEventListener("submit", function (e) { e.preventDefault(); calc(); });
     calc();
+  }
+  } catch (err) {
+    /* Fail open: restore the CSS safety state so all content is visible. */
+    try { document.documentElement.classList.add("no-js"); } catch (e2) {}
+    try {
+      document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
+    } catch (e3) {}
   }
 })();

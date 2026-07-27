@@ -4,8 +4,11 @@
    reduced motion, or the motion toggle off. */
 (function () {
   "use strict";
+  /* Decorative motion only. Any failure here must leave content readable:
+     the catch at the bottom force-reveals everything this file animates. */
+  try {
   document.documentElement.classList.add("js");
-  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   function motionOK() { return !reduced && !document.documentElement.classList.contains("motion-off"); }
 
   /* ---------- header: scrolled state + one-shot logo pulse + active section ---------- */
@@ -24,7 +27,7 @@
     var s = document.getElementById(id);
     if (a && s) navLinks[id] = { a: a, s: s };
   });
-  if (Object.keys(navLinks).length && "IntersectionObserver" in window) {
+  if (Object.keys(navLinks).length && typeof window.IntersectionObserver === "function") {
     var secIO = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
         var id = e.target.id;
@@ -40,7 +43,7 @@
     sp.className = "spine"; sp.setAttribute("aria-hidden", "true");
     sp.innerHTML = "<i></i>";
     sec.prepend(sp);
-    if ("IntersectionObserver" in window && motionOK()) {
+    if (typeof window.IntersectionObserver === "function" && motionOK()) {
       new IntersectionObserver(function (es, io) {
         es.forEach(function (e) { if (e.isIntersecting) { sp.classList.add("in"); io.disconnect(); } });
       }, { threshold: 0.2 }).observe(sec);
@@ -49,7 +52,7 @@
 
   /* ---------- hero media: cinematic video when the asset exists, call theatre otherwise ---------- */
   var heroMedia = document.querySelector(".hero-media");
-  if (heroMedia) {
+  if (heroMedia && typeof window.fetch === "function") {
     fetch("assets/hero-loop.mp4", { method: "HEAD" }).then(function (r) {
       if (!r.ok) throw 0;
       var v = document.createElement("video");
@@ -63,7 +66,7 @@
       heroMedia.prepend(v);
       if (motionOK()) {
         v.play().catch(function () {});
-        if ("IntersectionObserver" in window) {
+        if (typeof window.IntersectionObserver === "function") {
           new IntersectionObserver(function (es) {
             es.forEach(function (e) { e.isIntersecting && motionOK() ? v.play().catch(function(){}) : v.pause(); });
           }).observe(v);
@@ -106,7 +109,7 @@
     litChips(3);
     if (summaryCard) summaryCard.classList.add("in");
   });
-  if (summaryCard && "IntersectionObserver" in window && motionOK()) {
+  if (summaryCard && typeof window.IntersectionObserver === "function" && motionOK()) {
     /* if the visitor never plays audio, still reveal the summary on scroll-by */
     new IntersectionObserver(function (es, io) {
       es.forEach(function (e) {
@@ -120,7 +123,7 @@
   document.querySelectorAll(".stack").forEach(function (st) {
     var layers = st.querySelectorAll(".layer");
     layers.forEach(function (l, i) { l.style.transitionDelay = (i * 0.12) + "s"; });
-    if ("IntersectionObserver" in window && motionOK()) {
+    if (typeof window.IntersectionObserver === "function" && motionOK()) {
       new IntersectionObserver(function (es, io) {
         es.forEach(function (e) { if (e.isIntersecting) { st.classList.add("in"); io.disconnect(); } });
       }, { threshold: 0.2 }).observe(st);
@@ -141,7 +144,7 @@
 
   /* ---------- final CTA one-shot ring ---------- */
   var finalCta = document.querySelector(".final-cta .btn-primary");
-  if (finalCta && "IntersectionObserver" in window && motionOK()) {
+  if (finalCta && typeof window.IntersectionObserver === "function" && motionOK()) {
     new IntersectionObserver(function (es, io) {
       es.forEach(function (e) { if (e.isIntersecting) { finalCta.classList.add("ring-once"); io.disconnect(); } });
     }, { threshold: 0.6 }).observe(finalCta);
@@ -327,4 +330,11 @@
   sim.querySelector("[data-sim-fwd]").addEventListener("click", function () { stop(); idx = Math.min(scen().steps.length - 1, idx + 1); render(); });
   sim.querySelector("[data-sim-replay]").addEventListener("click", function () { stop(); idx = -1; render(); playing = true; el.play.textContent = "Pause"; tick(); });
   render();
+  } catch (err) {
+    /* Fail open: reveal everything this file would have animated. */
+    try {
+      document.querySelectorAll(".spine, .stack, .summary-arrive").forEach(function (el) { el.classList.add("in"); });
+      document.querySelectorAll("[data-callchip]").forEach(function (el) { el.classList.add("lit"); });
+    } catch (e2) {}
+  }
 })();
