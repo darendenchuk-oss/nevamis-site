@@ -317,8 +317,11 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
 @media(max-width:1020px){.ind-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.ind-grid{grid-template-columns:1fr}}
 .ind-card{padding:20px;overflow:hidden}
-.ind-card .art{height:86px;border-radius:10px;margin-bottom:14px;
-  border:1px solid rgba(159,240,206,.1)}
+.ind-card .art{position:relative;height:86px;border-radius:10px;margin-bottom:14px;
+  border:1px solid rgba(159,240,206,.1);background-color:#02080D;
+  background-size:cover;background-position:center;background-repeat:no-repeat}
+.ind-card .art::after{content:"";position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(180deg,rgba(2,8,13,.18) 0%,rgba(6,20,29,.62) 100%)}
 .ind-card>.mono{font-size:10.5px;letter-spacing:.14em;color:var(--mint)}
 .ind-card h3{margin:7px 0 8px}
 .ind-card p{color:var(--muted);font-size:14px}
