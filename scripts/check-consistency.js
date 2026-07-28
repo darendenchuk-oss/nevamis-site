@@ -25,7 +25,9 @@ const navOf = (html) => {
   return m ? m[1].replace(/ aria-current="page"/g, "").replace(/\s+/g, " ").trim() : null;
 };
 const siteColOf = (html) => {
-  const m = html.match(/<h4>Site<\/h4>([\s\S]*?)<\/div>/);
+  /* Footer headings are h2 with a .foot-h class: they are peers of the page's
+     sections, and jumping h2 -> h4 broke screen-reader outline navigation. */
+  const m = html.match(/<h2 class="foot-h">Site<\/h2>([\s\S]*?)<\/div>/);
   return m ? m[1].replace(/\s+/g, " ").trim() : null;
 };
 

@@ -449,7 +449,7 @@ html.motion-off .faq details p{animation:none}
 .site-footer{border-top:1px solid var(--line);background:var(--navy-0);padding:56px 0 32px}
 .site-footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px;margin-bottom:34px}
 @media(max-width:760px){.site-footer .cols{grid-template-columns:1fr}}
-.site-footer h4{font-size:15px;margin-bottom:12px}
+.site-footer .foot-h{font-size:15px;margin-bottom:12px;font-weight:700;letter-spacing:-.01em}
 .site-footer p{color:var(--muted);font-size:14px}
 .site-footer .cols a{display:block;color:var(--muted);font-size:14px;padding:4px 0;width:fit-content;
   position:relative;transition:color .2s var(--e-out)}
