@@ -172,12 +172,22 @@ test('every page with real Q&A publishes it, except claims under review', async 
   const answers = faq.mainEntity.map((q) => q.acceptedAnswer.text).join(' ').toLowerCase();
   expect(answers).toContain('only the ai front desk is available today');
 
-  // revenue-engine holds CLM-10 at REVIEW: its Q&A must NOT be marked up,
-  // because answer engines quote FAQPage verbatim
+  // revenue-engine sells something that does not exist yet, so its Q&A is the
+  // most quotable place on the site to accidentally claim traction. It is now
+  // published, which means the guard has to bite on the wording rather than on
+  // the presence of the block: an answer engine repeating this must tell the
+  // reader the product is unbuilt and unbought.
   await page.goto('/revenue-engine.html');
   schema = await schemaOf(page);
-  expect(schema.find((s) => s['@type'] === 'FAQPage'),
-    'claims under review must not be amplified into structured data').toBeFalsy();
+  const reFaq = schema.find((s) => s['@type'] === 'FAQPage');
+  expect(reFaq, 'revenue-engine Q&A should be answerable').toBeTruthy();
+  const reAnswers = reFaq.mainEntity.map((q) => q.acceptedAnswer.text).join(' ').toLowerCase();
+  expect(reAnswers, 'the unbuilt status must survive extraction out of context')
+    .toContain('no clients onboarded yet');
+  // any phrasing that implies the pilot already has customers
+  for (const lie of ['with a small number of clients', 'our clients', 'existing clients', 'current clients']) {
+    expect(reAnswers, `structured data must not imply clients that do not exist: "${lie}"`).not.toContain(lie);
+  }
 });
 
 test('the organization is typed and priced for local answer results', async ({ page }) => {

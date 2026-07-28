@@ -38,14 +38,20 @@ function faqFrom(html) {
  * Pages whose Q&A must NOT be published as structured data yet.
  *
  * FAQPage markup is quoted verbatim by answer engines, so anything in it is
- * effectively a public assertion. revenue-engine.html carries CLM-10 (private
- * pilot status and 30% gross-profit terms), which docs/CLAIMS-LEDGER.md holds
- * at REVIEW pending reconciliation. Amplifying a claim under review into a
- * machine-readable format LLMs repeat would be the wrong way round: it clears
- * the ledger first, then it gets marked up. Remove the entry once CLM-10 is
- * APPROVED and re-run this script.
+ * effectively a public assertion. A claim the ledger holds at REVIEW must
+ * clear the ledger first and get marked up second, never the other way round.
+ *
+ * revenue-engine.html sat here under CLM-10. It was released 2026-07-28: the
+ * page had contradicted itself, saying "no clients onboarded yet" in one
+ * section and "in private pilot with a small number of clients" in the FAQ.
+ * The FAQ was the false half and the half answer engines quote. It now matches
+ * the true statement, and the 30% gross-profit terms are no longer on the
+ * public page at all, so nothing under review is being amplified.
+ *
+ * Empty is the correct steady state. Add a file here only to withhold, and
+ * only alongside a ledger entry explaining what is unresolved.
  */
-const FAQ_ON_HOLD = new Set(['revenue-engine.html']);
+const FAQ_ON_HOLD = new Set();
 
 function block(objs) {
   return `${OPEN}\n<script type="application/ld+json">\n${JSON.stringify(objs, null, 2)}\n</script>\n${CLOSE}`;
