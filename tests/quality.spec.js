@@ -159,3 +159,30 @@ test('tap targets on a phone are big enough to hit', async ({ browser }) => {
   expect(small, 'primary controls should be at least 40px tall on a phone').toEqual([]);
   await ctx.close();
 });
+
+/* Small uppercase mono labels are a deliberate part of the visual language,
+   and it is easy to shave a couple of pixels off one to make a line fit.
+   Several of those labels are the honesty badges ("PLANNED", "BEING
+   RESEARCHED") that keep a section truthful about what is actually built, so
+   the floor is enforced rather than left to judgement. */
+test('no rendered text falls below the 11px legibility floor', async ({ page }) => {
+  const offenders = [];
+
+  for (const p of MAP.pages.filter((x) => x.url)) {
+    await page.goto(p.url);
+    await page.waitForTimeout(400);
+    const tiny = await page.evaluate(() =>
+      [...document.querySelectorAll('body *')]
+        .filter((el) => el.children.length === 0 && (el.textContent || '').trim())
+        .filter((el) => {
+          const s = getComputedStyle(el);
+          if (s.display === 'none' || s.visibility === 'hidden') return false;
+          const px = parseFloat(s.fontSize);
+          return px > 0 && px < 11;
+        })
+        .map((el) => `${el.tagName}.${el.className || '-'}: ${parseFloat(getComputedStyle(el).fontSize)}px "${(el.textContent || '').trim().slice(0, 24)}"`));
+    tiny.forEach((t) => offenders.push(`${p.url} ${t}`));
+  }
+
+  expect(offenders, 'text smaller than 11px is not reliably readable').toEqual([]);
+});

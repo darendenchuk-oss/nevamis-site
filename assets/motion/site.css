@@ -47,6 +47,10 @@ strong{color:var(--ink)}
 .skip:focus{left:0}
 .visually-hidden{position:absolute;left:-9999px}
 
+/* readable floor: uppercase mono labels are a house pattern, but nothing a
+   visitor has to read may drop below 11px. Audited 2026-07-28. */
+
+
 /* ---------- header ---------- */
 .site-header{position:fixed;z-index:50;top:0;left:0;right:0;
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
@@ -194,16 +198,20 @@ html.motion-off .rail-track{animation:none}
 .line{display:grid;grid-template-columns:86px 1fr;gap:12px;padding:9px 10px;border-radius:10px;
   border-left:2px solid transparent;transition:background .25s var(--e-out),border-color .25s var(--e-out)}
 .line p{font-size:15px;color:var(--muted);transition:color .25s var(--e-out)}
-.line .who{font-size:10.5px;letter-spacing:.1em;color:var(--muted);padding-top:3px}
+.line .who{font-size:11px;letter-spacing:.1em;color:var(--muted);padding-top:3px}
 .line.agent .who{color:var(--mint)}
 .line.speaking{background:rgba(159,240,206,.06);border-left-color:var(--mint)}
 .line.speaking p{color:var(--ink)}
 .call-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
-.tagchip{font-family:"Spline Sans Mono",monospace;font-size:10.5px;letter-spacing:.08em;
+.tagchip{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.08em;
   border:1px solid var(--line);border-radius:999px;padding:5px 11px;color:var(--muted);
   opacity:.55;transition:opacity .4s var(--e-out),border-color .4s var(--e-out),color .4s var(--e-out),box-shadow .4s var(--e-out)}
 .tagchip.lit{opacity:1;color:var(--mint);border-color:rgba(159,240,206,.4);
   box-shadow:0 0 14px -4px rgba(47,191,143,.5)}
+/* Honesty badge riding beside a heading. These labels are what keep the
+   section truthful about built-vs-planned, so they hold the 11px floor and
+   step back via weight and opacity, never by shrinking below legibility. */
+.tagchip.inl{vertical-align:middle;margin-left:7px;position:relative;top:-1px}
 .tagchip.warm.lit{color:var(--warm);border-color:rgba(240,180,98,.45);box-shadow:0 0 14px -4px rgba(240,180,98,.4)}
 .foot-note{margin-top:12px;color:var(--muted);font-size:12.5px}
 .owner-card{padding:24px}
@@ -212,7 +220,7 @@ html.motion-off .rail-track{animation:none}
 .owner-card .midcta{margin-top:18px}
 .sms{background:#0A1822;border:1px solid rgba(159,240,206,.2);border-radius:14px 14px 14px 4px;
   padding:14px 16px;font-size:14.5px;color:var(--ink);line-height:1.5;display:block}
-.sms .mono{display:block;color:var(--mint);font-size:10.5px;letter-spacing:.14em;margin-bottom:8px}
+.sms .mono{display:block;color:var(--mint);font-size:11px;letter-spacing:.14em;margin-bottom:8px}
 .summary-arrive{opacity:0;transform:translateY(18px) scale(.985);
   transition:opacity .8s var(--e-out),transform .8s var(--e-out)}
 .summary-arrive.in{opacity:1;transform:none}
@@ -230,7 +238,7 @@ html.no-js .summary-arrive,html.motion-off .summary-arrive{opacity:1;transform:n
 .sim-scenarios button:hover{color:var(--ink);border-color:rgba(159,240,206,.35)}
 .sim-scenarios button[aria-pressed="true"]{background:var(--mint);color:#04120C;border-color:var(--mint)}
 .stage-rail{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
-.stage-pill{font-family:"Spline Sans Mono",monospace;font-size:10.5px;letter-spacing:.06em;
+.stage-pill{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.06em;
   color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 11px;
   transition:all .3s var(--e-out)}
 .stage-pill.done{color:var(--emerald);border-color:rgba(47,191,143,.4)}
@@ -250,7 +258,7 @@ html.no-js .summary-arrive,html.motion-off .summary-arrive{opacity:1;transform:n
   color:var(--muted);background:rgba(159,240,206,.03);border-left:2px solid transparent;
   opacity:0;transform:translateY(6px);transition:opacity .4s var(--e-out),transform .4s var(--e-out)}
 .sim-line.on{opacity:1;transform:none;color:var(--ink);border-left-color:rgba(159,240,206,.35)}
-.sim-line .who{display:block;font-family:"Spline Sans Mono",monospace;font-size:10px;
+.sim-line .who{display:block;font-family:"Spline Sans Mono",monospace;font-size:11px;
   letter-spacing:.12em;color:var(--mint);margin-bottom:2px}
 .sim-chips{display:flex;gap:7px;flex-wrap:wrap}
 .sim-chip{font-size:12.5px;border:1px solid rgba(159,240,206,.3);color:var(--mint);
@@ -267,7 +275,7 @@ html.no-js .summary-arrive,html.motion-off .summary-arrive{opacity:1;transform:n
 .sim-rule.amber{color:var(--warm)} .sim-rule.amber::before{content:"?";color:var(--warm)}
 .sim-out-card{border:1px solid var(--line);border-radius:11px;padding:10px 13px;margin-bottom:8px;
   font-size:13.5px;color:var(--muted);opacity:.55;transition:all .4s var(--e-out)}
-.sim-out-card .mono{display:block;font-size:10px;letter-spacing:.13em;color:var(--muted);margin-bottom:3px}
+.sim-out-card .mono{display:block;font-size:11px;letter-spacing:.13em;color:var(--muted);margin-bottom:3px}
 .sim-out-card.on{opacity:1;color:var(--ink);border-color:rgba(159,240,206,.35);
   background:rgba(159,240,206,.04)}
 .sim-out-card.on .mono{color:var(--mint)}
@@ -326,7 +334,7 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
   background-size:cover;background-position:center;background-repeat:no-repeat}
 .ind-card .art::after{content:"";position:absolute;inset:0;border-radius:inherit;
   background:linear-gradient(180deg,rgba(2,8,13,.18) 0%,rgba(6,20,29,.62) 100%)}
-.ind-card>.mono{font-size:10.5px;letter-spacing:.14em;color:var(--mint)}
+.ind-card>.mono{font-size:11px;letter-spacing:.14em;color:var(--mint)}
 .ind-card h3{margin:7px 0 8px}
 .ind-card p{color:var(--muted);font-size:14px}
 
@@ -344,7 +352,7 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
 .roi-out{padding:24px;position:sticky;top:86px}
 .roi-out h3{margin-bottom:16px}
 .roi-out .row{padding:13px 0;border-top:1px solid var(--line)}
-.roi-out .lbl{font-size:10.5px;letter-spacing:.13em;color:var(--muted);margin-bottom:5px}
+.roi-out .lbl{font-size:11px;letter-spacing:.13em;color:var(--muted);margin-bottom:5px}
 .roi-out .big{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.02em;
   font-size:clamp(26px,3vw,34px);color:var(--mint)}
 .roi-out .big.tick{animation:tickPop .22s var(--e-out)}
@@ -375,7 +383,7 @@ html.no-js .stack .layer,html.motion-off .stack .layer{opacity:1;transform:none}
 @media(max-width:960px){.week{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.week{grid-template-columns:1fr}}
 .week>div{padding:18px}
-.week .mono{font-size:10.5px;letter-spacing:.14em;color:var(--mint)}
+.week .mono{font-size:11px;letter-spacing:.14em;color:var(--mint)}
 .week h3{margin:7px 0 6px;font-size:16.5px}
 .week p{color:var(--muted);font-size:13.5px}
 
@@ -403,7 +411,7 @@ table.compare{width:100%;border-collapse:collapse;min-width:640px;font-size:14.5
   box-shadow:0 18px 40px -24px rgba(47,191,143,.4)}}
 .price-card.rec{border-color:rgba(47,191,143,.45);box-shadow:0 18px 48px -28px rgba(14,143,106,.5)}
 .price-card .rec-tag{position:absolute;top:-11px;left:20px;font-family:"Spline Sans Mono",monospace;
-  font-size:10px;letter-spacing:.13em;background:var(--mint);color:#04120C;border-radius:999px;
+  font-size:11px;letter-spacing:.13em;background:var(--mint);color:#04120C;border-radius:999px;
   padding:4px 11px;font-weight:700}
 .price-card h3{font-size:21px}
 .price-card .amount{font-family:"Bricolage Grotesque",sans-serif;font-size:36px;font-weight:800;
