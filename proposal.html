@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en-CA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Nevamis proposal</title>
+<meta name="description" content="A short written summary of what was discussed: the plan, what is included, and how the free 7-day pilot works.">
+<!-- Private sales artefact: shared by link after a call, never indexed. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/motion/site.css">
+<style>
+  .prop{max-width:820px;margin:0 auto;padding:110px clamp(20px,4vw,44px) 80px}
+  .prop-head{border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:34px}
+  .prop-head .mark{display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque",sans-serif;
+    font-weight:700;font-size:18px;margin-bottom:22px}
+  .prop-head .mark span{color:var(--muted);font-weight:500}
+  .prop h1{font-size:clamp(30px,4.4vw,44px);font-weight:700;letter-spacing:-.02em;line-height:1.08;margin:10px 0}
+  .prop .meta{color:var(--muted);font-size:14px}
+  .prop h2{font-size:clamp(21px,2.6vw,27px);margin:0 0 14px}
+  .prop section{padding:0;margin-bottom:38px;overflow:visible}
+  .plan-box{background:linear-gradient(180deg,var(--navy-2),#0C1A25);border:1px solid rgba(47,191,143,.4);
+    border-radius:16px;padding:26px;margin-bottom:14px}
+  .plan-box .amount{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:40px;
+    letter-spacing:-.02em;color:var(--ink);margin:6px 0 2px}
+  .plan-box .amount span{font-size:16px;font-weight:400;color:var(--muted);
+    font-family:"Atkinson Hyperlegible",sans-serif}
+  .plan-box .plan-line{color:var(--muted);font-size:14.5px;margin-top:4px}
+  .plan-box .plan-line s{opacity:.7}
+  .plan-box .plan-line b{color:var(--mint)}
+  ul.ticks{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:9px}
+  ul.ticks li{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:15px}
+  ul.ticks li::before{content:"✓";color:var(--emerald);font-weight:700;flex:0 0 auto}
+  .pilot{border:1px solid var(--line);border-radius:16px;padding:24px;background:rgba(159,240,206,.04)}
+  .pilot p{color:var(--muted);font-size:15px;margin-bottom:10px}
+  .pilot p:last-child{margin-bottom:0}
+  .pilot strong{color:var(--ink)}
+  ol.steps{padding-left:20px;display:grid;gap:10px;color:var(--muted);font-size:15px}
+  ol.steps b{color:var(--ink)}
+  .prop-foot{border-top:1px solid var(--line);padding-top:24px;margin-top:44px;color:var(--muted);font-size:13px}
+  .noprint-cta{display:flex;gap:14px;flex-wrap:wrap;margin:26px 0}
+  @media print{
+    .noprint-cta,.callbar,#aurora,.nv-cur,.nv-halo{display:none!important}
+    html,body{background:#fff;color:#111}
+    .prop{padding:0}
+    .plan-box,.pilot{background:#fff;border-color:#bbb}
+    .plan-box .amount,.prop h1,.prop h2,ul.ticks li,ol.steps,.pilot p{color:#111}
+    a{color:#111;text-decoration:underline}
+  }
+</style>
+</head>
+<body>
+<main class="prop" id="main">
+  <div class="prop-head">
+    <div class="mark">
+      <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <path d="M 15 38 A 17 17 0 0 1 49 38" stroke="#2FBF8F" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="32" cy="48" r="6" fill="#9FF0CE"/>
+      </svg>
+      Nevamis<span>&nbsp;AI</span>
+    </div>
+    <p class="meta" id="preparedFor">Prepared after our call</p>
+    <h1 id="headline">Your AI receptionist proposal</h1>
+    <p class="meta" id="preparedMeta"></p>
+  </div>
+
+  <section>
+    <h2>What we discussed</h2>
+    <p style="color:var(--muted);font-size:15.5px" id="summaryLine">
+      Your business line gets answered 24/7 by an AI receptionist configured around your
+      hours, service area, job types, and the rules you approve. It qualifies the caller,
+      books the job into your calendar, texts the customer a confirmation, and sends you a
+      summary of every call. Your phone number does not change.
+    </p>
+  </section>
+
+  <section>
+    <h2>Recommended plan</h2>
+    <div class="plan-box">
+      <p class="mono" style="color:var(--mint);font-size:11.5px;letter-spacing:.14em" id="planName">GROWTH</p>
+      <p class="amount" id="planPrice">C$449<span>/month</span></p>
+      <p class="plan-line" id="planIncludes"></p>
+      <p class="plan-line" id="planSetup"></p>
+      <p class="plan-line" id="planAnnual"></p>
+      <ul class="ticks" id="planFeatures"></ul>
+    </div>
+    <p class="meta">Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime.
+      Full plan comparison at <a href="/pricing.html" style="color:var(--mint)">nevamis.ca/pricing</a>.</p>
+  </section>
+
+  <section>
+    <h2>Start with the free pilot</h2>
+    <div class="pilot">
+      <p><strong id="pilotName">7-day live pilot</strong> <span id="pilotTagline"></span></p>
+      <p id="pilotCaps"></p>
+      <p id="pilotDayEight"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>What happens next</h2>
+    <ol class="steps">
+      <li><b>Discovery.</b> A short call to map your call patterns, services, service area, and the rules the AI must follow.</li>
+      <li><b>Build and test.</b> Your agent is configured and tested against your real scenarios, not a generic script.</li>
+      <li><b>You review it.</b> You hear it, push on it, and approve it before it takes a single real call.</li>
+      <li><b>Controlled pilot.</b> Live on your line with you seeing every call, for seven days.</li>
+      <li><b>You decide.</b> On day eight it ends unless you choose a plan. Nothing charges automatically.</li>
+    </ol>
+    <div class="noprint-cta">
+      <a class="btn btn-primary btn-lg" href="/book.html" data-evt="proposal_book_click">Book the next call</a>
+      <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it again · (587) 413-0035</a>
+    </div>
+  </section>
+
+  <div class="prop-foot">
+    <p>Nevamis AI · Edmonton, Alberta · <a href="tel:+15874130035" style="color:var(--mint)">(587) 413-0035</a>
+      · <a href="mailto:Sales@nevamis.ca" style="color:var(--mint)">Sales@nevamis.ca</a></p>
+    <p style="margin-top:6px">This summary reflects published pricing at the time it was sent and is not a
+      contract. Terms at <a href="/terms.html" style="color:var(--mint)">nevamis.ca/terms</a>.</p>
+  </div>
+</main>
+
+<script>document.documentElement.classList.remove('no-js');</script>
+<script src="pricing-config.js"></script>
+<script>
+/* Renders the proposal from URL parameters against the approved price list.
+   Every value shown comes from pricing-config.js, so a proposal can never
+   quote a number the business has not approved.
+   Params: ?to=Business+Name&plan=growth|after-hours|scale|pay-as-you-go
+           &founding=1   (setup fee waived, first five clients)
+   All parameters are rendered with textContent, never innerHTML. */
+(function () {
+  "use strict";
+  try {
+    var P = window.NV_PRICING;
+    if (!P || !P.approved) return;
+    var q = new URLSearchParams(location.search);
+
+    /* keep an injected value short and plain; it is only ever printed as text */
+    function clean(v, max) {
+      return (v || "").replace(/[<>]/g, "").trim().slice(0, max || 80);
+    }
+    var money = function (n) {
+      var v = Number(n);
+      return "C$" + (Number.isInteger(v) ? v.toLocaleString("en-CA")
+        : v.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    };
+    var set = function (id, text) {
+      var el = document.getElementById(id);
+      if (el && text != null) el.textContent = text;
+    };
+
+    var to = clean(q.get("to"));
+    if (to) {
+      set("preparedFor", "Prepared for " + to);
+      set("headline", "An AI receptionist for " + to);
+      document.title = "Nevamis proposal · " + to;
+    }
+
+    var when = new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" });
+    set("preparedMeta", "Prepared " + when + " by Daren, founder");
+
+    var wanted = clean(q.get("plan"), 24).toLowerCase() || "growth";
+    var plan = (P.plans || []).filter(function (p) { return p.id === wanted; })[0];
+    var payg = P.payAsYouGo;
+
+    if (!plan && payg && (wanted === payg.id || wanted === "payg")) {
+      set("planName", payg.name.toUpperCase());
+      set("planPrice", money(payg.monthly));
+      document.querySelector("#planPrice span") || (function () {
+        var s = document.createElement("span"); s.textContent = "/month";
+        document.getElementById("planPrice").appendChild(s);
+      })();
+      set("planIncludes", "No included minutes. " + money(payg.perMinute) + " per connected AI minute.");
+      set("planSetup", "One-time setup " + money(payg.setup) + ".");
+      renderFeatures(payg.features || []);
+    } else {
+      plan = plan || P.plans[1];
+      set("planName", plan.name.toUpperCase() + (plan.recommended ? " · MOST COMMON" : ""));
+      var priceEl = document.getElementById("planPrice");
+      priceEl.textContent = (plan.startingAt ? "from " : "") + money(plan.monthly);
+      var per = document.createElement("span"); per.textContent = "/month";
+      priceEl.appendChild(per);
+      set("planIncludes", plan.includedMinutes + " included AI minutes per month, about "
+        + plan.callRange + ". Additional minutes " + money(plan.overage) + " each.");
+
+      var setupEl = document.getElementById("planSetup");
+      setupEl.textContent = "";
+      if (q.get("founding") === "1" && P.foundingClient && P.foundingClient.active) {
+        var s = document.createElement("s"); s.textContent = "One-time setup " + money(plan.setup);
+        var b = document.createElement("b"); b.textContent = "  waived as a founding client";
+        setupEl.appendChild(s); setupEl.appendChild(b);
+      } else {
+        setupEl.textContent = "One-time setup " + money(plan.setup) + ".";
+      }
+
+      if (P.annual && P.annual.active && plan.annual) {
+        set("planAnnual", "Or " + money(plan.annual) + " for the year: pay ten months, get twelve.");
+      }
+      renderFeatures(plan.features || []);
+    }
+
+    function renderFeatures(list) {
+      var ul = document.getElementById("planFeatures");
+      ul.textContent = "";
+      list.slice(0, 9).forEach(function (f) {
+        var li = document.createElement("li");
+        li.textContent = f;
+        ul.appendChild(li);
+      });
+    }
+
+    if (P.pilot) {
+      set("pilotName", P.pilot.name);
+      set("pilotTagline", P.pilot.tagline);
+      set("pilotCaps", P.pilot.caps + " " + P.pilot.start);
+      set("pilotDayEight", P.pilot.dayEight);
+    }
+  } catch (e) { /* the static copy above is already a valid proposal */ }
+})();
+</script>
+<script src="site.js" defer></script>
+</body>
+</html>
