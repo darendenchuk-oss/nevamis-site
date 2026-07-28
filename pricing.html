@@ -298,6 +298,69 @@
     document.getElementById(id).addEventListener("change", recommend);
   });
   recommend();
+
+  /* Publish the price list as structured Offers, built from the same config the
+     page renders, so an answer engine asked "what does an AI receptionist cost
+     in Canada" has a parseable table instead of prose to infer from. Emitting
+     from config keeps the never-duplicate-a-price rule intact. */
+  try {
+    var offers = P.plans.map(function (pl, i) {
+      return {
+        "@type": "Offer",
+        "position": i + 1,
+        "name": pl.name,
+        "description": pl.bestFor,
+        "price": String(pl.monthly),
+        "priceCurrency": P.currency,
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": String(pl.monthly),
+          "priceCurrency": P.currency,
+          "unitText": "MONTH",
+          "referenceQuantity": {
+            "@type": "QuantitativeValue", "value": pl.includedMinutes,
+            "unitText": "included AI minutes per month"
+          }
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html",
+        "seller": { "@id": "https://nevamis.ca/#organization" }
+      };
+    });
+    if (P.payAsYouGo && P.payAsYouGo.active) {
+      offers.push({
+        "@type": "Offer",
+        "position": offers.length + 1,
+        "name": P.payAsYouGo.name,
+        "description": P.payAsYouGo.note,
+        "price": String(P.payAsYouGo.monthly),
+        "priceCurrency": P.currency,
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html",
+        "seller": { "@id": "https://nevamis.ca/#organization" }
+      });
+    }
+    var node = document.createElement("script");
+    node.type = "application/ld+json";
+    node.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "@id": "https://nevamis.ca/pricing.html#plans",
+      "name": "Nevamis AI Receptionist",
+      "description": "A configured AI receptionist that answers a business phone line 24/7, qualifies callers, books jobs, and sends the owner a summary of every call.",
+      "brand": { "@id": "https://nevamis.ca/#organization" },
+      "category": "AI phone answering service",
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": P.currency,
+        "lowPrice": String(P.payAsYouGo && P.payAsYouGo.active ? P.payAsYouGo.monthly : P.plans[0].monthly),
+        "highPrice": String(P.plans[P.plans.length - 1].monthly),
+        "offerCount": offers.length,
+        "offers": offers
+      }
+    });
+    document.head.appendChild(node);
+  } catch (e) { /* the visible price table is the source of truth regardless */ }
 })();
 </script>
 </body>

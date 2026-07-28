@@ -26,13 +26,26 @@ const decode = (s) => s
 /** Pull the real FAQ out of the page so the markup always matches the copy. */
 function faqFrom(html) {
   const out = [];
-  const re = /<details>\s*<summary>([\s\S]*?)<\/summary>\s*<p>([\s\S]*?)<\/p>\s*<\/details>/g;
+  const re = /<details[^>]*>\s*<summary>([\s\S]*?)<\/summary>\s*<p>([\s\S]*?)<\/p>\s*<\/details>/g;
   let m;
   while ((m = re.exec(html))) {
     out.push({ q: decode(m[1]), a: decode(m[2]) });
   }
   return out;
 }
+
+/**
+ * Pages whose Q&A must NOT be published as structured data yet.
+ *
+ * FAQPage markup is quoted verbatim by answer engines, so anything in it is
+ * effectively a public assertion. revenue-engine.html carries CLM-10 (private
+ * pilot status and 30% gross-profit terms), which docs/CLAIMS-LEDGER.md holds
+ * at REVIEW pending reconciliation. Amplifying a claim under review into a
+ * machine-readable format LLMs repeat would be the wrong way round: it clears
+ * the ledger first, then it gets marked up. Remove the entry once CLM-10 is
+ * APPROVED and re-run this script.
+ */
+const FAQ_ON_HOLD = new Set(['revenue-engine.html']);
 
 function block(objs) {
   return `${OPEN}\n<script type="application/ld+json">\n${JSON.stringify(objs, null, 2)}\n</script>\n${CLOSE}`;
@@ -167,8 +180,28 @@ for (const p of PAGES) {
     },
   ];
 
+  // Any page carrying real Q&A gets it published as answerable pairs. Answer
+  // engines quote these directly, so the source copy has to stand alone out of
+  // context — which is exactly how the visible answers are already written.
+  const pageFaq = FAQ_ON_HOLD.has(p.file) ? [] : faqFrom(html);
+  if (FAQ_ON_HOLD.has(p.file)) {
+    console.warn(`  note: ${p.file} FAQ withheld from structured data (claims under review)`);
+  }
+  if (pageFaq.length >= 3) {
+    json.push({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      '@id': `${url}#faq`,
+      mainEntity: pageFaq.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    });
+  }
+
   fs.writeFileSync(p.file, inject(html, json));
-  console.log(`${p.file}: BreadcrumbList + ${p.type}`);
+  console.log(`${p.file}: BreadcrumbList + ${p.type}${pageFaq.length >= 3 ? ` + FAQPage (${pageFaq.length})` : ''}`);
 }
 
 console.log('\nRun `node scripts/promote.mjs` to copy home.html into index.html.');

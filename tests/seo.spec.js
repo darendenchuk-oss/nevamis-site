@@ -57,14 +57,15 @@ function betterMax() { return 185; }
 test('homepage publishes Organization, Service, FAQ and resolvable @id links', async ({ page }) => {
   await page.goto('/');
   const schema = await schemaOf(page);
-  const types = schema.map((s) => s['@type']);
+  // a node may declare several types (Organization is also a ProfessionalService)
+  const types = schema.flatMap((s) => [].concat(s['@type']));
 
   expect(types).toContain('Organization');
   expect(types).toContain('WebSite');
   expect(types).toContain('Service');
   expect(types).toContain('FAQPage');
 
-  const org = schema.find((s) => s['@type'] === 'Organization');
+  const org = schema.find((s) => [].concat(s['@type']).includes('Organization'));
   expect(org['@id'], 'Organization needs an @id for other nodes to reference').toBeTruthy();
   expect(org.logo, 'Google reads Organization.logo for the brand icon').toContain('icon-512.png');
   expect(org.telephone).toContain('587');
@@ -134,6 +135,71 @@ test('robots.txt, sitemap and llms.txt agree with the real page set', async ({ p
   expect(llms).toContain('(587) 413-0035');
   // AI engines must not be handed claims the business cannot support
   expect(llms.toLowerCase()).toContain('no client counts');
+});
+
+test('pricing publishes a parseable price table for answer engines', async ({ page }) => {
+  await page.goto('/pricing.html');
+  const schema = await schemaOf(page);
+  const product = schema.find((s) => s['@type'] === 'Product');
+  expect(product, 'pricing needs Product/Offer markup').toBeTruthy();
+
+  const agg = product.offers;
+  expect(agg['@type']).toBe('AggregateOffer');
+  expect(agg.priceCurrency).toBe('CAD');
+  expect(Number(agg.offerCount)).toBeGreaterThanOrEqual(4);   // 3 plans + PAYG
+
+  // prices must match the config, never a hardcoded copy
+  const cfg = await page.evaluate(() => ({
+    plans: window.NV_PRICING.plans.map((p) => ({ name: p.name, monthly: p.monthly })),
+    payg: window.NV_PRICING.payAsYouGo.monthly,
+  }));
+  for (const plan of cfg.plans) {
+    const offer = agg.offers.find((o) => o.name === plan.name);
+    expect(offer, `offer missing for ${plan.name}`).toBeTruthy();
+    expect(offer.price).toBe(String(plan.monthly));
+  }
+  expect(Number(agg.lowPrice)).toBe(cfg.payg);
+});
+
+test('every page with real Q&A publishes it, except claims under review', async ({ page }) => {
+  // coming-soon carries 12 genuine questions and honest forward-looking answers
+  await page.goto('/coming-soon.html');
+  let schema = await schemaOf(page);
+  const faq = schema.find((s) => s['@type'] === 'FAQPage');
+  expect(faq, 'coming-soon Q&A should be answerable').toBeTruthy();
+  expect(faq.mainEntity.length).toBeGreaterThanOrEqual(10);
+  // the status answer must survive extraction out of context
+  const answers = faq.mainEntity.map((q) => q.acceptedAnswer.text).join(' ').toLowerCase();
+  expect(answers).toContain('only the ai front desk is available today');
+
+  // revenue-engine holds CLM-10 at REVIEW: its Q&A must NOT be marked up,
+  // because answer engines quote FAQPage verbatim
+  await page.goto('/revenue-engine.html');
+  schema = await schemaOf(page);
+  expect(schema.find((s) => s['@type'] === 'FAQPage'),
+    'claims under review must not be amplified into structured data').toBeFalsy();
+});
+
+test('the organization is typed and priced for local answer results', async ({ page }) => {
+  await page.goto('/');
+  const schema = await schemaOf(page);
+  const org = schema.find((s) => String(s['@type']).includes('Organization'));
+  expect(String(org['@type'])).toContain('ProfessionalService');
+  expect(org.priceRange).toMatch(/C\$/);
+  expect(org.areaServed.length, 'name the towns actually served').toBeGreaterThan(3);
+  expect(org.knowsAbout.join(' ')).toContain('AI receptionist');
+});
+
+test('answer engines are welcomed, and the proposal page is not', async ({ page }) => {
+  const robots = await (await page.request.get('/robots.txt')).text();
+  for (const bot of ['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended', 'OAI-SearchBot']) {
+    expect(robots, `${bot} should have an explicit stance`).toContain(bot);
+  }
+  // the per-prospect proposal is private in every crawler's section
+  const blocks = robots.split(/\n(?=User-agent:)/);
+  for (const b of blocks.filter((x) => x.trim())) {
+    expect(b, `a crawler block fails to exclude the proposal:\n${b}`).toContain('Disallow: /proposal.html');
+  }
 });
 
 test('the staging twin stays out of the index', async ({ page }) => {
