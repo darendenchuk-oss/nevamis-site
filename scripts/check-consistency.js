@@ -202,5 +202,32 @@ for (const p of contentPages) {
   }
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config.");
+/* 9. PLAYBOOK.md is what the founder reads before a sales call, so its tier
+      table is a pricing surface too, and the one where a stale number gets
+      quoted to a prospect out loud with nothing to catch it. Each plan's row
+      must carry the same setup, monthly, included minutes, and overage as
+      pricing-config.js. Checked only when ai-assistant sits beside this repo. */
+{
+  const playbook = path.join(root, "..", "ai-assistant", "PLAYBOOK.md");
+  if (fs.existsSync(playbook)) {
+    const md = fs.readFileSync(playbook, "utf8");
+    const w = {};
+    vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+
+    /* The table writes thousands both ways depending on the column, so accept
+       "1250" or "1,250" rather than forcing one style on a prose document. */
+    const money = (n) => [String(n), Number(n).toLocaleString("en-CA")];
+    for (const plan of w.NV_PRICING.plans) {
+      const row = md.split(/\r?\n/).find((l) => /^\|/.test(l) && l.includes("| " + plan.name + " |"));
+      if (!row) { err(`PLAYBOOK.md: no tier row for "${plan.name}"`); continue; }
+      const has = (forms) => forms.some((f) => row.includes("$" + f));
+      if (!has(money(plan.monthly))) err(`PLAYBOOK.md "${plan.name}": monthly is not $${plan.monthly} as in pricing-config.js`);
+      if (!has(money(plan.setup))) err(`PLAYBOOK.md "${plan.name}": setup is not $${plan.setup} as in pricing-config.js`);
+      if (!new RegExp(`\\|\\s*${plan.includedMinutes}\\s*\\|`).test(row)) err(`PLAYBOOK.md "${plan.name}": included minutes are not ${plan.includedMinutes}`);
+      if (!row.includes("$" + plan.overage.toFixed(2))) err(`PLAYBOOK.md "${plan.name}": overage is not $${plan.overage.toFixed(2)}/min`);
+    }
+  }
+}
+
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config.");
 process.exit(fail === 0 ? 0 : 1);
