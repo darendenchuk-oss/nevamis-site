@@ -47,6 +47,27 @@ for (const p of contentPages) {
   if (emDashes > 0) err(p + ": contains " + emDashes + " em dash(es)");
   if (/free 7-day pilot/i.test(html) && !/7-day live pilot/i.test(html)) err(p + ": non-canonical pilot naming");
 }
+
+/* 6b. Retired claims escape through non-HTML surfaces too. A prospect who calls
+       the demo line hears the agent prompt, and an answer engine reads llms.txt,
+       so both are held to the same banned list as the pages. The engine snapshot
+       is checked only when that repo is present beside this one. */
+{
+  const extraSurfaces = [
+    path.join(root, "llms.txt"),
+    path.join(root, "..", "nevamis-engine", "docs", "agent-prompts", "demo.md"),
+    path.join(root, "..", "nevamis-engine", "docs", "agent-prompts", "intake.md"),
+    path.join(root, "..", "nevamis-engine", "docs", "agent-prompts", "escalation.md"),
+  ];
+  for (const file of extraSurfaces) {
+    if (!fs.existsSync(file)) continue;
+    const text = fs.readFileSync(file, "utf8");
+    const label = path.relative(root, file).replace(/\\/g, "/");
+    for (const b of banned) {
+      if (b.test(text)) err(label + ": banned phrase " + b + " (spoken or machine-read surface)");
+    }
+  }
+}
 /* 7. The static pricing fallback on pricing.html must match pricing-config.js.
       Every plan named in the fallback must exist in the config with identical
       monthly, setup, included-minute, and overage numbers. (The fallback may
