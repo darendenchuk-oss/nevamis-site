@@ -92,6 +92,114 @@
     if (a) nvFunnel("demo_call_click");
   });
 
+  /* ---------- section reach + scroll depth ----------
+     Answers "where do people quit?" without any personal data: one fire-once
+     event per major section, plus depth milestones. Names only, no properties. */
+  (function () {
+    if (typeof window.IntersectionObserver !== "function") return;
+    var sections = document.querySelectorAll("main section[id]");
+    if (!sections.length) return;
+    var seen = {};
+    var secIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var id = en.target.id;
+        if (seen[id]) return;
+        seen[id] = 1;
+        window.nvTrack("section_reached_" + id.replace(/-/g, "_"));
+        secIO.unobserve(en.target);
+      });
+    }, { threshold: 0.35 });
+    sections.forEach(function (s) { secIO.observe(s); });
+
+    var marks = [25, 50, 75, 100], hit = {};
+    var onDepth = function () {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      if (max <= 0) return;
+      var pct = Math.round((window.scrollY / max) * 100);
+      marks.forEach(function (m) {
+        if (pct >= m && !hit[m]) { hit[m] = 1; window.nvTrack("scroll_depth_" + m); }
+      });
+      if (hit[100]) window.removeEventListener("scroll", onDepth);
+    };
+    window.addEventListener("scroll", onDepth, { passive: true });
+  })();
+
+  /* ---------- returning from a demo call ----------
+     Tapping the phone CTA is the highest-intent action on the site and was
+     previously unhandled. Flag it, and when the visitor comes back to the tab
+     offer the obvious next step once. */
+  (function () {
+    var KEY = "nv-called";
+    document.addEventListener("click", function (e) {
+      var el = e.target.closest && e.target.closest('a[href^="tel:"]');
+      if (el) { try { sessionStorage.setItem(KEY, String(Date.now())); } catch (err) {} }
+    });
+
+    function offer() {
+      var at;
+      try { at = Number(sessionStorage.getItem(KEY) || 0); } catch (err) { return; }
+      if (!at) return;
+      /* only if they were away long enough to have actually called */
+      if (Date.now() - at < 25000) return;
+      try { sessionStorage.removeItem(KEY); } catch (err) {}
+      if (document.querySelector(".callback-bar")) return;
+
+      var bar = document.createElement("div");
+      bar.className = "callback-bar";
+      bar.setAttribute("role", "region");
+      bar.setAttribute("aria-label", "After your call");
+
+      var msg = document.createElement("span");
+      msg.textContent = "How did that call go? That was the same agent your customers would reach.";
+
+      var cta = document.createElement("a");
+      cta.className = "btn btn-primary";
+      cta.href = "/book.html";
+      cta.setAttribute("data-evt", "post_call_book_click");
+      cta.textContent = "Build that for my business";
+
+      var close = document.createElement("button");
+      close.type = "button";
+      close.className = "callback-close";
+      close.setAttribute("aria-label", "Dismiss");
+      close.textContent = "×";
+
+      bar.appendChild(msg); bar.appendChild(cta); bar.appendChild(close);
+      document.body.appendChild(bar);
+      requestAnimationFrame(function () { bar.classList.add("in"); });
+      window.nvTrack("post_call_prompt_shown");
+      close.addEventListener("click", function () {
+        bar.classList.remove("in");
+        setTimeout(function () { bar.remove(); }, 300);
+      });
+    }
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) offer(); });
+    window.addEventListener("focus", offer);
+  })();
+
+  /* ---------- inline scheduler ----------
+     Injected only when scrolled into view, so a third-party iframe never
+     costs anything to visitors who do not reach the bottom of the page. */
+  (function () {
+    var host = document.querySelector("[data-book-src]");
+    if (!host || typeof window.IntersectionObserver !== "function") return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        io.disconnect();
+        var f = document.createElement("iframe");
+        f.src = host.getAttribute("data-book-src");
+        f.title = "Book a 15-minute intro call with Daren on the Cal.com scheduler";
+        f.loading = "lazy";
+        f.style.cssText = "width:100%;height:680px;border:0;border-radius:14px;background:#fff";
+        host.appendChild(f);
+        window.nvTrack("inline_scheduler_shown");
+      });
+    }, { rootMargin: "300px" });
+    io.observe(host);
+  })();
+
   /* ---------- mobile nav ---------- */
   var navBtn = document.querySelector(".nav-toggle");
   var nav = document.querySelector(".main-nav");

@@ -238,6 +238,68 @@ test('every tap emits a sonar ring, except under reduced motion', async ({ page,
   await ctx.close();
 });
 
+test('funnel diagnostics fire without leaking anything personal', async ({ page }) => {
+  await page.goto(PLAIN);
+  await page.waitForFunction(() => Array.isArray(window.nvEvents));
+
+  // walk the page so section + depth events accumulate
+  for (const pct of [0.25, 0.5, 0.75, 1]) {
+    await page.evaluate((p) => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo({ top: max * p, behavior: 'instant' });
+    }, pct);
+    await page.waitForTimeout(450);
+  }
+
+  const events = await page.evaluate(() => window.nvEvents.map((e) => e.event));
+  expect(events.filter((e) => e.startsWith('section_reached_')).length,
+    'section reach events should fire').toBeGreaterThanOrEqual(4);
+  expect(events, 'depth milestones should fire').toContain('scroll_depth_50');
+  expect(events).toContain('scroll_depth_100');
+
+  // the taxonomy forbids personal data: names only, empty props
+  const payloads = await page.evaluate(() => window.nvEvents.map((e) => JSON.stringify(e.data || {})));
+  for (const p of payloads) expect(p).toBe('{}');
+});
+
+test('the post-call prompt appears only after a real call gap', async ({ page }) => {
+  await page.goto(PLAIN);
+  await page.waitForFunction(() => Array.isArray(window.nvEvents));
+
+  // returning immediately must NOT nag: too fast to have placed a call
+  await page.evaluate(() => { sessionStorage.setItem('nv-called', String(Date.now())); });
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+  await page.waitForTimeout(200);
+  await expect(page.locator('.callback-bar')).toHaveCount(0);
+
+  // returning after a plausible call does
+  await page.evaluate(() => { sessionStorage.setItem('nv-called', String(Date.now() - 40000)); });
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+  const bar = page.locator('.callback-bar');
+  await expect(bar).toHaveCount(1);
+  await expect(bar.locator('a[data-evt="post_call_book_click"]')).toBeVisible();
+
+  // dismissible, and it never returns in the same session
+  await bar.locator('.callback-close').click();
+  await page.waitForTimeout(400);
+  await expect(page.locator('.callback-bar')).toHaveCount(0);
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+  await page.waitForTimeout(200);
+  await expect(page.locator('.callback-bar')).toHaveCount(0);
+});
+
+test('the homepage scheduler loads lazily and books without leaving the page', async ({ page }) => {
+  await page.goto(PLAIN);
+  // nothing costly before it is needed
+  await expect(page.locator('#inlineBook iframe')).toHaveCount(0);
+
+  await page.locator('#inlineBook').scrollIntoViewIfNeeded();
+  const frame = page.locator('#inlineBook iframe');
+  await expect(frame).toHaveCount(1);
+  await expect(frame).toHaveAttribute('src', /cal\.com/);
+  await expect(frame).toHaveAttribute('title', /Book a 15-minute intro call/);
+});
+
 test('footer, callbar and every section land without console errors', async ({ browser }) => {
   const errors = [];
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
