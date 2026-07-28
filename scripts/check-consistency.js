@@ -15,7 +15,8 @@ import { fileURLToPath } from "node:url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const contentPages = ["index.html", "demo.html", "book.html", "about.html", "pricing.html", "pilot.html", "privacy.html", "terms.html", "coming-soon.html", "revenue-engine.html"];
 const fullFooterPages = ["index.html", "demo.html", "book.html", "about.html", "pilot.html", "coming-soon.html", "revenue-engine.html"];
-const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\b/, /limited spots remaining/i, /join thousands/i, /launching next month/i];
+const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\b/, /limited spots remaining/i, /join thousands/i, /launching next month/i,
+  /first ring/i /* CLM-02: retired 2026-07-26, unsupported without uptime monitoring */];
 let fail = 0;
 const err = (m) => { console.error("FAIL: " + m); fail++; };
 

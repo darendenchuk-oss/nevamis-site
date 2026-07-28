@@ -1,0 +1,56 @@
+{
+  "_comment": "Single source of truth for the public page set. One row here feeds scripts/build-pages.mjs (shared chrome), scripts/gen-sitemap.mjs, the /solutions.html hub, and tests/content-pages.spec.js. Adding a page means adding a row.",
+  "site": "https://nevamis.ca",
+  "pages": [
+    { "file": "index.html", "url": "/", "priority": "1.0", "cluster": "core", "nav": "Home", "title": "Nevamis AI", "blurb": "What the AI receptionist does, an example call, and the missed-call calculator." },
+    { "file": "demo.html", "url": "/demo.html", "priority": "0.9", "cluster": "core", "nav": "Live Demo", "blurb": "Call the AI yourself and hear what it handles." },
+    { "file": "book.html", "url": "/book.html", "priority": "0.9", "cluster": "core", "nav": "Book a Call", "blurb": "A short strategy call and a quote scoped to your call volume." },
+    { "file": "pricing.html", "url": "/pricing.html", "priority": "0.8", "cluster": "core", "nav": "Pricing", "blurb": "Every plan, what is included, and how usage is counted." },
+    { "file": "pilot.html", "url": "/pilot.html", "priority": "0.8", "cluster": "core", "nav": "7-Day Pilot", "blurb": "Seven live days on your real line. No card, no automatic billing." },
+    { "file": "solutions.html", "url": "/solutions.html", "priority": "0.8", "cluster": "hub", "nav": "Solutions", "title": "Solutions by trade and situation", "blurb": "Every trade, situation, and comparison in one place." },
+
+    { "file": "electricians.html", "url": "/electricians.html", "priority": "0.7", "cluster": "trade", "nav": "Electricians",
+      "title": "AI Receptionist for Electricians",
+      "query": "answering service for electricians",
+      "blurb": "Service calls answered while the crew is on the tools." },
+    { "file": "hvac.html", "url": "/hvac.html", "priority": "0.7", "cluster": "trade", "nav": "HVAC",
+      "title": "AI Receptionist for HVAC Companies",
+      "query": "hvac answering service",
+      "blurb": "No-heat calls at 11 PM answered, triaged, and booked." },
+    { "file": "plumbers.html", "url": "/plumbers.html", "priority": "0.7", "cluster": "trade", "nav": "Plumbers",
+      "title": "AI Receptionist for Plumbers",
+      "query": "plumber answering service",
+      "blurb": "Burst pipes and blocked drains captured before the next call." },
+    { "file": "restoration.html", "url": "/restoration.html", "priority": "0.7", "cluster": "trade", "nav": "Restoration",
+      "title": "AI Receptionist for Restoration Companies",
+      "query": "restoration company answering service",
+      "blurb": "Stressed emergency callers handled calmly and routed by priority." },
+
+    { "file": "after-hours-answering.html", "url": "/after-hours-answering.html", "priority": "0.7", "cluster": "situation", "nav": "After hours",
+      "title": "After-Hours Call Answering",
+      "query": "after hours answering service",
+      "blurb": "Evenings, weekends, and holidays covered without a night shift." },
+    { "file": "missed-calls.html", "url": "/missed-calls.html", "priority": "0.7", "cluster": "situation", "nav": "Missed calls",
+      "title": "Stop Missing Calls",
+      "query": "how to stop missing customer calls",
+      "blurb": "What a missed call actually costs, and how to catch the overflow." },
+
+    { "file": "vs-voicemail.html", "url": "/vs-voicemail.html", "priority": "0.6", "cluster": "compare", "nav": "vs Voicemail",
+      "title": "AI Receptionist vs Voicemail",
+      "query": "ai receptionist vs voicemail",
+      "blurb": "Voicemail records the lost job. Compare what each one actually does." },
+    { "file": "vs-answering-service.html", "url": "/vs-answering-service.html", "priority": "0.6", "cluster": "compare", "nav": "vs Answering service",
+      "title": "AI Receptionist vs a Live Answering Service",
+      "query": "ai receptionist vs answering service",
+      "blurb": "Cost, availability, booking, and what each is genuinely better at." },
+
+    { "file": "coming-soon.html", "url": "/coming-soon.html", "priority": "0.6", "cluster": "core", "nav": "Coming Soon", "blurb": "What is being built next, with honest status labels." },
+    { "file": "revenue-engine.html", "url": "/revenue-engine.html", "priority": "0.7", "cluster": "core", "nav": "Revenue Engine", "blurb": "The longer-term connected system, in development." },
+    { "file": "about.html", "url": "/about.html", "priority": "0.6", "cluster": "core", "nav": "About", "blurb": "Who is behind Nevamis." },
+    { "file": "privacy.html", "url": "/privacy.html", "priority": "0.2", "cluster": "legal", "nav": "Privacy", "blurb": "What this website collects." },
+    { "file": "terms.html", "url": "/terms.html", "priority": "0.2", "cluster": "legal", "nav": "Terms", "blurb": "Terms of use for the site and demo line." },
+
+    { "file": "404.html", "url": null, "priority": null, "cluster": "system", "chrome": false, "sitemap": false, "nav": null, "blurb": "Not found." },
+    { "file": "home.html", "url": null, "priority": null, "cluster": "system", "sitemap": false, "nav": null, "blurb": "Noindex staging twin of index.html." }
+  ]
+}

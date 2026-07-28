@@ -63,6 +63,20 @@
     });
   }
 
+  /* ---------- same-page anchors ----------
+     Nav and footer links use absolute "/#id" so they work from every page.
+     On the homepage that would trigger a needless reload, so scroll instead. */
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="/#"]');
+    if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    if (location.pathname !== "/" && !/\/index\.html$/.test(location.pathname)) return;
+    var el = document.getElementById(a.getAttribute("href").slice(2));
+    if (!el) return;
+    e.preventDefault();
+    el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    history.pushState(null, "", a.getAttribute("href"));
+  });
+
   /* ---------- motion toggle (WCAG 2.2.2) ---------- */
   var mBtn = document.querySelector(".motion-toggle-btn");
   function applyMotionLabel() {

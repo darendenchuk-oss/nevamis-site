@@ -138,7 +138,7 @@
     ],
     "audience": {
       "@type": "BusinessAudience",
-      "name": "Service businesses and trades — electrical, HVAC, plumbing, restoration, automotive"
+      "name": "Service businesses and trades: electrical, HVAC, plumbing, restoration, automotive"
     },
     "offers": [
       {
@@ -359,7 +359,8 @@
       Nevamis<span>&nbsp;AI</span></a>
     <button class="nav-toggle" aria-expanded="false" aria-controls="mainNav" aria-label="Menu">☰</button>
     <nav class="main-nav" id="mainNav" aria-label="Main">
-      <span class="navitem"><a href="#how" data-nav>How it works</a></span>
+      <span class="navitem"><a href="/#how" data-nav>How it works</a></span>
+      <span class="navitem"><a href="/solutions.html" data-nav>Solutions</a></span>
       <span class="navitem"><a href="/pricing.html" data-nav>Pricing</a></span>
       <span class="navitem"><a href="/pilot.html" data-nav>7-day pilot</a></span>
       <span class="navitem"><a href="/demo.html" data-nav>Demo</a></span>
@@ -386,12 +387,12 @@
         </h1>
         <p class="lede">Missed calls are missed jobs. Nevamis answers your line 24/7,
           <strong>qualifies the caller</strong>, <strong>books the job</strong>, and
-          <strong>texts you the details</strong> — on the number you already use.</p>
+          <strong>texts you the details</strong>, on the number you already use.</p>
         <div class="cta">
           <span class="ctamask"><a class="btn btn-primary" href="tel:+15874130035" data-evt="hero_live_demo_call_click" data-cta>Call the live AI <span class="arw" aria-hidden="true">›</span></a></span>
           <span class="ctamask"><a class="btn btn-ghost" href="/book.html" data-evt="hero_book_call_click" data-cta>Book a 15-min call</a></span>
         </div>
-        <p class="proof">Live demo line: <a class="mono" href="tel:+15874130035">(587)&nbsp;413-0035</a> · answers on the first ring. Try to stump it.</p>
+        <p class="proof">Live demo line: <a class="mono" href="tel:+15874130035">(587)&nbsp;413-0035</a> · answers in seconds. Try to stump it.</p>
         <nav class="hero-links" aria-label="Sections">
           <a href="#how">How it works</a>
           <a href="/pricing.html">Pricing</a>
@@ -581,7 +582,7 @@
           <h3>What the business receives</h3>
           <div class="sms" role="img" aria-label="Example text message summary sent to the business owner">
             <span class="mono">NEVAMIS SUMMARY · 8:42 PM</span>
-            New booking: kitchen outlets dead after a breaker reset — no sparks, heat, or burning smell reported. Booked tomorrow 8:00–10:00 AM, $95 service call quoted, applied to the repair on approved work. Address: 114 Cedar Lane. Confirmation texted to the caller.
+            New booking: kitchen outlets dead after a breaker reset, with no sparks, heat, or burning smell reported. Booked tomorrow 8:00–10:00 AM, $95 service call quoted, applied to the repair on approved work. Address: 114 Cedar Lane. Confirmation texted to the caller.
           </div>
           <p class="note">Example summary for the illustrative call above. Format and destination are configured for your business.</p>
           <div class="midcta">
@@ -1014,8 +1015,9 @@
       </div>
       <div>
         <h4>Site</h4>
-        <a href="#how">How It Works</a>
-        <a href="#industries">Industries</a>
+        <a href="/#how">How It Works</a>
+        <a href="/#industries">Industries</a>
+        <a href="/solutions.html">Solutions</a>
         <a href="/pricing.html">Pricing</a>
         <a href="/pilot.html">7-Day Pilot</a>
         <a href="/demo.html">Live Demo</a>
@@ -1076,7 +1078,7 @@ document.addEventListener("DOMContentLoaded", function () {
     d.appendChild(h3); d.appendChild(amount); d.appendChild(meta);
     if (P.annual && P.annual.active && pl.annual) {
       var an = document.createElement("p"); an.className = "annual-line";
-      an.textContent = "or C$" + pl.annual.toLocaleString("en-CA") + "/year — two months free";
+      an.textContent = "or C$" + pl.annual.toLocaleString("en-CA") + "/year · two months free";
       d.appendChild(an);
     }
     wrap.appendChild(d);

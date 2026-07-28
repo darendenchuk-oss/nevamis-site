@@ -9,19 +9,13 @@ import { fileURLToPath } from "node:url";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-/* Page -> priority. Order here is the order in the file. */
-const PAGES = [
-  ["index.html", "https://nevamis.ca/", "1.0"],
-  ["demo.html", "https://nevamis.ca/demo.html", "0.9"],
-  ["book.html", "https://nevamis.ca/book.html", "0.9"],
-  ["pricing.html", "https://nevamis.ca/pricing.html", "0.8"],
-  ["pilot.html", "https://nevamis.ca/pilot.html", "0.8"],
-  ["coming-soon.html", "https://nevamis.ca/coming-soon.html", "0.6"],
-  ["revenue-engine.html", "https://nevamis.ca/revenue-engine.html", "0.7"],
-  ["about.html", "https://nevamis.ca/about.html", "0.6"],
-  ["privacy.html", "https://nevamis.ca/privacy.html", "0.2"],
-  ["terms.html", "https://nevamis.ca/terms.html", "0.2"],
-];
+/* Page set comes from content-map.json so a new page can never miss the
+   sitemap: add the row there and it appears here, in the hub, and in the tests. */
+const PAGES = JSON.parse(fs.readFileSync(path.join(root, 'content-map.json'), 'utf8'))
+  .pages
+  .filter((p) => p.sitemap !== false && p.url)
+  .sort((a, b) => Number(b.priority) - Number(a.priority))
+  .map((p) => [p.file, 'https://nevamis.ca' + p.url, p.priority]);
 
 function lastmod(file) {
   try {

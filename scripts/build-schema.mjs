@@ -80,7 +80,7 @@ const service = {
   ],
   audience: {
     '@type': 'BusinessAudience',
-    name: 'Service businesses and trades — electrical, HVAC, plumbing, restoration, automotive',
+    name: 'Service businesses and trades: electrical, HVAC, plumbing, restoration, automotive',
   },
   offers: PLANS.map((p) => ({
     '@type': 'Offer',
