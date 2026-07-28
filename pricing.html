@@ -255,15 +255,19 @@
   var notes = document.getElementById("usageNotes");
   P.usagePolicy.notes.forEach(function (n) { var li = document.createElement("li"); li.textContent = n; notes.appendChild(li); });
   var wrap = document.getElementById("plans");
+  /* "C$1250" next to "C$849" reads like a typo on the one page where a
+     misread number costs a sale. The no-JS fallback already groups thousands;
+     the rendered cards were the ones concatenating raw values. */
+  function grp(n) { return Number(n).toLocaleString("en-CA"); }
   P.plans.forEach(function (pl) {
     var d = document.createElement("div");
     d.className = "plan" + (pl.recommended ? " rec" : "");
     var h = "";
     if (pl.recommended) h += '<div class="rec-tag">MOST COMMON</div>';
     h += "<h3></h3>";
-    h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + pl.monthly + "<span>/month</span></div>";
-    h += '<div class="setup">One-time setup: C$' + pl.setup + (pl.startingAt ? "+" : "") + "</div>";
-    h += '<div class="usage">' + pl.includedMinutes + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
+    h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
+    h += '<div class="setup">One-time setup: C$' + grp(pl.setup) + (pl.startingAt ? "+" : "") + "</div>";
+    h += '<div class="usage">' + grp(pl.includedMinutes) + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
     h += "<ul>" + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
     h += '<div class="best"><strong>Best for:</strong> <span></span></div>';
     d.innerHTML = h;
@@ -290,7 +294,7 @@
     else { pick = P.plans[0]; why = "after-hours coverage at an estimated " + Math.round(est) + " minutes/month fits comfortably in the After Hours allowance"; }
     document.getElementById("rcResult").innerHTML =
       '<span class="mono">CLOSEST FIT</span><div style="font-size:20px;font-weight:700;font-family:\'Bricolage Grotesque\',sans-serif"></div><p></p>';
-    document.querySelector("#rcResult div").textContent = pick.name + " · C$" + pick.monthly + "/month";
+    document.querySelector("#rcResult div").textContent = pick.name + " · C$" + grp(pick.monthly) + "/month";
     document.querySelector("#rcResult p").textContent = "Why: " + why + ". Estimated usage assumes about 2.5 minutes per call; your real average is confirmed during the pilot.";
   }
   ["rcVol", "rcMode", "rcLoc", "rcInt"].forEach(function (id) {

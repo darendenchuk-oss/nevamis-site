@@ -109,6 +109,33 @@ for (const p of contentPages) {
   }
 }
 
+/* 7b. Rule 4 checked a hand-maintained list of ten content pages, and that is
+       exactly how three abandoned redesign mockups sat live on nevamis.ca
+       serving "answers on the first ring" long after CLM-02 retired it. The
+       banned-phrase sweep is therefore derived from what actually gets
+       published: every root .html file, minus whatever _config.yml excludes
+       from the Jekyll build. Add a page and forget to register it, and it is
+       still covered. */
+{
+  const cfg = fs.readFileSync(path.join(root, "_config.yml"), "utf8");
+  const excluded = new Set(
+    cfg.split(/\r?\n/)
+      .map((l) => (l.match(/^\s*-\s+(\S+)\s*$/) || [])[1])
+      .filter(Boolean)
+      .map((e) => e.replace(/\/$/, ""))
+  );
+  const published = fs.readdirSync(root)
+    .filter((f) => f.endsWith(".html") && !excluded.has(f));
+
+  for (const f of published) {
+    const html = fs.readFileSync(path.join(root, f), "utf8");
+    for (const b of banned) {
+      if (b.test(html)) err(`${f}: banned phrase ${b} on a PUBLISHED page (serves 200 to anyone with the URL; noindex does not stop people or answer engines)`);
+    }
+  }
+  if (published.length < contentPages.length) err(`only ${published.length} published pages found; expected at least the ${contentPages.length} content pages`);
+}
+
 /* 8. The demo agent says prices out loud to real prospects, which makes its
       prompt a pricing surface exactly like pricing.html. It writes them as
       words ("two forty-nine a month") because a digit string gets read back as

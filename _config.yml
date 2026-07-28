@@ -14,6 +14,13 @@ exclude:
   # Local motion tooling and proof artifacts (belt-and-braces with .gitignore).
   - tests/
   - artifacts/
+  # Abandoned redesign mockups. Concept B shipped as the live site; all three
+  # still carry "answers on the first ring", the claim CLM-02 retired on
+  # 2026-07-26. They were noindex but still served 200 to anyone with the URL,
+  # and robots.txt explicitly welcomes answer engines, so they stay unpublished.
+  - concept.html
+  - concept-b.html
+  - concept-c.html
   - node_modules/
   - package.json
   - package-lock.json
