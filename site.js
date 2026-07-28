@@ -45,6 +45,53 @@
     if (el) window.nvTrack(el.getAttribute("data-evt"));
   });
 
+  /* ---------- funnel intake (campaign attribution) ----------
+     Sends the small set of funnel events to /api/mkt/events with the
+     campaign tags PARSED into fields, so spend can be divided by
+     campaign and cost per qualified demo call becomes computable.
+
+     PRIVACY: nevamis.ca/privacy says this site "stores one preference
+     in your browser" and that "no identifiers are stored". So this
+     block deliberately:
+       - stores NOTHING new client-side (no cookie, no sessionStorage)
+       - sends NO visitor identifier
+       - reads campaign tags from the CURRENT URL only
+     Consequence, accepted on purpose: attribution is campaign-level and
+     strongest on the landing hit. Persisting tags across a multi-page
+     journey would require changing the published policy first. */
+  var NV_MKT_URL = "https://app.nevamis.ca/api/mkt/events";
+  function nvParams() {
+    var out = {};
+    try {
+      var q = new URLSearchParams(location.search);
+      ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "msclkid"]
+        .forEach(function (k) { var v = q.get(k); if (v) out[k] = v.slice(0, 120); });
+    } catch (e) { /* older browser: send without tags rather than break */ }
+    return out;
+  }
+  function nvFunnel(name) {
+    try {
+      var p = nvParams();
+      p.name = name;
+      p.page = location.pathname;
+      p.referrer = document.referrer || "";
+      var payload = JSON.stringify(p);
+      if (navigator.sendBeacon) { navigator.sendBeacon(NV_MKT_URL, payload); return; }
+      if (typeof window.fetch === "function") {
+        fetch(NV_MKT_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: payload, keepalive: true }).catch(function () {});
+      }
+    } catch (e) { /* analytics must never break the page */ }
+  }
+  window.nvFunnel = nvFunnel;
+  nvFunnel("landing_page_view");
+
+  /* A tap on any phone link is intent to call the demo line: the
+     primary conversion of the whole funnel. */
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest('a[href^="tel:"]');
+    if (a) nvFunnel("demo_call_click");
+  });
+
   /* ---------- mobile nav ---------- */
   var navBtn = document.querySelector(".nav-toggle");
   var nav = document.querySelector(".main-nav");
