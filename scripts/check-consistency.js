@@ -13,8 +13,12 @@ import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const contentPages = ["index.html", "demo.html", "book.html", "about.html", "pricing.html", "pilot.html", "privacy.html", "terms.html", "coming-soon.html", "revenue-engine.html"];
-const fullFooterPages = ["index.html", "demo.html", "book.html", "about.html", "pilot.html", "coming-soon.html", "revenue-engine.html"];
+/* 404.html is on both lists deliberately. It was excluded on the theory that it
+   had no shared chrome, and that exemption is exactly why its hand-copied nav
+   lost the Solutions link and kept the h1 -> h4 footer heading skip. A page
+   real visitors land on is held to the same nav and footer as the rest. */
+const contentPages = ["index.html", "demo.html", "book.html", "about.html", "pricing.html", "pilot.html", "privacy.html", "terms.html", "coming-soon.html", "revenue-engine.html", "404.html"];
+const fullFooterPages = ["index.html", "demo.html", "book.html", "about.html", "pilot.html", "coming-soon.html", "revenue-engine.html", "404.html"];
 const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\b/, /limited spots remaining/i, /join thousands/i, /launching next month/i,
   /first ring/i, /* CLM-02: retired 2026-07-26, unsupported without uptime monitoring */
   /* Nevamis has no clients yet, so any phrasing that asserts a client base is

@@ -50,7 +50,7 @@
     { "file": "privacy.html", "url": "/privacy.html", "priority": "0.2", "cluster": "legal", "nav": "Privacy", "blurb": "What this website collects." },
     { "file": "terms.html", "url": "/terms.html", "priority": "0.2", "cluster": "legal", "nav": "Terms", "blurb": "Terms of use for the site and demo line." },
 
-    { "file": "404.html", "url": null, "priority": null, "cluster": "system", "chrome": false, "sitemap": false, "nav": null, "blurb": "Not found." },
+    { "file": "404.html", "url": null, "priority": null, "cluster": "system", "chrome": true, "sitemap": false, "nav": null, "blurb": "Not found." },
     { "file": "home.html", "url": null, "priority": null, "cluster": "system", "sitemap": false, "nav": null, "blurb": "Noindex staging twin of index.html." }
   ]
 }

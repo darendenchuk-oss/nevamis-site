@@ -26,7 +26,12 @@ const FOOTER_FULL = read('_partials/footer.html').trim();
 /** Privacy/terms/pricing historically ship the compact footer. */
 const FOOTER_BASE_ONLY = new Set(['privacy.html', 'terms.html', 'pricing.html']);
 
-/** Pages that receive the shared chrome. 404 has no nav/footer by design. */
+/** Pages that receive the shared chrome. This used to skip 404.html on the
+ *  grounds that it had no nav or footer, which stopped being true at some
+ *  point without the comment noticing: it carried a hand-copied pair that
+ *  drifted, losing the Solutions link and keeping the h1 -> h4 footer heading
+ *  skip long after every other page was fixed. A page a real visitor lands on
+ *  gets the canonical chrome like any other. */
 const PAGES = JSON.parse(read('content-map.json')).pages
   .filter((p) => p.chrome !== false)
   .map((p) => p.file);
