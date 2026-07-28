@@ -109,5 +109,62 @@ for (const p of contentPages) {
   }
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config.");
+/* 8. The demo agent says prices out loud to real prospects, which makes its
+      prompt a pricing surface exactly like pricing.html. It writes them as
+      words ("two forty-nine a month") because a digit string gets read back as
+      digits, and that is why rule 7 cannot catch a drift here: changing 249 in
+      pricing-config.js leaves "two forty-nine" sitting in the prompt, correct
+      looking and wrong. Checked only when the engine repo is beside this one. */
+{
+  const promptFile = path.join(root, "..", "nevamis-engine", "docs", "agent-prompts", "demo.md");
+  if (fs.existsSync(promptFile)) {
+    const spoken = fs.readFileSync(promptFile, "utf8").toLowerCase();
+    const w = {};
+    vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+
+    const ONES = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
+      "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+    const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+    const small = (n) => (n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? "-" + ONES[n % 10] : ""));
+
+    /* Spoken English gives a price more than one correct reading: 1250 is
+       "twelve fifty" on a phone call and "one thousand two hundred fifty" in a
+       contract. Accept any of them, reject a number nobody would say. */
+    const dollarForms = (n) => {
+      const out = new Set();
+      const h = Math.floor(n / 100), r = n % 100;
+      if (n < 100) out.add(small(n));
+      if (h > 0 && h < 100) {
+        out.add(h === 1 && !r ? "one hundred" : `${small(h)} hundred${r ? " " + small(r) : ""}`);
+        if (r) { out.add(`${small(h)} hundred and ${small(r)}`); out.add(`${small(h)} ${small(r)}`); }
+      }
+      if (n >= 1000) {
+        const th = Math.floor(n / 1000), rem = n % 1000, rh = Math.floor(rem / 100), rr = rem % 100;
+        let base = `${small(th)} thousand`;
+        if (rh) base += ` ${small(rh)} hundred`;
+        if (rr) { out.add(`${base} ${small(rr)}`); out.add(`${base} and ${small(rr)}`); } else out.add(base);
+      }
+      return [...out];
+    };
+    const centForms = (v) => {
+      const cents = Math.round(v * 100), d = Math.floor(cents / 100), c = cents % 100;
+      if (cents < 100) return [`${small(cents)} cents`];
+      const out = new Set([`${small(d)} ${small(c)}`]);
+      out.add(`${d === 1 ? "a" : small(d)} dollar${d === 1 ? "" : "s"}${c ? " " + small(c) : ""}`);
+      return [...out];
+    };
+
+    for (const plan of w.NV_PRICING.plans) {
+      for (const [label, forms] of [["monthly", dollarForms(plan.monthly)], ["setup", dollarForms(plan.setup)], ["overage", centForms(plan.overage)]]) {
+        if (!forms.some((f) => spoken.includes(f)))
+          err(`demo.md: ${plan.name} ${label} (${plan[label]}) is never spoken; say one of: ${forms.join(" / ")}`);
+      }
+      const mins = plan.includedMinutes;
+      if (!spoken.includes(String(mins)) && !spoken.includes(mins.toLocaleString("en-CA")))
+        err(`demo.md: ${plan.name} included minutes (${mins}) are never stated, and minutes are how the plans differ`);
+    }
+  }
+}
+
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config.");
 process.exit(fail === 0 ? 0 : 1);
