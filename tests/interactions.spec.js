@@ -50,11 +50,15 @@ test('the call player plays through the transcript and lights the chips', async 
   await expect(page.locator('.line.speaking')).toHaveCount(1);
 
   // audio element advances lines on 'ended'; force-fire it rather than
-  // waiting out real audio in CI
+  // waiting out real audio in CI. 11-line call: qualified at line 3,
+  // booked at line 8.
   await page.evaluate(() => {
     document.dispatchEvent(new CustomEvent('nv:callline', { detail: { idx: 3 } }));
   });
   await expect(page.locator('[data-callchip="qualified"]')).toHaveClass(/lit/);
+  await page.evaluate(() => {
+    document.dispatchEvent(new CustomEvent('nv:callline', { detail: { idx: 8 } }));
+  });
   await expect(page.locator('[data-callchip="booked"]')).toHaveClass(/lit/);
 
   await page.evaluate(() => { document.dispatchEvent(new CustomEvent('nv:callend')); });

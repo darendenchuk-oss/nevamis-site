@@ -272,7 +272,7 @@
       <div class="section-head reveal">
         <p class="eyebrow mono">Live call proof</p>
         <h2>Watch it take a call.</h2>
-        <p>A customer with dead outlets, fed up with voicemail. Twenty-nine seconds later he is booked. Real AI voices, synchronized transcript.</p>
+        <p>Dead kitchen outlets after a breaker reset. Thirty-nine seconds later the visit is booked and confirmed. Real AI voices, synchronized transcript.</p>
       </div>
       <div class="call-grid">
         <div class="call-card reveal" id="callCard" aria-label="Example call with playable audio and transcript">
@@ -285,35 +285,55 @@
             <button class="play" id="playBtn" aria-label="Play the example call audio">
               <span aria-hidden="true">▶</span><span id="playLabel">Hear this call</span>
             </button>
-            <span class="timer mono" id="callTimer">0:00 / 0:29</span>
+            <span class="timer mono" id="callTimer">0:00 / 0:39</span>
           </div>
           <div class="line agent" data-audio="assets/call-0.mp3">
             <span class="who mono">Cedarview AI</span>
-            <p>Cedarview Electric, how can I help you?</p>
+            <p>Thanks for calling Cedarview Electric. This is Ava. How can I help?</p>
           </div>
           <div class="line caller" data-audio="assets/call-1.mp3">
             <span class="who mono">Caller</span>
-            <p>Yeah, half my kitchen outlets are dead, and you're the fourth electrician I've called today. Nobody picks up.</p>
+            <p>Hi, a few outlets in my kitchen stopped working. I reset the breaker, but they're still dead.</p>
           </div>
           <div class="line agent" data-audio="assets/call-2.mp3">
             <span class="who mono">Cedarview AI</span>
-            <p>This is Cedarview's AI assistant, and I can get you an electrician tomorrow at 8 a.m. It's a $95 visit, and it comes off the repair. Want it?</p>
+            <p>Got it. Are you noticing any sparks, heat, or a burning smell?</p>
           </div>
           <div class="line caller" data-audio="assets/call-3.mp3">
             <span class="who mono">Caller</span>
-            <p>Yeah, book it.</p>
+            <p>No, nothing like that.</p>
           </div>
           <div class="line agent" data-audio="assets/call-4.mp3">
             <span class="who mono">Cedarview AI</span>
-            <p>Booked. Tomorrow at eight. Confirmation text is on its way. Anything else?</p>
+            <p>Okay, that's good. I can have an electrician there tomorrow between eight and ten. The service call is $95, and that amount goes toward the repair if you approve the work. Does that time work for you?</p>
           </div>
           <div class="line caller" data-audio="assets/call-5.mp3">
             <span class="who mono">Caller</span>
-            <p>No, honestly, that was easy.</p>
+            <p>Yes, that works.</p>
+          </div>
+          <div class="line agent" data-audio="assets/call-6.mp3">
+            <span class="who mono">Cedarview AI</span>
+            <p>Perfect. What's the service address?</p>
+          </div>
+          <div class="line caller" data-audio="assets/call-7.mp3">
+            <span class="who mono">Caller</span>
+            <p>114 Cedar Lane.</p>
+          </div>
+          <div class="line agent" data-audio="assets/call-8.mp3">
+            <span class="who mono">Cedarview AI</span>
+            <p>Thanks. You're booked for tomorrow between eight and ten. I'll text the confirmation to this number now.</p>
+          </div>
+          <div class="line caller" data-audio="assets/call-9.mp3">
+            <span class="who mono">Caller</span>
+            <p>Great, thank you.</p>
+          </div>
+          <div class="line agent" data-audio="assets/call-10.mp3">
+            <span class="who mono">Cedarview AI</span>
+            <p>You're welcome. We'll see you tomorrow.</p>
           </div>
           <div class="call-tags" aria-label="What happened on this call">
-            <span class="tagchip" data-callchip="qualified">QUALIFIED: urgency + job type</span>
-            <span class="tagchip warm" data-callchip="booked">BOOKED: tomorrow 8:00</span>
+            <span class="tagchip" data-callchip="qualified">QUALIFIED: no-hazard + job type</span>
+            <span class="tagchip warm" data-callchip="booked">BOOKED: tomorrow 8–10</span>
             <span class="tagchip" data-callchip="confirm">CONFIRMATION SENT</span>
           </div>
           <p class="foot-note">Illustrative call, fictional company. Real AI voices.</p>
@@ -322,7 +342,7 @@
           <h3>What the business receives</h3>
           <div class="sms" role="img" aria-label="Example text message summary sent to the business owner">
             <span class="mono">NEVAMIS SUMMARY · 8:42 PM</span>
-            New booking: dead kitchen outlets (partial circuit). Booked tomorrow 8:00 AM, $95 service visit quoted per your price sheet. Caller: Mike, 780-555-0142. He called 3 competitors first. Nobody answered.
+            New booking: kitchen outlets dead after a breaker reset — no sparks, heat, or burning smell reported. Booked tomorrow 8:00–10:00 AM, $95 service call quoted, applied to the repair on approved work. Address: 114 Cedar Lane. Confirmation texted to the caller.
           </div>
           <p class="note">Example summary for the illustrative call above. Format and destination are configured for your business.</p>
           <div class="midcta">

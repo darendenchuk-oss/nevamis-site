@@ -169,12 +169,17 @@
     var timer = document.getElementById("callTimer");
     var waveC = document.getElementById("callWave");
     var lines = Array.prototype.slice.call(card.querySelectorAll(".line[data-audio]"));
-    var durs = [2, 5.6, 9.3, 1.1, 4.6, 1.5];
+    /* Measured durations of assets/call-0..10.mp3 (ffprobe, 2026-07-27). */
+    var durs = [3.9, 5.2, 3.2, 1.3, 11.3, 1.3, 2.2, 1.3, 5.5, 1.0, 2.4];
     var totalDur = durs.reduce(function (a, b) { return a + b; }, 0);
     var audio = new Audio();
     var idx = -1, playing = false;
     var wctx = waveC ? waveC.getContext("2d") : null;
-    function fmt(s) { s = Math.max(0, Math.round(s)); return "0:" + (s < 10 ? "0" : "") + s; }
+    function fmt(s) {
+      s = Math.max(0, Math.round(s));
+      var m = Math.floor(s / 60), r = s % 60;
+      return m + ":" + (r < 10 ? "0" : "") + r;
+    }
     function elapsed() {
       var e = 0; for (var i = 0; i < idx; i++) e += durs[i] || 0;
       return e + (audio.currentTime || 0);

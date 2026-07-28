@@ -103,7 +103,9 @@
   if (!motionOK()) { litChips(3); if (summaryCard) summaryCard.classList.add("in"); }
   document.addEventListener("nv:callline", function (e) {
     var i = e.detail.idx;
-    litChips(i >= 4 ? 3 : i >= 3 ? 2 : i >= 2 ? 1 : 0);
+    /* 11-line call: qualified once the hazard check lands (line 3),
+       booked + confirmation on the closing lines (8 and 9). */
+    litChips(i >= 9 ? 3 : i >= 8 ? 2 : i >= 3 ? 1 : 0);
   });
   document.addEventListener("nv:callend", function () {
     litChips(3);
