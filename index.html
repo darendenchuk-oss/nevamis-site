@@ -26,6 +26,7 @@
   {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": "https://nevamis.ca/#organization",
     "name": "Nevamis AI",
     "alternateName": "Nevamis",
     "url": "https://nevamis.ca/",
@@ -38,7 +39,7 @@
     "address": { "@type": "PostalAddress", "addressLocality": "Edmonton", "addressRegion": "AB", "addressCountry": "CA" },
     "contactPoint": { "@type": "ContactPoint", "telephone": "+1-587-413-0035", "contactType": "sales", "areaServed": "CA", "availableLanguage": "English" }
   },
-  { "@context": "https://schema.org", "@type": "WebSite", "name": "Nevamis AI", "url": "https://nevamis.ca/" }
+  { "@context": "https://schema.org", "@type": "WebSite", "@id": "https://nevamis.ca/#website", "name": "Nevamis AI", "url": "https://nevamis.ca/", "publisher": { "@id": "https://nevamis.ca/#organization" }, "inLanguage": "en-CA" }
 ]
 </script>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -109,6 +110,240 @@
   }
   @media(prefers-reduced-motion:reduce){#wake,#topsig{display:none}}
 </style>
+<!-- generated:schema -->
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": "https://nevamis.ca/#service",
+    "name": "AI Receptionist",
+    "serviceType": "AI phone answering, call qualification, and appointment booking",
+    "description": "A done-for-you AI receptionist that answers a business phone line 24/7, qualifies the caller, books the job into the calendar, texts the customer a confirmation, and sends the owner a summary. Configured around each business's own hours, service area, job types, and approved rules.",
+    "provider": {
+      "@id": "https://nevamis.ca/#organization"
+    },
+    "areaServed": [
+      {
+        "@type": "Country",
+        "name": "Canada"
+      },
+      {
+        "@type": "City",
+        "name": "Edmonton",
+        "containedInPlace": {
+          "@type": "State",
+          "name": "Alberta"
+        }
+      }
+    ],
+    "audience": {
+      "@type": "BusinessAudience",
+      "name": "Service businesses and trades — electrical, HVAC, plumbing, restoration, automotive"
+    },
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "After Hours",
+        "description": "250 included AI minutes. Evenings, weekends, and overflow coverage on one line.",
+        "price": "249",
+        "priceCurrency": "CAD",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "249",
+          "priceCurrency": "CAD",
+          "unitText": "MONTH",
+          "billingIncrement": 1
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html"
+      },
+      {
+        "@type": "Offer",
+        "name": "Growth",
+        "description": "600 included AI minutes. Up to two lines or call flows with qualification, routing, and booking.",
+        "price": "449",
+        "priceCurrency": "CAD",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "449",
+          "priceCurrency": "CAD",
+          "unitText": "MONTH",
+          "billingIncrement": 1
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html"
+      },
+      {
+        "@type": "Offer",
+        "name": "Scale",
+        "description": "1200 included AI minutes. Multi-location and higher-volume call handling.",
+        "price": "849",
+        "priceCurrency": "CAD",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "849",
+          "priceCurrency": "CAD",
+          "unitText": "MONTH",
+          "billingIncrement": 1
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html"
+      }
+    ],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Nevamis plans",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "After Hours plan",
+            "description": "250 included AI minutes. Evenings, weekends, and overflow coverage on one line."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Growth plan",
+            "description": "600 included AI minutes. Up to two lines or call flows with qualification, routing, and booking."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Scale plan",
+            "description": "1200 included AI minutes. Multi-location and higher-volume call handling."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": "https://nevamis.ca/#faq",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Will callers know it is AI?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The agent identifies itself naturally, then gets to work. In practice callers care that the phone was answered and the job got booked. You can hear this yourself on the demo line."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Will it sound robotic?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Call (587) 413-0035 and judge. It speaks in a natural voice, handles interruptions, and keeps answers short the way a good receptionist does."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I keep my current phone number?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Your number stays exactly as it is. Call forwarding sends calls to Nevamis always, after hours, or only when you miss the call. You can switch it off from your own phone at any time."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can it answer only after hours or when we miss a call?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. That conditional coverage is the most common setup: you answer when you can, Nevamis catches everything else instead of voicemail."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can it book directly into my calendar?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, booking into connected calendar systems is part of the setup. We confirm your exact calendar or job-management tool during the strategy call."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens when a caller has an unusual question?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The agent only commits to what your rules allow. For anything outside them it takes a message, flags the summary, or transfers, depending on how we configure escalation with you."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can it transfer urgent calls?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, live transfer to a number you choose is a configurable rule. We define together what counts as urgent for your business."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can it handle multiple locations or languages?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Multi-location routing and additional languages are scoped during discovery, since the right setup depends on your call flows. Ask on the strategy call."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does setup take?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Days, not months. Discovery, build, testing against your real scenarios, then a controlled pilot on your line."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I review calls and summaries?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Every call produces a summary, and call review is part of how we tune your agent over time."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does it cost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Plans are month to month with a one-time setup fee, in Canadian dollars. Current numbers are on the pricing page for what each plan includes; your exact fit is confirmed on a short strategy call. Month to month, cancel anytime."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the 7-day live pilot actually free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. No card, no automatic billing, no charge. The pilot runs within set limits on one line, and on day eight it simply ends unless you explicitly choose a plan. Silence never becomes a subscription. Details on the pilot page."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is customer information handled?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Call details are used to run your service: booking, confirmations, and your summaries. See the privacy page for what this website itself collects. Businesses remain responsible for notices appropriate to their own jurisdiction and call-recording requirements."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What if it is not a fit?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The free pilot exists so you can judge from real calls before paying anything. After that it is month to month and you can cancel anytime, effective at the next renewal."
+        }
+      }
+    ]
+  }
+]
+</script>
+<!-- /generated:schema -->
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>

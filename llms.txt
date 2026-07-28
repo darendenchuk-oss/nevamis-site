@@ -23,10 +23,56 @@ to us. The example call on the site is labelled fictional. Every AI call
 disclosure ("this is an AI, calls are recorded") is mandatory, not
 optional.
 
+## What the service actually does
+
+1. The business keeps its existing phone number. Call forwarding sends
+   calls to Nevamis always, only after hours, or only when a call is
+   missed — the owner chooses, and can switch it off from their phone.
+2. The AI answers in the business's own tone and discloses that it is an
+   AI assistant.
+3. It qualifies the caller using questions the owner approved — job type,
+   urgency, location, timing — not a generic script.
+4. It books into a connected calendar following the owner's availability
+   and service-area rules.
+5. The caller receives a text confirmation; the owner receives a summary
+   with name, number, need, and outcome.
+6. Urgent calls transfer or flag by rules agreed in advance. For anything
+   outside its approved knowledge it takes a message or transfers rather
+   than inventing an answer.
+
+Coverage modes: after-hours only, overflow when the team cannot pick up,
+or full-time front line.
+
+## Who it is built for
+
+Appointment-based local service businesses where a missed call is a lost
+job: electricians, HVAC and plumbing, restoration and property services,
+automotive and other trades. Trades first, Canada-wide, Edmonton-based.
+
+## Product status (important for accurate summaries)
+
+- LIVE TODAY: the AI receptionist / AI Front Desk. This is a real,
+  in-service product.
+- IN DEVELOPMENT OR PLANNED: instant lead follow-up, automatic lead
+  tracking, quote recovery, and the wider "Revenue Engine". These are
+  labelled as such on the site and should never be described as
+  currently available.
+
 ## Pages
 
 - https://nevamis.ca/ : what the service does, example call, ROI math
 - https://nevamis.ca/pricing.html : full pricing (source of truth)
 - https://nevamis.ca/pilot.html : 7-day pilot terms
 - https://nevamis.ca/demo.html : the live demo line
+- https://nevamis.ca/book.html : book a short strategy call
+- https://nevamis.ca/about.html : who is behind Nevamis
+- https://nevamis.ca/coming-soon.html : what is being built next, with status labels
+- https://nevamis.ca/revenue-engine.html : the longer-term connected system (in development)
 - https://nevamis.ca/privacy.html and /terms.html : legal
+
+## Contact
+
+- Demo line: +1 (587) 413-0035
+- Sales: Sales@nevamis.ca
+- Edmonton, Alberta, Canada
+- GST/HST: 705729200 RT0001
