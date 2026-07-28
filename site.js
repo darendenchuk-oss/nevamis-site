@@ -402,6 +402,74 @@
     window.addEventListener("resize", drawWave);
   }
 
+  /* ---------- desktop fallback for tel: links ----------
+     A tel: link does nothing useful on a desktop: Windows/Chrome hands it
+     to a protocol nothing is listening to and the visitor gets an empty
+     window. That silently broke the most important call to action on the
+     site for every desktop visitor. On a device that cannot place calls,
+     show the number instead of handing off. Phones are untouched.
+     Styles are injected here so this needs no HTML or CSS changes and
+     therefore works on every page, including pages added later. */
+  var canDial = typeof window.matchMedia === "function"
+    && window.matchMedia("(hover: none), (pointer: coarse)").matches;
+  if (!canDial) {
+    var dlg = null;
+    function buildDialpad() {
+      var style = document.createElement("style");
+      style.textContent =
+        /* margin:auto is what centres a modal <dialog>; the site reset
+           zeroes margins globally, which pinned it to the top-left. */
+        ".nv-dial{margin:auto;border:1px solid var(--line,rgba(159,240,206,.14));background:var(--card,#0D1C27);color:var(--ink,#EAF3EE);"
+        + "border-radius:18px;padding:28px 30px;max-width:390px;box-shadow:0 30px 80px -20px rgba(0,0,0,.7)}"
+        + ".nv-dial::backdrop{background:rgba(2,8,13,.72)}"
+        + ".nv-dial h2{margin:0 0 6px;font-size:20px}"
+        + ".nv-dial p{margin:0 0 18px;color:var(--muted,#8AA5A0);font-size:14px;line-height:1.5}"
+        + ".nv-dial-num{display:block;font-size:29px;letter-spacing:.5px;margin-bottom:18px;color:var(--mint,#9FF0CE);"
+        + "font-family:ui-monospace,SFMono-Regular,Menlo,monospace;user-select:all}"
+        + ".nv-dial-row{display:flex;gap:10px;flex-wrap:wrap}"
+        + ".nv-dial button{font:inherit;cursor:pointer;border-radius:999px;padding:10px 18px;border:1px solid var(--line,rgba(159,240,206,.14));"
+        + "background:transparent;color:var(--ink,#EAF3EE)}"
+        + ".nv-dial button.pri{background:var(--emerald,#2FBF8F);color:#04120C;border-color:transparent;font-weight:600}";
+      document.head.appendChild(style);
+
+      dlg = document.createElement("dialog");
+      dlg.className = "nv-dial";
+      dlg.setAttribute("aria-label", "Call the Nevamis AI");
+      dlg.innerHTML =
+        '<h2>Call it from your phone</h2>'
+        + '<p>This is a real phone line, so it needs a phone. It answers 24/7 &mdash; try to trip it up.</p>'
+        + '<span class="nv-dial-num">(587) 413-0035</span>'
+        + '<div class="nv-dial-row"><button type="button" class="pri" data-copy>Copy number</button>'
+        + '<button type="button" data-close>Close</button></div>';
+      document.body.appendChild(dlg);
+
+      dlg.addEventListener("click", function (ev) {
+        var t = ev.target;
+        if (t.hasAttribute && t.hasAttribute("data-close")) { dlg.close(); return; }
+        if (t.hasAttribute && t.hasAttribute("data-copy")) {
+          var done = function () { t.textContent = "Copied"; setTimeout(function () { t.textContent = "Copy number"; }, 1800); };
+          try {
+            if (navigator.clipboard) navigator.clipboard.writeText("+1 587 413 0035").then(done, function () {});
+          } catch (err) { /* the number is selectable either way */ }
+        }
+      });
+    }
+
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="tel:"]');
+      if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+      e.preventDefault();
+      try {
+        if (!dlg) buildDialpad();
+        dlg.showModal();
+      } catch (err) {
+        /* If <dialog> is unsupported, fall back to letting the link run
+           rather than swallowing the click entirely. */
+        window.location.href = a.getAttribute("href");
+      }
+    });
+  }
+
   /* ---------- coverage mode tabs ---------- */
   var tabs = Array.prototype.slice.call(document.querySelectorAll(".modes [role=tab]"));
   if (tabs.length) {
