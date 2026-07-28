@@ -424,9 +424,12 @@
         + ".nv-dial::backdrop{background:rgba(2,8,13,.72)}"
         + ".nv-dial h2{margin:0 0 6px;font-size:20px}"
         + ".nv-dial p{margin:0 0 18px;color:var(--muted,#8AA5A0);font-size:14px;line-height:1.5}"
-        + ".nv-dial-num{display:block;font-size:29px;letter-spacing:.5px;margin-bottom:18px;color:var(--mint,#9FF0CE);"
+        + ".nv-dial-num{display:block;font-size:26px;letter-spacing:.5px;margin-bottom:16px;color:var(--mint,#9FF0CE);"
         + "font-family:ui-monospace,SFMono-Regular,Menlo,monospace;user-select:all}"
+        + ".nv-dial-fine{font-size:12px;line-height:1.5;color:var(--muted,#8AA5A0);margin:12px 0 0}"
+        + ".nv-dial-or{display:block;margin:20px 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted,#8AA5A0)}"
         + ".nv-dial-row{display:flex;gap:10px;flex-wrap:wrap}"
+        + ".nv-dial button[disabled]{opacity:.6;cursor:default}"
         + ".nv-dial button{font:inherit;cursor:pointer;border-radius:999px;padding:10px 18px;border:1px solid var(--line,rgba(159,240,206,.14));"
         + "background:transparent;color:var(--ink,#EAF3EE)}"
         + ".nv-dial button.pri{background:var(--emerald,#2FBF8F);color:#04120C;border-color:transparent;font-weight:600}";
@@ -434,25 +437,62 @@
 
       dlg = document.createElement("dialog");
       dlg.className = "nv-dial";
-      dlg.setAttribute("aria-label", "Call the Nevamis AI");
+      dlg.setAttribute("aria-label", "Talk to the Nevamis AI");
       dlg.innerHTML =
-        '<h2>Call it from your phone</h2>'
-        + '<p>This is a real phone line, so it needs a phone. It answers 24/7 &mdash; try to trip it up.</p>'
+        '<h2>Talk to the AI</h2>'
+        + '<p>Speak to it right here in your browser, or dial it from a phone. Same assistant either way &mdash; try to trip it up.</p>'
+        + '<div class="nv-dial-row"><button type="button" class="pri" data-browser>Start a voice call here</button></div>'
+        + '<p class="nv-dial-fine">Browser calls run through ElevenLabs, our voice provider, and load their software only when you press start. '
+        + 'Your microphone is used only during the call, and the call is recorded, exactly like the phone line.</p>'
+        + '<span class="nv-dial-or">or call from any phone</span>'
         + '<span class="nv-dial-num">(587) 413-0035</span>'
-        + '<div class="nv-dial-row"><button type="button" class="pri" data-copy>Copy number</button>'
+        + '<div class="nv-dial-row"><button type="button" data-copy>Copy number</button>'
         + '<button type="button" data-close>Close</button></div>';
       document.body.appendChild(dlg);
 
       dlg.addEventListener("click", function (ev) {
         var t = ev.target;
-        if (t.hasAttribute && t.hasAttribute("data-close")) { dlg.close(); return; }
-        if (t.hasAttribute && t.hasAttribute("data-copy")) {
+        if (!t.hasAttribute) return;
+        if (t.hasAttribute("data-close")) { dlg.close(); return; }
+        if (t.hasAttribute("data-browser")) { startBrowserCall(t); return; }
+        if (t.hasAttribute("data-copy")) {
           var done = function () { t.textContent = "Copied"; setTimeout(function () { t.textContent = "Copy number"; }, 1800); };
           try {
             if (navigator.clipboard) navigator.clipboard.writeText("+1 587 413 0035").then(done, function () {});
           } catch (err) { /* the number is selectable either way */ }
         }
       });
+    }
+
+    /* Third-party voice widget, loaded ON DEMAND only. Visitors who never
+       ask for a browser call never fetch it, which keeps the page fast and
+       keeps ElevenLabs out of the picture unless someone opts in. */
+    var widgetLoading = false;
+    function startBrowserCall(btn) {
+      window.nvTrack && window.nvTrack("browser_call_start");
+      if (document.querySelector("elevenlabs-convai")) { dlg.close(); return; }
+      if (widgetLoading) return;
+      widgetLoading = true;
+      btn.textContent = "Connecting…";
+      btn.disabled = true;
+
+      var el = document.createElement("elevenlabs-convai");
+      el.setAttribute("agent-id", "agent_9101ky43tys1fswstde818j7j8wt");
+      el.setAttribute("default-expanded", "");
+      document.body.appendChild(el);
+
+      var s = document.createElement("script");
+      s.src = "https://unpkg.com/@elevenlabs/convai-widget-embed";
+      s.async = true;
+      s.onload = function () { setTimeout(function () { if (dlg.open) dlg.close(); }, 400); };
+      s.onerror = function () {
+        widgetLoading = false;
+        btn.disabled = false;
+        btn.textContent = "Start a voice call here";
+        var fine = dlg.querySelector(".nv-dial-fine");
+        if (fine) fine.textContent = "That did not load — your network may be blocking it. Call the number below instead; it is the same assistant.";
+      };
+      document.head.appendChild(s);
     }
 
     document.addEventListener("click", function (e) {
