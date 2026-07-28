@@ -16,7 +16,12 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const contentPages = ["index.html", "demo.html", "book.html", "about.html", "pricing.html", "pilot.html", "privacy.html", "terms.html", "coming-soon.html", "revenue-engine.html"];
 const fullFooterPages = ["index.html", "demo.html", "book.html", "about.html", "pilot.html", "coming-soon.html", "revenue-engine.html"];
 const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\b/, /limited spots remaining/i, /join thousands/i, /launching next month/i,
-  /first ring/i /* CLM-02: retired 2026-07-26, unsupported without uptime monitoring */];
+  /first ring/i, /* CLM-02: retired 2026-07-26, unsupported without uptime monitoring */
+  /* Nevamis has no clients yet, so any phrasing that asserts a client base is
+     false. \b is deliberate: "your clients" is fine and must not trip this,
+     and it does not, because y-o-u-r leaves no word boundary before "our".
+     Retire this entry the day there is a real client, not before. */
+  /\bour clients\b/i, /\bour customers\b/i];
 let fail = 0;
 const err = (m) => { console.error("FAIL: " + m); fail++; };
 
