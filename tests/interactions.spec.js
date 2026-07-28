@@ -47,6 +47,7 @@ test('the call player plays through the transcript and lights the chips', async 
   // playing state + first line highlighted
   await expect(page.locator('#callCard')).toHaveClass(/playing/);
   await expect(page.locator('#playLabel')).toHaveText('Pause');
+  // the duration in the label is the permission slip to press play
   await expect(page.locator('.line.speaking')).toHaveCount(1);
 
   // audio element advances lines on 'ended'; force-fire it rather than
@@ -67,7 +68,7 @@ test('the call player plays through the transcript and lights the chips', async 
 
   // stop works
   await play.click();
-  await expect(page.locator('#playLabel')).toHaveText('Hear this call');
+  await expect(page.locator('#playLabel')).toHaveText(/Hear a \d+-second call/);
   await page.screenshot({ path: path.join(OUT, 'section-call-proof.png') });
 });
 

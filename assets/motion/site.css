@@ -21,6 +21,10 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--navy);color:var(--ink)}
+/* clip, not hidden: body-only clipping still reports horizontal overflow up on
+   the html element, but overflow-x:hidden here would make html a scroll
+   container and silently kill the sticky ROI panel. */
+html{overflow-x:clip}
 body{overflow-x:hidden;font-family:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;line-height:1.55;font-size:16.5px}
 img{max-width:100%;height:auto}

@@ -121,7 +121,7 @@
     var thRail = Array.prototype.slice.call(document.querySelectorAll("#thRail li"));
     var TH = [
       { s: "INCOMING CALL · 11:42 PM", c: "The crew is on the tools. The business line rings.", q: null },
-      { s: "ANSWERED · FIRST RING", c: "Nevamis picks up in the business's own tone.", q: "“Prairie Mechanical, how can I help you tonight?”", agent: true },
+      { s: "ANSWERED IN SECONDS", c: "Nevamis picks up in the business's own tone.", q: "“Prairie Mechanical, how can I help you tonight?”", agent: true },
       { s: "LISTENING", c: "The caller explains. The facts are captured as they speak.", q: "“Our furnace just died and it’s minus twenty out.”" , facts: true },
       { s: "ACTION TAKEN", c: "Emergency rule passes. The on-call tech is locked in.", q: null, facts: true, book: true },
       { s: "CALL COMPLETE · BOOKED", c: "Work never stopped. The owner knows everything.", q: null, facts: true, book: true, owner: true }
@@ -218,7 +218,7 @@
     function resetPlayer() {
       playing = false; idx = -1; audio.pause();
       card.classList.remove("playing"); clearHl();
-      if (label) label.textContent = "Hear this call";
+      if (label) label.textContent = "Hear a 39-second call";
       drawWave();
     }
     function playNext() {

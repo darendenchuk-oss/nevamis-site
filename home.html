@@ -72,6 +72,8 @@
   .ctamask{overflow:hidden;border-radius:999px;padding:2px;margin:-2px}
   .proof{margin-top:18px;color:var(--muted);font-size:14px}
   .proof a{color:var(--mint);text-decoration:underline;text-underline-offset:3px}
+  .pilot-promise{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+  .pilot-promise strong{color:var(--ink)}
 
   .stage{position:relative;height:min(82vh,660px)}
   #mark{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
@@ -90,12 +92,14 @@
     .hero{min-height:auto;padding-bottom:8px}
     .hero .wrap{grid-template-columns:1fr;gap:0;padding-top:88px;min-height:auto;padding-bottom:44px}
     .copy{display:contents}
+    /* The offer and both CTAs come first. On a 640-667px phone the decorative
+       stage above them pushed "Call the live AI" below the fold. */
     .copy>.eyebrow{order:1;justify-self:start}
     .hero h1{order:2}
-    .stage{order:3;height:clamp(200px,34vh,300px);min-height:0;margin:18px 0 4px}
-    .lede{order:4}
-    .cta{order:5}
-    .proof{order:6}
+    .lede{order:3}
+    .cta{order:4}
+    .proof{order:5}
+    .stage{order:6;height:clamp(200px,32vh,290px);min-height:0;margin:22px 0 4px}
     .hero-links{order:7}
     .hero h1{font-size:clamp(34px,9vw,48px)}
     .lede{max-width:none}
@@ -392,7 +396,8 @@
           <span class="ctamask"><a class="btn btn-primary" href="tel:+15874130035" data-evt="hero_live_demo_call_click" data-cta>Call the live AI <span class="arw" aria-hidden="true">›</span></a></span>
           <span class="ctamask"><a class="btn btn-ghost" href="/book.html" data-evt="hero_book_call_click" data-cta>Book a 15-min call</a></span>
         </div>
-        <p class="proof">Live demo line: <a class="mono" href="tel:+15874130035">(587)&nbsp;413-0035</a> · answers in seconds. Try to stump it.</p>
+        <p class="proof">Live demo line: <a class="mono" href="tel:+15874130035">(587)&nbsp;413-0035</a> · answers in seconds. It is the AI, not a salesperson, and nothing is sold to you.</p>
+        <p class="proof pilot-promise">Then try it on your own line: <strong>a free 7-day pilot, no card and no automatic billing.</strong> <a href="/pilot.html">How the pilot works</a></p>
         <nav class="hero-links" aria-label="Sections">
           <a href="#how">How it works</a>
           <a href="/pricing.html">Pricing</a>
@@ -495,12 +500,12 @@
   <div class="trust-strip" aria-label="What Nevamis covers">
     <div class="wrap">
       <ul>
-        <li>24/7 call coverage</li>
-        <li>Appointment and job booking</li>
-        <li>Call qualification</li>
-        <li>SMS confirmations and summaries</li>
-        <li>After-hours, overflow, or full-time</li>
-        <li>Built for Canadian businesses</li>
+        <li>Keep your existing phone number</li>
+        <li>Free 7-day pilot, no card</li>
+        <li>Month to month, cancel anytime</li>
+        <li>Switch it off from your own phone</li>
+        <li>Built and tuned for you, not a template</li>
+        <li>Canadian dollars, GST/HST registered</li>
       </ul>
     </div>
   </div>
@@ -523,7 +528,7 @@
           <canvas id="callWave" height="46" aria-hidden="true"></canvas>
           <div class="player-row">
             <button class="play" id="playBtn" aria-label="Play the example call audio">
-              <span aria-hidden="true">▶</span><span id="playLabel">Hear this call</span>
+              <span aria-hidden="true">▶</span><span id="playLabel">Hear a 39-second call</span>
             </button>
             <span class="timer mono" id="callTimer">0:00 / 0:39</span>
           </div>
@@ -793,9 +798,10 @@
             <input type="number" id="roiClose" inputmode="numeric" min="0" max="100" value="50">
           </div>
           <div>
-            <label for="roiQuote">Your quoted Nevamis plan ($/month, optional)</label>
-            <input type="number" id="roiQuote" inputmode="numeric" min="0" placeholder="Enter after your strategy call">
-            <p class="hint">Pricing is scoped to your call volume on the strategy call. Enter the quote to see break-even.</p>
+            <label for="roiQuote">Plan you are comparing against ($/month)</label>
+            <input type="number" id="roiQuote" inputmode="numeric" min="0" value="449">
+            <p class="hint" id="roiQuoteHint">Prefilled with the Growth plan. Change it to any plan, or to a
+              quote you were given, to see how many booked jobs cover it.</p>
           </div>
         </form>
         <div class="roi-out reveal" aria-label="Calculator results">
@@ -811,6 +817,9 @@
           <div class="row" id="roiBeRow" hidden>
             <div class="lbl mono">BREAK-EVEN AT YOUR QUOTE</div>
             <div class="big" id="roiBe" style="font-size:clamp(20px,2.2vw,26px)">–</div>
+          </div>
+          <div class="midcta" style="margin-top:18px">
+            <a class="btn btn-primary" href="/book.html" data-evt="roi_book_click">Check these against your real call log</a>
           </div>
           <p class="disclaimer">Estimate only, not a guarantee. Formula: missed calls × 4.33 weeks × opportunity share × job value × close rate. Recovery assumes half of voicemail-bound calls are captured.</p>
           <p aria-live="polite" class="visually-hidden" id="roiLive"></p>

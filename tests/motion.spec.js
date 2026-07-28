@@ -213,6 +213,10 @@ const VIEWPORTS = [
   { name: '1440x900', width: 1440, height: 900 },
   { name: '1024x768', width: 1024, height: 768 },
   { name: '390x844', width: 390, height: 844 },
+  // Short phones are where the fold actually bites. Testing only 390x844 hid a
+  // real bug: the hero visual pushed both CTAs off-screen on an iPhone SE.
+  { name: '375x667', width: 375, height: 667 },
+  { name: '360x640', width: 360, height: 640 },
 ];
 
 for (const vp of VIEWPORTS) {
@@ -266,11 +270,10 @@ for (const vp of VIEWPORTS) {
     vp.width);
     expect(escapees, `elements past the right edge at ${vp.name}`).toEqual([]);
 
-    // both CTAs above the fold on laptop sizes
-    if (vp.height >= 768) {
-      const box = await primary.boundingBox();
-      expect(box.y + box.height, `primary CTA must sit above the fold at ${vp.name}`).toBeLessThan(vp.height);
-    }
+    // The primary CTA must sit above the fold on EVERY supported size, phones
+    // included. This is the conversion guarantee, not a desktop nicety.
+    const box = await primary.boundingBox();
+    expect(box.y + box.height, `primary CTA must sit above the fold at ${vp.name}`).toBeLessThan(vp.height);
 
     const file = `layout-${vp.name}.png`;
     await page.screenshot({ path: path.join(OUT, file) });
