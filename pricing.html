@@ -38,6 +38,9 @@
   .plan li { font-size: 14px; color: var(--muted); padding: 5px 0 5px 20px; position: relative; }
   .plan li::before { content: "✓"; position: absolute; left: 0; color: var(--emerald); font-weight: 700; }
   .plan .best { font-size: 13.5px; color: var(--ink); border-top: 1px solid var(--line); padding-top: 12px; }
+  .plan .buy { margin-top: 16px; }
+  .plan .buy .btn { width: 100%; justify-content: center; }
+  .plan .buy-note { font-size: 12.5px; color: var(--muted); margin-top: 8px; text-align: center; }
   @media (max-width: 900px) { .plans { grid-template-columns: 1fr; } }
   .rc { background: linear-gradient(180deg, var(--navy-2), #0C1A25); border: 1px solid var(--line); border-radius: 16px; padding: 26px; margin-top: 40px; }
   .rc h3 { font-size: 20px; margin-bottom: 14px; }
@@ -154,14 +157,17 @@
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
           <h3 style="font-size:18px">After Hours &mdash; C$249/month</h3>
           <p style="color:var(--muted);font-size:14.5px">C$500 one-time setup · 250 included AI minutes · C$1.10 per extra minute. Evenings, weekends, and overflow coverage.</p>
+          <p style="margin-top:10px"><a class="btn btn-primary" href="https://app.nevamis.ca/signup?plan=after-hours">Buy now</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
           <h3 style="font-size:18px">Growth &mdash; C$449/month (recommended)</h3>
           <p style="color:var(--muted);font-size:14.5px">C$750 one-time setup · 600 included AI minutes · C$0.90 per extra minute. Qualification, routing, and booking on a meaningful share of calls.</p>
+          <p style="margin-top:10px"><a class="btn btn-primary" href="https://app.nevamis.ca/signup?plan=growth">Buy now</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
           <h3 style="font-size:18px">Scale &mdash; from C$849/month</h3>
           <p style="color:var(--muted);font-size:14.5px">C$1,250 one-time setup · 1,200 included AI minutes · C$0.75 per extra minute. Multi-location and higher-volume routing.</p>
+          <p style="margin-top:10px"><a class="btn btn-ghost" href="/book.html">Get a quote</a></p>
         </div>
         <p style="color:var(--muted);font-size:14px">Prices in Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime. 7-day live pilot, no card. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
       </div></div>
@@ -272,6 +278,16 @@
     h += '<div class="usage">' + grp(pl.includedMinutes) + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
     h += "<ul>" + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
     h += '<div class="best"><strong>Best for:</strong> <span></span></div>';
+    /* The buy path. A "from C$X" plan is quoted, not fixed, so sending it to
+       a checkout that charges exactly C$X would contradict the price right
+       above the button; those keep the strategy call instead. */
+    if (pl.startingAt) {
+      h += '<div class="buy"><a class="btn btn-ghost" href="/book.html" data-evt="plan_quote_click">Get a quote <span class="arw" aria-hidden="true">›</span></a>'
+        + '<div class="buy-note">Multi-location builds are priced on the call.</div></div>';
+    } else {
+      h += '<div class="buy"><a class="btn btn-primary" href="https://app.nevamis.ca/signup?plan=' + encodeURIComponent(pl.id) + '" data-evt="plan_buy_click">Buy now <span class="arw" aria-hidden="true">›</span></a>'
+        + '<div class="buy-note">No card on this step. Cancel anytime.</div></div>';
+    }
     d.innerHTML = h;
     d.querySelector("h3").textContent = pl.name;
     var lis = d.querySelectorAll("li");
