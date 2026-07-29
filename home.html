@@ -107,6 +107,13 @@
   .step-label{font-family:"Spline Sans Mono",monospace;font-size:31px;letter-spacing:.14em;fill:var(--mint)}
   .step-frag{font-family:"Atkinson Hyperlegible",sans-serif;font-size:19px;fill:#B9CFC9}
 
+  /* The number rides in the primary CTA on anything wide enough to read it.
+     On a narrow phone the button drops it rather than wrapping to two lines:
+     tapping dials there anyway, and the .proof line right below still shows
+     the digits. */
+  .cta-num{white-space:nowrap}
+  @media(max-width:430px){.cta-num{display:none}}
+
   .hero-links{display:none}
 
   /* ---------- hero search ---------- */
@@ -450,7 +457,13 @@
           <strong>qualifies the caller</strong>, <strong>books the job</strong>, and
           <strong>texts you the details</strong>, on the number you already use.</p>
         <div class="cta">
-          <span class="ctamask"><a class="btn btn-primary" href="tel:+15874130035" data-evt="hero_live_demo_call_click" data-cta>Call the live AI <span class="arw" aria-hidden="true">›</span></a></span>
+          <!-- The number is in the label because the sticky callbar already
+               does it ("Call our AI now · (587) 413-0035") and the hero did
+               not, and because a visible number is itself the proof that a
+               real line stands behind the claim. It is a separate span so the
+               button can drop it rather than wrap on a narrow phone, where
+               tapping dials anyway and reading the digits is unnecessary. -->
+          <span class="ctamask"><a class="btn btn-primary" href="tel:+15874130035" data-evt="hero_live_demo_call_click" data-cta>Call the live AI<span class="cta-num"> · (587)&nbsp;413-0035</span> <span class="arw" aria-hidden="true">›</span></a></span>
           <span class="ctamask"><a class="btn btn-ghost" href="/book.html" data-evt="hero_book_call_click" data-cta>Book a 15-min call</a></span>
         </div>
         <p class="proof">Live demo line: <a class="mono" href="tel:+15874130035">(587)&nbsp;413-0035</a> · answers in seconds. It is the AI, not a salesperson, and nothing is sold to you.</p>

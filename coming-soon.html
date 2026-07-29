@@ -368,10 +368,10 @@
       </div>
       <form class="interest-form reveal" id="interestForm" novalidate>
         <div class="grid">
-          <div><label for="ifName">Name</label><input id="ifName" name="name" autocomplete="name" required></div>
-          <div><label for="ifBiz">Business name</label><input id="ifBiz" name="business" autocomplete="organization" required></div>
-          <div><label for="ifEmail">Business email</label><input id="ifEmail" name="email" type="email" autocomplete="email" required></div>
-          <div><label for="ifPhone">Phone (optional)</label><input id="ifPhone" name="phone" type="tel" autocomplete="tel"></div>
+          <div><label for="ifName">Name</label><input id="ifName" enterkeyhint="next" name="name" autocomplete="name" required></div>
+          <div><label for="ifBiz">Business name</label><input id="ifBiz" enterkeyhint="next" name="business" autocomplete="organization" required></div>
+          <div><label for="ifEmail">Business email</label><input id="ifEmail" inputmode="email" enterkeyhint="next" name="email" type="email" autocomplete="email" required></div>
+          <div><label for="ifPhone">Phone (optional)</label><input id="ifPhone" inputmode="tel" enterkeyhint="next" name="phone" type="tel" autocomplete="tel"></div>
           <div><label for="ifIndustry">Industry</label>
             <select id="ifIndustry" name="industry">
               <option>Electrical</option><option>HVAC / Plumbing</option><option>Restoration / Property services</option>

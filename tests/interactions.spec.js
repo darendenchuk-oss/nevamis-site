@@ -325,3 +325,33 @@ test('footer, callbar and every section land without console errors', async ({ b
   expect(errors, errors.join('\n')).toEqual([]);
   await ctx.close();
 });
+
+/* The booking page's prefill fields sit ABOVE the scheduler and read as
+   optional, so the natural order is to pick a time and then fill them in.
+   Rewriting frame.src at that point reloads Cal.com and silently destroys the
+   chosen slot, on the one page whose entire job is to capture a booking. */
+test('filling the prefill fields never reloads a scheduler you have already used', async ({ page }) => {
+  await page.goto('/book.html');
+  const frame = page.locator('#bkFrame');
+  await expect(frame).toBeVisible();
+
+  // Before any interaction, prefill is welcome to rewrite the src.
+  await page.fill('#bkName', 'Marion Webb');
+  await page.dispatchEvent('#bkName', 'change');
+  await page.waitForTimeout(600);
+  const afterName = await frame.getAttribute('src');
+  expect(afterName, 'prefill should still work before the frame is touched').toContain('name=Marion');
+
+  // Now the visitor picks a slot: focus moves into the cross-origin iframe.
+  await page.evaluate(() => {
+    document.getElementById('bkFrame').focus();
+    window.dispatchEvent(new Event('blur'));
+  });
+
+  // Anything typed afterwards must not cost them that slot.
+  await page.fill('#bkEmail', 'marion@example.ca');
+  await page.dispatchEvent('#bkEmail', 'change');
+  await page.waitForTimeout(600);
+  expect(await frame.getAttribute('src'), 'the scheduler must not reload after it has been used')
+    .toBe(afterName);
+});

@@ -21,6 +21,11 @@ visible rather than mixed in.
 | `PRICING-OFFERS-PACKAGING-001` | 2026-07-2x | Pay As You Go renders on the pricing page from pricing-config.js | `present:Pay As You Go:pricing.html` |
 | `AGENT-PRODUCT-QUALITY-001` | 2026-07-2x | Hard-coded -06:00 booking offset removed from the engine | `absent:-06:00:../nevamis-engine/src/**/*.ts` |
 | `RISK-LEGAL-AND-CONTINUITY-034` | 2026-07-28 | nevamis-site and nevamis-engine both have remotes and are pushed | `none` |
+| `LEAD-CAPTURE-BOOKING-001` | 2026-07-28 | Prefill no longer rewrites frame.src once the scheduler has been used; negative-tested in interactions.spec.js | `present:frameTouched:book.html` |
+| `LEAD-CAPTURE-BOOKING-005` | 2026-07-28 | Interest endpoint ceiling raised from 10/hour to 120; it was rejecting the eleventh genuine lead | `absent:MAX_PER_HOUR = 10;:../nevamis-engine/src/app/api/interest/route.ts` |
+| `LEAD-CAPTURE-BOOKING-017` | 2026-07-28 | Hero CTA carries the number like the callbar does, dropped below 430px rather than wrapping | `present:cta-num:home.html` |
+| `LEAD-CAPTURE-BOOKING-024` | before 2026-07-28 | Already done when checked: the ROI output has a CTA with roi_book_click | `present:roi_book_click:home.html` |
+| `LEAD-CAPTURE-BOOKING-036` | 2026-07-28 | enterkeyhint and inputmode on all 7 capture fields; honeypot deliberately excluded | `present:enterkeyhint:coming-soon.html` |
 
 ## Taken on trust (no automatic check)
 

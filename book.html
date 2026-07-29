@@ -176,9 +176,9 @@
         <!-- Optional prefill: rewrites the scheduler URL with Cal.com prefill
              params. Pure enhancement; the iframe works untouched without JS. -->
         <div id="bkPrefill" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px" hidden>
-          <input id="bkName" aria-label="Your name (optional, prefills the booking form)" placeholder="Your name (optional prefill)" autocomplete="name" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
-          <input id="bkBiz" aria-label="Business name (optional, prefills the booking form)" placeholder="Business name" autocomplete="organization" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
-          <input id="bkEmail" aria-label="Email (optional, prefills the booking form)" type="email" placeholder="Email" autocomplete="email" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
+          <input id="bkName" enterkeyhint="next" aria-label="Your name (optional, prefills the booking form)" placeholder="Your name (optional prefill)" autocomplete="name" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
+          <input id="bkBiz" enterkeyhint="next" aria-label="Business name (optional, prefills the booking form)" placeholder="Business name" autocomplete="organization" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
+          <input id="bkEmail" inputmode="email" enterkeyhint="done" aria-label="Email (optional, prefills the booking form)" type="email" placeholder="Email" autocomplete="email" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
         </div>
         <!-- Inline scheduler (works without JS: plain iframe). The external
              link below stays as the always-available fallback (WEB-138). -->
@@ -245,7 +245,28 @@
     row.hidden = false;
     var base = "https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1";
     var timer = null;
+    var tracked = false;
+
+    /* Reassigning frame.src reloads the scheduler and destroys any time slot
+       the visitor has already picked. The fields sit ABOVE the iframe and read
+       as optional, so the natural order is to choose a slot and then fill them
+       in, which used to wipe the choice.
+
+       The guard is iframe interaction rather than "prefill only once": a
+       visitor who types their name, then their email, then picks a slot should
+       still get both. Cross-origin means we cannot see inside the frame, but
+       focus moving INTO it is observable, and that is the moment after which a
+       reload can cost something. */
+    var frameTouched = false;
+    window.addEventListener("blur", function () {
+      if (document.activeElement === frame) frameTouched = true;
+    });
+    /* Pointer down on the frame counts too: a click both focuses and, on a
+       second click, would not fire blur again. */
+    frame.addEventListener("pointerdown", function () { frameTouched = true; });
+
     function apply() {
+      if (frameTouched) return;
       var name = (document.getElementById("bkName").value || "").trim();
       var biz = (document.getElementById("bkBiz").value || "").trim();
       var email = (document.getElementById("bkEmail").value || "").trim();
@@ -257,7 +278,9 @@
       if (email) url += "&email=" + encodeURIComponent(email);
       if (notes.length) url += "&notes=" + encodeURIComponent(notes.join(" | "));
       if (frame.src !== url) frame.src = url;
-      if (window.nvTrack) window.nvTrack("booking_prefill_used");
+      /* Once per visit, not once per keystroke: this fired on every change,
+         so a visitor filling three fields looked like three prefills. */
+      if (!tracked && window.nvTrack) { tracked = true; window.nvTrack("booking_prefill_used"); }
     }
     ["bkName", "bkBiz", "bkEmail"].forEach(function (id) {
       document.getElementById(id).addEventListener("change", function () {
