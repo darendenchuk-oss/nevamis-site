@@ -50,99 +50,116 @@ float fbm(vec2 p){
   return v * 1.14;   // renormalize the missing octave
 }
 
-/* The curtain stands in vertical columns. Every filament is its own ray with
-   its own reach, so the light ends in a ragged comb of feet at different
-   heights. The previous build shared one drape height across the whole
-   width, which is what drew a hard horizontal line through the page —
-   the giveaway was a flat alpha profile that jumped at a single row. */
-vec4 aurora(vec2 uv, float f){
-  vec4 acc = vec4(0.0);
+/* ONE CURTAIN.
 
-  // Sway, not squirm: the curtain leans and drifts sideways over time
-  // instead of rippling up and down.
-  float sway = sin(uv.y * 2.7 + uTime * 0.44 + uFlow * 1.2) * 0.045
-             + sin(uv.y * 1.1 - uTime * 0.27) * 0.034
-             + sin(uTime * 0.19 + uv.y * 0.5) * 0.022;
+   A real aurora is a ribbon, not a field of bars. Its centreline snakes
+   left and right as it climbs, it pleats and folds along its length, and
+   the light is never still: folds travel sideways, shimmer runs UP the
+   filaments, and brightness surges climb the curtain like something moving
+   through it.
 
-  // Striation field: high frequency across x, slow along y, so every streak
-  // runs top to bottom. The warp domain is rotated off-axis so no noise
-  // lattice ever lines up with the screen.
-  vec2 wq = mat2(0.955, -0.296, 0.296, 0.955) * vec2(uv.x * 2.4 + f * 0.30, uv.y * 1.2 - f * 0.06);
-  float warp = fbm(wq) * 2.0;
-  float rays = fbm(vec2((uv.x + sway) * 16.0 + warp, uv.y * 0.30 - f * 0.12));
-  rays = 0.22 + 0.78 * pow(smoothstep(0.20, 0.90, rays), 1.5);
+   The previous build dissolved the ribbon into independent vertical
+   columns. That killed the horizontal edge it was written to kill, but it
+   also threw away the coherent structure that makes the thing read as an
+   aurora at all — it looked like grass. The ribbon is back; it just runs
+   up the sky instead of across it, so there is no edge to draw a line.
 
-  // How far down each column reaches. Sampled at a HIGH x frequency (7.0,
-  // where the old drape used 1.9) and interpolated across the slices, so
-  // neighbouring columns end at unrelated heights and no shared edge can
-  // form. Three anchors keep this at a fifth of the cost of sampling per
-  // slice.
-  float spread = 0.55 + uEnergy * 0.30;
-  float bx = (uv.x + sway * 0.6) * 7.0 + f * 0.20 + uProg * 1.1;
-  float s0 = fbm(vec2(bx,                f * 0.05));
-  float s1 = fbm(vec2(bx + spread * 0.5, f * 0.05 + 0.03));
-  float s2 = fbm(vec2(bx + spread,       f * 0.05 + 0.06));
+   Returns luminance only. Colour is by height, decided once in main(),
+   which is both cheaper and more correct: the ramp is an atmospheric fact
+   about altitude, not a property of any one curtain. */
+float curtain(vec2 uv, float t, float seed, float depth){
+  float y = uv.y;
 
-  // Colour by height rather than by slice: green at the feet, teal through
-  // the body, a restrained violet where the rays run off the top. Hoisted
-  // out of the loop — with vertical columns it no longer varies per slice.
-  vec3 c = mix(vec3(0.14, 0.98, 0.46), vec3(0.13, 0.66, 0.56), smoothstep(0.02, 0.50, uv.y));
-  c = mix(c, vec3(0.46, 0.22, 0.52), smoothstep(0.58, 1.05, uv.y));
+  /* Serpentine centreline: three octaves at different rates, so the folds
+     travel and the pattern never visibly repeats. This is the slowest
+     motion in the shader on purpose — the overall shape of an aurora
+     drifts over tens of seconds while its filaments flicker. */
+  float cx = 0.5 + depth
+    + sin(y * 1.9 + t * 0.40 + seed) * 0.150
+    + sin(y * 3.4 - t * 0.29 + seed * 2.3) * 0.080
+    + sin(y * 6.3 + t * 0.21 + seed * 4.1) * 0.038;
 
-  for (int i = 0; i < 18; i++){
-    float layer = float(i) / 18.0;
+  // Pleating: the ribbon breathes wider and narrower along its length.
+  float w = 0.105 + 0.045 * sin(y * 3.9 - t * 0.50 + seed * 1.7) + uEnergy * 0.030;
 
-    float shape = layer < 0.5
-      ? mix(s0, s1, layer * 2.0)
-      : mix(s1, s2, layer * 2.0 - 1.0);
+  float d = (uv.x - cx) / w;
+  float band = exp(-d * d * 0.9);
+  if (band < 0.004) return 0.0;   // outside this ribbon: skip the noise
 
-    // The foot of this filament. Bright rays are also the long ones, so the
-    // reach is tied to the striation field as well as the drape — that is
-    // what keeps the comb ragged at fine scale, not just wavy.
-    float foot = 0.06 + shape * 0.34 + rays * 0.20 + layer * (0.20 + uEnergy * 0.12);
-    float d = uv.y - foot;
+  /* Filaments, sampled ACROSS the ribbon (d) rather than across the screen
+     (uv.x). That one substitution is what makes them look like a curtain:
+     sampled on screen x they stand straight up regardless of where the
+     ribbon has snaked to, and the whole thing smears. Sampled on d they
+     follow the fold, which is what pleats in a real curtain do.
 
-    /* Sharp underneath the foot, tail climbing the page — bright rays reach
-       further than dim ones. The tail is an order of magnitude wider than
-       the old band's, so the weights below are cut to match: measured flat,
-       the same slice count would otherwise sit ~2.5x brighter and wash out
-       the text in front of it. */
-    float glow = exp(-max(-d, 0.0) * 34.0) * exp(-max(d, 0.0) * (7.6 - 3.4 * rays));
+     The sample point also climbs with time, so the shimmer runs up the
+     curtain — the strongest single cue that this is an aurora and not a
+     gradient. */
+  float ray = fbm(vec2(d * 5.5 + seed * 9.0, y * 0.55 - t * 0.62));
+  ray = 0.18 + 0.82 * smoothstep(0.30, 0.74, ray);
 
-    float w = (1.0 - layer * 0.38) * 0.105;
-    acc.rgb += c * glow * w;
-    acc.a   += glow * (1.0 - layer * 0.25) * 0.072;
+  // Surges travelling up the ribbon.
+  float surge = 0.72 + 0.42 * sin(y * 3.0 - t * 1.15 + seed * 3.0);
 
-    // the bright mint feet of the nearest columns
-    if (i == 0){
-      float rim = exp(-abs(d) * 46.0);
-      acc.rgb += vec3(0.65, 0.97, 0.82) * rim * 0.42;
-      acc.a   += rim * 0.24;
-    }
-  }
+  /* Reaches past the top of the frame: a curtain that stops short looks like
+     a decal, and its end is another edge that can read as a line.
 
-  acc *= rays;
-  return acc;
+     The second term dims the lowest sliver. Without it every ribbon runs
+     straight off the bottom at full brightness and they overlap into a pale
+     haze along the floor — curtains hang above the horizon, they do not
+     pool on it. */
+  float fade = smoothstep(1.45, -0.25, y) * smoothstep(-0.10, 0.18, y);
+
+  return band * ray * surge * fade;
 }
 
 void main(){
   vec2 uv = gl_FragCoord.xy / uRes;            // y up
-  float f = uTime * 0.10 + uFlow;
+  float t = uTime * 0.55 + uFlow * 2.0;
 
-  vec4 a = aurora(uv, f);
-  // The faintest floor wash so the void is not flat black. A gradient, not
-  // the old exp() band centred on y=0.12 — a band peaks at one row, which
-  // is a horizontal line by another name.
-  float hg = smoothstep(0.55, 0.0, uv.y) * 0.05;
+  /* Five ribbons at different depths and rates. The parallax is what gives
+     the sky depth; three left the frame visibly empty in the gaps, and one
+     alone reads as a decal. */
+  float l = curtain(uv, t,         0.0, -0.36) * 0.76
+          + curtain(uv, t * 0.86,  2.7, -0.14) * 0.92
+          + curtain(uv, t * 1.07,  5.3,  0.08) * 1.00
+          + curtain(uv, t * 0.93,  8.1,  0.28) * 0.84
+          + curtain(uv, t * 1.19, 11.4,  0.48) * 0.64;
 
-  vec3 col  = a.rgb + vec3(0.05, 0.30, 0.24) * hg;
-  float lum = a.a + hg;
+  /* The emission ramp by altitude: 557.7nm oxygen green through the body,
+     teal higher, a violet crown where the rays run out. */
+  vec3 col = mix(vec3(0.16, 1.00, 0.50), vec3(0.18, 0.78, 0.70), smoothstep(0.34, 0.70, uv.y));
+  col = mix(col, vec3(0.44, 0.30, 0.82), smoothstep(0.72, 1.10, uv.y));
 
-  // soft filmic roll-off — bright folds glow, nothing plateaus or clips
-  float master = 1.0 + uEnergy * 0.4;
-  vec3 mapped  = col * master;
-  mapped = mapped / (1.0 + mapped * 0.55) * 1.18;
-  float alpha  = 0.93 * (1.0 - exp(-lum * master * 1.15));
+  /* The nitrogen fringe, gated on BRIGHTNESS as well as height. As a
+     function of height alone it painted a solid magenta bar edge to edge
+     across the bottom of the frame — the ribbons are widest and brightest
+     down there, so they overlap into continuous cover, and the result was
+     the exact horizontal line this file exists to avoid. Gating on l puts
+     the pink only where a curtain actually is, so the filaments break it up. */
+  float fringe = smoothstep(0.40, 0.05, uv.y) * smoothstep(0.16, 0.55, l);
+  col = mix(col, vec3(0.94, 0.28, 0.58), fringe * 0.72);
+
+  // The faintest floor wash so the void is not flat black. A gradient, never
+  // a band: a band peaks at one row, which is a horizontal line by another
+  // name — the bug this file was rewritten to fix.
+  float hg = smoothstep(0.45, 0.0, uv.y) * 0.035;
+
+  /* Soft roll-off on LUMINANCE, not per channel. Per channel it compresses
+     the bright green toward the weaker red and blue, so every bright fold
+     drifted grey-white — the aurora looked like fog. Rolling off luminance
+     and rescaling keeps the hue at the top end, which is where it matters. */
+  float master = 0.70 + uEnergy * 0.55;
+  vec3 mapped = col * (l * master) + vec3(0.05, 0.30, 0.24) * hg;
+  float lum = dot(mapped, vec3(0.299, 0.587, 0.114));
+  mapped *= lum > 0.0005 ? (lum / (1.0 + lum * 0.60) * 1.20) / lum : 0.0;
+
+  /* Pull the chroma back up. Overlapping ribbons and the green-to-pink blend
+     both trend grey, and the canvas then sits at 90% over a navy page, which
+     mutes it further — the result read as sage, not aurora. Extrapolating
+     away from luminance (a mix factor above 1) restores the bite. */
+  mapped = max(mix(vec3(lum), mapped, 1.35), 0.0);
+  float alpha = 0.92 * (1.0 - exp(-(l * master + hg) * 1.5));
   gl_FragColor = vec4(mapped, alpha);
 }
 `;
@@ -315,8 +332,10 @@ function initShader(canvas) {
 }
 
 /* ------------------------------------------------------------
-   2D fallback: the strip-ray painter. Not as silky as the
-   shader, but honest, cheap, and better than nothing.
+   2D fallback: the same three snaking ribbons, painted as
+   horizontal cross-sections stacked up each scanline. Not as
+   silky as the shader, but the same shape and the same motion,
+   which matters more than the texture does.
    ------------------------------------------------------------ */
 
 function init2DFallback(canvas) {
@@ -324,58 +343,61 @@ function init2DFallback(canvas) {
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
 
-  function makeStrip(withMagenta) {
+  /* The ribbon's cross-section: soft at the edges, bright in the core.
+     Horizontal now, where the old painter's strip ran vertically — the
+     ribbon is the thing being drawn, not the ray. */
+  function makeSlice(rgb) {
     const s = document.createElement('canvas');
-    s.width = 1; s.height = 256;
+    s.width = 64; s.height = 1;
     const g = s.getContext('2d');
-    const gr = g.createLinearGradient(0, 0, 0, 256);
-    gr.addColorStop(0.00, 'rgba(214,82,150,0)');
-    gr.addColorStop(0.18, withMagenta ? 'rgba(214,82,150,0.15)' : 'rgba(47,191,143,0.05)');
-    gr.addColorStop(0.38, withMagenta ? 'rgba(186,96,166,0.22)' : 'rgba(47,191,143,0.13)');
-    gr.addColorStop(0.62, 'rgba(47,191,143,0.36)');
-    gr.addColorStop(0.90, 'rgba(96,235,152,0.7)');
-    gr.addColorStop(0.975, 'rgba(196,255,220,0.9)');
-    gr.addColorStop(1.00, 'rgba(120,240,180,0)');
+    const gr = g.createLinearGradient(0, 0, 64, 0);
+    gr.addColorStop(0.00, `rgba(${rgb},0)`);
+    gr.addColorStop(0.34, `rgba(${rgb},0.35)`);
+    gr.addColorStop(0.50, `rgba(${rgb},1)`);
+    gr.addColorStop(0.66, `rgba(${rgb},0.35)`);
+    gr.addColorStop(1.00, `rgba(${rgb},0)`);
     g.fillStyle = gr;
-    g.fillRect(0, 0, 1, 256);
+    g.fillRect(0, 0, 64, 1);
     return s;
   }
 
-  const CURTAINS = [
-    { baseY: 0.52, swoop: 30, len: 108, alpha: 0.34, speed: 0.55, xOff: 140, strip: makeStrip(false) },
-    { baseY: 0.74, swoop: 38, len: 92, alpha: 0.8, speed: 1, xOff: 0, strip: makeStrip(true) },
+  // Colour by altitude, matching the shader's ramp.
+  const LOW = makeSlice('229,61,133');
+  const MID = makeSlice('41,255,128');
+  const HIGH = makeSlice('112,77,209');
+
+  const RIBBONS = [
+    { seed: 0.0, depth: -0.30, rate: 1.00, alpha: 0.30 },
+    { seed: 2.7, depth: 0.02, rate: 0.82, alpha: 0.38 },
+    { seed: 5.3, depth: 0.33, rate: 1.14, alpha: 0.26 },
   ];
 
   return {
     resize() { /* fixed internal resolution */ },
-    paint(t, flow, energy, prog) {
-      const phase = t * 0.45 + flow;
+    paint(t, flow, energy) {
+      const base = t * 0.55 + flow * 2;
       ctx.clearRect(0, 0, W, H);
       ctx.globalCompositeOperation = 'lighter';
-      const tilt = Math.sin(phase * 0.11 + prog * Math.PI) * 0.13;
 
-      CURTAINS.forEach((c, ci) => {
-        const ph = phase * c.speed;
-        const baseY = H * c.baseY + Math.sin(prog * Math.PI * 2 + ci * 2.3) * 10;
-        for (let x = 0; x < W; x += 2) {
-          const u = x + c.xOff;
-          /* Per-column foot height. The high-frequency `comb` term dominates
-             the slow swoop on purpose: strips that all end on one smooth
-             curve read as a horizontal band, which is the exact look the
-             shader above was rewritten to get rid of. */
-          const comb = Math.sin(u * 0.37 + ph * 0.7) * Math.sin(u * 0.14 - ph * 0.31);
-          const bottom = baseY
-            + comb * c.swoop
-            + Math.sin(u * 0.011 + ph * 0.42) * c.swoop * 0.30
-            + tilt * (x - W / 2) * 0.4;
-          const clump = 0.5 + 0.5 * Math.sin(u * 0.09 + ph * 0.8) * Math.sin(u * 0.023 - ph * 0.33);
-          const stria = 0.72 + 0.28 * Math.sin(u * 0.9 + ph * 1.2);
-          // reach varies per column too, so the tops stay ragged as well
-          const len = c.len * (0.35 + clump * 0.95 + Math.abs(comb) * 0.4) * (1 + energy * 0.5);
-          const a = c.alpha * (0.3 + clump * 0.7) * stria * (0.75 + energy * 0.45);
+      RIBBONS.forEach((r) => {
+        const ph = base * r.rate;
+        for (let py = 0; py < H; py += 2) {
+          const y = 1 - py / H;                 // shader-space y, 0 at the bottom
+          const cx = 0.5 + r.depth
+            + Math.sin(y * 1.9 + ph * 0.40 + r.seed) * 0.150
+            + Math.sin(y * 3.4 - ph * 0.29 + r.seed * 2.3) * 0.080
+            + Math.sin(y * 6.3 + ph * 0.21 + r.seed * 4.1) * 0.038;
+          const w = (0.052 + 0.028 * Math.sin(y * 4.6 - ph * 0.55 + r.seed * 1.7) + energy * 0.02) * W * 5;
+          const surge = 0.70 + 0.46 * Math.sin(y * 3.6 - ph * 1.25 + r.seed * 3);
+          // stands in for the shader's noise filaments; enough to break the
+          // ribbon up so it does not read as a painted stripe
+          const shimmer = 0.68 + 0.32 * Math.sin(y * 26 - ph * 3.1 + r.seed * 7);
+          const fade = Math.max(0, Math.min(1, 1.20 - y * 1.28));
+          const a = r.alpha * surge * shimmer * fade * (0.75 + energy * 0.5);
           if (a < 0.02) continue;
           ctx.globalAlpha = Math.min(1, a);
-          ctx.drawImage(c.strip, x, bottom - len, 2.2, len);
+          const slice = y < 0.26 ? LOW : y < 0.70 ? MID : HIGH;
+          ctx.drawImage(slice, cx * W - w / 2, py, w, 2.2);
         }
       });
       ctx.globalAlpha = 1;
