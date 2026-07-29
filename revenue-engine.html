@@ -248,13 +248,13 @@
       <div class="reveal" style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 26px">
         <div class="roi-grid">
           <label>Missed or slow-response leads per week
-            <input type="number" id="re-missed" value="10" min="0" inputmode="numeric"></label>
+            <input type="number" id="re-missed" aria-label="Missed calls per week" value="10" min="0" inputmode="numeric"></label>
           <label>Share that are real opportunities (%)
-            <input type="number" id="re-real" value="60" min="0" max="100" inputmode="numeric"></label>
+            <input type="number" id="re-real" aria-label="Share that are real opportunities, percent" value="60" min="0" max="100" inputmode="numeric"></label>
           <label>Average job value (C$)
-            <input type="number" id="re-value" value="400" min="0" inputmode="numeric"></label>
+            <input type="number" id="re-value" aria-label="Average job or customer value in dollars" value="400" min="0" inputmode="numeric"></label>
           <label>Your close rate (%)
-            <input type="number" id="re-close" value="50" min="0" max="100" inputmode="numeric"></label>
+            <input type="number" id="re-close" aria-label="Your close rate on real inquiries, percent" value="50" min="0" max="100" inputmode="numeric"></label>
         </div>
         <div style="margin-top:22px;display:flex;flex-wrap:wrap;gap:22px" aria-live="polite">
           <div><div class="mono" style="font-size:13px;color:var(--muted)">Monthly opportunity reaching no one</div><div id="re-opp" class="big-num" style="font-size:40px;color:var(--em)">C$0</div></div>

@@ -43,3 +43,71 @@ ACTIVATED (live charges and payouts). Twilio Trust Hub is still REJECTED
 | O4 | nvEvents analytics queue is inert; no delivery, no funnel measurement | MED | WEB-249 to WEB-253 | Needs an approved destination plus consent alignment before wiring. |
 | O9 | GitHub Pages cannot set CSP or other security headers | LOW | WEB-243, WEB-244 | EVALUATED 2026-07-27: stay on GitHub Pages for now. A Cloudflare free-tier proxy would add the headers at zero dollar cost but introduces a DNS and ownership dependency plus rollback complexity that a static brochure site does not justify pre-revenue (no auth, no forms posting to it, engine handles all sensitive surfaces with its own headers). Revisit at the first paying client. |
 
+
+## Audit pass 2026-07-28 (full-site sweep)
+
+Ran every existing guard, then audited what they structurally could not see.
+
+### The finding that mattered
+
+`scripts/check-consistency.js` hardcoded an eleven-page list while the site had
+grown to twenty-two published pages. **Eleven pages were published and
+unchecked**: every vertical landing page (electricians, hvac, plumbers,
+restoration, after-hours-answering, missed-calls, vs-voicemail,
+vs-answering-service, solutions) plus home.html and proposal.html.
+
+The file already carried a comment explaining that exempting 404.html is
+precisely why 404.html drifted. That lesson had been applied to one page rather
+than to the pattern.
+
+The page list is now **derived** from what Jekyll actually publishes, so a new
+page is guarded the moment it exists. Documented no-chrome exemptions
+(proposal.html) skip only the shared nav/footer comparison; every content rule
+still applies to them.
+
+Turning the guard on immediately caught 4 real bugs it had been blind to.
+
+### Fixed
+
+| # | Finding | Severity | Fix |
+|---|---|---|---|
+| A1 | check-consistency.js checked 11 of 22 published pages | HIGH | List derived from disk + _config.yml excludes |
+| A2 | electricians/hvac/plumbers/restoration used non-canonical "free 7-day pilot" in a CTA | MED | Reworded to "7-day live pilot". These are the pages strangers land on from search, so the offer was named inconsistently at first contact |
+| A3 | pricing/privacy/terms had og:image and a Twitter card but no og:title or og:description | MED | Added, mirroring each page's own title and description |
+| A4 | 404.html had no meta description at all | MED | Added |
+| A5 | 9 form inputs across book/coming-soon/revenue-engine had a placeholder but no accessible name (fails WCAG 3.3.2) | MED | aria-label on each; the coming-soon honeypot is aria-hidden and deliberately unnamed |
+
+### Verified clean
+
+- 19 pages crawled live: **0 non-200**, 0 broken assets, 0 failing external links
+- 0 pricing drift, 0 stray phone numbers or emails, 0 unsupported traction claims
+- Playwright: 55 passing before the changes
+
+### Known and accepted
+
+- `assets/vendor/three.module.js` is 1.28 MB but is referenced **only** by
+  concept*.html, which `_config.yml` excludes from publishing (verified 404
+  live). It is repo weight, not visitor weight.
+- index.html and home.html are ~75 KB of HTML. That is the code-native hero, and
+  it ships no framework, so the tradeoff is deliberate. Worth revisiting only if
+  it shows up in real field data.
+- proposal.html has no site nav by design: it is a document sent to one
+  prospect, so navigation on it would be wrong rather than missing.
+
+### New tooling
+
+- `scripts/audit-unguarded.mjs` — measures guard coverage against every page
+- `scripts/audit-links.mjs` — crawls the live site for 404s and broken assets
+- `scripts/audit-truth.mjs` — prices, phones, emails and claims across all pages
+- `scripts/audit-perf-a11y.mjs` — weight, headings, labels, alt text
+
+All four are read-only and safe to run any time.
+
+### Note for whoever runs these next
+
+Four separate false-positive classes were hit and corrected while writing them:
+a bare `/guarantee/` flags the honest disclaimer "not a guarantee"; nav
+comparison must strip `aria-current="page"`; canonical and og:url are *supposed*
+to be absolute; and 555-01xx phone numbers are the range reserved for fiction,
+so their use in an example call is correct. If a rule here starts firing on
+every page, suspect the rule before the site.

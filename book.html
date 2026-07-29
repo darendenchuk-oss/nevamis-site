@@ -176,9 +176,9 @@
         <!-- Optional prefill: rewrites the scheduler URL with Cal.com prefill
              params. Pure enhancement; the iframe works untouched without JS. -->
         <div id="bkPrefill" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px" hidden>
-          <input id="bkName" placeholder="Your name (optional prefill)" autocomplete="name" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
-          <input id="bkBiz" placeholder="Business name" autocomplete="organization" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
-          <input id="bkEmail" type="email" placeholder="Email" autocomplete="email" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
+          <input id="bkName" aria-label="Your name (optional, prefills the booking form)" placeholder="Your name (optional prefill)" autocomplete="name" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
+          <input id="bkBiz" aria-label="Business name (optional, prefills the booking form)" placeholder="Business name" autocomplete="organization" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
+          <input id="bkEmail" aria-label="Email (optional, prefills the booking form)" type="email" placeholder="Email" autocomplete="email" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
         </div>
         <!-- Inline scheduler (works without JS: plain iframe). The external
              link below stays as the always-available fallback (WEB-138). -->

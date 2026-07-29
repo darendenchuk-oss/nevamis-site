@@ -392,11 +392,11 @@
             <textarea id="ifProblem" name="problem"></textarea>
           </div>
           <div class="full"><label style="display:inline-flex;gap:8px;align-items:baseline;font-weight:400;font-size:14px">
-            <input type="checkbox" id="ifConsent" required style="width:auto;min-height:0"> I agree Nevamis may contact me about the services I selected.
+            <input type="checkbox" id="ifConsent" aria-label="I agree to be contacted about Nevamis" required style="width:auto;min-height:0"> I agree Nevamis may contact me about the services I selected.
           </label></div>
           <!-- Honeypot: hidden from people, tempting to bots -->
           <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;height:1px;width:1px;overflow:hidden">
-            <label>Website<input id="ifWebsite" name="website" tabindex="-1" autocomplete="off"></label>
+            <label>Website<input aria-hidden="true" id="ifWebsite" name="website" tabindex="-1" autocomplete="off"></label>
           </div>
         </div>
         <div class="cta-row" style="margin-top:18px">
