@@ -4,12 +4,14 @@
    real thing (reference: Fort Yukon, Alaska timelapse).
 
    The sky is a WebGL fragment shader: domain-warped fractal noise
-   stretched vertically into silk-like ray curtains, with a sharp
-   bright lower edge, tall soft falloff, folds, and a magenta
-   fringe that appears with altitude — the physics-shaped look a
-   2D canvas cannot fake. Rendered at reduced resolution and
-   stretched by CSS; a lightweight 2D painter remains as the
-   automatic fallback when WebGL is unavailable.
+   drawn as vertical ray columns, each with its own reach, so the
+   light ends in a ragged comb of bright feet and long soft tails
+   climbing the page — the physics-shaped look a 2D canvas cannot
+   fake. Deliberately NOT a horizontal curtain: one drape height
+   shared across the width reads as a line ruled through the page.
+   Rendered at reduced resolution and stretched by CSS; a
+   lightweight 2D painter remains as the automatic fallback when
+   WebGL is unavailable.
 
    The sky answers the visitor: scroll velocity feeds energy into
    brightness and ray height, and scroll direction sets the drift.
@@ -48,32 +50,44 @@ float fbm(vec2 p){
   return v * 1.14;   // renormalize the missing octave
 }
 
-/* The curtain is integrated as stacked filament slices marching upward,
-   each sheared a little more than the last — folds and bright vertical
-   streaks emerge where slices bunch, exactly how a real curtain drapes. */
+/* The curtain stands in vertical columns. Every filament is its own ray with
+   its own reach, so the light ends in a ragged comb of feet at different
+   heights. The previous build shared one drape height across the whole
+   width, which is what drew a hard horizontal line through the page —
+   the giveaway was a flat alpha profile that jumped at a single row. */
 vec4 aurora(vec2 uv, float f){
   vec4 acc = vec4(0.0);
 
-  // serpentine: the whole curtain squiggles up and down over time,
-  // even when the visitor is not scrolling
-  float wig = sin(uv.x * 3.1 + uTime * 0.50 + uFlow * 1.5) * 0.050
-            + sin(uv.x * 1.3 - uTime * 0.31) * 0.040
-            + sin(uTime * 0.23 + uv.x * 0.7) * 0.030;
+  // Sway, not squirm: the curtain leans and drifts sideways over time
+  // instead of rippling up and down.
+  float sway = sin(uv.y * 2.7 + uTime * 0.44 + uFlow * 1.2) * 0.045
+             + sin(uv.y * 1.1 - uTime * 0.27) * 0.034
+             + sin(uTime * 0.19 + uv.y * 0.5) * 0.022;
 
-  // vertical striation field, shared by every slice; the warp domain is
-  // rotated off-axis so no noise lattice ever lines up with the screen
-  vec2 wq = mat2(0.955, -0.296, 0.296, 0.955) * vec2(uv.x * 2.4 + f * 0.3, uv.y * 1.2 - f * 0.06);
+  // Striation field: high frequency across x, slow along y, so every streak
+  // runs top to bottom. The warp domain is rotated off-axis so no noise
+  // lattice ever lines up with the screen.
+  vec2 wq = mat2(0.955, -0.296, 0.296, 0.955) * vec2(uv.x * 2.4 + f * 0.30, uv.y * 1.2 - f * 0.06);
   float warp = fbm(wq) * 2.0;
-  float rays = fbm(vec2(uv.x * 15.0 + warp, uv.y * 0.38 - f * 0.14));
-  rays = 0.28 + 0.72 * pow(smoothstep(0.22, 0.9, rays), 1.5);
+  float rays = fbm(vec2((uv.x + sway) * 16.0 + warp, uv.y * 0.30 - f * 0.12));
+  rays = 0.22 + 0.78 * pow(smoothstep(0.20, 0.90, rays), 1.5);
 
-  // Three anchor drapes, interpolated across all slices — the folds survive
-  // at a fifth of the per-pixel noise cost of sampling every slice.
-  float shear = 0.60 + uEnergy * 0.35;
-  float bx = uv.x * 1.9 + f * 0.22 + uProg * 1.7;
-  float s0 = fbm(vec2(bx,               f * 0.05));
-  float s1 = fbm(vec2(bx + shear * 0.5, f * 0.05 + 0.03));
-  float s2 = fbm(vec2(bx + shear,       f * 0.05 + 0.06));
+  // How far down each column reaches. Sampled at a HIGH x frequency (7.0,
+  // where the old drape used 1.9) and interpolated across the slices, so
+  // neighbouring columns end at unrelated heights and no shared edge can
+  // form. Three anchors keep this at a fifth of the cost of sampling per
+  // slice.
+  float spread = 0.55 + uEnergy * 0.30;
+  float bx = (uv.x + sway * 0.6) * 7.0 + f * 0.20 + uProg * 1.1;
+  float s0 = fbm(vec2(bx,                f * 0.05));
+  float s1 = fbm(vec2(bx + spread * 0.5, f * 0.05 + 0.03));
+  float s2 = fbm(vec2(bx + spread,       f * 0.05 + 0.06));
+
+  // Colour by height rather than by slice: green at the feet, teal through
+  // the body, a restrained violet where the rays run off the top. Hoisted
+  // out of the loop — with vertical columns it no longer varies per slice.
+  vec3 c = mix(vec3(0.14, 0.98, 0.46), vec3(0.13, 0.66, 0.56), smoothstep(0.02, 0.50, uv.y));
+  c = mix(c, vec3(0.46, 0.22, 0.52), smoothstep(0.58, 1.05, uv.y));
 
   for (int i = 0; i < 18; i++){
     float layer = float(i) / 18.0;
@@ -82,29 +96,28 @@ vec4 aurora(vec2 uv, float f){
       ? mix(s0, s1, layer * 2.0)
       : mix(s1, s2, layer * 2.0 - 1.0);
 
-    // rises from near the bottom of the sky to past the top of the frame —
-    // the curtain owns the whole screen, like standing under it
-    float yEdge = 0.16 + wig + shape * 0.42 + layer * (0.52 + uEnergy * 0.15);
-    float d = uv.y - yEdge;
-    // bright streaks are also the long ones — glow reaches higher where a ray is
-    float glow = exp(-abs(d) * (30.0 - 12.0 * rays));
+    // The foot of this filament. Bright rays are also the long ones, so the
+    // reach is tied to the striation field as well as the drape — that is
+    // what keeps the comb ragged at fine scale, not just wavy.
+    float foot = 0.06 + shape * 0.34 + rays * 0.20 + layer * (0.20 + uEnergy * 0.12);
+    float d = uv.y - foot;
 
-    // green core low, teal mid, a restrained violet crown — the real ramp
-    vec3 cLow  = vec3(0.14, 0.98, 0.46);
-    vec3 cMid  = vec3(0.13, 0.66, 0.56);
-    vec3 cTop  = vec3(0.46, 0.22, 0.52);
-    vec3 c = mix(cLow, cMid, smoothstep(0.05, 0.6, layer));
-    c = mix(c, cTop, smoothstep(0.65, 1.0, layer));
+    /* Sharp underneath the foot, tail climbing the page — bright rays reach
+       further than dim ones. The tail is an order of magnitude wider than
+       the old band's, so the weights below are cut to match: measured flat,
+       the same slice count would otherwise sit ~2.5x brighter and wash out
+       the text in front of it. */
+    float glow = exp(-max(-d, 0.0) * 34.0) * exp(-max(d, 0.0) * (7.6 - 3.4 * rays));
 
-    float w = (1.0 - layer * 0.38) * 0.17;
+    float w = (1.0 - layer * 0.38) * 0.105;
     acc.rgb += c * glow * w;
-    acc.a   += glow * (1.0 - layer * 0.25) * 0.14;
+    acc.a   += glow * (1.0 - layer * 0.25) * 0.072;
 
-    // the lowest slice gets a bright mint rim — the curtain's sharp edge
+    // the bright mint feet of the nearest columns
     if (i == 0){
-      float rim = exp(-abs(d) * 60.0);
-      acc.rgb += vec3(0.65, 0.97, 0.82) * rim * 0.5;
-      acc.a   += rim * 0.28;
+      float rim = exp(-abs(d) * 46.0);
+      acc.rgb += vec3(0.65, 0.97, 0.82) * rim * 0.42;
+      acc.a   += rim * 0.24;
     }
   }
 
@@ -117,8 +130,10 @@ void main(){
   float f = uTime * 0.10 + uFlow;
 
   vec4 a = aurora(uv, f);
-  // the faintest breath of horizon glow, so the void is not flat black
-  float hg = exp(-abs(uv.y - 0.12) * 10.0) * 0.05;
+  // The faintest floor wash so the void is not flat black. A gradient, not
+  // the old exp() band centred on y=0.12 — a band peaks at one row, which
+  // is a horizontal line by another name.
+  float hg = smoothstep(0.55, 0.0, uv.y) * 0.05;
 
   vec3 col  = a.rgb + vec3(0.05, 0.30, 0.24) * hg;
   float lum = a.a + hg;
@@ -327,8 +342,8 @@ function init2DFallback(canvas) {
   }
 
   const CURTAINS = [
-    { baseY: 0.44, swoop: 22, len: 100, alpha: 0.34, speed: 0.55, xOff: 140, strip: makeStrip(false) },
-    { baseY: 0.62, swoop: 30, len: 80, alpha: 0.8, speed: 1, xOff: 0, strip: makeStrip(true) },
+    { baseY: 0.52, swoop: 30, len: 108, alpha: 0.34, speed: 0.55, xOff: 140, strip: makeStrip(false) },
+    { baseY: 0.74, swoop: 38, len: 92, alpha: 0.8, speed: 1, xOff: 0, strip: makeStrip(true) },
   ];
 
   return {
@@ -344,13 +359,19 @@ function init2DFallback(canvas) {
         const baseY = H * c.baseY + Math.sin(prog * Math.PI * 2 + ci * 2.3) * 10;
         for (let x = 0; x < W; x += 2) {
           const u = x + c.xOff;
+          /* Per-column foot height. The high-frequency `comb` term dominates
+             the slow swoop on purpose: strips that all end on one smooth
+             curve read as a horizontal band, which is the exact look the
+             shader above was rewritten to get rid of. */
+          const comb = Math.sin(u * 0.37 + ph * 0.7) * Math.sin(u * 0.14 - ph * 0.31);
           const bottom = baseY
-            + Math.sin(u * 0.011 + ph * 0.42) * c.swoop
-            + Math.sin(u * 0.027 - ph * 0.19) * c.swoop * 0.35
-            + tilt * (x - W / 2);
+            + comb * c.swoop
+            + Math.sin(u * 0.011 + ph * 0.42) * c.swoop * 0.30
+            + tilt * (x - W / 2) * 0.4;
           const clump = 0.5 + 0.5 * Math.sin(u * 0.09 + ph * 0.8) * Math.sin(u * 0.023 - ph * 0.33);
           const stria = 0.72 + 0.28 * Math.sin(u * 0.9 + ph * 1.2);
-          const len = c.len * (0.45 + clump * 0.8) * (1 + energy * 0.5);
+          // reach varies per column too, so the tops stay ragged as well
+          const len = c.len * (0.35 + clump * 0.95 + Math.abs(comb) * 0.4) * (1 + energy * 0.5);
           const a = c.alpha * (0.3 + clump * 0.7) * stria * (0.75 + energy * 0.45);
           if (a < 0.02) continue;
           ctx.globalAlpha = Math.min(1, a);
