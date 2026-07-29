@@ -42,6 +42,10 @@ strong{color:var(--ink)}
 .btn:focus-visible,.main-nav a:focus-visible,.navitem a:focus-visible{
   outline:none;box-shadow:inset 0 0 0 3px var(--ink)}
 
+/* Visible only to screen readers: a label that the design does not need
+   drawn but that a form control must still have. */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 .skip{position:absolute;left:-9999px;top:0;z-index:300;background:var(--mint);color:#04120C;
   padding:10px 16px;border-radius:0 0 8px 0;font-weight:700}
 .skip:focus{left:0}

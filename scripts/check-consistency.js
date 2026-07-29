@@ -11,13 +11,40 @@
 import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
    had no shared chrome, and that exemption is exactly why its hand-copied nav
    lost the Solutions link and kept the h1 -> h4 footer heading skip. A page
-   real visitors land on is held to the same nav and footer as the rest. */
-const contentPages = ["index.html", "demo.html", "book.html", "about.html", "pricing.html", "pilot.html", "privacy.html", "terms.html", "coming-soon.html", "revenue-engine.html", "404.html"];
+   real visitors land on is held to the same nav and footer as the rest.
+
+   That lesson was applied to one page and not to the pattern. The list below
+   used to be hand-maintained and had fallen eleven pages behind the site: every
+   vertical landing page (electricians, hvac, plumbers, restoration,
+   after-hours-answering, missed-calls, vs-voicemail, vs-answering-service,
+   solutions) plus home.html and proposal.html were published and unchecked.
+   Nothing was wrong on them at the time, which is the point: the guard could
+   not have told us either way.
+
+   So the list is now DERIVED: every .html at the root that Jekyll actually
+   publishes. Add a page and it is guarded the moment it exists. */
+const excludedByJekyll = (() => {
+  const cfg = fs.readFileSync(path.join(root, "_config.yml"), "utf8");
+  const m = cfg.match(/exclude:\s*([\s\S]*?)(?:\n\w|$)/);
+  if (!m) return [];
+  return m[1].split("\n").map((l) => l.replace(/^\s*-\s*/, "").trim()).filter(Boolean);
+})();
+const contentPages = fs.readdirSync(root)
+  .filter((f) => f.endsWith(".html"))
+  .filter((f) => !excludedByJekyll.some((e) => e === f || e === "/" + f))
+  .sort();
+
+/* Documented no-chrome exemptions. These skip the shared nav/footer check ONLY;
+   every content rule (banned phrases, em dashes, pilot naming) still applies.
+   proposal.html is a standalone document sent to one prospect, so site
+   navigation on it would be wrong rather than missing. */
+const noChromePages = ["proposal.html"];
 const fullFooterPages = ["index.html", "demo.html", "book.html", "about.html", "pilot.html", "coming-soon.html", "revenue-engine.html", "404.html"];
 const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\b/, /limited spots remaining/i, /join thousands/i, /launching next month/i,
   /first ring/i, /* CLM-02: retired 2026-07-26, unsupported without uptime monitoring */
@@ -44,9 +71,14 @@ let refNav = null, refCol = null;
 for (const p of contentPages) {
   const html = fs.readFileSync(path.join(root, p), "utf8");
   const nav = navOf(html);
-  if (!nav) { err(p + ": no main-nav found"); continue; }
-  if (!refNav) refNav = nav;
-  else if (nav !== refNav) err(p + ": main-nav differs from index.html");
+  /* Content rules run on every page including no-chrome ones, so a false claim
+     cannot hide on a page that happens to lack navigation. Only the shared
+     nav/footer comparison is skipped, and only for documented pages. */
+  if (!noChromePages.includes(p)) {
+    if (!nav) err(p + ": no main-nav found");
+    else if (!refNav) refNav = nav;
+    else if (nav !== refNav) err(p + ": main-nav differs from index.html");
+  }
   if (fullFooterPages.includes(p)) {
     const col = siteColOf(html);
     if (!col) { err(p + ": no footer Site column"); }
@@ -229,5 +261,29 @@ for (const p of contentPages) {
   }
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config.");
+/* 10. Every motion module must parse as an ES module.
+       A GLSL shader lives inside a JS template literal in aurora.js, and a
+       comment in that shader once wrote a variable name as `l` with
+       backticks. That closed the template early, the file stopped parsing,
+       main.js failed to import it, and every animation on the homepage died
+       — from a comment. Nothing in the HTML looks wrong when this happens,
+       so it needs a parser, not an eye. */
+{
+  const motionDir = path.join(root, "assets", "motion");
+  if (fs.existsSync(motionDir)) {
+    for (const f of fs.readdirSync(motionDir).filter((n) => n.endsWith(".js"))) {
+      const file = path.join(motionDir, f);
+      const res = spawnSync(process.execPath, ["--input-type=module", "--check"], {
+        input: fs.readFileSync(file, "utf8"),
+        encoding: "utf8",
+      });
+      if (res.status !== 0) {
+        const why = (res.stderr || "").split("\n").find((l) => /Error|Unexpected/.test(l)) ?? "parse error";
+        err(`assets/motion/${f}: does not parse as a module — ${why.trim()}`);
+      }
+    }
+  }
+}
+
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse.");
 process.exit(fail === 0 ? 0 : 1);

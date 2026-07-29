@@ -12,8 +12,14 @@ import { initHero } from './hero.js';
 import { initCursor } from './cursor.js';
 import { initAurora } from './aurora.js';
 import { initSonar } from './sonar.js';
+import { initSearch } from './search.js';
 
 const gsap = window.gsap;
+
+/* Search is wayfinding, not motion, so it is wired before the gsap check and
+   outside it: if the animation library fails to load, a visitor looking for
+   the pricing page should still be able to find it. */
+guard(initSearch);
 
 if (gsap) {
   gsap.registerPlugin(window.MotionPathPlugin);
