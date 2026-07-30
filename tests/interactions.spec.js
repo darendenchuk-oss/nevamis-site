@@ -355,3 +355,68 @@ test('filling the prefill fields never reloads a scheduler you have already used
   expect(await frame.getAttribute('src'), 'the scheduler must not reload after it has been used')
     .toBe(afterName);
 });
+
+/* A calendar is a commitment, and before this the only alternatives on
+   book.html were the phone and an email address. An owner unwilling to do
+   either left no trace at all. */
+test('the callback form captures a lead, and never strands the visitor when it cannot', async ({ page }) => {
+  let posted = null;
+  await page.route('**/api/interest', (r) => {
+    posted = JSON.parse(r.request().postData() || '{}');
+    r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
+  });
+  await page.goto('/book.html');
+
+  // Hidden until the script runs: the endpoint needs a cross-origin POST, so
+  // without JS a form here would be a dead end while the phone number works.
+  await expect(page.locator('#cbForm')).toBeVisible();
+
+  // An empty submit must say what is wrong rather than silently doing nothing.
+  await page.click('#cbSubmit');
+  await expect(page.locator('#cbMsg')).toBeVisible();
+  await expect(page.locator('#cbName')).toHaveAttribute('aria-invalid', 'true');
+
+  await page.fill('#cbName', 'Ray Molina');
+  await page.fill('#cbPhone', '(587) 555-0143');
+  await page.fill('#cbEmail', 'ray@raysheating.ca');
+  await page.click('#cbSubmit');
+
+  await expect(page.locator('#cbMsg.ok')).toBeVisible();
+  expect(posted.source, 'the lead must be attributable to this page').toContain('book-callback');
+  expect(posted.phone, 'the number is the whole point of a callback').toBe('(587) 555-0143');
+  expect(await page.inputValue('#cbName'), 'a submitted form should clear').toBe('');
+});
+
+test('a failed callback submission offers the number instead of a dead end', async ({ page }) => {
+  await page.route('**/api/interest', (r) => r.abort());
+  await page.goto('/book.html');
+  await page.fill('#cbName', 'Ray');
+  await page.fill('#cbPhone', '5875550143');
+  await page.fill('#cbEmail', 'r@x.ca');
+  await page.click('#cbSubmit');
+
+  await expect(page.locator('#cbMsg.bad')).toContainText('(587) 413-0035');
+  // Re-enabled, or they cannot try again.
+  await expect(page.locator('#cbSubmit')).toBeEnabled();
+  await expect(page.locator('#cbSubmit')).toHaveText('Ask Daren to call me');
+});
+
+/* booking_start fired on the outbound click and nothing fired afterwards, so a
+   completed booking and a bounce were identical in the data. Cal.com stays a
+   plain iframe: no third-party script on this origin, no page-weight cost. */
+test('a completed Cal.com booking is measured, and only from Cal.com', async ({ page }) => {
+  await page.goto('/book.html');
+  const seen = await page.evaluate(() => {
+    const got = [];
+    const orig = window.nvTrack;
+    window.nvTrack = (n) => { got.push(n); if (orig) orig(n); };
+    const fire = (origin, data) => window.dispatchEvent(new MessageEvent('message', { origin, data }));
+    fire('https://evil.example.com', JSON.stringify({ type: 'bookingSuccessful' }));
+    const afterForged = got.length;
+    fire('https://cal.com', JSON.stringify({ originator: 'CAL', type: 'bookingSuccessful' }));
+    fire('https://cal.com', JSON.stringify({ originator: 'CAL', type: 'bookingSuccessful' }));
+    return { afterForged, booked: got.filter((n) => n === 'booking_completed').length };
+  });
+  expect(seen.afterForged, 'a forged origin must not be able to fake a booking').toBe(0);
+  expect(seen.booked, 'one booking, one event, however many messages arrive').toBe(1);
+});

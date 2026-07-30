@@ -40,6 +40,26 @@
     box-shadow:0 0 0 3px rgba(47,191,143,.18)}
   #booking a:not(.btn){color:var(--mint);text-decoration:underline;text-underline-offset:3px}
   @media(max-width:720px){#bkPrefill{grid-template-columns:1fr!important}}
+
+  /* ---------- callback request ---------- */
+  .cb{margin-top:34px;padding-top:28px;border-top:1px solid var(--line)}
+  .cb-h{font-size:clamp(20px,2.2vw,25px);letter-spacing:-.02em;margin:0 0 8px}
+  .cb-sub{color:var(--muted);font-size:14.5px;max-width:56ch;margin:0 0 18px;line-height:1.55}
+  .cb-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.cb-grid{grid-template-columns:1fr}}
+  .cb-grid label{display:block;font-size:13.5px;font-weight:700;color:var(--ink)}
+  .cb-grid input{width:100%;margin-top:6px;padding:11px 12px;font-size:15px;font-family:inherit;
+    color:var(--ink);background:rgba(159,240,206,.04);border:1px solid var(--line);
+    border-radius:9px;min-height:44px;
+    transition:border-color .2s var(--e-out),box-shadow .2s var(--e-out)}
+  .cb-grid input:focus-visible{outline:none;border-color:rgba(159,240,206,.5);
+    box-shadow:0 0 0 3px rgba(47,191,143,.18)}
+  .cb-grid input[aria-invalid="true"]{border-color:rgba(255,120,120,.55)}
+  .cb-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:16px}
+  .cb-note{font-size:12.5px;color:var(--muted-dark)}
+  .cb-msg{margin-top:14px;padding:11px 13px;border-radius:9px;font-size:14px;line-height:1.5}
+  .cb-msg.ok{background:rgba(47,191,143,.12);border:1px solid rgba(159,240,206,.35);color:var(--ink)}
+  .cb-msg.bad{background:rgba(240,180,98,.10);border:1px solid rgba(240,180,98,.4);color:var(--ink)}
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -185,6 +205,44 @@
         <iframe id="bkFrame" src="https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1" title="Book a 15-minute intro call with Daren on the Cal.com scheduler" loading="lazy" style="width:100%;height:720px;border:0;border-radius:12px;background:#fff"></iframe>
         <p style="margin-top:16px;font-size:14.5px;color:var(--muted);text-align:center">Scheduler not loading, or prefer a full page? <a href="https://cal.com/daren-qvlah4/nevamis-intro" target="_blank" rel="noopener" data-evt="booking_start">Open booking in a new tab</a>.</p>
         <p style="margin-top:10px;font-size:14.5px;color:var(--muted);text-align:center">Rather talk first? Call the AI at <a class="mono" href="tel:+15874130035">(587) 413-0035</a> and ask it to have Daren call you back, or email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
+
+        <!-- A calendar is a commitment, and plenty of owners will not pick a
+             slot for a company they met two minutes ago. Until now the only
+             alternatives on this page were the phone and an email address, so
+             anyone unwilling to do either left no trace at all. Three fields,
+             posted to the same endpoint as the roadmap form, which texts Daren
+             on arrival. -->
+        <div id="cbWrap" class="cb" hidden>
+          <h2 class="cb-h">Not ready to pick a time?</h2>
+          <p class="cb-sub">Leave your number instead. Daren rings you back himself. No calendar, no sequence, and nothing is sent to you unless you ask.</p>
+
+          <form id="cbForm" novalidate>
+            <div class="cb-grid">
+              <label>Your name
+                <input id="cbName" name="name" autocomplete="name" enterkeyhint="next" required>
+              </label>
+              <label>Best number to reach you
+                <input id="cbPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" required>
+              </label>
+              <label>Email
+                <input id="cbEmail" name="email" type="email" inputmode="email" autocomplete="email" enterkeyhint="next" required>
+              </label>
+              <label>Business (optional)
+                <input id="cbBiz" name="business" autocomplete="organization" enterkeyhint="done">
+              </label>
+            </div>
+            <!-- Same honeypot as the roadmap form. Real visitors never see it. -->
+            <input id="cbWebsite" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"
+                   style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+            <div class="cb-actions">
+              <!-- No data-evt here on purpose: a click is intent, not a
+                   captured lead. callback_requested fires on success only. -->
+              <button type="submit" class="btn btn-primary" id="cbSubmit">Ask Daren to call me</button>
+              <span class="cb-note">We use this to ring you back about Nevamis, nothing else.</span>
+            </div>
+            <p id="cbMsg" class="cb-msg" role="status" aria-live="polite" hidden></p>
+          </form>
+        </div>
       </div>
     </div>
   </section>
@@ -288,6 +346,112 @@
       });
     });
   } catch (e) { /* enhancement only; the iframe keeps working */ }
+})();
+</script>
+<script>
+/* CALLBACK REQUEST + BOOKING MEASUREMENT
+   Two gaps this page had:
+   1. A calendar is a commitment. Anyone unwilling to pick a slot could only
+      phone or email, so an interested owner who did neither left no trace.
+   2. booking_start fired on the outbound click and nothing fired afterwards,
+      so a completed booking and a bounce were identical in the data. */
+(function () {
+  "use strict";
+  var ENDPOINT = "https://app.nevamis.ca/api/interest";
+  var TIMEOUT_MS = 9000;
+
+  /* ---------- callback form ---------- */
+  try {
+    var wrap = document.getElementById("cbWrap");
+    var form = document.getElementById("cbForm");
+    if (wrap && form) {
+      /* Revealed only once the script runs: the endpoint needs a cross-origin
+         JSON POST, so without JS this form could not submit and showing it
+         would be a dead end. The phone number and mailto above stay usable. */
+      wrap.hidden = false;
+
+      var msg = document.getElementById("cbMsg");
+      var btn = document.getElementById("cbSubmit");
+      var fields = ["cbName", "cbPhone", "cbEmail"];
+
+      function say(text, kind) {
+        msg.textContent = text;
+        msg.className = "cb-msg " + kind;
+        msg.hidden = false;
+      }
+      function val(id) { return (document.getElementById(id).value || "").trim(); }
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        var bad = null;
+        fields.forEach(function (id) {
+          var el = document.getElementById(id);
+          var ok = el.value.trim() !== "" && (id !== "cbEmail" || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value.trim()));
+          el.setAttribute("aria-invalid", ok ? "false" : "true");
+          if (!ok && !bad) bad = el;
+        });
+        if (bad) { say("Please fill in your name, a number we can reach you on, and an email.", "bad"); bad.focus(); return; }
+
+        btn.disabled = true;
+        var original = btn.textContent;
+        btn.textContent = "Sending…";
+        msg.hidden = true;
+
+        /* Bounded. Without this a hung request leaves the button disabled for
+           ever and the visitor cannot retry. */
+        var ctrl = typeof AbortController === "function" ? new AbortController() : null;
+        var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, TIMEOUT_MS);
+
+        fetch(ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: val("cbName"),
+            phone: val("cbPhone"),
+            email: val("cbEmail"),
+            business: val("cbBiz"),
+            website: val("cbWebsite"),
+            source: "book-callback" + (location.search ? " " + location.search.slice(1, 180) : "")
+          }),
+          signal: ctrl ? ctrl.signal : undefined
+        }).then(function (r) {
+          clearTimeout(timer);
+          if (!r.ok) throw new Error("http " + r.status);
+          form.reset();
+          say("Got it. Daren will call you on that number. If you would rather not wait, the AI answers right now on (587) 413-0035.", "ok");
+          if (window.nvTrack) window.nvTrack("callback_requested");
+        }).catch(function () {
+          clearTimeout(timer);
+          /* Never strand them: the fallback is the number that always works. */
+          say("That did not send. Please call (587) 413-0035 or email Sales@nevamis.ca and we will pick it up from there.", "bad");
+        }).then(function () {
+          btn.disabled = false;
+          btn.textContent = original;
+        });
+      });
+    }
+  } catch (e) { /* the phone number above still works */ }
+
+  /* ---------- booking completion ----------
+     Cal.com is embedded as a plain iframe rather than via their embed script,
+     which keeps third-party JavaScript off this origin and out of the page
+     budget. Their iframe still posts messages, so the completion signal is
+     available without loading anything.
+
+     Deliberately loose matching: the exact message shape is theirs to change,
+     and if it does we lose an analytics event rather than break the page. */
+  try {
+    window.addEventListener("message", function (ev) {
+      if (!/(^|\.)cal\.com$/.test(String(ev.origin).replace(/^https?:\/\//, "").split("/")[0])) return;
+      var raw;
+      try { raw = typeof ev.data === "string" ? ev.data : JSON.stringify(ev.data); } catch (err) { return; }
+      if (!raw || raw.indexOf("bookingSuccessful") === -1) return;
+      if (window.__nvBooked) return;      // one booking, one event
+      window.__nvBooked = true;
+      if (window.nvTrack) window.nvTrack("booking_completed");
+    });
+  } catch (e) { /* measurement only */ }
 })();
 </script>
 </body>
