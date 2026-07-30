@@ -411,12 +411,25 @@ test('a completed Cal.com booking is measured, and only from Cal.com', async ({ 
     const orig = window.nvTrack;
     window.nvTrack = (n) => { got.push(n); if (orig) orig(n); };
     const fire = (origin, data) => window.dispatchEvent(new MessageEvent('message', { origin, data }));
-    fire('https://evil.example.com', JSON.stringify({ type: 'bookingSuccessful' }));
+
+    /* The real envelope, captured from the live iframe on 2026-07-29. Note it
+       arrives as an OBJECT, not a JSON string: an earlier version of this test
+       only exercised the string path, which is the one that never happens. */
+    const cal = (type, data = {}) => ({ originator: 'CAL', type, namespace: '', fullType: `CAL::${type}`, data });
+
+    fire('https://evil.example.com', cal('bookingSuccessful'));
     const afterForged = got.length;
-    fire('https://cal.com', JSON.stringify({ originator: 'CAL', type: 'bookingSuccessful' }));
-    fire('https://cal.com', JSON.stringify({ originator: 'CAL', type: 'bookingSuccessful' }));
-    return { afterForged, booked: got.filter((n) => n === 'booking_completed').length };
+
+    // Ordinary chatter the iframe emits on load must not count as a booking.
+    fire('https://cal.com', cal('navigatedToBooker'));
+    fire('https://cal.com', cal('availabilityLoaded', { eventId: 6424219, eventSlug: 'nevamis-intro' }));
+    const afterChatter = got.length;
+
+    fire('https://cal.com', cal('bookingSuccessful', { uid: 'abc' }));
+    fire('https://cal.com', cal('bookingSuccessful', { uid: 'abc' }));
+    return { afterForged, afterChatter, booked: got.filter((n) => n === 'booking_completed').length };
   });
   expect(seen.afterForged, 'a forged origin must not be able to fake a booking').toBe(0);
+  expect(seen.afterChatter, 'load-time messages are not bookings').toBe(0);
   expect(seen.booked, 'one booking, one event, however many messages arrive').toBe(1);
 });
