@@ -502,7 +502,7 @@
       <div class="stage" id="stage">
         <svg id="mark" viewBox="0 0 620 620" aria-hidden="true" focusable="false">
           <defs>
-            <linearGradient id="grad" x1="0" y1="1" x2="1" y2="0">
+            <linearGradient id="grad" gradientUnits="userSpaceOnUse" x1="310" y1="315" x2="310" y2="162">
               <stop offset="0" stop-color="#0E5C4B"/><stop offset="1" stop-color="#9FF0CE"/>
             </linearGradient>
             <radialGradient id="dotg" cx="50%" cy="40%" r="62%">
@@ -514,7 +514,16 @@
               <feGaussianBlur stdDeviation="5" result="b"/>
               <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
+            <filter id="glowTight" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="2" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="scrim" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stop-color="#04121C" stop-opacity=".5"/>
+              <stop offset=".72" stop-color="#04121C" stop-opacity="0"/>
+            </radialGradient>
           </defs>
+          <circle id="scrimC" cx="310" cy="285" r="255" fill="url(#scrim)" opacity="0"/>
           <g id="field" fill="#9FF0CE">
             <circle class="fp" cx="86"  cy="128" r="2.5"/>
             <circle class="fp" cx="534" cy="150" r="2.5"/>
@@ -527,20 +536,20 @@
             <circle class="fp" cx="176" cy="576" r="2.5"/>
             <circle class="fp" cx="452" cy="572" r="2.5"/>
           </g>
-          <g id="waves" fill="none" stroke="#9FF0CE" stroke-width="2">
-            <circle class="wave" cx="310" cy="352" r="140"/>
+          <g id="waves" fill="none" stroke="#9FF0CE" stroke-width="3" filter="url(#glowTight)">
             <circle class="wave" cx="310" cy="352" r="140"/>
             <circle class="wave" cx="310" cy="352" r="140"/>
           </g>
           <g id="markGroup">
-            <path id="archFull" d="M 180 300 A 130 130 0 0 1 440 300" fill="none" stroke="none"/>
+            <path id="archFull" d="M 180 300 A 130 130 0 0 1 440 300" fill="none" opacity="0"
+                  stroke="url(#grad)" stroke-width="14" stroke-linecap="round"/>
             <g filter="url(#glow)">
               <path id="archL" d="M 180 300 A 130 130 0 0 1 310 170" fill="none"
                     stroke="url(#grad)" stroke-width="14" stroke-linecap="round"/>
               <path id="archR" d="M 440 300 A 130 130 0 0 0 310 170" fill="none"
                     stroke="url(#grad)" stroke-width="14" stroke-linecap="round"/>
             </g>
-            <circle id="dotPulse" cx="310" cy="352" r="24" fill="none" stroke="#9FF0CE" stroke-width="2"/>
+            <circle id="dotPulse" cx="310" cy="352" r="24" fill="none" stroke="#9FF0CE" stroke-width="3" filter="url(#glowTight)"/>
             <circle id="dot" cx="310" cy="352" r="24" fill="url(#dotg)" filter="url(#glow)"/>
           </g>
           <g id="story">
@@ -575,10 +584,10 @@
               </g>
             </g>
           </g>
-          <circle id="archTipL" r="7" fill="#EAFBF3" filter="url(#glow)"/>
-          <circle id="archTipR" r="7" fill="#EAFBF3" filter="url(#glow)"/>
-          <circle id="archHi" r="6" fill="#EAFBF3" filter="url(#glow)"/>
-          <circle id="packet" cx="310" cy="352" r="7" fill="#EAFBF3" filter="url(#glow)"/>
+          <circle id="archTipL" r="7" fill="#EAFBF3" filter="url(#glowTight)"/>
+          <circle id="archTipR" r="7" fill="#EAFBF3" filter="url(#glowTight)"/>
+          <circle id="archHi" r="6" fill="#EAFBF3" filter="url(#glowTight)"/>
+          <circle id="packet" cx="310" cy="352" r="7" fill="#EAFBF3" filter="url(#glowTight)"/>
         </svg>
         <div class="status" id="status" aria-hidden="true">● <b>CALL ANSWERED</b></div>
         <button class="motion-toggle-btn" aria-pressed="false">pause motion</button>

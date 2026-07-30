@@ -279,8 +279,9 @@ for (const vp of VIEWPORTS) {
     await page.screenshot({ path: path.join(OUT, file) });
     note(file, `Resolved hero at ${vp.name}: both CTAs visible and no horizontal overflow.`);
 
-    // the storytelling beat must survive the shrink, not just the resolved frame
-    await page.evaluate(() => { window.__heroTL.pause(3.55); });
+    // the storytelling beat must survive the shrink, not just the resolved frame.
+    // 3.95 = the middle of the ANSWER dwell (see MOTION.beats "route").
+    await page.evaluate(() => { window.__heroTL.pause(3.95); });
     await page.waitForTimeout(180);
     const storyFile = `story-${vp.name}.png`;
     await page.screenshot({ path: path.join(OUT, storyFile) });

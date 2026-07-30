@@ -44,14 +44,14 @@ export const MOTION = {
   // Each time is chosen to land in the MIDDLE of its state, so jumping to a
   // beat always shows that state fully rendered rather than mid-transition.
   beats: [
-    { key: 'wake',    label: 'Wake + nav',      time: 0.30 },
-    { key: 'detect',  label: 'Call detected',   time: 0.75 },
-    { key: 'form',    label: 'Arch forms',      time: 1.60 },
-    { key: 'answer',  label: 'Call answered',   time: 2.45 },
-    { key: 'route',   label: 'Answer captured', time: 3.55 },
-    { key: 'book',    label: 'Book → Text',     time: 4.85 },
-    { key: 'resolve', label: 'Captured + CTAs', time: 6.10 },
-    { key: 'idle',    label: 'Living idle',     time: 7.60 },
+    { key: 'wake',    label: 'Wake + nav',      time: 0.35 },
+    { key: 'detect',  label: 'Call detected',   time: 1.15 },
+    { key: 'form',    label: 'Arch forms',      time: 2.10 },
+    { key: 'answer',  label: 'Call answered',   time: 3.10 },
+    { key: 'route',   label: 'Answer captured', time: 3.95 },
+    { key: 'book',    label: 'Book → Text',     time: 5.15 },
+    { key: 'resolve', label: 'Captured + CTAs', time: 7.00 },
+    { key: 'idle',    label: 'Living idle',     time: 7.20 },
   ],
 };
 
