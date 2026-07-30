@@ -21,14 +21,26 @@
 import { prefersReduced, onVisibility } from './tokens.js';
 
 const FRAG = `
-precision mediump float;
+precision highp float;
 uniform vec2  uRes;
 uniform float uTime;    // seconds, slow
 uniform float uFlow;    // scroll-signed accumulated drift
 uniform float uEnergy;  // 0 calm .. 1 storm
 uniform float uProg;    // page scroll progress 0..1
 
-float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+/* PRECISION IS NOT A DETAIL HERE. The old hash was
+   fract(sin(dot(p, k)) * 43758.5453) under "precision mediump float", and
+   that combination is the single biggest reason the sky looked grainy: at
+   mediump, sin() of a large argument multiplied by 43758 discards most of
+   the mantissa, so neighbouring pixels that should differ smoothly land on
+   quantized buckets instead. The result is speckle that no amount of
+   blurring downstream can remove. Hoskins' hash12 needs no sin and stays
+   well-conditioned, and the file now asks for highp. */
+float hash(vec2 p){
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
 
 float vnoise(vec2 p){
   vec2 i = floor(p), f = fract(p);
@@ -39,15 +51,25 @@ float vnoise(vec2 p){
     f.y);
 }
 
+/* Deliberately top-heavy. Aurora light is milky: almost all of its energy
+   is in large soft structure, with only a whisper of fine detail. The old
+   0.5 gain gave the third octave far too much say, which is grain by
+   another name. 0.42 with a shorter lacunarity step keeps the octaves close
+   together so they blend instead of stippling.
+
+   Dividing by the summed amplitude normalizes to a true 0..1 rather than
+   relying on a hand-tuned fudge factor, so the smoothstep windows below
+   mean what they say. */
 float fbm(vec2 p){
-  float v = 0.0, a = 0.5;
+  float v = 0.0, a = 0.58, s = 0.0;
   mat2 R = mat2(0.796, -0.605, 0.605, 0.796);   // ~0.65 rad — decorrelates octaves
   for (int i = 0; i < 3; i++){
     v += a * vnoise(p);
-    p = R * p * 2.03 + vec2(17.0, 9.2);
-    a *= 0.5;
+    s += a;
+    p = R * p * 1.94 + vec2(17.0, 9.2);
+    a *= 0.42;
   }
-  return v * 1.14;   // renormalize the missing octave
+  return v / s;
 }
 
 /* ONE CURTAIN.
@@ -73,33 +95,61 @@ float curtain(vec2 uv, float t, float seed, float depth){
   /* Serpentine centreline: three octaves at different rates, so the folds
      travel and the pattern never visibly repeats. This is the slowest
      motion in the shader on purpose — the overall shape of an aurora
-     drifts over tens of seconds while its filaments flicker. */
-  float cx = 0.5 + depth
-    + sin(y * 1.9 + t * 0.40 + seed) * 0.150
-    + sin(y * 3.4 - t * 0.29 + seed * 2.3) * 0.080
-    + sin(y * 6.3 + t * 0.21 + seed * 4.1) * 0.038;
+     drifts over tens of seconds while its filaments flicker.
 
-  // Pleating: the ribbon breathes wider and narrower along its length.
-  float w = 0.105 + 0.045 * sin(y * 3.9 - t * 0.50 + seed * 1.7) + uEnergy * 0.030;
+     SHALLOWER AND MORE OFTEN than the first version. At amplitude 0.150 over
+     a frequency of 1.9, the ribbon completes barely a third of a period
+     across the frame — so it did not snake at all, it LEANED, one long
+     diagonal sweep corner to corner. That is why the sky read as brushed
+     swooshes: a curtain hangs, it does not slant across the whole sky.
+
+     Only the FREQUENCIES moved. Amplitude governs how many pixels the
+     centreline travels per second, and phones were reported as already right,
+     so cutting amplitude would have slowed the one viewport that did not need
+     slowing. Frequency changes the shape without touching the rate: the
+     temporal term is untouched, so a given row sways exactly as far and as
+     fast as before — it just belongs to a ribbon that undulates rather than
+     one that slants. Desktop is calmed by the clock instead. */
+  float cx = 0.5 + depth
+    + sin(y * 2.5 + t * 0.40 + seed) * 0.140
+    + sin(y * 4.3 - t * 0.29 + seed * 2.3) * 0.074
+    + sin(y * 7.6 + t * 0.21 + seed * 4.1) * 0.034;
+
+  /* Pleating: the ribbon breathes wider and narrower along its length.
+     Narrowed from 0.105/0.045: five ribbons that wide overlapped into
+     near-continuous cover, and a sky with no dark in it does not read as
+     night. Real aurora is a bright ribbon surrounded by black. */
+  float w = 0.086 + 0.036 * sin(y * 3.9 - t * 0.50 + seed * 1.7) + uEnergy * 0.026;
 
   float d = (uv.x - cx) / w;
   float band = exp(-d * d * 0.9);
   if (band < 0.004) return 0.0;   // outside this ribbon: skip the noise
 
-  /* Filaments, sampled ACROSS the ribbon (d) rather than across the screen
-     (uv.x). That one substitution is what makes them look like a curtain:
-     sampled on screen x they stand straight up regardless of where the
-     ribbon has snaked to, and the whole thing smears. Sampled on d they
-     follow the fold, which is what pleats in a real curtain do.
-
-     The sample point also climbs with time, so the shimmer runs up the
+  /* Filaments. The sample point climbs with time, so the shimmer runs up the
      curtain — the strongest single cue that this is an aurora and not a
-     gradient. */
-  float ray = fbm(vec2(d * 5.5 + seed * 9.0, y * 0.55 - t * 0.62));
-  ray = 0.18 + 0.82 * smoothstep(0.30, 0.74, ray);
+     gradient.
+
+     Sampled MOSTLY across the ribbon (d), but with a slice of screen-x mixed
+     in. Pure d leans every striation along the fold, which is what made the
+     sky read as brushed fabric; pure screen-x stands them up but smears the
+     fold, which is why it was abandoned earlier. Real rays follow magnetic
+     field lines, so they stand up the frame while still belonging to their
+     fold — the blend is the only way to get both.
+
+     Pushed to 0.45 and stretched further along y: fewer, longer, more upright
+     filaments. Tight cross-frequency over a leaning ribbon was the streaky
+     "brushed" texture; broad slow filaments standing up the frame is what a
+     curtain looks like. */
+  float rx = mix(d, (uv.x - 0.5) / w, 0.45);
+  float ray = fbm(vec2(rx * 4.2 + seed * 9.0, y * 0.30 - t * 0.62));
+  /* A wider window than 0.30/0.74. That narrow pair stretched the middle of
+     the noise across the whole output range, multiplying every wobble into
+     visible mottling — contrast-stretched noise IS the grain. Widening it
+     and lifting the floor keeps the filaments legible but milky. */
+  ray = 0.30 + 0.70 * smoothstep(0.18, 0.90, ray);
 
   // Surges travelling up the ribbon.
-  float surge = 0.72 + 0.42 * sin(y * 3.0 - t * 1.15 + seed * 3.0);
+  float surge = 0.74 + 0.38 * sin(y * 3.0 - t * 1.15 + seed * 3.0);
 
   /* Reaches past the top of the frame: a curtain that stops short looks like
      a decal, and its end is another edge that can read as a line.
@@ -107,8 +157,13 @@ float curtain(vec2 uv, float t, float seed, float depth){
      The second term dims the lowest sliver. Without it every ribbon runs
      straight off the bottom at full brightness and they overlap into a pale
      haze along the floor — curtains hang above the horizon, they do not
-     pool on it. */
-  float fade = smoothstep(1.45, -0.25, y) * smoothstep(-0.10, 0.18, y);
+     pool on it.
+
+     Each ray also runs out at its OWN height, so the curtain ends in a torn
+     comb rather than one uniform fade. A single shared ceiling is a soft
+     horizontal edge, and this file exists to keep horizontal edges out. */
+  float top = 1.28 + 0.40 * fbm(vec2(rx * 1.3 + seed * 3.7, 3.1));
+  float fade = smoothstep(top, -0.25, y) * smoothstep(-0.10, 0.18, y);
 
   return band * ray * surge * fade;
 }
@@ -119,12 +174,16 @@ void main(){
 
   /* Five ribbons at different depths and rates. The parallax is what gives
      the sky depth; three left the frame visibly empty in the gaps, and one
-     alone reads as a decal. */
-  float l = curtain(uv, t,         0.0, -0.36) * 0.76
-          + curtain(uv, t * 0.86,  2.7, -0.14) * 0.92
-          + curtain(uv, t * 1.07,  5.3,  0.08) * 1.00
-          + curtain(uv, t * 0.93,  8.1,  0.28) * 0.84
-          + curtain(uv, t * 1.19, 11.4,  0.48) * 0.64;
+     alone reads as a decal.
+
+     Depths spread wider than before (-0.44 .. 0.56 rather than -0.36 .. 0.48)
+     so the gaps between ribbons survive. Narrower ribbons at the old spacing
+     just moved the overlap around; the sky needs actual black in it. */
+  float l = curtain(uv, t,         0.0, -0.44) * 0.76
+          + curtain(uv, t * 0.86,  2.7, -0.19) * 0.92
+          + curtain(uv, t * 1.07,  5.3,  0.06) * 1.00
+          + curtain(uv, t * 0.93,  8.1,  0.31) * 0.84
+          + curtain(uv, t * 1.19, 11.4,  0.56) * 0.64;
 
   /* The emission ramp by altitude: 557.7nm oxygen green through the body,
      teal higher, a violet crown where the rays run out. */
@@ -157,8 +216,12 @@ void main(){
   /* Pull the chroma back up. Overlapping ribbons and the green-to-pink blend
      both trend grey, and the canvas then sits at 90% over a navy page, which
      mutes it further — the result read as sage, not aurora. Extrapolating
-     away from luminance (a mix factor above 1) restores the bite. */
-  mapped = max(mix(vec3(lum), mapped, 1.35), 0.0);
+     away from luminance (a mix factor above 1) restores the bite.
+
+     Eased from 1.35 to 1.22: extrapolating chroma amplifies the DIFFERENCES
+     between channels, and noise is a difference between channels, so the old
+     value was quietly boosting the grain along with the colour. */
+  mapped = max(mix(vec3(lum), mapped, 1.22), 0.0);
   float alpha = 0.92 * (1.0 - exp(-(l * master + hg) * 1.5));
   gl_FragColor = vec4(mapped, alpha);
 }
@@ -189,7 +252,40 @@ export function initAurora() {
   let velSmooth = 0;
   let running = false;
   let rafId = 0;
-  let t0 = performance.now();
+  let clock = 0;            // shader time, advanced at the viewport's own rate
+
+  /* WHY DESKTOP NEEDED SLOWING DOWN.
+
+     Every horizontal figure in the shader is a fraction of UV width: the
+     centreline sways +/-0.15, so it travels 0.15 * viewport width pixels. At
+     375px that is 56px; at 1440px it is 216px — the SAME shader, at nearly
+     four times the pixel speed. Phones looked calm and desktops looked busy,
+     which is exactly the report.
+
+     Scaling the clock by viewport width fixes it at the source. The inverse
+     square root, rather than a true 1/width, is a deliberate compromise:
+     matching pixel speed exactly would run desktop at ~0.26 and the sky
+     would read as frozen. This lands near half speed on a laptop while
+     leaving phones untouched, since the reference width sits below any phone.
+
+     Time is ACCUMULATED rather than derived from a start stamp, so a resize
+     across breakpoints changes the rate without jumping the animation. */
+  const SPEED_REF = 430;    // px; at or below this the rate is 1.0
+  function speed() {
+    return Math.min(1, Math.max(0.45, Math.sqrt(SPEED_REF / Math.max(innerWidth, 1))));
+  }
+
+  /* An inert handle for tooling, matching window.__heroTL in hero.js. The
+     rate rule is the whole point of the change above, and a pixel-difference
+     measurement cannot confirm it: gradient-based flow estimates saturate
+     once the sky moves more than the local contrast scale, so a genuinely
+     halved desktop still measured as barely changed. Reading the clock is the
+     only unambiguous check, so the test suite gets to read it. */
+  window.__aurora = {
+    speed: () => speed(),
+    clock: () => clock,
+    ref: SPEED_REF,
+  };
 
   function prog() {
     const range = document.documentElement.scrollHeight - innerHeight;
@@ -216,9 +312,15 @@ export function initAurora() {
     velSmooth += (vel - velSmooth) * 0.08;
 
     energy += ((Math.min(Math.abs(velSmooth) / 2200, 1)) - energy) * 0.05;
-    flow += dt * (0.10 + energy * 0.9) * (velSmooth < -40 ? -1 : 1);
 
-    paint((now - t0) / 1000);
+    /* Both clocks scale together. The idle term in `flow` is ambient drift and
+       belongs to the same budget as uTime — slowing one and not the other just
+       moves the busyness from the shimmer into the drift. */
+    const s = speed();
+    clock += dt * s;
+    flow += dt * s * (0.10 + energy * 0.9) * (velSmooth < -40 ? -1 : 1);
+
+    paint(clock);
   }
 
   function start() {
@@ -307,8 +409,12 @@ function initShader(canvas) {
 
     return {
       resize() {
-        // reduced resolution reads soft and organic, and stays cheap everywhere
-        const w = Math.min(Math.round(innerWidth * 0.45), 860);
+        /* Still reduced — soft and organic, and cheap everywhere — but less
+           so than 0.45/860. At that scale a 1440px window upscaled 2.2x, which
+           smears each noise cell into a visible blotch; the softness stopped
+           reading as haze and started reading as grain. The early-out in
+           curtain() keeps the extra pixels affordable. */
+        const w = Math.min(Math.round(innerWidth * 0.62), 1100);
         const h = Math.max(1, Math.round(w * (innerHeight / Math.max(innerWidth, 1))));
         if (canvas.width !== w || canvas.height !== h) {
           canvas.width = w; canvas.height = h;
