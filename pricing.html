@@ -41,7 +41,26 @@
   .plan .buy { margin-top: 16px; }
   .plan .buy .btn { width: 100%; justify-content: center; }
   .plan .buy-note { font-size: 12.5px; color: var(--muted); margin-top: 8px; text-align: center; }
-  @media (max-width: 900px) { .plans { grid-template-columns: 1fr; } }
+  /* The entry tier is a different KIND of offer, not a fourth plan: no included
+     minutes, billed per minute, and it is where someone starts when they are
+     not ready to commit. As a fourth column it sat alone on a second row nearly
+     900px below the others, reading as an afterthought. Spanning the full width
+     underneath, laid out horizontally, it reads as "or start smaller" without
+     competing with Growth for the eye. */
+  .plan-entry { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(260px, 1fr) 1.4fr; gap: 8px 30px; align-items: start; }
+  .plan-entry h3 { grid-column: 1; }
+  .plan-entry .price { grid-column: 1; font-size: 30px; }
+  .plan-entry .setup { grid-column: 1; }
+  .plan-entry .buy { grid-column: 1; margin-top: 4px; }
+  .plan-entry .usage { grid-column: 2; grid-row: 1 / 4; margin-bottom: 0; }
+  .plan-entry ul { grid-column: 2; columns: 2; column-gap: 26px; margin-bottom: 0; }
+  .plan-entry .best { grid-column: 2; }
+  @media (max-width: 900px) {
+    .plans { grid-template-columns: 1fr; }
+    .plan-entry { grid-template-columns: 1fr; }
+    .plan-entry .usage, .plan-entry ul, .plan-entry .best { grid-column: 1; grid-row: auto; }
+    .plan-entry ul { columns: 1; }
+  }
   .rc { background: linear-gradient(180deg, var(--navy-2), #0C1A25); border: 1px solid var(--line); border-radius: 16px; padding: 26px; margin-top: 40px; }
   .rc h3 { font-size: 20px; margin-bottom: 14px; }
   .rc .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 22px; }
@@ -295,6 +314,44 @@
     d.querySelector(".best span").textContent = pl.bestFor;
     wrap.appendChild(d);
   });
+  /* Pay As You Go. The structured data on this page has always told Google and
+     the answer engines that prices start at C$49 (see the Offer block below,
+     lowPrice), while every human saw C$249 + C$500 setup as the floor. So the
+     cheapest way into the product was advertised to crawlers and hidden from
+     buyers, and the page contradicted its own markup.
+
+     Rendered AFTER the three plans, deliberately: it is the entry option, not
+     the recommendation, and leading with it would anchor away from Growth.
+
+     It links to the strategy call rather than to checkout. That is not a
+     styling choice: the engine's planFor() resolves only CANONICAL.pricing.plans,
+     and Pay As You Go is a separate key, so /signup?plan=pay-as-you-go would be
+     stripped by safePlanParam and the buyer would arrive with no plan chosen.
+     A buy button that quietly loses the thing you clicked is worse than an
+     honest one more step. Wiring self-serve PAYG needs per-minute billing in
+     the engine first. */
+  if (P.payAsYouGo && P.payAsYouGo.active) {
+    var pg = P.payAsYouGo;
+    var g = document.createElement("div");
+    g.className = "plan plan-entry";
+    var gh = "";
+    gh += "<h3></h3>";
+    gh += '<div class="price">C$' + grp(pg.monthly) + "<span>/month</span> + C$" + pg.perMinute.toFixed(2) + "<span>/min</span></div>";
+    gh += '<div class="setup">One-time setup: C$' + grp(pg.setup) + "</div>";
+    gh += '<div class="usage"></div>';
+    gh += "<ul>" + pg.features.map(function () { return "<li></li>"; }).join("") + "</ul>";
+    gh += '<div class="best"><strong>Best for:</strong> <span></span></div>';
+    gh += '<div class="buy"><a class="btn btn-ghost" href="/book.html" data-evt="payg_start_click">Start here <span class="arw" aria-hidden="true">›</span></a>'
+      + '<div class="buy-note">Fifteen minutes to set it up with you. No card.</div></div>';
+    g.innerHTML = gh;
+    g.querySelector("h3").textContent = pg.name;
+    g.querySelector(".usage").textContent = pg.note;
+    var glis = g.querySelectorAll("li");
+    pg.features.forEach(function (f, i) { glis[i].textContent = f; });
+    g.querySelector(".best span").textContent = pg.bestFor;
+    wrap.appendChild(g);
+  }
+
   /* Live cards rendered: the static fallback has done its job. Any earlier
      throw leaves it in place, which is the point. */
   var plansFallback = document.getElementById("plansFallback");

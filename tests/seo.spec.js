@@ -161,6 +161,43 @@ test('pricing publishes a parseable price table for answer engines', async ({ pa
   expect(Number(agg.lowPrice)).toBe(cfg.payg);
 });
 
+test('every price promised to a crawler is visible to a buyer', async ({ page }) => {
+  /* The schema and the page used to disagree in the worst direction. The
+     AggregateOffer advertised lowPrice 49 to Google and the answer engines,
+     and the Offer list named Pay As You Go, but the page rendered cards only
+     from NV_PRICING.plans - which does not include it. So the cheapest way
+     into the product was published to crawlers and hidden from the human who
+     came to buy, and the visible floor was $249/mo plus $500 setup.
+
+     The existing test above compares schema to config, and passed throughout,
+     because both were right. What nobody checked was whether the page SHOWS
+     what it promises. */
+  await page.goto('/pricing.html');
+  await page.waitForSelector('#plans .plan');
+
+  const schema = await schemaOf(page);
+  const agg = schema.find((s) => s['@type'] === 'Product').offers;
+
+  const cards = await page.$$eval('#plans .plan', (els) => els.map((el) => ({
+    name: el.querySelector('h3')?.textContent.trim(),
+    price: el.querySelector('.price')?.textContent.replace(/\s+/g, ' ').trim(),
+    href: el.querySelector('.buy a')?.getAttribute('href'),
+  })));
+
+  for (const offer of agg.offers) {
+    const card = cards.find((c) => c.name === offer.name);
+    expect(card, `schema offers "${offer.name}" but no card renders it`).toBeTruthy();
+    expect(card.price, `"${offer.name}" card must show ${offer.price}`).toContain(offer.price);
+    // Every card must lead somewhere. A price with no way to act on it is
+    // the same lost sale in a quieter form.
+    expect(card.href, `"${offer.name}" has no call to action`).toBeTruthy();
+  }
+
+  // And the advertised floor must be a price someone can actually read.
+  expect(cards.some((c) => c.price.includes(String(agg.lowPrice))),
+    `lowPrice ${agg.lowPrice} is advertised but appears on no card`).toBe(true);
+});
+
 test('every page with real Q&A publishes it, except claims under review', async ({ page }) => {
   // coming-soon carries 12 genuine questions and honest forward-looking answers
   await page.goto('/coming-soon.html');
