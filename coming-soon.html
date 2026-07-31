@@ -563,22 +563,45 @@ document.addEventListener("DOMContentLoaded", function () {
         "Services: " + (sel.join(", ") || "none selected")].concat(noteLines).join("\n"));
     window.nvTrack && window.nvTrack("roadmap_form_submitted", { services: sel.length });
     if (typeof window.fetch !== "function") { location.href = mailtoHref; return; }
+
+    /* Disabled BEFORE the request, not after it succeeds. A slow connection
+       left "Sending..." on screen with a live button, so an impatient person
+       fired the same lead several times. */
+    var submitBtn = form.querySelector("button[type=submit]");
+    if (submitBtn) submitBtn.disabled = true;
     status.textContent = "Sending...";
+
+    /* And a timeout, so a request that never answers ends in a message with a
+       way forward instead of "Sending..." forever. Mirrors book.html. */
+    var ctrl = typeof AbortController === "function" ? new AbortController() : null;
+    var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 9000) : null;
+
     fetch("https://app.nevamis.ca/api/interest", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: name, email: email, business: biz, modules: sel,
+        /* The form has always asked for a phone number and never sent it: it
+           was folded into the note string only. /api/interest stores `phone`
+           and the owner's alert reads "NEVAMIS LEAD: ... <phone or email>. Call
+           back today." So every lead from this page told him to call back and
+           then gave him an email address. This page is linked from every other
+           page and is in the sitemap. */
+        phone: (document.getElementById("ifPhone") || { value: "" }).value,
         note: noteLines.join(" | "),
         source: "coming-soon" + (location.search || ""),
         website: (document.getElementById("ifWebsite") || { value: "" }).value
-      })
+      }),
+      signal: ctrl ? ctrl.signal : undefined
     }).then(function (r) {
       if (!r.ok) throw 0;
       status.textContent = "Got it. Your answers are with the founder now; if an early pilot fits your business, you will hear back directly. Thanks: this genuinely shapes what gets built next.";
-      form.querySelector("button[type=submit]").disabled = true;
     }).catch(function () {
       status.innerHTML = 'That did not go through. <a href="' + mailtoHref.replace(/"/g, "&quot;") + '">Email your answers instead</a> and they land in the same inbox.';
+      // Re-enabled only on failure, so they can try again.
+      if (submitBtn) submitBtn.disabled = false;
+    }).then(function () {
+      if (timer) clearTimeout(timer);
     });
   });
 });
