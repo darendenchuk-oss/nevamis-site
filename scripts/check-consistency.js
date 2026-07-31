@@ -336,6 +336,52 @@ for (const p of contentPages) {
   }
 }
 
+/* 14. Any page that plays the example call must show what the audio actually says.
+   The mp3s in assets/ are a single recording split into turns. When the 11-turn
+   recording replaced the 6-turn one, index.html was updated and demo.html was
+   not, so demo.html kept the retired script while playing the new audio: every
+   one of its six turns said something different from the file it played, and
+   the conversation stopped mid-call before the booking was confirmed.
+
+   demo.html's own headline is "This is not a video of the product. It is the
+   product." A prospect who presses play there hears one conversation while
+   reading another, on the page whose entire job is proof. Nothing else notices,
+   because both files are valid HTML and every audio path resolves.
+
+   index.html is the reference because it is the homepage. Any other page using
+   the same files must carry the same turns in the same order. */
+{
+  const turnsOf = (html) => [...html.matchAll(/data-audio="([^"]+)"[\s\S]*?<p>([\s\S]*?)<\/p>/g)]
+    .map((m) => [m[1], m[2].replace(/\s+/g, " ").trim()]);
+
+  const referenceFile = path.join(root, "index.html");
+  if (fs.existsSync(referenceFile)) {
+    const reference = turnsOf(fs.readFileSync(referenceFile, "utf8"));
+    if (reference.length > 0) {
+      for (const page of contentPages) {
+        if (page === "index.html") continue;
+        const html = fs.readFileSync(path.join(root, page), "utf8");
+        if (!/data-audio="assets\/call-/.test(html)) continue;
+        const turns = turnsOf(html);
+        if (turns.length !== reference.length) {
+          err(`${page}: plays the example call but shows ${turns.length} turns where index.html has ${reference.length} `
+            + `(the audio is one recording; a page showing fewer turns cuts the call off mid-conversation)`);
+          continue;
+        }
+        for (let i = 0; i < turns.length; i++) {
+          if (turns[i][0] !== reference[i][0]) {
+            err(`${page}: turn ${i + 1} plays ${turns[i][0]} where index.html plays ${reference[i][0]}`);
+          } else if (turns[i][1] !== reference[i][1]) {
+            err(`${page}: turn ${i + 1} (${turns[i][0]}) shows different words than index.html — the transcript does not match the audio\n`
+              + `       ${page}: ${turns[i][1].slice(0, 80)}\n`
+              + `       index.html: ${reference[i][1].slice(0, 80)}`);
+          }
+        }
+      }
+    }
+  }
+}
+
 /* 13. Every published page must appear in content-map.json.
    That file is not documentation, it is the input to five scripts: the whole
    site audit, the sitemap, the search index, and the two page builders. A page
