@@ -2,16 +2,19 @@
 
 > AI receptionists for Canadian trades and service businesses, based in
 > Edmonton, Alberta. The AI answers a business's missed or after-hours
-> calls, discloses that it is an AI and that calls are recorded, answers
-> only owner-approved questions, books real calendar appointments, and
-> sends the owner recordings and transcripts of every call.
+> calls, discloses that it is an AI, answers only owner-approved questions,
+> books real calendar appointments, and sends the owner a summary of every
+> call. Recording and transcript settings are chosen by the business before
+> launch, and the business gives its callers the notice its jurisdiction
+> requires (see /privacy.html).
 
 Key facts (kept accurate; the pricing page is authoritative):
 
 - Live demo: call +1 (587) 413-0035 — the AI answers it.
 - Published pricing (CAD, plus GST): After Hours $249/mo, Growth $449/mo,
   Scale from $849/mo, Pay As You Go $49/mo + $1.95/min. Setup fees
-  $250–$1,250. Prices locked 12 months from signup, month-to-month.
+  $250–$1,250. Month-to-month. Existing clients get at least 30 days written
+  notice before a material price increase (see /terms.html).
 - Free 7-day live pilot on the business's real line: no card, hard caps,
   ends automatically on day eight unless the business chooses a plan.
 - Legal entity: Nevamis AI Inc. (federal Canadian corporation).

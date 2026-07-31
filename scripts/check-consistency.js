@@ -53,7 +53,17 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
      false. \b is deliberate: "your clients" is fine and must not trip this,
      and it does not, because y-o-u-r leaves no word boundary before "our".
      Retire this entry the day there is a real client, not before. */
-  /\bour clients\b/i, /\bour customers\b/i];
+  /\bour clients\b/i, /\bour customers\b/i,
+  /* Popularity is a client-base claim wearing different clothes. "Growth —
+     most trades pick this" sat on the one-page sheet handed across the
+     counter, and on both cold-calling crib sheets, while no plan had ever
+     been picked by anyone. A prospect who asks "who else is on Growth?"
+     discovers that inside the same conversation, and Edmonton trades is a
+     referral market. pricing-config.js already carries `recommended: true`
+     on Growth, which says the same useful thing and is true.
+     Retire these the day there is a real distribution to describe. */
+  /most (?:trades |clients |shops |people |businesses )?pick (?:this|it)/i,
+  /← ?most\b/, /\bmost popular\b/i, /\bbest[- ]seller\b/i];
 let fail = 0;
 const err = (m) => { console.error("FAIL: " + m); fail++; };
 
@@ -97,12 +107,52 @@ for (const p of contentPages) {
        so both are held to the same banned list as the pages. The engine snapshot
        is checked only when that repo is present beside this one. */
 {
-  const extraSurfaces = [
+  /* A page is not the only way a claim reaches a prospect. It also reaches
+     them through the agent that answers the demo line, through the sheet the
+     founder hands across a counter, and through the script he reads on a cold
+     call. Those last two live outside this repo entirely, which is why the
+     retired "first ring" claim survived here for days after every page was
+     cleaned: the guard could not see the Desktop.
+
+     SCOPE IS DELIBERATE. Only surfaces that reach a prospect are swept.
+     Analysis and planning documents (LAUNCH-GAP-MATRIX.md, the readiness
+     reports, the econ model) legitimately quote retired claims in order to
+     record that they were retired, and sweeping those would make this rule
+     fire on the very documents that fixed the problem. */
+  const surfaceDirs = [
+    // The live agent's own instructions, knowledge base and test cases.
+    path.join(root, "config", "elevenlabs"),
+    // Sheets handed to, or emailed to, a prospect.
+    path.join(root, "..", "ai-assistant", "outreach"),
+    // The cold-calling kit: scripts read aloud to real businesses.
+    path.join(root, "..", "Desktop", "Nevamis Cold Calling"),
+  ];
+  const surfaceFiles = [
     path.join(root, "llms.txt"),
+    path.join(root, "..", "ai-assistant", "SALES_PITCH.md"),
+    path.join(root, "..", "ai-assistant", "PARTNER-CHANNEL.md"),
     path.join(root, "..", "nevamis-engine", "docs", "agent-prompts", "demo.md"),
     path.join(root, "..", "nevamis-engine", "docs", "agent-prompts", "intake.md"),
     path.join(root, "..", "nevamis-engine", "docs", "agent-prompts", "escalation.md"),
   ];
+
+  /* Walked rather than listed, so a script added to the calling kit tomorrow is
+     covered without anyone remembering to add it here. Every truth gap found on
+     this site so far has been a page missing from a hand-maintained array. */
+  const walk = (dir) => {
+    if (!fs.existsSync(dir)) return [];
+    let out = [];
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        if (/node_modules|[\\/]\.|archive|staging-tests|__pycache__|venv/i.test(p)) continue;
+        out = out.concat(walk(p));
+      } else if (/\.(md|txt)$/i.test(e.name)) out.push(p);
+    }
+    return out;
+  };
+
+  const extraSurfaces = [...surfaceFiles, ...surfaceDirs.flatMap(walk)];
   for (const file of extraSurfaces) {
     if (!fs.existsSync(file)) continue;
     const text = fs.readFileSync(file, "utf8");

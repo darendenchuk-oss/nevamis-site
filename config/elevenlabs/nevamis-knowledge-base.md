@@ -30,7 +30,7 @@ Coverage is configurable to what the business wants:
 
 - After-hours coverage: a human answers during the day, and the AI takes evenings, weekends, and holidays.
 - Overflow coverage: calls forward to the AI only when the line is busy or nobody picks up, so a human answers when they can and the AI catches everything that would otherwise go to voicemail.
-- Full-time coverage: the AI answers every call, first ring, all day.
+- Full-time coverage: the AI answers every call, all day.
 
 All modes run on the business's existing number through call forwarding. The business can change how forwarding is set up as its needs change.
 
