@@ -11,6 +11,18 @@ window.NV_PRICING = {
   lastUpdated: "2026-07-23",
   taxNote: "Prices in Canadian dollars, plus applicable GST/HST.",
   commercialModel: "B",
+  /* The badge on the recommended plan. It read "MOST COMMON" on the pricing
+     page, the homepage, the staging twin, and the proposal document sent to a
+     named prospect. That is a statistic about a client base, and there are no
+     clients: no plan has ever been the most common one. Same fabrication as
+     the "most trades pick this" line already retired from the outreach sheets,
+     just in a shorter dress.
+
+     "RECOMMENDED" is an opinion, which is true and defensible, and it is what
+     the live phone agent already says out loud ("Growth, the recommended
+     plan"), so the site and the agent now tell a caller the same thing.
+     Versioned here so the four places that render it cannot drift apart. */
+  recommendedLabel: "RECOMMENDED",
   pilot: {
     name: "7-day live pilot",
     tagline: "Seven live days on your real line. No card. No automatic billing.",

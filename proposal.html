@@ -191,7 +191,7 @@
       renderFeatures(payg.features || []);
     } else {
       plan = plan || P.plans[1];
-      set("planName", plan.name.toUpperCase() + (plan.recommended ? " · MOST COMMON" : ""));
+      set("planName", plan.name.toUpperCase() + (plan.recommended ? " · " + (P.recommendedLabel || "RECOMMENDED") : ""));
       var priceEl = document.getElementById("planPrice");
       priceEl.textContent = (plan.startingAt ? "from " : "") + money(plan.monthly);
       var per = document.createElement("span"); per.textContent = "/month";

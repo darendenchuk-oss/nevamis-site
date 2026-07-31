@@ -63,7 +63,13 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
      on Growth, which says the same useful thing and is true.
      Retire these the day there is a real distribution to describe. */
   /most (?:trades |clients |shops |people |businesses )?pick (?:this|it)/i,
-  /← ?most\b/, /\bmost popular\b/i, /\bbest[- ]seller\b/i];
+  /← ?most\b/, /\bmost popular\b/i, /\bbest[- ]seller\b/i,
+  /* "MOST COMMON" was the badge on the recommended plan, on the pricing page,
+     the homepage, the staging twin, and the proposal sent to a named prospect.
+     The rules above were written the same day and missed it, for one reason:
+     the phrase was not in this list. It is plain text in the source, so the
+     file-level scan sees it as soon as it is banned. */
+  /\bmost common\b/i];
 let fail = 0;
 const err = (m) => { console.error("FAIL: " + m); fail++; };
 

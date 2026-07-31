@@ -30,7 +30,15 @@ test('pricing preview renders every plan from the single source of truth', async
   await expect(cards.nth(0)).toContainText('C$249');
   await expect(cards.nth(1)).toContainText('Growth');
   await expect(cards.nth(1)).toContainText('C$449');
-  await expect(cards.nth(1)).toContainText('MOST COMMON');
+  /* Read from the config rather than hardcoded. The badge used to say
+     "MOST COMMON", which is a statistic about a client base that does not
+     exist, and this assertion is part of why it survived: it pinned the exact
+     fabricated wording in place. Asserting the configured label instead means
+     the test checks that the badge renders from the single source of truth,
+     without also insisting on any particular claim. */
+  const recommendedLabel = await page.evaluate(() => window.NV_PRICING.recommendedLabel);
+  expect(recommendedLabel, 'pricing-config must define recommendedLabel').toBeTruthy();
+  await expect(cards.nth(1)).toContainText(recommendedLabel);
   await expect(cards.nth(2)).toContainText('from C$849');
   // annual + PAYG lines come from config, not hardcoded HTML
   await expect(cards.nth(1)).toContainText('two months free');

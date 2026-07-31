@@ -290,7 +290,7 @@
     var d = document.createElement("div");
     d.className = "plan" + (pl.recommended ? " rec" : "");
     var h = "";
-    if (pl.recommended) h += '<div class="rec-tag">MOST COMMON</div>';
+    if (pl.recommended) h += '<div class="rec-tag">' + (P.recommendedLabel || 'RECOMMENDED') + '</div>';
     h += "<h3></h3>";
     h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
     h += '<div class="setup">One-time setup: C$' + grp(pl.setup) + (pl.startingAt ? "+" : "") + "</div>";

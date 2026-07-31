@@ -324,7 +324,7 @@
         "name": "Can it answer only after hours or when we miss a call?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. That conditional coverage is the most common setup: you answer when you can, Nevamis catches everything else instead of voicemail."
+          "text": "Yes. That is exactly what conditional forwarding does: you answer when you can, Nevamis catches everything else instead of voicemail."
         }
       },
       {
@@ -1120,7 +1120,7 @@
       <details><summary>Will callers know it is AI?</summary><p>Yes. The agent identifies itself naturally, then gets to work. In practice callers care that the phone was answered and the job got booked. You can hear this yourself on the demo line.</p></details>
       <details><summary>Will it sound robotic?</summary><p>Call (587) 413-0035 and judge. It speaks in a natural voice, handles interruptions, and keeps answers short the way a good receptionist does.</p></details>
       <details><summary>Can I keep my current phone number?</summary><p>Yes. Your number stays exactly as it is. Call forwarding sends calls to Nevamis always, after hours, or only when you miss the call. You can switch it off from your own phone at any time.</p></details>
-      <details><summary>Can it answer only after hours or when we miss a call?</summary><p>Yes. That conditional coverage is the most common setup: you answer when you can, Nevamis catches everything else instead of voicemail.</p></details>
+      <details><summary>Can it answer only after hours or when we miss a call?</summary><p>Yes. That is exactly what conditional forwarding does: you answer when you can, Nevamis catches everything else instead of voicemail.</p></details>
       <details><summary>Can it book directly into my calendar?</summary><p>Yes, booking into connected calendar systems is part of the setup. We confirm your exact calendar or job-management tool during the strategy call.</p></details>
       <details><summary>What happens when a caller has an unusual question?</summary><p>The agent only commits to what your rules allow. For anything outside them it takes a message, flags the summary, or transfers, depending on how we configure escalation with you.</p></details>
       <details><summary>Can it transfer urgent calls?</summary><p>Yes, live transfer to a number you choose is a configurable rule. We define together what counts as urgent for your business.</p></details>
@@ -1218,7 +1218,7 @@ document.addEventListener("DOMContentLoaded", function () {
     d.className = "price-card" + (pl.recommended ? " rec" : "");
     if (pl.recommended) {
       var tag = document.createElement("span");
-      tag.className = "rec-tag"; tag.textContent = "MOST COMMON";
+      tag.className = "rec-tag"; tag.textContent = (P.recommendedLabel || "RECOMMENDED");
       d.appendChild(tag);
     }
     var h3 = document.createElement("h3"); h3.textContent = pl.name;
