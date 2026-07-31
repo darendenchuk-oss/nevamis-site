@@ -286,6 +286,66 @@ for (const p of contentPages) {
   }
 }
 
+/* 12. Every internal link and in-page anchor on a published page must resolve.
+   A call to action that scrolls nowhere, or points at a page that was renamed,
+   costs exactly the visitor who was ready to act. Nothing else here would
+   notice: the markup stays valid, the page still renders, and the button still
+   looks like a button.
+
+   Script blocks are stripped first. Several pages build hrefs at runtime by
+   string concatenation, so scanning raw text finds fragments like
+   href="' + s.cta + '" and reports them as broken pages. Only static markup is
+   checked; that is the part a rename can silently break. */
+{
+  const pageIds = new Map(); // file -> Set of id/name anchors
+  const idsOf = (html) => new Set([
+    ...[...html.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]),
+    ...[...html.matchAll(/\bname="([^"]+)"/g)].map((m) => m[1]),
+  ]);
+  const anchorsFor = (file) => {
+    if (!pageIds.has(file)) {
+      const p = path.join(root, file);
+      pageIds.set(file, fs.existsSync(p) ? idsOf(fs.readFileSync(p, "utf8")) : null);
+    }
+    return pageIds.get(file);
+  };
+
+  for (const page of contentPages) {
+    const markup = fs.readFileSync(path.join(root, page), "utf8")
+      .replace(/<script\b[\s\S]*?<\/script>/gi, "");
+    for (const m of markup.matchAll(/href="([^"]+)"/g)) {
+      const raw = m[1];
+      if (/^(https?:|mailto:|tel:|data:|javascript:)/i.test(raw)) continue;
+
+      const [rawFile, frag] = raw.split("#");
+      /* "" means this page (href="#top"); "/" means the homepage. */
+      const file = rawFile === "" ? page
+        : rawFile === "/" ? "index.html"
+        : rawFile.replace(/^\//, "").split("?")[0];
+
+      /* Asset paths (images, icons, css) only need to exist. */
+      if (!file.endsWith(".html")) {
+        if (!fs.existsSync(path.join(root, file))) err(`${page}: href="${raw}" points at a file that does not exist`);
+        continue;
+      }
+      if (!fs.existsSync(path.join(root, file))) {
+        err(`${page}: href="${raw}" points at a page that does not exist`);
+        continue;
+      }
+      /* A link INTO an unpublished page is a dead end for a real visitor:
+         Jekyll never deploys it, so the live site answers 404. */
+      if (!contentPages.includes(file)) {
+        err(`${page}: href="${raw}" points at ${file}, which _config.yml excludes from the build (404 in production)`);
+        continue;
+      }
+      if (frag) {
+        const ids = anchorsFor(file);
+        if (ids && !ids.has(frag)) err(`${page}: href="${raw}" -> #${frag} does not exist in ${file}`);
+      }
+    }
+  }
+}
+
 /* 11. index.html must BE the promotion of the current home.html.
    home.html is the staging twin everyone edits; index.html is what the world
    loads. The only thing joining them is remembering to run promote.mjs by
@@ -319,5 +379,5 @@ for (const p of contentPages) {
   }
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, index.html matches promoted home.html.");
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html.");
 process.exit(fail === 0 ? 0 : 1);
