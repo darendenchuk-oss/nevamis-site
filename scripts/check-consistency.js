@@ -13,6 +13,7 @@ import path from "node:path";
 import vm from "node:vm";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { promoteHtml } from "./promote.mjs";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
    had no shared chrome, and that exemption is exactly why its hand-copied nav
@@ -285,5 +286,38 @@ for (const p of contentPages) {
   }
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse.");
+/* 11. index.html must BE the promotion of the current home.html.
+   home.html is the staging twin everyone edits; index.html is what the world
+   loads. The only thing joining them is remembering to run promote.mjs by
+   hand, and forgetting leaves a homepage that is green on every other check
+   here while silently serving the previous version of the copy. Nothing
+   visible breaks, which is what makes it worth a machine check: the failure
+   mode is a change you believe you shipped. Compared through the promoter's
+   own exported transform so this cannot drift from what promote actually
+   writes. */
+{
+  const homeFile = path.join(root, "home.html");
+  const indexFile = path.join(root, "index.html");
+  if (fs.existsSync(homeFile) && fs.existsSync(indexFile)) {
+    const res = promoteHtml(fs.readFileSync(homeFile, "utf8"));
+    if (!res.ok) {
+      err(`home.html cannot be promoted — ${res.error}`);
+    } else {
+      const live = fs.readFileSync(indexFile, "utf8");
+      if (res.html !== live) {
+        /* Point at the first difference: "they differ" is not actionable on a
+           78 KB file. */
+        const a = res.html.split("\n"), b = live.split("\n");
+        let i = 0;
+        while (i < a.length && i < b.length && a[i] === b[i]) i++;
+        err(`index.html is not the promotion of home.html — run: node scripts/promote.mjs\n`
+          + `       first difference at line ${i + 1}\n`
+          + `       home.html  -> ${(a[i] ?? "(end of file)").trim().slice(0, 100)}\n`
+          + `       index.html -> ${(b[i] ?? "(end of file)").trim().slice(0, 100)}`);
+      }
+    }
+  }
+}
+
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, index.html matches promoted home.html.");
 process.exit(fail === 0 ? 0 : 1);
