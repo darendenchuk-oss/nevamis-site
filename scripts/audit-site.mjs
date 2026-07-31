@@ -25,6 +25,9 @@ const seenTitles = new Map();
 const seenDescs = new Map();
 const allInternalLinks = new Set();
 const linkedTo = new Set();
+/* Filled during the crawl, read afterwards by the orphan pass, which runs
+   outside the per-page loop and so cannot see each page's robots meta. */
+const noindexPages = new Set();
 
 for (const p of PAGES) {
   const page = await ctx.newPage();
@@ -45,6 +48,7 @@ for (const p of PAGES) {
       title: document.title,
       desc: document.querySelector('meta[name=description]')?.content || '',
       canonical: document.querySelector('link[rel=canonical]')?.href || '',
+      robots: document.querySelector('meta[name=robots]')?.content || '',
       ogImage: document.querySelector('meta[property="og:image"]')?.content || '',
       h1: [...document.querySelectorAll('h1')].map(txt),
       words: (document.querySelector('main')?.innerText || document.body.innerText || '').trim().split(/\s+/).length,
@@ -77,7 +81,18 @@ for (const p of PAGES) {
   if (!d.desc) add('high', p.url, 'meta', 'no meta description');
   else if (d.desc.length < 70) add('med', p.url, 'meta', `description only ${d.desc.length} chars`);
   else if (d.desc.length > 165) add('low', p.url, 'meta', `description ${d.desc.length} chars (may truncate)`);
-  if (!d.canonical) add('high', p.url, 'meta', 'no canonical');
+  /* Search-facing rules apply only to pages a search engine is invited to.
+     404.html and proposal.html are both noindex — one is an error page, the
+     other a document sent to a single prospect — so "no canonical", "thin",
+     and "orphan" are not defects there, they are the design. Read from the
+     page rather than content-map.json, because the page is what a crawler
+     actually sees. Sharing rules (og:image) deliberately still apply: a
+     noindex page can still be pasted into an email or a text, and a proposal
+     link that previews blank costs credibility with the one prospect who
+     opens it. */
+  const noindex = /noindex/i.test(d.robots);
+  if (noindex) noindexPages.add(p.url);
+  if (!d.canonical && !noindex) add('high', p.url, 'meta', 'no canonical');
   if (!d.ogImage) add('med', p.url, 'social', 'no og:image (link previews will be blank)');
   if (d.lang !== 'en-CA') add('low', p.url, 'meta', `lang="${d.lang}"`);
   if (!d.viewport) add('high', p.url, 'meta', 'no viewport meta');
@@ -89,7 +104,7 @@ for (const p of PAGES) {
 
   // --- structure ---
   if (d.h1.length !== 1) add('high', p.url, 'structure', `${d.h1.length} h1 elements`);
-  if (d.words < 200 && p.cluster !== 'legal') add('med', p.url, 'content', `thin: ~${d.words} words`);
+  if (d.words < 200 && p.cluster !== 'legal' && !noindex) add('med', p.url, 'content', `thin: ~${d.words} words`);
   if (!d.hasCta && p.cluster !== 'legal') add('med', p.url, 'conversion', 'no phone or booking CTA');
   if (d.staleCss) add('high', p.url, 'build', 'still links the retired styles.css');
 
@@ -117,7 +132,10 @@ for (const url of allInternalLinks) {
 
 // --- orphans: reachable pages nobody links to ---
 for (const p of PAGES) {
-  if (p.cluster === 'legal' || p.url === '/') continue;
+  /* Orphan detection asks 'can a visitor or crawler reach this by following
+     links'. A 404 is reached by mistyping a URL and a proposal by being sent
+     one, so neither is orphaned in any sense that costs anything. */
+  if (p.cluster === 'legal' || p.url === '/' || noindexPages.has(p.url)) continue;
   if (!linkedTo.has(p.url)) add('med', p.url, 'seo', 'orphan: no internal page links here');
 }
 await checker.close();

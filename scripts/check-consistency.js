@@ -286,6 +286,38 @@ for (const p of contentPages) {
   }
 }
 
+/* 13. Every published page must appear in content-map.json.
+   That file is not documentation, it is the input to five scripts: the whole
+   site audit, the sitemap, the search index, and the two page builders. A page
+   missing from it is not audited, not indexed by the site search, and not in
+   the sitemap — invisible three ways at once, while looking completely normal
+   in the repo. proposal.html was exactly this, and 404.html was listed but
+   with a null url, which the auditor filters out, so neither had ever been
+   crawled.
+
+   Being in the map does not force a page into the sitemap: `sitemap: false`
+   keeps it out, which is how the error page and the prospect proposal are
+   audited without being advertised to search engines. The requirement is only
+   that every page is a deliberate entry rather than an omission nobody made. */
+{
+  const map = JSON.parse(fs.readFileSync(path.join(root, "content-map.json"), "utf8"));
+  const mapped = new Set(map.pages.map((p) => p.file));
+  for (const page of contentPages) {
+    if (!mapped.has(page)) {
+      err(`${page} is published but missing from content-map.json — it will not be audited, `
+        + `will not appear in the sitemap or site search. Add an entry (use "sitemap": false `
+        + `if it should not be indexed).`);
+    }
+  }
+  /* And the reverse: an entry for a file that no longer exists points the
+     sitemap at a 404. */
+  for (const p of map.pages) {
+    if (!fs.existsSync(path.join(root, p.file))) {
+      err(`content-map.json lists ${p.file}, which does not exist`);
+    }
+  }
+}
+
 /* 12. Every internal link and in-page anchor on a published page must resolve.
    A call to action that scrolls nowhere, or points at a page that was renamed,
    costs exactly the visitor who was ready to act. Nothing else here would
