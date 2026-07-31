@@ -6,7 +6,10 @@
   "description": "Local-only motion proof harness for the Nevamis static site. Not part of the published site (see _config.yml exclude + .gitignore).",
   "scripts": {
     "serve": "node serve.js",
-    "proof": "playwright test"
+    "proof": "playwright test",
+    "check": "node scripts/check-all.mjs",
+    "consistency": "node scripts/check-consistency.js",
+    "audit": "node scripts/audit-site.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0"
