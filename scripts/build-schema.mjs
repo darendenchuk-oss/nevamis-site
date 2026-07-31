@@ -23,13 +23,34 @@ const decode = (s) => s
   .replace(/\s+/g, ' ')
   .trim();
 
-/** Pull the real FAQ out of the page so the markup always matches the copy. */
+/** Pull the real FAQ out of the page so the markup always matches the copy.
+ *
+ *  Each <details> is isolated FIRST, then read. The previous single regex ran
+ *  `<details…>\s*<summary>([\s\S]*?)</summary>\s*<p>` across the whole
+ *  document, and home.html contains a <details> whose body is a list rather
+ *  than a paragraph ("Prefer to read it? The full sequence as a list"). The
+ *  `\s*<p>` requirement failed there, so the engine kept scanning and matched
+ *  from that opening tag all the way to a LATER </summary> that was followed
+ *  by a <p> — producing a single FAQ "question" 8,901 characters long that had
+ *  swallowed most of the homepage.
+ *
+ *  Google rejects a question of that shape, and an invalid entry can discard
+ *  the whole FAQPage block, so the homepage was publishing thirteen perfectly
+ *  good questions inside markup that could not earn a rich result.
+ *
+ *  A <details> whose body is not a single paragraph is simply not a FAQ entry
+ *  and is skipped, which is what should have happened all along.
+ */
 function faqFrom(html) {
   const out = [];
-  const re = /<details[^>]*>\s*<summary>([\s\S]*?)<\/summary>\s*<p>([\s\S]*?)<\/p>\s*<\/details>/g;
-  let m;
-  while ((m = re.exec(html))) {
-    out.push({ q: decode(m[1]), a: decode(m[2]) });
+  for (const block of html.matchAll(/<details[^>]*>([\s\S]*?)<\/details>/g)) {
+    const body = block[1];
+    // Cannot cross its own closing tag, so it can never reach the next element.
+    const summary = body.match(/^\s*<summary>((?:(?!<\/summary>)[\s\S])*)<\/summary>/);
+    if (!summary) continue;
+    const answer = body.slice(summary[0].length).match(/^\s*<p>([\s\S]*?)<\/p>/);
+    if (!answer) continue;
+    out.push({ q: decode(summary[1]), a: decode(answer[1]) });
   }
   return out;
 }

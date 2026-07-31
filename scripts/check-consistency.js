@@ -342,6 +342,46 @@ for (const p of contentPages) {
   }
 }
 
+/* 15. Every structured-data block must parse, and every FAQ question must be a
+   question rather than a swallowed page.
+
+   build-schema.mjs generates this from the page copy, and a single loose regex
+   there produced a FAQPage whose first "question" was 8,901 characters of
+   homepage. Google rejects an entry of that shape and can discard the whole
+   FAQPage block with it, so the site was publishing thirteen good questions
+   inside markup that could never earn a rich result. Nothing noticed: the JSON
+   was valid, the page rendered, and the block was present.
+
+   Length is the check because it is the property that distinguishes a question
+   from a section of prose, and it needs no network call. */
+{
+  for (const page of contentPages) {
+    const html = fs.readFileSync(path.join(root, page), "utf8");
+    for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+      let parsed;
+      try {
+        parsed = JSON.parse(m[1]);
+      } catch (e) {
+        err(`${page}: a JSON-LD block does not parse — ${e.message.slice(0, 80)}`);
+        continue;
+      }
+      for (const node of (Array.isArray(parsed) ? parsed : [parsed])) {
+        if (node?.["@type"] !== "FAQPage") continue;
+        for (const entry of node.mainEntity ?? []) {
+          const q = String(entry?.name ?? "");
+          const a = String(entry?.acceptedAnswer?.text ?? "");
+          if (!q) { err(`${page}: an FAQPage entry has no question`); continue; }
+          if (!a) { err(`${page}: FAQ "${q.slice(0, 50)}" has no answer`); continue; }
+          if (q.length > 200) {
+            err(`${page}: FAQ question is ${q.length} chars, which is page content rather than a question `
+              + `(Google rejects it and can discard the whole FAQPage) — starts "${q.slice(0, 60)}..."`);
+          }
+        }
+      }
+    }
+  }
+}
+
 /* 14. Any page that plays the example call must show what the audio actually says.
    The mp3s in assets/ are a single recording split into turns. When the 11-turn
    recording replaced the 6-turn one, index.html was updated and demo.html was
