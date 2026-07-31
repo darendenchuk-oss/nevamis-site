@@ -343,8 +343,14 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
 .ind-card p{color:var(--muted);font-size:14px}
 
 /* ---------- ROI ---------- */
-.roi-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
-@media(max-width:900px){.roi-grid{grid-template-columns:1fr}}
+/* minmax(0,1fr), not 1fr. A 1fr track carries an implicit min-content floor,
+   so the widest thing inside the form pushed the column to 352px inside a
+   320px container and the calculator hung 12px off the right edge of a 360px
+   phone. minmax(0,...) lets the track shrink and the content wrap instead.
+   The overflow check in motion.spec.js could not see this: it skips elements
+   at opacity 0, and every .reveal block sat at 0 until scrolled into view. */
+.roi-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+@media(max-width:900px){.roi-grid{grid-template-columns:minmax(0,1fr)}}
 .roi-grid form{padding:24px;display:grid;gap:16px}
 .roi-grid label{font-weight:700;font-size:14.5px;display:block;margin-bottom:7px}
 .roi-grid input{width:100%;padding:12px 13px;font-size:15.5px;font-family:inherit;color:var(--ink);

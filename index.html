@@ -1195,7 +1195,19 @@
 <a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Call our AI now · (587) 413-0035</a>
 
 <script>
-  document.documentElement.classList.remove('no-js');
+  // The .no-js class is removed by site.js, NOT here.
+  //
+  // It used to be dropped on this line, during parse, whether or not site.js
+  // ever arrived. .reveal is opacity:0 by default and html.no-js .reveal
+  // restores it, so one dropped site.js request (a job-site connection, a
+  // blocked script, a bad cache entry) left all 47 content blocks on this
+  // page invisible across 22,000px, with nothing to reveal them. Measured, by
+  // aborting exactly that one request.
+  //
+  // site.js removes it as its first statement and its catch puts it back, so
+  // the class already tracks "the script is working". This line only broke
+  // that contract.
+  //
   // Safety net: if the motion system never boots, the wake overlay must not
   // strand the page on a black screen.
   setTimeout(function () {

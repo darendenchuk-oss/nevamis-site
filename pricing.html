@@ -254,7 +254,9 @@
 
 <a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Call our AI now · (587) 413-0035</a>
 
-<script>document.documentElement.classList.remove('no-js');</script>
+<!-- .no-js is removed by site.js, not here: removing it during parse meant a
+     dropped site.js request left every .reveal on the page at opacity 0. -->
+
 <script src="pricing-config.js"></script>
 <script src="assets/vendor/gsap.min.js"></script>
 <script src="assets/vendor/MotionPathPlugin.min.js"></script>
