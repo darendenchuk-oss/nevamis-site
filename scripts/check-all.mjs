@@ -100,8 +100,8 @@ run('playwright', 'npx', ['playwright', 'test']);
     run('agent price drift', 'npx', ['tsx', 'scripts/kb-drift-check.mts'], { cwd: engine });
     const driftResult = results.at(-1);
     if (driftResult && !driftResult.ok) driftResult.needsYou =
-      'the live agent is missing a published plan. The exact wording to add is in '
-      + 'nevamis-engine/docs/agent-prompts/PROPOSED-payg-addition.md';
+      'the live agent is missing a published plan, and hardcodes a time zone offset that is wrong in winter. Both changes are written out in '
+      + 'nevamis-engine/docs/agent-prompts/PROPOSED-live-agent-changes.md';
     void drift;
   } else {
     console.log('\n── agent checks ── skipped: nevamis-engine is not beside this repo');
