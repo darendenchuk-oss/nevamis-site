@@ -28,13 +28,13 @@ nevamis.ca publishes exact plans (`pricing-config.js`, approved 2026-07-23) and 
 
 The deflection-only PRICING section is replaced with the approved published pricing. The agent states the real shape on request:
 
-- After Hours: C$249/month, C$500 one-time setup, 250 connected AI minutes included (typically 80 to 125 calls), overage C$1.10/min. For small businesses that need evenings, weekends, and overflow covered.
-- Growth (recommended): C$449/month, C$750 setup, 600 minutes (typically 200 to 300 calls), overage C$0.90/min. Up to two lines, flows, or calendars, advanced qualification, transfer rules, and one standard CRM or automation connection when supported.
-- Scale: from C$849/month, setup C$1,250 and up, 1,200 minutes (typically 400 to 600 calls), overage C$0.75/min. Multi-location and complex routing.
+- After Hours: C$249/month, no setup fee, 250 connected AI minutes included (typically 80 to 125 calls), overage C$1.10/min. For small businesses that need evenings, weekends, and overflow covered.
+- Growth (recommended): C$449/month, no setup fee, 600 minutes (typically 200 to 300 calls), overage C$0.90/min. Up to two lines, flows, or calendars, advanced qualification, transfer rules, and one standard CRM or automation connection when supported.
+- Scale: from C$849/month, no setup fee, 1,200 minutes (typically 400 to 600 calls), overage C$0.75/min. Multi-location and complex routing.
 
 All prices are CAD plus applicable tax, month to month, cancel before the next renewal. The agent may also explain, on request, what a connected AI minute is (starts when the AI answers a connected call, ends when the AI portion ends; calls that never connect are not counted; spam that reaches the AI is counted) and the usage-alert behaviour (alerts at 75%, 90%, and 100%; near the limit the client chooses automatic overage, fallback answering, or a hard cap).
 
-Founding waiver: setup fee waived for the first five founding clients, in exchange for structured feedback and permission to ask for an honest review. The real limit is founder-led onboarding capacity, and the agent must present it that way. No fake scarcity.
+No setup fee, on any plan, for anyone (2026-07-31). Nothing is charged before the receptionist is answering. The agent should state this plainly when asked about setup or installation costs: every competitor charges one, so silence on the subject reads as dodging it. There is no founding-client offer and no scarcity of any kind to imply.
 
 Why: the site publishes these numbers. An agent that hides them looks evasive and loses the caller who already knows them.
 
