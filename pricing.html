@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pricing | Nevamis AI</title>
-<meta name="description" content="AI receptionist plans in Canadian dollars: After Hours $249, Growth $449, Scale from $849 per month, plus Pay As You Go. See included minutes and setup fees.">
+<meta name="description" content="AI receptionist plans in Canadian dollars: After Hours $249, Growth $449, Scale from $849 per month, plus Pay As You Go. No setup fee on any plan.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://nevamis.ca/pricing.html">
 <meta property="og:title" content="Pricing | Nevamis AI">
@@ -99,7 +99,7 @@
     "@id": "https://nevamis.ca/pricing.html",
     "url": "https://nevamis.ca/pricing.html",
     "name": "Pricing | Nevamis AI",
-    "description": "AI receptionist plans in Canadian dollars: After Hours $249, Growth $449, Scale from $849 per month, plus Pay As You Go. See included minutes and setup fees.",
+    "description": "AI receptionist plans in Canadian dollars: After Hours $249, Growth $449, Scale from $849 per month, plus Pay As You Go. No setup fee on any plan.",
     "isPartOf": {
       "@type": "WebSite",
       "name": "Nevamis AI",
@@ -175,17 +175,17 @@
       <div class="plans" id="plans"><div id="plansFallback" style="grid-column:1/-1">
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
           <h3 style="font-size:18px">After Hours &mdash; C$249/month</h3>
-          <p style="color:var(--muted);font-size:14.5px">C$500 one-time setup · 250 included AI minutes · C$1.10 per extra minute. Evenings, weekends, and overflow coverage.</p>
+          <p style="color:var(--muted);font-size:14.5px">No setup fee · 250 included AI minutes · C$1.10 per extra minute. Evenings, weekends, and overflow coverage.</p>
           <p style="margin-top:10px"><a class="btn btn-primary" href="https://app.nevamis.ca/signup?plan=after-hours">Buy now</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
           <h3 style="font-size:18px">Growth &mdash; C$449/month (recommended)</h3>
-          <p style="color:var(--muted);font-size:14.5px">C$750 one-time setup · 600 included AI minutes · C$0.90 per extra minute. Qualification, routing, and booking on a meaningful share of calls.</p>
+          <p style="color:var(--muted);font-size:14.5px">No setup fee · 600 included AI minutes · C$0.90 per extra minute. Qualification, routing, and booking on a meaningful share of calls.</p>
           <p style="margin-top:10px"><a class="btn btn-primary" href="https://app.nevamis.ca/signup?plan=growth">Buy now</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
           <h3 style="font-size:18px">Scale &mdash; from C$849/month</h3>
-          <p style="color:var(--muted);font-size:14.5px">C$1,250 one-time setup · 1,200 included AI minutes · C$0.75 per extra minute. Multi-location and higher-volume routing.</p>
+          <p style="color:var(--muted);font-size:14.5px">No setup fee · 1,200 included AI minutes · C$0.75 per extra minute. Multi-location and higher-volume routing.</p>
           <p style="margin-top:10px"><a class="btn btn-ghost" href="/book.html">Get a quote</a></p>
         </div>
         <p style="color:var(--muted);font-size:14px">Prices in Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime. 7-day live pilot, no card. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
@@ -295,7 +295,7 @@
     if (pl.recommended) h += '<div class="rec-tag">' + (P.recommendedLabel || 'RECOMMENDED') + '</div>';
     h += "<h3></h3>";
     h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
-    h += '<div class="setup">One-time setup: C$' + grp(pl.setup) + (pl.startingAt ? "+" : "") + "</div>";
+    h += '<div class="setup">' + (pl.setup > 0 ? "One-time setup: C$" + grp(pl.setup) + (pl.startingAt ? "+" : "") : "No setup fee") + "</div>";
     h += '<div class="usage">' + grp(pl.includedMinutes) + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
     h += "<ul>" + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
     h += '<div class="best"><strong>Best for:</strong> <span></span></div>';
@@ -339,7 +339,7 @@
     var gh = "";
     gh += "<h3></h3>";
     gh += '<div class="price">C$' + grp(pg.monthly) + "<span>/month</span> + C$" + pg.perMinute.toFixed(2) + "<span>/min</span></div>";
-    gh += '<div class="setup">One-time setup: C$' + grp(pg.setup) + "</div>";
+    gh += '<div class="setup">' + (pg.setup > 0 ? "One-time setup: C$" + grp(pg.setup) : "No setup fee") + "</div>";
     gh += '<div class="usage"></div>';
     gh += "<ul>" + pg.features.map(function () { return "<li></li>"; }).join("") + "</ul>";
     gh += '<div class="best"><strong>Best for:</strong> <span></span></div>';

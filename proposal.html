@@ -142,7 +142,9 @@
    Every value shown comes from pricing-config.js, so a proposal can never
    quote a number the business has not approved.
    Params: ?to=Business+Name&plan=growth|after-hours|scale|pay-as-you-go
-           &founding=1   (setup fee waived, first five clients)
+   The &founding=1 parameter is retired and now does nothing: setup is $0 for
+   everyone, so there is no fee to waive. Old links carrying it still render
+   correctly.
    All parameters are rendered with textContent, never innerHTML. */
 (function () {
   "use strict";
@@ -187,7 +189,7 @@
         document.getElementById("planPrice").appendChild(s);
       })();
       set("planIncludes", "No included minutes. " + money(payg.perMinute) + " per connected AI minute.");
-      set("planSetup", "One-time setup " + money(payg.setup) + ".");
+      set("planSetup", payg.setup > 0 ? "One-time setup " + money(payg.setup) + "." : "No setup fee.");
       renderFeatures(payg.features || []);
     } else {
       plan = plan || P.plans[1];
@@ -199,15 +201,12 @@
       set("planIncludes", plan.includedMinutes + " included AI minutes per month, about "
         + plan.callRange + ". Additional minutes " + money(plan.overage) + " each.");
 
+      /* Setup went to $0 on 2026-07-31 and the founding waiver retired with
+         it. Showing a fee struck through and "waived" would be inventing a
+         discount from a price nobody is charged, which is the same fabrication
+         class as a fake original price on a sale tag. */
       var setupEl = document.getElementById("planSetup");
-      setupEl.textContent = "";
-      if (q.get("founding") === "1" && P.foundingClient && P.foundingClient.active) {
-        var s = document.createElement("s"); s.textContent = "One-time setup " + money(plan.setup);
-        var b = document.createElement("b"); b.textContent = "  waived as a founding client";
-        setupEl.appendChild(s); setupEl.appendChild(b);
-      } else {
-        setupEl.textContent = "One-time setup " + money(plan.setup) + ".";
-      }
+      setupEl.textContent = plan.setup > 0 ? "One-time setup " + money(plan.setup) + "." : "No setup fee.";
 
       if (P.annual && P.annual.active && plan.annual) {
         set("planAnnual", "Or " + money(plan.annual) + " for the year: pay ten months, get twelve.");

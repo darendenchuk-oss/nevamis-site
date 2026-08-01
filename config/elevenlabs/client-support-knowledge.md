@@ -54,11 +54,11 @@ All escalations tell the caller what happens next and that the follow-up comes t
 
 The support agent may state published pricing as general information but never quotes a custom price, discount, credit, or change. Any pricing change is a billing action and goes to a human.
 
-- After Hours: C$249/month, C$500 one-time setup, 250 connected AI minutes, overage C$1.10/minute.
-- Growth (recommended): C$449/month, C$750 setup, 600 minutes, overage C$0.90/minute.
-- Scale: from C$849/month, setup from C$1,250, 1,200 minutes, overage C$0.75/minute.
+- After Hours: C$249/month, no setup fee, 250 connected AI minutes, overage C$1.10/minute.
+- Growth (recommended): C$449/month, no setup fee, 600 minutes, overage C$0.90/minute.
+- Scale: from C$849/month, no setup fee, 1,200 minutes, overage C$0.75/minute.
 
-Prices are month to month, CAD plus applicable tax, cancel before the next renewal. The founding-client setup-fee waiver (first five clients, in exchange for structured feedback and permission to ASK for an honest review, never a required or positive review) is a sales/onboarding term; the support agent does not administer or promise it.
+Prices are month to month, CAD plus applicable tax, cancel before the next renewal. There is no setup fee on any plan.
 
 ## What the support agent cannot or does not do
 

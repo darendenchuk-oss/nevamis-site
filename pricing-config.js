@@ -2,13 +2,13 @@
    NEVAMIS PRICING — SINGLE SOURCE OF TRUTH
    APPROVED 2026-07-23 (owner-delegated, competitor-grounded; see
    docs/commercial-model-decision.md). Commercial model: B
-   (true free 7-day live pilot + founding-client offer).
+   (true free 7-day live pilot; no setup fee, retired 2026-07-31).
    Do not duplicate these values in HTML — render from here.
    ============================================================ */
 window.NV_PRICING = {
   approved: true,
   currency: "CAD",
-  lastUpdated: "2026-07-23",
+  lastUpdated: "2026-07-31",
   taxNote: "Prices in Canadian dollars, plus applicable GST/HST.",
   commercialModel: "B",
   /* The badge on the recommended plan. It read "MOST COMMON" on the pricing
@@ -30,11 +30,18 @@ window.NV_PRICING = {
     start: "The seven days start when your pilot goes live, not when you apply.",
     dayEight: "On day eight the pilot simply ends unless you explicitly choose a plan. Silence never becomes a subscription."
   },
+  /* Retired 2026-07-31, the day the setup fee went to zero. The offer was
+     "setup fee waived for our first five founding clients", and a waiver of a
+     fee nobody is charged is not an offer. The free 7-day live pilot is the
+     risk reversal now, and it is a stronger one: it costs the buyer nothing
+     and proves the product on their own line.
+     No replacement was invented. A new founding offer is a commercial decision
+     for the owner, not something to fill this slot with. */
   foundingClient: {
-    active: true,
-    spots: 5,
-    offer: "Setup fee waived for our first five founding clients, in exchange for structured feedback and permission to ask for an honest review.",
-    note: "Real limit: founder-led onboarding caps how many builds run at once."
+    active: false,
+    spots: 0,
+    offer: "",
+    note: ""
   },
   annual: {
     active: true,
@@ -45,7 +52,7 @@ window.NV_PRICING = {
   payAsYouGo: {
     active: true,
     id: "pay-as-you-go", name: "Pay As You Go",
-    monthly: 49, setup: 250, perMinute: 1.95,
+    monthly: 49, setup: 0, perMinute: 1.95,
     bestFor: "Low or unpredictable call volume, or a business that wants to start small without committing to a plan.",
     note: "No included minutes. The monthly fee covers your dedicated number and upkeep; you pay only for the AI minutes you actually use.",
     features: [
@@ -67,7 +74,7 @@ window.NV_PRICING = {
   plans: [
     {
       id: "after-hours", name: "After Hours",
-      monthly: 249, annual: 2490, setup: 500, includedMinutes: 250,
+      monthly: 249, annual: 2490, setup: 0, includedMinutes: 250,
       callRange: "80 to 125 typical calls", overage: 1.10,
       bestFor: "Small service businesses that mainly need evenings, weekends, and overflow covered.",
       features: [
@@ -80,7 +87,7 @@ window.NV_PRICING = {
     },
     {
       id: "growth", name: "Growth", recommended: true,
-      monthly: 449, annual: 4490, setup: 750, includedMinutes: 600,
+      monthly: 449, annual: 4490, setup: 0, includedMinutes: 600,
       callRange: "200 to 300 typical calls", overage: 0.90,
       bestFor: "Growing businesses that want qualification, routing, and booking on a meaningful share of inbound calls.",
       features: [
@@ -95,7 +102,7 @@ window.NV_PRICING = {
     },
     {
       id: "scale", name: "Scale", startingAt: true,
-      monthly: 849, annual: 8490, setup: 1250, includedMinutes: 1200,
+      monthly: 849, annual: 8490, setup: 0, includedMinutes: 1200,
       callRange: "400 to 600 typical calls", overage: 0.75,
       bestFor: "Multi-location businesses and teams with higher volume or complex routing.",
       features: [

@@ -66,11 +66,11 @@ Booking and telephony currently run on Cal.com (calendar and booking) and Twilio
 
 Nevamis publishes its pricing. All prices are in Canadian dollars plus applicable tax, billed month to month. There are three plans:
 
-- After Hours: C$249 per month, C$500 one-time setup. Includes 250 connected AI minutes per month, which is typically 80 to 125 calls. Overage is C$1.10 per minute. Best for small businesses that need evenings, weekends, and overflow covered.
-- Growth (recommended): C$449 per month, C$750 one-time setup. Includes 600 connected AI minutes per month, typically 200 to 300 calls. Overage is C$0.90 per minute. Supports up to two lines, call flows, or calendars, advanced qualification, transfer rules, and one standard CRM or automation connection when supported.
-- Scale: from C$849 per month, setup from C$1,250. Includes 1,200 connected AI minutes per month, typically 400 to 600 calls. Overage is C$0.75 per minute. Built for multi-location businesses and complex routing.
+- After Hours: C$249 per month, no setup fee. Includes 250 connected AI minutes per month, which is typically 80 to 125 calls. Overage is C$1.10 per minute. Best for small businesses that need evenings, weekends, and overflow covered.
+- Growth (recommended): C$449 per month, no setup fee. Includes 600 connected AI minutes per month, typically 200 to 300 calls. Overage is C$0.90 per minute. Supports up to two lines, call flows, or calendars, advanced qualification, transfer rules, and one standard CRM or automation connection when supported.
+- Scale: from C$849 per month, no setup fee. Includes 1,200 connected AI minutes per month, typically 400 to 600 calls. Overage is C$0.75 per minute. Built for multi-location businesses and complex routing.
 
-Founding-client offer: the setup fee is waived for the first five founding clients, in exchange for structured feedback and permission to ask for an honest review. The real limit is founder-led onboarding capacity, not an artificial countdown.
+There is no setup fee on any plan, for anyone. Nothing is charged before the receptionist is built and answering. The risk reversal is the free 7-day live pilot, not a discount.
 
 ## Connected AI minutes, usage alerts, and overage
 

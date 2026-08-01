@@ -20,7 +20,12 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
 
   await expect(page.locator('#planPrice')).toContainText(`C$${cfg.monthly}`);
   await expect(page.locator('#planIncludes')).toContainText(String(cfg.minutes));
-  await expect(page.locator('#planSetup')).toContainText(`C$${cfg.setup}`);
+  /* A $0 fee is stated as a fact, not recited as a price: "C$0 one-time setup"
+     is not something anyone says. Assert whichever the config calls for, so
+     this keeps testing the page against the price list rather than against a
+     number frozen into the test. */
+  await expect(page.locator('#planSetup')).toContainText(
+    cfg.setup > 0 ? `C$${cfg.setup}` : 'No setup fee');
   await expect(page.locator('#planAnnual')).toContainText('pay ten months, get twelve');
   await expect(page.locator('#pilotName')).toHaveText(cfg.pilot);
   await expect(page.locator('#planFeatures li').first()).toBeVisible();
@@ -36,11 +41,19 @@ test('every plan id renders, including pay as you go', async ({ page }) => {
   }
 });
 
-test('the founding-client flag strikes the setup fee rather than hiding it', async ({ page }) => {
+/* This test used to assert the opposite: that ?founding=1 struck through the
+   C$750 setup fee and printed "waived". Setup went to $0 for everyone on
+   2026-07-31 and the founding offer retired with it, so that display would now
+   be a struck-through price nobody is charged next to a discount nobody is
+   given — the same fabrication as a fake "was" price on a sale tag, in a
+   document sent to real prospects. The parameter is inert now, and the useful
+   regression is proving it stays inert if someone re-adds it to a URL. */
+test('a leftover founding=1 in a URL cannot invent a discount', async ({ page }) => {
   await page.goto('/proposal.html?plan=growth&founding=1');
-  await expect(page.locator('#planSetup s')).toBeVisible();          // original still shown
-  await expect(page.locator('#planSetup b')).toContainText('waived');
-  await expect(page.locator('#planSetup')).toContainText('C$750');
+  await expect(page.locator('#planSetup')).toHaveText('No setup fee.');
+  expect(await page.locator('#planSetup s').count()).toBe(0);   // no struck-through price
+  await expect(page.locator('#planSetup')).not.toContainText('waived');
+  await expect(page.locator('#planSetup')).not.toContainText('750');
 });
 
 test('personalises from the URL without ever executing it', async ({ page }) => {

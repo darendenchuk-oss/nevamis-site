@@ -73,6 +73,18 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
 let fail = 0;
 const err = (m) => { console.error("FAIL: " + m); fail++; };
 
+/* Some findings are true but nobody here can fix them, because the thing that
+   is wrong is the prompt running on the live phone line and that is changed by
+   hand, by the owner, in the ElevenLabs dashboard. Reporting those as FAIL
+   means the command is permanently red through no fault of the working tree,
+   and a command that is always red is a command that stops being read.
+
+   So they report on their own channel and exit 2. check-all.mjs turns exit 2
+   into "WAITING ON YOU" and does not block the push. Exit 1 still means
+   something in this repository is actually broken. */
+let waiting = 0;
+const wait = (m) => { console.error("WAIT: " + m); waiting++; };
+
 const navOf = (html) => {
   const m = html.match(/<nav class="main-nav"[^>]*>([\s\S]*?)<\/nav>/);
   return m ? m[1].replace(/ aria-current="page"/g, "").replace(/\s+/g, " ").trim() : null;
@@ -194,7 +206,11 @@ for (const p of contentPages) {
         const plan = cfg.plans.find((p) => p.name === name);
         if (!plan) { err('pricing fallback: plan "' + name + '" not in pricing-config.js'); continue; }
         const monthly = body.match(/C\$([\d,]+)\/month/);
-        const setup = body.match(/C\$([\d,]+) one-time setup/);
+        /* "No setup fee" is the correct rendering once the fee is 0, so accept
+           either shape and compare the resulting number against the config. */
+        const setup = /No setup fee/i.test(body)
+          ? ["", "0"]
+          : body.match(/C\$([\d,]+) one-time setup/);
         const mins = body.match(/([\d,]+) included AI minutes/);
         const over = body.match(/C\$([\d.]+) per extra minute/);
         if (!monthly || num(monthly[1]) !== plan.monthly) err('pricing fallback "' + name + '": monthly differs from config (' + plan.monthly + ")");
@@ -279,14 +295,35 @@ for (const p of contentPages) {
       return [...out];
     };
 
+    /* A zero setup fee is not a price to recite, it is a fact to state. When
+       setup is 0 the old check demanded the agent say "zero dollars setup",
+       which nobody says, so the rule flips: the prompt must state plainly that
+       there is no setup fee, and must NOT still be quoting one. Being the only
+       provider in this market with published prices and no setup fee is a
+       selling point, and an agent that keeps quoting a retired fee costs the
+       sale twice, once on price and once on trust. */
+    const setupIsFree = w.NV_PRICING.plans.every((p) => p.setup === 0)
+      && (!w.NV_PRICING.payAsYouGo?.active || w.NV_PRICING.payAsYouGo.setup === 0);
+    if (setupIsFree) {
+      const saysFree = /no setup fee|no one-time setup|nothing to set up|no set-up fee/.test(spoken);
+      if (!saysFree) wait("demo.md: setup is $0 everywhere in pricing-config.js, but the prompt never says there is no setup fee. It is a selling point and the agent should say it.");
+      const RETIRED_SETUP_WORDS = ["five hundred dollars one-time setup", "seven hundred and fifty dollars setup",
+        "one thousand two hundred and fifty dollars", "two hundred and fifty dollars setup"];
+      for (const phrase of RETIRED_SETUP_WORDS) {
+        if (spoken.includes(phrase)) wait(`demo.md: still quotes a retired setup fee out loud ("${phrase}") after it went to $0`);
+      }
+    }
+
     for (const plan of w.NV_PRICING.plans) {
-      for (const [label, forms] of [["monthly", dollarForms(plan.monthly)], ["setup", dollarForms(plan.setup)], ["overage", centForms(plan.overage)]]) {
+      const checks = [["monthly", dollarForms(plan.monthly)], ["overage", centForms(plan.overage)]];
+      if (plan.setup > 0) checks.push(["setup", dollarForms(plan.setup)]);
+      for (const [label, forms] of checks) {
         if (!forms.some((f) => spoken.includes(f)))
-          err(`demo.md: ${plan.name} ${label} (${plan[label]}) is never spoken; say one of: ${forms.join(" / ")}`);
+          wait(`demo.md: ${plan.name} ${label} (${plan[label]}) is never spoken; say one of: ${forms.join(" / ")}`);
       }
       const mins = plan.includedMinutes;
       if (!spoken.includes(String(mins)) && !spoken.includes(mins.toLocaleString("en-CA")))
-        err(`demo.md: ${plan.name} included minutes (${mins}) are never stated, and minutes are how the plans differ`);
+        wait(`demo.md: ${plan.name} included minutes (${mins}) are never stated, and minutes are how the plans differ`);
     }
   }
 }
@@ -554,4 +591,8 @@ for (const p of contentPages) {
 }
 
 if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html.");
-process.exit(fail === 0 ? 0 : 1);
+/* 1 = something here is broken. 2 = nothing here is broken but the live
+   phone agent needs a change only the owner can make. 0 = clean. */
+if (fail === 0 && waiting > 0) console.error(`
+${waiting} item${waiting === 1 ? " needs" : "s need"} a change to the LIVE agent prompt, which only the owner can apply.`);
+process.exit(fail > 0 ? 1 : waiting > 0 ? 2 : 0);

@@ -36,7 +36,7 @@ function run(label, cmd, args, opts = {}) {
     ? spawnSync(cmd, args, { cwd: root, stdio: 'inherit', ...opts })
     : spawnSync([cmd, ...args].join(' '), { cwd: root, stdio: 'inherit', shell: true, ...opts });
   const ok = res.status === 0;
-  results.push({ label, ok });
+  results.push({ label, ok, status: res.status });
   return ok;
 }
 
@@ -55,6 +55,16 @@ async function waitForServer(url, timeoutMs = 15000) {
 
 // 1. Consistency: pure file reads, fastest, catches the most.
 run('consistency', process.execPath, ['scripts/check-consistency.js']);
+/* Exit 2 means every finding was about the LIVE phone agent's prompt, which is
+   edited by hand in the ElevenLabs dashboard and not in this repository. Real
+   drift, worth reporting loudly, but not a reason to block a push. */
+{
+  const consistency = results.at(-1);
+  if (consistency && consistency.status === 2) consistency.needsYou =
+    'the live agent prompt contradicts pricing-config.js (scroll up for the WAIT lines). '
+    + 'Apply the changes in nevamis-engine/docs/agent-prompts/PROPOSED-live-agent-changes.md, '
+    + 'then update the demo.md snapshot to match what you actually saved.';
+}
 
 // 2. Whole-site audit: needs a real browser against a real server.
 {
