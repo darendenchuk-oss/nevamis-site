@@ -280,8 +280,8 @@ for (const vp of VIEWPORTS) {
     note(file, `Resolved hero at ${vp.name}: both CTAs visible and no horizontal overflow.`);
 
     // the storytelling beat must survive the shrink, not just the resolved frame.
-    // 3.95 = the middle of the ANSWER dwell (see MOTION.beats "route").
-    await page.evaluate(() => { window.__heroTL.pause(3.95); });
+    // 3.65 = the middle of the ANSWER dwell (see MOTION.beats "route").
+    await page.evaluate(() => { window.__heroTL.pause(3.65); });
     await page.waitForTimeout(180);
     const storyFile = `story-${vp.name}.png`;
     await page.screenshot({ path: path.join(OUT, storyFile) });

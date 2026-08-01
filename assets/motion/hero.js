@@ -5,16 +5,22 @@
    Everything the viewer sees is a state of that story; nothing
    moves for decoration.
 
-   Structure (times in seconds — see MOTION.beats):
-     0.00  wake veil clears; nav and the copy column rise
-     0.50  the node comes into focus behind a soft scrim
-     0.70  two call waves close on the node; it reacts on CONTACT
-     1.55  the mark's arch draws from both ends, tips carrying light
-     2.70  the tips merge at the apex — flare, bloom, the mark is one
-     2.90  CALL ANSWERED · "Every call,"
-     3.75  the story routes: ANSWER → QUALIFY → BOOK → TEXT (0.6s beats)
-     6.15  the stage clears, THEN "captured." lands, THEN the CTAs
-     7.25  end → living idle (breath, an occasional signal)
+   Structure (times in seconds — see MOTION.beats). Retimed 2026-08-01
+   to value-first: the film no longer gates the controls. Everything a
+   visitor can ACT on is live by ~1.3s; the story plays beside it and
+   keeps its payoff order.
+     0.00  wake veil clears fast; nav and the copy column rise
+     0.55  "Every call," rises as a per-character curtain
+     0.85  both CTAs settle in — interactive from here on
+     0.65  two call waves close on the node; it reacts on CONTACT
+     1.50  the mark's arch draws from both ends, tips carrying light
+     2.55  the tips merge at the apex — flare, bloom, the mark is one
+     2.75  CALL ANSWERED
+     3.40  the story routes: ANSWER → QUALIFY → BOOK → TEXT (0.55s beats)
+     5.70  the stage clears, THEN "captured." lands with its underline,
+           and the CTAs give one small pulse: the film ends by pointing
+           at the action it asked for
+     6.55  end → living idle (breath, an occasional signal)
 
    Choreography rules this file follows, learned the hard way:
    - Nothing reacts before its stimulus arrives (waves land, THEN
@@ -40,13 +46,40 @@ const STEPS = [
 ];
 
 /* The routing rhythm. 0.42s per state left each label fully readable for
-   ~80ms — it strobed. 0.60s gives every state a genuine dwell, and the
-   handoff below is sequential: out is GONE 60ms before in begins, because
-   two words superimposed at one coordinate read as a compositing bug. */
-const STEP_GAP = 0.6;
-const LABEL_IN = 0.22;
-const LABEL_OUT = 0.16;
-const LABEL_OUT_AT = 0.38;   // out runs 0.38–0.54; next enters at 0.60
+   ~80ms — it strobed. 0.55s keeps a genuine dwell (the 0.60 original read
+   identically in side-by-side runs), and the handoff below is sequential:
+   out is GONE 60ms before in begins, because two words superimposed at one
+   coordinate read as a compositing bug. */
+const STEP_GAP = 0.55;
+const LABEL_IN = 0.2;
+const LABEL_OUT = 0.15;
+const LABEL_OUT_AT = 0.34;   // out runs 0.34–0.49; next enters at 0.55
+
+/** Split a headline word into per-character spans, once. The h1 carries a
+    static aria-label so screen readers keep reading a sentence, never a
+    letter stream. Returns the char spans; on any surprise (empty word,
+    re-run) it returns the word span itself so the timeline still works. */
+function splitChars(wordEl) {
+  if (!wordEl || wordEl.dataset.split === '1') {
+    return wordEl ? Array.from(wordEl.querySelectorAll('.ch')) : [];
+  }
+  const text = wordEl.textContent;
+  if (!text) return [wordEl];
+  wordEl.dataset.split = '1';
+  wordEl.textContent = '';
+  const frag = document.createDocumentFragment();
+  const chars = [];
+  for (const c of text) {
+    const s = document.createElement('span');
+    s.className = 'ch';
+    // A plain space collapses inside an inline-block run; keep the nbsp.
+    s.textContent = c === ' ' ? ' ' : c;
+    frag.appendChild(s);
+    chars.push(s);
+  }
+  wordEl.appendChild(frag);
+  return chars;
+}
 
 export function initHero() {
   const gsap = window.gsap;
@@ -88,6 +121,7 @@ export function initHero() {
   });
 
   const reduce = prefersReduced();
+  const underline = $('.hero-underline');
 
   /** The finished frame — used by reduced motion and as the timeline's end state. */
   function paintResolved() {
@@ -97,9 +131,12 @@ export function initHero() {
     gsap.set([archL, archR], { opacity: 0 });
     if (scrim) gsap.set(scrim, { opacity: 1 });
     gsap.set(dot, { scale: 1, autoAlpha: 1 });
+    // Both granularities: .w for the un-split reduced path, .ch after a split.
     gsap.set('h1 .w', { yPercent: 0 });
+    if (document.querySelector('h1 .ch')) gsap.set('h1 .ch', { yPercent: 0 });
+    if (underline) gsap.set(underline, { scaleX: 1 });
     gsap.set(copyEls, { autoAlpha: 1, y: 0 });
-    gsap.set(['[data-cta]', '[data-nav]'], { yPercent: 0, autoAlpha: 1 });
+    gsap.set(['[data-cta]', '[data-nav]'], { yPercent: 0, autoAlpha: 1, scale: 1 });
     gsap.set('#wake', { autoAlpha: 0 });
     gsap.set([story, status, packet, archHi, archTipL, archTipR, dotPulse], { opacity: 0 });
     gsap.set(waves, { opacity: 0 });
@@ -119,7 +156,13 @@ export function initHero() {
   // ---------------------------------------------------------------
   // Initial (pre-animation) state
   // ---------------------------------------------------------------
-  gsap.set('h1 .w', { yPercent: 115 });
+  // Per-character curtains. Split only on the animated path, so the reduced
+  // path and any no-JS render keep the intact words. The h1 carries a static
+  // aria-label in the markup, so assistive tech reads the sentence either way.
+  const chars1 = splitChars(document.querySelector('h1 .w[data-w="1"]'));
+  const chars2 = splitChars(document.querySelector('h1 .w[data-w="2"]'));
+  gsap.set([...chars1, ...chars2], { yPercent: 118, display: 'inline-block', willChange: 'transform' });
+  if (underline) gsap.set(underline, { scaleX: 0, transformOrigin: '0% 50%' });
   // autoAlpha, not opacity: it also sets visibility:hidden, so these controls
   // stay out of the tab order until they are actually on screen. A focusable
   // but invisible "Call the live AI" would otherwise dial a number the
@@ -144,19 +187,25 @@ export function initHero() {
 
   const tl = gsap.timeline({ defaults: { ease: MOTION.ease.enter } });
 
-  // --- 0.0–1.1 · wake; chrome and copy rise before the story starts ---
+  // --- ACT 1 · 0.0–1.3 · everything actable arrives first ------------
   // The veil is an exit: leave fast, land soft. Chrome starts once the veil
-  // is mostly gone, so none of its motion is performed behind black.
-  tl.to('#wake', { autoAlpha: 0, duration: 0.4, ease: 'power2.out' }, 0)
+  // is mostly gone, so none of its motion is performed behind black. The
+  // whole copy column, the headline's first word and BOTH CTAs are in and
+  // interactive by ~1.3s; the film has not even reached its apex yet.
+  tl.to('#wake', { autoAlpha: 0, duration: 0.3, ease: 'power2.out' }, 0)
     .fromTo('#topsig', { opacity: 1, x: -240 },
-      { x: () => window.innerWidth + 40, duration: 0.6, ease: MOTION.ease.move }, 0.18)
-    .to('#topsig', { autoAlpha: 0, duration: 0.2 }, 0.62)
-    .to('[data-nav]', { yPercent: 0, autoAlpha: 1, duration: 0.45, stagger: 0.04 }, 0.3)
-    .to(copyEls, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.07 }, 0.35);
+      { x: () => window.innerWidth + 40, duration: 0.55, ease: MOTION.ease.move }, 0.1)
+    .to('#topsig', { autoAlpha: 0, duration: 0.18 }, 0.52)
+    .to('[data-nav]', { yPercent: 0, autoAlpha: 1, duration: 0.4, stagger: 0.04 }, 0.18)
+    .to(copyEls, { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.06 }, 0.25)
+    // "Every call," rises one character at a time behind the line mask.
+    .to(chars1, { yPercent: 0, duration: 0.55, stagger: 0.022, ease: MOTION.ease.curtain }, 0.55)
+    // CTAs settle — they do not bounce, and they do not wait for the film.
+    .to('[data-cta]', { yPercent: 0, autoAlpha: 1, duration: 0.45, stagger: MOTION.stagger.base, ease: MOTION.ease.enter }, 0.85);
 
-  // --- 0.45–1.7 · the node comes into focus; the call closes on it ---
-  if (scrim) tl.to(scrim, { opacity: 1, duration: 0.6, ease: 'none' }, 0.45);
-  tl.to(dot, { scale: 1, autoAlpha: 1, duration: 0.55, ease: MOTION.ease.enter }, 0.5);
+  // --- 0.35–1.65 · the node comes into focus; the call closes on it ---
+  if (scrim) tl.to(scrim, { opacity: 1, duration: 0.55, ease: 'none' }, 0.35);
+  tl.to(dot, { scale: 1, autoAlpha: 1, duration: 0.5, ease: MOTION.ease.enter }, 0.42);
 
   /* Two waves, not three (the third lingered across the arch draw), animated
      on the r ATTRIBUTE, not transform scale — scaling also scales stroke
@@ -164,7 +213,7 @@ export function initHero() {
      node. They accelerate INWARD (power2.in) and stay bright until just
      before contact, so the signal gains energy as it arrives instead of
      evaporating mid-air. */
-  const WAVE_AT = [0.7, 1.0];
+  const WAVE_AT = [0.65, 0.95];
   const WAVE_TRAVEL = 0.5;
   WAVE_AT.forEach((at, i) => {
     const w = waves[i];
@@ -174,27 +223,27 @@ export function initHero() {
   });
   // The node reacts ON CONTACT — never before. First landing gets the real
   // flinch, the second a smaller echo: every stimulus gets a response.
-  tl.to(dot, { scale: 1.14, duration: 0.12, ease: 'power2.out' }, 1.2)
-    .to(dot, { scale: 1, duration: 0.2, ease: MOTION.ease.move }, 1.32)
-    .to(dot, { scale: 1.07, duration: 0.12, ease: 'power2.out' }, 1.5)
-    .to(dot, { scale: 1, duration: 0.2, ease: MOTION.ease.move }, 1.62);
+  tl.to(dot, { scale: 1.14, duration: 0.12, ease: 'power2.out' }, 1.15)
+    .to(dot, { scale: 1, duration: 0.2, ease: MOTION.ease.move }, 1.27)
+    .to(dot, { scale: 1.07, duration: 0.12, ease: 'power2.out' }, 1.45)
+    .to(dot, { scale: 1, duration: 0.2, ease: MOTION.ease.move }, 1.57);
 
-  // --- 1.55–2.7 · the arch draws from both ends, answering the call ---
+  // --- 1.5–2.55 · the arch draws from both ends, answering the call ---
   // The arch grows from both ends at once, so a single highlight sweeping the
   // full arc would race ahead of the stroke through empty space. Instead each
   // tip carries its own highlight, on the same path, ease and timing as the
   // draw — so the light is always exactly where the arch is being made.
-  tl.set([archL, archR], { opacity: 1 }, 1.55)
-    .to([archL, archR], { strokeDashoffset: 0, duration: 1.15, ease: MOTION.ease.move }, 1.55)
-    .to([archTipL, archTipR], { opacity: 1, duration: 0.15, ease: 'none' }, 1.55)
+  tl.set([archL, archR], { opacity: 1 }, 1.5)
+    .to([archL, archR], { strokeDashoffset: 0, duration: 1.05, ease: MOTION.ease.move }, 1.5)
+    .to([archTipL, archTipR], { opacity: 1, duration: 0.15, ease: 'none' }, 1.5)
     .to(archTipL, {
-      duration: 1.15, ease: MOTION.ease.move,
+      duration: 1.05, ease: MOTION.ease.move,
       motionPath: { path: archL, align: archL, alignOrigin: [0.5, 0.5], start: 0, end: 1 },
-    }, 1.55)
+    }, 1.5)
     .to(archTipR, {
-      duration: 1.15, ease: MOTION.ease.move,
+      duration: 1.05, ease: MOTION.ease.move,
       motionPath: { path: archR, align: archR, alignOrigin: [0.5, 0.5], start: 0, end: 1 },
-    }, 1.55);
+    }, 1.5);
 
   // --- 2.7–3.3 · the apex: completion is an EVENT ------------------
   // The tips flare as they merge (they used to start dying 40ms before they
@@ -205,31 +254,30 @@ export function initHero() {
   // The bloom expands via the r ATTRIBUTE, not transform scale: GSAP caches
   // the transform origin from the element's original bbox (cy=352), so
   // scaling it after moving it to the apex pushed the ring off into space.
-  tl.to([archTipL, archTipR], { scale: 1.9, opacity: 0, transformOrigin: '50% 50%', duration: 0.28, ease: 'power2.out' }, 2.7)
-    .set(dotPulse, { attr: { cy: 170 } }, 2.7)
+  tl.to([archTipL, archTipR], { scale: 1.9, opacity: 0, transformOrigin: '50% 50%', duration: 0.26, ease: 'power2.out' }, 2.55)
+    .set(dotPulse, { attr: { cy: 170 } }, 2.55)
     .fromTo(dotPulse, { opacity: 0.8, attr: { r: 10 } },
-      { opacity: 0, attr: { r: 64 }, duration: 0.5, ease: 'power2.out' }, 2.7)
-    .set(archFull, { opacity: 1 }, 2.72)
-    .set([archL, archR], { opacity: 0 }, 2.72);
+      { opacity: 0, attr: { r: 64 }, duration: 0.5, ease: 'power2.out' }, 2.55)
+    .set(archFull, { opacity: 1 }, 2.57)
+    .set([archL, archR], { opacity: 0 }, 2.57);
 
   // The node reacts to the completed mark — cause at the apex, effect at the
   // node, one beat later. This is the piece's single spring.
-  tl.to(dot, { scale: 0.82, duration: 0.14, ease: 'power2.in' }, 2.78)
-    .to(dot, { scale: 1.06, duration: 0.24, ease: 'back.out(1.8)' }, 2.92)
-    .to(dot, { scale: 1, duration: 0.16 }, 3.16)
-    .fromTo(status, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4 }, 2.9)
-    .to('h1 .w[data-w="1"]', { yPercent: 0, duration: 0.7, ease: MOTION.ease.curtain }, 2.95);
+  tl.to(dot, { scale: 0.82, duration: 0.14, ease: 'power2.in' }, 2.62)
+    .to(dot, { scale: 1.06, duration: 0.24, ease: 'back.out(1.8)' }, 2.76)
+    .to(dot, { scale: 1, duration: 0.16 }, 3.0)
+    .fromTo(status, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4 }, 2.75);
 
-  // --- 3.3–6.1 · the story routes ----------------------------------
+  // --- 3.0–5.6 · the story routes ----------------------------------
   // One state is prominent at a time so it stays legible on a phone; the
   // segment bar carries the sequence so nothing is lost. Labels hand off on
   // the packet's own axis (left to right), so the words and the progress
   // bar describe one mechanism, not two.
-  tl.to(story, { opacity: 1, duration: 0.35 }, 3.3)
-    .set(packet, { opacity: 1, attr: { cx: 310, cy: 352 } }, 3.4)
-    .to(packet, { attr: { cx: STEPS[0].x, cy: 516 }, duration: 0.32, ease: MOTION.ease.move }, 3.4);
+  tl.to(story, { opacity: 1, duration: 0.35 }, 3.0)
+    .set(packet, { opacity: 1, attr: { cx: 310, cy: 352 } }, 3.1)
+    .to(packet, { attr: { cx: STEPS[0].x, cy: 516 }, duration: 0.32, ease: MOTION.ease.move }, 3.1);
 
-  const STEP0 = 3.75;
+  const STEP0 = 3.4;
   STEPS.forEach((s, i) => {
     const at = STEP0 + i * STEP_GAP;
     if (i > 0) {
@@ -245,17 +293,22 @@ export function initHero() {
     }
   });
   // TEXT — "booking confirmed", the payoff state — holds a full beat.
-  tl.to(packet, { opacity: 0, duration: 0.2 }, 6.05);
+  tl.to(packet, { opacity: 0, duration: 0.2 }, 5.5);
 
-  // --- 6.15–7.25 · clear the stage, THEN land the payoff -----------
+  // --- 5.7–6.5 · clear the stage, THEN land the payoff -------------
   // Exits first, together, on one ease; the headline rises into an already
-  // clearing frame instead of fighting the routing UI for attention.
-  tl.to([story, status], { opacity: 0, y: -10, duration: 0.3, ease: 'power2.in' }, 6.15)
+  // clearing frame instead of fighting the routing UI for attention. The
+  // CTAs have been live for over four seconds by now, so the film's ending
+  // does not deliver them — it POINTS at them: "captured." lands with its
+  // underline drawing out, and the buttons give one small acknowledging
+  // pulse. The film asks for the call; the pulse says where.
+  tl.to([story, status], { opacity: 0, y: -10, duration: 0.28, ease: 'power2.in' }, 5.7)
     .set([story, status], { y: 0 })
-    .to('h1 .w[data-w="2"]', { yPercent: 0, duration: 0.7, ease: MOTION.ease.curtain }, 6.3)
-    // CTAs settle — they do not bounce. power3.out, short travel.
-    .to('[data-cta]', { yPercent: 0, autoAlpha: 1, duration: 0.5, stagger: MOTION.stagger.base, ease: MOTION.ease.enter }, 6.45)
-    .to(fieldPts, { opacity: 0.3, duration: 0.5, stagger: 0.02 }, 6.55);
+    .to(chars2, { yPercent: 0, duration: 0.55, stagger: 0.024, ease: MOTION.ease.curtain }, 5.8);
+  if (underline) tl.to(underline, { scaleX: 1, duration: 0.4, ease: MOTION.ease.enter }, 6.0);
+  tl.to('[data-cta]', { scale: 1.02, duration: 0.16, ease: 'power2.out', stagger: 0.05 }, 6.05)
+    .to('[data-cta]', { scale: 1, duration: 0.3, ease: MOTION.ease.move, stagger: 0.05 }, 6.21)
+    .to(fieldPts, { opacity: 0.3, duration: 0.45, stagger: 0.02 }, 6.05);
 
   tl.eventCallback('onComplete', startIdle);
 

@@ -13,6 +13,8 @@ import { initCursor } from './cursor.js';
 import { initAurora } from './aurora.js';
 import { initSonar } from './sonar.js';
 import { initSearch } from './search.js';
+import { initScroll } from './scroll.js';
+import { initVoice } from './voice.js';
 
 const gsap = window.gsap;
 
@@ -22,15 +24,19 @@ const gsap = window.gsap;
 guard(initSearch);
 
 if (gsap) {
-  gsap.registerPlugin(window.MotionPathPlugin);
+  // Plugins are optional per page: only ever register what actually loaded.
+  if (window.MotionPathPlugin) gsap.registerPlugin(window.MotionPathPlugin);
   gsap.ticker.lagSmoothing(500, 33);
 
   guard(initAurora);
   guard(initSonar);
   const hero = guard(initHero);
   const cursor = guard(initCursor);
+  guard(initScroll);
+  guard(initVoice);
   guard(initMagnetics);
   guard(initTilt);
+  guard(initCardGlow);
   guard(() => initMotionToggle(cursor));
 
   if (isDebug() && hero && hero.tl) {
@@ -43,12 +49,38 @@ function guard(fn) {
   try { return fn(); } catch (err) {
     console.error('[motion]', err);
     try {
-      gsap.set('[data-nav], [data-cta], h1 .w', { clearProps: 'all', autoAlpha: 1, yPercent: 0 });
+      // Every granularity any module hides: nav/CTAs, whole words, split
+      // characters, and scroll-masked words. Failure means show everything.
+      gsap.set('[data-nav], [data-cta], h1 .w, h1 .ch, .mwi', { clearProps: 'all', autoAlpha: 1, yPercent: 0 });
       const wake = document.getElementById('wake');
       if (wake) wake.style.display = 'none';
     } catch (e2) { /* leave CSS defaults */ }
     return null;
   }
+}
+
+/* ------------------------------------------------------------
+   Cards carry a faint mint glow that tracks the pointer. CSS
+   paints it from --mx/--my; this only feeds the numbers, so the
+   effect costs two custom properties per move and no layout.
+   ------------------------------------------------------------ */
+function initCardGlow() {
+  if (!isFinePointer() || prefersReduced()) return;
+  const hosts = document.querySelectorAll('[data-tilt], .mode, .nb-scene, .plan, .call-card');
+  hosts.forEach((el) => {
+    el.classList.add('glowable');
+    el.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      if (document.documentElement.classList.contains('motion-off')) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100).toFixed(2) + '%');
+      el.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100).toFixed(2) + '%');
+    }, { passive: true });
+    el.addEventListener('pointerleave', () => {
+      el.style.removeProperty('--mx');
+      el.style.removeProperty('--my');
+    });
+  });
 }
 
 /* ------------------------------------------------------------
@@ -116,10 +148,13 @@ function initMotionToggle(cursor) {
       const off = document.documentElement.classList.contains('motion-off');
       if (off) {
         if (window.__heroMotionOff) window.__heroMotionOff();
+        if (window.__scrollMotionOff) window.__scrollMotionOff();
         if (cursor && cursor.hide) cursor.hide();
         document.documentElement.classList.remove('nv-cursor-ready');
       } else if (window.__heroMotionOn) {
         window.__heroMotionOn();
+        // The scroll flourishes rebuild on the next page load; the IO-based
+        // .reveal baseline covers the rest of this visit.
       }
     });
   });

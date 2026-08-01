@@ -65,6 +65,12 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<!-- The three faces painting above the fold, preloaded so the swap frame
+     never happens: the font-display:swap re-metric of the header, headline
+     and labels was the single largest layout shift on the page. -->
+<link rel="preload" href="assets/fonts/bricolage-grotesque-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/atkinson-hyperlegible-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/spline-sans-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="assets/motion/site.css">
 <style>
@@ -87,6 +93,14 @@
   .hero h1 .line{display:block;overflow:hidden;padding-bottom:.06em}
   .hero h1 .w{display:inline-block;will-change:transform}
   .hero h1 .g{color:var(--mint)}
+  /* char-split spans: inline-block breaks the h1's letter-spacing between
+     spans, so it is reapplied as a margin to keep the split word exactly as
+     wide as the static one (no layout jump at split time). */
+  .hero h1 .ch{display:inline-block;margin-right:-.03em;will-change:transform}
+  .hero-underline{display:block;width:5.35em;max-width:92%;height:3px;margin-top:.1em;
+    border-radius:2px;background:linear-gradient(90deg,var(--mint) 0%,rgba(159,240,206,.25) 78%,rgba(159,240,206,0) 100%);
+    transform:scaleX(0);transform-origin:0 50%}
+  html.no-js .hero-underline,html.motion-off .hero-underline{transform:scaleX(1)}
   .lede{color:var(--muted);font-size:clamp(16px,1.5vw,19px);margin-top:20px;line-height:1.55;max-width:44ch}
   .lede strong{color:var(--ink);font-weight:600}
   .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
@@ -449,9 +463,12 @@
     <div class="wrap">
       <div class="copy">
         <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Edmonton-built AI receptionists</span>
-        <h1>
-          <span class="line"><span class="w" data-w="1">Every&nbsp;call,</span></span>
-          <span class="line"><span class="w g" data-w="2">captured.</span></span>
+        <!-- aria-label because hero.js splits these words into per-character
+             spans for the curtain reveal; without it a screen reader would
+             announce a letter stream instead of the sentence. -->
+        <h1 aria-label="Every call, captured.">
+          <span class="line" aria-hidden="true"><span class="w" data-w="1">Every&nbsp;call,</span></span>
+          <span class="line" aria-hidden="true"><span class="w g" data-w="2">captured.</span><span class="hero-underline"></span></span>
         </h1>
         <p class="lede">Missed calls are missed jobs. Nevamis answers your line 24/7,
           <strong>qualifies the caller</strong>, <strong>books the job</strong>, and
@@ -588,7 +605,7 @@
           <circle id="archHi" r="6" fill="#EAFBF3" filter="url(#glowTight)"/>
           <circle id="packet" cx="310" cy="352" r="7" fill="#EAFBF3" filter="url(#glowTight)"/>
         </svg>
-        <div class="status" id="status" aria-hidden="true">● <b>CALL ANSWERED</b></div>
+        <div class="status" id="status" aria-hidden="true">● <b>CALL ANSWERED</b> <span class="vb" data-voice></span></div>
         <button class="motion-toggle-btn" aria-pressed="false">pause motion</button>
       </div>
     </div>
@@ -698,6 +715,48 @@
   </section>
 
   <!-- ================= SIMULATOR ================= -->
+
+  <!-- ============ THE NIGHT BAND ============
+       The one scroll-driven story on the page. On a desktop it pins and the
+       visitor scrubs a night call from ring to booked-and-texted; on phones,
+       with reduced motion, or with no JS it is three plain readable cards
+       (the .reveal baseline). Copy makes no claim the site does not already
+       make elsewhere: answer, qualify, book, text, in the same words. -->
+  <section class="night" id="night" aria-label="How an after-hours call plays out">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">After hours, illustrated</p>
+        <h2>Your crew goes home. Your line does not.</h2>
+        <p>The recording above is the real thing. This is the shape of every night call,
+          in the product&#39;s own four words: answer, qualify, book, text.</p>
+      </div>
+      <div class="nb-stage" data-night>
+        <div class="nb-rail" aria-hidden="true"><i></i></div>
+        <article class="nb-scene reveal">
+          <p class="nb-time mono">9:41 PM</p>
+          <h3>A call your crew cannot take.</h3>
+          <p>The trucks are parked and the phones are on the chargers. Somebody&#39;s furnace
+            quits anyway, and they start dialling down the list.</p>
+          <p class="nb-note">Voicemail sends that caller to the next number on the list.</p>
+        </article>
+        <article class="nb-scene reveal">
+          <p class="nb-time mono">9:41 PM &middot; seconds later</p>
+          <h3>Nevamis answers in seconds.</h3>
+          <div class="nb-voice" data-voice aria-hidden="true"></div>
+          <p>It asks what you would ask, and writes down what you would write down:</p>
+          <p><span class="nb-chip mono">caller intent</span><span class="nb-chip mono">service type</span><span class="nb-chip mono">preferred time</span></p>
+        </article>
+        <article class="nb-scene reveal">
+          <p class="nb-time mono">9:42 PM</p>
+          <h3>Booked, confirmed, texted to you.</h3>
+          <p>The visit sits in your calendar and the summary sits on your phone.
+            You read it over coffee, not off voicemail.</p>
+          <p class="nb-note">Every call answered. The details captured.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <section id="simulator" data-spine>
     <div class="wrap">
       <div class="section-head reveal">
@@ -1216,6 +1275,7 @@
 </script>
 <script src="pricing-config.js"></script>
 <script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/vendor/ScrollTrigger.min.js"></script>
 <script src="assets/vendor/MotionPathPlugin.min.js"></script>
 <script src="site.js" defer></script>
 <script src="motion.js" defer></script>

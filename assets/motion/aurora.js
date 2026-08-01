@@ -293,6 +293,15 @@ export function initAurora() {
   }
   function paint(timeSec) { painter.paint(timeSec, flow, energy, prog()); }
 
+  /* The scroll layer (scroll.js) nudges the sky when the visitor arrives at
+     a landmark section, so entering the proof or the pricing reads as the
+     page noticing. Additive into the same decaying energy the scroll
+     velocity feeds, so it can never exceed the storm ceiling or fight the
+     existing behaviour; it simply borrows it. */
+  window.__auroraPulse = (amount) => {
+    energy = Math.min(1, energy + Math.max(0, Math.min(0.5, Number(amount) || 0)));
+  };
+
   if (reduce) {
     energy = 0.12;
     flow = 2.4;               // a flattering fixed pose

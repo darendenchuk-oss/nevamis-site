@@ -43,15 +43,23 @@ export const MOTION = {
   // the debug panel's jump-to-state buttons. Times are seconds.
   // Each time is chosen to land in the MIDDLE of its state, so jumping to a
   // beat always shows that state fully rendered rather than mid-transition.
+  //
+  // Retimed 2026-08-01 to a value-first structure. The film used to gate the
+  // CTAs until 6.45s; the verified conversion research for this audience says
+  // trust and an actable CTA convert, spectacle does not, so the page now
+  // leads with everything a visitor can act on (copy, CTAs, search by ~1.3s)
+  // and the stage film plays beside it instead of in front of it. The payoff
+  // word still lands last: the story is unchanged, only the gate is gone.
   beats: [
-    { key: 'wake',    label: 'Wake + nav',      time: 0.35 },
-    { key: 'detect',  label: 'Call detected',   time: 1.15 },
-    { key: 'form',    label: 'Arch forms',      time: 2.10 },
-    { key: 'answer',  label: 'Call answered',   time: 3.10 },
-    { key: 'route',   label: 'Answer captured', time: 3.95 },
-    { key: 'book',    label: 'Book → Text',     time: 5.15 },
-    { key: 'resolve', label: 'Captured + CTAs', time: 7.00 },
-    { key: 'idle',    label: 'Living idle',     time: 7.20 },
+    { key: 'wake',    label: 'Wake + copy',     time: 0.30 },
+    { key: 'detect',  label: 'Call detected',   time: 1.20 },
+    { key: 'act',     label: 'CTAs live',       time: 1.30 },
+    { key: 'form',    label: 'Arch forms',      time: 2.05 },
+    { key: 'answer',  label: 'Call answered',   time: 2.95 },
+    { key: 'route',   label: 'Answer captured', time: 3.65 },
+    { key: 'book',    label: 'Book → Text',     time: 4.80 },
+    { key: 'resolve', label: 'Captured lands',  time: 6.55 },
+    { key: 'idle',    label: 'Living idle',     time: 6.60 },
   ],
 };
 

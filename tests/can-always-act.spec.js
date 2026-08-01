@@ -1,23 +1,59 @@
 /* A visitor must be able to act during the opening film.
  *
- * The hero's two CTAs are set to autoAlpha:0 and land at 6.45s, which measures
- * as ~6.6s before either is tappable. That is deliberate choreography and this
- * file does NOT try to change it. What it pins is the reason that timing is
- * survivable:
+ * Until 2026-08-01 the hero's CTAs landed at 6.45s as deliberate choreography,
+ * survivable only because the call bar and nav were usable earlier. The
+ * retime inverted that: the film no longer gates the controls, and this file
+ * now PINS the new contract directly:
  *
- *   on a phone, the sticky .callbar carries tel:+15874130035 in plain CSS with
- *   no animation, so the primary action is live from first paint;
+ *   the hero's own CTAs are visible and tappable within 1.6s of the timeline
+ *   starting, on desktop and on a phone, with motion fully on;
+ *   on a phone, the sticky .callbar still carries tel:+15874130035 in plain
+ *   CSS with no animation, so the primary action is live from first paint;
  *   on desktop, the navigation is clickable within a second.
  *
- * Both of those are currently incidental. If someone removes the call bar, or
- * folds the nav into the intro timeline, the site becomes six and a half
- * seconds of a film a trades owner cannot act on, and nothing would notice.
+ * If someone re-gates the CTAs behind the film's payoff, the first test below
+ * fails by name instead of nothing noticing.
  */
 import { test, expect } from '@playwright/test';
 
 const PHONE = 'tel:+15874130035';
 
 test.describe('a visitor can act before the intro finishes', () => {
+  for (const vp of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'phone', width: 375, height: 812 }]) {
+    test(`hero CTAs are interactive within 1.6s of the film starting (${vp.name})`, async ({ page }) => {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+      await page.waitForFunction(() => !!window.__heroTL, null, { timeout: 10_000 });
+
+      /* Measured on the timeline's own clock, not wall time, so a slow CI
+         machine cannot turn a choreography regression into a flake, and a
+         fast one cannot hide it. The film's job is to have both CTAs fully
+         visible before t=1.6s. */
+      const at = await page.evaluate(() => new Promise((res) => {
+        const ctas = [...document.querySelectorAll('[data-cta]')];
+        const check = () => {
+          const t = window.__heroTL.time();
+          const ready = ctas.length >= 2 && ctas.every((el) => {
+            const cs = getComputedStyle(el);
+            return cs.visibility === 'visible' && Number(cs.opacity) > 0.9;
+          });
+          if (ready) return res(t);
+          if (t > 5) return res(-t); // stop looping; report failure with the time
+          requestAnimationFrame(check);
+        };
+        check();
+      }));
+      expect(at, `CTAs became fully visible at t=${Math.abs(at).toFixed(2)}s`).toBeGreaterThan(0);
+      expect(at, 'the film must not re-gate its own CTAs').toBeLessThan(1.6);
+
+      // And they are genuinely tappable, not merely painted.
+      const primary = page.locator('a.btn-primary[data-cta]');
+      await expect(primary).toBeVisible();
+      const href = await primary.getAttribute('href');
+      expect(href).toBe(PHONE);
+    });
+  }
+
   test('a phone visitor can dial from first paint', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
