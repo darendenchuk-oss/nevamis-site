@@ -32,10 +32,16 @@ export const MOTION = {
     base: 0.09,    // CTA pair
   },
 
-  // cursor follower spring (gsap.quickTo durations)
+  /* Cursor follower (gsap.quickTo durations). The dot REPLACES the native
+     cursor, and the hand knows where the mouse is — any visible easing on
+     the dot reads as input lag, which the owner called out as cheap
+     (2026-08-02: "doesn't follow properly"). 0.16 was ~50px of trail at
+     ordinary mouse speed. The dot is now effectively instant; the halo
+     alone carries the trailing weight, tight enough to feel magnetic
+     rather than late. */
   cursor: {
-    dot: 0.16,
-    halo: 0.34,
+    dot: 0.055,
+    halo: 0.16,
     morph: 0.3,
   },
 

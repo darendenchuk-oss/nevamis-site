@@ -17,7 +17,7 @@
      0.00  the whole hero settles from one shared camera move as the
            veil clears
      0.50  "Every call," rises as a per-character curtain, overlapping
-           the copy still settling beneath it; the field glimmers awake
+           the copy still settling beneath it
      0.62  the top streak dips toward the stage and DIES INTO the first
            call wave — one signal handed between two implementations
      0.78  both CTAs settle in — interactive from here on
@@ -28,8 +28,8 @@
      5.70  the stage RECEDES (depth exit, never fighting the rising
            headline), "captured." lands with its underline, the CTAs
            pulse once
-     6.55  end → living idle (breath, twinkling field, occasional
-           signal along the arch)
+     6.55  end → living idle (breath, an occasional signal along the
+           arch)
 
    Choreography rules this file follows, learned the hard way:
    - Nothing reacts before its stimulus arrives (waves land, THEN
@@ -117,7 +117,6 @@ export function initHero() {
   const segs = $$('#progress .seg');
   const packet = $('#packet');
   const status = $('#status');
-  const fieldPts = $$('#field .fp');
   // The copy column takes part in the choreography rather than being
   // uncovered by the veil: a fully-rendered paragraph under an empty
   // headline slot reads as a loading glitch, not a sequence.
@@ -196,7 +195,6 @@ export function initHero() {
   gsap.set([story, status, packet, archHi, archTipL, archTipR], { opacity: 0 });
   gsap.set(stepEls, { opacity: 0 });
   gsap.set(segs, { transformOrigin: '0% 50%', scaleX: 0 });
-  gsap.set(fieldPts, { opacity: 0 });
 
   const tl = gsap.timeline({ defaults: { ease: MOTION.ease.enter } });
 
@@ -238,10 +236,6 @@ export function initHero() {
 
   // --- 0.35–1.65 · the node comes into focus; the call closes on it ---
   if (scrim) tl.to(scrim, { opacity: 1, duration: 0.55, ease: 'none' }, 0.35);
-  // The field wakes WITH the world, not four seconds after it: a faint
-  // constellation in random order, so the waves about to cross the stage
-  // travel through a place rather than a void. It brightens at the resolve.
-  tl.to(fieldPts, { opacity: 0.13, duration: 0.6, stagger: { each: 0.025, from: 'random' } }, 0.5);
   tl.to(dot, { scale: 1, autoAlpha: 1, duration: 0.5, ease: MOTION.ease.enter }, 0.42);
 
   /* Two waves, not three (the third lingered across the arch draw), animated
@@ -353,8 +347,7 @@ export function initHero() {
     .to(chars2, { yPercent: 0, duration: 0.55, stagger: 0.024, ease: MOTION.ease.curtain }, 5.8);
   if (underline) tl.to(underline, { scaleX: 1, duration: 0.4, ease: MOTION.ease.enter }, 6.0);
   tl.to('[data-cta]', { scale: 1.02, duration: 0.16, ease: 'power2.out', stagger: 0.05 }, 6.05)
-    .to('[data-cta]', { scale: 1, duration: 0.3, ease: MOTION.ease.move, stagger: 0.05 }, 6.21)
-    .to(fieldPts, { opacity: 0.3, duration: 0.45, stagger: 0.02 }, 6.05);
+    .to('[data-cta]', { scale: 1, duration: 0.3, ease: MOTION.ease.move, stagger: 0.05 }, 6.21);
 
   tl.eventCallback('onComplete', startIdle);
 
@@ -376,8 +369,6 @@ export function initHero() {
   let idle = null;
   let pingCall = null;
   let replayTl = null;
-  let twinkles = [];
-  const eachTwinkle = (verb) => twinkles.forEach((t) => t[verb]());
   let stageVisible = true;
   let motionHalted = false;
 
@@ -388,13 +379,12 @@ export function initHero() {
     tl.pause();
     if (idle) idle.pause();
     if (replayTl) replayTl.pause();
-    eachTwinkle('pause');
     paintResolved();
   };
   window.__heroMotionOn = () => {
     motionHalted = false;
     if (tl.progress() < 1) tl.play();
-    else if (idle) { idle.play(); eachTwinkle('play'); }
+    else if (idle) idle.play();
   };
 
   function startIdle() {
@@ -408,18 +398,6 @@ export function initHero() {
     idle = gsap.timeline({ repeat: -1 });
     idle.to(markG, { scale: 1.01, duration: MOTION.dur.ambient, ease: MOTION.ease.breathe })
         .to(markG, { scale: 1, duration: MOTION.dur.ambient, ease: MOTION.ease.breathe });
-
-    // A third of the field points twinkle on their own slow clocks — the
-    // stage keeps a faint pulse of life between replays without a single
-    // repeated pattern the eye could learn. Opacity on a handful of 2px
-    // circles: free, and paused with everything else off-screen.
-    twinkles = fieldPts.filter((_, i) => i % 3 === 0).map((p) =>
-      gsap.to(p, {
-        opacity: gsap.utils.random(0.14, 0.38),
-        duration: gsap.utils.random(1.6, 2.8),
-        delay: gsap.utils.random(0, 2.5),
-        repeat: -1, yoyo: true, ease: MOTION.ease.breathe,
-      }));
 
     // A signal occasionally travels the arch — occasional, not metronomic:
     // a fixed 5.5s cadence taught the eye the loop within a minute.
@@ -499,13 +477,6 @@ export function initHero() {
   if (isFinePointer()) {
     const px = gsap.quickTo(svg, 'x', { duration: 0.6, ease: 'power2' });
     const py = gsap.quickTo(svg, 'y', { duration: 0.6, ease: 'power2' });
-    const pts = fieldPts.map((p) => ({
-      el: p,
-      hx: gsap.quickTo(p, 'x', { duration: 0.5, ease: 'power2' }),
-      hy: gsap.quickTo(p, 'y', { duration: 0.5, ease: 'power2' }),
-      cx: Number(p.getAttribute('cx')),
-      cy: Number(p.getAttribute('cy')),
-    }));
 
     stage.addEventListener('pointermove', (e) => {
       if (e.pointerType !== 'mouse') return;
@@ -513,25 +484,9 @@ export function initHero() {
       const nx = (e.clientX - r.left) / r.width - 0.5;
       const ny = (e.clientY - r.top) / r.height - 0.5;
       px(nx * 18); py(ny * 14);
-
-      // attract nearby points, in viewBox space
-      const m = svg.getScreenCTM();
-      if (!m) return;
-      const inv = m.inverse();
-      const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(inv);
-      for (const p of pts) {
-        const dx = pt.x - p.cx, dy = pt.y - p.cy;
-        const d = Math.hypot(dx, dy);
-        const pull = d < 200 ? (1 - d / 200) * 26 : 0;
-        p.hx((dx / (d || 1)) * pull);
-        p.hy((dy / (d || 1)) * pull);
-      }
     }, { passive: true });
 
-    stage.addEventListener('pointerleave', () => {
-      px(0); py(0);
-      for (const p of pts) { p.hx(0); p.hy(0); }
-    });
+    stage.addEventListener('pointerleave', () => { px(0); py(0); });
   }
 
   // ---------------------------------------------------------------
@@ -540,7 +495,6 @@ export function initHero() {
   const io = new IntersectionObserver(([entry]) => {
     stageVisible = entry.isIntersecting;
     if (idle) idle[stageVisible ? 'play' : 'pause']();
-    eachTwinkle(stageVisible ? 'play' : 'pause');
     if (replayTl && replayTl.isActive()) replayTl[stageVisible ? 'play' : 'pause']();
     if (!stageVisible && tl.progress() < 1 && !tl.paused()) {
       // The visitor scrolled away mid-intro. Never pause here: pausing would
@@ -555,7 +509,6 @@ export function initHero() {
 
   onVisibility((visible) => {
     if (idle) idle[visible ? 'play' : 'pause']();
-    eachTwinkle(visible ? 'play' : 'pause');
   });
 
   return { tl, startIdle };

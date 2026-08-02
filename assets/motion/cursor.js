@@ -125,9 +125,12 @@ export function initCursor() {
 
     if (next === 'button' && node) {
       const r = node.getBoundingClientRect();
+      // Position through the springs — never a second tween on x/y. A tween
+      // there (even overwrite:'auto') kills the quickTo springs for good and
+      // the ring never follows the pointer again after its first park.
+      hx(r.left + r.width / 2); hy(r.top + r.height / 2);
       gsap.to(halo, {
         width: r.width + 16, height: r.height + 16,
-        x: r.left + r.width / 2, y: r.top + r.height / 2,
         margin: 0, xPercent: -50, yPercent: -50,
         borderRadius: 999, borderColor: 'rgba(159,240,206,.55)',
         backgroundColor: 'rgba(159,240,206,.07)',
@@ -142,9 +145,9 @@ export function initCursor() {
 
     if (next === 'link' && node) {
       const r = node.getBoundingClientRect();
+      hx(r.left + Math.min(r.width, 120) / 2); hy(r.bottom + 3);
       gsap.to(halo, {
         width: Math.min(r.width, 120), height: 2,
-        x: r.left + Math.min(r.width, 120) / 2, y: r.bottom + 3,
         margin: 0, xPercent: -50, yPercent: -50,
         borderRadius: 2, borderColor: 'transparent',
         backgroundColor: 'rgba(159,240,206,.85)',
