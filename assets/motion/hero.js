@@ -8,29 +8,28 @@
    Structure (times in seconds — see MOTION.beats). Retimed 2026-08-01
    to value-first: the film no longer gates the controls. Everything a
    visitor can ACT on is live by ~1.3s; the story plays beside it and
-   keeps its payoff order. Re-choreographed the same day to BLEND: one
-   camera under everything, one light source (#dawn), and a sky that
-   answers the story (aurora boost) — so the piece plays as one world,
-   not layers that happen to share a viewport.
-     0.00  the whole hero settles from one shared camera move; the veil
-           clears as a dawn glow blooms where the node will appear; the
-           sky opens at dawn energy and calms as the copy lands
+   keeps its payoff order. Re-choreographed 2026-08-01 to BLEND — one
+   camera under everything, entrances that overlap instead of queueing,
+   and handoffs where one element's death births the next. (Story-driven
+   sky surges and a #dawn light layer were tried the same day and REMOVED:
+   the owner read background brightness changes as flashing. Blending
+   lives in geometry and timing here, never in background brightness.)
+     0.00  the whole hero settles from one shared camera move as the
+           veil clears
      0.50  "Every call," rises as a per-character curtain, overlapping
            the copy still settling beneath it; the field glimmers awake
      0.62  the top streak dips toward the stage and DIES INTO the first
            call wave — one signal handed between two implementations
      0.78  both CTAs settle in — interactive from here on
      1.50  the mark's arch draws from both ends, tips carrying light
-     2.55  the tips merge — flare, bloom, AND the flare escapes the SVG:
-           the dawn flashes once at the apex and the sky itself surges
+     2.55  the tips merge at the apex — flare, bloom, the mark is one
      2.75  CALL ANSWERED exhales into place (tracking settles)
-     3.40  the story routes: ANSWER → QUALIFY → BOOK → TEXT (0.55s
-           beats), each state tapping the sky like a heartbeat
+     3.40  the story routes: ANSWER → QUALIFY → BOOK → TEXT (0.55s beats)
      5.70  the stage RECEDES (depth exit, never fighting the rising
-           headline), "captured." lands with its underline, the sky
-           gives one payoff swell, the CTAs pulse once
+           headline), "captured." lands with its underline, the CTAs
+           pulse once
      6.55  end → living idle (breath, twinkling field, occasional
-           signal along the arch — each ping shivers the sky)
+           signal along the arch)
 
    Choreography rules this file follows, learned the hard way:
    - Nothing reacts before its stimulus arrives (waves land, THEN
@@ -123,13 +122,9 @@ export function initHero() {
   // uncovered by the veil: a fully-rendered paragraph under an empty
   // headline slot reads as a loading glitch, not a sequence.
   const copyEls = $$('.hero .eyebrow, .hero .lede, .hero .proof, .hero .hero-search');
-  // The whole hero shares one camera (see ACT 1) and the world shares one
-  // light (#dawn). Both optional: older cached markup simply skips them.
+  // The whole hero shares one camera (see ACT 1). Optional: older cached
+  // markup simply skips it.
   const wrap = $('.hero .wrap');
-  const dawn = document.getElementById('dawn');
-  /** The sky listens (aurora.js exposes this). A no-op when the sky is
-      absent, reduced, or the module failed — the story never depends on it. */
-  const sky = (amount) => { if (window.__auroraPulse) window.__auroraPulse(amount); };
 
   // stroke-draw setup for the two arch halves
   [archL, archR].forEach((p) => {
@@ -155,7 +150,6 @@ export function initHero() {
     gsap.set(copyEls, { autoAlpha: 1, y: 0 });
     gsap.set(['[data-cta]', '[data-nav]'], { yPercent: 0, autoAlpha: 1, scale: 1 });
     gsap.set('#wake', { autoAlpha: 0 });
-    if (dawn) gsap.set(dawn, { autoAlpha: 0 });
     if (wrap) gsap.set(wrap, { scale: 1, y: 0, clearProps: 'transform' });
     gsap.set([story, status, packet, archHi, archTipL, archTipR, dotPulse], { opacity: 0 });
     gsap.set(waves, { opacity: 0 });
@@ -212,31 +206,18 @@ export function initHero() {
   // whole copy column, the headline's first word and BOTH CTAs are in and
   // interactive by ~1.3s; the film has not even reached its apex yet.
   //
-  // BLENDED, not sequenced. Three things make the opening read as one
-  // breath instead of a list of arrivals:
-  //   1. THE CAMERA. The whole hero — copy AND stage — settles from a
-  //      single 1.2% scale as the veil clears, so every element rides one
-  //      shared move and arrives belonging to the same world. One
-  //      transform on one wrapper; it costs nothing.
-  //   2. THE LIGHT. The veil does not simply delete itself: a soft dawn
-  //      blooms from the exact point where the node will materialize,
-  //      hands the frame to it, and dies. Light introduces the place the
-  //      story happens before the story starts — the same causal grammar
-  //      as the rest of the piece.
-  //   3. THE SKY. The aurora opens at dawn energy (aurora.js boots with a
-  //      decaying boost), so the brightest sky a visitor ever sees is the
-  //      first two seconds, settling as the copy lands. The background
-  //      participates in the opening instead of idling underneath it.
+  // BLENDED, not sequenced: the whole hero — copy AND stage — settles from
+  // a single 1.2% scale as the veil clears, so every element rides one
+  // shared camera move and arrives belonging to the same world. One
+  // transform on one wrapper; it costs nothing.
+  // (A #dawn light layer and story-driven sky surges shipped here on
+  // 2026-08-01 and were removed the next day: the owner read background
+  // brightness changes as flashing. Blend with geometry and timing, never
+  // with the background's brightness.)
   tl.to('#wake', { autoAlpha: 0, duration: 0.45, ease: 'power2.inOut' }, 0);
   if (wrap) {
     tl.fromTo(wrap, { scale: 0.988, y: 14, transformOrigin: '50% 42%' },
       { scale: 1, y: 0, duration: 1.15, ease: 'power3.out', clearProps: 'transform' }, 0);
-  }
-  if (dawn) {
-    tl.fromTo(dawn, { autoAlpha: 0, scale: 0.92, transformOrigin: '68% 44%' },
-        { autoAlpha: 0.55, scale: 1.05, duration: 0.55, ease: 'power2.out' }, 0.02)
-      .to(dawn, { autoAlpha: 0.16, scale: 1.12, duration: 0.75, ease: 'power2.inOut' }, 0.6)
-      .to(dawn, { autoAlpha: 0, duration: 0.45, ease: 'power1.out' }, 1.4);
   }
   // The streak is no longer a comet crossing an unrelated sky: it dips
   // toward the stage and dies exactly where and when the first call wave is
@@ -319,26 +300,6 @@ export function initHero() {
     .set(archFull, { opacity: 1 }, 2.57)
     .set([archL, archR], { opacity: 0 }, 2.57);
 
-  // THE FLARE LEAVES THE SVG. Completion used to be an event inside a
-  // 620px viewBox while the rest of the page carried on — the layers never
-  // acknowledged each other, which is most of why the piece read as
-  // "elements on a background" rather than one world. Two escapes, both on
-  // the same beat as the bloom:
-  //   - the dawn light flashes once from the apex's neighbourhood and dies,
-  //   - the SKY surges (aurora boost), cresting a beat after the flare the
-  //     way thunder follows lightning, then settles over ~2s.
-  // The pulses are consequences of the moment HAPPENING, not state: the
-  // harness's pause(t) seeks suppress them, and both skip paths use
-  // progress(1, true) for the same reason — paintResolved()'s frame is
-  // identical either way, and a skipped film must not detonate its own
-  // effects in one frame.
-  if (dawn) {
-    tl.fromTo(dawn, { autoAlpha: 0, scale: 1.02, transformOrigin: '68% 44%' },
-        { autoAlpha: 0.34, scale: 1.1, duration: 0.16, ease: 'power2.out' }, 2.55)
-      .to(dawn, { autoAlpha: 0, scale: 1.2, duration: 0.6, ease: 'power2.out' }, 2.71);
-  }
-  tl.call(() => sky(0.5), null, 2.55);
-
   // The node reacts to the completed mark — cause at the apex, effect at the
   // node, one beat later. This is the piece's single spring.
   tl.to(dot, { scale: 0.82, duration: 0.14, ease: 'power2.in' }, 2.62)
@@ -367,10 +328,6 @@ export function initHero() {
     }
     tl.to(segs[i], { scaleX: 1, duration: 0.3, ease: MOTION.ease.enter }, at)
       .fromTo(stepEls[i], { opacity: 0, x: 14 }, { opacity: 1, x: 0, duration: LABEL_IN, ease: 'power2.out' }, at);
-    // Each captured state taps the sky, barely — a heartbeat under the
-    // routing, one register up from the stage. Sub-threshold on its own;
-    // legible as rhythm across the four beats.
-    tl.call(() => sky(0.07), null, at);
     // Sequential, never simultaneous: out is complete 60ms before in begins.
     // Tweened, never callback-driven, so scrubbing shows the true state.
     if (i < STEPS.length - 1) {
@@ -395,7 +352,6 @@ export function initHero() {
     .set([story, status], { scale: 1 })
     .to(chars2, { yPercent: 0, duration: 0.55, stagger: 0.024, ease: MOTION.ease.curtain }, 5.8);
   if (underline) tl.to(underline, { scaleX: 1, duration: 0.4, ease: MOTION.ease.enter }, 6.0);
-  tl.call(() => sky(0.28), null, 6.0);
   tl.to('[data-cta]', { scale: 1.02, duration: 0.16, ease: 'power2.out', stagger: 0.05 }, 6.05)
     .to('[data-cta]', { scale: 1, duration: 0.3, ease: MOTION.ease.move, stagger: 0.05 }, 6.21)
     .to(fieldPts, { opacity: 0.3, duration: 0.45, stagger: 0.02 }, 6.05);
@@ -467,11 +423,8 @@ export function initHero() {
 
     // A signal occasionally travels the arch — occasional, not metronomic:
     // a fixed 5.5s cadence taught the eye the loop within a minute.
-    // The sky gives the faintest answering shiver: even at rest, the layers
-    // belong to each other.
     const ping = () => {
       if (document.hidden || !stageVisible || motionHalted) { pingCall = gsap.delayedCall(4, ping); return; }
-      sky(0.06);
       gsap.timeline({ onComplete: () => { pingCall = gsap.delayedCall(gsap.utils.random(9, 14), ping); } })
         .set(archHi, { opacity: 1 })
         .to(archHi, {
@@ -516,7 +469,6 @@ export function initHero() {
        .to(w, { opacity: 0, duration: 0.14, ease: 'none' }, at + WAVE_TRAVEL - 0.12);
     });
 
-    r.call(() => sky(0.14), null, 0.5);
     r.to(dot, { scale: 1.12, duration: 0.12, ease: 'power2.out' }, 0.5)
      .to(dot, { scale: 1, duration: 0.22, ease: MOTION.ease.move }, 0.62)
      .fromTo(status, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.35 }, 0.7)
@@ -594,8 +546,8 @@ export function initHero() {
       // The visitor scrolled away mid-intro. Never pause here: pausing would
       // freeze the wake overlay mid-fade and leave a dark veil over the page.
       // Scrolling past the hero means "skip the intro" — finish instantly.
-      // suppressEvents=true: a skip must not fire the story's sky pulses,
-      // or scrolling away from the film hands the visitor a storm.
+      // suppressEvents=true: a skip jumps state, it must never fire the
+      // callbacks it passes over.
       tl.progress(1, true);
     }
   }, { threshold: 0.02 });

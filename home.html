@@ -76,12 +76,6 @@
 <style>
   /* ---------- hero-specific (everything else lives in assets/motion/site.css) ---------- */
   #wake{position:fixed;inset:0;z-index:200;background:var(--navy-0);pointer-events:none}
-  /* The first light: blooms from the point where the node will appear as the
-     veil clears, flashes once more when the arch completes. GSAP owns its
-     opacity/scale; it rests invisible and display:none under reduced motion. */
-  #dawn{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0;visibility:hidden;
-    background:radial-gradient(42% 34% at 68% 44%,rgba(159,240,206,.32),rgba(47,191,143,.12) 46%,transparent 72%)}
-  @media(max-width:880px){#dawn{background:radial-gradient(60% 30% at 50% 38%,rgba(159,240,206,.30),rgba(47,191,143,.11) 46%,transparent 72%)}}
   html.no-js #wake{display:none}
   #topsig{position:fixed;top:0;left:0;z-index:190;height:2px;width:220px;pointer-events:none;
     background:linear-gradient(90deg,transparent,var(--mint),transparent);opacity:0;
@@ -195,7 +189,7 @@
     .hero-links a{color:var(--muted)}
     .hero-links a:hover{color:var(--ink)}
   }
-  @media(prefers-reduced-motion:reduce){#wake,#topsig,#dawn{display:none}}
+  @media(prefers-reduced-motion:reduce){#wake,#topsig{display:none}}
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -435,7 +429,6 @@
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <div id="wake" aria-hidden="true"></div>
-<div id="dawn" aria-hidden="true"></div>
 <div id="topsig" aria-hidden="true"></div>
 
 <header class="site-header">

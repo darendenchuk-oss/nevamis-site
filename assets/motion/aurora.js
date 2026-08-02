@@ -247,17 +247,11 @@ export function initAurora() {
 
   let flow = 0;             // drift — sign follows scroll direction
   let energy = 0;           // fed by scroll velocity
-  /* A second energy channel with its own slow decay. `energy` chases scroll
-     velocity with a ~0.2s half-life — right for scroll response, far too
-     fast for anything musical: a pulse fed into it died before the eye
-     registered it, which is why the __auroraPulse hook existed for a week
-     with no visible effect. `boost` decays over seconds, so the hero can
-     genuinely play the sky: it opens at dawn brightness and settles as the
-     story starts, surges when the arch completes, swells for the payoff.
-     The two are summed and capped at the same storm ceiling, so the sky's
-     dynamic range is unchanged — only who gets to play it. */
-  let boost = 0.55;         // dawn: the first seconds are the brightest
-  const BOOST_HALF_LIFE = 1.8;   // seconds
+  /* The sky answers exactly one thing: scrolling. A slower-decaying second
+     channel was tried on 2026-08-01 so the hero timeline could surge the sky
+     at its story beats — the owner read the result as a flashing background
+     and vetoed it same day. Do not reintroduce story-driven brightness;
+     __auroraPulse below stays soft-capped and fast-decaying on purpose. */
   let lastY = window.scrollY;
   let lastT = performance.now();
   let velSmooth = 0;
@@ -299,29 +293,25 @@ export function initAurora() {
     clock: () => clock,
     ref: SPEED_REF,
     paints: () => paints,
-    energy: () => liveEnergy(),
+    energy: () => energy,
   };
 
   function prog() {
     const range = document.documentElement.scrollHeight - innerHeight;
     return range > 0 ? window.scrollY / range : 0;
   }
-  /** What the shader actually sees: scroll energy plus the story's boost. */
-  function liveEnergy() { return Math.min(1, energy + boost); }
-  function paint(timeSec) { painter.paint(timeSec, flow, liveEnergy(), prog()); }
+  function paint(timeSec) { painter.paint(timeSec, flow, energy, prog()); }
 
-  /* The hero timeline and the scroll layer both play the sky through this.
-     Into `boost`, not `energy`: the velocity channel's fast decay swallowed
-     a pulse within a quarter second, so cause (the arch completing) and
-     effect (the sky answering) were never both on screen. Capped per pulse
-     and at the shared ceiling, so nothing can push the sky past a storm. */
+  /* The scroll layer nudges this on section landmarks. Into the fast-decay
+     velocity channel DELIBERATELY: it reads as at most a half-second breath.
+     A slower channel made these pulses legible and the owner vetoed the
+     result as flashing — leave the decay fast. */
   window.__auroraPulse = (amount) => {
-    boost = Math.min(1, boost + Math.max(0, Math.min(0.6, Number(amount) || 0)));
+    energy = Math.min(1, energy + Math.max(0, Math.min(0.5, Number(amount) || 0)));
   };
 
   if (reduce) {
     energy = 0.12;
-    boost = 0;                // no dawn on the still frame
     flow = 2.4;               // a flattering fixed pose
     painter.resize();
     paint(40);
@@ -340,9 +330,6 @@ export function initAurora() {
     velSmooth += (vel - velSmooth) * 0.08;
 
     energy += ((Math.min(Math.abs(velSmooth) / 2200, 1)) - energy) * 0.05;
-    // Exponential decay in real time, so a dropped frame cannot make the
-    // sky dim faster — the half-life is a property of the sky, not the rig.
-    boost *= Math.pow(0.5, dt / BOOST_HALF_LIFE);
 
     /* Both clocks scale together. The idle term in `flow` is ambient drift and
        belongs to the same budget as uTime — slowing one and not the other just
@@ -362,7 +349,7 @@ export function initAurora() {
        The moment anything happens — a scroll, a story pulse — eff rises and
        painting returns to full rate on the very next frame. Every clock above
        still advanced with real dt, so a skipped paint never slows the sky. */
-    const calm = liveEnergy() < 0.05 && Math.abs(velSmooth) < 30;
+    const calm = energy < 0.05 && Math.abs(velSmooth) < 30;
     if (!calm || tick % 2 === 0) { paints++; paint(clock); }
   }
 
@@ -390,7 +377,7 @@ export function initAurora() {
   if (toggle) {
     toggle.addEventListener('click', () => {
       requestAnimationFrame(() => {
-        if (halted()) { stop(); energy = 0.12; boost = 0; flow = 2.4; paint(40); }
+        if (halted()) { stop(); energy = 0.12; flow = 2.4; paint(40); }
         else start();
       });
     });
