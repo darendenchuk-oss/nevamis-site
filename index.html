@@ -77,6 +77,12 @@
 <style>
   /* ---------- hero-specific (everything else lives in assets/motion/site.css) ---------- */
   #wake{position:fixed;inset:0;z-index:200;background:var(--navy-0);pointer-events:none}
+  /* The first light: blooms from the point where the node will appear as the
+     veil clears, flashes once more when the arch completes. GSAP owns its
+     opacity/scale; it rests invisible and display:none under reduced motion. */
+  #dawn{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0;visibility:hidden;
+    background:radial-gradient(42% 34% at 68% 44%,rgba(159,240,206,.32),rgba(47,191,143,.12) 46%,transparent 72%)}
+  @media(max-width:880px){#dawn{background:radial-gradient(60% 30% at 50% 38%,rgba(159,240,206,.30),rgba(47,191,143,.11) 46%,transparent 72%)}}
   html.no-js #wake{display:none}
   #topsig{position:fixed;top:0;left:0;z-index:190;height:2px;width:220px;pointer-events:none;
     background:linear-gradient(90deg,transparent,var(--mint),transparent);opacity:0;
@@ -92,12 +98,12 @@
   .hero h1{font-weight:700;letter-spacing:-.03em;line-height:1.0;margin:20px 0 0;
     font-size:clamp(40px,5.6vw,72px)}
   .hero h1 .line{display:block;overflow:hidden;padding-bottom:.06em}
-  .hero h1 .w{display:inline-block;will-change:transform}
+  .hero h1 .w{display:inline-block}
   .hero h1 .g{color:var(--mint)}
   /* char-split spans: inline-block breaks the h1's letter-spacing between
      spans, so it is reapplied as a margin to keep the split word exactly as
      wide as the static one (no layout jump at split time). */
-  .hero h1 .ch{display:inline-block;margin-right:-.03em;will-change:transform}
+  .hero h1 .ch{display:inline-block;margin-right:-.03em}
   .hero-underline{display:block;width:5.35em;max-width:92%;height:3px;margin-top:.1em;
     border-radius:2px;background:linear-gradient(90deg,var(--mint) 0%,rgba(159,240,206,.25) 78%,rgba(159,240,206,0) 100%);
     transform:scaleX(0);transform-origin:0 50%}
@@ -190,7 +196,7 @@
     .hero-links a{color:var(--muted)}
     .hero-links a:hover{color:var(--ink)}
   }
-  @media(prefers-reduced-motion:reduce){#wake,#topsig{display:none}}
+  @media(prefers-reduced-motion:reduce){#wake,#topsig,#dawn{display:none}}
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -430,6 +436,7 @@
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <div id="wake" aria-hidden="true"></div>
+<div id="dawn" aria-hidden="true"></div>
 <div id="topsig" aria-hidden="true"></div>
 
 <header class="site-header">
@@ -1275,9 +1282,9 @@
   }, 2500);
 </script>
 <script src="pricing-config.js"></script>
-<script src="assets/vendor/gsap.min.js"></script>
-<script src="assets/vendor/ScrollTrigger.min.js"></script>
-<script src="assets/vendor/MotionPathPlugin.min.js"></script>
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="assets/vendor/MotionPathPlugin.min.js" defer></script>
 <script src="site.js" defer></script>
 <script src="motion.js" defer></script>
 <script type="module" src="assets/motion/main.js"></script>
