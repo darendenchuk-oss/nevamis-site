@@ -83,6 +83,47 @@
     } catch (e) { /* analytics must never break the page */ }
   }
   window.nvFunnel = nvFunnel;
+  window.nvCampaignParams = nvParams;
+
+  /* ---------- carry campaign tags across the journey, storing nothing ----------
+     The tags were read from the CURRENT url only, so they survived exactly one
+     page. Somebody arriving on an ad, reading the pricing page and then
+     signing up looked identical to somebody who typed the address in, and the
+     ad that produced a paying client was unattributable.
+
+     A cookie would fix it and would also contradict a published legal page:
+     privacy.html states that no identifiers are stored and names the two
+     things this site keeps in a browser. So nothing is stored. Instead, at
+     the moment a Nevamis link is CLICKED, whatever tags are in the current
+     address are copied onto the destination. Each hop hands them to the next,
+     so a five-page journey keeps them with no state anywhere.
+
+     Decorated on click rather than written into the markup, so crawlers never
+     see a tagged internal link and no duplicate URLs enter the index. */
+  function nvSameProperty(url) {
+    try {
+      var h = new URL(url, location.href).hostname;
+      return h === location.hostname || h === "nevamis.ca" || h === "www.nevamis.ca" || h === "app.nevamis.ca";
+    } catch (e) { return false; }
+  }
+  document.addEventListener("click", function (e) {
+    try {
+      var a = e.target.closest && e.target.closest("a[href]");
+      if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
+      var href = a.getAttribute("href") || "";
+      if (/^(tel:|mailto:|#|javascript:)/i.test(href)) return;
+      if (!nvSameProperty(href)) return;
+
+      var tags = nvParams();
+      var keys = Object.keys(tags);
+      if (!keys.length) return;
+
+      var dest = new URL(href, location.href);
+      // Never overwrite a tag the destination link set for itself.
+      keys.forEach(function (k) { if (!dest.searchParams.has(k)) dest.searchParams.set(k, tags[k]); });
+      a.setAttribute("href", dest.href);
+    } catch (err) { /* attribution must never block a click */ }
+  }, true);
   nvFunnel("landing_page_view");
 
   /* A tap on any phone link is intent to call the demo line: the
