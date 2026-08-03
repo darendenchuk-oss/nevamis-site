@@ -98,7 +98,7 @@ window.NV_PRICING = {
         "One business phone line", "After-hours or missed-call overflow coverage",
         "One call flow", "One booking calendar",
         "Business FAQs and service-area rules", "Basic qualification",
-        "Appointment and job booking", "SMS or email confirmations and owner summaries",
+        "Appointment and job booking", "Owner summaries by text and email after every call",
         "One monthly tuning review", "Standard email support"
       ]
     },
@@ -112,7 +112,7 @@ window.NV_PRICING = {
         "After-hours, overflow, or full-time front-line coverage",
         "Up to two booking calendars", "Advanced qualification and intake",
         "Approved transfer and escalation rules",
-        "Custom confirmation and owner-summary workflows",
+        "Customer booking confirmations by text, opt-in, in your business name",
         "One standard CRM or automation connection when supported",
         "Two tuning reviews per month for the first 90 days", "Priority email support"
       ]
