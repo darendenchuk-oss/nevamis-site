@@ -30,6 +30,23 @@ window.NV_PRICING = {
     start: "The seven days start when your pilot goes live, not when you apply.",
     dayEight: "On day eight the pilot simply ends unless you explicitly choose a plan. Silence never becomes a subscription."
   },
+  /* The referral offer. Mirrors CANONICAL.referral in nevamis-engine, and the
+     engine's consistency checker validates these four values against it — so a
+     number changed here and not there is caught rather than becoming the thing
+     Nevamis is publicly held to.
+
+     The reward is earned on the referred business's first PAID invoice, not on
+     their signup. That is stated on the page because a referral offer that
+     hides its trigger is the kind of small print this company has spent the
+     whole build removing. */
+  referral: {
+    referredPilotDays: 14,
+    referrerRewardMonths: 1,
+    headline: "Know another business that misses calls?",
+    offer: "They get a 14-day pilot instead of 7. When they pay their first invoice, you get a free month of your own plan.",
+    trigger: "The free month is earned when the business you referred pays their first invoice, and it comes off your next bill.",
+    howTo: "Clients get their own link in the portal. Send it yourself — we never email somebody just because you named them."
+  },
   /* Retired 2026-07-31, the day the setup fee went to zero. The offer was
      "setup fee waived for our first five founding clients", and a waiver of a
      fee nobody is charged is not an offer. The free 7-day live pilot is the
