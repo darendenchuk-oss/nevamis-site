@@ -7,3 +7,6 @@ playwright-report/
 
 # Motion proof artifacts are generated locally for review, not shipped.
 artifacts/
+
+# Throwaway local scripts. One got swept into a commit by "git add -A".
+_scratch-*.mjs
