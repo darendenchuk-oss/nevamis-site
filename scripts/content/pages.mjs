@@ -13,7 +13,7 @@ export const PROOF_BLOCK = `
       <p class="eyebrow mono">Judge it yourself</p>
       <h2>Do not take our word for it. Call it.</h2>
       <p>The fastest way to know whether this is good enough for your customers is to
-        be a customer. The demo line is the same agent our clients get.</p>
+        be a customer. The demo line runs the same agent your business would get.</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Call the live AI ${DEMO}</a>
@@ -37,7 +37,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
         business's tone, day or night, while you stay on the tools.</p></div>
       <div class="reveal"><h3>Qualified the way you would</h3><p>${questions}</p></div>
       <div class="reveal"><h3>Booked and confirmed</h3><p>It books into your calendar and
-        texts the customer a confirmation before they can dial a competitor.</p></div>
+        reads the time back to the caller before they hang up.</p></div>
     </div>
   </div>
 </section>
@@ -67,7 +67,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
         what gets booked, and what waits until morning.</p>
     </div>
     <div class="midcta reveal">
-      <a class="btn btn-ghost" href="/pilot.html">See how the free 7-day pilot works</a>
+      <a class="btn btn-ghost" href="/pilot.html">See how the 7-day live pilot works</a>
       <a class="btn btn-ghost" href="/pricing.html">Compare plans</a>
     </div>
   </div>
@@ -194,7 +194,7 @@ export const PAGES = {
       <li class="pstep"><h3>Urgent calls escalate</h3><p>Transfer to your on-call number, or
         an urgent-flagged summary, exactly as you decide.</p></li>
       <li class="pstep"><h3>Routine calls get booked</h3><p>Into the slots your calendar
-        genuinely has open, with a text confirmation to the caller.</p></li>
+        genuinely has open, confirmed out loud on the call.</p></li>
       <li class="pstep"><h3>You read it in the morning</h3><p>Every call arrives as a summary
         with name, number, need, and outcome.</p></li>
     </ol>
@@ -270,7 +270,7 @@ export const PAGES = {
           <tr><th scope="row">Answers immediately</th><td class="no">No</td><td class="yes">Yes</td></tr>
           <tr><th scope="row">Asks your qualifying questions</th><td class="no">No</td><td class="yes">Yes</td></tr>
           <tr><th scope="row">Books into your calendar</th><td class="no">No</td><td class="yes">Yes</td></tr>
-          <tr><th scope="row">Sends the caller a confirmation</th><td class="no">No</td><td class="yes">Yes</td></tr>
+          <tr><th scope="row">Confirms the time with the caller</th><td class="no">No</td><td class="yes">Yes, out loud on the call</td></tr>
           <tr><th scope="row">Escalates an emergency</th><td class="no">No</td><td class="yes">By your rules</td></tr>
           <tr><th scope="row">Gives you a useful summary</th><td class="part">A recording</td><td class="yes">Name, number, need, outcome</td></tr>
           <tr><th scope="row">Costs nothing</th><td class="yes">Yes</td><td class="part">Monthly plan</td></tr>

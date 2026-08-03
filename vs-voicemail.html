@@ -23,12 +23,6 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<!-- The three faces painting above the fold, preloaded so the swap frame
-     never happens: the font-display:swap re-metric of the header, headline
-     and labels was the single largest layout shift on the page. -->
-<link rel="preload" href="assets/fonts/bricolage-grotesque-700-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/atkinson-hyperlegible-400-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/spline-sans-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="assets/motion/site.css">
 <style>
@@ -101,7 +95,7 @@
           <tr><th scope="row">Answers immediately</th><td class="no">No</td><td class="yes">Yes</td></tr>
           <tr><th scope="row">Asks your qualifying questions</th><td class="no">No</td><td class="yes">Yes</td></tr>
           <tr><th scope="row">Books into your calendar</th><td class="no">No</td><td class="yes">Yes</td></tr>
-          <tr><th scope="row">Sends the caller a confirmation</th><td class="no">No</td><td class="yes">Yes</td></tr>
+          <tr><th scope="row">Confirms the time with the caller</th><td class="no">No</td><td class="yes">Yes, out loud on the call</td></tr>
           <tr><th scope="row">Escalates an emergency</th><td class="no">No</td><td class="yes">By your rules</td></tr>
           <tr><th scope="row">Gives you a useful summary</th><td class="part">A recording</td><td class="yes">Name, number, need, outcome</td></tr>
           <tr><th scope="row">Costs nothing</th><td class="yes">Yes</td><td class="part">Monthly plan</td></tr>
@@ -132,7 +126,7 @@
       <p class="eyebrow mono">Judge it yourself</p>
       <h2>Do not take our word for it. Call it.</h2>
       <p>The fastest way to know whether this is good enough for your customers is to
-        be a customer. The demo line is not a scripted demo: it is the same system a client’s agent runs on.</p>
+        be a customer. The demo line runs the same agent your business would get.</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Call the live AI (587)&nbsp;413-0035</a>
@@ -194,7 +188,6 @@
 
 <script>document.documentElement.classList.remove('no-js');</script>
 <script src="assets/vendor/gsap.min.js"></script>
-<script src="assets/vendor/ScrollTrigger.min.js"></script>
 <script src="assets/vendor/MotionPathPlugin.min.js"></script>
 <script src="site.js" defer></script>
 <script src="motion.js" defer></script>

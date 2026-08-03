@@ -277,7 +277,7 @@
     el.outcome.innerHTML =
       '<div class="sim-out-card' + (out.booked ? " on" : "") + '"><span class="mono">CALENDAR</span>' + (out.booked ? "Tue 10:00 AM locked in" : "No booking yet") + "</div>" +
       '<div class="sim-out-card' + (out.transfer ? " on warm" : "") + '"><span class="mono">TRANSFER</span>' + (out.transfer ? "Live transfer to on-call tech" : "Not needed") + "</div>" +
-      '<div class="sim-out-card' + (out.confirm || out.message ? " on" : "") + '"><span class="mono">CUSTOMER</span>' + (out.confirm ? "SMS confirmation sent" : out.message ? "Callback promised" : "Waiting") + "</div>" +
+      '<div class="sim-out-card' + (out.confirm || out.message ? " on" : "") + '"><span class="mono">CUSTOMER</span>' + (out.confirm ? "Time confirmed on the call" : out.message ? "Callback promised" : "Waiting") + "</div>" +
       '<div class="sim-out-card' + (out.sum ? " on" : "") + '"><span class="mono">OWNER SUMMARY</span>' + (out.sum || "Arrives when the call completes") + "</div>";
     /* state, stage rail, progress, elapsed */
     var label = idx < 0 ? "Idle" : (STATE_LABEL[steps[Math.min(idx, steps.length - 1)].st] || "");
