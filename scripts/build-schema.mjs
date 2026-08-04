@@ -107,10 +107,10 @@ const service = {
   '@context': 'https://schema.org',
   '@type': 'Service',
   '@id': `${SITE}/#service`,
-  name: 'AI Receptionist',
+  name: 'Call Answering and Booking Service',
   serviceType: 'AI phone answering, call qualification, and appointment booking',
   description:
-    'A done-for-you AI receptionist that answers a business phone line 24/7, qualifies the caller, ' +
+    'A done-for-you service that answers a business phone line 24/7, qualifies the caller, ' +
     'books the job into the calendar, confirms the time with the caller, and texts the owner a summary. ' +
     'Configured around each business\'s own hours, service area, job types, and approved rules.',
   provider: { '@id': `${SITE}/#organization` },
@@ -200,7 +200,7 @@ for (const p of PAGES) {
       url,
       name: title,
       description: desc,
-      isPartOf: { '@type': 'WebSite', name: 'Nevamis AI', url: `${SITE}/` },
+      isPartOf: { '@type': 'WebSite', name: 'Nevamis', url: `${SITE}/` },
       about: { '@id': `${SITE}/#service` },
       publisher: { '@id': `${SITE}/#organization` },
       inLanguage: 'en-CA',
