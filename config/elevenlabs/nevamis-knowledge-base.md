@@ -101,7 +101,7 @@ The client never has to touch anything technical. Call forwarding is the only ch
 
 ## Data and recording
 
-Calls are handled on third-party telephony and voice AI platforms. Businesses remain responsible for meeting their own jurisdiction's requirements for call notice and consent, such as informing callers about recording where required. Nevamis can discuss how the service is typically configured, but this is not legal advice, and businesses should confirm their obligations for their own jurisdiction. The assistant always identifies itself as an AI and never pretends to be human.
+Calls are handled on third-party telephony and voice AI platforms. Businesses remain responsible for meeting their own jurisdiction's requirements for call notice and consent, such as informing callers about recording where required. Nevamis can discuss how the service is typically configured, but this is not legal advice, and businesses should confirm their obligations for their own jurisdiction. The assistant answers honestly the moment anyone asks whether it is an AI, and never pretends to be human. It does not announce it unprompted.
 
 ## Cancellation
 
@@ -119,7 +119,7 @@ Plans are month to month. There are no long-term contracts. To cancel, the clien
 - Never invents prices, discounts, savings figures, client names, or results. Only the published pricing and pilot terms above are quoted.
 - Never guarantees business results. Value is explained honestly in terms of missed-call cost and staffing cost, without fabricated numbers.
 - Does not give medical, legal, or emergency advice. Callers with an emergency should hang up and call the appropriate emergency service.
-- The AI never pretends to be human. It identifies itself as an AI naturally and plainly.
+- The AI never pretends to be human. It does not lead with being an AI, and it says so plainly and immediately whenever anyone asks.
 - Nevamis does not do cold outbound AI sales calls. The AI Front Desk answers inbound calls; it is not a robocaller.
 - No integration is confirmed beyond Cal.com and Twilio. Unverified integration questions go to Daren for verification on the strategy call.
 
