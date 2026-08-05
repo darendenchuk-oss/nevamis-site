@@ -321,7 +321,7 @@ test('footer, callbar and every section land without console errors', async ({ b
 
   // all major sections exist
   for (const id of ['proof', 'simulator', 'how', 'solutions', 'industries', 'roi',
-    'process', 'compare', 'build-stack', 'first-week', 'pricing-preview', 'risk', 'beyond', 'faq']) {
+    'process', 'compare', 'build-stack', 'day-one', 'pricing-preview', 'risk', 'beyond', 'faq']) {
     await expect(page.locator('#' + id)).toHaveCount(1);
   }
   // mobile call bar visible at phone width
