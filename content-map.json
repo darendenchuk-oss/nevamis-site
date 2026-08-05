@@ -2,7 +2,7 @@
   "_comment": "Single source of truth for the public page set. One row here feeds scripts/build-pages.mjs (shared chrome), scripts/gen-sitemap.mjs, the /solutions.html hub, and tests/content-pages.spec.js. Adding a page means adding a row.",
   "site": "https://nevamis.ca",
   "pages": [
-    { "file": "index.html", "url": "/", "priority": "1.0", "cluster": "core", "nav": "Home", "title": "Nevamis AI", "blurb": "What the AI receptionist does, an example call, and the missed-call calculator." },
+    { "file": "index.html", "url": "/", "priority": "1.0", "cluster": "core", "nav": "Home", "title": "Nevamis", "blurb": "What the AI receptionist does, an example call, and the missed-call calculator." },
     { "file": "demo.html", "url": "/demo.html", "priority": "0.9", "cluster": "core", "nav": "Live Demo", "blurb": "Call the AI yourself and hear what it handles." },
     { "file": "book.html", "url": "/book.html", "priority": "0.9", "cluster": "core", "nav": "Book a Call", "blurb": "A short strategy call and a quote scoped to your call volume." },
     { "file": "pricing.html", "url": "/pricing.html", "priority": "0.8", "cluster": "core", "nav": "Pricing", "blurb": "Every plan, what is included, and how usage is counted." },

@@ -37,7 +37,7 @@ function head({ title, description, canonical }) {
 <meta property="og:description" content="${description}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${canonical}">
-<meta property="og:site_name" content="Nevamis AI">
+<meta property="og:site_name" content="Nevamis">
 <meta property="og:locale" content="en_CA">
 <meta property="og:image" content="${SITE}/assets/og-default.png">
 <meta property="og:image:width" content="1200">
@@ -129,7 +129,7 @@ for (const [file, content] of Object.entries(PAGES)) {
   const meta = byFile[file];
   if (!meta) { console.warn(`skip ${file}: not in content-map.json`); continue; }
 
-  const title = `${meta.title} | Nevamis AI`;
+  const title = `${meta.title} | Nevamis`;
   const description = content.lede.replace(/\s+/g, ' ').trim().slice(0, 155);
 
   const html =
@@ -173,7 +173,7 @@ const hubMeta = byFile['solutions.html'];
 const hubDesc = 'AI receptionist solutions by trade, by situation, and compared to voicemail and answering services. Every page from Nevamis in one place.';
 
 const hubHtml =
-  head({ title: `${hubMeta.title} | Nevamis AI`, description: hubDesc, canonical: `${SITE}/solutions.html` }) +
+  head({ title: `${hubMeta.title} | Nevamis`, description: hubDesc, canonical: `${SITE}/solutions.html` }) +
   `
 <main id="main">
   <section class="page-hero">
