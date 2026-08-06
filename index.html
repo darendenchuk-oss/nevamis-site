@@ -104,6 +104,11 @@
   html.no-js .hero-underline,html.motion-off .hero-underline{transform:scaleX(1)}
   .lede{color:var(--muted);font-size:clamp(16px,1.5vw,19px);margin-top:20px;line-height:1.55;max-width:44ch}
   .lede strong{color:var(--ink);font-weight:600}
+  /* The expansion line. A step down from the lede on purpose: the entry offer
+     stays the loudest thing in the hero, and this says what comes after it
+     without competing for the same attention. It also carries .lede, so the
+     mobile order:3 and max-width:none rules already apply to it. */
+  .lede-sub{font-size:clamp(14px,1.25vw,16px);margin-top:10px;opacity:.85;max-width:48ch}
   .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
   .ctamask{overflow:hidden;border-radius:999px;padding:2px;margin:-2px}
   .proof{margin-top:18px;color:var(--muted);font-size:14px}
@@ -447,7 +452,7 @@
       <span class="navitem"><a href="/pricing.html" data-nav>Pricing</a></span>
       <span class="navitem"><a href="/pilot.html" data-nav>7-day pilot</a></span>
       <span class="navitem"><a href="/demo.html" data-nav>Demo</a></span>
-      <span class="navitem"><a class="nav-min" href="/coming-soon.html" data-nav>Coming soon</a></span>
+      <span class="navitem"><a class="nav-min" href="/coming-soon.html" data-nav>Roadmap</a></span>
       <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
       <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
       <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Call the AI</a></span>
@@ -474,6 +479,8 @@
         <p class="lede">Missed calls are missed jobs. Nevamis answers your line 24/7,
           <strong>qualifies the caller</strong>, <strong>books the job</strong>, and
           <strong>texts you the details</strong>, on the number you already use.</p>
+        <p class="lede lede-sub">The front desk is where we start. Once it is working and
+          paying for itself, we build the next system your week actually needs.</p>
         <div class="cta">
           <!-- The number is in the label because the sticky callbar already
                does it ("Call our AI now · (587) 413-0035") and the hero did
@@ -1065,7 +1072,26 @@
   </section>
 
   <!-- ================= PRICING PREVIEW ================= -->
-  <section class="tight" id="pricing-preview">
+  <section class="tight" id="beyond">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">Where this goes</p>
+        <h2>The front desk is where we start.</h2>
+        <p>Nevamis is building connected AI systems for faster lead follow-up, cleaner customer tracking, quote recovery, reminders, reviews, and clearer owner reporting.</p>
+      </div>
+      <div class="proc reveal">
+        <div><h3>Instant Lead Follow-Up <span class="tagchip warm lit inl">PLANNED</span></h3><p>New leads get the approved follow-up immediately, instead of waiting until someone has time to respond.</p></div>
+        <div><h3>Automatic Lead Tracking <span class="tagchip warm lit inl">PLANNED</span></h3><p>Calls, forms, and follow-ups become organized customer records with visible next actions.</p></div>
+        <div><h3>Quote Recovery <span class="tagchip warm lit inl">PLANNED</span></h3><p>Open estimates get polite, timed follow-up until the customer decides, with staff alerted when they are ready.</p></div>
+      </div>
+      <div class="midcta reveal" style="margin-top:24px">
+        <a class="btn btn-ghost" href="/coming-soon.html" data-evt="roadmap_front_desk_cta_clicked">See what we are building</a>
+        <a class="btn btn-primary" href="/pilot.html">Start with the AI Front Desk</a>
+      </div>
+    </div>
+  </section>
+
+      <section class="tight" id="pricing-preview">
     <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">Pricing</p>
@@ -1102,24 +1128,7 @@
   </section>
 
   <!-- ================= COMING SOON TEASER ================= -->
-  <section class="tight" id="beyond">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">Where this goes</p>
-        <h2>The front desk is where we start.</h2>
-        <p>Nevamis is building connected AI systems for faster lead follow-up, cleaner customer tracking, quote recovery, reminders, reviews, and clearer owner reporting.</p>
-      </div>
-      <div class="proc reveal">
-        <div><h3>Instant Lead Follow-Up <span class="tagchip warm lit inl">PLANNED</span></h3><p>New leads get the approved follow-up immediately, instead of waiting until someone has time to respond.</p></div>
-        <div><h3>Automatic Lead Tracking <span class="tagchip warm lit inl">PLANNED</span></h3><p>Calls, forms, and follow-ups become organized customer records with visible next actions.</p></div>
-        <div><h3>Quote Recovery <span class="tagchip warm lit inl">PLANNED</span></h3><p>Open estimates get polite, timed follow-up until the customer decides, with staff alerted when they are ready.</p></div>
-      </div>
-      <div class="midcta reveal" style="margin-top:24px">
-        <a class="btn btn-ghost" href="/coming-soon.html" data-evt="roadmap_front_desk_cta_clicked">See what we are building</a>
-        <a class="btn btn-primary" href="/pilot.html">Start with the AI Front Desk</a>
-      </div>
-    </div>
-  </section>
+  
 
   <!-- ================= WHAT WE WILL NOT CLAIM ================= -->
   <section class="tight" id="honesty">
