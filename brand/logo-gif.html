@@ -1,0 +1,88 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Nevamis animated mark — GIF frame source</title>
+<!--
+  THE SOURCE FRAME FOR THE ANIMATED LOGO GIF.
+
+  Not a new animation. This is the mark exactly as it appears in the site
+  header — the same arc geometry, the same two brand greens — and the same
+  motion the header already runs on load: `onepulse`, .9s, the house
+  easing. The only change is that the header fires it once and this loops
+  it, because an email signature has no page-load moment to fire on.
+
+  Rendered by scripts/make-logo-gif.mjs: Playwright steps the clock frame
+  by frame and ffmpeg assembles them, so the GIF matches the site rather
+  than approximating it.
+
+  Deliberately drawn at 512px and downscaled at encode time. A GIF that
+  lands in an email at 128px still has to survive a client that ignores
+  the size attributes and shows it at native resolution, and the arc's
+  round caps go visibly chunky if the source is small.
+-->
+<style>
+  :root {
+    /* Straight from styles.css — do not hand-tune these. If the brand
+       changes there, this file is wrong and the GIF must be re-rendered. */
+    --signal: #38E6A2;
+    --signal-arc: #2FBF8F;
+    --signal-dot: #9FF0CE;
+    --ink: #02080D;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+  html, body { margin: 0; padding: 0; background: var(--ink); }
+  /* Exactly the encode size. Any mismatch here shows up as resampling
+     blur on a mark whose whole character is a clean round cap. */
+  #stage {
+    width: 512px; height: 512px;
+    display: grid; place-items: center;
+    background: var(--ink);
+  }
+  svg { width: 384px; height: 384px; display: block; overflow: visible; }
+
+  /* The header's pulse, looped. Same .9s, same easing, then a hold so the
+     loop reads as a heartbeat rather than a twitch. 2.4s total. */
+  @keyframes onepulse-loop {
+    0%    { transform: scale(1); }
+    15%   { transform: scale(1.5); }
+    37.5% { transform: scale(1); }
+    100%  { transform: scale(1); }
+  }
+  /* The arc answers a beat later — the dot is the caller, the arc is the
+     line picking up. Subtle: 0.85 -> 1 opacity, nothing that reads as
+     flashing in a signature someone sees fifty times a day. */
+  @keyframes arc-answer {
+    0%    { opacity: .85; }
+    15%   { opacity: .85; }
+    30%   { opacity: 1; }
+    55%   { opacity: .85; }
+    100%  { opacity: .85; }
+  }
+  /* One ring leaving the dot, once per cycle. This is the only element
+     not already on the site: it is what makes a still mark read as a
+     LIVE line, which is the entire point of an animated avatar. */
+  @keyframes ring-out {
+    0%   { r: 6;  opacity: 0; stroke-width: 3; }
+    12%  { r: 6;  opacity: .55; stroke-width: 3; }
+    45%  { r: 22; opacity: 0; stroke-width: 1; }
+    100% { r: 22; opacity: 0; stroke-width: 1; }
+  }
+
+  #dot  { transform-origin: 32px 48px; animation: onepulse-loop 2.4s var(--ease) infinite; }
+  #arc  { animation: arc-answer 2.4s var(--ease) infinite; }
+  #ring { animation: ring-out 2.4s var(--ease) infinite; }
+
+  /* The renderer pauses everything and seeks frame by frame, so nothing
+     here may depend on real elapsed time. */
+  html.frozen #dot, html.frozen #arc, html.frozen #ring { animation-play-state: paused; }
+</style>
+
+<div id="stage">
+  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- The ring sits UNDER the mark so it never dims the dot it leaves. -->
+    <circle id="ring" cx="32" cy="48" r="6" fill="none" stroke="var(--signal)" stroke-width="3" opacity="0"/>
+    <!-- Identical to the header mark: same path data, same weight, same caps. -->
+    <path id="arc" d="M 15 38 A 17 17 0 0 1 49 38"
+          stroke="var(--signal-arc)" stroke-width="8" stroke-linecap="round"/>
+    <circle id="dot" cx="32" cy="48" r="6" fill="var(--signal-dot)"/>
+  </svg>
+</div>
