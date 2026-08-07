@@ -54,7 +54,7 @@ All escalations tell the caller what happens next and that the follow-up comes t
 
 The support agent may state published pricing as general information but never quotes a custom price, discount, credit, or change. Any pricing change is a billing action and goes to a human.
 
-- Starter: first month C$250, then C$250/month. 250 connected AI minutes, overage C$1.10/minute.
+- Core: first month C$250, then C$250/month. 250 connected AI minutes, overage C$1.10/minute.
 - Growth (recommended): first month C$500, then C$500/month. 600 minutes, overage C$0.90/minute.
 - Pro: first month C$1,000, then C$850/month. 1,200 minutes, overage C$0.75/minute.
 

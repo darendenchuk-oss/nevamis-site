@@ -212,7 +212,7 @@ for (const p of contentPages) {
 
       The shape being matched changed on 2026-08-07 with the copy. The old
       rule looked for "C$250/month" and "C$250 one-time setup", which is the
-      wording that made a Starter customer believe he owed C$500 on day one.
+      wording that made a Core customer believe he owed C$500 on day one.
       It also never actually passed: the fallback wrote "One-time setup C$250"
       and the regex wanted the amount FIRST, so all three plans reported a
       setup mismatch against numbers that were identical. A guard that fails

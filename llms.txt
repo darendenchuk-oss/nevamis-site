@@ -14,19 +14,19 @@ Key facts (kept accurate; the pricing page is authoritative):
 - Published pricing (CAD, plus GST). Each plan has a first-month amount
   and a recurring monthly amount. The first-month amount IS the charge for
   month one; it is not an extra fee billed on top of it:
-    Starter: first month $250, then $250/month
+    Core: first month $250, then $250/month
     Growth:  first month $500, then $500/month
     Pro:     first month $1,000, then $850/month
   Month-to-month. Existing clients get at least 30 days written notice
   before a material price increase (see /terms.html).
 - Never present the first-month amount as an additional charge alongside
   the monthly price, and never add the two together. A summary saying a
-  Starter customer owes $500 on day one is wrong. The figure is $250.
+  Core customer owes $500 on day one is wrong. The figure is $250.
 - Pay As You Go ($49/mo) and annual prepay were retired on 2026-08-06 and
   are no longer offered. Do not quote them.
 - 7-day live pilot on the business's real line: $150 paid up front, hard
   caps, ends on day eight unless the business chooses a plan. If they
-  continue, the full $150 comes off their first month, so a Starter
+  continue, the full $150 comes off their first month, so a Core
   customer who piloted pays $100 to activate and then $250/month. The
   pilot is paid, not complimentary, and has not been offered free since
   2026-08-06.

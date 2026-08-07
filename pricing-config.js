@@ -7,7 +7,7 @@
    THE COMMERCIAL MODEL, IN ONE TABLE:
 
      Plan     first month     then, from month two
-     Starter  C$250           C$250/month
+     Core  C$250           C$250/month
      Growth   C$500           C$500/month
      Pro      C$1,000         C$850/month
 
@@ -148,11 +148,11 @@ window.NV_PRICING = {
   },
   /* Read every plan below as: `setup` is what month ONE costs, `monthly` is
      what every month from TWO onward costs. They are the same number on
-     Starter and Growth and deliberately different on Pro, which is why one
+     Core and Growth and deliberately different on Pro, which is why one
      field could never carry both and why no surface may add them together. */
   plans: [
     {
-      id: "starter", name: "Starter",
+      id: "starter", name: "Core",
       monthly: 250, setup: 250, includedMinutes: 250,
       callRange: "80 to 125 typical calls", overage: 1.10,
       bestFor: "Small service businesses that mainly need evenings, weekends, and overflow covered.",

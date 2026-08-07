@@ -146,7 +146,7 @@ test('pricing publishes a parseable price table for answer engines', async ({ pa
   const agg = product.offers;
   expect(agg['@type']).toBe('AggregateOffer');
   expect(agg.priceCurrency).toBe('CAD');
-  expect(Number(agg.offerCount)).toBe(3);   // Starter, Growth, Pro
+  expect(Number(agg.offerCount)).toBe(3);   // Core, Growth, Pro
 
   // prices must match the config, never a hardcoded copy
   const cfg = await page.evaluate(() => ({
