@@ -62,7 +62,7 @@ const page = (c) => `<!doctype html><meta charset="utf-8">
 </style>
 <div class="frame">
   <div class="tag">${c.label} &middot; ${c.w}px</div>
-  <div class="body">Thanks — I'll send the pilot details over this afternoon.<br>Will</div>
+  <div class="body">Thanks — I'll send the pilot details over this afternoon.<br>Daren</div>
   <div class="rule"></div>
   ${local(SIG, c.img)}
 </div>`;

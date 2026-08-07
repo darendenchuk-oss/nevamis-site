@@ -1,0 +1,42 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Nevamis profile photo — source</title>
+<!--
+  THE GOOGLE / WORKSPACE PROFILE PHOTO.
+
+  Static on purpose. Google flattens an animated GIF to a single frame when
+  it is used as an account photo, so shipping the animated mark here would
+  only mean somebody else picks which frame you get. This picks it.
+
+  TWO THINGS THE 256px MARK GOT WRONG FOR THIS USE.
+
+  Optical centring. The mark's bounding box runs y 17..54 in its own 64-unit
+  space, so its centre is 35.5, not 32. Centring the ARTBOARD leaves the mark
+  sitting 3.5 units low; at avatar sizes that reads as a wonky crop rather
+  than as a design. The group below is shifted to centre the mark itself.
+
+  The circular crop. Every surface that shows this — Gmail, Meet, Drive, the
+  account menu — masks it to the circle inscribed in the square, and some
+  shave a little more. The mark is drawn at 52% of the canvas, which keeps
+  every round cap well inside that circle at any of those sizes.
+-->
+<style>
+  html, body { margin: 0; padding: 0; }
+  #stage {
+    width: 1024px; height: 1024px;
+    /* the same ground as brand/mark-final.html */
+    background: linear-gradient(165deg, #0B1620 0%, #10222E 100%);
+    display: grid; place-items: center;
+  }
+  svg { width: 532px; height: 532px; display: block; overflow: visible; }
+</style>
+<div id="stage">
+  <!-- Identical path data to the site header in index.html. -->
+  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(0,-3.5)">
+      <path d="M 15 38 A 17 17 0 0 1 49 38"
+            stroke="#2FBF8F" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="32" cy="48" r="6" fill="#9FF0CE"/>
+    </g>
+  </svg>
+</div>
