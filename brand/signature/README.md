@@ -13,7 +13,7 @@ node brand/signature/build.mjs
 
 **"The line picks up."**
 
-Four named channels — `CALLS`, `FORMS`, `TEXTS`, `TOOLS` — arrive on separate
+Four business domains — `COMMS`, `SALES`, `OPS`, `ADMIN` — arrive on separate
 rails, each leaving at its own moment and travelling on its own speed curve.
 Mid-flight they are visibly ragged, because that is what a business's inbound
 actually looks like. They retime themselves and land on the Nevamis node
@@ -22,6 +22,15 @@ answering. Then one packet leaves, in the brand's action orange rather than
 its signal green, and lands on a terminal that surges.
 
 > disconnected → connected → intelligent → automated → action
+
+**The rails are domains, not channels.** They used to read CALLS / FORMS /
+TEXTS / TOOLS, which are four ways of contacting a company — so the card
+argued, precisely and wrongly, that Nevamis is an answering service. Nevamis
+is the layer a whole business runs on and the agent is one capability inside
+COMMS. Naming the domains is what makes that legible at this size, and it
+puts comms where it belongs: one rail of four, no wider than SALES. The
+terminal reads `LIVE` rather than `LINE LIVE` for the same reason — LINE is
+telephony, and this is a platform's status.
 
 Four things arrive and one thing leaves. The automation is stated in the
 arithmetic rather than in a caption.
@@ -67,7 +76,7 @@ t=5.0s is not pixel-identical to the frame at t=0.
 
 | File | What it is |
 |---|---|
-| `nevamis-signature.gif` | **The signature.** 165.3 KB, 960×288 shown at 480×144 |
+| `nevamis-signature.gif` | **The signature.** 159.6 KB, 960×288 shown at 480×144 |
 | `nevamis-signature.png` | Static fallback / first frame — the same resolved composition |
 | `nevamis-signature-master.mp4` | High-quality master (x264 crf 14) for re-encoding |
 | `nevamis-signature-master.webm` | High-quality master (VP9 crf 18) |
@@ -84,7 +93,7 @@ t=5.0s is not pixel-identical to the frame at t=0.
 
 | | |
 |---|---|
-| GIF file size | **165.3 KB** |
+| GIF file size | **159.6 KB** |
 | Source dimensions | 960 × 288 (2× retina) |
 | Display dimensions | 480 × 144 |
 | Frames in file | 89 (from 125 rendered) |
