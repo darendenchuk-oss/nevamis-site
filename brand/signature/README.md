@@ -38,11 +38,28 @@ it approaches, so the four do not merely arrive together, they arrive at the
 same *speed*. The wobble that says "out of step" is damped by `(1-p)²`, which
 is exactly zero at the node, so nothing has to be cleaned up afterwards.
 
-**Frame 0 is the finished composition.** The loop opens on 1.04s of
+**There is a field behind the rails.** The first cut was 87% flat
+near-black with rails at 13–40% alpha, and it read quiet rather than
+advanced — correct, but underpowered. The fix was not more movement, it was
+more *system*: a constellation of downstream nodes and links that is simply
+there at rest, so the still frame reads as an operating layer rather than an
+empty stage. It earns its place in the motion too — when the node answers,
+the decision **ripples outward through that field** at a finite speed,
+reaching the far corners last. That is the claim the whole piece makes: this
+does not stop at the phone. The field sits downstream of the router only;
+scattered across the whole card, the nodes that landed inside the inbound
+fan competed with the four rails and the convergence stopped reading as
+convergence.
+
+**One light pass crosses the header** as the arc answers, tinting the
+wordmark toward the node's own mint and lifting the dim mono line beneath
+it — the identity registering the event rather than sitting through it.
+
+**Frame 0 is the finished composition.** The loop opens on 0.96s of
 stillness, and every client that shows only the first frame of a GIF gets a
 complete, resolved signature. The cycle ends back in that same state, which
 is what closes the loop — `render.mjs` fails the build if the frame at
-t=4.8s is not pixel-identical to the frame at t=0.
+t=5.0s is not pixel-identical to the frame at t=0.
 
 ---
 
@@ -50,7 +67,7 @@ t=4.8s is not pixel-identical to the frame at t=0.
 
 | File | What it is |
 |---|---|
-| `nevamis-signature.gif` | **The signature.** 128.3 KB, 960×264 shown at 480×132 |
+| `nevamis-signature.gif` | **The signature.** 165.3 KB, 960×288 shown at 480×144 |
 | `nevamis-signature.png` | Static fallback / first frame — the same resolved composition |
 | `nevamis-signature-master.mp4` | High-quality master (x264 crf 14) for re-encoding |
 | `nevamis-signature-master.webm` | High-quality master (VP9 crf 18) |
@@ -67,17 +84,17 @@ t=4.8s is not pixel-identical to the frame at t=0.
 
 | | |
 |---|---|
-| GIF file size | **128.3 KB** |
-| Source dimensions | 960 × 264 (2× retina) |
-| Display dimensions | 480 × 132 |
-| Frames in file | 84 (from 120 rendered) |
+| GIF file size | **165.3 KB** |
+| Source dimensions | 960 × 288 (2× retina) |
+| Display dimensions | 480 × 144 |
+| Frames in file | 89 (from 125 rendered) |
 | Frame rate | 25 fps (40 ms — a whole number of centiseconds) |
-| Loop duration | 4.80 s, loops forever |
+| Loop duration | 5.00 s, loops forever |
 | Palette | 256 colours, median-cut with 55 brand entries reserved |
 | Dithering | none |
-| Longest held frame | 1.04 s |
+| Longest held frame | 0.96 s |
 | Colour error vs source | mean 1.55, p99.9 10.4 |
-| Signature footprint | 516 × ~211 px (card 480 × 132 + two text lines) |
+| Signature footprint | 516 × ~223 px (card 480 × 144 + two text lines) |
 
 ---
 

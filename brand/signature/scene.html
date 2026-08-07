@@ -9,8 +9,9 @@
   each other, because that is what a business's inbound actually looks
   like. They retime themselves mid-flight and land together on the Nevamis
   node. The arc above it illuminates left to right — the line answering.
-  One action leaves, in the brand's action orange rather than its signal
-  green, and lands on a terminal that surges. Then everything rests.
+  The decision then propagates outward through the wider system, one action
+  leaves in the brand's action orange, and the terminal surges. Then
+  everything rests.
 
     disconnected -> connected -> intelligent -> automated -> action
 
@@ -18,6 +19,22 @@
   dot the caller and the arc the line picking up. The geometry, the two
   greens, the action orange and the house easing are read from styles.css
   and must not be hand-tuned here.
+
+  WHY THERE IS A FIELD BEHIND THE RAILS.
+  The first cut of this card was 87% flat near-black with four rails at
+  13-40% alpha, and it read quiet rather than advanced — correct, but
+  underpowered. The fix was not more movement, it was more SYSTEM: a
+  static constellation of nodes and links that is simply THERE at rest, so
+  the still frame reads as an operating layer rather than an empty stage.
+  It earns its place in the motion too — when the node answers, the
+  decision ripples outward through that field, which is the claim the
+  whole piece is making: this does not stop at the phone.
+
+  Deliberately STATIC at rest. A drifting parallax field would look
+  wonderful and would also mean no two frames are ever identical, which
+  destroys both the stillness the loop is built on and the frame collapsing
+  that keeps the GIF small. Depth here comes from layering and value, not
+  from perpetual motion.
 
   WHY CANVAS AND NOT CSS. The whole idea rests on velocity: the rails start
   at different times and must arrive at the same instant, which means each
@@ -68,9 +85,7 @@ const C = {
   muted:      "#8FA6A0",   /* --muted-dark */
 };
 
-/* The card is authored at these display units and drawn at SCALE for
-   retina. Every number below is a display pixel, never a device pixel. */
-const W = 480, H = 132;
+const W = 480, H = 144;
 const SCALE = Number(new URLSearchParams(location.search).get("scale") || 2);
 
 const canvas = document.getElementById("stage");
@@ -79,25 +94,16 @@ canvas.width = W * SCALE; canvas.height = H * SCALE;
    element at its CSS size, so styling this down to W would hand the
    encoder a resampled 480px image and quietly throw the retina pass away. */
 canvas.style.width = (W * SCALE) + "px"; canvas.style.height = (H * SCALE) + "px";
-/* alpha:true, even though every pixel is painted every frame and an opaque
-   context would be the obvious choice.
-
-   An OPAQUE canvas is what makes Skia eligible for LCD subpixel text
-   antialiasing, which fringes glyph edges in red and blue — tuned to the
-   stripe order of the monitor that drew them. On a card that contains no
-   red and no blue, measured on the wordmark, that was hundreds of stray
-   pixels per frame: wrong at any scale, and paid for again in palette
-   entries at encode time. Chromium's --disable-lcd-text does not reach
-   canvas text; the context's own alpha flag does. */
+/* alpha:true, even though every pixel is painted every frame. An OPAQUE
+   canvas is what makes Skia eligible for LCD subpixel text antialiasing,
+   which fringes glyph edges in red and blue — tuned to the stripe order of
+   the monitor that drew them. On a card containing no red and no blue that
+   is simply wrong, and it costs palette entries at encode time.
+   Chromium's --disable-lcd-text does not reach canvas text; this does. */
 const ctx = canvas.getContext("2d", { alpha: true });
 
 /* ============================================================
    EASING
-
-   houseEase is styles.css's cubic-bezier(.2,.7,.2,1) solved properly
-   rather than approximated, because the arc sweep and the node pulse have
-   to match the motion the site already runs or the signature reads as a
-   different brand.
    ============================================================ */
 function bezierEase(x1, y1, x2, y2) {
   const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
@@ -116,7 +122,7 @@ function bezierEase(x1, y1, x2, y2) {
     return ((ay * t + by) * t + cy) * t;
   };
 }
-const houseEase = bezierEase(.2, .7, .2, 1);
+const houseEase = bezierEase(.2, .7, .2, 1);   /* styles.css --ease */
 const expoOut  = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
 const quintOut = (t) => 1 - Math.pow(1 - t, 5);
 const quintIO  = (t) => t < .5 ? 16 * t ** 5 : 1 - Math.pow(-2 * t + 2, 5) / 2;
@@ -128,7 +134,6 @@ const smoothstep = (a, b, x) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);
 };
-
 function rgba(hex, a) {
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
@@ -136,83 +141,48 @@ function rgba(hex, a) {
 
 /* ============================================================
    TIMELINE  (seconds)
-
-   Frame 0 sits inside REST, so the first frame a client shows is the
-   finished composition rather than a half-built one. The cycle ends back
-   in REST, which is what closes the loop.
    ============================================================ */
 const T = {
-  ingest:      1.00,   /* rails start firing, staggered          */
-  arrive:      2.66,   /* every rail lands on the node, together */
-  answerEnd:   3.20,   /* arc sweep + node pulse resolve         */
-  actStart:    3.16,   /* the action leaves (overlaps the pulse) */
-  actLand:     3.86,   /* it reaches the terminal                */
-  total:       4.80,   /* rest again, then loop                  */
+  ingest:    0.95,
+  arrive:    2.70,
+  answerEnd: 3.32,
+  rippleEnd: 3.80,
+  actStart:  3.26,
+  actLand:   3.98,
+  total:     5.00,
 };
 
 /* ============================================================
    LAYOUT
-
-   The left half is crowded and the right half is not, because that is the
-   argument: four things arrive, one thing leaves. The earlier draft put
-   the router at a third of the width and left a dead rail across the rest;
-   the router now sits past centre so the convergence gets the room it
-   needs to be legible, and the terminal is a chip rather than a floating
-   label so the right side still has an object with weight.
    ============================================================ */
 const PAD = 18;
-const RAIL_Y = 88;              /* the system's centreline              */
-const MARK_X = 236;             /* the node sits here: it is the router */
-const MARK_S = 1.15;            /* the mark outranks everything else here */
+const RAIL_Y = 93;
+const MARK_X = 236;
+const MARK_S = 1.15;
 
 /* Mark geometry, straight from the header markup in index.html:
      <path d="M 15 38 A 17 17 0 0 1 49 38" stroke-width="8" round caps>
-     <circle cx="32" cy="48" r="6">
-   Mapped so the node lands exactly on the rail centreline. */
+     <circle cx="32" cy="48" r="6"> */
 const mk = (x, y) => ({ x: MARK_X + (x - 32) * MARK_S, y: RAIL_Y + (y - 48) * MARK_S });
 const NODE = mk(32, 48);
 const ARC_C = mk(32, 38), ARC_R = 17 * MARK_S, ARC_W = 8 * MARK_S;
 
-/* Four inbound rails, named. Naming them is what turns four abstract
-   curves into the actual claim — these are the channels a trades business
-   already runs, and Nevamis is the thing they all land on. Dim enough to
-   be a second-look detail rather than a diagram. The y-spread is uneven on
-   purpose: an even fan reads as decoration. */
-const LABEL_R = 52;             /* labels right-align here              */
-const RAIL_X0 = 60;             /* ...and rails start here              */
-
-/* THE SYNCHRONISATION, WHICH IS THE WHOLE ARGUMENT.
-
-   Every rail is given its own speed curve — eager, steady, hesitant,
-   laggard — and its own departure time, but a single shared arrival. So
-   mid-flight they are visibly ragged, and by the node they are not.
-
-   The first cut of this shared one easing across all four and staggered
-   the starts by 0.29s against a 1.66s journey; measured mid-flight, all
-   four sat between 55% and 63% along their paths, which is to say they
-   never looked out of sync at all and the idea did not survive its own
-   implementation. The curves below are what actually separate them.
-
-   `ease` is each rail's own character; near the end it is blended into
-   one common curve, so they do not merely arrive together, they arrive
-   at the same SPEED. That is the difference between four things stopping
-   at a wall and four things falling into step. */
+const LABEL_R = 52, RAIL_X0 = 60;
 const commonEase = quintIO;
 const RAILS = [
-  { y: 62,  label: "CALLS", start: 1.00, wob: 2.2, freq: 2.3, phase: 0.0, a: .95,
+  { y: 63,  label: "CALLS", start: 0.95, wob: 2.2, freq: 2.3, phase: 0.0, a: .95,
     ease: (p) => 1 - Math.pow(1 - p, 3) },        /* eager: leaves hard, coasts  */
-  { y: 73,  label: "FORMS", start: 1.16, wob: 1.5, freq: 3.1, phase: 1.7, a: .82,
+  { y: 75,  label: "FORMS", start: 1.12, wob: 1.5, freq: 3.1, phase: 1.7, a: .84,
     ease: (p) => p },                             /* steady: no opinion          */
-  { y: 103, label: "TEXTS", start: 1.30, wob: 1.8, freq: 2.7, phase: 3.4, a: .82,
+  { y: 111, label: "TEXTS", start: 1.28, wob: 1.8, freq: 2.7, phase: 3.4, a: .84,
     ease: (p) => quintIO(p) },                    /* hesitant, then decisive     */
-  { y: 114, label: "TOOLS", start: 1.46, wob: 1.3, freq: 3.6, phase: 5.1, a: .70,
+  { y: 123, label: "TOOLS", start: 1.45, wob: 1.3, freq: 3.6, phase: 5.1, a: .72,
     ease: (p) => Math.pow(p, 2.1) },              /* laggard: late, then rushes  */
 ];
-/* Own curve early, shared curve late. */
+/* Own curve early, shared curve late — so they do not merely arrive
+   together, they arrive at the same SPEED. */
 const railProgress = (r, p) => lerp(r.ease(p), commonEase(p), smoothstep(.52, 1, p));
 
-/* The terminal chip. The outbound rail stops at its edge, which is also
-   what stopped the action packet drawing straight through the label. */
 const CHIP = { x0: 372, x1: W - PAD, cy: RAIL_Y, h: 21 };
 const OUT_X0 = NODE.x + 17;
 const OUT_X1 = CHIP.x0 - 7;
@@ -228,8 +198,6 @@ function bezPt(P, t) {
   return { x: a * P[0].x + b * P[1].x + c * P[2].x + d * P[3].x,
            y: a * P[0].y + b * P[1].y + c * P[2].y + d * P[3].y };
 }
-/* Unit normal, for the desync wobble — offsetting along the path would
-   only change speed, and speed is already carrying meaning here. */
 function bezNormal(P, t) {
   const u = 1 - t;
   let x = 3 * u * u * (P[1].x - P[0].x) + 6 * u * t * (P[2].x - P[1].x) + 3 * t * t * (P[3].x - P[2].x);
@@ -240,11 +208,87 @@ function bezNormal(P, t) {
 const PATHS = RAILS.map(railPath);
 
 /* ============================================================
+   THE FIELD
+
+   A constellation of the systems beyond the four named rails, generated
+   once at setup from a fixed seed — deterministic, so two renders are
+   byte-identical, and never touched at render time.
+   ============================================================ */
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const FIELD = (() => {
+  const rnd = mulberry32(0x4E45_5641);           /* "NEVA" */
+  const pts = [];
+  /* Rejection sampling. The field has to sit BEHIND the composition
+     without touching it, so anything that would collide with the mark,
+     the chip, the labels, a rail or another node is thrown away rather
+     than nudged — nudging produces tell-tale clumps along the exclusion
+     borders. */
+  const railSamples = PATHS.flatMap((P) =>
+    Array.from({ length: 24 }, (_, i) => bezPt(P, i / 23)));
+
+  /* DOWNSTREAM ONLY. The first version scattered the field across the whole
+     card, and the nodes that landed inside the inbound fan competed with
+     the four rails for the same read — the convergence stopped being
+     legible as convergence. Keeping the field to the right of the router
+     also says the right thing: the rails are what comes IN, the field is
+     what the answer reaches. The ripple then travels downstream, which is
+     the direction the claim actually runs. */
+  const FIELD_X0 = NODE.x + 6;
+
+  let guard = 0;
+  while (pts.length < 15 && guard++ < 8000) {
+    const x = lerp(FIELD_X0, W - 22, rnd());
+    const y = lerp(54, H - 10, rnd());
+    if (Math.hypot(x - NODE.x, y - NODE.y) < 46) continue;              /* the mark  */
+    if (x > CHIP.x0 - 13 && x < CHIP.x1 + 6 &&
+        y > CHIP.cy - 21 && y < CHIP.cy + 21) continue;                 /* the chip  */
+    if (Math.abs(y - RAIL_Y) < 8 && x > OUT_X0 - 12) continue;          /* outbound  */
+    if (railSamples.some((s) => Math.hypot(x - s.x, y - s.y) < 9)) continue;
+    if (pts.some((p) => Math.hypot(x - p.x, y - p.y) < 26)) continue;
+    pts.push({ x, y, r: lerp(1.0, 1.9, rnd()), d: Math.hypot(x - NODE.x, y - NODE.y) });
+  }
+
+  /* Link each node to its nearest neighbours. A graph, not a scatter —
+     the point is that these systems are related to each other. Short
+     links only: long ones read as arbitrary lines drawn across the card
+     rather than as local structure. */
+  const chipHit = (a, b) => {
+    /* Reject any link whose span crosses the terminal chip or the outbound
+       rail. Sampling the segment is easier to reason about than a
+       rectangle/line intersection, and this runs once, at setup. */
+    for (let k = 0; k <= 12; k++) {
+      const x = lerp(a.x, b.x, k / 12), y = lerp(a.y, b.y, k / 12);
+      if (x > CHIP.x0 - 10 && x < CHIP.x1 + 4 &&
+          y > CHIP.cy - 17 && y < CHIP.cy + 17) return true;
+      if (Math.abs(y - RAIL_Y) < 5 && x > OUT_X0 && x < CHIP.x0) return true;
+    }
+    return false;
+  };
+  const links = [];
+  pts.forEach((p, i) => {
+    const near = pts.map((q, j) => ({ j, d: Math.hypot(p.x - q.x, p.y - q.y) }))
+      .filter((o) => o.j !== i && o.d < 72).sort((a, b) => a.d - b.d).slice(0, 2);
+    for (const n of near) {
+      if (i < n.j && !chipHit(p, pts[n.j])) links.push([i, n.j, n.d]);
+    }
+  });
+  return { pts, links };
+})();
+
+/* ============================================================
    DRAWING
    ============================================================ */
 
 /* A packet is drawn as its own short trail rather than a dot, because at
-   18fps a dot teleports. Sub-sampling backwards along the path is cheap
+   25fps a dot teleports. Sub-sampling backwards along the path is cheap
    motion blur and it is what makes the low frame rate read as smooth. */
 function packet(P, p, r, colour, alpha, wobFn) {
   const SUB = 7, TRAIL = 0.055;
@@ -261,56 +305,74 @@ function packet(P, p, r, colour, alpha, wobFn) {
   }
 }
 
+function drawField(t) {
+  /* THE RIPPLE. Not decoration: the node answering is the moment the rest
+     of the business finds out, so the brightening travels outward from the
+     node at a finite speed and reaches the far corners last. */
+  const rp = span(t, T.arrive, T.rippleEnd);
+  const edge = rp > 0 && rp < 1 ? quintOut(rp) * 300 : -1;
+  const lit = (d) => (edge < 0 ? 0
+    : Math.max(0, 1 - Math.abs(d - edge) / 46) * (1 - Math.pow(rp, 2.2)));
+
+  for (const [i, j] of FIELD.links) {
+    const a = FIELD.pts[i], b = FIELD.pts[j];
+    const g = Math.max(lit(a.d), lit(b.d));
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = rgba(g > .02 ? C.signal : C.muted, lerp(.085, .34, g));
+    ctx.lineWidth = 1; ctx.stroke();
+  }
+  for (const p of FIELD.pts) {
+    const g = lit(p.d);
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r * lerp(1, 1.5, g), 0, 7);
+    ctx.fillStyle = rgba(g > .02 ? C.signal : C.muted, lerp(.26, .95, g));
+    ctx.fill();
+  }
+}
+
 function drawRailStructure() {
-  /* At rest these rails ARE the composition, so they are drawn as graded
-     dashes rather than one flat dotted line: each dash brightens as it
-     nears the router, which states the direction of flow while nothing is
-     moving. That is what makes the still frame read as a system at rest
-     instead of an empty stage. */
+  /* Graded dashes: each dash brightens as it nears the router, which
+     states the direction of flow while nothing is moving. */
   const STEPS = 46;
   for (let i = 0; i < RAILS.length; i++) {
     const P = PATHS[i];
     for (let s = 0; s < STEPS; s++) {
-      if (s % 2) continue;                       /* the dash gap */
+      if (s % 2) continue;
       const p0 = s / STEPS, p1 = (s + 1) / STEPS;
       const a = bezPt(P, p0), b = bezPt(P, p1);
       ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
-      ctx.strokeStyle = rgba(C.muted, lerp(.13, .40, Math.pow(p0, 1.5)));
+      ctx.strokeStyle = rgba(C.muted, lerp(.20, .56, Math.pow(p0, 1.5)));
       ctx.lineWidth = 1; ctx.stroke();
     }
-    /* origin marker: four systems, stated as objects */
     const o = P[0];
     ctx.beginPath(); ctx.arc(o.x - 3, o.y, 1.6, 0, 7);
-    ctx.fillStyle = rgba(C.muted, .42); ctx.fill();
+    ctx.fillStyle = rgba(C.muted, .55); ctx.fill();
   }
 
   ctx.font = '400 7px "Spline Sans Mono", monospace';
   ctx.textAlign = "right"; ctx.textBaseline = "middle";
   ctx.letterSpacing = "0.9px";
   for (const r of RAILS) {
-    ctx.fillStyle = rgba(C.muted, .52);
+    ctx.fillStyle = rgba(C.muted, .66);
     ctx.fillText(r.label, LABEL_R, r.y + .5);
   }
   ctx.letterSpacing = "0px";
 
-  /* The outbound rail is solid and unbroken: one route, already resolved. */
   ctx.beginPath(); ctx.moveTo(OUT_X0, RAIL_Y); ctx.lineTo(OUT_X1, RAIL_Y);
-  ctx.strokeStyle = rgba(C.muted, .20); ctx.lineWidth = 1; ctx.stroke();
+  ctx.strokeStyle = rgba(C.muted, .30); ctx.lineWidth = 1; ctx.stroke();
 }
 
 function drawMark(t) {
-  /* THE ANSWER. The arc brightens from its left cap to its right cap —
-     the line picking up — and the node runs the header's own onepulse. */
   const ans = span(t, T.arrive - .04, T.answerEnd);
 
   ctx.save();
   ctx.lineCap = "round"; ctx.lineWidth = ARC_W;
   ctx.beginPath(); ctx.arc(ARC_C.x, ARC_C.y, ARC_R, Math.PI, 0);
   ctx.strokeStyle = C.arc;
-  ctx.globalAlpha = lerp(.88, 1, hump(ans));   /* the arc-answer opacity move */
+  ctx.globalAlpha = lerp(.88, 1, hump(ans));
   ctx.stroke();
   ctx.globalAlpha = 1;
 
+  /* the sweep: a bright bead travelling the arc, left cap to right */
   if (ans > 0 && ans < 1) {
     const len = Math.PI * ARC_R, seg = len * .30;
     const head = quintIO(Math.min(1, ans / .72)) * (len + seg);
@@ -325,19 +387,17 @@ function drawMark(t) {
   }
   ctx.restore();
 
-  /* Two rings leaving the node rather than one, offset by 90ms. A single
-     ring reads as a blip; two read as an event with a consequence, which
-     is what this beat has to carry — everything before it was arriving,
-     everything after it is a decision already taken. */
+  /* Two rings rather than one, offset by 90ms. A single ring reads as a
+     blip; two read as an event with a consequence. */
   const R0 = 6 * MARK_S;
-  for (const [delay, amp] of [[0, .50], [.09, .26]]) {
-    const ring = span(t, T.arrive + delay, T.arrive + delay + .62);
+  for (const [delay, amp] of [[0, .52], [.09, .28]]) {
+    const ring = span(t, T.arrive + delay, T.arrive + delay + .64);
     if (ring <= 0 || ring >= 1) continue;
     const e = quintOut(ring);
     ctx.beginPath();
-    ctx.arc(NODE.x, NODE.y, lerp(R0, R0 * 3.7, e), 0, 7);
+    ctx.arc(NODE.x, NODE.y, lerp(R0, R0 * 4.0, e), 0, 7);
     ctx.strokeStyle = rgba(C.signal, amp * (1 - e));
-    ctx.lineWidth = lerp(2.4, .7, e);
+    ctx.lineWidth = lerp(2.5, .7, e);
     ctx.stroke();
   }
 
@@ -350,10 +410,8 @@ function drawMark(t) {
     if (pl > .67) s = 1;
   }
   const rr = R0 * s;
-  /* Tight, and weak at rest. A wide soft glow looks better here and bands
-     the moment it is quantised to 256 colours. */
   const g = ctx.createRadialGradient(NODE.x, NODE.y, rr * .8, NODE.x, NODE.y, rr * 1.75);
-  g.addColorStop(0, rgba(C.signal, .18 + .22 * hump(pl)));
+  g.addColorStop(0, rgba(C.signal, .18 + .26 * hump(pl)));
   g.addColorStop(1, rgba(C.signal, 0));
   ctx.beginPath(); ctx.arc(NODE.x, NODE.y, rr * 1.75, 0, 7); ctx.fillStyle = g; ctx.fill();
 
@@ -366,10 +424,21 @@ function drawTerminal(t) {
      advertise a system that boots up. What the arrival buys is a surge. */
   const land = span(t, T.actLand - .02, T.actLand + .55);
   const surge = hump(Math.min(1, land / .8));
-
   const { x0, x1, cy, h } = CHIP;
+
+  /* The arrival fills the chip once, left to right, then drains. The
+     action does not merely reach the terminal, it is absorbed by it. */
+  if (surge > .01) {
+    const fill = smoothstep(0, .45, land);
+    ctx.save();
+    ctx.beginPath(); roundRect(x0, cy - h / 2, x1 - x0, h, h / 2); ctx.clip();
+    ctx.fillStyle = rgba(C.signal, .12 * surge);
+    ctx.fillRect(x0, cy - h / 2, (x1 - x0) * fill, h);
+    ctx.restore();
+  }
+
   ctx.beginPath(); roundRect(x0, cy - h / 2, x1 - x0, h, h / 2);
-  ctx.strokeStyle = rgba(C.signal, lerp(.26, .70, surge));
+  ctx.strokeStyle = rgba(C.signal, lerp(.30, .78, surge));
   ctx.lineWidth = 1; ctx.stroke();
 
   const dx = x0 + 13;
@@ -389,32 +458,76 @@ function drawTerminal(t) {
 
   ctx.font = '400 8px "Spline Sans Mono", monospace';
   ctx.textAlign = "left"; ctx.textBaseline = "middle";
-  ctx.fillStyle = rgba(C.signal, lerp(.72, 1, surge));
+  ctx.fillStyle = rgba(C.signal, lerp(.74, 1, surge));
   ctx.letterSpacing = "1.1px";
   ctx.fillText("LINE LIVE", dx + 9, cy + .5);
   ctx.letterSpacing = "0px";
 }
 
-function drawIdentity() {
-  ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
-  ctx.font = '800 16px "Bricolage Grotesque", sans-serif';
-  ctx.letterSpacing = "-0.3px";
-  ctx.fillStyle = C.frost;
-  ctx.fillText("Nevamis", PAD, 31);
-  const w = ctx.measureText("Nevamis").width;
-  ctx.fillStyle = C.signal;
-  ctx.fillText(" AI", PAD + w, 31);
-  ctx.letterSpacing = "0px";
+function drawIdentity(t) {
+  /* The header is drawn twice: once at rest, and then again "lit" inside a
+     narrow travelling window, so one light pass crosses the whole header
+     in step with the arc answering below it.
 
-  ctx.font = '400 7.5px "Spline Sans Mono", monospace';
-  ctx.textAlign = "right"; ctx.fillStyle = rgba(C.muted, .60);
-  ctx.letterSpacing = "1.4px";
-  ctx.fillText("AI AUTOMATION + INTEGRATION", W - PAD, 29);
-  ctx.letterSpacing = "0px";
+     THE FIRST VERSION BRIGHTENED THE WORDMARK TOWARDS WHITE AND WAS
+     INVISIBLE. The wordmark is already #F1F5F2; pushing it to #FFFFFF
+     moves it about 14 levels, which is nothing. Dimming it at rest to make
+     room would have cost the still frame, and the still frame is the one
+     most people see. So the pass TINTS instead of brightening — towards
+     the node's own mint, which is both a visible move and the right idea:
+     the signal is passing through the name. The mono line underneath is
+     dim enough to simply brighten, and carries the other half of the pass. */
+  const drawHeader = (lit) => {
+    ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+    ctx.font = '800 16px "Bricolage Grotesque", sans-serif';
+    ctx.letterSpacing = "-0.3px";
+    ctx.fillStyle = lit ? C.dot : C.frost;
+    ctx.fillText("Nevamis", PAD, 31);
+    const w = ctx.measureText("Nevamis").width;
+    ctx.fillStyle = lit ? C.frost : C.signal;
+    ctx.fillText(" AI", PAD + w, 31);
+    ctx.letterSpacing = "0px";
+
+    ctx.font = '400 7.5px "Spline Sans Mono", monospace';
+    ctx.textAlign = "right";
+    ctx.fillStyle = lit ? rgba(C.frost, .92) : rgba(C.muted, .62);
+    ctx.letterSpacing = "1.4px";
+    ctx.fillText("AI AUTOMATION + INTEGRATION", W - PAD, 29);
+    ctx.letterSpacing = "0px";
+  };
+
+  drawHeader(false);
+
+  const sc = span(t, T.arrive + .02, T.answerEnd + .38);
+  if (sc > 0 && sc < 1) {
+    const bandW = 52;
+    /* smoothstep, NOT quintIO. quintIO spends its first third going almost
+       nowhere — measured mid-sweep the band was still at x=-9.6, off the
+       left edge of the card, so the pass never appeared at all. A light
+       sweep wants near-even speed with softened ends. */
+    const head = lerp(-bandW, W + bandW, smoothstep(0, 1, sc));
+
+    /* Strips whose alpha follows a bell across the band, not one clipped
+       rectangle: a single clip puts a hard vertical edge through the
+       letterforms and reads as a rendering fault. Flat-alpha strips soften
+       it while staying structural — a real gradient this wide bands
+       visibly once quantised to 256 colours. */
+    const STRIPS = 11, sw = bandW / STRIPS;
+    for (let k = 0; k < STRIPS; k++) {
+      const a = Math.sin(Math.PI * ((k + .5) / STRIPS));
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(head - bandW / 2 + k * sw, 10, sw + .6, 30);
+      ctx.clip();
+      ctx.globalAlpha = hump(sc) * a;
+      drawHeader(true);
+      ctx.restore();
+    }
+  }
 
   ctx.beginPath();
-  ctx.moveTo(PAD, 42.5); ctx.lineTo(W - PAD, 42.5);
-  ctx.strokeStyle = rgba(C.frost, .10); ctx.lineWidth = 1; ctx.stroke();
+  ctx.moveTo(PAD, 43.5); ctx.lineTo(W - PAD, 43.5);
+  ctx.strokeStyle = rgba(C.frost, .11); ctx.lineWidth = 1; ctx.stroke();
 }
 
 /* ============================================================
@@ -427,23 +540,21 @@ function render(t) {
   ctx.fillStyle = C.black;
   ctx.fillRect(0, 0, W, H);
 
-  /* The site's own grid, flat and 1px so it survives quantisation. A soft
-     background wash would look better here and band the moment it becomes
-     a GIF, so it is structure that carries the depth instead. */
+  /* The site's own grid, flat and 1px so it survives quantisation. */
   ctx.strokeStyle = rgba(C.frost, .035); ctx.lineWidth = 1;
   ctx.beginPath();
   for (let x = 12.5; x < W; x += 44) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
   for (let y = 15.5; y < H; y += 44) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
   ctx.stroke();
 
-  drawIdentity();
+  drawIdentity(t);
+  drawField(t);                 /* behind everything that carries meaning */
   drawRailStructure();
 
   /* INBOUND. Each rail leaves at its own moment and they all land on
      T.arrive, so the late ones are simply moving faster — the sync is a
      consequence of the timing rather than an effect laid over it. The
-     wobble is what states they were ever out of step, and it is damped by
-     (1-p)^2 so it is exactly zero at the node. Nothing to clean up. */
+     wobble is damped by (1-p)^2, exactly zero at the node. */
   for (let i = 0; i < RAILS.length; i++) {
     const r = RAILS[i], P = PATHS[i];
     const p = span(t, r.start, T.arrive);
@@ -451,7 +562,7 @@ function render(t) {
     const e = railProgress(r, p);
     const wob = (pp) => r.wob * Math.sin(pp * r.freq * Math.PI * 2 + r.phase) * Math.pow(1 - pp, 2);
     const a = r.a * Math.min(1, p * 9) * lerp(.72, 1, p);
-    packet(P, e, 2.5, C.signal, a, wob);
+    packet(P, e, 2.6, C.signal, a, wob);
   }
 
   drawMark(t);
@@ -466,7 +577,7 @@ function render(t) {
     for (let i = 6; i >= 0; i--) {
       const xx = x - i * 2.6, fade = 1 - i / 7;
       if (xx < OUT_X0 - 2) continue;
-      ctx.beginPath(); ctx.arc(xx, RAIL_Y, lerp(1.3, 3.0, fade), 0, 7);
+      ctx.beginPath(); ctx.arc(xx, RAIL_Y, lerp(1.3, 3.1, fade), 0, 7);
       ctx.fillStyle = rgba(C.action, .95 * fade * fade);
       ctx.fill();
     }
@@ -474,14 +585,12 @@ function render(t) {
 
   drawTerminal(t);
 
-  /* Hairline frame last, so nothing draws over the card edge. It brightens
-     a little as the node answers — the container registering that
-     something happened inside it. Almost subliminal, and the reason the
-     beat lands as a whole-system event rather than a local one. */
-  const ack = hump(span(t, T.arrive - .02, T.arrive + .70));
+  /* Hairline frame last. It brightens a little as the node answers — the
+     container registering that something happened inside it. */
+  const ack = hump(span(t, T.arrive - .02, T.arrive + .74));
   ctx.beginPath();
   roundRect(.5, .5, W - 1, H - 1, 13);
-  ctx.strokeStyle = rgba(C.frost, lerp(.13, .26, ack)); ctx.lineWidth = 1; ctx.stroke();
+  ctx.strokeStyle = rgba(C.frost, lerp(.13, .28, ack)); ctx.lineWidth = 1; ctx.stroke();
 }
 
 function roundRect(x, y, w, h, r) {

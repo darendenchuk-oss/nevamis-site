@@ -40,13 +40,30 @@ const OUT = here;
    other number that should not have been here either. */
 const PUBLIC_TEL = "+15874130035";
 const PUBLIC_DIGITS = "5874130035";
-const PHONE_SHAPED = /(\+?1[^0-9a-zA-Z]{0,2})?\(?\d{3}\)?[^0-9a-zA-Z]{0,3}\d{3}[^0-9a-zA-Z]{0,3}\d{4}/g;
+
+/* A number counts as a phone number if a human WROTE it as one — grouped
+   with separators, or carrying a +1 / tel: prefix. That is how a number
+   reaches a template: pasted from a contact card, not typed as a bare
+   integer.
+
+   Matching every 10-digit run instead was too eager and failed the build on
+   4294967296 — 2^32, in the scene's PRNG. A constant is not a phone number,
+   and a check that cries wolf on arithmetic gets switched off.
+
+   The bare-digits gap is closed narrowly rather than broadly: an
+   unseparated run is only suspicious if it opens with an Alberta area
+   code, which is where every Nevamis line lives. That keeps the check
+   specific without writing the private number down anywhere. */
+const FORMATTED = /(?:tel:)?(?:\+?1[\s.\-]?)?\(?\d{3}\)?[\s.\-]\d{3}[\s.\-]\d{4}|(?:tel:|\+1)\d{10}/g;
+const BARE_LOCAL = /(?<!\d)(?:403|587|780|825)\d{7}(?!\d)/g;
 
 function offendingNumbers(text) {
   const bad = [];
-  for (const m of text.matchAll(PHONE_SHAPED)) {
-    const digits = m[0].replace(/\D/g, "").replace(/^1/, "");
-    if (digits.length === 10 && digits !== PUBLIC_DIGITS) bad.push(m[0].trim());
+  for (const re of [FORMATTED, BARE_LOCAL]) {
+    for (const m of text.matchAll(re)) {
+      const digits = m[0].replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
+      if (digits.length === 10 && digits !== PUBLIC_DIGITS) bad.push(m[0].trim());
+    }
   }
   return bad;
 }

@@ -3,25 +3,25 @@
   "concept": "the line picks up — four channels arrive out of sync, sync on the Nevamis node, one action leaves",
   "gif": {
     "file": "nevamis-signature.gif",
-    "bytes": 131381,
-    "kb": 128.3,
+    "bytes": 169264,
+    "kb": 165.3,
     "sourceWidth": 960,
-    "sourceHeight": 264,
+    "sourceHeight": 288,
     "displayWidth": 480,
-    "displayHeight": 132,
+    "displayHeight": 144,
     "retina": "2x",
-    "framesInFile": 84,
-    "framesRendered": 120,
+    "framesInFile": 89,
+    "framesRendered": 125,
     "fps": 25,
-    "loopSeconds": 4.8,
+    "loopSeconds": 5,
     "palette": "256 colours, median-cut with the brand vocabulary reserved",
     "dither": "none",
     "loops": "forever",
     "loopClosed": true
   },
   "stillness": {
-    "longestHeldFrameSeconds": 1.04,
-    "distinctFrames": 84
+    "longestHeldFrameSeconds": 0.96,
+    "distinctFrames": 89
   },
   "phoneNumbers": "public Ava line only — verified by allowlist over every text file"
 }
