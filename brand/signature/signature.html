@@ -1,0 +1,58 @@
+<!--
+  NEVAMIS EMAIL SIGNATURE — production markup.
+
+  Paste the block between the two PASTE markers into Gmail's signature
+  editor (see README.md). Everything here is a table, an inline style or
+  an anchor, because that is all Outlook's Word renderer is reliable with.
+
+  WHAT IS AN IMAGE AND WHAT IS TEXT, AND WHY.
+  The motion card is the image. Every word that has to be readable,
+  selectable, clickable or searchable is real text — the name, the role,
+  the site, the address and the phone number. So with images blocked the
+  signature still says who this is and still dials; the image only ever
+  carried the brand and the motion.
+
+  WHY THE WHOLE THING SITS ON AN EXPLICIT DARK BACKGROUND.
+  The first version put the text on whatever background the reader's
+  client happened to have, with colours picked to suit white. Rendered
+  against Gmail's dark surface the name went invisible — #16232B on
+  #202124. The usual fix, a prefers-color-scheme block, is not available
+  here: GMAIL STRIPS <style> FROM SIGNATURES, so only inline styles
+  survive, and no single inline colour clears 4.5:1 on both white and
+  near-black — the luminance windows barely overlap.
+
+  So the background is not left to chance. bgcolor plus an inline
+  background-color is honoured by Gmail, Apple Mail and Outlook in both
+  light and dark, which means the signature renders identically
+  everywhere and every colour in it can be the brand's own.
+-->
+
+<!-- ===================== PASTE FROM HERE ===================== -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="516" style="border-collapse:collapse;width:100%;max-width:516px;background-color:#02080D;border-radius:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;" bgcolor="#02080D">
+  <tr>
+    <!-- the radius is repeated on the cell: a td background paints over the
+         table's rounded corners and squares the card off again -->
+    <td style="padding:16px 18px 14px 18px;background-color:#02080D;border-radius:14px;" bgcolor="#02080D">
+
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="480" style="border-collapse:collapse;width:100%;max-width:480px;">
+        <tr>
+          <td style="padding:0 0 11px 0;line-height:0;font-size:0;">
+            <a href="https://nevamis.ca" style="text-decoration:none;border:0;outline:none;"><img src="https://nevamis.ca/brand/signature/nevamis-signature.gif" width="480" height="132" alt="Nevamis" style="display:block;border:0;outline:none;text-decoration:none;width:100%;max-width:480px;height:auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:700;line-height:132px;color:#F1F5F2;"></a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 0 2px 18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:19px;color:#8FA6A0;">
+            <span style="font-weight:700;color:#F1F5F2;">Will</span><span style="color:#40525C;">&nbsp; ·&nbsp; </span>Founder, Nevamis AI
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 0 0 18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:19px;color:#8FA6A0;">
+            <a href="https://nevamis.ca" style="color:#38E6A2;text-decoration:none;">nevamis.ca</a><span style="color:#40525C;">&nbsp; ·&nbsp; </span><a href="mailto:daren@nevamis.ca" style="color:#8FA6A0;text-decoration:none;">daren@nevamis.ca</a><span style="color:#40525C;">&nbsp; ·&nbsp; </span><a href="tel:+15874130035" style="color:#FF7A3D;text-decoration:none;font-weight:700;white-space:nowrap;">Call Ava live&nbsp;<span style="font-weight:400;color:#E0A183;">(587)&nbsp;413-0035</span>&nbsp;&rarr;</a>
+          </td>
+        </tr>
+      </table>
+
+    </td>
+  </tr>
+</table>
+<!-- ====================== PASTE TO HERE ====================== -->

@@ -1,0 +1,6 @@
+# Intermediate frames and review renders. build.mjs rebuilds them from
+# scene.html; none of it belongs in a repository that is served as a website.
+.frames/
+.out/
+nevamis-signature.raw.gif
+__pycache__/
