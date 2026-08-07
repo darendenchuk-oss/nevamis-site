@@ -220,6 +220,38 @@ function bezNormal(P, t) {
 const PATHS = RAILS.map(railPath);
 
 /* ============================================================
+   THE WARP — the layer has mass.
+
+   The grid does not sit behind the composition, it is deformed by it:
+   every gridline bends toward the node, hardest nearby, and brightens
+   where it bends. At rest that is a permanent dip, which is what stops the
+   still frame reading as a diagram — the node is visibly a heavy thing
+   rather than a dot placed on lines. When it answers, a shockwave travels
+   outward through the same field and the grid bends as the front passes.
+
+   Structural, not a gradient: this is line geometry, so it survives
+   quantisation to 256 colours exactly, where a glow of equivalent drama
+   would band across the whole card.
+   ============================================================ */
+const WARP = { sigma: 76, rest: 15, waveAmp: 27, waveWidth: 33, waveTo: 340 };
+
+function warpAt(x, y, t) {
+  const dx = x - NODE.x, dy = y - NODE.y;
+  const r = Math.hypot(dx, dy) || 1e-6;
+  let pull = WARP.rest / (1 + (r / WARP.sigma) ** 2);      /* the standing dip */
+
+  const wp = span(t, T.arrive - .02, T.rippleEnd + .34);
+  if (wp > 0 && wp < 1) {
+    const front = quintOut(wp) * WARP.waveTo;
+    const g = Math.exp(-((r - front) ** 2) / (2 * WARP.waveWidth ** 2));
+    pull += WARP.waveAmp * g * (1 - wp * wp);
+  }
+  const k = pull / r;
+  return { x: x - dx * k, y: y - dy * k, pull };
+}
+const warpIntensity = (pull) => Math.min(1, pull / (WARP.rest + WARP.waveAmp));
+
+/* ============================================================
    THE FIELD
 
    A constellation of the systems beyond the four named rails, generated
@@ -302,10 +334,12 @@ const FIELD = (() => {
 /* A packet is drawn as its own short trail rather than a dot, because at
    25fps a dot teleports. Sub-sampling backwards along the path is cheap
    motion blur and it is what makes the low frame rate read as smooth. */
-function packet(P, p, r, colour, alpha, wobFn) {
+function packet(P, p, r, colour, alpha, wobFn, dir = 1) {
   const SUB = 7, TRAIL = 0.055;
   for (let i = SUB - 1; i >= 0; i--) {
-    const pp = Math.max(0, p - (i / SUB) * TRAIL);
+    /* dir flips which side the trail lags on, so a packet running back out
+       along a rail smears behind itself rather than in front. */
+    const pp = Math.min(1, Math.max(0, p - dir * (i / SUB) * TRAIL));
     const pt = bezPt(P, pp);
     let x = pt.x, y = pt.y;
     if (wobFn) { const n = bezNormal(P, pp), o = wobFn(pp); x += n.x * o; y += n.y * o; }
@@ -326,18 +360,80 @@ function drawField(t) {
   const lit = (d) => (edge < 0 ? 0
     : Math.max(0, 1 - Math.abs(d - edge) / 46) * (1 - Math.pow(rp, 2.2)));
 
+  /* The field sits IN the warped space, so it is displaced by the same
+     function the grid is — the shockwave visibly shoves the downstream
+     nodes as it goes through them. Distances for the ripple are measured
+     from the undisplaced positions, so the timing never wobbles. */
+  const at = (p) => warpAt(p.x, p.y, t);
+
   for (const [i, j] of FIELD.links) {
-    const a = FIELD.pts[i], b = FIELD.pts[j];
-    const g = Math.max(lit(a.d), lit(b.d));
+    const a = at(FIELD.pts[i]), b = at(FIELD.pts[j]);
+    const g = Math.max(lit(FIELD.pts[i].d), lit(FIELD.pts[j].d));
     ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
     ctx.strokeStyle = rgba(g > .02 ? C.signal : C.muted, lerp(.085, .34, g));
     ctx.lineWidth = 1; ctx.stroke();
   }
   for (const p of FIELD.pts) {
-    const g = lit(p.d);
-    ctx.beginPath(); ctx.arc(p.x, p.y, p.r * lerp(1, 1.5, g), 0, 7);
+    const g = lit(p.d), w = at(p);
+    ctx.beginPath(); ctx.arc(w.x, w.y, p.r * lerp(1, 1.6, g), 0, 7);
     ctx.fillStyle = rgba(g > .02 ? C.signal : C.muted, lerp(.26, .95, g));
     ctx.fill();
+  }
+}
+
+function drawWarpedGrid(t) {
+  /* Drawn as polylines rather than straight strokes, and segment by
+     segment, because the brightness has to follow the bend: the grid
+     glows exactly where it is being deformed. Sampled past the card edges
+     so the inward pull cannot open a gap at the border. */
+  const SEG = 30;
+  ctx.lineWidth = 1;
+  const stroke = (pts) => {
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1], b = pts[i];
+      const inten = warpIntensity((a.pull + b.pull) / 2);
+      /* Held down across the header. The wave is violent enough to throw
+         bright lines straight through the wordmark, and the identity plate
+         has to stay the calmest thing on the card — it is the part that
+         still has to work as a signature. A floor rather than a hard clip,
+         so the header keeps its texture at rest. */
+      const mask = lerp(.22, 1, smoothstep(18, 56, (a.y + b.y) / 2));
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+      ctx.strokeStyle = rgba(inten > .46 ? C.signal : C.frost,
+                             (.028 + .30 * Math.pow(inten, .85)) * mask);
+      ctx.stroke();
+    }
+  };
+  for (let gx = -31.5; gx < W + 44; gx += 44) {
+    const pts = [];
+    for (let i = 0; i <= SEG; i++) pts.push(warpAt(gx, lerp(-26, H + 26, i / SEG), t));
+    stroke(pts);
+  }
+  for (let gy = -28.5; gy < H + 44; gy += 44) {
+    const pts = [];
+    for (let i = 0; i <= SEG; i++) pts.push(warpAt(lerp(-26, W + 26, i / SEG), gy, t));
+    stroke(pts);
+  }
+}
+
+function drawDischarge(t) {
+  /* Radial discharge. Staggered by a fixed permutation rather than evenly,
+     so it reads as something releasing rather than as a starburst clipart. */
+  const d = span(t, T.arrive, T.arrive + .58);
+  if (d <= 0 || d >= 1) return;
+  const N = 13;
+  for (let i = 0; i < N; i++) {
+    const ang = (i / N) * Math.PI * 2 + .26;
+    const stag = ((i * 5) % N) / N * .22;
+    const dd = (d - stag) / (1 - stag);
+    if (dd <= 0 || dd >= 1) continue;
+    const e = quintOut(dd);
+    ctx.beginPath();
+    ctx.moveTo(NODE.x + Math.cos(ang) * lerp(7, 30, e), NODE.y + Math.sin(ang) * lerp(7, 30, e));
+    ctx.lineTo(NODE.x + Math.cos(ang) * lerp(13, 78, e), NODE.y + Math.sin(ang) * lerp(13, 78, e));
+    ctx.strokeStyle = rgba(C.signal, .42 * (1 - e) * (1 - e));
+    ctx.lineWidth = lerp(1.7, .5, e);
+    ctx.stroke();
   }
 }
 
@@ -380,7 +476,11 @@ function drawMark(t) {
   ctx.lineCap = "round"; ctx.lineWidth = ARC_W;
   ctx.beginPath(); ctx.arc(ARC_C.x, ARC_C.y, ARC_R, Math.PI, 0);
   ctx.strokeStyle = C.arc;
-  ctx.globalAlpha = lerp(.88, 1, hump(ans));
+  /* The arc CHARGES before it answers: as the four packets close in it
+     brightens toward full, so the answer is arrived at rather than
+     switched on. Anticipation, in the animation sense. */
+  const charge = span(t, T.arrive - .60, T.arrive);
+  ctx.globalAlpha = lerp(.86, 1, Math.max(hump(ans), charge * charge));
   ctx.stroke();
   ctx.globalAlpha = 1;
 
@@ -552,13 +652,7 @@ function render(t) {
   ctx.fillStyle = C.black;
   ctx.fillRect(0, 0, W, H);
 
-  /* The site's own grid, flat and 1px so it survives quantisation. */
-  ctx.strokeStyle = rgba(C.frost, .035); ctx.lineWidth = 1;
-  ctx.beginPath();
-  for (let x = 12.5; x < W; x += 44) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
-  for (let y = 15.5; y < H; y += 44) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
-  ctx.stroke();
-
+  drawWarpedGrid(t);
   drawIdentity(t);
   drawField(t);                 /* behind everything that carries meaning */
   drawRailStructure();
@@ -577,6 +671,21 @@ function render(t) {
     packet(P, e, 2.6, C.signal, a, wob);
   }
 
+  /* BACK-PROPAGATION. The answer does not only travel onward, it travels
+     BACK: every domain is updated at once, and — unlike the arrival — the
+     four move in perfect lockstep. That contrast is the whole argument
+     made twice. Ragged in, synchronised out. */
+  const bp = span(t, T.arrive + .08, T.arrive + .95);
+  if (bp > 0 && bp < 1) {
+    /* (1-bp)^1.8, not 1-quintOut(bp). quintOut is saturated by about 70% of
+       the way through, so the four packets reached the rail origins early
+       and then sat there visibly stacked up for a quarter of a second.
+       This decelerates outward and lands exactly as the window closes. */
+    const e = Math.pow(1 - bp, 1.8);
+    for (const P of PATHS) packet(P, e, 2.1, C.signal, .60 * (1 - bp * bp), null, -1);
+  }
+
+  drawDischarge(t);
   drawMark(t);
 
   /* OUTBOUND — one packet, in the action colour. Four things arrived and

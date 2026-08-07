@@ -60,6 +60,22 @@ scattered across the whole card, the nodes that landed inside the inbound
 fan competed with the four rails and the convergence stopped reading as
 convergence.
 
+**The layer has mass.** The grid does not sit behind the composition, it is
+deformed by it: every gridline bends toward the node, hardest nearby, and
+brightens where it bends. At rest that standing dip is what stops the still
+frame reading as a diagram — the node is visibly a heavy object rather than
+a dot placed on lines. When it answers, a shockwave travels outward through
+the same field and the grid bends as the front passes through it, shoving
+the downstream nodes on its way. It is line geometry, so it survives
+quantisation exactly, where a glow of equivalent drama would band across the
+whole card. The identity plate is held down to 22% of that brightness: the
+wave is violent enough to throw bright lines through the wordmark, and the
+header still has to work as a signature.
+
+**The answer travels back, not just onward.** Once the node fires, all four
+domains are updated at once — and unlike the arrival, the four move in
+perfect lockstep. Ragged in, synchronised out: the argument made twice.
+
 **One light pass crosses the header** as the arc answers, tinting the
 wordmark toward the node's own mint and lifting the dim mono line beneath
 it — the identity registering the event rather than sitting through it.
@@ -76,7 +92,7 @@ t=5.0s is not pixel-identical to the frame at t=0.
 
 | File | What it is |
 |---|---|
-| `nevamis-signature.gif` | **The signature.** 159.6 KB, 960×288 shown at 480×144 |
+| `nevamis-signature.gif` | **The signature.** 366 KB, 960×288 shown at 480×144 |
 | `nevamis-signature.png` | Static fallback / first frame — the same resolved composition |
 | `nevamis-signature-master.mp4` | High-quality master (x264 crf 14) for re-encoding |
 | `nevamis-signature-master.webm` | High-quality master (VP9 crf 18) |
@@ -93,7 +109,7 @@ t=5.0s is not pixel-identical to the frame at t=0.
 
 | | |
 |---|---|
-| GIF file size | **159.6 KB** |
+| GIF file size | **366 KB** |
 | Source dimensions | 960 × 288 (2× retina) |
 | Display dimensions | 480 × 144 |
 | Frames in file | 89 (from 125 rendered) |
