@@ -231,8 +231,26 @@ export function initHero() {
     // overlaps the copy still settling beneath it instead of starting a
     // fresh, separate event.
     .to(chars1, { yPercent: 0, duration: 0.65, stagger: 0.024, ease: MOTION.ease.curtain }, 0.5)
+    // The SECOND line follows the first as one cascading gesture, not as a
+    // payoff withheld until the film ends.
+    //
+    // It used to release at 5.8s. For 5.8 seconds the page therefore read
+    // "Every call," — a sentence broken off at a comma. That does not scan as
+    // suspense; it scans as a rendering fault, and it withholds the one clause
+    // that says what the company does. Comprehension is not a reward for
+    // watching the film.
+    //
+    // Offset 0.16s behind line 1 (not simultaneous): a two-line curtain reads
+    // as one movement when the second line trails the first by roughly one
+    // stagger step, and as a stutter when they start together. Full sentence
+    // legible at ~1.53s against a 294ms interactive page.
+    .to(chars2, { yPercent: 0, duration: 0.65, stagger: 0.024, ease: MOTION.ease.curtain }, 0.66)
     // CTAs settle — they do not bounce, and they do not wait for the film.
     .to('[data-cta]', { yPercent: 0, autoAlpha: 1, duration: 0.45, stagger: MOTION.stagger.base, ease: MOTION.ease.enter }, 0.78);
+
+  // The underline is the headline's typographic finish, so it belongs to the
+  // headline's gesture — drawn as line 2 settles, not six seconds later.
+  if (underline) tl.to(underline, { scaleX: 1, duration: 0.4, ease: MOTION.ease.enter }, 1.1);
 
   // --- 0.35–1.65 · the node comes into focus; the call closes on it ---
   if (scrim) tl.to(scrim, { opacity: 1, duration: 0.55, ease: 'none' }, 0.35);
@@ -331,21 +349,22 @@ export function initHero() {
   // TEXT — "booking confirmed", the payoff state — holds a full beat.
   tl.to(packet, { opacity: 0, duration: 0.2 }, 5.5);
 
-  // --- 5.7–6.5 · clear the stage, THEN land the payoff -------------
-  // Exits first, together, on one ease; the headline rises into an already
-  // clearing frame instead of fighting the routing UI for attention. The
-  // stage RECEDES — fades while stepping back a fraction — rather than
-  // translating up: the old y:-10 exit ran head-on into "captured." rising
-  // from below, two opposed verticals in one frame. Depth exits do not
-  // compete with vertical entrances; they hand the frame over.
-  // The CTAs have been live for over four seconds by now, so the film's
-  // ending does not deliver them — it POINTS at them: "captured." lands
-  // with its underline drawing out, the sky gives one long payoff swell,
-  // and the buttons give one small acknowledging pulse.
+  // --- 5.7–6.5 · clear the stage and hand the frame back ------------
+  // Exits first, together, on one ease. The stage RECEDES — fades while
+  // stepping back a fraction — rather than translating up: a y:-10 exit used
+  // to run head-on into "captured." rising from below, two opposed verticals
+  // in one frame. Depth exits do not compete; they hand the frame over.
+  //
+  // What the ending now points AT changed, and this is the substance of the
+  // re-choreography rather than a moved timestamp. The film used to end by
+  // completing the sentence, which meant the sentence was the reward for
+  // watching. The headline now lands at ~1.5s, so the ending has one job
+  // instead: the demo has finished proving the claim, the stage clears, and
+  // the only lit thing left in the frame is the pair of buttons that were
+  // already live at 1.2s. The film ends by directing attention to the action,
+  // not by delivering comprehension.
   tl.to([story, status], { opacity: 0, scale: 0.97, transformOrigin: '50% 50%', duration: 0.3, ease: 'power2.in' }, 5.7)
-    .set([story, status], { scale: 1 })
-    .to(chars2, { yPercent: 0, duration: 0.55, stagger: 0.024, ease: MOTION.ease.curtain }, 5.8);
-  if (underline) tl.to(underline, { scaleX: 1, duration: 0.4, ease: MOTION.ease.enter }, 6.0);
+    .set([story, status], { scale: 1 });
   tl.to('[data-cta]', { scale: 1.02, duration: 0.16, ease: 'power2.out', stagger: 0.05 }, 6.05)
     .to('[data-cta]', { scale: 1, duration: 0.3, ease: MOTION.ease.move, stagger: 0.05 }, 6.21);
 
