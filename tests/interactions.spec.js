@@ -24,25 +24,64 @@ test('pricing preview renders every plan from the single source of truth', async
   watchErrors(page, errors);
   await page.goto(PLAIN);
 
+  /* Every assertion below reads the config. The previous version pinned
+     "After Hours", "C$249", "C$449", "from C$849" and "two months free" into
+     the test: five retired facts, four of them retired prices and one an
+     annual offer that has been switched off since 2026-08-06. The plan names
+     and the numbers had all moved on, so this test could only ever fail, and
+     while it failed it was still the thing standing guard over the homepage's
+     price cards. A test that hardcodes the answer stops being a guard the
+     first time the answer legitimately changes. */
+  const cfg = await page.evaluate(() => ({
+    plans: window.NV_PRICING.plans.map((p) => ({
+      name: p.name, monthly: p.monthly, setup: p.setup, minutes: p.includedMinutes,
+    })),
+    recommendedLabel: window.NV_PRICING.recommendedLabel,
+    annualActive: !!(window.NV_PRICING.annual && window.NV_PRICING.annual.active),
+    retired: [49, 197, 249, 397, 449, 499, 797, 849],
+  }));
+
   const cards = page.locator('#pricePreview .price-card');
-  await expect(cards).toHaveCount(3);
-  await expect(cards.nth(0)).toContainText('After Hours');
-  await expect(cards.nth(0)).toContainText('C$249');
-  await expect(cards.nth(1)).toContainText('Growth');
-  await expect(cards.nth(1)).toContainText('C$449');
-  /* Read from the config rather than hardcoded. The badge used to say
-     "MOST COMMON", which is a statistic about a client base that does not
-     exist, and this assertion is part of why it survived: it pinned the exact
-     fabricated wording in place. Asserting the configured label instead means
-     the test checks that the badge renders from the single source of truth,
-     without also insisting on any particular claim. */
-  const recommendedLabel = await page.evaluate(() => window.NV_PRICING.recommendedLabel);
-  expect(recommendedLabel, 'pricing-config must define recommendedLabel').toBeTruthy();
-  await expect(cards.nth(1)).toContainText(recommendedLabel);
-  await expect(cards.nth(2)).toContainText('from C$849');
-  // annual + PAYG lines come from config, not hardcoded HTML
-  await expect(cards.nth(1)).toContainText('two months free');
-  await expect(page.locator('#paygLine')).toContainText('C$49');
+  await expect(cards).toHaveCount(cfg.plans.length);
+
+  const grp = (n) => Number(n).toLocaleString('en-CA');
+  for (const [i, plan] of cfg.plans.entries()) {
+    const card = cards.nth(i);
+    await expect(card).toContainText(plan.name);
+    /* BOTH numbers, in the order a buyer meets them. Until 2026-08-07 this
+       card read "C$250/month" over "setup C$250", which is the same two
+       correct figures arranged so a reader totals them to C$500 on day one.
+       Asserting the recurring price alone is what let that ship. */
+    await expect(card, `${plan.name} must state what month one costs`)
+      .toContainText(`First month C$${grp(plan.setup)}`);
+    await expect(card, `${plan.name} must state what every month after costs`)
+      .toContainText(`then C$${grp(plan.monthly)}/month`);
+    await expect(card).toContainText(`${grp(plan.minutes)} AI minutes included`);
+  }
+
+  /* The badge used to say "MOST COMMON", a statistic about a client base that
+     does not exist, and the old assertion pinned that exact wording in place.
+     Asserting the CONFIGURED label instead proves the badge renders from the
+     single source of truth without insisting on any particular claim. */
+  expect(cfg.recommendedLabel, 'pricing-config must define recommendedLabel').toBeTruthy();
+  const recIndex = cfg.plans.findIndex((p) => p.name === 'Growth');
+  await expect(cards.nth(recIndex)).toContainText(cfg.recommendedLabel);
+
+  /* Annual prepay is suspended. Advertising "two months free" against a yearly
+     figure nobody approved is inventing a price, so the card must NOT carry it
+     while the config says it is off. */
+  if (!cfg.annualActive) {
+    await expect(page.locator('#pricePreview')).not.toContainText('two months free');
+  }
+
+  /* Every retired price, in one sweep. C$49 was checked alone here, which is
+     why C$249, C$449 and C$849 stayed on this page for as long as they did. */
+  const body = await page.locator('body').innerText();
+  for (const n of cfg.retired) {
+    expect(body, `retired price C$${n} must not appear on the homepage`)
+      .not.toMatch(new RegExp(`C\\$${n}\\b`));
+  }
+  await expect(page.locator('body')).not.toContainText('Pay As You Go');
   expect(errors, errors.join('\n')).toEqual([]);
 });
 

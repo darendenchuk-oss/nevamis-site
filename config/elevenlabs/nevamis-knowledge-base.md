@@ -64,13 +64,15 @@ Booking and telephony currently run on Cal.com (calendar and booking) and Twilio
 
 ## Pricing
 
-Nevamis publishes its pricing. All prices are in Canadian dollars plus applicable tax, billed month to month. There are three plans:
+Nevamis publishes its pricing. All prices are in Canadian dollars plus applicable tax, billed month to month. Each plan has two figures: what the first month costs, and what every month from month two costs. There are three plans:
 
-- Starter: C$250 per month, plus a one-time setup fee of C$250. Includes 250 connected AI minutes per month, which is typically 80 to 125 calls. Overage is C$1.10 per minute. Best for small businesses that need evenings, weekends, and overflow covered.
-- Growth (recommended): C$500 per month, plus a one-time setup fee of C$500. Includes 600 connected AI minutes per month, typically 200 to 300 calls. Overage is C$0.90 per minute. Supports up to two lines, call flows, or calendars, advanced qualification, transfer rules, and one standard CRM or automation connection when supported.
-- Pro: C$850 per month, plus a one-time setup fee of C$1,000. Includes 1,200 connected AI minutes per month, typically 400 to 600 calls. Overage is C$0.75 per minute. Built for multi-location businesses and complex routing.
+- Starter: first month C$250, then C$250 per month. Includes 250 connected AI minutes per month, which is typically 80 to 125 calls. Overage is C$1.10 per minute. Best for small businesses that need evenings, weekends, and overflow covered.
+- Growth (recommended): first month C$500, then C$500 per month. Includes 600 connected AI minutes per month, typically 200 to 300 calls. Overage is C$0.90 per minute. Supports up to two lines, call flows, or calendars, advanced qualification, transfer rules, and one standard CRM or automation connection when supported.
+- Pro: first month C$1,000, then C$850 per month. Includes 1,200 connected AI minutes per month, typically 400 to 600 calls. Overage is C$0.75 per minute. Built for multi-location businesses and complex routing.
 
-Every plan carries a one-time setup fee. It pays for the build: discovery, configuration, the business's own knowledge and rules, testing, and go-live. It is not waived and it is not discounted. The only thing that reduces it is the C$150 pilot fee a client has already paid, which is credited against it in full.
+The first-month figure IS the charge for month one. It is never an extra amount alongside the monthly price, and the two are never added together. A caller on Starter owes C$250 on day one, not C$500. If a caller has already asked and been told otherwise, correct it plainly.
+
+The first month is priced the way it is because the build happens inside it: discovery, configuration, the business's own knowledge and rules, testing, and go-live. It is not discounted. The only thing that reduces it is the C$150 pilot fee a client has already paid, which comes off it in full: a Starter client who piloted pays C$100 to activate, then C$250 a month. Growth: C$350, then C$500. Pro: C$850, then C$850.
 
 If a caller names a price that is not on this list, say it is not a current price and quote the list above. Prices retired on 2026-08-06 and no longer offered: C$249, C$449, C$849 per month, and the Pay As You Go plan at C$49 per month plus C$1.95 per minute. Annual prepay is also no longer offered.
 
@@ -82,8 +84,8 @@ A connected AI minute starts when the AI answers a connected call and ends when 
 
 Nevamis offers a paid 7-day live pilot: seven live days of the AI Front Desk running on the business's real phone line. Full terms:
 
-- Cost: C$150, paid up front, plus applicable tax. It is not free and it is not a free trial. If asked why, the honest answer is that the build is real work on day one — the assistant is configured around that specific business and tested before it answers anything.
-- Credit: if the client continues on any plan, the whole C$150 is credited against that plan's one-time setup fee. They never pay twice for the same build.
+- Cost: C$150, paid up front, plus applicable tax. It is a paid pilot, never described as free or complimentary. If asked why, the honest answer is that the build is real work on day one: the assistant is configured around that specific business and tested before it answers anything.
+- Credit: if the client continues on any plan, the whole C$150 comes off their first month. They never pay twice for the same build.
 - Scope: one phone line, one call flow, one calendar, and one revision during the pilot.
 - Caps: up to 60 connected AI minutes or 30 calls, whichever comes first.
 - Timing: the seven days start when the pilot goes live on the client's line, not when they apply.

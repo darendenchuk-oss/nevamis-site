@@ -34,7 +34,9 @@ The deflection-only PRICING section is replaced with the approved published pric
 
 All prices are CAD plus applicable tax, month to month, cancel before the next renewal. The agent may also explain, on request, what a connected AI minute is (starts when the AI answers a connected call, ends when the AI portion ends; calls that never connect are not counted; spam that reaches the AI is counted) and the usage-alert behaviour (alerts at 75%, 90%, and 100%; near the limit the client chooses automatic overage, fallback answering, or a hard cap).
 
-No setup fee, on any plan, for anyone (2026-07-31). Nothing is charged before the receptionist is answering. The agent should state this plainly when asked about setup or installation costs: every competitor charges one, so silence on the subject reads as dodging it. There is no founding-client offer and no scarcity of any kind to imply.
+Each plan has a first-month amount and a recurring monthly amount, and the two are never added together (2026-08-07). Starter is C$250 then C$250/month, Growth C$500 then C$500/month, Pro C$1,000 then C$850/month. The agent should give BOTH figures for the plan being discussed whenever cost comes up, because a caller who leaves believing Starter costs C$500 on day one has been misled by two correct numbers. The C$150 pilot fee comes off the first month if they continue. There is no founding-client offer, no waiver, and no scarcity of any kind to imply.
+
+*(This paragraph said "No setup fee, on any plan, for anyone (2026-07-31)" and told the agent to state it plainly. Setup was reinstated on 2026-08-06 and reframed as the first month on 2026-08-07; the instruction survived both and would have had the live agent denying a charge the invoice makes.)*
 
 Why: the site publishes these numbers. An agent that hides them looks evasive and loses the caller who already knows them.
 

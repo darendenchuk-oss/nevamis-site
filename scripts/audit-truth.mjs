@@ -38,6 +38,27 @@ if (!approvedMonthly.size || !approvedSetup.size) {
   process.exit(1);
 }
 
+/* The pilot fee, and what a first month costs once that fee is credited.
+
+   Both are approved figures and neither was in the set, so this auditor
+   reported the published C$150 pilot fee as an unapproved price on every page
+   that mentions it: nineteen of its twenty-one findings were the pilot fee
+   being correct. An audit whose output is nine parts noise gets skimmed, and
+   the two real lines in it get skimmed with the rest.
+
+   The credited amounts (C$250 - C$150 = C$100, and so on) are DERIVED here
+   rather than listed, which is the point of computing them. Change the pilot
+   fee in pricing-config.js and the pages that spell out "C$100 to activate"
+   start failing this audit immediately, instead of staying plausible and
+   wrong. Hardcoding the same three numbers in this file would have bought the
+   quiet without the guard. */
+const pilotFee = numbersFor("fee")[0];
+const approvedDerived = new Set();
+if (pilotFee) {
+  approvedDerived.add(pilotFee);
+  for (const s of approvedSetup) if (s - pilotFee > 0) approvedDerived.add(s - pilotFee);
+}
+
 const findings = [];
 const add = (sev, page, what) => findings.push({ sev, page, what });
 
@@ -53,7 +74,7 @@ for (const f of pages) {
   for (const m of text.matchAll(/\$\s?(\d{2,4})\b(?!\s?(?:k|,\d))/g)) {
     const n = Number(m[1]);
     if (n < 40) continue;                      // small numbers are job values / examples
-    if (approvedMonthly.has(n) || approvedSetup.has(n) || approvedAnnual.has(n)) continue;
+    if (approvedMonthly.has(n) || approvedSetup.has(n) || approvedAnnual.has(n) || approvedDerived.has(n)) continue;
     const ctx = text.slice(Math.max(0, m.index - 90), m.index + 60).replace(/\s+/g, " ").trim();
     // Buyer-entered assumptions, job-value illustrations, and the fictional
     // trade prices spoken inside example call transcripts are not our pricing.

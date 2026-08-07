@@ -146,19 +146,23 @@ test('pricing publishes a parseable price table for answer engines', async ({ pa
   const agg = product.offers;
   expect(agg['@type']).toBe('AggregateOffer');
   expect(agg.priceCurrency).toBe('CAD');
-  expect(Number(agg.offerCount)).toBeGreaterThanOrEqual(4);   // 3 plans + PAYG
+  expect(Number(agg.offerCount)).toBe(3);   // Starter, Growth, Pro
 
   // prices must match the config, never a hardcoded copy
   const cfg = await page.evaluate(() => ({
     plans: window.NV_PRICING.plans.map((p) => ({ name: p.name, monthly: p.monthly })),
-    payg: window.NV_PRICING.payAsYouGo.monthly,
   }));
   for (const plan of cfg.plans) {
     const offer = agg.offers.find((o) => o.name === plan.name);
     expect(offer, `offer missing for ${plan.name}`).toBeTruthy();
     expect(offer.price).toBe(String(plan.monthly));
   }
-  expect(Number(agg.lowPrice)).toBe(cfg.payg);
+  /* lowPrice was asserted against Pay As You Go's C$49. That is the number the
+     schema advertised to crawlers while no human could see it anywhere on the
+     page. The plan was removed 2026-08-07; the floor a crawler is told is now
+     the floor a buyer is shown. */
+  expect(Number(agg.lowPrice)).toBe(cfg.plans[0].monthly);
+  expect(Number(agg.lowPrice)).toBe(250);
 });
 
 test('every price promised to a crawler is visible to a buyer', async ({ page }) => {

@@ -170,20 +170,58 @@ for (const p of contentPages) {
     return out;
   };
 
+  /* Judged per SENTENCE, and only where the sentence is not itself FORBIDDING
+     the phrase it contains.
+
+     This rule tested the whole file, so it failed the two documents doing the
+     most to prevent the thing it guards: the live agent's prompt, whose
+     retired-price line reads "never quote these ... and any free pilot or free
+     trial", and the outreach README's "There is no free pilot and no free
+     trial, both were retired." Two permanent red entries that were correct
+     content, which is precisely how a checker stops being read.
+
+     Same classification the engine's checkText uses (OFFER_DENIAL in
+     src/domain/canonical.ts). Classified, not allowlisted: an allowlist of
+     these two sentences leaves the third unguarded. */
+  const DENIAL = [
+    /\bnever\s+(?:quote|say|offer|promise|use|mention)\b/i,
+    /\b(?:is|are|was|were)\s+retired\b/i, /\bretired\b/i,
+    /\bthere is no\b/i, /\bthere are no\b/i, /\bwe do not\b/i, /\bdo not\s+(?:quote|say|offer|promise)\b/i,
+    /\bno longer\b/i, /\bnot a current\b/i, /\bsuperseded\b/i, /\bprohibited\b/i,
+  ];
+  const statesBanned = (text, re) => text
+    .replace(/\*\*|__|\*/g, "")
+    .split(/(?<=[.!?])\s+|\n+/)
+    .some((s) => re.test(s) && !DENIAL.some((d) => d.test(s)));
+
   const extraSurfaces = [...surfaceFiles, ...surfaceDirs.flatMap(walk)];
   for (const file of extraSurfaces) {
     if (!fs.existsSync(file)) continue;
     const text = fs.readFileSync(file, "utf8");
     const label = path.relative(root, file).replace(/\\/g, "/");
     for (const b of banned) {
-      if (b.test(text)) err(label + ": banned phrase " + b + " (spoken or machine-read surface)");
+      if (statesBanned(text, b)) err(label + ": banned phrase " + b + " (spoken or machine-read surface)");
     }
   }
 }
 /* 7. The static pricing fallback on pricing.html must match pricing-config.js.
       Every plan named in the fallback must exist in the config with identical
-      monthly, setup, included-minute, and overage numbers. (The fallback may
-      list fewer plans than the config; it must never disagree with it.) */
+      first-month, recurring-monthly, included-minute, and overage numbers.
+      (The fallback may list fewer plans than the config; it must never
+      disagree with it.)
+
+      The shape being matched changed on 2026-08-07 with the copy. The old
+      rule looked for "C$250/month" and "C$250 one-time setup", which is the
+      wording that made a Starter customer believe he owed C$500 on day one.
+      It also never actually passed: the fallback wrote "One-time setup C$250"
+      and the regex wanted the amount FIRST, so all three plans reported a
+      setup mismatch against numbers that were identical. A guard that fails
+      permanently and for the wrong reason is a guard nobody reads.
+
+      Both numbers are now required, in the order a buyer meets them:
+      "first month C$250, then C$250/month". Requiring the pair is the point.
+      A fallback that quotes only one of them is exactly the ambiguity this
+      whole change removed. */
 {
   /* pricing-config.js is our own committed browser global (window.NV_PRICING = ...).
      Execute it in an isolated vm context, exactly as the browser would. */
@@ -205,16 +243,12 @@ for (const p of contentPages) {
         const body = m[1] + " " + m[2];
         const plan = cfg.plans.find((p) => p.name === name);
         if (!plan) { err('pricing fallback: plan "' + name + '" not in pricing-config.js'); continue; }
-        const monthly = body.match(/C\$([\d,]+)\/month/);
-        /* "No setup fee" is the correct rendering once the fee is 0, so accept
-           either shape and compare the resulting number against the config. */
-        const setup = /No setup fee/i.test(body)
-          ? ["", "0"]
-          : body.match(/C\$([\d,]+) one-time setup/);
+        const monthly = body.match(/then C\$([\d,]+)\/month/i);
+        const firstMonth = body.match(/first month C\$([\d,]+)/i);
         const mins = body.match(/([\d,]+) included AI minutes/);
         const over = body.match(/C\$([\d.]+) per extra minute/);
-        if (!monthly || num(monthly[1]) !== plan.monthly) err('pricing fallback "' + name + '": monthly differs from config (' + plan.monthly + ")");
-        if (!setup || num(setup[1]) !== plan.setup) err('pricing fallback "' + name + '": setup differs from config (' + plan.setup + ")");
+        if (!monthly || num(monthly[1]) !== plan.monthly) err('pricing fallback "' + name + '": recurring monthly differs from config (' + plan.monthly + '); expected "then C$' + plan.monthly.toLocaleString("en-CA") + '/month"');
+        if (!firstMonth || num(firstMonth[1]) !== plan.setup) err('pricing fallback "' + name + '": first month differs from config (' + plan.setup + '); expected "first month C$' + plan.setup.toLocaleString("en-CA") + '"');
         if (!mins || num(mins[1]) !== plan.includedMinutes) err('pricing fallback "' + name + '": included minutes differ from config (' + plan.includedMinutes + ")");
         if (!over || Number(over[1]) !== plan.overage) err('pricing fallback "' + name + '": overage differs from config (' + plan.overage + ")");
       }
@@ -248,6 +282,52 @@ for (const p of contentPages) {
     }
   }
   if (published.length < contentPages.length) err(`only ${published.length} published pages found; expected at least the ${contentPages.length} content pages`);
+}
+
+/* 7c. No surface this repo publishes may describe the price ADDITIVELY.
+
+       Until 2026-08-07 every plan surface said some version of "C$250/month"
+       with "One-time setup: C$250" next to it. Both numbers were correct and
+       both matched pricing-config.js, so rule 7, the truth auditor, the engine's
+       cross-repo validator and thirty-odd tests were all green while the page
+       told a buyer he owed C$500 on day one. Nothing that compares FIGURES can
+       ever catch this, because the defect is the arrangement of two right ones.
+       So it is checked as a sentence.
+
+       C$250 is month one. C$250 is also month two. They are never summed.
+
+       Scope is this repo's own published pages plus llms.txt, deliberately.
+       The banned list above sweeps the cold-calling kit and the agent prompts,
+       which live in other repositories on this disk and are corrected on their
+       own schedule; adding this shape there would paint those failures onto a
+       run of THIS working tree, and a red command nobody can fix is a command
+       that stops being read. */
+{
+  const additive = [
+    /one-time setup/i,
+    /\bsetup fee\b/i,
+    /plus (?:a )?(?:one-time )?setup/i,
+    /\+\s*(?:one-time )?setup/i,
+  ];
+  /* Comments are stripped first. The files that FIXED this defect are the ones
+     that quote the retired sentence in order to explain why it is retired, and
+     a rule that fires on its own explanation teaches the next person to delete
+     the explanation. Only what a reader can see is checked. */
+  const visible = (s) => s
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/\/\*[\s\S]*?\*\//g, " ");
+  const surfaces = [...contentPages.map((f) => path.join(root, f)), path.join(root, "llms.txt")];
+  for (const file of surfaces) {
+    if (!fs.existsSync(file)) continue;
+    const text = visible(fs.readFileSync(file, "utf8"));
+    const label = path.relative(root, file).replace(/\\/g, "/");
+    for (const b of additive) {
+      if (b.test(text)) {
+        err(`${label}: ${b} describes the price additively. The first-month amount IS month one, `
+          + `not a fee beside it. Write "First month C$X, then C$Y/month".`);
+      }
+    }
+  }
 }
 
 /* 8. The demo agent says prices out loud to real prospects, which makes its
@@ -302,8 +382,13 @@ for (const p of contentPages) {
        provider in this market with published prices and no setup fee is a
        selling point, and an agent that keeps quoting a retired fee costs the
        sale twice, once on price and once on trust. */
-    const setupIsFree = w.NV_PRICING.plans.every((p) => p.setup === 0)
-      && (!w.NV_PRICING.payAsYouGo?.active || w.NV_PRICING.payAsYouGo.setup === 0);
+    /* The Pay As You Go clause was dropped here on 2026-08-07 with the plan
+       itself. Setup has been C$250/C$500/C$1,000 since 2026-08-06, so this
+       whole branch is dormant and the comment above it describes a position
+       Nevamis no longer holds. Kept, not deleted: if setup ever returns to
+       zero the agent must say so, and re-deriving that rule later from memory
+       is how the last four price positions drifted. */
+    const setupIsFree = w.NV_PRICING.plans.every((p) => p.setup === 0);
     if (setupIsFree) {
       const saysFree = /no setup fee|no one-time setup|nothing to set up|no set-up fee/.test(spoken);
       if (!saysFree) wait("demo.md: setup is $0 everywhere in pricing-config.js, but the prompt never says there is no setup fee. It is a selling point and the agent should say it.");

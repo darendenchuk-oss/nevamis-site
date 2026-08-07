@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pricing | Nevamis | Plans for Edmonton trades</title>
-<meta name="description" content="AI receptionist plans in Canadian dollars: Starter $250, Growth $500, Pro $850 per month, each with a one-time setup fee. The 7-day live pilot is $150, credited toward setup.">
+<meta name="description" content="AI receptionist plans in Canadian dollars. Starter: first month $250, then $250/month. Growth: $500 then $500. Pro: $1,000 then $850. The $150 pilot comes off your first month.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://nevamis.ca/pricing.html">
 <meta property="og:title" content="Pricing | Nevamis">
-<meta property="og:description" content="AI receptionist plans in Canadian dollars: Starter $250, Growth $500, Pro $850 per month, each with a one-time setup fee.">
+<meta property="og:description" content="AI receptionist plans in Canadian dollars. Starter: first month $250, then $250/month. Growth: first month $500, then $500/month. Pro: first month $1,000, then $850/month.">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -105,7 +105,7 @@
     "@id": "https://nevamis.ca/pricing.html",
     "url": "https://nevamis.ca/pricing.html",
     "name": "Pricing | Nevamis | Plans for Edmonton trades",
-    "description": "AI receptionist plans in Canadian dollars: Starter $250, Growth $500, Pro $850 per month, each with a one-time setup fee. The 7-day live pilot is $150, credited toward setup.",
+    "description": "AI receptionist plans in Canadian dollars. Starter: first month $250, then $250/month. Growth: $500 then $500. Pro: $1,000 then $850. The $150 pilot comes off your first month.",
     "isPartOf": {
       "@type": "WebSite",
       "name": "Nevamis",
@@ -158,7 +158,7 @@
       <div>
         <p class="eyebrow mono">Pricing</p>
         <h1 style="font-size:clamp(38px,5.6vw,68px)">Clear plans. Predictable usage.</h1>
-        <p class="lede">Every plan is a configured, maintained system: built with you, tested against your real calls, and tuned over time.</p>
+        <p class="lede">Every plan is a configured, maintained system: built with you, tested against your real calls, and tuned over time. You pay one amount for your first month, then the monthly price. There is nothing charged alongside it.</p>
       </div>
     </div>
   </section>
@@ -177,24 +177,30 @@
       </div>
       <!-- Static fallback: real HTML so crawlers and failed-config loads still
            see accurate plans. Removed by the renderer only after a successful
-           render. Validated against pricing-config.js by check-consistency. -->
+           render. Validated against pricing-config.js by check-consistency.
+
+           It must state the same TWO numbers the rendered cards state: what
+           month one costs and what every month after it costs. Until
+           2026-08-07 both this block and the cards said "C$250/month" with
+           "One-time setup C$250" beside it, which reads as C$500 due on day
+           one. It is C$250. There is no charge on top of the first month. -->
       <div class="plans" id="plans"><div id="plansFallback" style="grid-column:1/-1">
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
-          <h3 style="font-size:18px">Starter &mdash; C$250/month</h3>
-          <p style="color:var(--muted);font-size:14.5px">One-time setup C$250 · 250 included AI minutes · C$1.10 per extra minute. Evenings, weekends, and overflow coverage.</p>
+          <h3 style="font-size:18px">Starter &mdash; first month C$250, then C$250/month</h3>
+          <p style="color:var(--muted);font-size:14.5px">250 included AI minutes · C$1.10 per extra minute. Evenings, weekends, and overflow coverage.</p>
           <p style="margin-top:10px"><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
-          <h3 style="font-size:18px">Growth &mdash; C$500/month (recommended)</h3>
-          <p style="color:var(--muted);font-size:14.5px">One-time setup C$500 · 600 included AI minutes · C$0.90 per extra minute. Qualification, routing, and booking on a meaningful share of calls.</p>
+          <h3 style="font-size:18px">Growth &mdash; first month C$500, then C$500/month (recommended)</h3>
+          <p style="color:var(--muted);font-size:14.5px">600 included AI minutes · C$0.90 per extra minute. Qualification, routing, and booking on a meaningful share of calls.</p>
           <p style="margin-top:10px"><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
-          <h3 style="font-size:18px">Pro &mdash; C$850/month</h3>
-          <p style="color:var(--muted);font-size:14.5px">One-time setup C$1,000 · 1,200 included AI minutes · C$0.75 per extra minute. Multi-location and higher-volume routing.</p>
+          <h3 style="font-size:18px">Pro &mdash; first month C$1,000, then C$850/month</h3>
+          <p style="color:var(--muted);font-size:14.5px">1,200 included AI minutes · C$0.75 per extra minute. Multi-location and higher-volume routing.</p>
           <p style="margin-top:10px"><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
         </div>
-        <p style="color:var(--muted);font-size:14px">Prices in Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime. The 7-day live pilot is C$150, credited toward your setup fee if you continue. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
+        <p style="color:var(--muted);font-size:14px">One amount on day one, nothing extra beside it. Prices in Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime. The 7-day live pilot is C$150, and it comes off your first month if you continue. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
       </div></div>
 
       <div class="reveal" style="margin-top:26px;background:var(--navy-2);border:1px solid var(--line);border-radius:16px;padding:18px 22px">
@@ -324,17 +330,25 @@
     var h = "";
     if (pl.recommended) h += '<div class="rec-tag">' + (P.recommendedLabel || 'RECOMMENDED') + '</div>';
     h += "<h3></h3>";
+    /* Two numbers, one sentence, in the order the buyer meets them: what he
+       pays now, then what he pays every month after. This line used to read
+       "C$250/month" above "One-time setup: C$250", which is the same two
+       numbers arranged to look like a bill for C$500 on day one. Nothing
+       that compares figures could catch it, because both figures were
+       right. `pl.setup` is month one; see the header of pricing-config.js. */
     h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
-    h += '<div class="setup">One-time setup: C$' + grp(pl.setup) + (pl.startingAt ? "+" : "") + "</div>";
+    h += '<div class="setup">First month C$' + grp(pl.setup) + (pl.startingAt ? "+" : "") + ", then C$" + grp(pl.monthly) + "/month."
+      + (P.pilot && P.pilot.creditedToFirstMonth ? " Your C$" + grp(P.pilot.fee) + " pilot fee comes off that first month." : "") + "</div>";
     h += '<div class="usage">' + grp(pl.includedMinutes) + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
     h += "<ul>" + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
     h += '<div class="best"><strong>Best for:</strong> <span></span></div>';
     /* The buy path, in three cases.
 
-       P.sellable === false routes EVERY plan to the strategy call. The setup
-       fee returned on 2026-08-06 and the pilot credit that offsets it is not
-       wired into checkout yet, so a Buy now button here would take money under
-       terms the system cannot honour. A prospect who has to book a call is
+       P.sellable === false routes EVERY plan to the strategy call. A
+       first-month amount distinct from the recurring one returned on
+       2026-08-06 and the pilot credit that offsets it is not wired into
+       checkout yet, so a Buy now button here would take money under terms
+       the system cannot honour. A prospect who has to book a call is
        recoverable; one billed wrongly is not.
 
        A "from C$X" plan is quoted, not fixed, so sending it to a checkout that
@@ -354,44 +368,10 @@
     d.querySelector(".best span").textContent = pl.bestFor;
     wrap.appendChild(d);
   });
-  /* Pay As You Go. The structured data on this page has always told Google and
-     the answer engines that prices start at C$49 (see the Offer block below,
-     lowPrice), while every human saw C$249 + C$500 setup as the floor. So the
-     cheapest way into the product was advertised to crawlers and hidden from
-     buyers, and the page contradicted its own markup.
-
-     Rendered AFTER the three plans, deliberately: it is the entry option, not
-     the recommendation, and leading with it would anchor away from Growth.
-
-     It links to the strategy call rather than to checkout. That is not a
-     styling choice: the engine's planFor() resolves only CANONICAL.pricing.plans,
-     and Pay As You Go is a separate key, so /signup?plan=pay-as-you-go would be
-     stripped by safePlanParam and the buyer would arrive with no plan chosen.
-     A buy button that quietly loses the thing you clicked is worse than an
-     honest one more step. Wiring self-serve PAYG needs per-minute billing in
-     the engine first. */
-  if (P.payAsYouGo && P.payAsYouGo.active) {
-    var pg = P.payAsYouGo;
-    var g = document.createElement("div");
-    g.className = "plan plan-entry";
-    var gh = "";
-    gh += "<h3></h3>";
-    gh += '<div class="price">C$' + grp(pg.monthly) + "<span>/month</span> + C$" + pg.perMinute.toFixed(2) + "<span>/min</span></div>";
-    gh += '<div class="setup">One-time setup: C$' + grp(pg.setup) + "</div>";
-    gh += '<div class="usage"></div>';
-    gh += "<ul>" + pg.features.map(function () { return "<li></li>"; }).join("") + "</ul>";
-    gh += '<div class="best"><strong>Best for:</strong> <span></span></div>';
-    gh += '<div class="buy"><a class="btn btn-ghost" href="/book.html" data-evt="payg_start_click">Start here <span class="arw" aria-hidden="true">›</span></a>'
-      + '<div class="buy-note">Fifteen minutes to set it up with you.</div></div>';
-    g.innerHTML = gh;
-    g.querySelector("h3").textContent = pg.name;
-    g.querySelector(".usage").textContent = pg.note;
-    var glis = g.querySelectorAll("li");
-    pg.features.forEach(function (f, i) { glis[i].textContent = f; });
-    g.querySelector(".best span").textContent = pg.bestFor;
-    wrap.appendChild(g);
-  }
-
+  /* The Pay As You Go card was rendered here. Retired 2026-08-06, removed
+     2026-08-07 along with its record in pricing-config.js. The floor is now
+     Starter, and the structured data below says so. It used to advertise
+     C$49 to crawlers as lowPrice while every human saw C$249 as the floor. */
   /* Live cards rendered: the static fallback has done its job. Any earlier
      throw leaves it in place, which is the point. */
   var plansFallback = document.getElementById("plansFallback");
@@ -421,14 +401,21 @@
   /* Publish the price list as structured Offers, built from the same config the
      page renders, so an answer engine asked "what does an AI receptionist cost
      in Canada" has a parseable table instead of prose to infer from. Emitting
-     from config keeps the never-duplicate-a-price rule intact. */
+     from config keeps the never-duplicate-a-price rule intact.
+
+     `price` is the RECURRING monthly figure, and lowPrice below is therefore
+     the cheapest recurring figure. A crawler must never be quoted a number a
+     buyer cannot find on a card. The first-month amount is stated in the
+     description instead of the price field, because it is charged once and
+     schema.org's `price` on a MONTH-unit offer means the monthly one. */
   try {
     var offers = P.plans.map(function (pl, i) {
       return {
         "@type": "Offer",
         "position": i + 1,
         "name": pl.name,
-        "description": pl.bestFor,
+        "description": "First month C$" + grp(pl.setup) + ", then C$" + grp(pl.monthly)
+          + "/month. " + pl.bestFor,
         "price": String(pl.monthly),
         "priceCurrency": P.currency,
         "priceSpecification": {
@@ -446,19 +433,6 @@
         "seller": { "@id": "https://nevamis.ca/#organization" }
       };
     });
-    if (P.payAsYouGo && P.payAsYouGo.active) {
-      offers.push({
-        "@type": "Offer",
-        "position": offers.length + 1,
-        "name": P.payAsYouGo.name,
-        "description": P.payAsYouGo.note,
-        "price": String(P.payAsYouGo.monthly),
-        "priceCurrency": P.currency,
-        "availability": "https://schema.org/InStock",
-        "url": "https://nevamis.ca/pricing.html",
-        "seller": { "@id": "https://nevamis.ca/#organization" }
-      });
-    }
     var node = document.createElement("script");
     node.type = "application/ld+json";
     node.textContent = JSON.stringify({
@@ -472,7 +446,7 @@
       "offers": {
         "@type": "AggregateOffer",
         "priceCurrency": P.currency,
-        "lowPrice": String(P.payAsYouGo && P.payAsYouGo.active ? P.payAsYouGo.monthly : P.plans[0].monthly),
+        "lowPrice": String(P.plans[0].monthly),
         "highPrice": String(P.plans[P.plans.length - 1].monthly),
         "offerCount": offers.length,
         "offers": offers

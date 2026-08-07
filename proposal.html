@@ -101,7 +101,11 @@
       <p class="mono" style="color:var(--mint);font-size:11.5px;letter-spacing:.14em" id="planName">GROWTH</p>
       <p class="amount" id="planPrice">C$500<span>/month</span></p>
       <p class="plan-line" id="planIncludes"></p>
-      <p class="plan-line" id="planSetup"></p>
+      <!-- Real text, not an empty span. Everything below is overwritten from
+           pricing-config.js on load; with scripts blocked this is what the
+           prospect reads, and a blank line under a monthly price is where he
+           supplies his own guess about a setup fee. -->
+      <p class="plan-line" id="planSetup">First month C$500, then C$500/month from month two. Your C$150 pilot fee comes off that first month.</p>
       <p class="plan-line" id="planAnnual"></p>
       <ul class="ticks" id="planFeatures"></ul>
     </div>
@@ -147,10 +151,12 @@
 /* Renders the proposal from URL parameters against the approved price list.
    Every value shown comes from pricing-config.js, so a proposal can never
    quote a number the business has not approved.
-   Params: ?to=Business+Name&plan=growth|after-hours|scale|pay-as-you-go
-   The &founding=1 parameter is retired and now does nothing: setup is $0 for
-   everyone, so there is no fee to waive. Old links carrying it still render
-   correctly.
+   Params: ?to=Business+Name&plan=starter|growth|pro (legacy ids after-hours
+   and scale still resolve). An unknown id renders the recommended plan.
+   The &founding=1 parameter is retired and does nothing. It waived a setup fee
+   during the period when setup was $0 for everyone; a first-month amount was
+   restored on 2026-08-06 at C$250/C$500/C$1,000 and the waiver was not. Old
+   links carrying it still render correctly, at the real amount.
    All parameters are rendered with textContent, never innerHTML. */
 (function () {
   "use strict";
@@ -183,21 +189,29 @@
     var when = new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" });
     set("preparedMeta", "Prepared " + when + " by Daren, founder");
 
+    /* Legacy ids from the retired ladder. A proposal link sent before
+       2026-08-06 carries ?plan=after-hours or ?plan=scale. Without this map
+       they matched no plan and fell through to the recommended one, so an old
+       link for the CHEAPEST plan quoted the middle one at twice the price.
+       The engine has resolved these in resolvePlan() since the rename; this is
+       the same map on the page a prospect actually opens. */
+    var LEGACY = { "after-hours": "starter", "scale": "pro" };
     var wanted = clean(q.get("plan"), 24).toLowerCase() || "growth";
+    wanted = LEGACY[wanted] || wanted;
     var plan = (P.plans || []).filter(function (p) { return p.id === wanted; })[0];
-    var payg = P.payAsYouGo;
+    /* Pay As You Go was retired on 2026-08-06 and removed on 2026-08-07.
 
-    if (!plan && payg && (wanted === payg.id || wanted === "payg")) {
-      set("planName", payg.name.toUpperCase());
-      set("planPrice", money(payg.monthly));
-      document.querySelector("#planPrice span") || (function () {
-        var s = document.createElement("span"); s.textContent = "/month";
-        document.getElementById("planPrice").appendChild(s);
-      })();
-      set("planIncludes", "No included minutes. " + money(payg.perMinute) + " per connected AI minute.");
-      set("planSetup", "One-time setup " + money(payg.setup) + ".");
-      renderFeatures(payg.features || []);
-    } else {
+       A branch here used to render it straight from P.payAsYouGo with NO
+       `active` check, unlike the annual block thirty lines below, which is
+       gated correctly. So ?plan=pay-as-you-go went on quoting a prospect
+       C$49/month with C$0 setup: the retired plan AND the retired
+       no-setup-fee position, on a page built to be sent to a buyer.
+       tests/proposal.spec.js asserted that it rendered, which is why nobody
+       noticed.
+
+       An unrecognised plan id now falls through to the recommended plan,
+       which is what every other unknown value already did. */
+    {
       plan = plan || P.plans[1];
       set("planName", plan.name.toUpperCase() + (plan.recommended ? " · " + (P.recommendedLabel || "RECOMMENDED") : ""));
       var priceEl = document.getElementById("planPrice");
@@ -210,12 +224,18 @@
       /* Stated plainly, never struck through and never "waived". A fee shown
          with a line through it is a discount off a price nobody was charged,
          which is the same fabrication class as a fake original price on a
-         sale tag. The pilot credit is a real reduction and is stated below,
-         where it belongs, as a fact about money the client already paid. */
+         sale tag. The pilot credit is a real reduction and is stated here as
+         a fact about money the client already paid.
+
+         `plan.setup` is what MONTH ONE costs, not a fee beside it. This line
+         used to read "One-time setup C$500." directly under "C$500/month",
+         and a prospect reading a document sent to close him totalled it to
+         C$1,000 due on signing. It is C$500. */
       var setupEl = document.getElementById("planSetup");
-      setupEl.textContent = "One-time setup " + money(plan.setup) + "."
-        + (P.pilot && P.pilot.creditedToSetup
-          ? " Your " + money(P.pilot.fee) + " pilot fee comes off this."
+      setupEl.textContent = "First month " + money(plan.setup) + ", then "
+        + money(plan.monthly) + "/month from month two."
+        + (P.pilot && P.pilot.creditedToFirstMonth
+          ? " Your " + money(P.pilot.fee) + " pilot fee comes off that first month."
           : "");
 
       if (P.annual && P.annual.active && plan.annual) {
