@@ -14,13 +14,12 @@ exclude:
   # Local motion tooling and proof artifacts (belt-and-braces with .gitignore).
   - tests/
   - artifacts/
-  # Abandoned redesign mockups. Concept B shipped as the live site; all three
-  # still carry "answers on the first ring", the claim CLM-02 retired on
-  # 2026-07-26. They were noindex but still served 200 to anyone with the URL,
-  # and robots.txt explicitly welcomes answer engines, so they stay unpublished.
-  - concept.html
-  - concept-b.html
-  - concept-c.html
+  # concept.html / concept-b.html / concept-c.html used to be excluded here.
+  # Deleted from the repo on 2026-08-07 (git history keeps them): Concept B had
+  # already shipped as the live site, all three still carried "answers on the
+  # first ring" — the claim CLM-02 retired on 2026-07-26 — and they were the
+  # only consumers of assets/vendor/three.module.js (1,314,681 B), which went
+  # with them. Excluding files that no longer exist is drift; do not re-add.
   - node_modules/
   - package.json
   - package-lock.json

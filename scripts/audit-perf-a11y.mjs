@@ -29,7 +29,9 @@ for (const f of pages) {
 console.log("\n" + "=".repeat(74));
 console.log(" SHARED ASSETS");
 console.log("=".repeat(74));
-for (const a of ["styles.css", "site.js", "motion.js", "pricing-config.js", "roadmap-config.js"]) {
+// "styles.css" was in this list until 2026-08-07. It was deleted (no page had
+// linked it in months), and a permanent "MISSING" row is noise, not a signal.
+for (const a of ["site.js", "motion.js", "pricing-config.js", "roadmap-config.js"]) {
   const p = path.join(root, a);
   if (!fs.existsSync(p)) { console.log(`  ${a.padEnd(22)} MISSING`); continue; }
   const kb = fs.statSync(p).size / 1024;
