@@ -67,10 +67,13 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <!-- The three faces painting above the fold, preloaded so the swap frame
      never happens: the font-display:swap re-metric of the header, headline
-     and labels was the single largest layout shift on the page. -->
-<link rel="preload" href="assets/fonts/bricolage-grotesque-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+     and labels was the single largest layout shift on the page.
+     Bricolage and Spline Sans Mono are single variable files covering their
+     whole weight range, so one preload each now covers every weight the page
+     uses. It used to take three Bricolage downloads to do less. -->
+<link rel="preload" href="assets/fonts/bricolage-grotesque-variable-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/atkinson-hyperlegible-400-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/spline-sans-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/spline-sans-mono-variable-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="assets/motion/site.css">
 <style>

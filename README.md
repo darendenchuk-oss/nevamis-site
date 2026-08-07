@@ -12,7 +12,8 @@ domain `nevamis.ca` (DNS at Porkbun).
 | `demo.html` | Live-demo page (call the AI, test scenarios, example call) |
 | `book.html` | Strategy-call booking (links to Cal.com) |
 | `about.html`, `privacy.html`, `terms.html`, `404.html` | Supporting pages |
-| `styles.css` | Design system (palette, components, responsive, reduced-motion) |
+| `assets/motion/site.css` | Design system (palette, components, responsive, reduced-motion). The old root `styles.css` was deleted on 2026-08-07: no page had linked it for months, so edits made there silently did nothing. |
+| `assets/fonts/fonts.css` | Self-hosted faces. Bricolage Grotesque and Spline Sans Mono are single **variable** files declared over their full weight range (`200 800` / `300 700`); do not add per-weight files. |
 | `site.js` | Nav, motion toggle, signal-scene canvas, call player, tabs, ROI calc, reveals, analytics layer |
 | `assets/` | Call audio (call-0..5.mp3), founder photo |
 | `docs/higgsfield-prompts.md` | Generative-asset production record + prompts |
