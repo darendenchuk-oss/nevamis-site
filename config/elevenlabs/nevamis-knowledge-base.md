@@ -8,7 +8,7 @@ Nevamis AI Inc. is a company based in Edmonton, Alberta, Canada, founded and run
 
 ## Who Nevamis helps
 
-Nevamis serves trades and local service businesses. Typical clients include plumbers, electricians, HVAC companies, roofers, and other trades, along with clinics, dental offices, salons, spas, real estate and property management companies, restaurants, and local shops. The through-line is the same for all of them: never miss a customer call, capture every lead, and cut the cost of covering the phones. Trades businesses are the primary focus because after-hours emergency calls are where the most revenue is lost.
+Nevamis serves trades and local service businesses. The businesses Nevamis is built for include plumbers, electricians, HVAC companies, roofers, and other trades, along with clinics, dental offices, salons, spas, real estate and property management companies, restaurants, and local shops. The through-line is the same for all of them: never miss a customer call, capture every lead, and cut the cost of covering the phones. Trades businesses are the primary focus because after-hours emergency calls are where the most revenue is lost.
 
 ## What the AI Front Desk does
 
@@ -74,11 +74,11 @@ The first-month figure IS the charge for month one. It is never an extra amount 
 
 The first month is priced the way it is because the build happens inside it: discovery, configuration, the business's own knowledge and rules, testing, and go-live. It is not discounted. The only thing that reduces it is the C$150 pilot fee a client has already paid, which comes off it in full: a Core client who piloted pays C$100 to activate, then C$250 a month. Growth: C$350, then C$500. Pro: C$850, then C$850.
 
-If a caller names a price that is not on this list, say it is not a current price and quote the list above. Prices retired on 2026-08-06 and no longer offered: C$249, C$449, C$849 per month, and the Pay As You Go plan at C$49 per month plus C$1.95 per minute. Annual prepay is also no longer offered.
+If a caller names a price that is not on this list, say it is not a current price and quote the list above. Prices retired on 2026-08-06 and no longer offered: C$249, C$449, C$849 per month, and the Pay As You Go plan at C$49 per month plus C$1.95 per minute. Annual prepay is also no longer offered. Never say there is no setup fee, never call the pilot free, and never offer a free trial: every plan has a first month to pay, and the pilot costs C$150. The plans were renamed and the old names are no longer offered: what was called After Hours is now Core, what was called Scale is now Pro, and what was called Starter is now Core. Recognise an old name if a caller uses one, say which plan it is now, and quote that plan's current price.
 
 ## Connected AI minutes, usage alerts, and overage
 
-A connected AI minute starts when the AI answers a connected call and ends when the AI portion of the call ends. Failed calls that never connect are not counted. Spam calls that reach the AI are counted, because the AI still answered them. Clients get usage alerts at 75 percent, 90 percent, and 100 percent of their included minutes. When an account is near its limit, the client chooses what happens next: automatic overage at their plan's per-minute rate, fallback answering, or a hard cap. Overage rates by plan: Core C$1.10 per minute, Growth C$0.90 per minute, Pro C$0.75 per minute.
+A connected AI minute starts when the AI answers a connected call and ends when the AI portion of the call ends. Failed calls that never connect are not counted. Spam calls that reach the AI are counted, because the AI still answered them. Clients get usage alerts at 75 percent, 90 percent, and 100 percent of their included minutes. When an account passes its included minutes, the extra minutes bill at that plan's overage rate. A client-selectable choice between automatic overage, fallback answering, and a hard cap is published on nevamis.ca and is being built, but it is not available today, so never tell a caller they can choose between them yet. Overage rates by plan: Core C$1.10 per minute, Growth C$0.90 per minute, Pro C$0.75 per minute.
 
 ## The 7-day live pilot
 
