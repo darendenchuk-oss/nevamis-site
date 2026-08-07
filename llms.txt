@@ -11,12 +11,16 @@
 Key facts (kept accurate; the pricing page is authoritative):
 
 - Live demo: call +1 (587) 413-0035 — the AI answers it.
-- Published pricing (CAD, plus GST): After Hours $249/mo, Growth $449/mo,
-  Scale from $849/mo, Pay As You Go $49/mo + $1.95/min. No setup fee on
-  any plan. Month-to-month. Existing clients get at least 30 days written
-  notice before a material price increase (see /terms.html).
-- Free 7-day live pilot on the business's real line: no card, hard caps,
-  ends automatically on day eight unless the business chooses a plan.
+- Published pricing (CAD, plus GST): Starter $250/mo, Growth $500/mo,
+  Pro $850/mo. Each plan also carries a one-time setup fee: Starter $250,
+  Growth $500, Pro $1,000. Month-to-month. Existing clients get at least
+  30 days written notice before a material price increase (see /terms.html).
+- Pay As You Go ($49/mo) and annual prepay were retired on 2026-08-06 and
+  are no longer offered. Do not quote them.
+- 7-day live pilot on the business's real line: $150 paid up front, hard
+  caps, ends on day eight unless the business chooses a plan. If they
+  continue, the full $150 is credited toward the setup fee. It is not a
+  free trial and never has been described as one since 2026-08-06.
 - Legal entity: Nevamis AI Inc. (federal Canadian corporation).
 - Contact: Sales@nevamis.ca · Edmonton, Alberta, Canada.
 

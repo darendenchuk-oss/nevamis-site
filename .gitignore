@@ -10,3 +10,14 @@ artifacts/
 
 # Throwaway local scripts. One got swept into a commit by "git add -A".
 _scratch-*.mjs
+
+# Credentials. THIS REPO IS PUBLIC — it is served by GitHub Pages at
+# nevamis.ca. It had no .env rule at all until 2026-08-06, while shipping an
+# .env.example that names TWILIO_AUTH_TOKEN, ELEVENLABS_API_KEY, CALCOM_API_KEY
+# and STRIPE_SECRET_KEY. Nothing was leaked, but the only thing standing
+# between a local .env and worldwide publication was remembering not to type
+# "git add -A" — and the rule three lines above this one exists because
+# somebody already typed it once.
+.env
+.env.*
+!.env.example

@@ -11,8 +11,21 @@
    ============================================================ */
 
 import fs from 'node:fs';
+import vm from 'node:vm';
 
 const SITE = 'https://nevamis.ca';
+
+/* The plan table used to be a hand-typed array in this file. It drifted the
+   moment prices changed, which is the whole failure mode this generator was
+   written to prevent — it just moved the drift from the HTML into the tool
+   that writes the HTML. Read the one source of truth instead. */
+const cfgSandbox = { window: {} };
+vm.runInNewContext(fs.readFileSync('pricing-config.js', 'utf8'), cfgSandbox);
+const NV = cfgSandbox.window.NV_PRICING;
+if (!NV || !Array.isArray(NV.plans) || NV.plans.length === 0) {
+  console.error('pricing-config.js did not yield NV_PRICING.plans — refusing to write schema from nothing.');
+  process.exit(1);
+}
 const OPEN = '<!-- generated:schema -->';
 const CLOSE = '<!-- /generated:schema -->';
 
@@ -97,11 +110,14 @@ if (faq.length < 5) {
   process.exit(1);
 }
 
-const PLANS = [
-  { name: 'After Hours', price: 249, desc: '250 included AI minutes. Evenings, weekends, and overflow coverage on one line.' },
-  { name: 'Growth', price: 449, desc: '600 included AI minutes. Up to two lines or call flows with qualification, routing, and booking.' },
-  { name: 'Scale', price: 849, desc: '1200 included AI minutes. Multi-location and higher-volume call handling.' },
-];
+/* Derived, never typed. `desc` states the included minutes and the plan's own
+   "best for" line, both of which already live in the config. */
+const PLANS = NV.plans.map((p) => ({
+  name: p.name,
+  price: p.monthly,
+  setup: p.setup,
+  desc: `${p.includedMinutes} included AI minutes. ${p.bestFor}`,
+}));
 
 const service = {
   '@context': 'https://schema.org',

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Your Nevamis proposal</title>
-<meta name="description" content="A short written summary of what was discussed: the plan, what is included, and how the free 7-day pilot works.">
+<meta name="description" content="A short written summary of what was discussed: the plan, what is included, and how the C$150 7-day live pilot works.">
 <!-- Private sales artefact: shared by link after a call, never indexed. -->
 <meta name="robots" content="noindex, nofollow">
 <!-- noindex, but this page is SENT to a prospect as a link, so it previews in
@@ -13,7 +13,7 @@
      close them. Deliberately generic wording: the URL may be forwarded to a
      partner or spouse who was not on the call. -->
 <meta property="og:title" content="Your Nevamis proposal">
-<meta property="og:description" content="A short written summary of what was discussed: the plan, what is included, and how the free 7-day pilot works.">
+<meta property="og:description" content="A short written summary of what was discussed: the plan, what is included, and how the C$150 7-day live pilot works.">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -99,7 +99,7 @@
     <h2>Recommended plan</h2>
     <div class="plan-box">
       <p class="mono" style="color:var(--mint);font-size:11.5px;letter-spacing:.14em" id="planName">GROWTH</p>
-      <p class="amount" id="planPrice">C$449<span>/month</span></p>
+      <p class="amount" id="planPrice">C$500<span>/month</span></p>
       <p class="plan-line" id="planIncludes"></p>
       <p class="plan-line" id="planSetup"></p>
       <p class="plan-line" id="planAnnual"></p>
@@ -110,7 +110,7 @@
   </section>
 
   <section>
-    <h2>Start with the free pilot</h2>
+    <h2>Start with the live pilot</h2>
     <div class="pilot">
       <p><strong id="pilotName">7-day live pilot</strong> <span id="pilotTagline"></span></p>
       <p id="pilotCaps"></p>
@@ -195,7 +195,7 @@
         document.getElementById("planPrice").appendChild(s);
       })();
       set("planIncludes", "No included minutes. " + money(payg.perMinute) + " per connected AI minute.");
-      set("planSetup", payg.setup > 0 ? "One-time setup " + money(payg.setup) + "." : "No setup fee.");
+      set("planSetup", "One-time setup " + money(payg.setup) + ".");
       renderFeatures(payg.features || []);
     } else {
       plan = plan || P.plans[1];
@@ -207,12 +207,16 @@
       set("planIncludes", plan.includedMinutes + " included AI minutes per month, about "
         + plan.callRange + ". Additional minutes " + money(plan.overage) + " each.");
 
-      /* Setup went to $0 on 2026-07-31 and the founding waiver retired with
-         it. Showing a fee struck through and "waived" would be inventing a
-         discount from a price nobody is charged, which is the same fabrication
-         class as a fake original price on a sale tag. */
+      /* Stated plainly, never struck through and never "waived". A fee shown
+         with a line through it is a discount off a price nobody was charged,
+         which is the same fabrication class as a fake original price on a
+         sale tag. The pilot credit is a real reduction and is stated below,
+         where it belongs, as a fact about money the client already paid. */
       var setupEl = document.getElementById("planSetup");
-      setupEl.textContent = plan.setup > 0 ? "One-time setup " + money(plan.setup) + "." : "No setup fee.";
+      setupEl.textContent = "One-time setup " + money(plan.setup) + "."
+        + (P.pilot && P.pilot.creditedToSetup
+          ? " Your " + money(P.pilot.fee) + " pilot fee comes off this."
+          : "");
 
       if (P.annual && P.annual.active && plan.annual) {
         set("planAnnual", "Or " + money(plan.annual) + " for the year: pay ten months, get twelve.");

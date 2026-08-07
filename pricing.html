@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pricing | Nevamis | Plans for Edmonton trades</title>
-<meta name="description" content="AI receptionist plans in Canadian dollars: After Hours $249, Growth $449, Scale from $849 per month, plus Pay As You Go. No setup fee on any plan.">
+<meta name="description" content="AI receptionist plans in Canadian dollars: Starter $250, Growth $500, Pro $850 per month, each with a one-time setup fee. The 7-day live pilot is $150, credited toward setup.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://nevamis.ca/pricing.html">
 <meta property="og:title" content="Pricing | Nevamis">
-<meta property="og:description" content="AI receptionist plans in Canadian dollars: After Hours $249, Growth $449, Scale from $849 per month, plus Pay As You Go.">
+<meta property="og:description" content="AI receptionist plans in Canadian dollars: Starter $250, Growth $500, Pro $850 per month, each with a one-time setup fee.">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -105,7 +105,7 @@
     "@id": "https://nevamis.ca/pricing.html",
     "url": "https://nevamis.ca/pricing.html",
     "name": "Pricing | Nevamis | Plans for Edmonton trades",
-    "description": "AI receptionist plans in Canadian dollars: After Hours $249, Growth $449, Scale from $849 per month, plus Pay As You Go. No setup fee on any plan.",
+    "description": "AI receptionist plans in Canadian dollars: Starter $250, Growth $500, Pro $850 per month, each with a one-time setup fee. The 7-day live pilot is $150, credited toward setup.",
     "isPartOf": {
       "@type": "WebSite",
       "name": "Nevamis",
@@ -180,21 +180,21 @@
            render. Validated against pricing-config.js by check-consistency. -->
       <div class="plans" id="plans"><div id="plansFallback" style="grid-column:1/-1">
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
-          <h3 style="font-size:18px">After Hours &mdash; C$249/month</h3>
-          <p style="color:var(--muted);font-size:14.5px">No setup fee · 250 included AI minutes · C$1.10 per extra minute. Evenings, weekends, and overflow coverage.</p>
-          <p style="margin-top:10px"><a class="btn btn-primary" href="https://app.nevamis.ca/signup?plan=after-hours">Buy now</a></p>
+          <h3 style="font-size:18px">Starter &mdash; C$250/month</h3>
+          <p style="color:var(--muted);font-size:14.5px">One-time setup C$250 · 250 included AI minutes · C$1.10 per extra minute. Evenings, weekends, and overflow coverage.</p>
+          <p style="margin-top:10px"><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
-          <h3 style="font-size:18px">Growth &mdash; C$449/month (recommended)</h3>
-          <p style="color:var(--muted);font-size:14.5px">No setup fee · 600 included AI minutes · C$0.90 per extra minute. Qualification, routing, and booking on a meaningful share of calls.</p>
-          <p style="margin-top:10px"><a class="btn btn-primary" href="https://app.nevamis.ca/signup?plan=growth">Buy now</a></p>
+          <h3 style="font-size:18px">Growth &mdash; C$500/month (recommended)</h3>
+          <p style="color:var(--muted);font-size:14.5px">One-time setup C$500 · 600 included AI minutes · C$0.90 per extra minute. Qualification, routing, and booking on a meaningful share of calls.</p>
+          <p style="margin-top:10px"><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
-          <h3 style="font-size:18px">Scale &mdash; from C$849/month</h3>
-          <p style="color:var(--muted);font-size:14.5px">No setup fee · 1,200 included AI minutes · C$0.75 per extra minute. Multi-location and higher-volume routing.</p>
-          <p style="margin-top:10px"><a class="btn btn-ghost" href="/book.html">Get a quote</a></p>
+          <h3 style="font-size:18px">Pro &mdash; C$850/month</h3>
+          <p style="color:var(--muted);font-size:14.5px">One-time setup C$1,000 · 1,200 included AI minutes · C$0.75 per extra minute. Multi-location and higher-volume routing.</p>
+          <p style="margin-top:10px"><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
         </div>
-        <p style="color:var(--muted);font-size:14px">Prices in Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime. 7-day live pilot, no card. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
+        <p style="color:var(--muted);font-size:14px">Prices in Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime. The 7-day live pilot is C$150, credited toward your setup fee if you continue. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
       </div></div>
 
       <div class="reveal" style="margin-top:26px;background:var(--navy-2);border:1px solid var(--line);border-radius:16px;padding:18px 22px">
@@ -325,19 +325,27 @@
     if (pl.recommended) h += '<div class="rec-tag">' + (P.recommendedLabel || 'RECOMMENDED') + '</div>';
     h += "<h3></h3>";
     h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
-    h += '<div class="setup">' + (pl.setup > 0 ? "One-time setup: C$" + grp(pl.setup) + (pl.startingAt ? "+" : "") : "No setup fee") + "</div>";
+    h += '<div class="setup">One-time setup: C$' + grp(pl.setup) + (pl.startingAt ? "+" : "") + "</div>";
     h += '<div class="usage">' + grp(pl.includedMinutes) + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
     h += "<ul>" + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
     h += '<div class="best"><strong>Best for:</strong> <span></span></div>';
-    /* The buy path. A "from C$X" plan is quoted, not fixed, so sending it to
-       a checkout that charges exactly C$X would contradict the price right
-       above the button; those keep the strategy call instead. */
-    if (pl.startingAt) {
-      h += '<div class="buy"><a class="btn btn-ghost" href="/book.html" data-evt="plan_quote_click">Get a quote <span class="arw" aria-hidden="true">›</span></a>'
-        + '<div class="buy-note">Multi-location builds are priced on the call.</div></div>';
+    /* The buy path, in three cases.
+
+       P.sellable === false routes EVERY plan to the strategy call. The setup
+       fee returned on 2026-08-06 and the pilot credit that offsets it is not
+       wired into checkout yet, so a Buy now button here would take money under
+       terms the system cannot honour. A prospect who has to book a call is
+       recoverable; one billed wrongly is not.
+
+       A "from C$X" plan is quoted, not fixed, so sending it to a checkout that
+       charges exactly C$X would contradict the price right above the button;
+       those keep the strategy call whatever the gate says. */
+    if (!P.sellable || pl.startingAt) {
+      h += '<div class="buy"><a class="btn ' + (pl.recommended ? "btn-primary" : "btn-ghost") + '" href="/book.html" data-evt="plan_quote_click">Talk to us <span class="arw" aria-hidden="true">›</span></a>'
+        + '<div class="buy-note">' + (pl.startingAt ? "Multi-location builds are priced on the call." : "Fifteen minutes to scope it and start your pilot.") + "</div></div>";
     } else {
       h += '<div class="buy"><a class="btn btn-primary" href="https://app.nevamis.ca/signup?plan=' + encodeURIComponent(pl.id) + '" data-evt="plan_buy_click">Buy now <span class="arw" aria-hidden="true">›</span></a>'
-        + '<div class="buy-note">No card on this step. Cancel anytime.</div></div>';
+        + '<div class="buy-note">Cancel anytime.</div></div>';
     }
     d.innerHTML = h;
     d.querySelector("h3").textContent = pl.name;
@@ -369,12 +377,12 @@
     var gh = "";
     gh += "<h3></h3>";
     gh += '<div class="price">C$' + grp(pg.monthly) + "<span>/month</span> + C$" + pg.perMinute.toFixed(2) + "<span>/min</span></div>";
-    gh += '<div class="setup">' + (pg.setup > 0 ? "One-time setup: C$" + grp(pg.setup) : "No setup fee") + "</div>";
+    gh += '<div class="setup">One-time setup: C$' + grp(pg.setup) + "</div>";
     gh += '<div class="usage"></div>';
     gh += "<ul>" + pg.features.map(function () { return "<li></li>"; }).join("") + "</ul>";
     gh += '<div class="best"><strong>Best for:</strong> <span></span></div>';
     gh += '<div class="buy"><a class="btn btn-ghost" href="/book.html" data-evt="payg_start_click">Start here <span class="arw" aria-hidden="true">›</span></a>'
-      + '<div class="buy-note">Fifteen minutes to set it up with you. No card.</div></div>';
+      + '<div class="buy-note">Fifteen minutes to set it up with you.</div></div>';
     g.innerHTML = gh;
     g.querySelector("h3").textContent = pg.name;
     g.querySelector(".usage").textContent = pg.note;
@@ -398,7 +406,7 @@
     var pick, why;
     if (loc === "3" || est > 900) { pick = P.plans[2]; why = "multiple locations or an estimated " + Math.round(est) + " minutes/month exceeds the Growth allowance"; }
     else if (mode === "full" || integ === "adv" || loc === "2" || est > 220) { pick = P.plans[1]; why = (mode === "full" ? "full-time coverage" : integ === "adv" ? "a CRM/automation connection" : loc === "2" ? "two lines or departments" : "an estimated " + Math.round(est) + " minutes/month") + " fits the Growth allowance and features"; }
-    else { pick = P.plans[0]; why = "after-hours coverage at an estimated " + Math.round(est) + " minutes/month fits comfortably in the After Hours allowance"; }
+    else { pick = P.plans[0]; why = "after-hours coverage at an estimated " + Math.round(est) + " minutes/month fits comfortably in the " + P.plans[0].name + " allowance"; }
     document.getElementById("rcResult").innerHTML =
       '<span class="mono">CLOSEST FIT</span><div style="font-size:20px;font-weight:700;font-family:\'Bricolage Grotesque\',sans-serif"></div><p></p>';
     document.querySelector("#rcResult div").textContent = pick.name + " · C$" + grp(pick.monthly) + "/month";

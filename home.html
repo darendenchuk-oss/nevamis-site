@@ -35,7 +35,7 @@
     "slogan": "Every call, captured.",
     "email": "Sales@nevamis.ca",
     "telephone": "+1-587-413-0035",
-    "priceRange": "C$49 to C$849 per month",
+    "priceRange": "C$250 to C$850 per month",
     "currenciesAccepted": "CAD",
     "knowsLanguage": "en-CA",
     "foundingLocation": { "@type": "Place", "name": "Edmonton, Alberta, Canada" },
@@ -230,13 +230,13 @@
     "offers": [
       {
         "@type": "Offer",
-        "name": "After Hours",
-        "description": "250 included AI minutes. Evenings, weekends, and overflow coverage on one line.",
-        "price": "249",
+        "name": "Starter",
+        "description": "250 included AI minutes. Small service businesses that mainly need evenings, weekends, and overflow covered.",
+        "price": "250",
         "priceCurrency": "CAD",
         "priceSpecification": {
           "@type": "UnitPriceSpecification",
-          "price": "249",
+          "price": "250",
           "priceCurrency": "CAD",
           "unitText": "MONTH",
           "billingIncrement": 1
@@ -247,12 +247,12 @@
       {
         "@type": "Offer",
         "name": "Growth",
-        "description": "600 included AI minutes. Up to two lines or call flows with qualification, routing, and booking.",
-        "price": "449",
+        "description": "600 included AI minutes. Growing businesses that want qualification, routing, and booking on a meaningful share of inbound calls.",
+        "price": "500",
         "priceCurrency": "CAD",
         "priceSpecification": {
           "@type": "UnitPriceSpecification",
-          "price": "449",
+          "price": "500",
           "priceCurrency": "CAD",
           "unitText": "MONTH",
           "billingIncrement": 1
@@ -262,13 +262,13 @@
       },
       {
         "@type": "Offer",
-        "name": "Scale",
-        "description": "1200 included AI minutes. Multi-location and higher-volume call handling.",
-        "price": "849",
+        "name": "Pro",
+        "description": "1200 included AI minutes. Multi-location businesses and teams with higher volume or complex routing.",
+        "price": "850",
         "priceCurrency": "CAD",
         "priceSpecification": {
           "@type": "UnitPriceSpecification",
-          "price": "849",
+          "price": "850",
           "priceCurrency": "CAD",
           "unitText": "MONTH",
           "billingIncrement": 1
@@ -285,8 +285,8 @@
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "After Hours plan",
-            "description": "250 included AI minutes. Evenings, weekends, and overflow coverage on one line."
+            "name": "Starter plan",
+            "description": "250 included AI minutes. Small service businesses that mainly need evenings, weekends, and overflow covered."
           }
         },
         {
@@ -294,15 +294,15 @@
           "itemOffered": {
             "@type": "Service",
             "name": "Growth plan",
-            "description": "600 included AI minutes. Up to two lines or call flows with qualification, routing, and booking."
+            "description": "600 included AI minutes. Growing businesses that want qualification, routing, and booking on a meaningful share of inbound calls."
           }
         },
         {
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Scale plan",
-            "description": "1200 included AI minutes. Multi-location and higher-volume call handling."
+            "name": "Pro plan",
+            "description": "1200 included AI minutes. Multi-location businesses and teams with higher volume or complex routing."
           }
         }
       ]
@@ -398,15 +398,23 @@
         "name": "What does it cost?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Plans are month to month with no setup fee, in Canadian dollars. Current numbers are on the pricing page for what each plan includes; your exact fit is confirmed on a short strategy call. Month to month, cancel anytime."
+          "text": "Every plan is a monthly price plus a one-time setup fee, in Canadian dollars, month to month. Current numbers and what each plan includes are on the pricing page; your exact fit is confirmed on a short strategy call. Cancel anytime."
         }
       },
       {
         "@type": "Question",
-        "name": "Is the 7-day live pilot actually free?",
+        "name": "Why is there a setup fee?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. No card, no automatic billing, no charge. The pilot runs within set limits on one line, and on day eight it simply ends unless you explicitly choose a plan. Silence never becomes a subscription. Details on the pilot page."
+          "text": "Because setting it up is the work. Your receptionist is configured around your hours, services, prices, service area and rules, then tested against your real call scenarios before it answers anything. That happens once, up front, and the fee pays for it. What you avoid is a cheaper monthly price attached to a template that does not know your business."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the 7-day live pilot free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. It is C$150, paid up front, and if you continue on any plan the whole C$150 is credited against your setup fee. The pilot runs within set limits on one line, and on day eight it ends unless you explicitly choose a plan. Silence never becomes a subscription. Details on the pilot page."
         }
       },
       {
@@ -422,7 +430,7 @@
         "name": "What if it is not a fit?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "The free pilot exists so you can judge from real calls before paying anything. After that it is month to month and you can cancel anytime, effective at the next renewal."
+          "text": "The pilot exists so you judge from your own real calls before committing to a plan. If you stop there, the C$150 covered seven live days of a system built for your business and nothing else is charged. If you continue, it is month to month and you can cancel anytime, effective at the next renewal."
         }
       }
     ]
@@ -491,7 +499,7 @@
           <span class="ctamask"><a class="btn btn-ghost" href="/book.html" data-evt="hero_book_call_click" data-cta>Book a 15-min call</a></span>
         </div>
         <p class="proof">Live demo line: <a class="mono" href="tel:+15874130035">(587)&nbsp;413-0035</a> · answers in seconds. It is the AI, not a salesperson, and nothing is sold to you.</p>
-        <p class="proof pilot-promise">Then try it on your own line: <strong>a free 7-day pilot, no card and no automatic billing.</strong> <a href="/pilot.html">How the pilot works</a></p>
+        <p class="proof pilot-promise">Then try it on your own line: <strong>a 7-day live pilot for C$150, credited toward your setup fee if you continue.</strong> <a href="/pilot.html">How the pilot works</a></p>
         <!-- Search sits below the CTAs on purpose: calling the AI is the thing
              this page is for, and a box that competes with it in the eye would
              be a worse page. This is for the visitor who arrived with a
@@ -611,7 +619,7 @@
     <div class="wrap">
       <ul>
         <li>Keep your existing phone number</li>
-        <li>Free 7-day pilot, no card</li>
+        <li>7-day live pilot, C$150 credited back</li>
         <li>Month to month, cancel anytime</li>
         <li>Switch it off from your own phone</li>
         <li>Built and tuned for you, not a template</li>
@@ -1061,7 +1069,7 @@
         <div><span class="mono">SAME DAY</span><h3>Built</h3><p>Your agent configured from your trade's template: knowledge, call flows, business rules.</p></div>
         <div><span class="mono">SAME DAY</span><h3>You hear it</h3><p>Test calls with you on the line. Push on it. Anything that wobbles gets fixed before a customer ever reaches it.</p></div>
         <div><span class="mono">THAT NIGHT</span><h3>Answering</h3><p>You switch on call forwarding using the exact code we give you for your carrier. It picks up from there.</p></div>
-        <div><span class="mono">NEXT 7 DAYS</span><h3>Free pilot</h3><p>It keeps answering while you read every call it caught, and at the end of the week you decide whether to keep it.</p></div>
+        <div><span class="mono">NEXT 7 DAYS</span><h3>Live pilot</h3><p>It keeps answering while you read every call it caught, and at the end of the week you decide whether to keep it.</p></div>
       </div>
       <div class="midcta reveal" style="margin-top:26px">
         <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a strategy call</a>
@@ -1111,13 +1119,13 @@
   <section class="tight" id="risk">
     <div class="wrap">
       <div class="section-head reveal">
-        <p class="eyebrow mono">Try it without risk</p>
+        <p class="eyebrow mono">Prove it before you commit</p>
         <h2>Prove it on your own phone line first.</h2>
       </div>
       <div class="assure reveal">
-        <p><span class="ok">✓</span><span><strong>7-day live pilot.</strong> Seven live days on your after-hours line. No card. No automatic billing. You see every call it catches, then you decide.</span></p>
+        <p><span class="ok">✓</span><span><strong>7-day live pilot, C$150.</strong> Seven live days on your after-hours line, built for your business. You see every call it catches, then you decide.</span></p>
+        <p><span class="ok">✓</span><span><strong>The C$150 comes back to you.</strong> Continue on any plan and the whole pilot fee is credited against your one-time setup fee. You never pay twice for the same build.</span></p>
         <p><span class="ok">✓</span><span>Month to month after that. Cancel anytime. No contracts.</span></p>
-        <p><span class="ok">✓</span><span><strong>No setup fee.</strong> Nothing to pay before your receptionist is built and answering.</span></p>
         <div class="founder">
           <img src="assets/daren.jpg" alt="Daren, founder of Nevamis" width="104" height="104" loading="lazy">
           <p><strong>Daren · Founder</strong><br>A real Edmonton founder. Questions go to the person building your system, not a ticket queue.</p>
@@ -1182,10 +1190,11 @@
       <details><summary>Can it handle multiple locations or languages?</summary><p>Multi-location routing and additional languages are scoped during discovery, since the right setup depends on your call flows. Ask on the strategy call.</p></details>
       <details><summary>How long does setup take?</summary><p>Days, not months. Discovery, build, testing against your real scenarios, then a controlled pilot on your line.</p></details>
       <details><summary>Can I review calls and summaries?</summary><p>Yes. Every call produces a summary, and call review is part of how we tune your agent over time.</p></details>
-      <details><summary>What does it cost?</summary><p>Plans are month to month with no setup fee, in Canadian dollars. Current numbers are on the <a href="/pricing.html">pricing page</a> for what each plan includes; your exact fit is confirmed on a short strategy call. Month to month, cancel anytime.</p></details>
-      <details><summary>Is the 7-day live pilot actually free?</summary><p>Yes. No card, no automatic billing, no charge. The pilot runs within set limits on one line, and on day eight it simply ends unless you explicitly choose a plan. Silence never becomes a subscription. Details on the <a href="/pilot.html">pilot page</a>.</p></details>
+      <details><summary>What does it cost?</summary><p>Every plan is a monthly price plus a one-time setup fee, in Canadian dollars, month to month. Current numbers and what each plan includes are on the <a href="/pricing.html">pricing page</a>; your exact fit is confirmed on a short strategy call. Cancel anytime.</p></details>
+      <details><summary>Why is there a setup fee?</summary><p>Because setting it up is the work. Your receptionist is configured around your hours, services, prices, service area and rules, then tested against your real call scenarios before it answers anything. That happens once, up front, and the fee pays for it. What you avoid is a cheaper monthly price attached to a template that does not know your business.</p></details>
+      <details><summary>Is the 7-day live pilot free?</summary><p>No. It is C$150, paid up front, and if you continue on any plan the whole C$150 is credited against your setup fee. The pilot runs within set limits on one line, and on day eight it ends unless you explicitly choose a plan. Silence never becomes a subscription. Details on the <a href="/pilot.html">pilot page</a>.</p></details>
       <details><summary>How is customer information handled?</summary><p>Call details are used to run your service: booking, confirmations, and your summaries. See the privacy page for what this website itself collects. Businesses remain responsible for notices appropriate to their own jurisdiction and call-recording requirements.</p></details>
-      <details><summary>What if it is not a fit?</summary><p>The free pilot exists so you can judge from real calls before paying anything. After that it is month to month and you can cancel anytime, effective at the next renewal.</p></details>
+      <details><summary>What if it is not a fit?</summary><p>The pilot exists so you judge from your own real calls before committing to a plan. If you stop there, the C$150 covered seven live days of a system built for your business and nothing else is charged. If you continue, it is month to month and you can cancel anytime, effective at the next renewal.</p></details>
     </div>
   </section>
 
