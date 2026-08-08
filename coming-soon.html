@@ -58,7 +58,7 @@
   .svc ul { list-style: none; padding: 0; margin: 0; }
   .svc li { font-size: 13px; color: var(--muted); padding: 3px 0 3px 18px; position: relative; }
   .svc li::before { content: "·"; position: absolute; left: 6px; color: var(--emerald); font-weight: 700; }
-  .svc .interest { align-self: flex-start; font-size: 13.5px; font-weight: 700; background: none; border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-family: inherit; color: var(--ink); min-height: 40px; }
+  .svc .interest { align-self: flex-start; font-size: 13.5px; font-weight: 700; background: none; border: 1px solid var(--line-control); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-family: inherit; color: var(--ink); min-height: 40px; }
   .svc .interest:hover { border-color: rgba(159,240,206,.42); color: var(--mint); }
   @media (max-width: 900px) { .svc-grid { grid-template-columns: 1fr; } }
   /* journey */
@@ -69,7 +69,7 @@
   .j-mod {
     font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer;
     background: rgba(159,240,206,.05); color: var(--muted);
-    border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; min-height: 40px;
+    border: 1px solid var(--line-control); border-radius: 999px; padding: 8px 14px; min-height: 40px;
   }
   .j-mod[aria-pressed="true"] { background: rgba(47,191,143,.16); color: var(--mint); border-color: rgba(47,191,143,.5); }
   .j-steps { display: grid; gap: 7px; }
@@ -86,7 +86,7 @@
   .interest-form .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
   .interest-form label { font-weight: 700; font-size: 14px; display: block; margin-bottom: 5px; }
   .interest-form input, .interest-form select, .interest-form textarea {
-    width: 100%; padding: 11px 12px; font-size: 15px; border: 1px solid var(--line); color: var(--ink);
+    width: 100%; padding: 11px 12px; font-size: 15px; border: 1px solid var(--line-control); color: var(--ink);
     border-radius: 9px; font-family: inherit; background: rgba(159,240,206,.04); min-height: 44px;
   }
   .interest-form select { background: var(--navy-2); }
@@ -97,7 +97,7 @@
   .interest-form textarea { min-height: 74px; resize: vertical; }
   .interest-form .full { grid-column: 1 / -1; }
   .svc-checks { display: flex; flex-wrap: wrap; gap: 8px; }
-  .svc-checks label { display: inline-flex; align-items: center; gap: 7px; font-weight: 400; font-size: 13.5px; border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; cursor: pointer; margin: 0; min-height: 40px; }
+  .svc-checks label { display: inline-flex; align-items: center; gap: 7px; font-weight: 400; font-size: 13.5px; border: 1px solid var(--line-control); border-radius: 999px; padding: 7px 12px; cursor: pointer; margin: 0; min-height: 40px; }
   .svc-checks input { width: auto; min-height: 0; accent-color: var(--emerald); }
   .form-note { font-size: 12.5px; color: var(--muted); margin-top: 12px; max-width: 68ch; }
   .form-note a { color: var(--mint); text-decoration: underline; text-underline-offset: 3px; }

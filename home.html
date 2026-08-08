@@ -141,7 +141,7 @@
   /* ---------- hero search ---------- */
   .hero-search{position:relative;margin-top:22px;max-width:440px}
   .hs-wrap{display:flex;align-items:center;gap:9px;padding:0 12px;
-    background:rgba(159,240,206,.04);border:1px solid var(--line);border-radius:11px;
+    background:rgba(159,240,206,.04);border:1px solid var(--line-control);border-radius:11px;
     transition:border-color .2s var(--e-out),box-shadow .2s var(--e-out)}
   .hs-wrap:focus-within{border-color:rgba(159,240,206,.5)}
   /* The ring goes on the input, not the wrapper. Styling only :focus-within
@@ -156,7 +156,7 @@
   /* The native clear affordance sits under our own border radius awkwardly. */
   .hero-search input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
   .hs-key{flex:none;font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--muted-dark);
-    border:1px solid var(--line);border-radius:5px;padding:2px 6px;line-height:1.4}
+    border:1px solid var(--line-control);border-radius:5px;padding:2px 6px;line-height:1.4}
   @media(hover:none){.hs-key{display:none}}
 
   .hs-results{position:absolute;left:0;right:0;top:calc(100% + 7px);z-index:60;

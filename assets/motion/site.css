@@ -12,6 +12,19 @@
   --navy:#0B1620; --navy-0:#02080D; --navy-2:#0D1C27; --navy-3:#10222E;
   --emerald:#2FBF8F; --emerald-deep:#0E5C4B; --emerald-mid:#1E8E6D; --mint:#9FF0CE;
   --ink:#EAF3EE; --muted:#8AA5A0; --line:rgba(159,240,206,.14);
+  /* --line is a DECORATIVE separator: card edges, section rules, the trust
+     strip. It measures 1.41:1 over --navy, which is right for a hairline and is
+     not governed by WCAG 1.4.11.
+     --line-control is the boundary of an INTERACTIVE CONTROL, where 1.4.11
+     wants 3:1. One token was doing both jobs, so every input, the nav toggle
+     and the ghost buttons inherited a hairline: 1.41:1 on the border with fills
+     at 1.02-1.14:1, meaning there was no fallback boundary either. The search
+     field was the worst case - its <input> declares border:0 and
+     background:none, so the element itself measured 1.00:1 and the only thing
+     drawing the box was the wrapper's hairline.
+     Set by measurement, not derivation. Checked by the site contrast probe
+     across /, /pricing, /pilot, /book and /coming-soon. */
+  --line-control:rgba(159,240,206,.46);
   --warm:#F0B462; --warm-deep:#8A6210; --bad:#E5837B;
   --e-out:cubic-bezier(.16,1,.3,1); --e-in:cubic-bezier(.7,0,.84,0);
   /* compat aliases: markup ported from the previous site references these */
@@ -84,7 +97,7 @@ strong{color:var(--ink)}
 .main-nav a:not(.btn):hover{color:var(--ink)}
 .main-nav a:not(.btn):hover::after,.main-nav a.active-section::after{transform:scaleX(1)}
 .main-nav a.active-section{color:var(--ink)}
-.nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line);
+.nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
   color:var(--ink);border-radius:9px;width:42px;height:42px;font-size:17px;cursor:pointer}
 
 @media(max-width:1080px){
@@ -112,7 +125,7 @@ strong{color:var(--ink)}
   box-shadow:0 10px 30px -12px rgba(47,191,143,.6);background-size:160% 100%;background-position:0 0;
   transition:background-position .45s var(--e-out),box-shadow .3s var(--e-out)}
 .btn-primary:hover{background-position:100% 0;box-shadow:0 16px 44px -14px rgba(47,191,143,.8)}
-.btn-ghost,.btn-light-ghost{border-color:var(--line);color:var(--ink);background:transparent;
+.btn-ghost,.btn-light-ghost{border-color:var(--line-control);color:var(--ink);background:transparent;
   transition:border-color .25s var(--e-out),background .25s var(--e-out)}
 .btn-ghost:hover,.btn-light-ghost:hover{border-color:rgba(159,240,206,.42);background:rgba(159,240,206,.05)}
 .ring-once{animation:ringOnce 1s var(--e-out) 1}
@@ -258,7 +271,7 @@ html.no-js .summary-arrive,html.motion-off .summary-arrive{opacity:1;transform:n
 .sim-head [data-sim-state]{color:var(--mint);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
 .sim-scenarios{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
 .sim-scenarios button{font-family:inherit;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;
-  background:rgba(159,240,206,.04);border:1px solid var(--line);border-radius:999px;padding:8px 15px;
+  background:rgba(159,240,206,.04);border:1px solid var(--line-control);border-radius:999px;padding:8px 15px;
   transition:all .25s var(--e-out)}
 .sim-scenarios button:hover{color:var(--ink);border-color:rgba(159,240,206,.35)}
 .sim-scenarios button[aria-pressed="true"]{background:var(--mint);color:#04120C;border-color:var(--mint)}
@@ -375,7 +388,7 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
 .roi-grid form{padding:24px;display:grid;gap:16px}
 .roi-grid label{font-weight:700;font-size:14.5px;display:block;margin-bottom:7px}
 .roi-grid input{width:100%;padding:12px 13px;font-size:15.5px;font-family:inherit;color:var(--ink);
-  background:rgba(159,240,206,.04);border:1px solid var(--line);border-radius:10px;min-height:46px;
+  background:rgba(159,240,206,.04);border:1px solid var(--line-control);border-radius:10px;min-height:46px;
   transition:border-color .2s var(--e-out),box-shadow .2s var(--e-out)}
 .roi-grid input:focus{outline:none;border-color:rgba(159,240,206,.5);
   box-shadow:0 0 0 3px rgba(47,191,143,.18)}
@@ -540,7 +553,7 @@ html.motion-off .faq details p{animation:none}
 
 /* ---------- motion toggle ---------- */
 .motion-toggle-btn{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.08em;
-  color:var(--muted);background:rgba(11,22,32,.7);border:1px solid var(--line);border-radius:999px;
+  color:var(--muted);background:rgba(11,22,32,.7);border:1px solid var(--line-control);border-radius:999px;
   padding:6px 13px;cursor:pointer;transition:color .2s var(--e-out),border-color .2s var(--e-out)}
 .motion-toggle-btn:hover{color:var(--ink);border-color:rgba(159,240,206,.4)}
 
