@@ -23,6 +23,29 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<!-- Atkinson is the body face and the only one whose swap moves the page:
+     blocking each family in turn on throttled mobile gave CLS 0.1290 without
+     Bricolage, 0.1285 without Spline, and 0.0005 without Atkinson. Both
+     weights are here because 400 and 700 race separately and the CTA label is
+     bold.
+
+     The media query is the point. Preloading and metric-matching solve the
+     same problem on different devices, and each is dead weight on the other:
+
+                          mobile LCP   mobile CLS   desktop LCP   desktop CLS
+       no preload            2,144       0.0013         220         0.0998
+       both, always          2,916       0.0011         164         0.0000
+       both, >=900px         2,028       0.0013         152         0.0000
+
+     On a phone nothing arrives before first paint, so `swap` fires whatever
+     we do — mobile CLS is ~0.001 with no preload at all, because the
+     metric-matched fallbacks in fonts.css hold the layout. There the preload
+     buys nothing and costs 34 KB of a 400 kbps pipe shared with the
+     render-blocking stylesheet that gates the LCP text. On a desktop the font
+     does beat first paint, so the preload is what keeps CLS at zero.
+     Scoping it to wide viewports takes the best column of each. -->
+<link rel="preload" href="assets/fonts/atkinson-hyperlegible-400-latin.woff2" media="(min-width: 900px)" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/atkinson-hyperlegible-700-latin.woff2" media="(min-width: 900px)" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="assets/motion/site.css">
 <style>

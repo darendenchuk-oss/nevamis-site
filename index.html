@@ -66,37 +66,31 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<!-- ONE preload, not three, and the count is the result of measurement rather
-     than taste. The homepage's LCP element is TEXT (P.lede), and text cannot
-     paint until the render-blocking stylesheet arrives. site.css is 41 KB and
-     was finishing at 4,919 ms on a throttled phone — roughly 9 KB/s — because
-     ~128 KB of preloaded fonts were sharing a 400 kbps pipe with the one file
-     that gates rendering.
+<!-- Atkinson is the body face and the only one whose swap moves the page:
+     blocking each family in turn on throttled mobile gave CLS 0.1290 without
+     Bricolage, 0.1285 without Spline, and 0.0005 without Atkinson. Both
+     weights are here because 400 and 700 race separately and the CTA label is
+     bold.
 
-     Measured at 4x CPU + Slow 4G, n=5, against desktop CLS on the same build:
+     The media query is the point. Preloading and metric-matching solve the
+     same problem on different devices, and each is dead weight on the other:
 
-       three preloads (~128 KB)     mobile LCP 5,020 ms   desktop CLS 0
-       reordered after stylesheets  mobile LCP 5,136 ms
-       none                         mobile LCP 3,304 ms   desktop CLS 0.098-0.104
-       Atkinson 400 only (17 KB)    mobile LCP 3,812 ms
-       Bricolage only (75 KB)       mobile LCP 4,216 ms   desktop CLS 0
+                          mobile LCP   mobile CLS   desktop LCP   desktop CLS
+       no preload            2,144       0.0013         220         0.0998
+       both, always          2,916       0.0011         164         0.0000
+       both, >=900px         2,028       0.0013         152         0.0000
 
-     Dropping all three is the fastest, and it is not shippable: it takes
-     desktop CLS over the 0.1 ceiling that tests/quality.spec.js exists to
-     defend, and that test is right — the headline re-metric moves svg#mark and
-     everything under it.
-
-     Bricolage is the one that matters, because it is the headline whose swap
-     moves the page. Preloading it alone keeps CLS at zero and still returns
-     804 ms of mobile LCP by no longer preloading Atkinson (17 KB) and Spline
-     Sans Mono (36 KB), which the swap can absorb invisibly.
-
-     Mobile CLS is ~0.13 in every configuration above — the preloads never fixed
-     it, so removing them did not break it. It is a separate defect with a now-
-     identified source; see docs/halo/frontier-blockers.json P-CLS. -->
+     On a phone nothing arrives before first paint, so `swap` fires whatever
+     we do — mobile CLS is ~0.001 with no preload at all, because the
+     metric-matched fallbacks in fonts.css hold the layout. There the preload
+     buys nothing and costs 34 KB of a 400 kbps pipe shared with the
+     render-blocking stylesheet that gates the LCP text. On a desktop the font
+     does beat first paint, so the preload is what keeps CLS at zero.
+     Scoping it to wide viewports takes the best column of each. -->
+<link rel="preload" href="assets/fonts/atkinson-hyperlegible-400-latin.woff2" media="(min-width: 900px)" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/atkinson-hyperlegible-700-latin.woff2" media="(min-width: 900px)" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="assets/motion/site.css">
-<link rel="preload" href="assets/fonts/bricolage-grotesque-variable-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
   /* ---------- hero-specific (everything else lives in assets/motion/site.css) ---------- */
   #wake{position:fixed;inset:0;z-index:200;background:var(--navy-0);pointer-events:none}
@@ -148,7 +142,7 @@
   .stage .status b{color:var(--ink);font-weight:400}
   .stage .motion-toggle-btn{position:absolute;right:6px;bottom:6px;z-index:5}
   .step-label{font-family:"Spline Sans Mono",monospace;font-size:31px;letter-spacing:.14em;fill:var(--mint)}
-  .step-frag{font-family:"Atkinson Hyperlegible",sans-serif;font-size:19px;fill:#B9CFC9}
+  .step-frag{font-family:"Atkinson Hyperlegible","Atkinson Fallback",sans-serif;font-size:19px;fill:#B9CFC9}
 
   /* The number rides in the primary CTA on anything wide enough to read it.
      On a narrow phone the button drops it rather than wrapping to two lines:

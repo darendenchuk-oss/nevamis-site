@@ -16,19 +16,61 @@
    Atkinson Hyperlegible has no fvar. Its 400 and 700 are genuinely separate
    static files and must stay separate. */
 
-/* A note for whoever tries to fix the layout shift next.
-   Metric-matched fallback faces were tried here — @font-face with no src data
-   and size-adjust tuned from measured widths (Bricolage 881.6px against Segoe
-   UI's 944.8px at 100px, so 93.3%). They did nothing: desktop CLS 0.1042 ->
-   0.1036, mobile 0.129 -> 0.1403, i.e. slightly worse. Removed rather than
-   left in place looking like a fix.
-   The reason they missed is that the shift is VERTICAL, not horizontal. Read
-   from the layout-shift entries' own sources: one shift of 0.129 at ~5.6s on
-   throttled mobile, whose source is svg#mark moving as P.proof above it
-   re-metrics and gets shorter. size-adjust scales advance width; correcting a
-   vertical re-metric needs ascent-override / descent-override /
-   line-gap-override derived from the font's real vertical metrics.
-   See docs/halo/frontier-blockers.json P-CLS. */
+/* The layout shift, and what actually fixed it (2026-08-08).
+
+   An earlier note here blamed Bricolage and called the shift vertical. Both
+   were wrong, and the fallback faces built on that reading were removed as
+   useless. Blocking each family in turn on throttled mobile settles it:
+
+     all fonts blocked   CLS 0.0000     bricolage blocked   CLS 0.1290
+     atkinson blocked    CLS 0.0005     spline    blocked   CLS 0.1285
+
+   The entire 0.129 is Atkinson, and it is horizontal — the layout-shift
+   sources show SPAN.ctamask going 164px wide to 173px when the face swaps in
+   at ~5.5s, which reflows the column and drags svg#mark with it.
+
+   A preload cannot fix it: on a 400 kbps link no font arrives before first
+   paint, so `swap` fires no matter how early the request starts. Measured —
+   mobile CLS was 0.1290 with no preload, with Bricolage, with Atkinson, and
+   with both. Preloading only fixes desktop, where the font does beat paint.
+
+   So the fallback has to match Atkinson's metrics, which is what the faces
+   below do. The first attempt at that only got 0.129 -> 0.0622 because it
+   used one size-adjust for every weight. Atkinson does not scale like the
+   system fonts do: against Segoe UI it needs 99.65% at weight 400 but 101.13%
+   at 700, and .ctamask is bold. Declaring the two weights separately took it
+   to 0.0013.
+
+   font-display stays `swap`, deliberately. `optional` measures marginally
+   better (0.0005) but suppresses the swap entirely, so a first-time visitor
+   on a slow connection would never see the typeface. 0.0008 of CLS is not
+   worth the brand. See docs/halo/frontier-blockers.json P-CLS. */
+
+/* Metric-matched fallbacks for Atkinson. size-adjust from measured advance
+   widths of the same string at 100px; ascent/descent from Atkinson's own
+   fontBoundingBox (95 / 29 per 100px em), so `line-height: normal` boxes
+   match too. Within a family the last declared face wins and an unresolvable
+   local() falls back to the one before it, so these run least- to most-
+   preferred: Arial/Helvetica (macOS, iOS), Roboto (Android), Segoe UI
+   (Windows) last. */
+@font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 400;
+  src: local('Arial'), local('Helvetica');
+  size-adjust: 98.82%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+@font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 400;
+  src: local('Roboto');
+  size-adjust: 107.82%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+@font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 400;
+  src: local('Segoe UI');
+  size-adjust: 99.65%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+@font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 700;
+  src: local('Arial Bold'), local('Arial'), local('Helvetica');
+  size-adjust: 100.52%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+@font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 700;
+  src: local('Roboto');
+  size-adjust: 111.85%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+@font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 700;
+  src: local('Segoe UI Bold'), local('Segoe UI');
+  size-adjust: 101.13%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
 
 /* ------------------------------------------------------------------ */
 /* Atkinson Hyperlegible — body. Static: two real weights, two files.  */
