@@ -46,6 +46,19 @@
     box-shadow:0 0 0 3px rgba(47,191,143,.18)}
   #booking a:not(.btn){color:var(--mint);text-decoration:underline;text-underline-offset:3px}
   @media(max-width:720px){#bkPrefill{grid-template-columns:1fr!important}}
+  /* The scheduler had 296px of usable width at a 390px viewport: 40px of .wrap
+     padding plus 52px of .panel padding taken off a phone screen, spent framing
+     a calendar that then had nowhere to draw. The panel keeps its padding for
+     everything else and gives it back to the iframe alone.
+     Cal stacks its layout when narrow, so the frame is taller on a phone than
+     on a desktop, not shorter. */
+  @media(max-width:720px){
+    /* !important because the panel carries padding:26px as an inline style,
+       and an inline style beats a stylesheet rule regardless of specificity.
+       Overriding one is the case !important exists for. */
+    #booking .panel{padding-left:12px!important;padding-right:12px!important}
+    #bkFrame{--bk-frame-h:1120px}
+  }
 
   /* ---------- callback request ---------- */
   .cb{margin-top:34px;padding-top:28px;border-top:1px solid var(--line)}
@@ -209,8 +222,31 @@
           <input id="bkEmail" inputmode="email" enterkeyhint="done" aria-label="Email (optional, prefills the booking form)" type="email" placeholder="Email" autocomplete="email" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line-control);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
         </div>
         <!-- Inline scheduler (works without JS: plain iframe). The external
-             link below stays as the always-available fallback (WEB-138). -->
-        <iframe id="bkFrame" src="https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1" title="Book a 15-minute intro call with Daren on the Cal.com scheduler" loading="lazy" style="width:100%;height:720px;border:0;border-radius:12px;background:#fff"></iframe>
+             link below stays as the always-available fallback (WEB-138).
+
+             THEME IS NOT SET HERE, and cannot be. The scheduler follows the
+             VISITOR's prefers-color-scheme, not anything we pass. Measured: a
+             visitor in dark mode gets html.dark and a near-black booker that
+             matches this site; a visitor in light mode gets html.light and the
+             white card. Four URL spellings were tried — theme=dark,
+             ui.theme=dark, embed=&theme=dark, and none — and all four produced
+             an identical result, following the browser preference every time.
+             Forcing it needs either the appearance setting on the Cal.com
+             account, or their embed SDK, which is deliberately not used here
+             (see the completion listener below for why). Left to the owner
+             rather than papered over: see docs/halo/frontier-blockers.json B1.
+
+             The height is a measured constant, not a guess, and it has to be:
+             the plain iframe forgoes the SDK's auto-resize, and Cal.com posts
+             no dimension events to resize from. Captured postMessages are only
+             navigatedToBooker, __routeChanged and availabilityLoaded. At 720px
+             the August grid was cut through the middle of the 16-22 row, which
+             reads as a broken page rather than a scrollable one.
+             Sized from the tallest real state: a six-row month plus the event
+             header. Mobile gets more because Cal stacks its layout when narrow.
+             If Cal.com ever changes the booker's height this needs re-measuring
+             — there is no signal that would tell us automatically. -->
+        <iframe id="bkFrame" src="https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1" title="Book a 15-minute intro call with Daren on the Cal.com scheduler" loading="lazy" style="width:100%;height:var(--bk-frame-h,940px);border:0;border-radius:12px;background:var(--navy-2)"></iframe>
         <p style="margin-top:16px;font-size:14.5px;color:var(--muted);text-align:center">Scheduler not loading, or prefer a full page? <a href="https://cal.com/daren-qvlah4/nevamis-intro" target="_blank" rel="noopener" data-evt="booking_start">Open booking in a new tab</a>.</p>
         <p style="margin-top:10px;font-size:14.5px;color:var(--muted);text-align:center">Rather talk first? Call the AI at <a class="mono" href="tel:+15874130035">(587) 413-0035</a> and ask it to have Daren call you back, or email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
 
