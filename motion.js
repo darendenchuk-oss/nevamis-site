@@ -244,7 +244,9 @@
       if (s.say) logHtml += '<div class="sim-line on"><span class="who">' + (s.who || "") + "</span>" + s.say + "</div>";
       else if (s.note) logHtml += '<div class="sim-line on"><span class="who">SYSTEM</span>' + s.note + "</div>";
     }
-    el.log.innerHTML = logHtml || '<div class="sim-line">Press play to start the scenario.</div>';
+    /* sim-empty, not a bare sim-line: .sim-line starts at opacity 0 and is
+       revealed by .on as each line is spoken, so this hint never appeared. */
+    el.log.innerHTML = logHtml || '<div class="sim-line sim-empty">Press play to start the scenario.</div>';
     /* chips (accumulate) */
     var chipsHtml = "";
     for (var c = 0; c <= idx && c < steps.length; c++) {

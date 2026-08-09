@@ -142,6 +142,27 @@ test('the simulator runs a scenario through all six stages', async ({ page }) =>
   await expect(page.locator('.sim-log .sim-line').first()).toBeVisible();
 });
 
+/* The simulator's empty state has to be readable, because it is the only thing
+   telling a visitor how to work the demo.
+
+   It shipped as a bare .sim-line, and .sim-line starts at opacity 0 waiting for
+   the .on class that arrives when a line is spoken — which never happens before
+   you press play. So the sentence was invisible to every visitor in both motion
+   settings, leaving a blank 38px panel under a play button.
+
+   toBeVisible() does not catch this: Playwright treats an opacity-0 element with
+   a box as visible, which is why the assertion twenty lines above passed the
+   whole time. Computed opacity is the only thing that matches what a human
+   sees. */
+test('the simulator says how to start it, before you start it', async ({ page }) => {
+  await page.goto(PLAIN);
+  await page.locator('#sim').scrollIntoViewIfNeeded();
+  const hint = page.locator('.sim-log .sim-line').first();
+  await expect(hint).toHaveText(/press play/i);
+  const shown = await hint.evaluate((el) => Number(getComputedStyle(el).opacity));
+  expect(shown, 'the empty-state hint must be legible, not merely present').toBeGreaterThan(0.9);
+});
+
 test('coverage tabs switch with mouse and arrow keys', async ({ page }) => {
   await page.goto(PLAIN);
   const tabs = page.locator('.modes [role=tab]');

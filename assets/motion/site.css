@@ -378,6 +378,13 @@ html.no-js .summary-arrive,html.motion-off .summary-arrive{opacity:1;transform:n
   color:var(--muted);background:rgba(159,240,206,.03);border-left:2px solid transparent;
   opacity:0;transform:translateY(6px);transition:opacity .4s var(--e-out),transform .4s var(--e-out)}
 .sim-line.on{opacity:1;transform:none;color:var(--ink);border-left-color:rgba(159,240,206,.35)}
+/* The empty state is not a transcript line waiting to be spoken, so it does not
+   start at opacity 0 waiting for a class that will never arrive. It shipped as a
+   bare .sim-line, which meant the one sentence telling a visitor how to work the
+   demo was invisible to everyone, in both motion settings: a blank 38px panel
+   under a play button. Muted and unaccented on purpose, because it is an
+   instruction rather than something the caller or the agent said. */
+.sim-line.sim-empty{opacity:1;transform:none;color:var(--muted);background:none;border-left-color:transparent}
 .sim-line .who{display:block;font-family:"Spline Sans Mono",monospace;font-size:11px;
   letter-spacing:.12em;color:var(--mint);margin-bottom:2px}
 .sim-chips{display:flex;gap:7px;flex-wrap:wrap}
