@@ -32,7 +32,7 @@
        both, >=900px         2,028       0.0013         152         0.0000
 
      On a phone nothing arrives before first paint, so `swap` fires whatever
-     we do — mobile CLS is ~0.001 with no preload at all, because the
+     we do. Mobile CLS is ~0.001 with no preload at all, because the
      metric-matched fallbacks in fonts.css hold the layout. There the preload
      buys nothing and costs 34 KB of a 400 kbps pipe shared with the
      render-blocking stylesheet that gates the LCP text. On a desktop the font
@@ -183,9 +183,16 @@
   <section class="tight">
     <div class="wrap">
       <div id="pilotBanner" style="background:var(--navy-2);border:1px solid rgba(47,191,143,.45);border-radius:14px;padding:20px 24px;margin-bottom:30px">
-        <h2 style="font-size:19px;margin-bottom:6px;letter-spacing:-.01em" id="pilotName"></h2>
-        <p style="color:var(--muted);font-size:15px" id="pilotTagline"></p>
-        <p style="color:var(--muted);font-size:13.5px;margin-top:8px" id="pilotCaps"></p>
+        <!-- Real text, the same rule the referral block below and the proposal
+             page already follow. The renderer overwrites all three from
+             pricing-config.js, so one edit still moves every surface; shipping
+             them empty only meant the banner had no height until the config
+             arrived. On a throttled phone that was 745 ms after first paint,
+             and the three elements filling in pushed everything below them
+             down 256px: 0.093 of the page's 0.095 CLS, in one shift. -->
+        <h2 style="font-size:19px;margin-bottom:6px;letter-spacing:-.01em" id="pilotName">7-day live pilot</h2>
+        <p style="color:var(--muted);font-size:15px" id="pilotTagline">Seven live days on your real line. C$150, credited toward your first month if you continue. On day eight the pilot ends unless you explicitly choose a plan. Silence never becomes a subscription.</p>
+        <p style="color:var(--muted);font-size:13.5px;margin-top:8px" id="pilotCaps">One line, one call flow, one calendar. Up to 60 connected AI minutes or 30 calls, whichever comes first. One revision included. The seven days start when your pilot goes live, not when you apply.</p>
         <p style="font-size:14.5px;margin-top:10px"><a href="/pilot.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Everything about the pilot</a> · <a href="/book.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Apply on a strategy call</a></p>
       </div>
       <div id="foundingBanner" style="background:rgba(240,180,98,.08);border:1px solid rgba(240,180,98,.35);border-radius:14px;padding:16px 24px;margin-bottom:30px" hidden>
@@ -222,12 +229,17 @@
 
       <div class="reveal" style="margin-top:26px;background:var(--navy-2);border:1px solid var(--line);border-radius:16px;padding:18px 22px">
         <h3 style="font-size:17px;margin-bottom:8px">How usage works</h3>
-        <p id="minuteDef" style="font-size:14.5px;color:var(--muted)"></p>
-        <ul id="usageNotes" style="font-size:14px;color:var(--muted);padding-left:20px;margin-top:8px"></ul>
-        <p id="taxNote" style="font-size:13px;color:var(--muted);margin-top:10px"></p>
+        <p id="minuteDef" style="font-size:14.5px;color:var(--muted)">A connected AI minute starts when the AI answers a connected call and ends when the AI portion of the call ends.</p>
+        <ul id="usageNotes" style="font-size:14px;color:var(--muted);padding-left:20px;margin-top:8px">
+          <li>Failed calls that never connect are not counted.</li>
+          <li>Wrong numbers or spam that reach the AI consume usage, because the system handled them.</li>
+          <li>Usage alerts at 50%, 75%, 90%, and 100% of included minutes, in your portal.</li>
+          <li>Near the limit you choose: automatic overage, fallback answering, or a hard cap.</li>
+        </ul>
+        <p id="taxNote" style="font-size:13px;color:var(--muted);margin-top:10px">Prices in Canadian dollars, plus applicable GST/HST.</p>
         <!-- Lives in the page, not the shared footer: page-specific content in
              shared chrome gets destroyed the next time the chrome is synced. -->
-        <p class="mono" id="pricingUpdated" style="font-size:12px;color:var(--muted);margin-top:6px"></p>
+        <p class="mono" id="pricingUpdated" style="font-size:12px;color:var(--muted);margin-top:6px">pricing updated 2026-08-06</p>
       </div>
 
       <!-- Referral. Placed AFTER the plans on purpose: it is an offer to
@@ -335,6 +347,9 @@
   document.getElementById("minuteDef").textContent = P.usagePolicy.minuteDef;
   document.getElementById("taxNote").textContent = P.taxNote;
   var notes = document.getElementById("usageNotes");
+  /* Replace, do not append: the list ships with the same four notes as real
+     HTML so the block has its height before the config lands. */
+  notes.textContent = "";
   P.usagePolicy.notes.forEach(function (n) { var li = document.createElement("li"); li.textContent = n; notes.appendChild(li); });
   var wrap = document.getElementById("plans");
   /* "C$1250" next to "C$849" reads like a typo on the one page where a

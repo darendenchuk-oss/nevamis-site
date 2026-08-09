@@ -25,12 +25,12 @@
      all fonts blocked   CLS 0.0000     bricolage blocked   CLS 0.1290
      atkinson blocked    CLS 0.0005     spline    blocked   CLS 0.1285
 
-   The entire 0.129 is Atkinson, and it is horizontal — the layout-shift
+   The entire 0.129 is Atkinson, and it is horizontal, the layout-shift
    sources show SPAN.ctamask going 164px wide to 173px when the face swaps in
    at ~5.5s, which reflows the column and drags svg#mark with it.
 
    A preload cannot fix it: on a 400 kbps link no font arrives before first
-   paint, so `swap` fires no matter how early the request starts. Measured —
+   paint, so `swap` fires no matter how early the request starts. Measured,
    mobile CLS was 0.1290 with no preload, with Bricolage, with Atkinson, and
    with both. Preloading only fixes desktop, where the font does beat paint.
 

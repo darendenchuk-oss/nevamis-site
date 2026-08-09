@@ -80,7 +80,7 @@
        both, >=900px         2,028       0.0013         152         0.0000
 
      On a phone nothing arrives before first paint, so `swap` fires whatever
-     we do — mobile CLS is ~0.001 with no preload at all, because the
+     we do. Mobile CLS is ~0.001 with no preload at all, because the
      metric-matched fallbacks in fonts.css hold the layout. There the preload
      buys nothing and costs 34 KB of a 400 kbps pipe shared with the
      render-blocking stylesheet that gates the LCP text. On a desktop the font

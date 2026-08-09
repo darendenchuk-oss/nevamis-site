@@ -37,7 +37,7 @@
        both, >=900px         2,028       0.0013         152         0.0000
 
      On a phone nothing arrives before first paint, so `swap` fires whatever
-     we do — mobile CLS is ~0.001 with no preload at all, because the
+     we do. Mobile CLS is ~0.001 with no preload at all, because the
      metric-matched fallbacks in fonts.css hold the layout. There the preload
      buys nothing and costs 34 KB of a 400 kbps pipe shared with the
      render-blocking stylesheet that gates the LCP text. On a desktop the font
@@ -117,14 +117,28 @@
     <div class="plan-box">
       <p class="mono" style="color:var(--mint);font-size:11.5px;letter-spacing:.14em" id="planName">GROWTH</p>
       <p class="amount" id="planPrice">C$500<span>/month</span></p>
-      <p class="plan-line" id="planIncludes"></p>
-      <!-- Real text, not an empty span. Everything below is overwritten from
-           pricing-config.js on load; with scripts blocked this is what the
+      <!-- Real text, not an empty span. Everything in this box is overwritten
+           from pricing-config.js on load; with scripts blocked this is what the
            prospect reads, and a blank line under a monthly price is where he
-           supplies his own guess about a setup fee. -->
+           supplies his own guess about a setup fee.
+           The same rule now covers what is included and the feature list. They
+           shipped empty, and filling them 1.9s after first paint on a throttled
+           phone was 0.060 of this page's 0.060 CLS: the whole of it, in one
+           shift, on the one document written to close a sale. -->
+      <p class="plan-line" id="planIncludes">600 included AI minutes per month, about 200 to 300 typical calls. Additional minutes C$0.90 each.</p>
       <p class="plan-line" id="planSetup">First month C$500, then C$500/month from month two. Your C$150 pilot fee comes off that first month.</p>
       <p class="plan-line" id="planAnnual"></p>
-      <ul class="ticks" id="planFeatures"></ul>
+      <ul class="ticks" id="planFeatures">
+        <li>Up to two lines, departments, or call flows</li>
+        <li>After-hours, overflow, or full-time front-line coverage</li>
+        <li>Up to two booking calendars</li>
+        <li>Advanced qualification and intake</li>
+        <li>Approved transfer and escalation rules</li>
+        <li>Customer booking confirmations by text, opt-in, in your business name</li>
+        <li>One standard CRM or automation connection when supported</li>
+        <li>Two tuning reviews per month for the first 90 days</li>
+        <li>Priority email support</li>
+      </ul>
     </div>
     <p class="meta">Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime.
       Full plan comparison at <a href="/pricing.html" style="color:var(--mint)">nevamis.ca/pricing</a>.</p>
@@ -133,9 +147,9 @@
   <section>
     <h2>Start with the live pilot</h2>
     <div class="pilot">
-      <p><strong id="pilotName">7-day live pilot</strong> <span id="pilotTagline"></span></p>
-      <p id="pilotCaps"></p>
-      <p id="pilotDayEight"></p>
+      <p><strong id="pilotName">7-day live pilot</strong> <span id="pilotTagline">Seven live days on your real line. C$150, credited toward your first month if you continue.</span></p>
+      <p id="pilotCaps">One line, one call flow, one calendar. Up to 60 connected AI minutes or 30 calls, whichever comes first. One revision included. The seven days start when your pilot goes live, not when you apply.</p>
+      <p id="pilotDayEight">On day eight the pilot ends unless you explicitly choose a plan. Silence never becomes a subscription.</p>
     </div>
   </section>
 

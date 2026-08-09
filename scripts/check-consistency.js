@@ -257,6 +257,78 @@ for (const p of contentPages) {
   }
 }
 
+/* 7a. Pre-rendered copy must equal what the renderer would have written.
+
+       On 2026-08-08 the pilot banner, usage policy and proposal plan box were
+       given real text instead of shipping empty and filling in from
+       pricing-config.js after load. Empty was measurably wrong: on a throttled
+       phone the pricing page filled 745 ms after first paint and pushed
+       everything below down 256px, which was 0.093 of its 0.095 CLS, and the
+       proposal page's was the whole of its 0.060.
+
+       Real text buys a second, larger thing: with scripts blocked or the
+       config request lost, the page still reads correctly. But a static copy
+       of a config value is a copy, and this repo has watched copies drift
+       before. So the copy is checked here against the config it duplicates,
+       character for character, using the same concatenation the renderer uses.
+       Change pricing-config.js and this fails until the HTML follows. */
+{
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const cfg = w.NV_PRICING;
+  /* Text of the element carrying this id. Deliberately simple: every element
+     checked here holds plain text or <li> children, no nesting. */
+  const textOf = (html, id) => {
+    const open = new RegExp('<(\\w+)[^>]*\\bid="' + id + '"[^>]*>', "i");
+    const m = html.match(open);
+    if (!m) return null;
+    const close = "</" + m[1] + ">";
+    const start = m.index + m[0].length;
+    const end = html.indexOf(close, start);
+    if (end === -1) return null;
+    return html.slice(start, end);
+  };
+  const flat = (s) => (s == null ? null : s.replace(/<[^>]*>/g, " ").replace(/&mdash;/g, "—").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim());
+  const items = (s) => (s == null ? null : [...s.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/g)].map((x) => flat(x[1])));
+  const money = (n) => "C$" + (Number.isInteger(Number(n)) ? Number(n).toLocaleString("en-CA")
+    : Number(n).toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+
+  const eq = (where, id, actual, expected) => {
+    if (actual === null) return err(where + ": #" + id + " not found (pre-rendered copy is required, not optional)");
+    if (actual !== expected) err(where + ": #" + id + ' drifted from pricing-config.js\n      page:   "' + actual + '"\n      config: "' + expected + '"');
+  };
+
+  if (!cfg || !cfg.pilot || !cfg.usagePolicy) err("pricing-config.js: pilot/usagePolicy missing, cannot check pre-rendered copy");
+  else {
+    const ph = fs.readFileSync(path.join(root, "pricing.html"), "utf8");
+    eq("pricing.html", "pilotName", flat(textOf(ph, "pilotName")), cfg.pilot.name);
+    eq("pricing.html", "pilotTagline", flat(textOf(ph, "pilotTagline")), cfg.pilot.tagline + " " + cfg.pilot.dayEight);
+    eq("pricing.html", "pilotCaps", flat(textOf(ph, "pilotCaps")), cfg.pilot.caps + " " + cfg.pilot.start);
+    eq("pricing.html", "minuteDef", flat(textOf(ph, "minuteDef")), cfg.usagePolicy.minuteDef);
+    eq("pricing.html", "taxNote", flat(textOf(ph, "taxNote")), cfg.taxNote);
+    eq("pricing.html", "pricingUpdated", flat(textOf(ph, "pricingUpdated")), "pricing updated " + cfg.lastUpdated);
+    const notes = items(textOf(ph, "usageNotes"));
+    if (!notes) err("pricing.html: #usageNotes not found");
+    else if (notes.join(" | ") !== cfg.usagePolicy.notes.join(" | "))
+      err("pricing.html: #usageNotes drifted from pricing-config.js\n      page:   " + notes.join(" | ") + "\n      config: " + cfg.usagePolicy.notes.join(" | "));
+
+    /* The proposal defaults to the recommended plan when no id is in the URL,
+       so that is the plan its static copy must quote. */
+    const dflt = cfg.plans.find((p) => p.recommended) || cfg.plans[0];
+    const pr = fs.readFileSync(path.join(root, "proposal.html"), "utf8");
+    eq("proposal.html", "pilotTagline", flat(textOf(pr, "pilotTagline")), cfg.pilot.tagline);
+    eq("proposal.html", "pilotCaps", flat(textOf(pr, "pilotCaps")), cfg.pilot.caps + " " + cfg.pilot.start);
+    eq("proposal.html", "pilotDayEight", flat(textOf(pr, "pilotDayEight")), cfg.pilot.dayEight);
+    eq("proposal.html", "planName", flat(textOf(pr, "planName")), dflt.name.toUpperCase());
+    eq("proposal.html", "planIncludes", flat(textOf(pr, "planIncludes")),
+      dflt.includedMinutes + " included AI minutes per month, about " + dflt.callRange + ". Additional minutes " + money(dflt.overage) + " each.");
+    const feats = items(textOf(pr, "planFeatures"));
+    if (!feats) err("proposal.html: #planFeatures not found");
+    else if (feats.join(" | ") !== dflt.features.slice(0, 9).join(" | "))
+      err("proposal.html: #planFeatures drifted from pricing-config.js " + dflt.id + "\n      page:   " + feats.join(" | ") + "\n      config: " + dflt.features.slice(0, 9).join(" | "));
+  }
+}
+
 /* 7b. Rule 4 checked a hand-maintained list of ten content pages, and that is
        exactly how three abandoned redesign mockups sat live on nevamis.ca
        serving "answers on the first ring" long after CLM-02 retired it. The
