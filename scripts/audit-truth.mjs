@@ -31,33 +31,41 @@ const numbersFor = (key) =>
   [...cfgSrc.matchAll(new RegExp(`\\b${key}:\\s*(\\d+(?:\\.\\d+)?)`, "g"))].map((m) => Number(m[1]));
 
 const approvedMonthly = new Set(numbersFor("monthly"));
-const approvedSetup = new Set(numbersFor("setup"));
 const approvedAnnual = new Set(numbersFor("annual"));
-if (!approvedMonthly.size || !approvedSetup.size) {
-  console.error("could not read prices from pricing-config.js; aborting rather than reporting false findings");
+/* `setup` was read here and required to be non-empty. On 2026-08-09 the key
+   was deleted from pricing-config.js rather than zeroed, so this scan returned
+   nothing and the WHOLE AUDITOR aborted on its first check with "could not
+   read prices from pricing-config.js". It exited 0 while doing so, which is
+   the worst combination available: a truth audit that had stopped auditing and
+   still looked like it had run. Verified by running it.
+
+   The abort now guards only the figure that must exist. There is one price per
+   plan, so `monthly` being unreadable is the real "we cannot audit anything"
+   condition. */
+const approvedSetup = new Set();
+if (!approvedMonthly.size) {
+  console.error("could not read monthly prices from pricing-config.js; aborting rather than reporting false findings");
   process.exit(1);
 }
 
-/* The pilot fee, and what a first month costs once that fee is credited.
+/* Derived approvals: figures a page may legitimately state that are not
+   literally in the config.
 
-   Both are approved figures and neither was in the set, so this auditor
-   reported the published C$150 pilot fee as an unapproved price on every page
-   that mentions it: nineteen of its twenty-one findings were the pilot fee
-   being correct. An audit whose output is nine parts noise gets skimmed, and
-   the two real lines in it get skimmed with the rest.
+   This computed the pilot fee and the first-month amounts it was credited
+   against, because otherwise the auditor reported the published C$150 fee as
+   an unapproved price on every page that named it: nineteen of twenty-one
+   findings were the fee being correct, and an audit that is nine parts noise
+   gets skimmed along with the two real lines in it.
 
-   The credited amounts (C$250 - C$150 = C$100, and so on) are DERIVED here
-   rather than listed, which is the point of computing them. Change the pilot
-   fee in pricing-config.js and the pages that spell out "C$100 to activate"
-   start failing this audit immediately, instead of staying plausible and
-   wrong. Hardcoding the same three numbers in this file would have bought the
-   quiet without the guard. */
-const pilotFee = numbersFor("fee")[0];
+   The set is now EMPTY, and that is the correct state rather than an
+   oversight. One price per plan, charged every month including the first,
+   means no page has a second figure to derive, so nothing needs excusing. It
+   is kept as an empty set rather than deleted so the next derived figure has
+   somewhere to go, and so that C$150 and C$850 now fall through to being
+   reported as unapproved prices wherever they appear. That is the intended
+   direction: the numbers this block used to protect are the numbers it should
+   now catch. */
 const approvedDerived = new Set();
-if (pilotFee) {
-  approvedDerived.add(pilotFee);
-  for (const s of approvedSetup) if (s - pilotFee > 0) approvedDerived.add(s - pilotFee);
-}
 
 const findings = [];
 const add = (sev, page, what) => findings.push({ sev, page, what });

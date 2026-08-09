@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pricing | Nevamis | Plans for Edmonton trades</title>
-<meta name="description" content="AI receptionist plans in Canadian dollars. Core: first month $250, then $250/month. Growth: $500 then $500. Pro: $1,000 then $850. The $150 pilot comes off your first month.">
+<meta name="description" content="AI receptionist plans in Canadian dollars. Core $250/month, Growth $500/month, Pro $1,000/month. One price, charged the day you start. No setup fee, no contract.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://nevamis.ca/pricing.html">
 <meta property="og:title" content="Pricing | Nevamis">
-<meta property="og:description" content="AI receptionist plans in Canadian dollars. Core: first month $250, then $250/month. Growth: first month $500, then $500/month. Pro: first month $1,000, then $850/month.">
+<meta property="og:description" content="AI receptionist plans in Canadian dollars. Core $250/month, Growth $500/month, Pro $1,000/month. One price, charged the day you start. No setup fee, no contract.">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -747,7 +747,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     "@id": "https://nevamis.ca/pricing.html",
     "url": "https://nevamis.ca/pricing.html",
     "name": "Pricing | Nevamis | Plans for Edmonton trades",
-    "description": "AI receptionist plans in Canadian dollars. Core: first month $250, then $250/month. Growth: $500 then $500. Pro: $1,000 then $850. The $150 pilot comes off your first month.",
+    "description": "AI receptionist plans in Canadian dollars. Core $250/month, Growth $500/month, Pro $1,000/month. One price, charged the day you start. No setup fee, no contract.",
     "isPartOf": {
       "@type": "WebSite",
       "name": "Nevamis",
@@ -782,12 +782,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a href="/#how" data-nav>How it works</a></span>
       <span class="navitem"><a href="/solutions.html" data-nav>Solutions</a></span>
       <span class="navitem"><a href="/pricing.html" aria-current="page" data-nav>Pricing</a></span>
-      <span class="navitem"><a href="/pilot.html" data-nav>7-day pilot</a></span>
+      <span class="navitem"><a href="/pilot.html" data-nav>How you start</a></span>
       <span class="navitem"><a href="/demo.html" data-nav>Demo</a></span>
       <span class="navitem"><a class="nav-min" href="/coming-soon.html" data-nav>Roadmap</a></span>
       <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
       <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
-      <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Call the AI</a></span>
+      <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
       <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
     </nav>
   </div>
@@ -800,25 +800,26 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div>
         <p class="eyebrow mono">Pricing</p>
         <h1 style="font-size:clamp(38px,5.6vw,68px)">Clear plans. Predictable usage.</h1>
-        <p class="lede">Every plan is a configured, maintained system: built with you, tested against your real calls, and tuned over time. You pay one amount for your first month, then the monthly price. There is nothing charged alongside it.</p>
+        <p class="lede">Every plan is a configured, maintained system: built with you, tested against your real calls, and tuned over time. One price a month, charged the day you start and every month after. Nothing is charged alongside it and nothing is charged to begin.</p>
       </div>
     </div>
   </section>
 
   <section class="tight">
     <div class="wrap">
-      <div id="pilotBanner" style="background:var(--navy-2);border:1px solid rgba(47,191,143,.45);border-radius:14px;padding:20px 24px;margin-bottom:30px">
-        <!-- Real text, the same rule the referral block below and the proposal
-             page already follow. The renderer overwrites all three from
-             pricing-config.js, so one edit still moves every surface; shipping
-             them empty only meant the banner had no height until the config
-             arrived. On a throttled phone that was 745 ms after first paint,
-             and the three elements filling in pushed everything below them
-             down 256px: 0.093 of the page's 0.095 CLS, in one shift. -->
-        <h2 style="font-size:19px;margin-bottom:6px;letter-spacing:-.01em" id="pilotName">7-day live pilot</h2>
-        <p style="color:var(--muted);font-size:15px" id="pilotTagline">Seven live days on your real line. C$150, credited toward your first month if you continue. On day eight the pilot ends unless you explicitly choose a plan. Silence never becomes a subscription.</p>
-        <p style="color:var(--muted);font-size:13.5px;margin-top:8px" id="pilotCaps">One line, one call flow, one calendar. Up to 60 connected AI minutes or 30 calls, whichever comes first. One revision included. The seven days start when your pilot goes live, not when you apply.</p>
-        <p style="font-size:14.5px;margin-top:10px"><a href="/pilot.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Everything about the pilot</a> · <a href="/book.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Apply on a strategy call</a></p>
+      <!-- This banner sold a C$150 seven-day trial until 2026-08-09. It is now
+           the terms band, and it is static text on purpose: there is no
+           `pilot` record left in pricing-config.js to render from, and there
+           should not be one. Every sentence here is a commitment the billing
+           system already keeps, so it is safe to state without a renderer.
+           Kept at full height for the reason the old banner was given real
+           text: an empty block here pushed everything below it down 256px
+           745 ms after first paint, which was 0.093 of the page's 0.095 CLS. -->
+      <div id="termsBanner" style="background:var(--navy-2);border:1px solid rgba(47,191,143,.45);border-radius:14px;padding:20px 24px;margin-bottom:30px">
+        <h2 style="font-size:19px;margin-bottom:6px;letter-spacing:-.01em">One price. Nothing beside it.</h2>
+        <p style="color:var(--muted);font-size:15px">Your plan is charged the day you start and on the same day every month after. There is no setup fee, no activation fee and no onboarding charge, and there is no trial to convert out of.</p>
+        <p style="color:var(--muted);font-size:13.5px;margin-top:8px">Month to month. You can cancel from your own portal at any time and service runs to the end of the month you already paid for. We do not ask for a term, and we do not need one.</p>
+        <p style="font-size:14.5px;margin-top:10px"><a href="/pilot.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">What happens before your line is answered</a> · <a href="/book.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Book a strategy call</a></p>
       </div>
       <div id="foundingBanner" style="background:rgba(240,180,98,.08);border:1px solid rgba(240,180,98,.35);border-radius:14px;padding:16px 24px;margin-bottom:30px" hidden>
         <p style="font-size:15px;color:#F0B462;font-weight:700" id="foundingOffer"></p>
@@ -828,28 +829,32 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            see accurate plans. Removed by the renderer only after a successful
            render. Validated against pricing-config.js by check-consistency.
 
-           It must state the same TWO numbers the rendered cards state: what
-           month one costs and what every month after it costs. Until
-           2026-08-07 both this block and the cards said "C$250/month" with
-           "One-time setup C$250" beside it, which reads as C$500 due on day
-           one. It is C$250. There is no charge on top of the first month. -->
+           It must state ONE number per plan, because the offer is one number
+           per plan. This block has been rewritten twice for the same reason
+           and in opposite directions, so the history is worth the four lines:
+           until 2026-08-07 it said "C$250/month" with "One-time setup C$250"
+           beside it, which reads as C$500 due on day one; until 2026-08-09 it
+           said "first month C$250, then C$250/month", which was accurate and
+           still asked a buyer to hold two figures and the rule joining them.
+           It is C$250 a month. Guard 7 fails if a first-month/then pair
+           reappears here, whatever the figures are. -->
       <div class="plans" id="plans"><div id="plansFallback" style="grid-column:1/-1">
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
-          <h3 style="font-size:18px">Core &mdash; first month C$250, then C$250/month</h3>
+          <h3 style="font-size:18px">Core &mdash; C$250/month</h3>
           <p style="color:var(--muted);font-size:14.5px">250 included AI minutes · C$1.10 per extra minute. Evenings, weekends, and overflow coverage.</p>
           <p style="margin-top:10px"><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
-          <h3 style="font-size:18px">Growth &mdash; first month C$500, then C$500/month (recommended)</h3>
-          <p style="color:var(--muted);font-size:14.5px">600 included AI minutes · C$0.90 per extra minute. Qualification, routing, and booking on a meaningful share of calls.</p>
+          <h3 style="font-size:18px">Growth &mdash; C$500/month (recommended)</h3>
+          <p style="color:var(--muted);font-size:14.5px">600 included AI minutes · C$0.90 per extra minute. For putting a meaningful share of your inbound calls through it, not just the after-hours ones.</p>
           <p style="margin-top:10px"><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
-          <h3 style="font-size:18px">Pro &mdash; first month C$1,000, then C$850/month</h3>
-          <p style="color:var(--muted);font-size:14.5px">1,200 included AI minutes · C$0.75 per extra minute. Multi-location and higher-volume routing.</p>
+          <h3 style="font-size:18px">Pro &mdash; C$1,000/month</h3>
+          <p style="color:var(--muted);font-size:14.5px">1,200 included AI minutes · C$0.75 per extra minute. For higher volume, at the lowest rate on the minutes past what is included.</p>
           <p style="margin-top:10px"><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
         </div>
-        <p style="color:var(--muted);font-size:14px">One amount on day one, nothing extra beside it. Prices in Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime. The 7-day live pilot is C$150, and it comes off your first month if you continue. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
+        <p style="color:var(--muted);font-size:14px">Every plan is the same system. They differ by how many AI minutes are included and what a minute past them costs. One price, charged the day you start and every month after, with nothing beside it and nothing to begin. Prices in Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
       </div></div>
 
       <div class="reveal" style="margin-top:26px;background:var(--navy-2);border:1px solid var(--line);border-radius:16px;padding:18px 22px">
@@ -864,7 +869,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <p id="taxNote" style="font-size:13px;color:var(--muted);margin-top:10px">Prices in Canadian dollars, plus applicable GST/HST.</p>
         <!-- Lives in the page, not the shared footer: page-specific content in
              shared chrome gets destroyed the next time the chrome is synced. -->
-        <p class="mono" id="pricingUpdated" style="font-size:12px;color:var(--muted);margin-top:6px">pricing updated 2026-08-06</p>
+        <p class="mono" id="pricingUpdated" style="font-size:12px;color:var(--muted);margin-top:6px">pricing updated 2026-08-09</p>
       </div>
 
       <!-- Referral. Placed AFTER the plans on purpose: it is an offer to
@@ -875,38 +880,31 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            check-consistency validates against canonical. -->
       <div class="reveal" id="referralCard" style="margin-top:26px;background:var(--navy-2);border:1px solid rgba(47,191,143,.35);border-radius:16px;padding:18px 22px">
         <h3 style="font-size:17px;margin-bottom:8px" id="referralHeadline">Know another business that misses calls?</h3>
-        <p style="font-size:15px" id="referralOffer">They get a 14-day pilot instead of 7. When they pay their first invoice, you get a free month of your own plan.</p>
+        <p style="font-size:15px" id="referralOffer">They pay the same published price as everyone else, with nothing to negotiate. When they pay their first invoice, you get a free month of your own plan.</p>
         <p style="font-size:13.5px;color:var(--muted);margin-top:8px" id="referralTrigger">The free month is earned when the business you referred pays their first invoice, and it comes off your next bill.</p>
-        <p style="font-size:13.5px;color:var(--muted);margin-top:6px" id="referralHowTo">Clients get their own link in the portal. Send it yourself &mdash; we never email somebody just because you named them.</p>
+        <p style="font-size:13.5px;color:var(--muted);margin-top:6px" id="referralHowTo">Clients get their own link in the portal. Send it yourself: we never email somebody just because you named them.</p>
       </div>
 
+      <!-- This asked four questions until 2026-08-09. Three of them decided
+           the answer on capability: locations or departments, and whether you
+           needed "Booking + CRM/automation connection". Neither is something
+           the plans differ by, and one of them is not something the product
+           does at all, so the tool was routing a buyer to a more expensive
+           plan on the strength of a feature nobody could have delivered.
+           The plans differ by minutes. So it asks about minutes. -->
       <div class="rc reveal" id="recommender">
-        <h3>Which plan fits? Answer four questions.</h3>
+        <h3>Which plan fits? It comes down to one number.</h3>
         <div class="grid">
           <div>
-            <label for="rcVol">Approximate inbound calls per month</label>
+            <label for="rcVol">Calls a month you expect us to answer</label>
             <input type="number" id="rcVol" min="0" value="150" inputmode="numeric">
           </div>
           <div>
-            <label for="rcMode">Coverage needed</label>
-            <select id="rcMode">
-              <option value="after">After hours / overflow only</option>
-              <option value="full">Full-time front line</option>
-            </select>
-          </div>
-          <div>
-            <label for="rcLoc">Locations or departments</label>
-            <select id="rcLoc">
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three or more</option>
-            </select>
-          </div>
-          <div>
-            <label for="rcInt">Need booking or a standard integration?</label>
-            <select id="rcInt">
-              <option value="basic">Booking into one calendar</option>
-              <option value="adv">Booking + CRM/automation connection</option>
+            <label for="rcLen">Typical call length</label>
+            <select id="rcLen">
+              <option value="2">About 2 minutes: mostly messages and callbacks</option>
+              <option value="2.5" selected>About 2.5 minutes: a normal service call</option>
+              <option value="4">About 4 minutes: detailed intake or quoting</option>
             </select>
           </div>
         </div>
@@ -916,7 +914,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
       <div class="midcta reveal" style="margin-top:34px">
         <a class="btn btn-primary btn-lg" href="/book.html">Book a strategy call</a>
-        <a class="btn btn-light-ghost btn-lg" href="tel:+15874130035">Call the live AI</a>
+        <a class="btn btn-light-ghost btn-lg" href="tel:+15874130035">Hear it answer</a>
       </div>
     </div>
   </section>
@@ -931,7 +929,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   </div>
 </footer>
 
-<a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Call our AI now · (587) 413-0035</a>
+<a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer · (587) 413-0035</a>
 
 <!-- .no-js is removed by site.js, not here: removing it during parse meant a
      dropped site.js request left every .reveal on the page at opacity 0. -->
@@ -949,11 +947,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   if (!P) return;
   if (!P.approved) document.getElementById("draftBanner").hidden = false;
   document.getElementById("pricingUpdated").textContent = "pricing updated " + P.lastUpdated;
-  if (P.pilot) {
-    document.getElementById("pilotName").textContent = P.pilot.name;
-    document.getElementById("pilotTagline").textContent = P.pilot.tagline + " " + P.pilot.dayEight;
-    document.getElementById("pilotCaps").textContent = P.pilot.caps + " " + P.pilot.start;
-  }
+  /* The three pilot lines were rendered here from P.pilot. The record is gone
+     from pricing-config.js, so this read `undefined.name` on a page that has
+     no pilot banner left to fill; the terms band above is static because its
+     sentences are commitments, not configuration. */
   if (P.referral) {
     /* Overwrites the static copy so one edit to pricing-config.js moves the
        page, the portal and the engine together. If the config fails to load,
@@ -987,25 +984,25 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var h = "";
     if (pl.recommended) h += '<div class="rec-tag">' + (P.recommendedLabel || 'RECOMMENDED') + '</div>';
     h += "<h3></h3>";
-    /* Two numbers, one sentence, in the order the buyer meets them: what he
-       pays now, then what he pays every month after. This line used to read
-       "C$250/month" above "One-time setup: C$250", which is the same two
-       numbers arranged to look like a bill for C$500 on day one. Nothing
-       that compares figures could catch it, because both figures were
-       right. `pl.setup` is month one; see the header of pricing-config.js. */
+    /* ONE number. This line has carried three different sentences: a monthly
+       price with "One-time setup: C$250" beneath it (two right figures
+       arranged to look like a bill for C$500 on day one), then "First month
+       C$250, then C$250/month" (accurate, and still two figures and a rule),
+       and now the price itself with what it buys.
+       There is no `pl.setup` to read any more, deliberately: the defect is
+       unrepresentable rather than forbidden. */
     h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
-    h += '<div class="setup">First month C$' + grp(pl.setup) + (pl.startingAt ? "+" : "") + ", then C$" + grp(pl.monthly) + "/month."
-      + (P.pilot && P.pilot.creditedToFirstMonth ? " Your C$" + grp(P.pilot.fee) + " pilot fee comes off that first month." : "") + "</div>";
+    h += '<div class="setup">Charged the day you start and every month after. No setup fee, no minimum term.</div>';
     h += '<div class="usage">' + grp(pl.includedMinutes) + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
     h += "<ul>" + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
     h += '<div class="best"><strong>Best for:</strong> <span></span></div>';
     /* The buy path, in three cases.
 
-       P.sellable === false routes EVERY plan to the strategy call. A
-       first-month amount distinct from the recurring one returned on
-       2026-08-06 and the pilot credit that offsets it is not wired into
-       checkout yet, so a Buy now button here would take money under terms
-       the system cannot honour. A prospect who has to book a call is
+       P.sellable === false routes EVERY plan to the strategy call. The
+       entitlements behind each price were rewritten on 2026-08-09 and the
+       monthly charge is not re-verified against them in checkout yet, so a
+       Buy now button here would take money under terms the system has not
+       been proven to honour. A prospect who has to book a call is
        recoverable; one billed wrongly is not.
 
        A "from C$X" plan is quoted, not fixed, so sending it to a checkout that
@@ -1013,7 +1010,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        those keep the strategy call whatever the gate says. */
     if (!P.sellable || pl.startingAt) {
       h += '<div class="buy"><a class="btn ' + (pl.recommended ? "btn-primary" : "btn-ghost") + '" href="/book.html" data-evt="plan_quote_click">Talk to us <span class="arw" aria-hidden="true">›</span></a>'
-        + '<div class="buy-note">' + (pl.startingAt ? "Multi-location builds are priced on the call." : "Fifteen minutes to scope it and start your pilot.") + "</div></div>";
+        + '<div class="buy-note">' + (pl.startingAt ? "Higher-volume builds are priced on the call." : "Fifteen minutes to scope it, then we build and test it before it answers anything.") + "</div></div>";
     } else {
       h += '<div class="buy"><a class="btn btn-primary" href="https://app.nevamis.ca/signup?plan=' + encodeURIComponent(pl.id) + '" data-evt="plan_buy_click">Buy now <span class="arw" aria-hidden="true">›</span></a>'
         + '<div class="buy-note">Cancel anytime.</div></div>';
@@ -1034,22 +1031,31 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   var plansFallback = document.getElementById("plansFallback");
   if (plansFallback) plansFallback.remove();
   /* recommender */
+  /* Picks the cheapest plan whose included minutes cover the estimate, and
+     nothing else. It used to route on locations, departments and a
+     "CRM/automation connection", which are not differences between these
+     plans and in one case not a thing the product does; a recommender that
+     upsells on an entitlement nobody can deliver is worse than no
+     recommender. Derived from P.plans rather than hardcoded, so adding or
+     repricing a plan cannot leave this behind. */
   function recommend() {
     var vol = parseFloat(document.getElementById("rcVol").value) || 0;
-    var mode = document.getElementById("rcMode").value;
-    var loc = document.getElementById("rcLoc").value;
-    var integ = document.getElementById("rcInt").value;
-    var est = vol * 2.5; /* est. minutes at ~2.5 min/call */
-    var pick, why;
-    if (loc === "3" || est > 900) { pick = P.plans[2]; why = "multiple locations or an estimated " + Math.round(est) + " minutes/month exceeds the Growth allowance"; }
-    else if (mode === "full" || integ === "adv" || loc === "2" || est > 220) { pick = P.plans[1]; why = (mode === "full" ? "full-time coverage" : integ === "adv" ? "a CRM/automation connection" : loc === "2" ? "two lines or departments" : "an estimated " + Math.round(est) + " minutes/month") + " fits the Growth allowance and features"; }
-    else { pick = P.plans[0]; why = "after-hours coverage at an estimated " + Math.round(est) + " minutes/month fits comfortably in the " + P.plans[0].name + " allowance"; }
+    var len = parseFloat(document.getElementById("rcLen").value) || 2.5;
+    var est = vol * len;
+    var ladder = P.plans.slice().sort(function (a, b) { return a.includedMinutes - b.includedMinutes; });
+    var pick = null;
+    for (var i = 0; i < ladder.length; i++) { if (ladder[i].includedMinutes >= est) { pick = ladder[i]; break; } }
+    var over = !pick;
+    if (!pick) pick = ladder[ladder.length - 1];
+    var why = Math.round(est) + " estimated AI minutes a month"
+      + (over ? " is past every published allowance, so " + pick.name + " is the right base and the minutes beyond it bill at C$" + pick.overage.toFixed(2) + " each. Worth scoping on the call."
+             : " fits inside the " + grp(pick.includedMinutes) + " included on " + pick.name + ", at C$" + pick.overage.toFixed(2) + " for anything past that");
     document.getElementById("rcResult").innerHTML =
       '<span class="mono">CLOSEST FIT</span><div style="font-size:20px;font-weight:700;font-family:\'Bricolage Grotesque\',sans-serif"></div><p></p>';
     document.querySelector("#rcResult div").textContent = pick.name + " · C$" + grp(pick.monthly) + "/month";
-    document.querySelector("#rcResult p").textContent = "Why: " + why + ". Estimated usage assumes about 2.5 minutes per call; your real average is confirmed during the pilot.";
+    document.querySelector("#rcResult p").textContent = "Why: " + why + ". Every plan is the same system, so this is only about minutes. Your real average shows up in the portal from your first week of calls, and you can change plan yourself from there.";
   }
-  ["rcVol", "rcMode", "rcLoc", "rcInt"].forEach(function (id) {
+  ["rcVol", "rcLen"].forEach(function (id) {
     document.getElementById(id).addEventListener("input", recommend);
     document.getElementById(id).addEventListener("change", recommend);
   });
@@ -1060,19 +1066,26 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      in Canada" has a parseable table instead of prose to infer from. Emitting
      from config keeps the never-duplicate-a-price rule intact.
 
-     `price` is the RECURRING monthly figure, and lowPrice below is therefore
-     the cheapest recurring figure. A crawler must never be quoted a number a
-     buyer cannot find on a card. The first-month amount is stated in the
-     description instead of the price field, because it is charged once and
-     schema.org's `price` on a MONTH-unit offer means the monthly one. */
+     `price` is the monthly figure, and lowPrice below is therefore the
+     cheapest one. A crawler must never be quoted a number a buyer cannot find
+     on a card, and since 2026-08-09 there is only one number per plan to
+     quote: the description no longer carries a separate first-month amount,
+     because there is no longer a separate first month. */
   try {
     var offers = P.plans.map(function (pl, i) {
       return {
         "@type": "Offer",
         "position": i + 1,
         "name": pl.name,
-        "description": "First month C$" + grp(pl.setup) + ", then C$" + grp(pl.monthly)
-          + "/month. " + pl.bestFor,
+        /* "with no setup or activation fee" until 2026-08-09. That IS a
+           denial and it stays one; it is only spelled out. The shared denial
+           classifier reads the noun phrase attached to the "no" ("no setup
+           fee"), and a coordinated "no setup or activation fee" leaves
+           "setup" with no noun of its own, so the sentence read as naming an
+           activation charge. Both denials are now written in full rather than
+           shared between one "fee". */
+        "description": "C$" + grp(pl.monthly)
+          + "/month, charged the day you start and every month after, with no setup fee and no activation fee. " + pl.bestFor,
         "price": String(pl.monthly),
         "priceCurrency": P.currency,
         "priceSpecification": {
@@ -1096,8 +1109,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       "@context": "https://schema.org",
       "@type": "Product",
       "@id": "https://nevamis.ca/pricing.html#plans",
-      "name": "Nevamis AI Receptionist",
-      "description": "A configured AI receptionist that answers a business phone line 24/7, qualifies callers, books jobs, and sends the owner a summary of every call.",
+      "name": "Nevamis Front Desk",
+      "description": "A configured voice agent that answers a business phone line 24/7, qualifies the caller, takes the job and the time they want, and sends the owner a summary of every call within seconds.",
       "brand": { "@id": "https://nevamis.ca/#organization" },
       "category": "AI phone answering service",
       "offers": {

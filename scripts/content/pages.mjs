@@ -16,7 +16,7 @@ export const PROOF_BLOCK = `
         be a customer. The demo line runs the same agent your business would get.</p>
     </div>
     <div class="midcta reveal">
-      <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Call the live AI ${DEMO}</a>
+      <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer ${DEMO}</a>
       <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-min call</a>
     </div>
   </div>
@@ -67,7 +67,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
         what gets booked, and what waits until morning.</p>
     </div>
     <div class="midcta reveal">
-      <a class="btn btn-ghost" href="/pilot.html">See how the 7-day live pilot works</a>
+      <a class="btn btn-ghost" href="/pilot.html">See how you start</a>
       <a class="btn btn-ghost" href="/pricing.html">Compare plans</a>
     </div>
   </div>
@@ -75,7 +75,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
 
 export const PAGES = {
   'electricians.html': {
-    h1: 'An AI receptionist for electricians',
+    h1: 'Your line answered while the crew is on the tools',
     lede: `Panel upgrades, dead circuits, and emergency calls answered while your crew is on the tools. Nevamis picks up your existing line 24/7, qualifies the caller, takes the job details, and texts them to you.`,
     body: tradeBody({
       trade: 'electrical work',
@@ -100,7 +100,7 @@ export const PAGES = {
   },
 
   'hvac.html': {
-    h1: 'An AI receptionist for HVAC companies',
+    h1: 'The 11 PM no-heat call, answered',
     lede: `A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, books the visit, and sends you the summary.`,
     body: tradeBody({
       trade: 'heating and cooling',
@@ -125,7 +125,7 @@ export const PAGES = {
   },
 
   'plumbers.html': {
-    h1: 'An AI receptionist for plumbers',
+    h1: 'Burst pipes and blocked drains, answered',
     lede: `Burst pipes, blocked drains, and no hot water. The calls that cannot wait are the ones you are least able to answer. Nevamis answers them, qualifies them, and books them.`,
     body: tradeBody({
       trade: 'plumbing',
@@ -149,8 +149,12 @@ export const PAGES = {
   },
 
   'restoration.html': {
-    h1: 'An AI receptionist for restoration companies',
-    lede: `Flood, fire, and damage calls arrive stressed and urgent, often at night. Nevamis answers calmly, gathers the incident details, routes priority calls, and books the assessment.`,
+    h1: 'The first hour of a loss, answered calmly',
+    /* "books the assessment" until 2026-08-09. Nothing books: a tenant agent
+       is provisioned with no booking tool and no calendar credential, so the
+       assessment slot is confirmed by a person on your side. What is real is
+       the capture and the speed it reaches you at, and that is what is sold. */
+    lede: `Flood, fire, and damage calls arrive stressed and urgent, often at night. Nevamis answers calmly, gathers the incident details, routes priority calls, and sends you the assessment request within seconds.`,
     body: tradeBody({
       trade: 'restoration and property services',
       whenItRings: 'The call comes in at the worst moment of someone\'s week.',
@@ -165,7 +169,7 @@ export const PAGES = {
         { t: 'Fire and smoke', d: 'Handled with a calm, approved script rather than improvisation.' },
         { t: 'Insurance questions', d: 'Answered only within what you approve, otherwise taken as a message.' },
         { t: 'Emergency dispatch', d: 'Live transfer to the on-call crew by your rules.' },
-        { t: 'Assessment booking', d: 'Scheduled into real availability on your calendar.' },
+        { t: 'Assessment requests', d: 'The window they need captured and texted to you, so you confirm the slot.' },
         { t: 'Property managers and adjusters', d: 'Routed separately if they are a different path for you.' },
       ],
     }),
@@ -193,8 +197,11 @@ export const PAGES = {
         itself naturally as an assistant.</p></li>
       <li class="pstep"><h3>Urgent calls escalate</h3><p>Transfer to your on-call number, or
         an urgent-flagged summary, exactly as you decide.</p></li>
-      <li class="pstep"><h3>Routine calls get booked</h3><p>Into the slots your calendar
-        genuinely has open, confirmed out loud on the call.</p></li>
+      <!-- "Routine calls get booked / into the slots your calendar genuinely
+           has open" until 2026-08-09. No agent touches a calendar; the honest
+           step is the structured lead and how fast it reaches you. -->
+      <li class="pstep"><h3>Routine calls get captured</h3><p>Name, number, the job, and the
+        time window they want, ready for you to confirm.</p></li>
       <li class="pstep"><h3>You read it in the morning</h3><p>Every call arrives as a summary
         with name, number, need, and outcome.</p></li>
     </ol>
@@ -298,7 +305,10 @@ export const PAGES = {
 
   'vs-answering-service.html': {
     h1: 'AI receptionist vs a live answering service',
-    lede: `Traditional answering services employ real people, and people are good at things software is not. They also cost per call or per minute and usually take a message rather than book the job.`,
+    /* "rather than book the job" until 2026-08-09: a comparison whose only
+       force came from implying Nevamis books, which nothing does. The real
+       difference is what comes back off the call, so that is the claim now. */
+    lede: `Traditional answering services employ real people, and people are good at things software is not. They also cost per call or per minute, and what comes back is usually a name and a number rather than the detail you need to price the work.`,
     body: `
 <section class="tight">
   <div class="wrap">
@@ -327,7 +337,7 @@ export const PAGES = {
         that on every call. Nevamis is built to know its limits: for anything outside the rules
         you approved, it takes a message or transfers rather than guessing. If most of your calls
         are genuinely unpredictable, hire the person. If most are the same twenty questions and a
-        booking, this does that part without a queue and without a per-call charge.</p>
+        job to take down, this does that part without a queue and without a per-call charge.</p>
     </div>
   </div>
 </section>`,

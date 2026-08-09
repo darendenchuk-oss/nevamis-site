@@ -1,4 +1,4 @@
-/* Nevamis AI shared site JS. No dependencies. */
+/* Nevamis shared site JS. No dependencies. */
 (function () {
   "use strict";
   /* Content must never depend on this script succeeding. Storage and feature
@@ -488,9 +488,9 @@
 
       dlg = document.createElement("dialog");
       dlg.className = "nv-dial";
-      dlg.setAttribute("aria-label", "Talk to the Nevamis AI");
+      dlg.setAttribute("aria-label", "Talk to the Nevamis front desk");
       dlg.innerHTML =
-        '<h2>Talk to the AI</h2>'
+        '<h2>Talk to the front desk</h2>'
         + '<p>Speak to it right here in your browser, or dial it from a phone. Same assistant either way &mdash; try to trip it up.</p>'
         + '<div class="nv-dial-row"><button type="button" class="pri" data-browser>Start a voice call here</button></div>'
         + '<p class="nv-dial-fine">Browser calls run through ElevenLabs, our voice provider, and load their software only when you press start. '

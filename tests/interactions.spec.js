@@ -34,11 +34,15 @@ test('pricing preview renders every plan from the single source of truth', async
      first time the answer legitimately changes. */
   const cfg = await page.evaluate(() => ({
     plans: window.NV_PRICING.plans.map((p) => ({
-      name: p.name, monthly: p.monthly, setup: p.setup, minutes: p.includedMinutes,
+      name: p.name, monthly: p.monthly, minutes: p.includedMinutes,
     })),
     recommendedLabel: window.NV_PRICING.recommendedLabel,
     annualActive: !!(window.NV_PRICING.annual && window.NV_PRICING.annual.active),
-    retired: [49, 197, 249, 397, 449, 499, 797, 849],
+    /* 150 and 850 joined the list on 2026-08-09 with the paid pilot and the
+       old Pro price. The list only ever grows: every entry is a number a real
+       page published, and the reason C$249, C$449 and C$849 lingered is that
+       the sweep once checked C$49 alone. */
+    retired: [49, 150, 197, 249, 397, 449, 499, 797, 849, 850],
   }));
 
   const cards = page.locator('#pricePreview .price-card');
@@ -48,14 +52,20 @@ test('pricing preview renders every plan from the single source of truth', async
   for (const [i, plan] of cfg.plans.entries()) {
     const card = cards.nth(i);
     await expect(card).toContainText(plan.name);
-    /* BOTH numbers, in the order a buyer meets them. Until 2026-08-07 this
-       card read "C$250/month" over "setup C$250", which is the same two
-       correct figures arranged so a reader totals them to C$500 on day one.
-       Asserting the recurring price alone is what let that ship. */
-    await expect(card, `${plan.name} must state what month one costs`)
-      .toContainText(`First month C$${grp(plan.setup)}`);
-    await expect(card, `${plan.name} must state what every month after costs`)
-      .toContainText(`then C$${grp(plan.monthly)}/month`);
+    /* ONE number, and no second one anywhere on the card.
+
+       This pair of assertions has been inverted twice. It first checked the
+       recurring price alone, which let "C$250/month" ship over "setup C$250"
+       (two correct figures arranged so a reader totals them to C$500 on day
+       one). It was then changed to require BOTH, in the order a buyer meets
+       them. Since 2026-08-09 there is one price charged every month including
+       the first, so requiring the pair would fail the correct card and pass a
+       reverted one. What survives from both versions is the real rule: the
+       card must never put a second figure beside the monthly price. */
+    await expect(card, `${plan.name} must state its monthly price`)
+      .toContainText(`C$${grp(plan.monthly)}`);
+    await expect(card, `${plan.name} must not reintroduce a second figure`)
+      .not.toContainText(/first month|one-time|setup|then C\$/i);
     await expect(card).toContainText(`${grp(plan.minutes)} AI minutes included`);
   }
 

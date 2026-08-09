@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Your Nevamis proposal</title>
-<meta name="description" content="A short written summary of what was discussed: the plan, what is included, and how the C$150 7-day live pilot works.">
+<meta name="description" content="A short written summary of what was discussed: the plan, what is included, what it costs each month, and what happens before your line is answered.">
 <!-- Private sales artefact: shared by link after a call, never indexed. -->
 <meta name="robots" content="noindex, nofollow">
 <!-- noindex, but this page is SENT to a prospect as a link, so it previews in
@@ -13,7 +13,7 @@
      close them. Deliberately generic wording: the URL may be forwarded to a
      partner or spouse who was not on the call. -->
 <meta property="og:title" content="Your Nevamis proposal">
-<meta property="og:description" content="A short written summary of what was discussed: the plan, what is included, and how the C$150 7-day live pilot works.">
+<meta property="og:description" content="A short written summary of what was discussed: the plan, what is included, what it costs each month, and what happens before your line is answered.">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -733,14 +733,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="wm">Ne<span class="wm-v">v</span>amis</span>
     </div>
     <p class="meta" id="preparedFor">Prepared after our call</p>
-    <h1 id="headline">Your AI receptionist proposal</h1>
+    <h1 id="headline">Your front desk proposal</h1>
     <p class="meta" id="preparedMeta"></p>
   </div>
 
   <section>
     <h2>What we discussed</h2>
     <p style="color:var(--muted);font-size:15.5px" id="summaryLine">
-      Your business line gets answered 24/7 by an AI receptionist configured around your
+      Your business line gets answered 24/7 by a voice agent configured around your
       hours, service area, job types, and the rules you approve. It qualifies the caller,
       takes the job and the time they want, and texts you a
       summary of every call within seconds. Your phone number does not change.
@@ -761,18 +761,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            phone was 0.060 of this page's 0.060 CLS: the whole of it, in one
            shift, on the one document written to close a sale. -->
       <p class="plan-line" id="planIncludes">600 included AI minutes per month, about 200 to 300 typical calls. Additional minutes C$0.90 each.</p>
-      <p class="plan-line" id="planSetup">First month C$500, then C$500/month from month two. Your C$150 pilot fee comes off that first month.</p>
+      <p class="plan-line" id="planMonthly">C$500/month, charged the day you start and every month after.</p>
+      <p class="plan-line" id="planTerms">No setup fee, no activation fee, and no minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.</p>
       <p class="plan-line" id="planAnnual"></p>
       <ul class="ticks" id="planFeatures">
-        <li>Up to two lines, departments, or call flows</li>
-        <li>After-hours, overflow, or full-time front-line coverage</li>
-        <li>Up to two booking calendars</li>
-        <li>Advanced qualification and intake</li>
-        <li>Approved transfer and escalation rules</li>
-        <li>Customer booking confirmations by text, opt-in, in your business name</li>
-        <li>One standard CRM or automation connection when supported</li>
-        <li>Two tuning reviews per month for the first 90 days</li>
+        <li>One business phone line</li>
+        <li>Two call reviews each month, and tuning from what the calls actually show</li>
         <li>Priority email support</li>
+        <li>Answers your line around the clock, configured from your own hours, services, service area, prices and FAQs</li>
+        <li>Asks the qualifying questions you approved, in your words</li>
+        <li>Captures the caller's name, callback number, what they want, the service, how urgent it is, how the call ended and what happens next, as one structured lead</li>
+        <li>Texts and emails you that summary within seconds of the call ending, and records honestly whether each one was delivered</li>
+        <li>Every call recorded and playable in your portal, with CSV export of the lead record</li>
+        <li>Automatic quality review of any call where a caller used emergency language, or the agent claimed a booking it could not confirm</li>
       </ul>
     </div>
     <p class="meta">Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime.
@@ -780,22 +781,21 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   </section>
 
   <section>
-    <h2>Start with the live pilot</h2>
-    <div class="pilot">
-      <p><strong id="pilotName">7-day live pilot</strong> <span id="pilotTagline">Seven live days on your real line. C$150, credited toward your first month if you continue.</span></p>
-      <p id="pilotCaps">One line, one call flow, one calendar. Up to 60 connected AI minutes or 30 calls, whichever comes first. One revision included. The seven days start when your pilot goes live, not when you apply.</p>
-      <p id="pilotDayEight">On day eight the pilot ends unless you explicitly choose a plan. Silence never becomes a subscription.</p>
-    </div>
-  </section>
-
-  <section>
     <h2>What happens next</h2>
+    <!-- This section used to end at a seven-day paid trial: build it, run it
+         live for a week, and on day eight the prospect chose or it stopped.
+         That offer was retired on 2026-08-09, and the steps that survived are
+         the ones that were always the real work. Step four in particular is
+         not a softened pilot: the scripted callers are run against the live
+         agent BEFORE a phone number is pointed at it, so nothing about it
+         depends on the client's customers being used as the test. -->
     <ol class="steps">
-      <li><b>Discovery.</b> A short call to map your call patterns, services, service area, and the rules the AI must follow.</li>
-      <li><b>Build and test.</b> Your agent is configured and tested against your real scenarios, not a generic script.</li>
+      <li><b>Discovery.</b> A short call to map your call patterns, services, service area, and the rules it must follow.</li>
+      <li><b>Build.</b> Your agent is configured from your own hours, services, prices, area and FAQs, with the qualifying questions written in your words.</li>
       <li><b>You review it.</b> You hear it, push on it, and approve it before it takes a single real call.</li>
-      <li><b>Controlled pilot.</b> Live on your line with you seeing every call, for seven days.</li>
-      <li><b>You decide.</b> On day eight it ends unless you choose a plan. Nothing charges automatically.</li>
+      <li><b>Tested against scripted callers.</b> We run written call scenarios at the live agent before a phone number is attached to it, so the first real caller is not the first test.</li>
+      <li><b>Forwarding proven.</b> We place a real call to your line and confirm it lands, rather than assuming the carrier did what it was told.</li>
+      <li><b>Live, and cancellable.</b> You are billed monthly from the day you start. If it is not earning its price, you cancel it yourself from the portal.</li>
     </ol>
     <div class="noprint-cta">
       <a class="btn btn-primary btn-lg" href="/book.html" data-evt="proposal_book_click">Book the next call</a>
@@ -848,7 +848,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var to = clean(q.get("to"));
     if (to) {
       set("preparedFor", "Prepared for " + to);
-      set("headline", "An AI receptionist for " + to);
+      set("headline", "A front desk for " + to);
       document.title = "Nevamis proposal · " + to;
     }
 
@@ -887,22 +887,21 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       set("planIncludes", plan.includedMinutes + " included AI minutes per month, about "
         + plan.callRange + ". Additional minutes " + money(plan.overage) + " each.");
 
-      /* Stated plainly, never struck through and never "waived". A fee shown
-         with a line through it is a discount off a price nobody was charged,
-         which is the same fabrication class as a fake original price on a
-         sale tag. The pilot credit is a real reduction and is stated here as
-         a fact about money the client already paid.
+      /* One number, stated plainly, never struck through and never "waived".
+         A fee shown with a line through it is a discount off a price nobody
+         was charged, which is the same fabrication class as a fake original
+         price on a sale tag.
 
-         `plan.setup` is what MONTH ONE costs, not a fee beside it. This line
-         used to read "One-time setup C$500." directly under "C$500/month",
-         and a prospect reading a document sent to close him totalled it to
-         C$1,000 due on signing. It is C$500. */
-      var setupEl = document.getElementById("planSetup");
-      setupEl.textContent = "First month " + money(plan.setup) + ", then "
-        + money(plan.monthly) + "/month from month two."
-        + (P.pilot && P.pilot.creditedToFirstMonth
-          ? " Your " + money(P.pilot.fee) + " pilot fee comes off that first month."
-          : "");
+         This line has been wrong twice in opposite ways. It read "One-time
+         setup C$500." directly under "C$500/month", and a prospect reading a
+         document sent to close him totalled it to C$1,000 due on signing. It
+         was then corrected to "First month C$500, then C$500/month from month
+         two", which was true and still asked him to hold two figures. There
+         is one figure. The terms line beneath it says what is NOT charged,
+         because on a document a prospect keeps, the absence of a setup fee
+         has to be written down or he supplies his own guess. */
+      set("planMonthly", money(plan.monthly) + "/month, charged the day you start and every month after.");
+      set("planTerms", "No setup fee, no activation fee, and no minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.");
 
       if (P.annual && P.annual.active && plan.annual) {
         set("planAnnual", "Or " + money(plan.annual) + " for the year: pay ten months, get twelve.");
@@ -920,12 +919,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       });
     }
 
-    if (P.pilot) {
-      set("pilotName", P.pilot.name);
-      set("pilotTagline", P.pilot.tagline);
-      set("pilotCaps", P.pilot.caps + " " + P.pilot.start);
-      set("pilotDayEight", P.pilot.dayEight);
-    }
+    /* Four pilot lines were rendered from P.pilot here. The record is deleted
+       from pricing-config.js, so this block would have thrown on
+       `undefined.name` inside the try, silently abandoning the rest of the
+       render. That is exactly how a stale proposal would have gone out
+       looking fine: the static copy stays, and the static copy was the old
+       offer. */
   } catch (e) { /* the static copy above is already a valid proposal */ }
 })();
 </script>

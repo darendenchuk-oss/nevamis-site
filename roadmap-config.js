@@ -17,8 +17,8 @@ window.NV_ROADMAP = {
     { id: "grow", name: "Grow", line: "Know what makes money" }
   ],
   services: [
-    { slug: "ai-front-desk", name: "AI Front Desk", pillar: "capture", status: "available", stage: "now",
-      desc: "The AI receptionist that answers your line 24/7, qualifies callers, books the job, and sends you the details.",
+    { slug: "ai-front-desk", name: "Front Desk", pillar: "capture", status: "available", stage: "now",
+      desc: "Answers your line 24/7, qualifies the caller, takes the job and the time they want, and sends you the details. You confirm the slot.",
       outcome: "No more jobs lost to voicemail.", cta: "/pilot.html" },
     { slug: "instant-lead-follow-up", name: "Instant Lead Follow-Up", pillar: "convert", status: "planned", stage: "next",
       desc: "When a new lead calls, submits a form, or requests a quote, the approved follow-up starts immediately instead of waiting until someone has time.",
@@ -50,7 +50,7 @@ window.NV_ROADMAP = {
     { slug: "web-messaging-concierge", name: "Web and Messaging Concierge", pillar: "capture", status: "researching", stage: "future",
       desc: "Website visitors and texters get the same fast, knowledgeable path to answers and booking that callers receive.",
       outcome: "More captured leads from people who never call." },
-    { slug: "ai-inbox-assistant", name: "AI Inbox Assistant", pillar: "operate", status: "researching", stage: "future",
+    { slug: "ai-inbox-assistant", name: "Inbox Assistant", pillar: "operate", status: "researching", stage: "future",
       desc: "Shared business email gets organized: urgent messages flagged, replies drafted for approval, tasks extracted, a clear digest produced.",
       outcome: "Less inbox time, nothing important buried." },
     { slug: "smarter-job-intake", name: "Smarter Job Intake", pillar: "capture", status: "researching", stage: "future",
@@ -62,7 +62,7 @@ window.NV_ROADMAP = {
     { slug: "revenue-clarity", name: "Revenue Clarity", pillar: "grow", status: "researching", stage: "future",
       desc: "Lead sources, calls, quotes, completed work, and collected payments connected, so owners see what actually produces revenue.",
       outcome: "Spending decisions backed by real numbers." },
-    { slug: "ai-growth-system", name: "AI Growth System", pillar: "grow", status: "researching", stage: "future",
+    { slug: "ai-growth-system", name: "Growth System", pillar: "grow", status: "researching", stage: "future",
       desc: "The long-term goal: conversion-focused web experiences, follow-up, reactivation, reviews, and attribution working as one connected growth system.",
       outcome: "One partner, one connected system, measurable growth." }
   ]

@@ -208,7 +208,7 @@ export function initHero() {
   if (underline) gsap.set(underline, { scaleX: 0, transformOrigin: '0% 50%' });
   // autoAlpha, not opacity: it also sets visibility:hidden, so these controls
   // stay out of the tab order until they are actually on screen. A focusable
-  // but invisible "Call the live AI" would otherwise dial a number the
+  // but invisible "Hear it answer" would otherwise dial a number the
   // keyboard user cannot see.
   // Short travel (36/56, not 120/130): buttons should settle into place,
   // not launch across it.

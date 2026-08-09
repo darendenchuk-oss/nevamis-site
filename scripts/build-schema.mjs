@@ -112,10 +112,13 @@ if (faq.length < 5) {
 
 /* Derived, never typed. `desc` states the included minutes and the plan's own
    "best for" line, both of which already live in the config. */
+/* `setup: p.setup` was carried here and read by nothing. It survived the day
+   the key was deleted from pricing-config.js only because it was dead: had any
+   Offer used it, every plan would have published `"setup": undefined` to
+   answer engines. One price per plan, and one field for it. */
 const PLANS = NV.plans.map((p) => ({
   name: p.name,
   price: p.monthly,
-  setup: p.setup,
   desc: `${p.includedMinutes} included AI minutes. ${p.bestFor}`,
 }));
 
@@ -123,8 +126,13 @@ const service = {
   '@context': 'https://schema.org',
   '@type': 'Service',
   '@id': `${SITE}/#service`,
-  name: 'Call Answering and Booking Service',
-  serviceType: 'AI phone answering, call qualification, and appointment booking',
+  name: 'Call Answering and Lead Capture Service',
+  /* Answer engines quote serviceType verbatim, so it may only name things the
+     service actually provisions. It said "appointment booking" while a
+     provisioned agent has no calendar credential and no booking tool: the
+     structured data was making a promise the phone line refuses to keep, on
+     the one surface a prospect never gets to sanity-check. */
+  serviceType: '24/7 phone answering, call qualification, and structured lead capture',
   description:
     'A done-for-you service that answers a business phone line 24/7, qualifies the caller, ' +
     'takes the job details and the time the caller wants, and texts the owner a summary within seconds. ' +
@@ -183,7 +191,11 @@ console.log(`home.html: Service + FAQPage (${faq.length} questions)`);
 // ---------------------------------------------------------------
 const PAGES = [
   { file: 'pricing.html', name: 'Pricing', type: 'WebPage' },
-  { file: 'pilot.html', name: '7-Day Live Pilot', type: 'WebPage' },
+  /* Was '7-Day Live Pilot'. The URL is kept because it is indexed, linked from
+     every footer and is the page people search for when they ask whether they
+     can try it first; the breadcrumb had to stop naming an offer that no
+     longer exists. */
+  { file: 'pilot.html', name: 'How You Start', type: 'WebPage' },
   { file: 'demo.html', name: 'Live Demo', type: 'WebPage' },
   { file: 'book.html', name: 'Book a Strategy Call', type: 'ContactPage' },
   { file: 'about.html', name: 'About', type: 'AboutPage' },

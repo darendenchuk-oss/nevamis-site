@@ -6,7 +6,10 @@
    2. Every full-footer page shares one identical Site column.
    3. Legal pages (privacy, terms) and pricing use the base-row footer; 404 has none. Documented exceptions.
    4. Banned commercial phrases never appear in public HTML.
-   5. Canonical pilot naming: "7-day live pilot" (page copy) / "7-Day Pilot" (nav label).
+   5. No published surface OFFERS a retired commercial term (guard 7d). This
+      replaced a canonical-naming rule for the 7-day pilot on 2026-08-09: with
+      the pilot retired there is no correct way to name it, only a wrong one,
+      so the rule went from "spell the offer this way" to "do not make it".
    6. No em dashes in page copy. Multiplication signs and arrows are allowed. */
 import fs from "node:fs";
 import path from "node:path";
@@ -86,6 +89,50 @@ const err = (m) => { console.error("FAIL: " + m); fail++; };
 let waiting = 0;
 const wait = (m) => { console.error("WAIT: " + m); waiting++; };
 
+/* A sentence that FORBIDS a phrase contains that phrase. Judging a whole file
+   therefore fails the documents doing the most to prevent the thing being
+   guarded: the live agent's prompt, whose retired-price line reads "never
+   quote these ... and any free pilot or free trial", and the outreach README's
+   "There is no free pilot and no free trial, both were retired." Two permanent
+   red entries that were correct content, which is precisely how a checker
+   stops being read.
+
+   Same classification the engine's checkText uses (OFFER_DENIAL in
+   src/domain/canonical.ts). Classified, not allowlisted: an allowlist of those
+   two sentences leaves the third unguarded.
+
+   Hoisted to module scope on 2026-08-09 so guard 7d can hold HTML pages to the
+   same standard. A page that says "there is no pilot" has to be able to say
+   the word, or the only page telling a visitor the truth is the one that
+   fails. */
+const DENIAL = [
+  /\bnever\s+(?:quote|say|offer|promise|use|mention)\b/i,
+  /\b(?:is|are|was|were)\s+retired\b/i, /\bretired\b/i,
+  /\bthere is no\b/i, /\bthere are no\b/i, /\bwe do not\b/i, /\bdo not\s+(?:quote|say|offer|promise)\b/i,
+  /\bno longer\b/i, /\bnot a current\b/i, /\bsuperseded\b/i, /\bprohibited\b/i,
+  /* Added with guard 7d. A page that answers "is there a trial?" with "no,
+     and here is why" is the correct handling of a retired offer, and it needs
+     to be able to name what it is refusing. */
+  /\bwe don't\b/i, /\bno pilot\b/i, /\bno trial\b/i, /\bnot offered\b/i, /\bused to\b/i,
+  /* "No setup fee" is the SELLING POINT of the approved model and it cannot be
+     said without saying "setup fee". Before these three entries existed, guard
+     7c failed the sentence stating the thing it exists to protect, and its
+     remediation text told the writer to restore the two-number offer. */
+  /\bno setup fee\b/i, /\bno activation fee\b/i, /\bno one-time setup\b/i,
+  /\bnothing to set up\b/i, /\bno set-up fee\b/i, /\bno setup or activation\b/i,
+];
+/* CAVEAT worth knowing before writing plain text for a swept surface: this
+   splits on any newline as well as on sentence ends, so a hard-wrapped
+   sentence in a .txt or .md file is two sentences to this function. Put the
+   retired phrase and the word retiring it on the SAME physical line. The
+   split is deliberately that eager: bullet lists in these files often have no
+   terminating punctuation, and merging them would let one denial excuse every
+   claim in the list. */
+const statesBanned = (text, re) => text
+  .replace(/\*\*|__|\*/g, "")
+  .split(/(?<=[.!?])\s+|\n+/)
+  .some((s) => re.test(s) && !DENIAL.some((d) => d.test(s)));
+
 const navOf = (html) => {
   const m = html.match(/<nav class="main-nav"[^>]*>([\s\S]*?)<\/nav>/);
   return m ? m[1].replace(/ aria-current="page"/g, "").replace(/\s+/g, " ").trim() : null;
@@ -118,7 +165,13 @@ for (const p of contentPages) {
   for (const b of banned) if (b.test(html)) err(p + ": banned phrase " + b);
   const emDashes = (html.match(/—/g) || []).length;
   if (emDashes > 0) err(p + ": contains " + emDashes + " em dash(es)");
-  if (/free 7-day pilot/i.test(html) && !/7-day live pilot/i.test(html)) err(p + ": non-canonical pilot naming");
+  /* The canonical-pilot-naming rule stood here until 2026-08-09. It required a
+     page that said "free 7-day pilot" to also say "7-day live pilot", which
+     was a rule about SPELLING an offer. The offer is retired, so spelling it
+     correctly is no longer the goal and a page that passed this rule would now
+     be a page selling something that does not exist. Guard 7d replaces it and
+     is strictly stronger: it fails on the offer being made at all, under any
+     name, while still letting a page deny it in words. */
 }
 
 /* 6b. Retired claims escape through non-HTML surfaces too. A prospect who calls
@@ -171,30 +224,9 @@ for (const p of contentPages) {
     return out;
   };
 
-  /* Judged per SENTENCE, and only where the sentence is not itself FORBIDDING
-     the phrase it contains.
-
-     This rule tested the whole file, so it failed the two documents doing the
-     most to prevent the thing it guards: the live agent's prompt, whose
-     retired-price line reads "never quote these ... and any free pilot or free
-     trial", and the outreach README's "There is no free pilot and no free
-     trial, both were retired." Two permanent red entries that were correct
-     content, which is precisely how a checker stops being read.
-
-     Same classification the engine's checkText uses (OFFER_DENIAL in
-     src/domain/canonical.ts). Classified, not allowlisted: an allowlist of
-     these two sentences leaves the third unguarded. */
-  const DENIAL = [
-    /\bnever\s+(?:quote|say|offer|promise|use|mention)\b/i,
-    /\b(?:is|are|was|were)\s+retired\b/i, /\bretired\b/i,
-    /\bthere is no\b/i, /\bthere are no\b/i, /\bwe do not\b/i, /\bdo not\s+(?:quote|say|offer|promise)\b/i,
-    /\bno longer\b/i, /\bnot a current\b/i, /\bsuperseded\b/i, /\bprohibited\b/i,
-  ];
-  const statesBanned = (text, re) => text
-    .replace(/\*\*|__|\*/g, "")
-    .split(/(?<=[.!?])\s+|\n+/)
-    .some((s) => re.test(s) && !DENIAL.some((d) => d.test(s)));
-
+  /* Judged per SENTENCE by the hoisted statesBanned(), and only where the
+     sentence is not itself FORBIDDING the phrase it contains. See DENIAL near
+     the top of this file for why. */
   const extraSurfaces = [...surfaceFiles, ...surfaceDirs.flatMap(walk)];
   for (const file of extraSurfaces) {
     if (!fs.existsSync(file)) continue;
@@ -207,22 +239,30 @@ for (const p of contentPages) {
 }
 /* 7. The static pricing fallback on pricing.html must match pricing-config.js.
       Every plan named in the fallback must exist in the config with identical
-      first-month, recurring-monthly, included-minute, and overage numbers.
-      (The fallback may list fewer plans than the config; it must never
-      disagree with it.)
+      monthly, included-minute, and overage numbers. (The fallback may list
+      fewer plans than the config; it must never disagree with it.)
 
-      The shape being matched changed on 2026-08-07 with the copy. The old
-      rule looked for "C$250/month" and "C$250 one-time setup", which is the
-      wording that made a Core customer believe he owed C$500 on day one.
-      It also never actually passed: the fallback wrote "One-time setup C$250"
-      and the regex wanted the amount FIRST, so all three plans reported a
-      setup mismatch against numbers that were identical. A guard that fails
-      permanently and for the wrong reason is a guard nobody reads.
+      THE REQUIRED SHAPE IS ONE NUMBER, AND THIS RULE IS INVERTED FROM WHAT IT
+      WAS. Read this before "fixing" a failure here.
 
-      Both numbers are now required, in the order a buyer meets them:
-      "first month C$250, then C$250/month". Requiring the pair is the point.
-      A fallback that quotes only one of them is exactly the ambiguity this
-      whole change removed. */
+      Until 2026-08-07 the rule wanted "C$250/month" beside "C$250 one-time
+      setup", which is the wording that made a Core customer believe he owed
+      C$500 on day one. It was then rewritten to REQUIRE the pair
+      "first month C$250, then C$250/month" and to fail if either was missing,
+      on the reasoning that quoting one of two numbers is worse than quoting
+      both.
+
+      That reasoning was right about a two-number offer and the offer is no
+      longer two numbers. On 2026-08-09 the price became one figure charged the
+      day they subscribe and every month after, so requiring the pair turned
+      this guard into a contract for the retired model: it would have failed
+      the correct page and passed a reverted one, which is the worst direction
+      for a guard to point.
+
+      So it now requires the single-price sentence, "Core — C$250/month", AND
+      fails on the two-number framing reappearing in the fallback. Both halves
+      matter: the first keeps the number honest, the second keeps the SHAPE
+      honest, and nothing that only compares figures can see the shape. */
 {
   /* pricing-config.js is our own committed browser global (window.NV_PRICING = ...).
      Execute it in an isolated vm context, exactly as the browser would. */
@@ -244,20 +284,16 @@ for (const p of contentPages) {
         const body = m[1] + " " + m[2];
         const plan = cfg.plans.find((p) => p.name === name);
         if (!plan) { err('pricing fallback: plan "' + name + '" not in pricing-config.js'); continue; }
-        const monthly = body.match(/then C\$([\d,]+)\/month/i);
-        const firstMonth = body.match(/first month C\$([\d,]+)/i);
+        const monthly = body.match(/C\$([\d,]+)\/month\b/i);
         const mins = body.match(/([\d,]+) included AI minutes/);
         const over = body.match(/C\$([\d.]+) per extra minute/);
-        /* `setup` is optional. When a plan carries no setup fee, month one
-           costs the monthly price and that is what the page must say. This
-           used to read plan.setup.toLocaleString() unconditionally, so the
-           day the config dropped setup fees the guard stopped reporting
-           anything at all and died with "Cannot read properties of undefined"
-           BEFORE reaching the checks below it. A guard that crashes is worse
-           than a guard that fails: it takes the other rules down with it. */
-        const firstMonthExpected = plan.setup ?? plan.monthly;
-        if (!monthly || num(monthly[1]) !== plan.monthly) err('pricing fallback "' + name + '": recurring monthly differs from config (' + plan.monthly + '); expected "then C$' + plan.monthly.toLocaleString("en-CA") + '/month"');
-        if (!firstMonth || num(firstMonth[1]) !== firstMonthExpected) err('pricing fallback "' + name + '": first month differs from config (' + firstMonthExpected + '); expected "first month C$' + firstMonthExpected.toLocaleString("en-CA") + '"');
+        /* The retired two-number framing, in either half. A fallback that
+           reintroduces "first month C$X" or "then C$Y/month" has restored the
+           offer this model replaced, whatever the figures say. */
+        const twoNumber = /first month\s+C\$|then\s+C\$[\d,]+\s*\/\s*month/i;
+        if (twoNumber.test(body)) err('pricing fallback "' + name + '": describes the price as a first-month amount and a recurring amount. '
+          + 'That offer is retired. One price, charged the day they subscribe and every month after: "' + name + ' — C$' + plan.monthly.toLocaleString("en-CA") + '/month".');
+        if (!monthly || num(monthly[1]) !== plan.monthly) err('pricing fallback "' + name + '": monthly price differs from config (' + plan.monthly + '); expected "C$' + plan.monthly.toLocaleString("en-CA") + '/month"');
         if (!mins || num(mins[1]) !== plan.includedMinutes) err('pricing fallback "' + name + '": included minutes differ from config (' + plan.includedMinutes + ")");
         if (!over || Number(over[1]) !== plan.overage) err('pricing fallback "' + name + '": overage differs from config (' + plan.overage + ")");
       }
@@ -308,7 +344,7 @@ for (const p of contentPages) {
 
 /* 7a. Pre-rendered copy must equal what the renderer would have written.
 
-       On 2026-08-08 the pilot banner, usage policy and proposal plan box were
+       On 2026-08-08 the referral card, usage policy and proposal plan box were
        given real text instead of shipping empty and filling in from
        pricing-config.js after load. Empty was measurably wrong: on a throttled
        phone the pricing page filled 745 ms after first paint and pushed
@@ -347,12 +383,25 @@ for (const p of contentPages) {
     if (actual !== expected) err(where + ": #" + id + ' drifted from pricing-config.js\n      page:   "' + actual + '"\n      config: "' + expected + '"');
   };
 
-  if (!cfg || !cfg.pilot || !cfg.usagePolicy) err("pricing-config.js: pilot/usagePolicy missing, cannot check pre-rendered copy");
+  /* The pilot record was DELETED from pricing-config.js on 2026-08-09, so the
+     three checks that stood here (pilotName, pilotTagline, pilotCaps on
+     pricing.html, plus three more on proposal.html) had nothing left to
+     compare against. They were not deleted with it: dropping six equality
+     checks would have left the two pages with fewer guarded strings than
+     before the offer was retired, which is how copy drifts back.
+
+     They were re-pointed at the referral card, which is the block that
+     survived the change, is still rendered from config at runtime, and is the
+     one remaining place on the pricing page where a static copy of a config
+     value can go stale without anything noticing. Same count of checks, same
+     failure mode covered, aimed at live copy instead of dead copy. */
+  if (!cfg || !cfg.referral || !cfg.usagePolicy) err("pricing-config.js: referral/usagePolicy missing, cannot check pre-rendered copy");
   else {
     const ph = fs.readFileSync(path.join(root, "pricing.html"), "utf8");
-    eq("pricing.html", "pilotName", flat(textOf(ph, "pilotName")), cfg.pilot.name);
-    eq("pricing.html", "pilotTagline", flat(textOf(ph, "pilotTagline")), cfg.pilot.tagline + " " + cfg.pilot.dayEight);
-    eq("pricing.html", "pilotCaps", flat(textOf(ph, "pilotCaps")), cfg.pilot.caps + " " + cfg.pilot.start);
+    eq("pricing.html", "referralHeadline", flat(textOf(ph, "referralHeadline")), cfg.referral.headline);
+    eq("pricing.html", "referralOffer", flat(textOf(ph, "referralOffer")), cfg.referral.offer);
+    eq("pricing.html", "referralTrigger", flat(textOf(ph, "referralTrigger")), cfg.referral.trigger);
+    eq("pricing.html", "referralHowTo", flat(textOf(ph, "referralHowTo")), cfg.referral.howTo);
     eq("pricing.html", "minuteDef", flat(textOf(ph, "minuteDef")), cfg.usagePolicy.minuteDef);
     eq("pricing.html", "taxNote", flat(textOf(ph, "taxNote")), cfg.taxNote);
     eq("pricing.html", "pricingUpdated", flat(textOf(ph, "pricingUpdated")), "pricing updated " + cfg.lastUpdated);
@@ -365,9 +414,17 @@ for (const p of contentPages) {
        so that is the plan its static copy must quote. */
     const dflt = cfg.plans.find((p) => p.recommended) || cfg.plans[0];
     const pr = fs.readFileSync(path.join(root, "proposal.html"), "utf8");
-    eq("proposal.html", "pilotTagline", flat(textOf(pr, "pilotTagline")), cfg.pilot.tagline);
-    eq("proposal.html", "pilotCaps", flat(textOf(pr, "pilotCaps")), cfg.pilot.caps + " " + cfg.pilot.start);
-    eq("proposal.html", "pilotDayEight", flat(textOf(pr, "pilotDayEight")), cfg.pilot.dayEight);
+    /* The proposal is the document a named prospect keeps, so its price
+       sentence is held to the exact shape of the approved model rather than
+       just to the right figure. PLAN_TERMS is written out here on purpose: it
+       is the only copy of the commitment that lives in a file a page cannot
+       edit, and a proposal that quietly regrows a setup fee or a trial fails
+       against it. If the commercial model changes, this line changes with the
+       decision, not with the page. */
+    const PLAN_TERMS = "No setup fee, no activation fee, and no minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.";
+    eq("proposal.html", "planMonthly", flat(textOf(pr, "planMonthly")),
+      money(dflt.monthly) + "/month, charged the day you start and every month after.");
+    eq("proposal.html", "planTerms", flat(textOf(pr, "planTerms")), PLAN_TERMS);
     eq("proposal.html", "planName", flat(textOf(pr, "planName")), dflt.name.toUpperCase());
     eq("proposal.html", "planIncludes", flat(textOf(pr, "planIncludes")),
       dflt.includedMinutes + " included AI minutes per month, about " + dflt.callRange + ". Additional minutes " + money(dflt.overage) + " each.");
@@ -433,7 +490,19 @@ for (const p of contentPages) {
   /* Comments are stripped first. The files that FIXED this defect are the ones
      that quote the retired sentence in order to explain why it is retired, and
      a rule that fires on its own explanation teaches the next person to delete
-     the explanation. Only what a reader can see is checked. */
+     the explanation. Only what a reader can see is checked.
+
+     Judged per sentence since 2026-08-09, for one specific reason: the current
+     model's selling point is that there is NO setup fee, and this rule matched
+     "setup fee" anywhere in the file, so the page stating the commitment failed
+     the guard protecting it. Sentence classification is the narrowest fix that
+     keeps the detector able to fail: "One-time setup: C$250" is still caught,
+     "No setup fee, no minimum term" is not.
+
+     The remediation text changed with it. It used to end "Write 'First month
+     C$X, then C$Y/month'", which was this guard telling anyone who tripped it
+     to write the offer that has since been retired. A guard's error message is
+     read at exactly the moment somebody is deciding what to write. */
   const visible = (s) => s
     .replace(/<!--[\s\S]*?-->/g, " ")
     .replace(/\/\*[\s\S]*?\*\//g, " ");
@@ -443,9 +512,76 @@ for (const p of contentPages) {
     const text = visible(fs.readFileSync(file, "utf8"));
     const label = path.relative(root, file).replace(/\\/g, "/");
     for (const b of additive) {
-      if (b.test(text)) {
-        err(`${label}: ${b} describes the price additively. The first-month amount IS month one, `
-          + `not a fee beside it. Write "First month C$X, then C$Y/month".`);
+      if (statesBanned(text, b)) {
+        err(`${label}: ${b} charges something beside the monthly price. There is no setup, activation, `
+          + `onboarding, implementation or launch charge. Write "C$X/month", and if the point is that `
+          + `nothing else is charged, say so as a denial ("no setup fee") rather than as a line item.`);
+      }
+    }
+  }
+}
+
+/* 7d. No published surface may OFFER a retired commercial term.
+
+       Added 2026-08-09, replacing the canonical-pilot-naming rule at the top of
+       this file. The pilot, the paid trial, the C$150 fee, the C$850 Pro price
+       and the two-number "first month X, then Y" framing were all retired the
+       same day. Between them they appeared on eleven pages, in llms.txt, in
+       three JSON-LD blocks and in a proposal document, and the thing that let
+       them spread was that no rule here could tell an OFFER from a MENTION.
+       Rule 4's banned list cannot: it tests the whole file, so the one page
+       that has to explain that there is no pilot would be the page that fails.
+
+       So this is judged per sentence, by the same DENIAL classification the
+       cross-repo surfaces already use. "There is no pilot, paid or free"
+       passes. "Start with the 7-day live pilot" does not. That asymmetry is
+       the whole guard: it must stay possible to deny a retired offer in words,
+       and impossible to make one.
+
+       NOT a list of words to delete. If a failure here names a sentence that
+       is genuinely refusing the offer, the fix is to add the refusal wording
+       to DENIAL, never to drop the pattern. Dropping the pattern re-opens the
+       claim for every page at once. */
+{
+  const RETIRED_OFFERS = [
+    /\b\d+[- ]day live pilot\b/i,
+    /\b(?:7|seven)[- ]day pilot\b/i,
+    /\b(?:14|fourteen)[- ]day pilot\b/i,
+    /\bpilot fee\b/i,
+    /\bpaid pilot\b/i,
+    /\bfree pilot\b/i,
+    /\bpilot (?:price|credit)\b/i,
+    /\bC\$\s?150\b/,
+    /\bC\$\s?850\b/,
+    /\bfirst month\s+C\$/i,
+    /\bthen\s+C\$[\d,]+\s*\/\s*month/i,
+    /\bcredited toward your first month\b/i,
+    /\bcomes off (?:that|your) first month\b/i,
+  ];
+  /* Comments and scripts are stripped before the text is read. The files that
+     FIXED this defect are the ones that quote a retired sentence in order to
+     explain why it is retired, and a rule that fires on its own explanation
+     teaches the next person to delete the explanation. Only what a reader can
+     see is checked. JSON-LD is deliberately NOT stripped: an answer engine
+     reads it, so a retired offer inside a <script type="application/ld+json">
+     block reaches a buyer exactly like body copy does. */
+  const readable = (s) => s
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<script\b(?![^>]*application\/ld\+json)[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&mdash;/g, "—").replace(/&amp;/g, "&").replace(/&rsquo;/g, "'")
+    .replace(/[ \t]+/g, " ");
+  const surfaces = [...contentPages.map((f) => path.join(root, f)), path.join(root, "llms.txt")];
+  for (const file of surfaces) {
+    if (!fs.existsSync(file)) continue;
+    const label = path.relative(root, file).replace(/\\/g, "/");
+    const text = readable(fs.readFileSync(file, "utf8"));
+    for (const b of RETIRED_OFFERS) {
+      if (statesBanned(text, b)) {
+        err(`${label}: offers a retired commercial term ${b}. The approved model is one monthly price, `
+          + `charged the day they subscribe and every month after: no setup, no activation, no pilot, no trial. `
+          + `A sentence that DENIES the retired offer is allowed; extend DENIAL rather than dropping the pattern.`);
       }
     }
   }
@@ -496,33 +632,61 @@ for (const p of contentPages) {
       return [...out];
     };
 
-    /* A zero setup fee is not a price to recite, it is a fact to state. When
-       setup is 0 the old check demanded the agent say "zero dollars setup",
-       which nobody says, so the rule flips: the prompt must state plainly that
-       there is no setup fee, and must NOT still be quoting one. Being the only
+    /* No setup fee is not a price to recite, it is a fact to state. The prompt
+       must say plainly that there is nothing charged besides the monthly
+       price, and must NOT still be quoting a retired fee. Being the only
        provider in this market with published prices and no setup fee is a
        selling point, and an agent that keeps quoting a retired fee costs the
-       sale twice, once on price and once on trust. */
-    /* The Pay As You Go clause was dropped here on 2026-08-07 with the plan
-       itself. Setup has been C$250/C$500/C$1,000 since 2026-08-06, so this
-       whole branch is dormant and the comment above it describes a position
-       Nevamis no longer holds. Kept, not deleted: if setup ever returns to
-       zero the agent must say so, and re-deriving that rule later from memory
-       is how the last four price positions drifted. */
-    const setupIsFree = w.NV_PRICING.plans.every((p) => p.setup === 0);
-    if (setupIsFree) {
-      const saysFree = /no setup fee|no one-time setup|nothing to set up|no set-up fee/.test(spoken);
-      if (!saysFree) wait("demo.md: setup is $0 everywhere in pricing-config.js, but the prompt never says there is no setup fee. It is a selling point and the agent should say it.");
-      const RETIRED_SETUP_WORDS = ["five hundred dollars one-time setup", "seven hundred and fifty dollars setup",
-        "one thousand two hundred and fifty dollars", "two hundred and fifty dollars setup"];
-      for (const phrase of RETIRED_SETUP_WORDS) {
-        if (spoken.includes(phrase)) wait(`demo.md: still quotes a retired setup fee out loud ("${phrase}") after it went to $0`);
+       sale twice, once on price and once on trust.
+
+       THIS DETECTOR NO LONGER SITS BEHIND A CONDITION. It used to run only
+       when `plans.every(p => p.setup === 0)`, which was true in the world it
+       was written for. On 2026-08-09 the `setup` key was deleted rather than
+       zeroed, so that expression became false for every plan and the whole
+       branch went silent: the one check that watches for a retired fee being
+       spoken to a live prospect stopped running on the very day the fee was
+       retired. A detector that switches itself off when the thing it detects
+       becomes possible is worse than no detector, because the green run reads
+       as proof.
+
+       The retired-phrase list is EXTENDED, never trimmed. Every entry is
+       something a prospect was told out loud at some point, and the prompt is
+       edited by hand in a dashboard where nothing else can see it. */
+    const noSetupFee = w.NV_PRICING.plans.every((p) => p.setup === undefined);
+    if (noSetupFee) {
+      const saysFree = /no setup fee|no one-time setup|nothing to set up|no set-up fee|no setup or activation/.test(spoken);
+      if (!saysFree) wait("demo.md: there is no setup fee anywhere in pricing-config.js, but the prompt never says so. It is a selling point and the agent should say it.");
+    }
+    const RETIRED_SPOKEN = [
+      "five hundred dollars one-time setup", "seven hundred and fifty dollars setup",
+      "one thousand two hundred and fifty dollars", "two hundred and fifty dollars setup",
+      "one-time setup", "setup fee", "activation fee",
+      /* Retired 2026-08-09 with the pilot and the C$850 Pro price. */
+      "seven-day pilot", "seven day pilot", "fourteen-day pilot", "seven live days",
+      "one hundred and fifty dollars", "a hundred and fifty dollars",
+      "eight hundred and fifty dollars", "eight fifty a month",
+      "free trial", "trial period",
+    ];
+    /* Classified per PARAGRAPH here, not per sentence as everywhere else, and
+       the difference is deliberate. demo.md is hard-wrapped prose: its
+       "never quote these" window and its dated change log both run to several
+       lines, so statesBanned() sees the retired phrase on one physical line
+       and the word retiring it on the next, and reports the document's own
+       history as a live claim. It did exactly that on first run, against a
+       file another repo had already corrected.
+       A paragraph is also the right unit for what this rule detects, which is
+       an INSTRUCTION to the agent rather than a sentence in a page. */
+    const saysRetired = (re) => spoken
+      .split(/\n\s*\n/)
+      .some((para) => re.test(para) && !DENIAL.some((d) => d.test(para)));
+    for (const phrase of RETIRED_SPOKEN) {
+      if (saysRetired(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"))) {
+        wait(`demo.md: still says a retired commercial term out loud ("${phrase}"). One monthly price, nothing beside it, no pilot and no trial.`);
       }
     }
 
     for (const plan of w.NV_PRICING.plans) {
       const checks = [["monthly", dollarForms(plan.monthly)], ["overage", centForms(plan.overage)]];
-      if (plan.setup > 0) checks.push(["setup", dollarForms(plan.setup)]);
       for (const [label, forms] of checks) {
         if (!forms.some((f) => spoken.includes(f)))
           wait(`demo.md: ${plan.name} ${label} (${plan[label]}) is never spoken; say one of: ${forms.join(" / ")}`);
@@ -537,8 +701,21 @@ for (const p of contentPages) {
 /* 9. PLAYBOOK.md is what the founder reads before a sales call, so its tier
       table is a pricing surface too, and the one where a stale number gets
       quoted to a prospect out loud with nothing to catch it. Each plan's row
-      must carry the same setup, monthly, included minutes, and overage as
-      pricing-config.js. Checked only when ai-assistant sits beside this repo. */
+      must carry the same monthly, included minutes, and overage as
+      pricing-config.js. Checked only when ai-assistant sits beside this repo.
+
+      THE SETUP CHECK IS INVERTED, NOT REMOVED. It read
+      `has(money(plan.setup))` and required the row to quote a setup figure.
+      When the `setup` key was deleted on 2026-08-09 that produced
+      `PLAYBOOK.md "Core": setup is not $undefined as in pricing-config.js` on
+      all three rows: a guard demanding that the founder's crib sheet publish
+      the string "$undefined", and the only way to make it pass was to put a
+      setup fee back. It was encoding the retired model as a contract.
+
+      What replaced it holds the same surface to the current model: the table
+      must have no Setup column at all, and no row may carry a retired figure.
+      A guard here still fails if the table drifts from the config; it now
+      fails in the direction the decision went. */
 {
   const playbook = path.join(root, "..", "ai-assistant", "PLAYBOOK.md");
   if (fs.existsSync(playbook)) {
@@ -549,14 +726,29 @@ for (const p of contentPages) {
     /* The table writes thousands both ways depending on the column, so accept
        "1250" or "1,250" rather than forcing one style on a prose document. */
     const money = (n) => [String(n), Number(n).toLocaleString("en-CA")];
+    /* Retired figures, checked per row rather than per file: the prose around
+       the table legitimately records that $150 and $850 were retired, and a
+       whole-file scan would fail the sentence doing that work. */
+    const RETIRED_FIGURES = ["$150", "$850", "$249", "$449", "$849", "$49"];
     for (const plan of w.NV_PRICING.plans) {
       const row = md.split(/\r?\n/).find((l) => /^\|/.test(l) && l.includes("| " + plan.name + " |"));
       if (!row) { err(`PLAYBOOK.md: no tier row for "${plan.name}"`); continue; }
       const has = (forms) => forms.some((f) => row.includes("$" + f));
       if (!has(money(plan.monthly))) err(`PLAYBOOK.md "${plan.name}": monthly is not $${plan.monthly} as in pricing-config.js`);
-      if (!has(money(plan.setup))) err(`PLAYBOOK.md "${plan.name}": setup is not $${plan.setup} as in pricing-config.js`);
       if (!new RegExp(`\\|\\s*${plan.includedMinutes}\\s*\\|`).test(row)) err(`PLAYBOOK.md "${plan.name}": included minutes are not ${plan.includedMinutes}`);
       if (!row.includes("$" + plan.overage.toFixed(2))) err(`PLAYBOOK.md "${plan.name}": overage is not $${plan.overage.toFixed(2)}/min`);
+      for (const fig of RETIRED_FIGURES) {
+        if (row.includes(fig)) err(`PLAYBOOK.md "${plan.name}": the tier row still quotes the retired figure ${fig}. `
+          + `The plan is one price, ${"$" + plan.monthly}/month, with nothing charged beside it.`);
+      }
+    }
+    /* The column itself, not just its contents. A Setup header with the right
+       numbers under it is still the two-number offer, and that arrangement is
+       what a founder reads off the page to a prospect. */
+    const tierHeader = md.split(/\r?\n/).find((l) => /^\|\s*Tier\s*\|/i.test(l));
+    if (tierHeader && /\|\s*Setup\b/i.test(tierHeader)) {
+      err("PLAYBOOK.md: the tier table still has a Setup column. There is no setup, activation, onboarding or launch charge; "
+        + "one monthly price is the whole offer, and a column for a second number is how a founder ends up quoting one.");
     }
   }
 }

@@ -13,24 +13,36 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
   const cfg = await page.evaluate(() => ({
     monthly: window.NV_PRICING.plans.find((p) => p.id === 'growth').monthly,
     minutes: window.NV_PRICING.plans.find((p) => p.id === 'growth').includedMinutes,
-    setup: window.NV_PRICING.plans.find((p) => p.id === 'growth').setup,
     annual: window.NV_PRICING.plans.find((p) => p.id === 'growth').annual,
-    pilot: window.NV_PRICING.pilot.name,
   }));
 
   await expect(page.locator('#planPrice')).toContainText(`C$${cfg.monthly}`);
   await expect(page.locator('#planIncludes')).toContainText(String(cfg.minutes));
 
   /* The proposal is emailed to a named prospect, so this line is the one that
-     gets forwarded to whoever signs the cheque. It must state BOTH numbers:
-     what month one costs and what every month after it costs. It used to read
-     "One-time setup C$500." underneath "C$500/month", which is two correct
-     figures arranged into a bill for C$1,000 on signing. */
-  const setup = page.locator('#planSetup');
-  await expect(setup).toContainText(`First month C$${cfg.setup.toLocaleString('en-CA')}`);
-  await expect(setup).toContainText(`then C$${cfg.monthly.toLocaleString('en-CA')}/month`);
-  /* And it must not reintroduce the additive framing in any form. */
-  await expect(setup).not.toContainText(/one-time setup|setup fee|plus setup/i);
+     gets forwarded to whoever signs the cheque. It must state ONE number.
+
+     This assertion has now been inverted twice. It first demanded a struck-out
+     setup fee, then demanded BOTH numbers ("First month C$500" AND "then
+     C$500/month") on the argument that quoting one of two is worse than
+     quoting both. That was right while the offer had two numbers. Since
+     2026-08-09 it has one, so requiring the pair would have made this test a
+     contract for the retired model: green on the old page, red on the correct
+     one. It now requires the single-price sentence and fails on the pair
+     coming back. */
+  const monthly = page.locator('#planMonthly');
+  await expect(monthly).toContainText(`C$${cfg.monthly.toLocaleString('en-CA')}/month`);
+  await expect(monthly).toContainText('charged the day you start');
+  await expect(monthly, 'the retired first-month framing must not return')
+    .not.toContainText(/first month|from month two/i);
+
+  /* What is NOT charged is the commitment, so it is asserted rather than left
+     to prose. A proposal that loses this line loses the whole point of the
+     2026-08-09 change on the one document a buyer keeps. */
+  const terms = page.locator('#planTerms');
+  await expect(terms).toContainText('No setup fee');
+  await expect(terms).toContainText('no minimum term');
+  await expect(terms).toContainText('Cancel any time');
 
   /* Annual prepay is suspended in the config, so the proposal must NOT quote a
      yearly figure. This assertion used to demand "pay ten months, get twelve"
@@ -43,8 +55,18 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
   if (annualActive) await expect(planAnnual).toContainText('pay ten months, get twelve');
   else await expect(planAnnual).toHaveText('');
 
-  await expect(page.locator('#pilotName')).toHaveText(cfg.pilot);
+  /* #pilotName was asserted here against NV_PRICING.pilot.name. The pilot
+     record was deleted from pricing-config.js on 2026-08-09, so this line
+     could only have been kept by keeping the retired offer alive. The feature
+     list took its place as the second config-driven block on the page: it is
+     rendered from plan.features, and a plan that quietly regrows an unbuilt
+     entitlement shows up here first. */
   await expect(page.locator('#planFeatures li').first()).toBeVisible();
+  const features = (await page.locator('#planFeatures').innerText()).toLowerCase();
+  for (const unbuilt of ['booking calendar', 'crm', 'multi-location', 'multi-department']) {
+    expect(features, `the proposal must not sell "${unbuilt}", which is not provisionable`)
+      .not.toContain(unbuilt);
+  }
 });
 
 /* Asserts WHICH plan each id resolves to, not merely that something rendered.
@@ -87,8 +109,12 @@ test('a retired or unknown plan id never quotes a retired price', async ({ page 
     await page.goto(`/proposal.html?plan=${id}`);
     const price = await page.locator('#planPrice').textContent();
     expect(price, `${id} must not quote C$49`).not.toContain('49');
-    const setup = await page.locator('#planSetup').textContent();
-    expect(setup, `${id} must not claim a C$0 setup`).not.toMatch(/C\$0\b|no setup fee/i);
+    const monthly = await page.locator('#planMonthly').textContent();
+    expect(monthly, `${id} must not quote a retired price`).not.toMatch(/C\$0\b|C\$49\b|C\$150\b|C\$850\b/);
+    /* "no setup fee" used to be banned on this line, because in 2026-08-06's
+       model claiming it was a fabrication. It is now the truth for every plan,
+       and it lives on #planTerms rather than here. The thing worth catching is
+       a retired FIGURE resolving out of an unknown id. */
     await expect(page.locator('#planName')).toContainText(/growth/i);
   }
 });
@@ -105,18 +131,18 @@ test('a retired or unknown plan id never quotes a retired price', async ({ page 
    the line is compared against the same URL without the parameter. */
 test('a leftover founding=1 in a URL cannot invent a discount', async ({ page }) => {
   await page.goto('/proposal.html?plan=growth');
-  const plain = await page.locator('#planSetup').textContent();
+  const plain = await page.locator('#planMonthly').textContent();
 
   await page.goto('/proposal.html?plan=growth&founding=1');
-  const setup = page.locator('#planSetup');
-  await expect(setup, 'founding=1 must not change the amount').toHaveText(plain);
-  expect(await setup.locator('s').count()).toBe(0);   // no struck-through price
-  await expect(setup).not.toContainText('waived');
-  await expect(setup).not.toContainText('750');
-  /* The real fee is quoted, not discounted away. */
-  const cfgSetup = await page.evaluate(() =>
-    window.NV_PRICING.plans.find((p) => p.id === 'growth').setup);
-  await expect(setup).toContainText(`C$${cfgSetup.toLocaleString('en-CA')}`);
+  const monthly = page.locator('#planMonthly');
+  await expect(monthly, 'founding=1 must not change the amount').toHaveText(plain);
+  expect(await monthly.locator('s').count()).toBe(0);   // no struck-through price
+  await expect(monthly).not.toContainText('waived');
+  await expect(monthly).not.toContainText('750');
+  /* The real price is quoted, not discounted away. */
+  const cfgMonthly = await page.evaluate(() =>
+    window.NV_PRICING.plans.find((p) => p.id === 'growth').monthly);
+  await expect(monthly).toContainText(`C$${cfgMonthly.toLocaleString('en-CA')}`);
 });
 
 test('personalises from the URL without ever executing it', async ({ page }) => {
@@ -148,7 +174,14 @@ test('still reads as a complete proposal with no parameters and no JS', async ({
   await page.goto('/proposal.html');
 
   const text = await page.locator('main').innerText();
-  expect(text).toContain('7-day live pilot');
+  /* Asserted '7-day live pilot' until 2026-08-09: the scripts-off proposal had
+     to name the offer, so retiring the offer would have failed this test and
+     re-adding it would have been the fix. It now asserts the terms that
+     replaced it, which is the sentence a prospect must still read when the
+     config never loads. */
+  expect(text).toContain('No setup fee');
+  expect(text).toContain('charged the day you start');
+  expect(text).not.toMatch(/pilot|trial/i);
   expect(text).toContain('What happens next');
   expect(text).toContain('(587) 413-0035');
   expect(text.split(/\s+/).length).toBeGreaterThan(200);

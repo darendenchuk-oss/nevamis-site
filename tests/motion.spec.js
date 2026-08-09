@@ -235,7 +235,7 @@ for (const vp of VIEWPORTS) {
     await page.evaluate(() => { window.__heroTL.progress(1).pause(); });
     await page.waitForTimeout(250);
 
-    const primary = page.locator('a.btn-primary').filter({ hasText: /Call the live AI/i }).first();
+    const primary = page.locator('a.btn-primary').filter({ hasText: /Hear it answer/i }).first();
     // scope to the hero CTAs — the header also holds .btn-ghost, and on
     // mobile that one legitimately lives inside the closed menu
     const secondary = page.locator('a.btn-ghost[data-cta]').first();
@@ -422,7 +422,7 @@ test('keyboard users reach every control with a visible focus ring', async ({ pa
   }
 
   const labels = reached.map((r) => r.text).join(' | ');
-  expect(labels, 'the primary CTA must be keyboard reachable').toContain('Call the live AI');
+  expect(labels, 'the primary CTA must be keyboard reachable').toContain('Hear it answer');
   expect(labels, 'the secondary CTA must be keyboard reachable').toContain('Book a 15-min call');
 
   for (const r of reached) {
@@ -455,7 +455,12 @@ test('decorative visuals are hidden from assistive tech', async ({ page }) => {
   expect(a11y.svgHidden, 'the narrative SVG is decorative and must be hidden from AT').toBe('true');
   expect(a11y.statusHidden).toBe('true');
   expect(a11y.wakeHidden).toBe('true');
-  expect(a11y.h1).toBe('Every call, captured.');
+  /* Pinned to the exact sentence, not to a fragment: the whole point of this
+     assertion is that the words the curtain animates are also the words a
+     screen reader is handed, and a substring match would pass while half the
+     headline was missing from the DOM. Updated 2026-08-09 with the headline
+     itself, which moved from describing the mechanism to naming the outcome. */
+  expect(a11y.h1).toBe('Never miss the time that matters.');
   // meaning must not live only in the animation
   expect(a11y.ledeMentions).toEqual(['qualifies', 'takes', 'texts']);
 });

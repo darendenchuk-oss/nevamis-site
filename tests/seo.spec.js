@@ -191,14 +191,23 @@ test('every price promised to a crawler is visible to a buyer', async ({ page })
   for (const offer of agg.offers) {
     const card = cards.find((c) => c.name === offer.name);
     expect(card, `schema offers "${offer.name}" but no card renders it`).toBeTruthy();
-    expect(card.price, `"${offer.name}" card must show ${offer.price}`).toContain(offer.price);
+    /* Compared with thousands separators stripped from both sides. The card
+       groups its figure ("C$1,000/month") because "C$1000" reads like a typo
+       on the one page where a misread number costs a sale, and schema.org
+       requires the raw number ("1000"). Comparing the strings verbatim made
+       this test enforce a formatting choice it has no opinion about, and it
+       failed on the Pro card for exactly that reason. A wrong NUMBER still
+       fails. */
+    const digits = (s) => String(s).replace(/,/g, '');
+    expect(digits(card.price), `"${offer.name}" card must show ${offer.price}`)
+      .toContain(digits(offer.price));
     // Every card must lead somewhere. A price with no way to act on it is
     // the same lost sale in a quieter form.
     expect(card.href, `"${offer.name}" has no call to action`).toBeTruthy();
   }
 
   // And the advertised floor must be a price someone can actually read.
-  expect(cards.some((c) => c.price.includes(String(agg.lowPrice))),
+  expect(cards.some((c) => c.price.replace(/,/g, '').includes(String(agg.lowPrice))),
     `lowPrice ${agg.lowPrice} is advertised but appears on no card`).toBe(true);
 });
 
@@ -209,9 +218,13 @@ test('every page with real Q&A publishes it, except claims under review', async 
   const faq = schema.find((s) => s['@type'] === 'FAQPage');
   expect(faq, 'coming-soon Q&A should be answerable').toBeTruthy();
   expect(faq.mainEntity.length).toBeGreaterThanOrEqual(10);
-  // the status answer must survive extraction out of context
+  // the status answer must survive extraction out of context.
+  // The product name lost its "AI " prefix on 2026-08-09 with the rest of the
+  // brand pass; the sentence this pins is the same sentence, and it still has
+  // to say "only" and "available today" so a quoted fragment cannot read as a
+  // catalogue of shipped services.
   const answers = faq.mainEntity.map((q) => q.acceptedAnswer.text).join(' ').toLowerCase();
-  expect(answers).toContain('only the ai front desk is available today');
+  expect(answers).toContain('only the front desk is available today');
 
   // revenue-engine sells something that does not exist yet, so its Q&A is the
   // most quotable place on the site to accidentally claim traction. It is now

@@ -173,7 +173,7 @@ for (const [file, content] of Object.entries(PAGES)) {
       <h1>${content.h1}</h1>
       <p class="lede">${content.lede}</p>
       <div class="cta">
-        <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Call the live AI &nbsp;›</a>
+        <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer &nbsp;›</a>
         <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-min call</a>
       </div>
     </div>
@@ -199,7 +199,7 @@ const CLUSTERS = [
 ];
 
 const hubMeta = byFile['solutions.html'];
-const hubDesc = 'AI receptionist solutions by trade, by situation, and compared to voicemail and answering services. Every page from Nevamis in one place.';
+const hubDesc = 'Call answering by trade, by situation, and compared to voicemail and answering services. Every page from Nevamis in one place.';
 
 const hubHtml =
   head({ title: `${hubMeta.title} | Nevamis`, description: hubDesc, canonical: `${SITE}/solutions.html` }) +
@@ -211,11 +211,11 @@ const hubHtml =
       <p class="crumb"><a href="/">Home</a> / Solutions</p>
       <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Everything in one place</span>
       <h1>Find the version of this that matches your business.</h1>
-      <p class="lede">The product is the same on every page: an AI receptionist that answers your
+      <p class="lede">The product is the same on every page: a front desk that answers your
         existing line, qualifies the caller, takes the job details, and sends you the summary. These pages
         just start from where you are.</p>
       <div class="cta">
-        <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Call the live AI &nbsp;›</a>
+        <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer &nbsp;›</a>
         <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-min call</a>
       </div>
     </div>

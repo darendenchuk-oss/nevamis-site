@@ -13,8 +13,8 @@
     <path d="M 15 38 A 17 17 0 0 1 49 38" stroke="#38E6A2" stroke-width="8" stroke-linecap="round" fill="none"/>
     <circle cx="32" cy="48" r="6" fill="#38E6A2"/>
   </g>
-  <text x="292" y="308" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" font-size="92" fill="#F1F5F2">Nevamis<tspan fill="#38E6A2" dx="22">AI</tspan></text>
-  <text x="98" y="428" font-family="Georgia, 'Times New Roman', serif" font-size="44" fill="#F1F5F2">AI receptionists for Canadian businesses</text>
+  <text x="292" y="308" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" font-size="92" fill="#F1F5F2">Ne<tspan fill="#38E6A2">v</tspan>amis</text>
+  <text x="98" y="428" font-family="Georgia, 'Times New Roman', serif" font-size="44" fill="#F1F5F2">Miss the call. Not the job.</text>
   <text x="98" y="492" font-family="'Courier New', monospace" font-size="30" fill="#8FA6A0">Answers in seconds, any hour &#183; Edmonton, Alberta</text>
   <text x="98" y="566" font-family="'Courier New', monospace" font-size="30" fill="#38E6A2">nevamis.ca</text>
 </svg>

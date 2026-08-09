@@ -591,11 +591,19 @@ function drawIdentity(t) {
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
     ctx.font = '800 16px "Bricolage Grotesque", sans-serif';
     ctx.letterSpacing = "-0.3px";
+    /* The second colour used to be a trailing " AI", which put a brand this
+       company does not use into an image pasted at the bottom of every email
+       the founder sends. The two-tone pass is kept and moved onto the letter
+       the site's own wordmark accents, so the light still visibly crosses the
+       name and the name is the real one. */
     ctx.fillStyle = lit ? C.dot : C.frost;
-    ctx.fillText("Nevamis", PAD, 31);
-    const w = ctx.measureText("Nevamis").width;
+    ctx.fillText("Ne", PAD, 31);
+    const wNe = ctx.measureText("Ne").width;
     ctx.fillStyle = lit ? C.frost : C.signal;
-    ctx.fillText(" AI", PAD + w, 31);
+    ctx.fillText("v", PAD + wNe, 31);
+    const wNev = wNe + ctx.measureText("v").width;
+    ctx.fillStyle = lit ? C.dot : C.frost;
+    ctx.fillText("amis", PAD + wNev, 31);
     ctx.letterSpacing = "0px";
 
     ctx.font = '400 7.5px "Spline Sans Mono", monospace';
