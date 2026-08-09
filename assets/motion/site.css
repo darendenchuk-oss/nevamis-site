@@ -211,6 +211,17 @@ html.motion-off .mwi{transform:none!important}
   white-space:nowrap}
 .trust-strip li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--emerald);
   box-shadow:0 0 8px rgba(47,191,143,.8)}
+/* On a phone every item is white-space:nowrap and therefore its own row, and
+   justify-content:center centres each row INDEPENDENTLY. Measured at 390px the
+   six bullets landed at x 84, 76, 89, 84, 70, 70 — a 19px ragged edge down a
+   list that is meant to read as a single column of guarantees.
+   Centre the block instead of the lines: width:max-content plus an auto inline
+   margin keeps the group centred, while align-items:flex-start puts every
+   bullet on one axis. */
+@media(max-width:640px){
+  .trust-strip ul{flex-direction:column;align-items:flex-start;gap:11px;
+    width:max-content;max-width:100%;margin-inline:auto}
+}
 .rail-track{display:flex;gap:26px;width:max-content;animation:railScroll 36s linear infinite}
 .rail-track:hover{animation-play-state:paused}
 @keyframes railScroll{from{transform:translateX(0)}to{transform:translateX(calc(-50% - 13px))}}
