@@ -377,6 +377,30 @@ test('footer, callbar and every section land without console errors', async ({ b
   await ctx.close();
 });
 
+/* Cal.com's booker follows the VISITOR's prefers-color-scheme, so anyone
+   browsing in light mode got a white scheduler in the middle of this site's
+   black page — on the one page whose job is to take a booking.
+
+   Only the /embed endpoint honours theme=dark; the plain booking url ignores
+   every spelling of it, which is why this was once filed as unfixable without
+   the Cal.com account settings. Both halves are asserted, because the prefill
+   rewrites src and dropping the parameter there would reload the scheduler
+   light the moment a visitor typed their name. */
+test('the scheduler is pinned to the site palette, not the visitor preference', async ({ page }) => {
+  await page.goto('/book.html');
+  const src = await page.locator('#bkFrame').getAttribute('src');
+  expect(src, 'the booker must use /embed, the endpoint that honours theme').toContain('/embed');
+  expect(src, 'and must ask for dark explicitly').toContain('theme=dark');
+
+  await page.fill('#bkName', 'Marion Webb');
+  await page.dispatchEvent('#bkName', 'change');
+  await page.waitForTimeout(600);
+  const after = await page.locator('#bkFrame').getAttribute('src');
+  expect(after, 'prefill must keep the endpoint').toContain('/embed');
+  expect(after, 'prefill must keep the theme').toContain('theme=dark');
+  expect(after, 'prefill must still prefill').toContain('name=Marion');
+});
+
 /* The booking page's prefill fields sit ABOVE the scheduler and read as
    optional, so the natural order is to pick a time and then fill them in.
    Rewriting frame.src at that point reloads Cal.com and silently destroys the
