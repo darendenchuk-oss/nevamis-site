@@ -153,11 +153,11 @@ test('voice bars hold still under reduced motion and with the toggle off', async
 
 test('view transitions ship guarded: reduced motion disables navigation animation', async ({ page }) => {
   await page.goto(PLAIN);
-  const css = await page.evaluate(async () => {
-    const sheet = [...document.styleSheets].find((s) => (s.href || '').includes('site.css'));
-    const r = await fetch(sheet.href);
-    return r.text();
-  });
+  // site.css is inlined into the document now, so read it from there rather
+  // than fetching a URL that no longer exists. Every assertion below is
+  // unchanged: this reads the same CSS from the place it now lives.
+  const css = await page.evaluate(() =>
+    [...document.querySelectorAll('style')].map((s) => s.textContent).join('\n'));
   expect(css, 'cross-document view transitions must be declared').toContain('@view-transition');
   const reduceBlock = css.slice(css.indexOf('prefers-reduced-motion:reduce'));
   expect(reduceBlock, 'reduce must switch navigation transitions off')

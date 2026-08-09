@@ -37,8 +37,26 @@ export function initScroll() {
   //     Word-level, not characters: whole words stay whole tokens
   //     for assistive tech, so no aria surgery is needed.
   // ---------------------------------------------------------------
-  const heads = gsap.utils.toArray('main h2, section h2').filter((h) =>
-    !h.closest('.hero') && !h.dataset.masked && h.children.length === 0 && h.textContent.trim());
+  /* A heading that is ALREADY ON SCREEN when this file arrives is left alone.
+     The curtain is an entrance, and there is nothing to enter if the reader is
+     already looking at the words.
+
+     This file is the last thing to load on a phone: about 4.8s at 4x CPU on
+     Slow 4G, while the page itself now paints at roughly 830ms. Masking an
+     h2 at that point took a heading the visitor had been reading for four
+     seconds, snapped it offstage, and slid it back in. It also made that
+     heading's paint time 4,976ms, and on plumbers.html and restoration.html
+     the h2 is marginally larger than the lede, so it became the Largest
+     Contentful Paint: 4,932ms and 4,960ms measured, against pages that were
+     otherwise complete before one second.
+
+     Below the fold nothing changes, which is every heading the effect was
+     ever designed for. */
+  const fold = window.innerHeight || 0;
+  const heads = gsap.utils.toArray('main h2, section h2').filter((h) => {
+    if (h.closest('.hero') || h.dataset.masked || h.children.length !== 0 || !h.textContent.trim()) return false;
+    return h.getBoundingClientRect().top >= fold;
+  });
 
   for (const h of heads) {
     const words = h.textContent.trim().split(/\s+/);

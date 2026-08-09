@@ -33,7 +33,7 @@ Isolation by separate agents is the only approach that satisfies the canonical s
 5. Wire tools: connect that client's calendar, transfer destination, and recording setting inside the agent (never in the repo).
 6. Test: run the plumbing regression scenarios (plumbing-agent-test-scenarios.md) against this specific agent. P0s must pass. Emergency, price-refusal, isolation, and booking-truthfulness scenarios are gating.
 7. Client approval: the client hears it and approves before go-live (matches the Nevamis onboarding step).
-8. Go-live: forwarding on, first version tagged (see below). For pilots, the 7-day clock starts here.
+8. Go-live: forwarding on, first version tagged (see below).
 
 ## Isolation guarantees (must all hold)
 

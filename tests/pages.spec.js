@@ -30,8 +30,14 @@ for (const file of PAGES) {
     watchErrors(page, errors);
     await page.goto('/' + file);
 
-    // on the new system, off the old stylesheet
-    await expect(page.locator('link[href*="assets/motion/site.css"]')).toHaveCount(1);
+    // On the new system, off the old stylesheet. The design system is inlined
+    // rather than linked now (scripts/lib/inline-css.mjs), so this asserts the
+    // stylesheet is PRESENT, which is what the test was ever about, instead of
+    // asserting the transport it happens to arrive over.
+    const design = await page.evaluate(() =>
+      [...document.querySelectorAll('style')].some((s) => s.textContent.includes('--navy:')));
+    expect(design, 'the site design system must be in the document').toBe(true);
+    await expect(page.locator('link[href*="assets/motion/site.css"]')).toHaveCount(0);
     await expect(page.locator('link[href="styles.css"], link[href="/styles.css"]')).toHaveCount(0);
 
     // canonical chrome

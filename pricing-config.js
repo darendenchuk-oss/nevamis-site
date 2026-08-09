@@ -6,40 +6,48 @@
 
    THE COMMERCIAL MODEL, IN ONE TABLE:
 
-     Plan     first month     then, from month two
-     Core  C$250           C$250/month
-     Growth   C$500           C$500/month
-     Pro      C$1,000         C$850/month
+     Plan     price
+     Core     C$250/month
+     Growth   C$500/month
+     Pro      C$1,000/month
 
-   `setup` IS THE FIRST MONTH. It is not a fee charged ON TOP of month
-   one, and every surface that renders it must say so. This is the exact
-   defect fixed on 2026-08-07: the cards read "C$250/month" with
-   "One-time setup: C$250" beneath, which a buyer reads as C$500 due on
-   day one. The number was right and the sentence was wrong, which is the
-   worst combination, because nothing that compares numbers can see it.
+   ONE PRICE PER PLAN, CHARGED THE DAY THEY SUBSCRIBE AND EVERY MONTH
+   AFTER. There is no setup fee, activation fee, onboarding fee,
+   implementation fee or launch charge, and no pilot.
 
-   The key is still named `setup` rather than `activationPrice` for one
-   reason: nevamis-engine/scripts/check-consistency.mjs parses this file
-   with a literal /setup:\s*(\d+)/ and maps it onto canonical's
-   `activationPrice`. Renaming it here would make that cross-repo guard
-   read NaN and start reporting drift that does not exist. The engine's
-   own domain record uses the correct name; see canonical.ts.
+   The `setup` key is GONE, not zeroed. A zero would still have been a
+   second number for a card to render and a buyer to wonder about, and
+   nevamis-engine's checkPricing now treats the PRESENCE of a setup figure
+   as the defect rather than checking its size — so a surface that keeps
+   the field fails the cross-repo guard on purpose.
 
    WHAT CHANGED AND WHY, because earlier versions of this header argued
    the opposite case and someone will find all of them:
-     - A first-month amount returned (C$250 / C$500 / C$1,000).
-       Configuration, knowledge, testing and go-live are real work on day
-       one, and pricing them at zero taught the buyer they were worth zero.
-     - The pilot is paid (C$150), credited in full against the FIRST
-       MONTH on conversion. A free trial makes the buyer's decision cheap
-       and the seller's work free.
+     - 2026-07-31  setup fee waived — zero for everyone
+     - 2026-08-06  setup fee returned; the build is real work on day one
+                   and pricing it at zero taught the buyer it was worth zero
+     - 2026-08-07  renamed to make it mean month one, because "C$250/month"
+                   above "One-time setup: C$250" reads as C$500 on day one.
+                   Right numbers, wrong sentence — the worst combination,
+                   because nothing that compares numbers can see it
+     - 2026-08-09  deleted. The rename fixed the record and left the OFFER
+                   ambiguous: a buyer still had to hold two numbers and a
+                   rule joining them. One number cannot be misread into two
+
+     - Pro is C$1,000/month. It was C$1,000 then C$850 — the only split in
+       the ladder, and it existed to price the build separately. With the
+       build no longer priced separately, the second number had nothing
+       left to mean. C$850 is retired, and listed as retired in the engine
+       so a stale quote of it is visible to the guards.
+     - The pilot is retired. With no setup fee, C$250/month cancel-anytime
+       beats C$150 for seven days on every axis a buyer cares about:
+       cheaper per day, longer, and cancellable. A dominated option beside
+       the real one is not a cheaper way in, it is a contradiction of the
+       offer — the same argument that removed C$49 Pay As You Go from
+       beside a C$250 floor.
      - Prices are round. C$249 is a retail signal, and this is a
        managed professional service; the price should read like one.
-     - Annual prepay is switched off, not deleted. Pay As You Go WAS switched
-       off rather than deleted, and that turned out not to be enough: see the
-       note on its removal below.
-       A C$49 entry point beside a C$250 floor is not a cheaper
-       option, it is a contradiction of the offer.
+     - Annual prepay is switched off, not deleted.
    ============================================================ */
 window.NV_PRICING = {
   approved: true,
@@ -146,14 +154,14 @@ window.NV_PRICING = {
       "Near the limit you choose: automatic overage, fallback answering, or a hard cap."
     ]
   },
-  /* Read every plan below as: `setup` is what month ONE costs, `monthly` is
-     what every month from TWO onward costs. They are the same number on
-     Core and Growth and deliberately different on Pro, which is why one
-     field could never carry both and why no surface may add them together. */
+  /* `monthly` is the whole price. There is no second field, which is the
+     strongest available guarantee that no surface can add two numbers
+     together — the defect of 2026-08-07 is now unrepresentable rather than
+     merely forbidden. */
   plans: [
     {
       id: "starter", name: "Core",
-      monthly: 250, setup: 250, includedMinutes: 250,
+      monthly: 250, includedMinutes: 250,
       callRange: "80 to 125 typical calls", overage: 1.10,
       bestFor: "Small service businesses that mainly need evenings, weekends, and overflow covered.",
       features: [
@@ -166,7 +174,7 @@ window.NV_PRICING = {
     },
     {
       id: "growth", name: "Growth", recommended: true,
-      monthly: 500, setup: 500, includedMinutes: 600,
+      monthly: 500, includedMinutes: 600,
       callRange: "200 to 300 typical calls", overage: 0.90,
       bestFor: "Growing businesses that want qualification, routing, and booking on a meaningful share of inbound calls.",
       features: [
@@ -181,7 +189,7 @@ window.NV_PRICING = {
     },
     {
       id: "pro", name: "Pro",
-      monthly: 850, setup: 1000, includedMinutes: 1200,
+      monthly: 1000, includedMinutes: 1200,
       callRange: "400 to 600 typical calls", overage: 0.75,
       bestFor: "Multi-location businesses and teams with higher volume or complex routing.",
       features: [

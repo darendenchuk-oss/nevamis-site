@@ -16,6 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { headCssBlock, readCssSources, applyHeadCss } from './lib/inline-css.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
@@ -36,6 +37,12 @@ const PAGES = JSON.parse(read('content-map.json')).pages
   .filter((p) => p.chrome !== false)
   .map((p) => p.file);
 
+/** The inlined stylesheet goes to EVERY page, including the ones that opt out
+ *  of the nav and footer. proposal.html has no site chrome and still needs to
+ *  be styled. */
+const CSS_PAGES = JSON.parse(read('content-map.json')).pages.map((p) => p.file);
+const CSS_BLOCK = headCssBlock(readCssSources(fs, path, root));
+
 /** Mark the current page inside the primary nav only. Footer links stay
  *  byte-identical across pages so the consistency guard can compare them. */
 function currentMark(html, file) {
@@ -46,6 +53,31 @@ function currentMark(html, file) {
       new RegExp(`(<a[^>]*href="${esc}")([^>]*>)`, 'g'),
       (m, a, b) => (b.includes('aria-current') ? m : `${a} aria-current="page"${b}`)));
 }
+
+/* The stylesheet, inlined. Separate pass from the chrome because it covers a
+   different (larger) set of pages, and because a page can legitimately have no
+   nav while never legitimately having no styles. A page that offers nowhere to
+   put the block is an error, not a skip: writing it out unstyled would look
+   like a rendering bug rather than a build one. */
+let cssChanged = 0;
+for (const file of CSS_PAGES) {
+  const full = path.join(root, file);
+  if (!fs.existsSync(full)) { console.warn(`skip ${file} (missing)`); continue; }
+  const before = fs.readFileSync(full, 'utf8');
+  const after = applyHeadCss(before, CSS_BLOCK);
+  if (after === null) {
+    console.error(`\nERROR ${file}: no generated:css region and no stylesheet <link> to replace.\n` +
+      `Refusing to write a page with no styles.\n`);
+    process.exitCode = 1;
+    continue;
+  }
+  /* Line endings are not a change. With core.autocrlf the pages come off a
+     checkout as CRLF while the generated block is LF, so a raw comparison
+     rewrites every page on every run and produces a commit with no diff. */
+  const eol = (s) => s.replace(/\r\n/g, '\n');
+  if (eol(after) !== eol(before)) { fs.writeFileSync(full, after); cssChanged++; console.log(`${file}: css inlined`); }
+}
+console.log(`${cssChanged} page(s) restyled.\n`);
 
 let changed = 0;
 for (const file of PAGES) {

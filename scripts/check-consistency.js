@@ -14,6 +14,7 @@ import vm from "node:vm";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { promoteHtml } from "./promote.mjs";
+import { headCssBlock, readCssSources, CSS_OPEN, CSS_CLOSE, LINK_FONTS, LINK_SITE } from "./lib/inline-css.mjs";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
    had no shared chrome, and that exemption is exactly why its hand-copied nav
@@ -247,14 +248,62 @@ for (const p of contentPages) {
         const firstMonth = body.match(/first month C\$([\d,]+)/i);
         const mins = body.match(/([\d,]+) included AI minutes/);
         const over = body.match(/C\$([\d.]+) per extra minute/);
+        /* `setup` is optional. When a plan carries no setup fee, month one
+           costs the monthly price and that is what the page must say. This
+           used to read plan.setup.toLocaleString() unconditionally, so the
+           day the config dropped setup fees the guard stopped reporting
+           anything at all and died with "Cannot read properties of undefined"
+           BEFORE reaching the checks below it. A guard that crashes is worse
+           than a guard that fails: it takes the other rules down with it. */
+        const firstMonthExpected = plan.setup ?? plan.monthly;
         if (!monthly || num(monthly[1]) !== plan.monthly) err('pricing fallback "' + name + '": recurring monthly differs from config (' + plan.monthly + '); expected "then C$' + plan.monthly.toLocaleString("en-CA") + '/month"');
-        if (!firstMonth || num(firstMonth[1]) !== plan.setup) err('pricing fallback "' + name + '": first month differs from config (' + plan.setup + '); expected "first month C$' + plan.setup.toLocaleString("en-CA") + '"');
+        if (!firstMonth || num(firstMonth[1]) !== firstMonthExpected) err('pricing fallback "' + name + '": first month differs from config (' + firstMonthExpected + '); expected "first month C$' + firstMonthExpected.toLocaleString("en-CA") + '"');
         if (!mins || num(mins[1]) !== plan.includedMinutes) err('pricing fallback "' + name + '": included minutes differ from config (' + plan.includedMinutes + ")");
         if (!over || Number(over[1]) !== plan.overage) err('pricing fallback "' + name + '": overage differs from config (' + plan.overage + ")");
       }
       if (seen < 3) err("pricing fallback: expected at least 3 plans, found " + seen);
     }
   }
+}
+
+/* 7z. The inlined stylesheet must equal its sources.
+
+       assets/motion/site.css and assets/fonts/fonts.css are still the files
+       anyone edits, but the browser now gets them as a generated <style> block
+       in every page, because two linked stylesheets cost a round trip that was
+       the whole of the remaining LCP budget on a phone.
+
+       That makes 22 copies of the stylesheet, and this repository has been
+       burned by copies before. So the copies are checked. Edit site.css,
+       forget to run the generator, and this fails by name rather than by three
+       pages quietly rendering last week's design. */
+{
+  const block = headCssBlock(readCssSources(fs, path, root));
+  const pages = JSON.parse(fs.readFileSync(path.join(root, "content-map.json"), "utf8")).pages.map((p) => p.file);
+  let stale = 0;
+  for (const file of pages) {
+    const full = path.join(root, file);
+    if (!fs.existsSync(full)) continue;
+    const html = fs.readFileSync(full, "utf8");
+    if (html.includes(LINK_FONTS) || html.includes(LINK_SITE)) {
+      err(`${file}: still links a stylesheet that is meant to be inlined; run node scripts/build-pages.mjs`);
+      continue;
+    }
+    const open = html.indexOf(CSS_OPEN);
+    const close = html.indexOf(CSS_CLOSE);
+    if (open === -1 || close === -1) { err(`${file}: no generated:css block; run node scripts/build-pages.mjs`); continue; }
+    /* Compare on normalised line endings. core.autocrlf is true on this
+       machine and there is no .gitattributes, so git stores the pages with LF
+       and checks them out with CRLF, while headCssBlock() always builds with
+       LF. Comparing raw bytes therefore passed immediately after a build and
+       failed for all 22 pages after the next clone, worktree or checkout,
+       telling the reader to run a generator that would then rewrite 22 files
+       to no visible effect. Verified by cloning the repo twice. */
+    const eol = (s) => s.replace(/\r\n/g, "\n");
+    const found = html.slice(open, close + CSS_CLOSE.length);
+    if (eol(found) !== eol(block)) stale++;
+  }
+  if (stale) err(`${stale} page(s) carry a generated:css block that no longer matches assets/motion/site.css + assets/fonts/fonts.css. Run: node scripts/build-pages.mjs`);
 }
 
 /* 7a. Pre-rendered copy must equal what the renderer would have written.
@@ -731,7 +780,16 @@ for (const p of contentPages) {
     if (!res.ok) {
       err(`home.html cannot be promoted — ${res.error}`);
     } else {
-      const live = fs.readFileSync(indexFile, "utf8");
+      /* Normalise line endings before comparing, for the same reason guard 7z
+         does. promoteHtml() inserts its verification meta with \n; git stores
+         index.html with LF and checks it out as CRLF; so on any fresh clone or
+         worktree the two differ by exactly one byte that nobody can see, and
+         the failure prints two lines that look identical. Verified: 1,968 CRLF
+         in the expected text against 1,969 in the checked-out file, equal once
+         normalised. */
+      const eolN = (s) => s.replace(/\r\n/g, "\n");
+      const live = eolN(fs.readFileSync(indexFile, "utf8"));
+      res.html = eolN(res.html);
       if (res.html !== live) {
         /* Point at the first difference: "they differ" is not actionable on a
            78 KB file. */

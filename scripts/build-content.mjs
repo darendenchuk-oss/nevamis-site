@@ -14,6 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PAGES, PROOF_BLOCK } from './content/pages.mjs';
+import { headCssBlock, readCssSources } from './lib/inline-css.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const map = JSON.parse(fs.readFileSync(path.join(root, 'content-map.json'), 'utf8'));
@@ -22,6 +23,12 @@ const FOOTER = fs.readFileSync(path.join(root, '_partials/footer.html'), 'utf8')
 const SITE = map.site;
 
 const byFile = Object.fromEntries(map.pages.map((p) => [p.file, p]));
+
+/* The same block build-pages.mjs writes, from the same function. This file
+   used to hardcode its own <link> tags, which is how a previous run would have
+   silently deleted the font preloads on nine pages: two generators, two ideas
+   of what a head contains. There is now one idea. */
+const CSS_BLOCK = headCssBlock(readCssSources(fs, path, root));
 
 function head({ title, description, canonical }) {
   return `<!doctype html>
@@ -72,8 +79,7 @@ function head({ title, description, canonical }) {
      Scoping it to wide viewports takes the best column of each. -->
 <link rel="preload" href="assets/fonts/atkinson-hyperlegible-400-latin.woff2" media="(min-width: 900px)" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/atkinson-hyperlegible-700-latin.woff2" media="(min-width: 900px)" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/fonts/fonts.css">
-<link rel="stylesheet" href="assets/motion/site.css">
+${CSS_BLOCK}
 <style>
   .page-hero{position:relative;padding:150px 0 60px;overflow:hidden}
   .page-hero h1{font-size:clamp(34px,5vw,58px);font-weight:700;letter-spacing:-.03em;

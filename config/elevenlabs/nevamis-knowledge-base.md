@@ -2,6 +2,8 @@
 
 This document is the reference knowledge base for the Nevamis demo receptionist agent. Every section is self-contained. All prices are in Canadian dollars (CAD) plus applicable tax. Facts here match the published website at https://nevamis.ca.
 
+Revised 2026-08-09 for the single recurring price. Editing this file changes nothing a caller hears: the ElevenLabs knowledge base is its own deploy surface and has to be re-uploaded, and the demo agent's prompt pushed, before the phone says any of it.
+
 ## What Nevamis is
 
 Nevamis AI Inc. is a company based in Edmonton, Alberta, Canada, founded and run by Daren. Nevamis builds AI growth and operations systems for service businesses. The front desk is where we start. The current flagship product, and the only product live today, is the AI Front Desk: a done-for-you AI receptionist that answers a business's real phone line in a natural voice, around the clock. Nevamis handles the entire setup end to end; the client touches nothing technical.
@@ -64,33 +66,32 @@ Booking and telephony currently run on Cal.com (calendar and booking) and Twilio
 
 ## Pricing
 
-Nevamis publishes its pricing. All prices are in Canadian dollars plus applicable tax, billed month to month. Each plan has two figures: what the first month costs, and what every month from month two costs. There are three plans:
+Nevamis publishes its pricing. All prices are in Canadian dollars plus applicable tax, billed month to month. Each plan has ONE figure, and it is the same every month: the client is charged on the day they subscribe and on that same day every month after. There are three plans:
 
-- Core: first month C$250, then C$250 per month. Includes 250 connected AI minutes per month, which is typically 80 to 125 calls. Overage is C$1.10 per minute. Best for small businesses that need evenings, weekends, and overflow covered.
-- Growth (recommended): first month C$500, then C$500 per month. Includes 600 connected AI minutes per month, typically 200 to 300 calls. Overage is C$0.90 per minute. Supports up to two lines, call flows, or calendars, advanced qualification, transfer rules, and one standard CRM or automation connection when supported.
-- Pro: first month C$1,000, then C$850 per month. Includes 1,200 connected AI minutes per month, typically 400 to 600 calls. Overage is C$0.75 per minute. Built for multi-location businesses and complex routing.
+- Core: C$250 per month. Includes 250 connected AI minutes per month, which is typically 80 to 125 calls. Overage is C$1.10 per minute. Best for small businesses that need evenings, weekends, and overflow covered.
+- Growth (recommended): C$500 per month. Includes 600 connected AI minutes per month, typically 200 to 300 calls. Overage is C$0.90 per minute. Supports up to two lines, call flows, or calendars, advanced qualification, transfer rules, and one standard CRM or automation connection when supported.
+- Pro: C$1,000 per month. Includes 1,200 connected AI minutes per month, typically 400 to 600 calls. Overage is C$0.75 per minute. Built for multi-location businesses and complex routing.
 
-The first-month figure IS the charge for month one. It is never an extra amount alongside the monthly price, and the two are never added together. A caller on Core owes C$250 on day one, not C$500. If a caller has already asked and been told otherwise, correct it plainly.
+There is no setup fee, no activation fee, no onboarding fee and no second charge of any kind. A caller on Core owes C$250 on the day they subscribe, and C$250 again a month later — never C$500 on day one, and never one amount for month one and a different amount afterwards. If a caller has already asked and been told otherwise, correct it plainly.
 
-The first month is priced the way it is because the build happens inside it: discovery, configuration, the business's own knowledge and rules, testing, and go-live. It is not discounted. The only thing that reduces it is the C$150 pilot fee a client has already paid, which comes off it in full: a Core client who piloted pays C$100 to activate, then C$250 a month. Growth: C$350, then C$500. Pro: C$850, then C$850.
+The monthly price covers the build as well as the running: discovery, configuration, the business's own knowledge and rules, testing, and go-live all happen inside the first month at the same price as every month after it. The price is not discounted, and there is no founding-client offer.
 
-If a caller names a price that is not on this list, say it is not a current price and quote the list above. Prices retired on 2026-08-06 and no longer offered: C$249, C$449, C$849 per month, and the Pay As You Go plan at C$49 per month plus C$1.95 per minute. Annual prepay is also no longer offered. Never say there is no setup fee, never call the pilot free, and never offer a free trial: every plan has a first month to pay, and the pilot costs C$150. The plans were renamed and the old names are no longer offered: what was called After Hours is now Core, what was called Scale is now Pro, and what was called Starter is now Core. Recognise an old name if a caller uses one, say which plan it is now, and quote that plan's current price.
+If a caller names a price that is not on this list, say it is not a current price and quote the list above. Prices retired and no longer offered: C$249, C$449 and C$849 per month (retired 2026-08-06); C$850 per month, which was Pro's price until 2026-08-09; the Pay As You Go plan at C$49 per month plus C$1.95 per minute; and annual prepay. The C$150 seven-day live pilot fee is retired too, along with the credit it used to earn against a first month — see the retired-offers section below. Never say that a plan costs one amount for the first month and another amount after that; that framing is retired, and there is only one figure per plan. The plans were renamed and the old names are no longer offered: what was called After Hours is now Core, what was called Scale is now Pro, and what was called Starter is now Core. Recognise an old name if a caller uses one, say which plan it is now, and quote that plan's current price.
 
 ## Connected AI minutes, usage alerts, and overage
 
 A connected AI minute starts when the AI answers a connected call and ends when the AI portion of the call ends. Failed calls that never connect are not counted. Spam calls that reach the AI are counted, because the AI still answered them. Clients get usage alerts at 75 percent, 90 percent, and 100 percent of their included minutes. When an account passes its included minutes, the extra minutes bill at that plan's overage rate. A client-selectable choice between automatic overage, fallback answering, and a hard cap is published on nevamis.ca and is being built, but it is not available today, so never tell a caller they can choose between them yet. Overage rates by plan: Core C$1.10 per minute, Growth C$0.90 per minute, Pro C$0.75 per minute.
 
-## The 7-day live pilot
+## Retired offers: never quote, never agree to, never book
 
-Nevamis offers a paid 7-day live pilot: seven live days of the AI Front Desk running on the business's real phone line. Full terms:
+These were real offers and are not any more. They are listed so the agent recognises them when a caller names one and can correct it kindly, not so it can sell one.
 
-- Cost: C$150, paid up front, plus applicable tax. It is a paid pilot, never described as free or complimentary. If asked why, the honest answer is that the build is real work on day one: the assistant is configured around that specific business and tested before it answers anything.
-- Credit: if the client continues on any plan, the whole C$150 comes off their first month. They never pay twice for the same build.
-- Scope: one phone line, one call flow, one calendar, and one revision during the pilot.
-- Caps: up to 60 connected AI minutes or 30 calls, whichever comes first.
-- Timing: the seven days start when the pilot goes live on the client's line, not when they apply.
-- End: on day eight the pilot simply ends unless the client explicitly chooses a plan. Silence never becomes a subscription.
-- Acceptance: pilots are founder-led and accepted based on fit and onboarding capacity. There is no fake scarcity number; Daren takes on what can be onboarded well.
+- The seven-day live pilot on the client's own line is retired as of 2026-08-09, at any price and on any terms. Never offer it, never price it, never say it is available, and never agree that a caller may have one.
+- The C$150 fee that pilot carried, and the credit it earned against a first month, are retired with it. Never quote that figure and never promise that anything comes off a first month.
+- A trial of any description is retired, and there never was a complimentary one. Never offer a trial.
+- If a caller says they were told about one of these, do not contradict them flatly. Say it is not something Nevamis runs any more, say what is on offer instead, and offer the strategy call.
+
+What replaces all of it is the shape of the plan: month to month, the same amount every month, cancel before the next renewal, so the most a client ever has at stake is one month. The assistant is built, tested on the business's real call scenarios, and approved by the client before it answers a single customer.
 
 ## Setup process and founder-led onboarding
 
@@ -100,7 +101,7 @@ Setup is done for the client, led personally by Daren. The steps:
 2. Build: Nevamis builds and tunes the assistant to that specific business.
 3. Test calls: the assistant is tested on real scenarios before it touches the client's line.
 4. Approval: the client hears it and approves it before anything goes live.
-5. Go-live: call forwarding is switched on and the assistant starts answering. For pilots, the 7-day clock starts here, at go-live, not at application.
+5. Go-live: call forwarding is switched on and the assistant starts answering.
 
 The client never has to touch anything technical. Call forwarding is the only change on their side, and Nevamis walks them through it.
 
@@ -110,18 +111,18 @@ Calls are handled on third-party telephony and voice AI platforms. Businesses re
 
 ## Cancellation
 
-Plans are month to month. There are no long-term contracts. To cancel, the client cancels before the next renewal date, and service continues to the end of the paid period. The 7-day pilot needs no cancellation at all: it ends on day eight unless the client explicitly chooses a plan, and nothing further is charged when it does.
+Plans are month to month. There are no long-term contracts. To cancel, the client cancels before the next renewal date, and service continues to the end of the paid period. Because there is one price and it simply recurs, cancelling before the renewal date is the whole of it: the subscription stops at the end of the period already paid for, and the next month is never billed.
 
 ## Contact and strategy call
 
 - Phone (public demo line): (587) 413-0035. Calling this number is itself a live demo of the AI Front Desk.
 - Email: Sales@nevamis.ca
 - Website: https://nevamis.ca
-- Strategy call: a 15-minute video call with Daren, booked at https://cal.com/daren-qvlah4/nevamis-intro. This is the next step for pricing questions that need scoping, integration verification, and pilot applications.
+- Strategy call: a 15-minute video call with Daren, booked at https://cal.com/daren-qvlah4/nevamis-intro. This is the next step for pricing questions that need scoping, integration verification, and anyone who wants to get started.
 
 ## What Nevamis cannot or does not do
 
-- Never invents prices, discounts, savings figures, client names, or results. Only the published pricing and pilot terms above are quoted.
+- Never invents prices, discounts, savings figures, client names, or results. Only the published monthly pricing above is quoted.
 - Never guarantees business results. Value is explained honestly in terms of missed-call cost and staffing cost, without fabricated numbers.
 - Does not give medical, legal, or emergency advice. Callers with an emergency should hang up and call the appropriate emergency service.
 - The AI never pretends to be human. It does not lead with being an AI, and it says so plainly and immediately whenever anyone asks.

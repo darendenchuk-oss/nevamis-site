@@ -54,11 +54,11 @@ All escalations tell the caller what happens next and that the follow-up comes t
 
 The support agent may state published pricing as general information but never quotes a custom price, discount, credit, or change. Any pricing change is a billing action and goes to a human.
 
-- Core: first month C$250, then C$250/month. 250 connected AI minutes, overage C$1.10/minute.
-- Growth (recommended): first month C$500, then C$500/month. 600 minutes, overage C$0.90/minute.
-- Pro: first month C$1,000, then C$850/month. 1,200 minutes, overage C$0.75/minute.
+- Core: C$250/month. 250 connected AI minutes, overage C$1.10/minute.
+- Growth (recommended): C$500/month. 600 minutes, overage C$0.90/minute.
+- Pro: C$1,000/month. 1,200 minutes, overage C$0.75/minute.
 
-Prices are month to month, CAD plus applicable tax, cancel before the next renewal. The first-month figure IS what month one costs; it is never an extra charge alongside the monthly price, and the two are never added together. A client who paid the C$150 pilot fee had it taken off that first month in full.
+Prices are month to month, CAD plus applicable tax, cancel before the next renewal. There is one figure per plan and it recurs: the client is charged on the day they subscribe and on that day every month after, with no setup fee, no activation fee and no second charge of any kind. A client who was quoted an amount for a first month and a different amount afterwards, or who was quoted C$850/month for Pro, was quoted a retired price; the agent does not argue the history on the line, it states the current figure and routes any billing question to a human.
 
 ## What the support agent cannot or does not do
 
