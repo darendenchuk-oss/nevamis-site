@@ -436,6 +436,7 @@ html.no-js .summary-arrive,html.motion-off .summary-arrive{opacity:1;transform:n
   color:var(--muted);background:rgba(159,240,206,.03);border-left:2px solid transparent;
   opacity:0;transform:translateY(6px);transition:opacity .4s var(--e-out),transform .4s var(--e-out)}
 .sim-line.on{opacity:1;transform:none;color:var(--ink);border-left-color:rgba(159,240,206,.35)}
+.sim-line.sim-empty{opacity:1;transform:none;color:var(--muted);background:none;border-left-color:transparent}
 .sim-line .who{display:block;font-family:"Spline Sans Mono",monospace;font-size:11px;
   letter-spacing:.12em;color:var(--mint);margin-bottom:2px}
 .sim-chips{display:flex;gap:7px;flex-wrap:wrap}
@@ -1450,8 +1451,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           </div>
           <p>Pick a scenario above, then watch one call move through all six stages: what it hears, what it captures, which of your rules it checks, and exactly what the customer and the owner receive.</p>
           <div class="cta-row" style="justify-content:center">
-            <button class="btn btn-primary" id="simWatch">Watch it run</button>
-            <button class="btn btn-ghost" id="simStepMode">Step through it</button>
+            <button class="btn btn-primary" id="simWatch" data-evt="sim_watch_click">Watch it run</button>
+            <button class="btn btn-ghost" id="simStepMode" data-evt="sim_step_click">Step through it</button>
           </div>
         </div>
         <div class="sim-body" id="simBody" hidden>
@@ -1699,7 +1700,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         </table>
       </div>
       <div class="midcta reveal" style="margin-top:26px">
-        <a class="btn btn-ghost" href="/demo.html">See what it handles</a>
+        <a class="btn btn-ghost" href="/demo.html" data-evt="compare_demo_click">See what it handles</a>
       </div>
     </div>
   </section>
@@ -1745,7 +1746,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       </div>
       <div class="midcta reveal" style="margin-top:26px">
         <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a strategy call</a>
-        <a class="btn btn-ghost" href="#roi">Calculate missed-call value</a>
+        <a class="btn btn-ghost" href="#roi" data-evt="dayone_roi_click">Calculate missed-call value</a>
       </div>
     </div>
   </section>

@@ -68,7 +68,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
     </div>
     <div class="midcta reveal">
       <a class="btn btn-ghost" href="/pilot.html">See how you start</a>
-      <a class="btn btn-ghost" href="/pricing.html">Compare plans</a>
+      <a class="btn btn-ghost" href="/pricing.html" data-evt="trade_pricing_click">Compare plans</a>
     </div>
   </div>
 </section>`;
@@ -218,8 +218,8 @@ export const PAGES = {
         booked is a job. The same call sent to voicemail is a note about a job you did not get.</p>
     </div>
     <div class="midcta reveal">
-      <a class="btn btn-ghost" href="/vs-voicemail.html">Compare it to voicemail</a>
-      <a class="btn btn-ghost" href="/vs-answering-service.html">Compare it to an answering service</a>
+      <a class="btn btn-ghost" href="/vs-voicemail.html" data-evt="situation_compare_click">Compare it to voicemail</a>
+      <a class="btn btn-ghost" href="/vs-answering-service.html" data-evt="situation_compare_click">Compare it to an answering service</a>
     </div>
   </div>
 </section>`,
@@ -239,7 +239,7 @@ export const PAGES = {
         and how often you close one. Nothing is assumed for you and the formula is shown.</p>
     </div>
     <div class="midcta reveal">
-      <a class="btn btn-primary" href="/#roi">Open the missed-call calculator</a>
+      <a class="btn btn-primary" href="/#roi" data-evt="situation_roi_click">Open the missed-call calculator</a>
     </div>
   </div>
 </section>

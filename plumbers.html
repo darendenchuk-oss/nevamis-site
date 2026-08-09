@@ -394,6 +394,7 @@ html.no-js .summary-arrive,html.motion-off .summary-arrive{opacity:1;transform:n
   color:var(--muted);background:rgba(159,240,206,.03);border-left:2px solid transparent;
   opacity:0;transform:translateY(6px);transition:opacity .4s var(--e-out),transform .4s var(--e-out)}
 .sim-line.on{opacity:1;transform:none;color:var(--ink);border-left-color:rgba(159,240,206,.35)}
+.sim-line.sim-empty{opacity:1;transform:none;color:var(--muted);background:none;border-left-color:transparent}
 .sim-line .who{display:block;font-family:"Spline Sans Mono",monospace;font-size:11px;
   letter-spacing:.12em;color:var(--mint);margin-bottom:2px}
 .sim-chips{display:flex;gap:7px;flex-wrap:wrap}
@@ -787,7 +788,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     </div>
     <div class="midcta reveal">
       <a class="btn btn-ghost" href="/pilot.html">See how you start</a>
-      <a class="btn btn-ghost" href="/pricing.html">Compare plans</a>
+      <a class="btn btn-ghost" href="/pricing.html" data-evt="trade_pricing_click">Compare plans</a>
     </div>
   </div>
 </section>

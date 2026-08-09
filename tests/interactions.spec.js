@@ -152,6 +152,27 @@ test('the simulator runs a scenario through all six stages', async ({ page }) =>
   await expect(page.locator('.sim-log .sim-line').first()).toBeVisible();
 });
 
+/* The simulator's empty state has to be readable, because it is the only thing
+   telling a visitor how to work the demo.
+
+   It shipped as a bare .sim-line, and .sim-line starts at opacity 0 waiting for
+   the .on class that arrives when a line is spoken — which never happens before
+   you press play. So the sentence was invisible to every visitor in both motion
+   settings, leaving a blank 38px panel under a play button.
+
+   toBeVisible() does not catch this: Playwright treats an opacity-0 element with
+   a box as visible, which is why the assertion twenty lines above passed the
+   whole time. Computed opacity is the only thing that matches what a human
+   sees. */
+test('the simulator says how to start it, before you start it', async ({ page }) => {
+  await page.goto(PLAIN);
+  await page.locator('#sim').scrollIntoViewIfNeeded();
+  const hint = page.locator('.sim-log .sim-line').first();
+  await expect(hint).toHaveText(/press play/i);
+  const shown = await hint.evaluate((el) => Number(getComputedStyle(el).opacity));
+  expect(shown, 'the empty-state hint must be legible, not merely present').toBeGreaterThan(0.9);
+});
+
 test('coverage tabs switch with mouse and arrow keys', async ({ page }) => {
   await page.goto(PLAIN);
   const tabs = page.locator('.modes [role=tab]');
@@ -385,6 +406,42 @@ test('footer, callbar and every section land without console errors', async ({ b
   await page.screenshot({ path: path.join(OUT, 'section-footer-mobile.png') });
   expect(errors, errors.join('\n')).toEqual([]);
   await ctx.close();
+});
+
+/* Cal.com's /embed route must never be used here, and this is the scar tissue.
+
+   The booker follows the VISITOR's prefers-color-scheme, so a light-mode
+   visitor sees a white scheduler inside this black page. /embed?theme=dark
+   fixes that — it really does, measured both ways — and it was shipped, and it
+   took the scheduler off the page entirely.
+
+   /embed is built to be driven by Cal's embed SDK. It renders itself
+   visibility:hidden, opacity:0 and waits for the parent frame to talk to it.
+   This page loads no SDK by design, so nothing ever answered. Measured inside
+   a real iframe:
+
+     booking url          body visible, opacity 1, 900px tall
+     /embed?theme=dark    body HIDDEN,  opacity 0, 569px tall
+
+   It looked correct when opened directly in a tab, which is how it passed
+   review. Directly is not how it is used.
+
+   A white scheduler is a blemish. An invisible one is a lost booking, so the
+   theme problem stays open (registry B1-THEME) rather than being traded for
+   this. */
+test('the scheduler is never pointed at the SDK-only /embed endpoint', async ({ page }) => {
+  await page.goto('/book.html');
+  const src = await page.locator('#bkFrame').getAttribute('src');
+  expect(src, 'the booker must load a real booking page').toContain('cal.com/daren-qvlah4/nevamis-intro');
+  expect(src, '/embed stays hidden without the embed SDK this page does not load')
+    .not.toContain('/embed');
+
+  await page.fill('#bkName', 'Marion Webb');
+  await page.dispatchEvent('#bkName', 'change');
+  await page.waitForTimeout(600);
+  const after = await page.locator('#bkFrame').getAttribute('src');
+  expect(after, 'prefill must not switch endpoints either').not.toContain('/embed');
+  expect(after, 'prefill must still prefill').toContain('name=Marion');
 });
 
 /* The booking page's prefill fields sit ABOVE the scheduler and read as

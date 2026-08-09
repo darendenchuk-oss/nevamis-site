@@ -1,4 +1,5 @@
 // Local preview only: `node serve.js` then open http://localhost:3211
+// Another port: `node serve.js 3222` or NV_PORT=3222.
 //
 // GZIPS TEXT RESPONSES, because GitHub Pages does and a preview server that
 // does not is a measurement trap rather than a convenience. Uncompressed, this
@@ -18,6 +19,7 @@ import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
+const PORT = Number(process.argv[2] || process.env.NV_PORT || 3211);
 const types = { ".html": "text/html; charset=utf-8", ".mp3": "audio/mpeg", ".svg": "image/svg+xml", ".png": "image/png", ".webp": "image/webp", ".jpg": "image/jpeg", ".css": "text/css", ".js": "text/javascript" };
 
 http
@@ -43,4 +45,8 @@ http
     res.writeHead(200, { ...headers, "Content-Length": body.length });
     res.end(body);
   })
-  .listen(3211, "127.0.0.1", () => console.log("nevamis preview: http://localhost:3211"));
+  /* Port is overridable so two checkouts can be served at once. Without it,
+     a second worktree's test run finds port 3211 already answering, reuses it,
+     and silently tests the FIRST checkout: a booking fix measured as absent and
+     three pricing tests failing against a tree the runner never touched. */
+  .listen(PORT, "127.0.0.1", () => console.log("nevamis preview: http://localhost:" + PORT));

@@ -397,6 +397,7 @@ html.no-js .summary-arrive,html.motion-off .summary-arrive{opacity:1;transform:n
   color:var(--muted);background:rgba(159,240,206,.03);border-left:2px solid transparent;
   opacity:0;transform:translateY(6px);transition:opacity .4s var(--e-out),transform .4s var(--e-out)}
 .sim-line.on{opacity:1;transform:none;color:var(--ink);border-left-color:rgba(159,240,206,.35)}
+.sim-line.sim-empty{opacity:1;transform:none;color:var(--muted);background:none;border-left-color:transparent}
 .sim-line .who{display:block;font-family:"Spline Sans Mono",monospace;font-size:11px;
   letter-spacing:.12em;color:var(--mint);margin-bottom:2px}
 .sim-chips{display:flex;gap:7px;flex-wrap:wrap}
@@ -778,7 +779,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       </div>
       <div class="midcta reveal" style="margin-top:34px">
         <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a strategy call</a>
-        <a class="btn btn-light-ghost btn-lg" href="/demo.html">Try the live demo</a>
+        <a class="btn btn-light-ghost btn-lg" href="/demo.html" data-evt="about_demo_click">Try the live demo</a>
       </div>
     </div>
   </section>
