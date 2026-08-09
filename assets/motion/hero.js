@@ -166,6 +166,37 @@ export function initHero() {
   }
 
   // ---------------------------------------------------------------
+  // TOO LATE TO BE AN INTRO.
+  //
+  // The hero copy is NOT hidden by CSS — it paints with the HTML, and this
+  // file then hides it (autoAlpha 0, below) to play it back in. On a fast
+  // connection that is invisible and the sequence works. On a slow one it is
+  // the single worst thing on the page: the browser paints the paragraph,
+  // this script arrives much later, hides content the visitor is already
+  // reading, and shows it again — which re-dates Largest Contentful Paint to
+  // whenever the JavaScript landed.
+  //
+  // Measured on the homepage, 4x CPU + Slow 4G, LCP element P.lede:
+  //   LCP 5,020 ms, of which 5,018 ms is render delay (TTFB is 2 ms).
+  //   CLS 0.1262, from the same hide-and-reshow moving the copy 12px.
+  // Desktop, unthrottled, is 388 ms. The difference is not the animation's
+  // cost; it is 290 KB of script arriving before the animation may begin.
+  //
+  // So the intro is only an intro if it can start like one. Past the budget
+  // the finished frame is painted and nothing is taken away from someone who
+  // is already reading it. This is not a degraded experience — it is the same
+  // resolved composition reduced-motion visitors get, and it is strictly
+  // better than snatching the paragraph back to replay it.
+  const INTRO_BUDGET_MS = 900;
+  const elapsed = typeof performance !== 'undefined' && performance.now ? performance.now() : 0;
+  if (elapsed > INTRO_BUDGET_MS) {
+    paintResolved();
+    window.__heroTL = gsap.timeline({ paused: true });
+    window.__heroBeats = MOTION.beats;
+    return { lateStart: true, elapsed: Math.round(elapsed) };
+  }
+
+  // ---------------------------------------------------------------
   // Initial (pre-animation) state
   // ---------------------------------------------------------------
   // Per-character curtains. Split only on the animated path, so the reduced

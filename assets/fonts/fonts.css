@@ -16,6 +16,20 @@
    Atkinson Hyperlegible has no fvar. Its 400 and 700 are genuinely separate
    static files and must stay separate. */
 
+/* A note for whoever tries to fix the layout shift next.
+   Metric-matched fallback faces were tried here — @font-face with no src data
+   and size-adjust tuned from measured widths (Bricolage 881.6px against Segoe
+   UI's 944.8px at 100px, so 93.3%). They did nothing: desktop CLS 0.1042 ->
+   0.1036, mobile 0.129 -> 0.1403, i.e. slightly worse. Removed rather than
+   left in place looking like a fix.
+   The reason they missed is that the shift is VERTICAL, not horizontal. Read
+   from the layout-shift entries' own sources: one shift of 0.129 at ~5.6s on
+   throttled mobile, whose source is svg#mark moving as P.proof above it
+   re-metrics and gets shorter. size-adjust scales advance width; correcting a
+   vertical re-metric needs ascent-override / descent-override /
+   line-gap-override derived from the font's real vertical metrics.
+   See docs/halo/frontier-blockers.json P-CLS. */
+
 /* ------------------------------------------------------------------ */
 /* Atkinson Hyperlegible — body. Static: two real weights, two files.  */
 /* ------------------------------------------------------------------ */

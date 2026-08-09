@@ -65,17 +65,37 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<!-- The three faces painting above the fold, preloaded so the swap frame
-     never happens: the font-display:swap re-metric of the header, headline
-     and labels was the single largest layout shift on the page.
-     Bricolage and Spline Sans Mono are single variable files covering their
-     whole weight range, so one preload each now covers every weight the page
-     uses. It used to take three Bricolage downloads to do less. -->
-<link rel="preload" href="assets/fonts/bricolage-grotesque-variable-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/atkinson-hyperlegible-400-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/spline-sans-mono-variable-latin.woff2" as="font" type="font/woff2" crossorigin>
+<!-- ONE preload, not three, and the count is the result of measurement rather
+     than taste. The homepage's LCP element is TEXT (P.lede), and text cannot
+     paint until the render-blocking stylesheet arrives. site.css is 41 KB and
+     was finishing at 4,919 ms on a throttled phone — roughly 9 KB/s — because
+     ~128 KB of preloaded fonts were sharing a 400 kbps pipe with the one file
+     that gates rendering.
+
+     Measured at 4x CPU + Slow 4G, n=5, against desktop CLS on the same build:
+
+       three preloads (~128 KB)     mobile LCP 5,020 ms   desktop CLS 0
+       reordered after stylesheets  mobile LCP 5,136 ms
+       none                         mobile LCP 3,304 ms   desktop CLS 0.098-0.104
+       Atkinson 400 only (17 KB)    mobile LCP 3,812 ms
+       Bricolage only (75 KB)       mobile LCP 4,216 ms   desktop CLS 0
+
+     Dropping all three is the fastest, and it is not shippable: it takes
+     desktop CLS over the 0.1 ceiling that tests/quality.spec.js exists to
+     defend, and that test is right — the headline re-metric moves svg#mark and
+     everything under it.
+
+     Bricolage is the one that matters, because it is the headline whose swap
+     moves the page. Preloading it alone keeps CLS at zero and still returns
+     804 ms of mobile LCP by no longer preloading Atkinson (17 KB) and Spline
+     Sans Mono (36 KB), which the swap can absorb invisibly.
+
+     Mobile CLS is ~0.13 in every configuration above — the preloads never fixed
+     it, so removing them did not break it. It is a separate defect with a now-
+     identified source; see docs/halo/frontier-blockers.json P-CLS. -->
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="assets/motion/site.css">
+<link rel="preload" href="assets/fonts/bricolage-grotesque-variable-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
   /* ---------- hero-specific (everything else lives in assets/motion/site.css) ---------- */
   #wake{position:fixed;inset:0;z-index:200;background:var(--navy-0);pointer-events:none}
