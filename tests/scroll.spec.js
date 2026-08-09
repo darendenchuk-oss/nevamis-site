@@ -153,11 +153,11 @@ test('voice bars hold still under reduced motion and with the toggle off', async
 
 test('view transitions ship guarded: reduced motion disables navigation animation', async ({ page }) => {
   await page.goto(PLAIN);
-  const css = await page.evaluate(async () => {
-    const sheet = [...document.styleSheets].find((s) => (s.href || '').includes('site.css'));
-    const r = await fetch(sheet.href);
-    return r.text();
-  });
+  // site.css is inlined into the document now, so read it from there rather
+  // than fetching a URL that no longer exists. Every assertion below is
+  // unchanged: this reads the same CSS from the place it now lives.
+  const css = await page.evaluate(() =>
+    [...document.querySelectorAll('style')].map((s) => s.textContent).join('\n'));
   expect(css, 'cross-document view transitions must be declared').toContain('@view-transition');
   const reduceBlock = css.slice(css.indexOf('prefers-reduced-motion:reduce'));
   expect(reduceBlock, 'reduce must switch navigation transitions off')
@@ -168,9 +168,29 @@ test('view transitions ship guarded: reduced motion disables navigation animatio
 
 test('secondary pages get the heading curtains too, and finish visible', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
+
+  /* A heading already on screen is no longer curtained: there is nothing to
+     enter when the reader is looking at the words, and on a phone this file
+     arrives about four seconds after the page paints, so masking one took a
+     heading the visitor had been reading and snapped it offstage.
+     pricing.html is the case that proves it — it has exactly one curtainable
+     h2, "7-day live pilot", 515px down a 900px viewport. */
   await page.goto('/pricing.html');
   await page.waitForTimeout(700);
+  const firstScreen = await page.evaluate(() => {
+    const h = [...document.querySelectorAll('main h2, section h2')]
+      .find((el) => el.getBoundingClientRect().top < window.innerHeight);
+    return h ? { masked: h.hasAttribute('data-masked'), visible: +getComputedStyle(h).opacity > 0 } : null;
+  });
+  expect(firstScreen, 'pricing.html should have a heading in the first screen').toBeTruthy();
+  expect(firstScreen.masked, 'a heading already on screen must never be curtained').toBe(false);
+  expect(firstScreen.visible, 'a first-screen heading must be visible without waiting for motion').toBe(true);
 
+  /* And the curtain still runs where it belongs: below the fold, on a
+     secondary page. coming-soon.html loads ScrollTrigger and has headings
+     further down. */
+  await page.goto('/coming-soon.html');
+  await page.waitForTimeout(700);
   const wrapped = await page.evaluate(() => document.querySelectorAll('h2[data-masked]').length);
   expect(wrapped, 'the scroll layer must run beyond the homepage').toBeGreaterThan(0);
 
@@ -181,5 +201,5 @@ test('secondary pages get the heading curtains too, and finish visible', async (
       const m = t.match(/matrix\(([^)]+)\)/);
       return m && Math.abs(Number(m[1].split(',')[5])) > 1;
     }).length);
-  expect(stuck, 'no word left offstage on pricing').toBe(0);
+  expect(stuck, 'no word left offstage on coming-soon').toBe(0);
 });

@@ -237,9 +237,20 @@ section>.wrap{position:relative;z-index:2}
    sharpen from blur on hardware that can afford it. Same IO mechanism, same
    no-js contract; only the feel changed. Blur is desktop-only: on a mid-range
    phone a filter transition is the difference between smooth and syrup. */
-.reveal{opacity:0;transform:translateY(26px);
-  transition:opacity .8s var(--e-out),transform .8s var(--e-out)}
-.reveal.in{opacity:1;transform:none}
+/* Visible by default, hidden only once site.js ARMS a block it is about to
+   animate. It used to be the other way round, and the cost only became
+   visible once the stylesheet stopped being a separate request: the page
+   painted at about 830ms while site.js still arrived at 4.9s on a throttled
+   phone, so any .reveal in the first screen sat at opacity 0 for four
+   seconds. On plumbers.html and restoration.html that block holds the h2,
+   which is fractionally larger than the lede, so it became the Largest
+   Contentful Paint the moment it faded in: 4,932ms and 4,960ms on pages that
+   were otherwise complete before one second.
+   Arming in JS also means nothing below the fold is hidden from a visitor who
+   has already scrolled to it. See the fold check in site.js. */
+.reveal{transition:opacity .8s var(--e-out),transform .8s var(--e-out)}
+.reveal.armed{opacity:0;transform:translateY(26px)}
+.reveal.armed.in,.reveal.in{opacity:1;transform:none}
 /* No blur on entrances: animating filter re-rasters every revealing element
    per frame, in batches, precisely while the visitor is scrolling — the rise
    and fade carry the reveal on their own. */

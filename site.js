@@ -300,7 +300,17 @@
         if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
       });
     }, { threshold: 0.12, rootMargin: "0px 0px -30px 0px" });
-    reveals.forEach(function (el) { io.observe(el); });
+    /* Arm only what the visitor has not reached. Two things fall out of it:
+       a block already on screen when this script finally arrives is never
+       hidden (it is an entrance, and there is nothing to enter), and a block
+       the visitor scrolled to while the script was still downloading does not
+       vanish underneath them. */
+    var fold = window.innerHeight || 0;
+    reveals.forEach(function (el) {
+      if (el.getBoundingClientRect().top < fold) return;
+      el.classList.add("armed");
+      io.observe(el);
+    });
   } else {
     reveals.forEach(function (el) { el.classList.add("in"); });
   }

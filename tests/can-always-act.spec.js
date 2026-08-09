@@ -102,7 +102,10 @@ test.describe('a visitor can act before the intro finishes', () => {
   });
 
   test('a dropped site.js still leaves the whole page readable', async ({ page }) => {
-    /* .reveal is opacity:0 by default and html.no-js .reveal restores it.
+    /* .reveal is visible by default and site.js hides only the blocks it is
+       about to animate (see .reveal.armed); html.no-js .reveal is the second
+       belt. It used to be opacity:0 by default, which is what made this
+       failure possible in the first place.
        index.html used to drop the no-js class in an inline script during parse,
        whether or not site.js ever arrived — so one dropped request left all 47
        content blocks invisible across 22,000px: the call proof, the simulator,
