@@ -82,9 +82,69 @@ strong{color:var(--ink)}
 .site-header.scrolled{background:rgba(9,18,26,.92);box-shadow:0 1px 0 var(--line);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .site-header .wrap{display:flex;align-items:center;gap:18px;height:68px}
-.wordmark{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:-.01em}
-.wordmark span{color:var(--muted);font-weight:500}
-.wordmark svg{filter:drop-shadow(0 0 10px rgba(47,191,143,.35))}
+/* THE WORDMARK IS SET IN CAPITALS, AND THE DOM TEXT STAYS "Nevamis".
+   text-transform draws the capitals; the markup keeps the word as it is
+   written. That split is deliberate and load-bearing:
+     - the link's accessible name stays "Nevamis" rather than becoming a
+       seven-letter initialism a screen reader may spell out,
+     - the clipboard, search-index.json and every text guard in this repo
+       keep reading the real word,
+     - and capitals remain a typographic decision living in the stylesheet,
+       so the next person changes them in one place instead of twenty files.
+   Hard-coding NEVAMIS into the anchor would have bought the same pixels and
+   given all of that away.
+
+   Capitals need positive tracking. The -.01em this rule used to carry was
+   fitted to the mixed-case "Nevamis AI" lockup, where a tight fit reads as
+   craft. Carried into capitals it welds E-V-A into one grey bar at 18px.
+   .13em opens the word to where each letter is separately legible without
+   the word starting to come apart.
+
+   Capitals also read bigger and heavier than mixed case at the same
+   font-size, so 18px became 17px: the wordmark now measures the same
+   optical weight against the 14.5px nav links that it did before, instead
+   of out-shouting them.
+
+   The negative margin is not a fudge. Tracking is added after EVERY glyph,
+   the last one included, so the word carries .13em of dead space on its
+   right edge and sits that much left of where it looks like it should.
+   Taking it back is the only reason the mark-to-word and the word-to-nav
+   gaps measure the same to the eye as they do to the layout. */
+.wordmark{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
+.wordmark .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
+
+/* V-A is the one pair the brand cannot leave to the font. Two facing
+   diagonals already carry their own white space between them, and uniform
+   tracking adds the same .13em there as everywhere else, opening a hole in
+   the middle of a seven-letter word. Letter-spacing applies to the gap
+   AFTER a glyph, so scoping it to the V alone closes exactly that pair and
+   touches nothing else. This is a kern, not an effect: at a glance you
+   should see an evenly-set word, not a clever one. */
+.wordmark .wm-v{letter-spacing:.055em}
+
+/* The mark is re-fitted to the capitals, not left where it sat beside the
+   old mixed-case lockup.
+
+   Size. Its ink is 37 of the 64 viewBox units tall (arch top y=17 once the
+   8-wide round-capped stroke is counted, dot bottom y=54). At 24px that is
+   13.9px of ink against an 11.5px cap height, so the mark was 21% taller
+   than the word it belongs to and read as the louder half of the lockup.
+   22px puts it at 12.7px, about a tenth over cap height, which is where a
+   mark sits as the word's equal.
+
+   Position. align-items:center centres BOXES. This mark's ink is not
+   centred in its box: the arch stops 17 units short of the top while the
+   dot runs to 54 of 64, so its mass sits 3.5 units low and the mark visibly
+   sagged next to capitals, which have no descender to balance it.
+   -1.7px lifts it to where the dot rests on the type's baseline and the
+   arch clears the cap line, each overshooting by the small amount a curve
+   should. Measured, not guessed: the guides are drawn from the font's own
+   cap ratio (0.675 em) in the study that chose this number.
+
+   A transform rather than a margin so the lift costs no layout, and cannot
+   contribute a layout shift to a header that paints before anything else. */
+.wordmark svg{width:22px;height:22px;transform:translateY(-1.7px);
+  filter:drop-shadow(0 0 10px rgba(47,191,143,.35))}
 .wordmark circle.pulse-dot{animation:markPulse 2.8s var(--e-out) 1;transform-origin:32px 48px}
 @keyframes markPulse{0%,100%{opacity:1}40%{opacity:.45}60%{opacity:1}}
 
@@ -513,6 +573,18 @@ html.motion-off .faq details p{animation:none}
 .site-footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px;margin-bottom:34px}
 @media(max-width:760px){.site-footer .cols{grid-template-columns:1fr}}
 .site-footer .foot-h{font-size:15px;margin-bottom:12px;font-weight:700;letter-spacing:-.01em}
+/* Only the first column's heading is the brand. "Site" and "Legal" are
+   column labels and stay title case: setting all three in capitals would
+   turn a brand signature into a house style for list headings and lose the
+   distinction the capitals exist to make.
+   Tracking is .16em here against the nav's .13em, because this sits at 14px
+   on its own line with nothing beside it to set the rhythm, where the nav
+   wordmark is braced by a mark and a row of links. Same negative margin for
+   the same reason: it puts the left edge of the word flush with the
+   paragraph beneath it and takes the trailing letter-space back off the
+   right. */
+.site-footer .foot-brand{font-size:14px;text-transform:uppercase;
+  letter-spacing:.16em;margin-right:-.16em;margin-bottom:14px}
 .site-footer p{color:var(--muted);font-size:14px}
 .site-footer .cols a{display:block;color:var(--muted);font-size:14px;padding:4px 0;width:fit-content;
   position:relative;transition:color .2s var(--e-out)}

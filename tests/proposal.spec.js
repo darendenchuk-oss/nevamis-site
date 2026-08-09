@@ -53,12 +53,21 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
    would have passed - and "PRO" is exactly three characters, so the loose
    check was also about to start failing for the right answer. */
 test('every sellable plan id renders, and legacy ids resolve to the right plan', async ({ page }) => {
+  /* The expected NAME is read from the config, not typed. This test was written
+     hours before the entry plan was renamed Starter -> Core, and it pinned
+     'STARTER' as a literal — so the rename left a test asserting a plan name
+     that no longer exists, which is the same defect the suite has caught in the
+     product four times today. The id stays 'starter'; the id is not the name. */
+  const nameOf = async (id) => (await page.evaluate((planId) =>
+    window.NV_PRICING.plans.find((p) => p.id === planId).name, id)).toUpperCase();
+
+  await page.goto('/proposal.html?plan=growth');
   const cases = [
-    ['starter', 'STARTER'],
-    ['growth', 'GROWTH'],
-    ['pro', 'PRO'],
-    ['after-hours', 'STARTER'],   // retired id for the cheapest plan
-    ['scale', 'PRO'],             // retired id for the dearest
+    ['starter', await nameOf('starter')],
+    ['growth', await nameOf('growth')],
+    ['pro', await nameOf('pro')],
+    ['after-hours', await nameOf('starter')],   // retired id for the cheapest plan
+    ['scale', await nameOf('pro')],             // retired id for the dearest
   ];
   for (const [id, expected] of cases) {
     await page.goto(`/proposal.html?plan=${id}`);

@@ -50,9 +50,19 @@
 <style>
   .prop{max-width:820px;margin:0 auto;padding:110px clamp(20px,4vw,44px) 80px}
   .prop-head{border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:34px}
-  .prop-head .mark{display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque",sans-serif;
-    font-weight:700;font-size:18px;margin-bottom:22px}
-  .prop-head .mark span{color:var(--muted);font-weight:500}
+  /* The lockup carries the same treatment as the site nav, and for the same
+     reasons: see the derivations beside .wordmark in assets/motion/site.css.
+     Values are mirrored rather than shared because this page has its own
+     scoped block; if the nav ever moves, move these with it.
+
+     This page was missed by the first pass because it does not use .wordmark:
+     it had its own .mark, and it still read "Nevamis AI". That is the legal
+     name doing duty as a logo on the one document sent to a named prospect. */
+  .prop-head .mark{display:flex;align-items:center;gap:11px;font-family:"Bricolage Grotesque",sans-serif;
+    font-weight:700;font-size:17px;margin-bottom:22px}
+  .prop-head .mark svg{width:22px;height:22px;transform:translateY(-1.7px)}
+  .prop-head .mark .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
+  .prop-head .mark .wm-v{letter-spacing:.055em}
   .prop h1{font-size:clamp(30px,4.4vw,44px);font-weight:700;letter-spacing:-.02em;line-height:1.08;margin:10px 0}
   .prop .meta{color:var(--muted);font-size:14px}
   .prop h2{font-size:clamp(21px,2.6vw,27px);margin:0 0 14px}
@@ -95,7 +105,7 @@
         <path d="M 15 38 A 17 17 0 0 1 49 38" stroke="#2FBF8F" stroke-width="8" stroke-linecap="round"/>
         <circle cx="32" cy="48" r="6" fill="#9FF0CE"/>
       </svg>
-      Nevamis<span>&nbsp;AI</span>
+      <span class="wm">Ne<span class="wm-v">v</span>amis</span>
     </div>
     <p class="meta" id="preparedFor">Prepared after our call</p>
     <h1 id="headline">Your AI receptionist proposal</h1>
