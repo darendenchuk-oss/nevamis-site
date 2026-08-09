@@ -887,28 +887,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              Sized from the tallest real state: a six-row month plus the event
              header. Mobile gets more because Cal stacks its layout when narrow.
              If Cal.com ever changes the booker's height this needs re-measuring
-             because there is no signal that would tell us automatically.
-
-             The /embed path plus theme=dark is what holds the scheduler to this
-             site's palette. The booker otherwise follows the VISITOR's
-             prefers-color-scheme, so anyone browsing in light mode got a white
-             scheduler in the middle of a black page, on the one page whose job
-             is to take a booking. This was previously recorded as unfixable
-             from this repository, which was wrong: the earlier attempt tested
-             four query spellings against the BOOKING url and concluded the
-             theme parameter does nothing. It does nothing there. /embed is a
-             different endpoint and it honours it. Measured with
-             prefers-color-scheme forced both ways:
-
-               booking url + any spelling   light visitor -> html "light", #fafafa
-               /embed?theme=dark            light visitor -> html "dark",  #111
-               /embed?theme=dark            dark  visitor -> html "dark",  #111
-
-             Same 34 slot buttons, same 2,211px document height at 390px, same
-             ~153 KB transferred, so this is a theme change and nothing else.
-             It is NOT the embed SDK: still one plain iframe, no extra script,
-             which is why the weight is unchanged. -->
-        <iframe id="bkFrame" src="https://cal.com/daren-qvlah4/nevamis-intro/embed?theme=dark&amp;hide_landing_page_details=1" title="Book a 15-minute intro call with Daren on the Cal.com scheduler" loading="lazy" style="width:100%;height:var(--bk-frame-h,940px);border:0;border-radius:12px;background:var(--navy-2)"></iframe>
+             because there is no signal that would tell us automatically. -->
+        <iframe id="bkFrame" src="https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1" title="Book a 15-minute intro call with Daren on the Cal.com scheduler" loading="lazy" style="width:100%;height:var(--bk-frame-h,940px);border:0;border-radius:12px;background:var(--navy-2)"></iframe>
         <p style="margin-top:16px;font-size:14.5px;color:var(--muted);text-align:center">Scheduler not loading, or prefer a full page? <a href="https://cal.com/daren-qvlah4/nevamis-intro" target="_blank" rel="noopener" data-evt="booking_start">Open booking in a new tab</a>.</p>
         <p style="margin-top:10px;font-size:14.5px;color:var(--muted);text-align:center">Rather talk first? Call the AI at <a class="mono" href="tel:+15874130035">(587) 413-0035</a> and ask it to have Daren call you back, or email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
 
@@ -1008,10 +988,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var frame = document.getElementById("bkFrame");
     if (!row || !frame) return;
     row.hidden = false;
-    /* Must match the iframe's own src, including /embed and theme=dark, or the
-       first prefill keystroke would reload the scheduler back into the
-       visitor's own colour scheme. */
-    var base = "https://cal.com/daren-qvlah4/nevamis-intro/embed?theme=dark&hide_landing_page_details=1";
+    var base = "https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1";
     var timer = null;
     var tracked = false;
 

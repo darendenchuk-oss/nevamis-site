@@ -377,27 +377,39 @@ test('footer, callbar and every section land without console errors', async ({ b
   await ctx.close();
 });
 
-/* Cal.com's booker follows the VISITOR's prefers-color-scheme, so anyone
-   browsing in light mode got a white scheduler in the middle of this site's
-   black page — on the one page whose job is to take a booking.
+/* Cal.com's /embed route must never be used here, and this is the scar tissue.
 
-   Only the /embed endpoint honours theme=dark; the plain booking url ignores
-   every spelling of it, which is why this was once filed as unfixable without
-   the Cal.com account settings. Both halves are asserted, because the prefill
-   rewrites src and dropping the parameter there would reload the scheduler
-   light the moment a visitor typed their name. */
-test('the scheduler is pinned to the site palette, not the visitor preference', async ({ page }) => {
+   The booker follows the VISITOR's prefers-color-scheme, so a light-mode
+   visitor sees a white scheduler inside this black page. /embed?theme=dark
+   fixes that — it really does, measured both ways — and it was shipped, and it
+   took the scheduler off the page entirely.
+
+   /embed is built to be driven by Cal's embed SDK. It renders itself
+   visibility:hidden, opacity:0 and waits for the parent frame to talk to it.
+   This page loads no SDK by design, so nothing ever answered. Measured inside
+   a real iframe:
+
+     booking url          body visible, opacity 1, 900px tall
+     /embed?theme=dark    body HIDDEN,  opacity 0, 569px tall
+
+   It looked correct when opened directly in a tab, which is how it passed
+   review. Directly is not how it is used.
+
+   A white scheduler is a blemish. An invisible one is a lost booking, so the
+   theme problem stays open (registry B1-THEME) rather than being traded for
+   this. */
+test('the scheduler is never pointed at the SDK-only /embed endpoint', async ({ page }) => {
   await page.goto('/book.html');
   const src = await page.locator('#bkFrame').getAttribute('src');
-  expect(src, 'the booker must use /embed, the endpoint that honours theme').toContain('/embed');
-  expect(src, 'and must ask for dark explicitly').toContain('theme=dark');
+  expect(src, 'the booker must load a real booking page').toContain('cal.com/daren-qvlah4/nevamis-intro');
+  expect(src, '/embed stays hidden without the embed SDK this page does not load')
+    .not.toContain('/embed');
 
   await page.fill('#bkName', 'Marion Webb');
   await page.dispatchEvent('#bkName', 'change');
   await page.waitForTimeout(600);
   const after = await page.locator('#bkFrame').getAttribute('src');
-  expect(after, 'prefill must keep the endpoint').toContain('/embed');
-  expect(after, 'prefill must keep the theme').toContain('theme=dark');
+  expect(after, 'prefill must not switch endpoints either').not.toContain('/embed');
   expect(after, 'prefill must still prefill').toContain('name=Marion');
 });
 
