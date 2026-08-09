@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { headCssBlock, readCssSources, applyHeadCss } from './lib/inline-css.mjs';
+import { applySelfCta } from './lib/nav-cta.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
@@ -44,14 +45,20 @@ const CSS_PAGES = JSON.parse(read('content-map.json')).pages.map((p) => p.file);
 const CSS_BLOCK = headCssBlock(readCssSources(fs, path, root));
 
 /** Mark the current page inside the primary nav only. Footer links stay
- *  byte-identical across pages so the consistency guard can compare them. */
+ *  byte-identical across pages so the consistency guard can compare them.
+ *  The header BUTTON additionally stops linking to the page it is already on:
+ *  that rewrite lives in scripts/lib/nav-cta.mjs because the consistency guard
+ *  has to recognise it, and a rule that reads a deliberate generated
+ *  difference as drift is a rule that gets switched off. */
 function currentMark(html, file) {
   const href = file === 'index.html' ? '/' : '/' + file;
   const esc = href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return html.replace(/<nav class="main-nav"[\s\S]*?<\/nav>/, (nav) =>
-    nav.replace(
+  return html.replace(/<nav class="main-nav"[\s\S]*?<\/nav>/, (nav) => {
+    const out = nav.replace(
       new RegExp(`(<a[^>]*href="${esc}")([^>]*>)`, 'g'),
-      (m, a, b) => (b.includes('aria-current') ? m : `${a} aria-current="page"${b}`)));
+      (m, a, b) => (b.includes('aria-current') ? m : `${a} aria-current="page"${b}`));
+    return applySelfCta(out, file);
+  });
 }
 
 /* The stylesheet, inlined. Separate pass from the chrome because it covers a
