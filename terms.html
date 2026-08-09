@@ -284,9 +284,9 @@ section>.wrap{position:relative;z-index:2}
     transform:translateY(-3px);border-color:rgba(159,240,206,.32);
     box-shadow:0 18px 40px -24px rgba(47,191,143,.4)}
 }
-.reveal{opacity:0;transform:translateY(26px);
-  transition:opacity .8s var(--e-out),transform .8s var(--e-out)}
-.reveal.in{opacity:1;transform:none}
+.reveal{transition:opacity .8s var(--e-out),transform .8s var(--e-out)}
+.reveal.armed{opacity:0;transform:translateY(26px)}
+.reveal.armed.in,.reveal.in{opacity:1;transform:none}
 html.no-js .reveal,html.motion-off .reveal{opacity:1;transform:none;transition:none}
 .mw{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.08em;margin-bottom:-.08em}
 .mwi{display:inline-block;will-change:transform}
@@ -666,6 +666,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 }
 </style>
 <!-- /generated:css -->
+
 <!-- generated:schema -->
 <script type="application/ld+json">
 [
