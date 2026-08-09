@@ -442,8 +442,13 @@ test('decorative visuals are hidden from assistive tech', async ({ page }) => {
     statusHidden: document.getElementById('status')?.getAttribute('aria-hidden'),
     wakeHidden: document.getElementById('wake')?.getAttribute('aria-hidden'),
     h1: document.querySelector('h1')?.textContent.replace(/\s+/g, ' ').trim(),
-    // the story the animation tells must also exist as real text
-    ledeMentions: ['qualifies', 'books', 'texts'].filter((w) =>
+    /* The story the animation tells must also exist as real text.
+       'books' was one of these words until 2026-08-09, and it was pinning a
+       claim the product cannot keep: provisioned agents get end_call and no
+       booking tool, so the prompt makes them say a person will confirm the
+       time. The assertion was right about the principle and wrong about the
+       verb — a test can hold false copy in place just as firmly as true. */
+    ledeMentions: ['qualifies', 'takes', 'texts'].filter((w) =>
       (document.querySelector('.lede')?.textContent || '').toLowerCase().includes(w)),
   }));
 
@@ -452,7 +457,7 @@ test('decorative visuals are hidden from assistive tech', async ({ page }) => {
   expect(a11y.wakeHidden).toBe('true');
   expect(a11y.h1).toBe('Every call, captured.');
   // meaning must not live only in the animation
-  expect(a11y.ledeMentions).toEqual(['qualifies', 'books', 'texts']);
+  expect(a11y.ledeMentions).toEqual(['qualifies', 'takes', 'texts']);
 });
 
 test.afterAll(async () => {

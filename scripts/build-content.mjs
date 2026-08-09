@@ -63,7 +63,7 @@ function head({ title, description, canonical }) {
        both, always          2,916       0.0011         164         0.0000
        both, >=900px         2,028       0.0013         152         0.0000
 
-     On a phone nothing arrives before first paint, so `swap` fires whatever
+     On a phone nothing arrives before first paint, so swap fires whatever
      we do. Mobile CLS is ~0.001 with no preload at all, because the
      metric-matched fallbacks in fonts.css hold the layout. There the preload
      buys nothing and costs 34 KB of a 400 kbps pipe shared with the
@@ -206,7 +206,7 @@ const hubHtml =
       <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Everything in one place</span>
       <h1>Find the version of this that matches your business.</h1>
       <p class="lede">The product is the same on every page: an AI receptionist that answers your
-        existing line, qualifies the caller, books the job, and sends you the summary. These pages
+        existing line, qualifies the caller, takes the job details, and sends you the summary. These pages
         just start from where you are.</p>
       <div class="cta">
         <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Call the live AI &nbsp;›</a>

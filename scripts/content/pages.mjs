@@ -36,8 +36,8 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
       <div class="reveal"><h3>Answered in seconds</h3><p>Nevamis picks up in your
         business's tone, day or night, while you stay on the tools.</p></div>
       <div class="reveal"><h3>Qualified the way you would</h3><p>${questions}</p></div>
-      <div class="reveal"><h3>Booked and confirmed</h3><p>It books into your calendar and
-        reads the time back to the caller before they hang up.</p></div>
+      <div class="reveal"><h3>Written down, not lost</h3><p>It takes the job and the time
+        they want, and tells them plainly that you will confirm it.</p></div>
     </div>
   </div>
 </section>
@@ -76,7 +76,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
 export const PAGES = {
   'electricians.html': {
     h1: 'An AI receptionist for electricians',
-    lede: `Panel upgrades, dead circuits, and emergency calls answered while your crew is on the tools. Nevamis picks up your existing line 24/7, qualifies the caller, books the job, and texts you the details.`,
+    lede: `Panel upgrades, dead circuits, and emergency calls answered while your crew is on the tools. Nevamis picks up your existing line 24/7, qualifies the caller, takes the job details, and texts them to you.`,
     body: tradeBody({
       trade: 'electrical work',
       whenItRings: 'The phone rings when both your hands are in a panel.',
@@ -172,7 +172,7 @@ export const PAGES = {
   },
 
   'after-hours-answering.html': {
-    h1: 'After-hours call answering that books the job',
+    h1: 'After-hours call answering that misses nothing',
     lede: `Evenings, weekends, and holidays covered without hiring a night shift or paying a per-call answering service. Your number, your rules, answered in seconds.`,
     body: `
 <section class="tight">
@@ -269,7 +269,7 @@ export const PAGES = {
         <tbody>
           <tr><th scope="row">Answers immediately</th><td class="no">No</td><td class="yes">Yes</td></tr>
           <tr><th scope="row">Asks your qualifying questions</th><td class="no">No</td><td class="yes">Yes</td></tr>
-          <tr><th scope="row">Books into your calendar</th><td class="no">No</td><td class="yes">Yes</td></tr>
+          <tr><th scope="row">Takes the job down in full</th><td class="no">No</td><td class="yes">Yes</td></tr>
           <tr><th scope="row">Confirms the time with the caller</th><td class="no">No</td><td class="yes">Yes, out loud on the call</td></tr>
           <tr><th scope="row">Escalates an emergency</th><td class="no">No</td><td class="yes">By your rules</td></tr>
           <tr><th scope="row">Gives you a useful summary</th><td class="part">A recording</td><td class="yes">Name, number, need, outcome</td></tr>
@@ -308,7 +308,7 @@ export const PAGES = {
         <tbody>
           <tr><th scope="row">Available at 2 AM</th><td class="part">Usually, at a premium</td><td class="yes">Always, same rate</td></tr>
           <tr><th scope="row">Knows your service area and prices</th><td class="part">A script they follow</td><td class="yes">Rules built with you</td></tr>
-          <tr><th scope="row">Books into your calendar</th><td class="part">Sometimes, for a fee</td><td class="yes">Included</td></tr>
+          <tr><th scope="row">Takes the job down in full</th><td class="part">Varies by operator</td><td class="yes">Included</td></tr>
           <tr><th scope="row">Never on hold or queued</th><td class="part">Depends on their volume</td><td class="yes">Answers in parallel</td></tr>
           <tr><th scope="row">Handles genuine judgement calls</th><td class="yes">A person can</td><td class="part">Escalates to you instead</td></tr>
           <tr><th scope="row">Cost as volume grows</th><td class="part">Per call or per minute</td><td class="yes">Plan with included minutes</td></tr>

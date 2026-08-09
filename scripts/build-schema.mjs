@@ -127,7 +127,7 @@ const service = {
   serviceType: 'AI phone answering, call qualification, and appointment booking',
   description:
     'A done-for-you service that answers a business phone line 24/7, qualifies the caller, ' +
-    'books the job into the calendar, confirms the time with the caller, and texts the owner a summary. ' +
+    'takes the job details and the time the caller wants, and texts the owner a summary within seconds. ' +
     'Configured around each business\'s own hours, service area, job types, and approved rules.',
   provider: { '@id': `${SITE}/#organization` },
   areaServed: [

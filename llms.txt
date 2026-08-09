@@ -48,7 +48,7 @@ optional.
    AI assistant.
 3. It qualifies the caller using questions the owner approved — job type,
    urgency, location, timing — not a generic script.
-4. It books into a connected calendar following the owner's availability
+4. It takes the job and the time the caller wants; a person confirms the slot
    and service-area rules.
 5. The caller receives a text confirmation; the owner receives a summary
    with name, number, need, and outcome.
