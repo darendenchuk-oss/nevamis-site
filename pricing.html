@@ -1030,6 +1030,20 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         + '<div class="buy-note">Cancel anytime.</div></div>';
     }
     d.innerHTML = h;
+    /* Which tier the prospect reached for. All three cards used to emit the
+       same plan_quote_click, so the one question this page exists to answer -
+       which plan people choose to continue on - had no answer in the data.
+
+       Keyed on pl.id, never pl.name: the entry plan is displayed as "Core" and
+       its id is still `starter`, because the label was renamed and the identity
+       was not. A name-derived event would already have drifted.
+
+       Set here rather than in the template string above so the literal stays a
+       whole allowlisted name. That keeps the engine's drift guard readable, and
+       it doubles as the fallback: a plan with no id keeps plan_quote_click,
+       which is allowlisted and lands in the same funnel stage. */
+    var quoteCta = d.querySelector('.buy a[data-evt="plan_quote_click"]');
+    if (quoteCta && pl.id) quoteCta.setAttribute("data-evt", "plan_quote_click_" + pl.id);
     d.querySelector("h3").textContent = pl.name;
     var lis = d.querySelectorAll("li");
     pl.features.forEach(function (f, i) { lis[i].textContent = f; });
