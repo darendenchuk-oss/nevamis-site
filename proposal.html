@@ -778,6 +778,18 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     </div>
     <p class="meta">Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime.
       Full plan comparison at <a href="/pricing.html" style="color:var(--mint)">nevamis.ca/pricing</a>.</p>
+    <!-- The decision happens here, at the price, not 1,300px further down.
+         This document is sent to a named prospect after a call, and its only
+         action used to sit at 86% of the page: measured on production, 1,331px
+         below the fold at 390px and 805px at 1280px. Somebody who had already
+         made up their mind had to read to the end to find a way to say so.
+         The closing pair below stays: it is the natural end of the document
+         and the place a careful reader arrives. This is for the reader who is
+         already convinced. Same destination, its own event name, because
+         which one they use is the useful thing to know. -->
+    <div class="noprint-cta">
+      <a class="btn btn-primary" href="/book.html" data-evt="proposal_plan_book_click">Book the next call</a>
+    </div>
   </section>
 
   <section>
