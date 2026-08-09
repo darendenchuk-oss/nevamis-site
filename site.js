@@ -603,7 +603,11 @@
       opp: document.getElementById("roiOpp"),
       rec: document.getElementById("roiRec"),
       be: document.getElementById("roiBe"),
-      beRow: document.getElementById("roiBeRow")
+      beRow: document.getElementById("roiBeRow"),
+      /* The narrow-screen compact estimate. A second PRESENTATION of the same
+         number, never a second calculation: it is written from the oppValue
+         computed below, in the same pass, so the two can never disagree. */
+      mini: document.getElementById("roiMini")
     };
     var announced = document.getElementById("roiLive");
     function money(v) { return "$" + Math.round(v).toLocaleString("en-CA"); }
@@ -617,6 +621,7 @@
       var oppValue = monthlyMissed * realPct * value * close;
       var recovered = oppValue * 0.5; /* conservative: capture half of what currently hits voicemail */
       if (out.opp) out.opp.textContent = money(oppValue);
+      if (out.mini) out.mini.textContent = money(oppValue);
       if (out.rec) out.rec.textContent = money(recovered);
       if (out.beRow) {
         if (quote > 0) {
