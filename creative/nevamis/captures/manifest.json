@@ -1,0 +1,1080 @@
+{
+  "generatedAt": "2026-08-10T09:44:01.345Z",
+  "generatedBy": "scripts/film-capture.mjs",
+  "source": {
+    "baseUrl": "http://localhost:3417",
+    "database": "file:./data/film-seed.db (isolated local fixture; production never contacted)",
+    "tenant": "film-northline / Northline Electric (fictional)",
+    "seededBy": "scripts/film-seed.mts",
+    "note": "Every timestamp visible in these captures is server-rendered from the fixture rows, so it is fixed by the seed, not by the capture run. Nothing was clicked: GET navigation only."
+  },
+  "truthInvariants": {
+    "bookingConfirmed": "false on all 9 seeded call summaries",
+    "appointmentOutcome": "NULL on all 9 seeded call summaries",
+    "appointmentRows": 0,
+    "jobRows": 0,
+    "addressFields": "none seeded and none exist in DRAFT_DATA_COLLECTION",
+    "timeWindowFields": "none seeded and none exist in DRAFT_DATA_COLLECTION",
+    "verifiedBy": "scripts/film-verify.mjs plus the per-shot mustNotContain guards below"
+  },
+  "captureConditions": {
+    "engine": "chromium via @playwright/test",
+    "colorScheme": "dark (as shipped; globals.css sets --nv-bg #02080d and color-scheme: dark)",
+    "reducedMotion": "reduce — the portal sky paints one fixed pose via its own code path (public/motion/aurora.js)",
+    "injectedCss": "*,*::before,*::after{animation:none!important;animation-duration:0s!important; animation-delay:0s!important;transition:none!important;transition-duration:0s!important; transition-delay:0s!important;caret-color:transparent!important} html{scroll-behavior:auto!important}",
+    "injectedCssRationale": "Identical in effect to globals.css's own prefers-reduced-motion rule. No colour, component or layout rule was added, removed or overridden.",
+    "fontsAwaited": "document.fonts.ready",
+    "networkAwaited": "load state networkidle (tolerant, 15s cap)",
+    "stickyHeader": "The portal header is sticky top-0 z-20. Each shot scrolls so the target clears it; the measured clearance is recorded per capture.",
+    "viewportGrowth": "Where a target exceeded the stated viewport height, the height alone was grown (width and deviceScaleFactor unchanged, so layout is identical) and the page reloaded. statedViewport and effectiveViewport are both recorded.",
+    "timezone": "America/Edmonton",
+    "browserClock": "fixed at 2026-08-10T18:00:00Z (browser-side only; all visible times are server-rendered)"
+  },
+  "captures": [
+    {
+      "name": "c05-forwarding",
+      "viewportKey": "16x9",
+      "route": "/portal/forwarding",
+      "what": "The client's own Nevamis number card.",
+      "selectors": [
+        "div.nv-card:has-text(\"Your dedicated Nevamis number\")"
+      ],
+      "file": "c05-forwarding-16x9.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c05-forwarding-16x9.png",
+      "capturedWith": "locator.screenshot()",
+      "frame": null,
+      "statedViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "effectiveViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "scrollY": 0,
+      "stickyHeaderPx": 178,
+      "clearanceBelowHeaderPx": 141,
+      "elementRectCss": {
+        "x": 212,
+        "y": 319,
+        "width": 856,
+        "height": 80
+      },
+      "text": "YOUR DEDICATED NEVAMIS NUMBER\n\n+15875550190\n\nThis is the number your calls forward to. It is yours and it does not change.",
+      "formFields": [],
+      "legibleFieldText": null,
+      "bytes": 40572,
+      "pixels": {
+        "width": 1712,
+        "height": 162,
+        "meanLuma": 35.87,
+        "minLuma": 6.9,
+        "maxLuma": 243.9,
+        "brightPixelPct": 4.64,
+        "distinctColoursSampled": 140
+      }
+    },
+    {
+      "name": "c06-call",
+      "viewportKey": "16x9",
+      "route": "/portal/calls",
+      "what": "One call card: who called, what they wanted, the urgency, and what the assistant told them would happen next. No address and no time window — neither field exists in DRAFT_DATA_COLLECTION. The only time shown is when the call itself came in.",
+      "selectors": [
+        "li.nv-card:has-text(\"Desmond Aku\")"
+      ],
+      "file": "c06-call-16x9.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c06-call-16x9.png",
+      "capturedWith": "locator.screenshot()",
+      "frame": null,
+      "statedViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "effectiveViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "scrollY": 427,
+      "stickyHeaderPx": 178,
+      "clearanceBelowHeaderPx": 24,
+      "elementRectCss": {
+        "x": 212,
+        "y": 629,
+        "width": 856,
+        "height": 172
+      },
+      "text": "Desmond Aku\nAug 10, 1:48 a.m.\n3:31\nEMERGENCY\n\nHalf the house has no power\n\nWe told them: Told him this is being passed straight through and someone will ring him back.\n\nTexted to your phone.\n\nSee the lead\nPlay the recording (3:31)",
+      "formFields": [],
+      "legibleFieldText": null,
+      "bytes": 68948,
+      "pixels": {
+        "width": 1712,
+        "height": 346,
+        "meanLuma": 32.52,
+        "minLuma": 6.9,
+        "maxLuma": 243.9,
+        "brightPixelPct": 2.86,
+        "distinctColoursSampled": 205
+      }
+    },
+    {
+      "name": "c07-rules",
+      "viewportKey": "16x9",
+      "route": "/portal/business",
+      "what": "The rule boxes the receptionist is built from. Hours and Service area are the two named; Services sits between them in the form, so a single rectangle containing both necessarily contains it. It is listed here rather than silently included.",
+      "selectors": [
+        "label#hours",
+        "label#services",
+        "label#area"
+      ],
+      "file": "c07-rules-16x9.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c07-rules-16x9.png",
+      "capturedWith": "page.screenshot({clip: union of selectors})",
+      "frame": null,
+      "statedViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "effectiveViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "scrollY": 387,
+      "stickyHeaderPx": 178,
+      "clearanceBelowHeaderPx": 24,
+      "elementRectCss": {
+        "x": 212,
+        "y": 589,
+        "width": 856,
+        "height": 386
+      },
+      "text": "HOURS\nWhen you answer, and what counts as after-hours.\nSERVICES\nWhat you do — and just as important, what you don't.\nSERVICE AREA",
+      "formFields": [
+        {
+          "tag": "textarea",
+          "type": null,
+          "name": "hoursText",
+          "storedValue": "Monday to Friday, 7:30am to 5pm. Closed weekends and statutory holidays.",
+          "placeholder": "Mon-Fri 8:00-17:00\nEmergencies: 24/7",
+          "checked": null,
+          "legibleOnScreen": "Monday to Friday, 7:30am to 5pm. Closed weekends and statutory holidays.",
+          "legibleTextIs": "stored value"
+        },
+        {
+          "tag": "textarea",
+          "type": null,
+          "name": "servicesText",
+          "storedValue": "Residential and light-commercial electrical: panel upgrades, EV charger installs, troubleshooting, subpanels, lighting retrofits. We do not do HVAC, gas, or solar.",
+          "placeholder": "Panel upgrades\nEV chargers\nService calls\nWe do NOT do: new construction",
+          "checked": null,
+          "legibleOnScreen": "Residential and light-commercial electrical: panel upgrades, EV charger installs, troubleshooting, subpanels, lighting retrofits. We do not do HVAC, gas, or solar.",
+          "legibleTextIs": "stored value"
+        },
+        {
+          "tag": "input",
+          "type": null,
+          "name": "serviceArea",
+          "storedValue": "Calgary, Airdrie, Cochrane and Chestermere.",
+          "placeholder": "Edmonton + 45 min: St. Albert, Sherwood Park, Leduc",
+          "checked": null,
+          "legibleOnScreen": "Calgary, Airdrie, Cochrane and Chestermere.",
+          "legibleTextIs": "stored value"
+        }
+      ],
+      "legibleFieldText": "Monday to Friday, 7:30am to 5pm. Closed weekends and statutory holidays.\nResidential and light-commercial electrical: panel upgrades, EV charger installs, troubleshooting, subpanels, lighting retrofits. We do not do HVAC, gas, or solar.\nCalgary, Airdrie, Cochrane and Chestermere.",
+      "bytes": 228716,
+      "pixels": {
+        "width": 1712,
+        "height": 772,
+        "meanLuma": 29.75,
+        "minLuma": 6.1,
+        "maxLuma": 243.9,
+        "brightPixelPct": 2.21,
+        "distinctColoursSampled": 219
+      }
+    },
+    {
+      "name": "c08-lead",
+      "viewportKey": "16x9",
+      "route": "/portal/leads",
+      "what": "One card from \"Call these back\" — the newest lead still waiting on a ring back.",
+      "selectors": [
+        "#call-back li.nv-card:has-text(\"Marla Quint\")"
+      ],
+      "file": "c08-lead-16x9.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c08-lead-16x9.png",
+      "capturedWith": "locator.screenshot()",
+      "frame": null,
+      "statedViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "effectiveViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "scrollY": 244,
+      "stickyHeaderPx": 178,
+      "clearanceBelowHeaderPx": 24,
+      "elementRectCss": {
+        "x": 212,
+        "y": 446,
+        "width": 856,
+        "height": 164
+      },
+      "text": "Marla Quint\n☏\n587-555-0142\nPROMISED A CALLBACK\nAug 10, 2:38 a.m.\n\nPanel upgrade\n\nYour AI told them: “Told her someone from Northline will call her back as soon as they can.”\n\nI called them\nWon the job\nNot a fit",
+      "formFields": [
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "$ACTION_ID_4038bed32e0919e5cb78dd912ff45912cec294cf21",
+          "storedValue": null,
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "leadId",
+          "storedValue": "film-lead-1",
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "action",
+          "storedValue": "called",
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "$ACTION_ID_4038bed32e0919e5cb78dd912ff45912cec294cf21",
+          "storedValue": null,
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "leadId",
+          "storedValue": "film-lead-1",
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "action",
+          "storedValue": "won",
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "$ACTION_ID_4038bed32e0919e5cb78dd912ff45912cec294cf21",
+          "storedValue": null,
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "leadId",
+          "storedValue": "film-lead-1",
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "action",
+          "storedValue": "lost",
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        }
+      ],
+      "legibleFieldText": null,
+      "bytes": 68323,
+      "pixels": {
+        "width": 1712,
+        "height": 330,
+        "meanLuma": 36,
+        "minLuma": 6.1,
+        "maxLuma": 243.9,
+        "brightPixelPct": 4.42,
+        "distinctColoursSampled": 260
+      }
+    },
+    {
+      "name": "c09-upcoming",
+      "viewportKey": "16x9",
+      "route": "/portal/upcoming",
+      "what": "The heading, its standfirst, and the capability cards beneath it.",
+      "selectors": [
+        "main.max-w-3xl > h1",
+        "main.max-w-3xl > p.nv-sub",
+        "main.max-w-3xl > div.space-y-3"
+      ],
+      "file": "c09-upcoming-16x9.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c09-upcoming-16x9.png",
+      "capturedWith": "page.screenshot({clip: union of selectors})",
+      "frame": null,
+      "statedViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "effectiveViewport": {
+        "width": 1280,
+        "height": 1186,
+        "deviceScaleFactor": 2
+      },
+      "scrollY": 8,
+      "stickyHeaderPx": 178,
+      "clearanceBelowHeaderPx": 24,
+      "elementRectCss": {
+        "x": 212,
+        "y": 210,
+        "width": 768,
+        "height": 952
+      },
+      "text": "What we’re working on\nNothing here is finished or for sale yet. They are what comes after the front desk, and the order we build them in is decided by which ones clients ask for. Putting your name down costs nothing, books nothing, and changes nothing on your bill. Tap one to see what it would do and to put your name down.\nRevenue Engine\nIN PRIVATE PILOT\n\nThe whole picture: which marketing produced which job, and what it was worth.\n\nSee what it would do and put your hand up →\nInstant Lead Follow-Up\nNOT BUILT YET\n\nThe moment somebody enquires, they hear back — before they ring the next company.\n\nSee what it would do and put your hand up →\nAutomatic Lead Tracking\nNOT BUILT YET\n\nEvery enquiry becomes a tracked lead without anybody typing it in.\n\nSee what it would do and put your hand up →\nQuote Recovery\nNOT BUILT YET\n\nThe quotes you sent and never heard back about, chased for you.\n\nSee what it would do and put your hand up →\nEmail + Inbox Assistant\nNOT BUILT YET\n\nDrafts the routine replies, flags the ones that actually need you.\n\nSee what it would do and put your hand up →\nPayroll Operations Support\nNOT BUILT YET\n\nHours in, payroll paperwork out, without the Sunday night spreadsheet.\n\nSee what it would do and put your hand up →",
+      "formFields": [],
+      "legibleFieldText": null,
+      "bytes": 451886,
+      "pixels": {
+        "width": 1536,
+        "height": 1904,
+        "meanLuma": 31.76,
+        "minLuma": 6.1,
+        "maxLuma": 243.9,
+        "brightPixelPct": 3.64,
+        "distinctColoursSampled": 300
+      }
+    },
+    {
+      "name": "c10-performance",
+      "viewportKey": "16x9",
+      "route": "/portal/performance",
+      "what": "The \"Leads per week\" section. Captured as its own element on purpose: elsewhere this page renders the word \"appointment\" (a 0-valued tile and a summary sentence), which is honest but is not what this film is about.",
+      "selectors": [
+        "section.nv-card:has(h2:text-is(\"Leads per week\"))"
+      ],
+      "file": "c10-performance-16x9.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c10-performance-16x9.png",
+      "capturedWith": "locator.screenshot()",
+      "frame": null,
+      "statedViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "effectiveViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "scrollY": 906,
+      "stickyHeaderPx": 178,
+      "clearanceBelowHeaderPx": 24,
+      "elementRectCss": {
+        "x": 212,
+        "y": 1108,
+        "width": 856,
+        "height": 310
+      },
+      "text": "Leads per week\n\nEvery lead Nevamis captured for you, by week, last 8 weeks.\n\n6/22\n6/29\n7/6\n7/13\n7/20\n7/27\n8/3\n6\n8/10",
+      "formFields": [],
+      "legibleFieldText": null,
+      "bytes": 53147,
+      "pixels": {
+        "width": 1712,
+        "height": 622,
+        "meanLuma": 35.13,
+        "minLuma": 6.1,
+        "maxLuma": 243.9,
+        "brightPixelPct": 4.67,
+        "distinctColoursSampled": 135
+      }
+    },
+    {
+      "name": "c07b-refusal",
+      "viewportKey": "16x9",
+      "route": "/portal/business",
+      "what": "The refusal fieldset, whole and exactly as it ships. The product stating, on the client's own settings page, what it does not do and cannot be made to do. NOTE: the fieldset's lower half is the CASL identification block, whose empty Mailing address box shows the shipped PLACEHOLDER \"123 Example Ave NW, Edmonton, AB T5A 0A1\". Nothing is stored there (mailingAddress is NULL) and it is the CLIENT's own address field, not a caller's — but it is address-shaped text on screen. Use c07b-refusal-statement if the film needs the claim with no address in frame.",
+      "selectors": [
+        "fieldset:has-text(\"Confirmation texts to your customers are not available yet\")"
+      ],
+      "file": "c07b-refusal-16x9.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c07b-refusal-16x9.png",
+      "capturedWith": "locator.screenshot()",
+      "frame": null,
+      "statedViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "effectiveViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "scrollY": 1408,
+      "stickyHeaderPx": 178,
+      "clearanceBelowHeaderPx": 37,
+      "elementRectCss": {
+        "x": 212,
+        "y": 1623,
+        "width": 856,
+        "height": 455
+      },
+      "text": "CONFIRMATION TEXTS TO YOUR CUSTOMERS ARE NOT AVAILABLE YET\nNOT AGREED\n\nWe do not text your customers, and no account can turn this on today. Your assistant does not book jobs, and it never asks a caller for permission to text them. So there is nothing to confirm and nobody who has agreed to be messaged. You are told about every call instead — by text and by email, within seconds.\n\nIf it is ever switched on, Canadian law treats you as the sender of that message, not us. So it would have to carry your legal business name and a way to reach you, and anyone could stop it by replying STOP. Those two details are collected here now so that nothing has to be rushed later; filling them in sends nothing.\n\nRecord my agreement in advance, for if this is ever offered. Nothing is sent today.\nLEGAL BUSINESS NAME\nThe name you actually carry on business under, as it appears on your registration.\nMAILING ADDRESS\nRequired by law to be reachable from the message. It is not shown in the text itself — it lives on a page the text links to.",
+      "formFields": [
+        {
+          "tag": "input",
+          "type": "checkbox",
+          "name": "callerSmsEnabled",
+          "storedValue": null,
+          "placeholder": null,
+          "checked": false,
+          "legibleOnScreen": null,
+          "legibleTextIs": "control"
+        },
+        {
+          "tag": "input",
+          "type": null,
+          "name": "businessLegalName",
+          "storedValue": "Northline Electric Ltd. (fictional)",
+          "placeholder": "Cedarview Heating Ltd.",
+          "checked": null,
+          "legibleOnScreen": "Northline Electric Ltd. (fictional)",
+          "legibleTextIs": "stored value"
+        },
+        {
+          "tag": "textarea",
+          "type": null,
+          "name": "mailingAddress",
+          "storedValue": null,
+          "placeholder": "123 Example Ave NW, Edmonton, AB T5A 0A1",
+          "checked": null,
+          "legibleOnScreen": "123 Example Ave NW, Edmonton, AB T5A 0A1",
+          "legibleTextIs": "PLACEHOLDER — nothing is stored"
+        }
+      ],
+      "legibleFieldText": "Northline Electric Ltd. (fictional)\n123 Example Ave NW, Edmonton, AB T5A 0A1",
+      "bytes": 552381,
+      "pixels": {
+        "width": 1712,
+        "height": 910,
+        "meanLuma": 27.33,
+        "minLuma": 6.1,
+        "maxLuma": 243.9,
+        "brightPixelPct": 3.41,
+        "distinctColoursSampled": 343
+      }
+    },
+    {
+      "name": "c07b-refusal-statement",
+      "viewportKey": "16x9",
+      "route": "/portal/business",
+      "what": "The refusal STATEMENT alone — the same fieldset's own box, cut at the bottom of the denial paragraph. This is page.tsx lines 236-257 rendered: the heading, the saved-state badge, and the four clauses. No address of any kind appears in it.",
+      "selectors": [
+        "fieldset:has-text(\"Confirmation texts to your customers are not available yet\") > div:nth-of-type(1)",
+        "fieldset:has-text(\"Confirmation texts to your customers are not available yet\") > p:nth-of-type(1)"
+      ],
+      "file": "c07b-refusal-statement-16x9.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c07b-refusal-statement-16x9.png",
+      "capturedWith": "page.screenshot({clip}) — the box of fieldset:has-text(\"Confirmation texts to your customers are not available yet\"), cut 10px below fieldset:has-text(\"Confirmation texts to your customers are not available yet\") > p:nth-of-type(1)",
+      "frame": {
+        "of": "fieldset:has-text(\"Confirmation texts to your customers are not available yet\")",
+        "cutAtBottomOf": "fieldset:has-text(\"Confirmation texts to your customers are not available yet\") > p:nth-of-type(1)",
+        "padBottom": 10
+      },
+      "statedViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "effectiveViewport": {
+        "width": 1280,
+        "height": 900,
+        "deviceScaleFactor": 2
+      },
+      "scrollY": 1408,
+      "stickyHeaderPx": 178,
+      "clearanceBelowHeaderPx": 37,
+      "elementRectCss": {
+        "x": 212,
+        "y": 1623,
+        "width": 856,
+        "height": 115
+      },
+      "text": "CONFIRMATION TEXTS TO YOUR CUSTOMERS ARE NOT AVAILABLE YET\nNOT AGREED\nWe do not text your customers, and no account can turn this on today. Your assistant does not book jobs, and it never asks a caller for permission to text them. So there is nothing to confirm and nobody who has agreed to be messaged. You are told about every call instead — by text and by email, within seconds.",
+      "formFields": [],
+      "legibleFieldText": null,
+      "bytes": 136214,
+      "pixels": {
+        "width": 1712,
+        "height": 230,
+        "meanLuma": 22.32,
+        "minLuma": 6.1,
+        "maxLuma": 188.1,
+        "brightPixelPct": 5.72,
+        "distinctColoursSampled": 148
+      }
+    },
+    {
+      "name": "c05-forwarding",
+      "viewportKey": "9x16",
+      "route": "/portal/forwarding",
+      "what": "The client's own Nevamis number card.",
+      "selectors": [
+        "div.nv-card:has-text(\"Your dedicated Nevamis number\")"
+      ],
+      "file": "c05-forwarding-9x16.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c05-forwarding-9x16.png",
+      "capturedWith": "locator.screenshot()",
+      "frame": null,
+      "statedViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "effectiveViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "scrollY": 2,
+      "stickyHeaderPx": 153,
+      "clearanceBelowHeaderPx": 220,
+      "elementRectCss": {
+        "x": 20,
+        "y": 375,
+        "width": 390,
+        "height": 101
+      },
+      "text": "YOUR DEDICATED NEVAMIS NUMBER\n\n+15875550190\n\nThis is the number your calls forward to. It is yours and it does not change.",
+      "formFields": [],
+      "legibleFieldText": null,
+      "bytes": 60602,
+      "pixels": {
+        "width": 1170,
+        "height": 303,
+        "meanLuma": 42.05,
+        "minLuma": 9.2,
+        "maxLuma": 243.9,
+        "brightPixelPct": 8.04,
+        "distinctColoursSampled": 146
+      }
+    },
+    {
+      "name": "c06-call",
+      "viewportKey": "9x16",
+      "route": "/portal/calls",
+      "what": "One call card: who called, what they wanted, the urgency, and what the assistant told them would happen next. No address and no time window — neither field exists in DRAFT_DATA_COLLECTION. The only time shown is when the call itself came in.",
+      "selectors": [
+        "li.nv-card:has-text(\"Desmond Aku\")"
+      ],
+      "file": "c06-call-9x16.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c06-call-9x16.png",
+      "capturedWith": "locator.screenshot()",
+      "frame": null,
+      "statedViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "effectiveViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "scrollY": 506,
+      "stickyHeaderPx": 153,
+      "clearanceBelowHeaderPx": 24,
+      "elementRectCss": {
+        "x": 20,
+        "y": 683,
+        "width": 390,
+        "height": 192
+      },
+      "text": "Desmond Aku\nAug 10, 1:48 a.m.\n3:31\nEMERGENCY\n\nHalf the house has no power\n\nWe told them: Told him this is being passed straight through and someone will ring him back.\n\nTexted to your phone.\n\nSee the lead\nPlay the recording (3:31)",
+      "formFields": [],
+      "legibleFieldText": null,
+      "bytes": 108570,
+      "pixels": {
+        "width": 1170,
+        "height": 579,
+        "meanLuma": 37.51,
+        "minLuma": 6.1,
+        "maxLuma": 243.9,
+        "brightPixelPct": 5.77,
+        "distinctColoursSampled": 223
+      }
+    },
+    {
+      "name": "c07-rules",
+      "viewportKey": "9x16",
+      "route": "/portal/business",
+      "what": "The rule boxes the receptionist is built from. Hours and Service area are the two named; Services sits between them in the form, so a single rectangle containing both necessarily contains it. It is listed here rather than silently included.",
+      "selectors": [
+        "label#hours",
+        "label#services",
+        "label#area"
+      ],
+      "file": "c07-rules-9x16.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c07-rules-9x16.png",
+      "capturedWith": "page.screenshot({clip: union of selectors})",
+      "frame": null,
+      "statedViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "effectiveViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "scrollY": 448,
+      "stickyHeaderPx": 153,
+      "clearanceBelowHeaderPx": 24,
+      "elementRectCss": {
+        "x": 20,
+        "y": 625,
+        "width": 390,
+        "height": 412
+      },
+      "text": "HOURS\nWhen you answer, and what counts as after-hours.\nSERVICES\nWhat you do — and just as important, what you don't.\nSERVICE AREA",
+      "formFields": [
+        {
+          "tag": "textarea",
+          "type": null,
+          "name": "hoursText",
+          "storedValue": "Monday to Friday, 7:30am to 5pm. Closed weekends and statutory holidays.",
+          "placeholder": "Mon-Fri 8:00-17:00\nEmergencies: 24/7",
+          "checked": null,
+          "legibleOnScreen": "Monday to Friday, 7:30am to 5pm. Closed weekends and statutory holidays.",
+          "legibleTextIs": "stored value"
+        },
+        {
+          "tag": "textarea",
+          "type": null,
+          "name": "servicesText",
+          "storedValue": "Residential and light-commercial electrical: panel upgrades, EV charger installs, troubleshooting, subpanels, lighting retrofits. We do not do HVAC, gas, or solar.",
+          "placeholder": "Panel upgrades\nEV chargers\nService calls\nWe do NOT do: new construction",
+          "checked": null,
+          "legibleOnScreen": "Residential and light-commercial electrical: panel upgrades, EV charger installs, troubleshooting, subpanels, lighting retrofits. We do not do HVAC, gas, or solar.",
+          "legibleTextIs": "stored value"
+        },
+        {
+          "tag": "input",
+          "type": null,
+          "name": "serviceArea",
+          "storedValue": "Calgary, Airdrie, Cochrane and Chestermere.",
+          "placeholder": "Edmonton + 45 min: St. Albert, Sherwood Park, Leduc",
+          "checked": null,
+          "legibleOnScreen": "Calgary, Airdrie, Cochrane and Chestermere.",
+          "legibleTextIs": "stored value"
+        }
+      ],
+      "legibleFieldText": "Monday to Friday, 7:30am to 5pm. Closed weekends and statutory holidays.\nResidential and light-commercial electrical: panel upgrades, EV charger installs, troubleshooting, subpanels, lighting retrofits. We do not do HVAC, gas, or solar.\nCalgary, Airdrie, Cochrane and Chestermere.",
+      "bytes": 323944,
+      "pixels": {
+        "width": 1170,
+        "height": 1236,
+        "meanLuma": 36.02,
+        "minLuma": 6.1,
+        "maxLuma": 243.9,
+        "brightPixelPct": 5.28,
+        "distinctColoursSampled": 244
+      }
+    },
+    {
+      "name": "c08-lead",
+      "viewportKey": "9x16",
+      "route": "/portal/leads",
+      "what": "One card from \"Call these back\" — the newest lead still waiting on a ring back.",
+      "selectors": [
+        "#call-back li.nv-card:has-text(\"Marla Quint\")"
+      ],
+      "file": "c08-lead-9x16.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c08-lead-9x16.png",
+      "capturedWith": "locator.screenshot()",
+      "frame": null,
+      "statedViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "effectiveViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "scrollY": 302,
+      "stickyHeaderPx": 153,
+      "clearanceBelowHeaderPx": 24,
+      "elementRectCss": {
+        "x": 20,
+        "y": 479,
+        "width": 390,
+        "height": 210
+      },
+      "text": "Marla Quint\n☏\n587-555-0142\nPROMISED A CALLBACK\nAug 10, 2:38 a.m.\n\nPanel upgrade\n\nYour AI told them: “Told her someone from Northline will call her back as soon as they can.”\n\nI called them\nWon the job\nNot a fit",
+      "formFields": [
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "$ACTION_ID_4038bed32e0919e5cb78dd912ff45912cec294cf21",
+          "storedValue": null,
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "leadId",
+          "storedValue": "film-lead-1",
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "action",
+          "storedValue": "called",
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "$ACTION_ID_4038bed32e0919e5cb78dd912ff45912cec294cf21",
+          "storedValue": null,
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "leadId",
+          "storedValue": "film-lead-1",
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "action",
+          "storedValue": "won",
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "$ACTION_ID_4038bed32e0919e5cb78dd912ff45912cec294cf21",
+          "storedValue": null,
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "leadId",
+          "storedValue": "film-lead-1",
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "action",
+          "storedValue": "lost",
+          "placeholder": null,
+          "checked": null,
+          "legibleOnScreen": null,
+          "legibleTextIs": "hidden — carries no pixels"
+        }
+      ],
+      "legibleFieldText": null,
+      "bytes": 107286,
+      "pixels": {
+        "width": 1170,
+        "height": 630,
+        "meanLuma": 42.2,
+        "minLuma": 7.7,
+        "maxLuma": 243.9,
+        "brightPixelPct": 7.42,
+        "distinctColoursSampled": 279
+      }
+    },
+    {
+      "name": "c09-upcoming",
+      "viewportKey": "9x16",
+      "route": "/portal/upcoming",
+      "what": "The heading, its standfirst, and the capability cards beneath it.",
+      "selectors": [
+        "main.max-w-3xl > h1",
+        "main.max-w-3xl > p.nv-sub",
+        "main.max-w-3xl > div.space-y-3"
+      ],
+      "file": "c09-upcoming-9x16.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c09-upcoming-9x16.png",
+      "capturedWith": "page.screenshot({clip: union of selectors})",
+      "frame": null,
+      "statedViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "effectiveViewport": {
+        "width": 430,
+        "height": 1353,
+        "deviceScaleFactor": 3
+      },
+      "scrollY": 8,
+      "stickyHeaderPx": 153,
+      "clearanceBelowHeaderPx": 24,
+      "elementRectCss": {
+        "x": 20,
+        "y": 185,
+        "width": 390,
+        "height": 1144
+      },
+      "text": "What we’re working on\nNothing here is finished or for sale yet. They are what comes after the front desk, and the order we build them in is decided by which ones clients ask for. Putting your name down costs nothing, books nothing, and changes nothing on your bill. Tap one to see what it would do and to put your name down.\nRevenue Engine\nIN PRIVATE PILOT\n\nThe whole picture: which marketing produced which job, and what it was worth.\n\nSee what it would do and put your hand up →\nInstant Lead Follow-Up\nNOT BUILT YET\n\nThe moment somebody enquires, they hear back — before they ring the next company.\n\nSee what it would do and put your hand up →\nAutomatic Lead Tracking\nNOT BUILT YET\n\nEvery enquiry becomes a tracked lead without anybody typing it in.\n\nSee what it would do and put your hand up →\nQuote Recovery\nNOT BUILT YET\n\nThe quotes you sent and never heard back about, chased for you.\n\nSee what it would do and put your hand up →\nEmail + Inbox Assistant\nNOT BUILT YET\n\nDrafts the routine replies, flags the ones that actually need you.\n\nSee what it would do and put your hand up →\nPayroll Operations Support\nNOT BUILT YET\n\nHours in, payroll paperwork out, without the Sunday night spreadsheet.\n\nSee what it would do and put your hand up →",
+      "formFields": [],
+      "legibleFieldText": null,
+      "bytes": 663984,
+      "pixels": {
+        "width": 1170,
+        "height": 3432,
+        "meanLuma": 35.31,
+        "minLuma": 1.6,
+        "maxLuma": 255,
+        "brightPixelPct": 5.86,
+        "distinctColoursSampled": 306
+      }
+    },
+    {
+      "name": "c10-performance",
+      "viewportKey": "9x16",
+      "route": "/portal/performance",
+      "what": "The \"Leads per week\" section. Captured as its own element on purpose: elsewhere this page renders the word \"appointment\" (a 0-valued tile and a summary sentence), which is honest but is not what this film is about.",
+      "selectors": [
+        "section.nv-card:has(h2:text-is(\"Leads per week\"))"
+      ],
+      "file": "c10-performance-9x16.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c10-performance-9x16.png",
+      "capturedWith": "locator.screenshot()",
+      "frame": null,
+      "statedViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "effectiveViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "scrollY": 1232,
+      "stickyHeaderPx": 153,
+      "clearanceBelowHeaderPx": 24,
+      "elementRectCss": {
+        "x": 20,
+        "y": 1409,
+        "width": 390,
+        "height": 198
+      },
+      "text": "Leads per week\n\nEvery lead Nevamis captured for you, by week, last 8 weeks.\n\n7/13\n7/20\n7/27\n8/3\n6\n8/10",
+      "formFields": [],
+      "legibleFieldText": null,
+      "bytes": 53051,
+      "pixels": {
+        "width": 1170,
+        "height": 597,
+        "meanLuma": 35.98,
+        "minLuma": 6.1,
+        "maxLuma": 243.9,
+        "brightPixelPct": 5.08,
+        "distinctColoursSampled": 134
+      }
+    },
+    {
+      "name": "c07b-refusal",
+      "viewportKey": "9x16",
+      "route": "/portal/business",
+      "what": "The refusal fieldset, whole and exactly as it ships. The product stating, on the client's own settings page, what it does not do and cannot be made to do. NOTE: the fieldset's lower half is the CASL identification block, whose empty Mailing address box shows the shipped PLACEHOLDER \"123 Example Ave NW, Edmonton, AB T5A 0A1\". Nothing is stored there (mailingAddress is NULL) and it is the CLIENT's own address field, not a caller's — but it is address-shaped text on screen. Use c07b-refusal-statement if the film needs the claim with no address in frame.",
+      "selectors": [
+        "fieldset:has-text(\"Confirmation texts to your customers are not available yet\")"
+      ],
+      "file": "c07b-refusal-9x16.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c07b-refusal-9x16.png",
+      "capturedWith": "locator.screenshot()",
+      "frame": null,
+      "statedViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "effectiveViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "scrollY": 1577,
+      "stickyHeaderPx": 153,
+      "clearanceBelowHeaderPx": 24,
+      "elementRectCss": {
+        "x": 20,
+        "y": 1754,
+        "width": 390,
+        "height": 629
+      },
+      "text": "CONFIRMATION TEXTS TO YOUR CUSTOMERS ARE NOT AVAILABLE YET\nNOT AGREED\n\nWe do not text your customers, and no account can turn this on today. Your assistant does not book jobs, and it never asks a caller for permission to text them. So there is nothing to confirm and nobody who has agreed to be messaged. You are told about every call instead — by text and by email, within seconds.\n\nIf it is ever switched on, Canadian law treats you as the sender of that message, not us. So it would have to carry your legal business name and a way to reach you, and anyone could stop it by replying STOP. Those two details are collected here now so that nothing has to be rushed later; filling them in sends nothing.\n\nRecord my agreement in advance, for if this is ever offered. Nothing is sent today.\nLEGAL BUSINESS NAME\nThe name you actually carry on business under, as it appears on your registration.\nMAILING ADDRESS\nRequired by law to be reachable from the message. It is not shown in the text itself — it lives on a page the text links to.",
+      "formFields": [
+        {
+          "tag": "input",
+          "type": "checkbox",
+          "name": "callerSmsEnabled",
+          "storedValue": null,
+          "placeholder": null,
+          "checked": false,
+          "legibleOnScreen": null,
+          "legibleTextIs": "control"
+        },
+        {
+          "tag": "input",
+          "type": null,
+          "name": "businessLegalName",
+          "storedValue": "Northline Electric Ltd. (fictional)",
+          "placeholder": "Cedarview Heating Ltd.",
+          "checked": null,
+          "legibleOnScreen": "Northline Electric Ltd. (fictional)",
+          "legibleTextIs": "stored value"
+        },
+        {
+          "tag": "textarea",
+          "type": null,
+          "name": "mailingAddress",
+          "storedValue": null,
+          "placeholder": "123 Example Ave NW, Edmonton, AB T5A 0A1",
+          "checked": null,
+          "legibleOnScreen": "123 Example Ave NW, Edmonton, AB T5A 0A1",
+          "legibleTextIs": "PLACEHOLDER — nothing is stored"
+        }
+      ],
+      "legibleFieldText": "Northline Electric Ltd. (fictional)\n123 Example Ave NW, Edmonton, AB T5A 0A1",
+      "bytes": 917323,
+      "pixels": {
+        "width": 1170,
+        "height": 1890,
+        "meanLuma": 30.32,
+        "minLuma": 6.1,
+        "maxLuma": 243.9,
+        "brightPixelPct": 5.78,
+        "distinctColoursSampled": 396
+      }
+    },
+    {
+      "name": "c07b-refusal-statement",
+      "viewportKey": "9x16",
+      "route": "/portal/business",
+      "what": "The refusal STATEMENT alone — the same fieldset's own box, cut at the bottom of the denial paragraph. This is page.tsx lines 236-257 rendered: the heading, the saved-state badge, and the four clauses. No address of any kind appears in it.",
+      "selectors": [
+        "fieldset:has-text(\"Confirmation texts to your customers are not available yet\") > div:nth-of-type(1)",
+        "fieldset:has-text(\"Confirmation texts to your customers are not available yet\") > p:nth-of-type(1)"
+      ],
+      "file": "c07b-refusal-statement-9x16.png",
+      "absPath": "C:/Users/daren/nevamis-site/creative/nevamis/captures/c07b-refusal-statement-9x16.png",
+      "capturedWith": "page.screenshot({clip}) — the box of fieldset:has-text(\"Confirmation texts to your customers are not available yet\"), cut 10px below fieldset:has-text(\"Confirmation texts to your customers are not available yet\") > p:nth-of-type(1)",
+      "frame": {
+        "of": "fieldset:has-text(\"Confirmation texts to your customers are not available yet\")",
+        "cutAtBottomOf": "fieldset:has-text(\"Confirmation texts to your customers are not available yet\") > p:nth-of-type(1)",
+        "padBottom": 10
+      },
+      "statedViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "effectiveViewport": {
+        "width": 430,
+        "height": 930,
+        "deviceScaleFactor": 3
+      },
+      "scrollY": 1577,
+      "stickyHeaderPx": 153,
+      "clearanceBelowHeaderPx": 24,
+      "elementRectCss": {
+        "x": 20,
+        "y": 1754,
+        "width": 390,
+        "height": 216
+      },
+      "text": "CONFIRMATION TEXTS TO YOUR CUSTOMERS ARE NOT AVAILABLE YET\nNOT AGREED\nWe do not text your customers, and no account can turn this on today. Your assistant does not book jobs, and it never asks a caller for permission to text them. So there is nothing to confirm and nobody who has agreed to be messaged. You are told about every call instead — by text and by email, within seconds.",
+      "formFields": [],
+      "legibleFieldText": null,
+      "bytes": 349194,
+      "pixels": {
+        "width": 1170,
+        "height": 648,
+        "meanLuma": 25.5,
+        "minLuma": 6.1,
+        "maxLuma": 188.1,
+        "brightPixelPct": 6.74,
+        "distinctColoursSampled": 159
+      }
+    }
+  ],
+  "failures": []
+}
