@@ -1168,7 +1168,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (s.functions) h += "<ul>" + s.functions.map(function () { return "<li></li>"; }).join("") + "</ul>";
     h += '<p class="outcome"></p>';
     h += s.status === "available"
-      ? '<a class="btn btn-primary" style="align-self:flex-start;font-size:14px;padding:10px 18px" href="' + s.cta + '">Start here</a>'
+      /* The interest branch below has been counted since this page shipped and
+         this one never was, so the roadmap could report demand for products
+         that do not exist yet and not report anyone choosing the one that
+         does. No listener needed: site.js delegates every [data-evt] click. */
+      ? '<a class="btn btn-primary" data-evt="roadmap_service_start_clicked" style="align-self:flex-start;font-size:14px;padding:10px 18px" href="' + s.cta + '">Start here</a>'
       : '<button class="interest" data-svc="' + s.slug + '" data-name="' + s.name + '">Tell us this would help</button>';
     d.innerHTML = h;
     d.querySelector(".status").textContent = statusLabel[s.status] || s.status;
