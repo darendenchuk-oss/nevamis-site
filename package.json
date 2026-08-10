@@ -9,6 +9,7 @@
     "proof": "playwright test",
     "check": "node scripts/check-all.mjs",
     "consistency": "node scripts/check-consistency.js",
+    "classifier": "node scripts/check-claims-classifier.mjs",
     "audit": "node scripts/audit-site.mjs",
     "suite": "node scripts/check-suite.mjs"
   },

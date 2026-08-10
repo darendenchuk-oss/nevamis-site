@@ -53,6 +53,15 @@ async function waitForServer(url, timeoutMs = 15000) {
   return false;
 }
 
+/* 0. Is the JUDGE sound? Runs BEFORE the content check on purpose. Every rule
+      below asks whether the content is right; this asks whether the thing
+      deciding that is right, and on 2026-08-10 it was not — a denial in one
+      clause excused every claim sharing its sentence, so a live page could
+      carry "The C$150 pilot is retired, and Pro is C$850/month with 1,200
+      minutes." and exit 0 with no output. A green consistency run means
+      nothing if the classifier producing it is laundering. */
+run('claim classifier', process.execPath, ['scripts/check-claims-classifier.mjs']);
+
 // 1. Consistency: pure file reads, fastest, catches the most.
 run('consistency', process.execPath, ['scripts/check-consistency.js']);
 /* Exit 2 means every finding was about the LIVE phone agent's prompt, which is

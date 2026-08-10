@@ -19,6 +19,15 @@ import { fileURLToPath } from "node:url";
 import { promoteHtml } from "./promote.mjs";
 import { headCssBlock, readCssSources, CSS_OPEN, CSS_CLOSE, LINK_FONTS, LINK_SITE } from "./lib/inline-css.mjs";
 import { applySelfCta } from "./lib/nav-cta.mjs";
+/* DENIAL / ADDITIVE / RETIRED_OFFERS and the claim classifier moved to
+   ./lib/claims.mjs on 2026-08-10, when a laundering defect in the classifier
+   was fixed: a denial in ONE CLAUSE used to excuse every claim in the whole
+   sentence, so "The C$150 pilot is retired, and Pro is C$850/month with 1,200
+   minutes." passed on pricing.html with exit 0 and no output. The rule needed
+   its own fixture table, and fixtures cannot import it from this file without
+   running every filesystem guard below as a side effect. See that file for the
+   scope rule; see scripts/check-claims-classifier.mjs for the fixtures. */
+import { DENIAL, ADDITIVE, RETIRED_OFFERS, statesBanned, offendingClause } from "./lib/claims.mjs";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
    had no shared chrome, and that exemption is exactly why its hand-copied nav
@@ -90,55 +99,6 @@ const err = (m) => { console.error("FAIL: " + m); fail++; };
 let waiting = 0;
 const wait = (m) => { console.error("WAIT: " + m); waiting++; };
 
-/* A sentence that FORBIDS a phrase contains that phrase. Judging a whole file
-   therefore fails the documents doing the most to prevent the thing being
-   guarded: the live agent's prompt, whose retired-price line reads "never
-   quote these ... and any free pilot or free trial", and the outreach README's
-   "There is no free pilot and no free trial, both were retired." Two permanent
-   red entries that were correct content, which is precisely how a checker
-   stops being read.
-
-   Same classification the engine's checkText uses (OFFER_DENIAL in
-   src/domain/canonical.ts). Classified, not allowlisted: an allowlist of those
-   two sentences leaves the third unguarded.
-
-   Hoisted to module scope on 2026-08-09 so guard 7d can hold HTML pages to the
-   same standard. A page that says "there is no pilot" has to be able to say
-   the word, or the only page telling a visitor the truth is the one that
-   fails. */
-const DENIAL = [
-  /* "state", "charge", "describe" and "list" added 2026-08-10 with the widened
-     ADDITIVE list. llms.txt already said "Never state a setup, activation,
-     onboarding, implementation or launch charge" and the classifier did not
-     recognise it as a denial, so the first surface to fail the new patterns
-     was the surface instructing every answer engine not to make the claim. */
-  /\bnever\s+(?:quote|say|offer|promise|use|mention|state|charge|describe|list)\b/i,
-  /\b(?:is|are|was|were)\s+retired\b/i, /\bretired\b/i,
-  /\bthere is no\b/i, /\bthere are no\b/i, /\bwe do not\b/i, /\bdo not\s+(?:quote|say|offer|promise)\b/i,
-  /\bno longer\b/i, /\bnot a current\b/i, /\bsuperseded\b/i, /\bprohibited\b/i,
-  /* Added with guard 7d. A page that answers "is there a trial?" with "no,
-     and here is why" is the correct handling of a retired offer, and it needs
-     to be able to name what it is refusing. */
-  /\bwe don't\b/i, /\bno pilot\b/i, /\bno trial\b/i, /\bnot offered\b/i, /\bused to\b/i,
-  /* "No setup fee" is the SELLING POINT of the approved model and it cannot be
-     said without saying "setup fee". Before these three entries existed, guard
-     7c failed the sentence stating the thing it exists to protect, and its
-     remediation text told the writer to restore the two-number offer. */
-  /\bno setup fee\b/i, /\bno activation fee\b/i, /\bno one-time setup\b/i,
-  /\bnothing to set up\b/i, /\bno set-up fee\b/i, /\bno setup or activation\b/i,
-];
-/* CAVEAT worth knowing before writing plain text for a swept surface: this
-   splits on any newline as well as on sentence ends, so a hard-wrapped
-   sentence in a .txt or .md file is two sentences to this function. Put the
-   retired phrase and the word retiring it on the SAME physical line. The
-   split is deliberately that eager: bullet lists in these files often have no
-   terminating punctuation, and merging them would let one denial excuse every
-   claim in the list. */
-const statesBanned = (text, re) => text
-  .replace(/\*\*|__|\*/g, "")
-  .split(/(?<=[.!?])\s+|\n+/)
-  .some((s) => re.test(s) && !DENIAL.some((d) => d.test(s)));
-
 /* Walked rather than listed, so a script added to the calling kit tomorrow is
    covered without anyone remembering to add it here. Every truth gap found on
    this site so far has been a page missing from a hand-maintained array.
@@ -162,86 +122,6 @@ const walk = (dir) => {
   return out;
 };
 
-/* The two sentence-level pricing detectors, hoisted here on 2026-08-10 so that
-   guards 7c, 7d and 7e share ONE definition of each.
-
-   They were block-locals, and that is the mechanical reason this repository
-   shipped a directory nobody price-checked. Extending the rules to
-   config/elevenlabs/ meant either moving these lists or copying them, and a copy
-   drifts from the original the first time a pattern is added to one of them.
-   Add a pattern here and every surface gets it at once, which is the only
-   arrangement that survives the next pricing change. */
-const ADDITIVE = [
-  /one-time setup/i,
-  /\bsetup fee\b/i,
-  /plus (?:a )?(?:one-time )?setup/i,
-  /\+\s*(?:one-time )?setup/i,
-  /* Added 2026-08-10. The error string this guard PRINTS has named activation,
-     onboarding, implementation and launch charges since 7c was written, and
-     not one of them was detectable: the list only knew the word "setup". A
-     guard that tells you about five forbidden charges and can only see one is
-     worse than an honest guard that sees one, because the error text is what
-     the next reader believes the coverage to be. */
-  /\bactivation fee\b/i,
-  /\bonboarding fee\b/i,
-  /\bimplementation fee\b/i,
-  /\blaunch (?:fee|charge)\b/i,
-  /\bone-time (?:fee|charge)\b/i,
-];
-/* RETIRED_OFFERS carried only the two figures that were retired on 2026-08-09
-   (C$150 and C$850) and none of the ladder retired on 2026-08-06. Everything
-   below the first block was added 2026-08-10 after a check proved the guard
-   passed green on "Core is C$249/month and Growth is C$449/month. Pro includes
-   1,200 minutes, roughly 400 to 600 calls." going into the live agent's
-   knowledge base.
-
-   Three shapes are needed for each retired figure, not one:
-     - written  ($849, C$849, 849/month)
-     - SPOKEN   (eight hundred and forty-nine dollars) - config/elevenlabs/
-       feeds a VOICE agent and its own prompt documents that prices are written
-       as words on purpose, so the digit form alone guards nothing there
-     - bare $ as well as C$ - /\bC\$\s?850\b/ let plain "$850" walk through,
-       which is the exact form ai-assistant/SALES_PITCH.md uses. */
-const RETIRED_OFFERS = [
-  /\b\d+[- ]day live pilot\b/i,
-  /\b(?:7|seven)[- ]day pilot\b/i,
-  /\b(?:14|fourteen)[- ]day pilot\b/i,
-  /\bpilot fee\b/i,
-  /\bpaid pilot\b/i,
-  /\bfree pilot\b/i,
-  /\bpilot (?:price|credit)\b/i,
-  /\bC\$\s?150\b/,
-  /\bC\$\s?850\b/,
-  /\bfirst month\s+C\$/i,
-  /\bthen\s+C\$[\d,]+\s*\/\s*month/i,
-  /\bcredited toward your first month\b/i,
-  /\bcomes off (?:that|your) first month\b/i,
-
-  /* The retired ladder, written. Anchored to a currency mark or to a
-     per-month phrase so that a bare "449" in a pixel value, a year or a
-     phone number cannot trip it. 250/500/1000 are CURRENT and absent by
-     design; 850 keeps its C$-only entry above and gains the bare-$ form here. */
-  /(?:C\$|\$)\s?(?:49|150|197|249|397|449|499|797|849|850)\b(?!\d)/,
-  /\b(?:49|150|197|249|397|449|499|797|849|850)\s*(?:dollars?\s*)?(?:a|per|\/)\s*month\b/i,
-
-  /* The retired ladder, spoken. This is the form that reaches a prospect's
-     ear from config/elevenlabs/. */
-  /\b(?:forty[- ]nine|one hundred and fifty|two hundred and forty[- ]nine|three hundred and ninety[- ]seven|four hundred and forty[- ]nine|eight hundred and forty[- ]nine|eight hundred and fifty)\s+dollars\b/i,
-
-  /* Retired entitlements. Pro was 1,200 minutes and "400 to 600 calls" until
-     2026-08-09; both are now 1,400 and 470 to 700. A surface can carry the
-     right price and the wrong allowance, and nothing above would see it. */
-  /\b1[,.]?200\s+(?:AI\s+)?minutes\b/i,
-  /\b400\s*(?:to|-|–|—)\s*600\s+calls\b/i,
-
-  /* Retired plan names. "After Hours" and "Scale" became Core and Pro on
-     2026-08-06. Deliberately requires the word plan or tier beside the name:
-     this site sells after-hours answering and has a page called
-     after-hours-answering.html, so the bare phrase is legitimate copy and
-     banning it would fail the pages doing their job. */
-  /\b(?:After[- ]Hours|Scale)\s+(?:plan|tier)\b/i,
-  /\bPay[- ]As[- ]You[- ]Go\b/i,
-];
 
 const navOf = (html) => {
   const m = html.match(/<nav class="main-nav"[^>]*>([\s\S]*?)<\/nav>/);
@@ -331,9 +211,10 @@ for (const p of contentPages) {
 
   /* walk() is at module scope; see the note beside it for why it moved. */
 
-  /* Judged per SENTENCE by the hoisted statesBanned(), and only where the
-     sentence is not itself FORBIDDING the phrase it contains. See DENIAL near
-     the top of this file for why. */
+  /* Judged per CLAUSE by the shared statesBanned(), and only where the clause
+     is not itself FORBIDDING the phrase it contains. It was per SENTENCE until
+     2026-08-10, which let one retirement clause excuse every other claim
+     sharing its sentence. See scripts/lib/claims.mjs for the scope rule. */
   const extraSurfaces = [...surfaceFiles, ...surfaceDirs.flatMap(walk)];
   for (const file of extraSurfaces) {
     if (!fs.existsSync(file)) continue;
@@ -594,12 +475,14 @@ for (const p of contentPages) {
      a rule that fires on its own explanation teaches the next person to delete
      the explanation. Only what a reader can see is checked.
 
-     Judged per sentence since 2026-08-09, for one specific reason: the current
-     model's selling point is that there is NO setup fee, and this rule matched
-     "setup fee" anywhere in the file, so the page stating the commitment failed
-     the guard protecting it. Sentence classification is the narrowest fix that
-     keeps the detector able to fail: "One-time setup: C$250" is still caught,
-     "No setup fee, no minimum term" is not.
+     Judged per sentence since 2026-08-09 and per CLAUSE since 2026-08-10, for
+     one specific reason: the current model's selling point is that there is NO
+     setup fee, and this rule matched "setup fee" anywhere in the file, so the
+     page stating the commitment failed the guard protecting it. Clause
+     classification is the narrowest fix that keeps the detector able to fail:
+     "One-time setup: C$250" is still caught, "No setup fee, no minimum term"
+     is not. Sentence classification was too coarse in the other direction —
+     see scripts/lib/claims.mjs for what it laundered.
 
      The remediation text changed with it. It used to end "Write 'First month
      C$X, then C$Y/month'", which was this guard telling anyone who tripped it
@@ -614,8 +497,9 @@ for (const p of contentPages) {
     const text = visible(fs.readFileSync(file, "utf8"));
     const label = path.relative(root, file).replace(/\\/g, "/");
     for (const b of ADDITIVE) {
-      if (statesBanned(text, b)) {
-        err(`${label}: ${b} charges something beside the monthly price. There is no setup, activation, `
+      const clause = offendingClause(text, b);
+      if (clause) {
+        err(`${label}: ${b} charges something beside the monthly price.\n      clause: "${clause}"\n      There is no setup, activation, `
           + `onboarding, implementation or launch charge. Write "C$X/month", and if the point is that `
           + `nothing else is charged, say so as a denial ("no setup fee") rather than as a line item.`);
       }
@@ -634,11 +518,16 @@ for (const p of contentPages) {
        Rule 4's banned list cannot: it tests the whole file, so the one page
        that has to explain that there is no pilot would be the page that fails.
 
-       So this is judged per sentence, by the same DENIAL classification the
+       So this is judged per CLAUSE, by the same DENIAL classification the
        cross-repo surfaces already use. "There is no pilot, paid or free"
        passes. "Start with the 7-day live pilot" does not. That asymmetry is
        the whole guard: it must stay possible to deny a retired offer in words,
        and impossible to make one.
+
+       The unit was the SENTENCE until 2026-08-10, and that was too coarse in a
+       way that pointed the wrong direction: "The C$150 pilot is retired, and
+       Pro is C$850/month with 1,200 minutes." passed. One retirement clause
+       excused two more retired figures and a wrong CURRENT price beside it.
 
        NOT a list of words to delete. If a failure here names a sentence that
        is genuinely refusing the offer, the fix is to add the refusal wording
@@ -666,10 +555,12 @@ for (const p of contentPages) {
     const label = path.relative(root, file).replace(/\\/g, "/");
     const text = readable(fs.readFileSync(file, "utf8"));
     for (const b of RETIRED_OFFERS) {
-      if (statesBanned(text, b)) {
-        err(`${label}: offers a retired commercial term ${b}. The approved model is one monthly price, `
+      const clause = offendingClause(text, b);
+      if (clause) {
+        err(`${label}: offers a retired commercial term ${b}.\n      clause: "${clause}"\n      The approved model is one monthly price, `
           + `charged the day they subscribe and every month after: no setup, no activation, no pilot, no trial. `
-          + `A sentence that DENIES the retired offer is allowed; extend DENIAL rather than dropping the pattern.`);
+          + `A CLAUSE that denies the retired offer is allowed; extend DENIAL rather than dropping the pattern. `
+          + `Note the scope: a denial in a NEIGHBOURING clause no longer excuses this one.`);
       }
     }
   }
@@ -715,14 +606,12 @@ for (const p of contentPages) {
        caught; verified by reverting the file and re-running. */
 {
   const surfaceDir = path.join(root, "config", "elevenlabs");
-  const isQuestion = (s) => /\?\s*$/.test(s.trim());
-  /* Same shape as statesBanned(), plus the interrogative exemption. Written out
-     rather than parameterised so the difference from the shared classifier is
-     visible at the point of use. */
-  const offersHere = (text, re) => text
-    .replace(/\*\*|__|\*/g, "")
-    .split(/(?<=[.!?])\s+|\n+/)
-    .some((s) => re.test(s) && !isQuestion(s) && !DENIAL.some((d) => d.test(s)));
+  /* The shared classifier with its interrogative exemption switched on. It was
+     a hand-copied near-duplicate of statesBanned() until 2026-08-10; the copy
+     is what let the clause-scope fix have to be made twice, and the second copy
+     is exactly the kind of thing this repository has been bitten by before.
+     One definition, one flag. */
+  const offersHere = (text, re) => offendingClause(text, re, { allowQuestions: true });
 
   const files = walk(surfaceDir);
   if (!files.length) {
@@ -733,18 +622,20 @@ for (const p of contentPages) {
     const label = path.relative(root, file).replace(/\\/g, "/");
     const text = fs.readFileSync(file, "utf8");
     for (const b of RETIRED_OFFERS) {
-      if (offersHere(text, b)) {
-        err(`${label}: a spoken-agent surface states a retired commercial term ${b} as live. `
+      const clause = offersHere(text, b);
+      if (clause) {
+        err(`${label}: a spoken-agent surface states a retired commercial term ${b} as live.\n      clause: "${clause}"\n      `
           + `The approved model is one monthly price per plan, charged the day the client subscribes and `
           + `every month after: no setup, no activation, no pilot, no trial, and never a second figure. `
           + `This file instructs or grades the agent that answers the demo line, so a retired offer here `
-          + `reaches a prospect out loud. A sentence that DENIES the offer is allowed, and so is a quoted `
+          + `reaches a prospect out loud. A CLAUSE that denies the offer is allowed, and so is a quoted `
           + `caller question; extend DENIAL rather than dropping the pattern.`);
       }
     }
     for (const b of ADDITIVE) {
-      if (offersHere(text, b)) {
-        err(`${label}: a spoken-agent surface describes the price additively (${b}). There is no setup, `
+      const clause = offersHere(text, b);
+      if (clause) {
+        err(`${label}: a spoken-agent surface describes the price additively (${b}).\n      clause: "${clause}"\n      There is no setup, `
           + `activation, onboarding, implementation or launch charge. State one monthly figure, and if the `
           + `point is that nothing else is charged, say it as a denial ("no setup fee") rather than as a line item.`);
       }
@@ -878,7 +769,7 @@ for (const p of contentPages) {
          the top saying the model it was written against is superseded.
 
        A file with the banner is exempt entirely. A file without one is judged
-       sentence by sentence with the same DENIAL classifier the page rules
+       CLAUSE BY CLAUSE with the same DENIAL classifier the page rules
        use, so "there is no setup fee to charge" and "the C$150 pilot is
        retired" still pass in an unbannered file. What fails is a document
        with no banner making a plain present-tense claim, which is exactly the
@@ -910,9 +801,10 @@ for (const p of contentPages) {
     const head = text.split(/\r?\n/).filter((l) => l.trim()).slice(0, 30).join("\n");
     if (BANNER.test(head)) continue;
     for (const b of [...RETIRED_OFFERS, ...ADDITIVE]) {
-      if (statesBanned(text, b)) {
-        err(`${label}: states a retired commercial term ${b} with no superseded banner. `
-          + `Either correct the sentence to the current model (one recurring price per plan, nothing `
+      const clause = offendingClause(text, b);
+      if (clause) {
+        err(`${label}: states a retired commercial term ${b} with no superseded banner.\n      clause: "${clause}"\n      `
+          + `Either correct the clause to the current model (one recurring price per plan, nothing `
           + `charged beside it, no pilot at any price), or - if the file is a record of what USED to be `
           + `true and the figure must stay - add a dated banner in the first lines saying so, the way `
           + `docs/ideas/*, docs/payment-flow.md and PRELAUNCH.md already do. Do not delete the history.`);
