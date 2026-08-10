@@ -165,3 +165,47 @@ the sweep on its own merit rather than by a one-word margin.
 - **No video pipeline exists yet.** The 152–368 ms LCP is achieved by inlined
   CSS and metric-matched font fallbacks. A full-bleed hero video is the single
   biggest threat to that budget and gets designed against it from the start.
+
+---
+
+## D7 — The campaign line
+
+## **The work moves. You still decide.**
+
+**Chosen unanimously.** 32 candidates from four angles (momentum, control,
+freedom, platform), judged independently by three personas: a cynical
+owner-operator, an investor testing whether the line caps the company at phone
+answering, and a creative director judging craft alone. All three named this
+line best; two wrote "and it is not close". All three named the same runner-up
+as most overrated — *"Load-bearing."* — one calling it "the line that wins the
+pitch and loses the market", which is the most useful sentence the panel
+produced.
+
+**Why it is right, in the order that matters:**
+
+1. **It is true, and it is true about the hard part.** "You still decide" IS the
+   product boundary — a person on the business's side confirms the slot. Every
+   other candidate either ignored that constraint or apologised for it. This one
+   states it as the virtue. A line that survives the truth basis without
+   softening is worth more than a line that has to be defended.
+2. **It scales past the phone.** "The work" names no channel. When NEVAMIS
+   drafts a quote against the owner's price list, assembles a month into a
+   report, or prepares a follow-up, the same six words still describe it. The
+   investor judge tested exactly this and it was the only line that did not cap
+   the company at answering.
+3. **It carries both halves of the brand idea in one breath** — momentum in the
+   first clause, control in the second — without an adjective anywhere.
+4. **It clears the copy linter on merit**, not by a one-word margin. No blocked
+   phrase, no guarantee, no outcome the company cannot control. This was the
+   D5 watch item and it is now closed.
+
+**The honest risk, recorded so the copy answers it:** "The work moves" can be
+heard as *the job gets done* rather than *the job gets advanced to your
+decision*. Supporting copy must name what moves — the call answered, the caller
+qualified, the job and the time window captured, the summary sent. The line is
+the promise; the section beneath it is the proof.
+
+**Runners-up worth keeping** for section headers and film beats, not as the
+campaign line: *"It does not improvise."* (scored 8 with two judges — the
+strongest single expression of the rules boundary) and *"Keep both hands on the
+work."* (15.4 aggregate — the most physical, best suited to the film's opening).
