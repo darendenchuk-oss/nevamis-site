@@ -42,12 +42,45 @@ test('no button offers the page it is already on', async ({ page }) => {
 test('the booking page header sends you to the scheduler instead', async ({ page }) => {
   await page.goto('/book.html');
   const cta = page.locator('.main-nav a.btn-primary');
-  await expect(cta).toHaveAttribute('href', '#booking');
+  await expect(cta).toHaveAttribute('href', '#pick-a-time');
   await expect(cta, 'still announced as the current page for assistive tech')
     .toHaveAttribute('aria-current', 'page');
   /* Not booking intent any more: it is a scroll by someone already booking, and
      counting it would inflate that funnel stage with people who arrived. */
   await expect(cta).not.toHaveAttribute('data-evt', /.*/);
-  /* And it has somewhere to land. */
-  await expect(page.locator('#booking')).toHaveCount(1);
+  await expect(page.locator('#pick-a-time')).toHaveCount(1);
+});
+
+/* The assertion this file was missing. The test above used to be called "sends
+   you to the scheduler" while only checking that the anchor RESOLVED, and it
+   passed for weeks pointing at a section 2,185px above the scheduler. Existence
+   is not arrival. Containment is: if the target contains the iframe, no future
+   edit can leave the button resolving somewhere that merely shares the topic. */
+test('the header CTA lands on the booking control, not near it', async ({ page }) => {
+  await page.goto('/book.html');
+  const contains = await page.evaluate(() => {
+    const target = document.querySelector('#pick-a-time');
+    const frame = document.querySelector('#bkFrame');
+    return !!(target && frame && target.contains(frame));
+  });
+  expect(contains, '#pick-a-time must contain the scheduler iframe').toBe(true);
+});
+
+/* .site-header is position:fixed, and this site sets scroll-margin nowhere, so
+   an anchor with no offset drops its heading underneath the header. Pinned
+   against the fixed header's own height rather than a copied number. */
+test('the scheduler anchor clears the fixed header', async ({ page }) => {
+  await page.goto('/book.html');
+  const r = await page.evaluate(() => {
+    const t = document.querySelector('#pick-a-time');
+    const h = document.querySelector('.site-header');
+    return {
+      margin: parseFloat(getComputedStyle(t).scrollMarginTop) || 0,
+      headerH: h ? Math.round(h.getBoundingClientRect().height) : 0,
+      headerFixed: h ? getComputedStyle(h).position : null,
+    };
+  });
+  expect(r.headerFixed, 'premise of this test').toBe('fixed');
+  expect(r.margin, `scroll-margin-top ${r.margin}px must clear the ${r.headerH}px fixed header`)
+    .toBeGreaterThanOrEqual(r.headerH);
 });

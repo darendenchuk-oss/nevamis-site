@@ -7,8 +7,17 @@
 
 /** Page -> the in-page target its header button should use instead of a link
  *  to itself. A page absent from this map keeps the plain self-link: better
- *  that than inventing a destination. */
-export const SELF_CTA_TARGET = { 'book.html': '#booking' };
+ *  that than inventing a destination.
+ *
+ *  The target must be the CONTROL the button names, not the section that shares
+ *  its topic. This pointed at #booking, the top of book.html's explanatory run,
+ *  which sits 1,520px (desktop) / 2,185px (mobile) above the scheduler. Because
+ *  .site-header is position:fixed, that button is on screen at every scroll
+ *  position on desktop — so a visitor already looking at the calendar who
+ *  pressed "Book a call" was scrolled backwards, away from the thing they were
+ *  about to use. Fixing the self-link stopped the page reloading itself; it did
+ *  not make the button arrive anywhere useful. */
+export const SELF_CTA_TARGET = { 'book.html': '#pick-a-time' };
 
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
