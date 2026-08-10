@@ -1010,6 +1010,65 @@ for (const p of contentPages) {
 }
 
 /* ============================================================
+   GUARD: the instructions for sending a proposal must send a real plan.
+
+   docs/PROPOSAL-LINKS.md tells the founder what to paste into an email. It
+   drifted badly: for a day after the offer changed it still documented a
+   founding waiver, a struck-out setup fee and a free seven-day pilot, and its
+   example email promised the pilot in writing. proposal.html was truthful
+   throughout, so following the document meant sending a prospect a message the
+   document then contradicted.
+
+   Worse, one example told him to send ?plan=pay-as-you-go. That plan was
+   removed, unknown ids fall back to the recommended one, and the link would
+   have quoted Growth at C$500/month to somebody who had just been offered a
+   low-volume option.
+
+   Prose cannot be checked. The LINKS can: every proposal URL in the file must
+   name a plan that pricing-config.js actually defines, and every plan that
+   exists must appear in at least one of them, so a new tier cannot ship
+   undocumented. Retired ids are named in the file as warnings rather than
+   URLs, which is exactly why matching on full URLs is the right rule.
+   ============================================================ */
+{
+  const docRel = "docs/PROPOSAL-LINKS.md";
+  const docPath = path.join(root, docRel);
+  if (!fs.existsSync(docPath)) err(`${docRel} is missing: the proposal send instructions are not optional`);
+  else {
+    const w = {};
+    vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+    const ids = new Set((w.NV_PRICING?.plans ?? []).map((p) => p.id));
+    const doc = fs.readFileSync(docPath, "utf8");
+
+    const urls = [...doc.matchAll(/proposal\.html\?[^\s)`"']*/g)].map((m) => m[0]);
+    if (!urls.length) err(`${docRel}: no example proposal links found, so this guard proves nothing`);
+    const used = new Set();
+    for (const u of urls) {
+      const plan = (u.match(/[?&]plan=([A-Za-z0-9_-]+)/) || [])[1];
+      if (!plan) continue;
+      /* The one placeholder, spelled exactly, matching the file's own
+         BUSINESS+NAME convention in the same template line. Exempting it by
+         name rather than by "looks like a placeholder" keeps the guard tight:
+         ?plan=PAY-AS-YOU-GO would still fail, which is the point. */
+      if (plan === "PLAN") continue;
+      used.add(plan);
+      if (!ids.has(plan)) {
+        err(`${docRel}: an example link sends ?plan=${plan}, which pricing-config.js does not define.\n`
+          + `       proposal.html falls back to the recommended plan for an unknown id, so this link\n`
+          + `       quotes the wrong tier at the wrong price to a named prospect.\n`
+          + `       Known ids: ${[...ids].join(", ")}`);
+      }
+    }
+    for (const id of ids) {
+      if (!used.has(id)) {
+        err(`${docRel}: plan "${id}" exists in pricing-config.js but no example link sends it.\n`
+          + `       A tier nobody knows how to send is a tier nobody sends.`);
+      }
+    }
+  }
+}
+
+/* ============================================================
    GUARD: the published privacy promise, enforced by code shape.
 
    privacy.html tells visitors that each analytics count records "only the
@@ -1074,7 +1133,7 @@ for (const p of contentPages) {
   }
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no raw query string reaches telemetry.");
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no raw query string reaches telemetry, every documented proposal link names a real plan.");
 /* 1 = something here is broken. 2 = nothing here is broken but the live
    phone agent needs a change only the owner can make. 0 = clean. */
 if (fail === 0 && waiting > 0) console.error(`
