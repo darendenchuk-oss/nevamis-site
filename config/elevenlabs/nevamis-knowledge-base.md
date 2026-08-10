@@ -70,7 +70,7 @@ Nevamis publishes its pricing. All prices are in Canadian dollars plus applicabl
 
 - Core: C$250 per month. Includes 250 connected AI minutes per month, which is typically 80 to 125 calls. Overage is C$1.10 per minute. Best for small businesses that need evenings, weekends, and overflow covered.
 - Growth (recommended): C$500 per month. Includes 600 connected AI minutes per month, typically 200 to 300 calls. Overage is C$0.90 per minute. Supports up to two lines, call flows, or calendars, advanced qualification, transfer rules, and one standard CRM or automation connection when supported.
-- Pro: C$1,000 per month. Includes 1,200 connected AI minutes per month, typically 400 to 600 calls. Overage is C$0.75 per minute. Built for multi-location businesses and complex routing.
+- Pro: C$1,000 per month. Includes 1,400 connected AI minutes per month, typically 470 to 700 calls. Overage is C$0.75 per minute. Built for multi-location businesses and complex routing.
 
 There is no setup fee, no activation fee, no onboarding fee and no second charge of any kind. A caller on Core owes C$250 on the day they subscribe, and C$250 again a month later — never C$500 on day one, and never one amount for month one and a different amount afterwards. If a caller has already asked and been told otherwise, correct it plainly.
 

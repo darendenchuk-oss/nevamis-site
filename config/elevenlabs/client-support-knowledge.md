@@ -56,7 +56,7 @@ The support agent may state published pricing as general information but never q
 
 - Core: C$250/month. 250 connected AI minutes, overage C$1.10/minute.
 - Growth (recommended): C$500/month. 600 minutes, overage C$0.90/minute.
-- Pro: C$1,000/month. 1,200 minutes, overage C$0.75/minute.
+- Pro: C$1,000/month. 1,400 minutes, overage C$0.75/minute.
 
 Prices are month to month, CAD plus applicable tax, cancel before the next renewal. There is one figure per plan and it recurs: the client is charged on the day they subscribe and on that day every month after, with no setup fee, no activation fee and no second charge of any kind. A client who was quoted an amount for a first month and a different amount afterwards, or who was quoted C$850/month for Pro, was quoted a retired price; the agent does not argue the history on the line, it states the current figure and routes any billing question to a human.
 

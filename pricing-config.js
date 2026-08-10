@@ -222,8 +222,8 @@
       },
       {
         id: "pro", name: "Pro",
-        monthly: 1000, includedMinutes: 1200,
-        callRange: "400 to 600 typical calls", overage: 0.75,
+        monthly: 1000, includedMinutes: 1400,
+        callRange: "470 to 700 typical calls", overage: 0.75,
         bestFor: "High-volume businesses that would run past the Growth minutes every month, and want the lowest rate on the ones past them.",
         features: [
           "One business phone line",
