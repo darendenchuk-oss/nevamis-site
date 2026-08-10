@@ -7,6 +7,11 @@ exclude:
   - docs/
   - config/
   - scripts/
+  # Creative source of truth for the cinematic identity: briefs, prompts,
+  # storyboard, generation manifest, voice auditions. Working material, not
+  # pages. The FINISHED media it produces lands in assets/ and IS published;
+  # this directory is the reasoning behind it.
+  - creative/
   - PRELAUNCH.md
   - README.md
   - WEBSITE_AUDIT.md
