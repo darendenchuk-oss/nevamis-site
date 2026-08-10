@@ -50,3 +50,38 @@ affects Gate A, because no generation prompt exists yet.
 `ad-creative`, `design-dna`, `gstack-design-*`, `image`, `video`, `ponytail-review`,
 `ab-testing` — none affected a Gate A artifact, so none are claimed.
 Higgsfield MCP and the ElevenLabs API were **available and not called**.
+
+
+---
+
+# Gate A2 update
+
+## visual-skills - INSTALLED and INVOKED
+- **Source:** github.com/smixs/visual-skills - **commit `3c554715b5eb30f54de78fac3c0df4a7105e4955`** (2026-08-08)
+- **Location:** `film-v2/vendor/visual-skills` (project-scoped, gitignored)
+- **Licence: CC BY 4.0 - attribution MANDATORY.** Per its NOTICE: *Visual Skills -
+  AI film director skills for Claude agents, Copyright (c) 2026 **Serge Shima**,
+  https://github.com/smixs/visual-skills*. Reproduced in `GATE-A2.md`; must survive
+  into any published derivative.
+- **Honest scope note:** this package is primarily a *generative prompting* skill
+  (Nano Banana / GPT Image / Seedance). Its prompt-writing routers were **not used**,
+  because Gate A2 generates nothing. What was actually used:
+  - `video/references/dramaturgy.md` - the **scene formula** (desire / obstacle /
+    space geometry / controlled gaze) drove the one-focal-point-per-frame rule, and
+    the **three-detail rule** (environmental pressure + micro-action + motif) is why
+    frame 01 carries `2:11 AM - TUESDAY` as pressure rather than decoration.
+  - `video/references/camera-lighting-vocabulary.md` - framing, light direction and
+    quality; its **transition vocabulary** (motion relay, match cut, occlusion mask)
+    is the basis of the 1-2-3-4-5-6-7 transformation plan in `GATE-A2.md`.
+  - Its banned-word list ("cinematic", "epic", "stunning") applied as a review filter
+    on my own frame descriptions.
+- **Can it spend or call out?** No - it is documentation. The models it recommends
+  would, and none were called.
+
+## Remotion guidance
+`remotion-best-practices`, `remotion-markup`, `remotion-render`, `remotion-create`,
+`remotion-docs` read for Gate B structure. **`remotion-studio` and
+`remotion-multimedia` remain genuinely NOT INSTALLED.**
+
+## Still not installed
+`browser-use/video-use` - needed at Gate D (editing and QA discipline), not Gate A2.
