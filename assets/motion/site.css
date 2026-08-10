@@ -502,6 +502,37 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
    from here. Turning the outline back on instead would have drawn two rings. */
 .roi-grid input:focus{outline:none;border-color:rgba(159,240,206,.5);
   box-shadow:0 0 0 3px rgba(159,240,206,.5)}
+/* ---------- the Cal.com scheduler frame, both places it appears ----------
+   Cal posts no dimension events, so the height is ours to declare, and it was
+   declared twice: book.html carried 940px (1120px on narrow screens) and
+   site.js hardcoded 680px for the homepage embed. Two constants, one of which
+   nobody re-measured. Measured inside the live iframe at six widths, taking
+   the bottom of the last day cell of a six-row month:
+
+              needs (book / homepage)   had
+     390px        683 / 683             1120 / 680   homepage clipped by 3px
+     768px        925 / 969              940 / 680   homepage clipped by 289px
+    1024px+       951 / 1015             940 / 680   BOTH clipped, by 11 / 335
+
+   So the page that exists to take bookings showed August 1st to 8th and
+   nothing else above 768px. One declaration now, in the shared stylesheet
+   that is inlined into every page, so the two surfaces cannot drift again.
+
+   Taller is not wasted: Cal's document is ~2,440px, so extra height reveals
+   more of its own content rather than empty space. 1080 clears the worst
+   measured requirement by 65px, which is the margin for a month whose grid
+   sits differently.
+
+   The background is the site's own dark surface rather than #fff. Cal paints
+   white in a light-preference browser and dark in a dark one; either way this
+   only shows in the moment before it paints, and a white flash on a dark page
+   is the one outcome worth ruling out. The THEME inside the frame is a Cal
+   account setting and not reachable from here - see book.html, and do not
+   reach for /embed?theme=dark, which renders invisible without their SDK. */
+.nv-cal-frame{display:block;width:100%;height:1080px;border:0;border-radius:12px;
+  background:var(--navy-2)}
+@media(max-width:719px){.nv-cal-frame{height:1120px}}
+
 .roi-grid .hint{color:var(--muted);font-size:12.5px;margin-top:6px}
 /* The compact estimate, narrow screens only.
 

@@ -480,6 +480,9 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
   transition:border-color .2s var(--e-out),box-shadow .2s var(--e-out)}
 .roi-grid input:focus{outline:none;border-color:rgba(159,240,206,.5);
   box-shadow:0 0 0 3px rgba(159,240,206,.5)}
+.nv-cal-frame{display:block;width:100%;height:1080px;border:0;border-radius:12px;
+  background:var(--navy-2)}
+@media(max-width:719px){.nv-cal-frame{height:1120px}}
 .roi-grid .hint{color:var(--muted);font-size:12.5px;margin-top:6px}
 .roi-mini{display:none}
 @media(max-width:900px){
@@ -712,8 +715,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     /* !important because the panel carries padding:26px as an inline style,
        and an inline style beats a stylesheet rule regardless of specificity.
        Overriding one is the case !important exists for. */
-    #booking .panel{padding-left:12px!important;padding-right:12px!important}
-    #bkFrame{--bk-frame-h:1120px}
+    #booking .panel{padding-left:12px!important;padding-right:12px!important}
   }
 
   /* ---------- callback request ---------- */
@@ -924,7 +926,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              header. Mobile gets more because Cal stacks its layout when narrow.
              If Cal.com ever changes the booker's height this needs re-measuring
              because there is no signal that would tell us automatically. -->
-        <iframe id="bkFrame" src="https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1" title="Book a 15-minute intro call with Daren on the Cal.com scheduler" loading="lazy" style="width:100%;height:var(--bk-frame-h,940px);border:0;border-radius:12px;background:var(--navy-2)"></iframe>
+        <iframe id="bkFrame" class="nv-cal-frame" src="https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1" title="Book a 15-minute intro call with Daren on the Cal.com scheduler" loading="lazy"></iframe>
         <p style="margin-top:16px;font-size:14.5px;color:var(--muted);text-align:center">Scheduler not loading, or prefer a full page? <a href="https://cal.com/daren-qvlah4/nevamis-intro" target="_blank" rel="noopener" data-evt="booking_start">Open booking in a new tab</a>.</p>
         <p style="margin-top:10px;font-size:14.5px;color:var(--muted);text-align:center">Rather talk first? Call <a class="mono" href="tel:+15874130035">(587) 413-0035</a> and ask it to have Daren call you back, or email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
 

@@ -294,7 +294,9 @@
         f.src = host.getAttribute("data-book-src");
         f.title = "Book a 15-minute intro call with Daren on the Cal.com scheduler";
         f.loading = "lazy";
-        f.style.cssText = "width:100%;height:680px;border:0;border-radius:14px;background:#fff";
+        /* One declaration, in site.css, shared with book.html. This was
+           inline: 680px, and background:#fff on a dark page. */
+        f.className = "nv-cal-frame";
         host.appendChild(f);
         window.nvTrack("inline_scheduler_shown");
       });
