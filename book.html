@@ -733,6 +733,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .cb-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:16px}
   .cb-note{font-size:12.5px;color:var(--muted-dark)}
   .cb-msg{margin-top:14px;padding:11px 13px;border-radius:9px;font-size:14px;line-height:1.5}
+  /* Empty means "nothing to say", not "not here". The live region stays in the
+     accessibility tree at all times and only its TEXT changes, because a region
+     inserted already containing its message is not reliably announced - several
+     screen reader and browser pairs read only regions they were already
+     watching. This is what #ifStatus on coming-soon.html has always done. An
+     empty block box is zero-height once its own spacing is removed, so it
+     occupies nothing until it has something to say. */
+  .cb-msg:empty{margin:0;padding:0;border:0}
   .cb-msg.ok{background:rgba(47,191,143,.12);border:1px solid rgba(159,240,206,.35);color:var(--ink)}
   .cb-msg.bad{background:rgba(240,180,98,.10);border:1px solid rgba(240,180,98,.4);color:var(--ink)}
 </style>
@@ -954,7 +962,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
               <button type="submit" class="btn btn-primary" id="cbSubmit">Ask Daren to call me</button>
               <span class="cb-note">We use this to ring you back about Nevamis, nothing else.</span>
             </div>
-            <p id="cbMsg" class="cb-msg" role="status" aria-live="polite" hidden></p>
+            <!-- Never hidden. See .cb-msg:empty above: the region has to be in
+                 the accessibility tree BEFORE the message arrives, or the
+                 failure text can go unannounced to the visitor who most needs
+                 it. It renders as nothing until it holds something. -->
+            <p id="cbMsg" class="cb-msg" role="status" aria-live="polite"></p>
           </form>
         </div>
       </div>
@@ -1095,10 +1107,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       var btn = document.getElementById("cbSubmit");
       var fields = ["cbName", "cbPhone", "cbEmail"];
 
+      /* Mutates the live region rather than revealing it. */
       function say(text, kind) {
-        msg.textContent = text;
         msg.className = "cb-msg " + kind;
-        msg.hidden = false;
+        msg.textContent = text;
+      }
+      function clearSay() {
+        msg.className = "cb-msg";
+        msg.textContent = "";
       }
       function val(id) { return (document.getElementById(id).value || "").trim(); }
 
@@ -1114,15 +1130,21 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         });
         if (bad) { say("Please fill in your name, a number we can reach you on, and an email.", "bad"); bad.focus(); return; }
 
+        /* Disabling the button that currently HAS focus moves focus to <body>,
+           which drops a keyboard or screen reader user at the top of the
+           document just as the outcome arrives. Remembered here and restored
+           when the button comes back, so the answer lands where they were. */
+        var hadFocus = document.activeElement === btn;
         btn.disabled = true;
         var original = btn.textContent;
         btn.textContent = "Sending…";
-        msg.hidden = true;
+        clearSay();
 
         /* Bounded. Without this a hung request leaves the button disabled for
            ever and the visitor cannot retry. */
         var ctrl = typeof AbortController === "function" ? new AbortController() : null;
-        var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, TIMEOUT_MS);
+        var timedOut = false;
+        var timer = setTimeout(function () { timedOut = true; if (ctrl) ctrl.abort(); }, TIMEOUT_MS);
 
         fetch(ENDPOINT, {
           method: "POST",
@@ -1150,11 +1172,24 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           if (window.nvTrack) window.nvTrack("callback_requested");
         }).catch(function () {
           clearTimeout(timer);
-          /* Never strand them: the fallback is the number that always works. */
-          say("That did not send. Please call (587) 413-0035 or email Sales@nevamis.ca and we will pick it up from there.", "bad");
+          /* Never strand them: the fallback is the number that always works.
+
+             A timeout is NOT a failure, and saying so was wrong. The engine
+             commits the lead before it notifies anyone, so a request that runs
+             past the client's patience may already have landed. Telling that
+             visitor "it did not send" invites them to send it again, which
+             costs the owner a second alert about a lead already on the list.
+             The two cases now read differently, because only one of them is
+             something we actually know. */
+          say(timedOut
+            ? "That is taking longer than it should, and it may already have reached us. Rather than send it twice, call (587) 413-0035 or email Sales@nevamis.ca and we will check."
+            : "That did not send. Please call (587) 413-0035 or email Sales@nevamis.ca and we will pick it up from there.", "bad");
         }).then(function () {
           btn.disabled = false;
           btn.textContent = original;
+          /* Disabling took focus to <body>. Give it back, but only if it was
+             ours to begin with and nothing else has claimed it since. */
+          if (hadFocus && document.activeElement === document.body) btn.focus();
         });
       });
     }
