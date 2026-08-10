@@ -489,8 +489,19 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
 .roi-grid input{width:100%;padding:12px 13px;font-size:15.5px;font-family:inherit;color:var(--ink);
   background:rgba(159,240,206,.04);border:1px solid var(--line-control);border-radius:10px;min-height:46px;
   transition:border-color .2s var(--e-out),box-shadow .2s var(--e-out)}
+/* The focus ring is the ONLY indicator on these fields: the rule turns off the
+   2px mint outline that :focus-visible would otherwise draw. It was
+   rgba(47,191,143,.18), which flattens to rgb(17,52,52) over the rgb(11,22,32)
+   behind it and measures 1.37:1. WCAG 1.4.11 asks 3:1 of a focus indicator, so
+   a sighted keyboard user could barely tell which field they were in.
+
+   Now the same colour the rule already gives the border on focus, so the
+   indicator reads as one thing rather than two, and it measures 4.26:1.
+   tests/focus-visibility.spec.js computes it rather than trusting this note:
+   the value depends on what is painted behind the field, which is not knowable
+   from here. Turning the outline back on instead would have drawn two rings. */
 .roi-grid input:focus{outline:none;border-color:rgba(159,240,206,.5);
-  box-shadow:0 0 0 3px rgba(47,191,143,.18)}
+  box-shadow:0 0 0 3px rgba(159,240,206,.5)}
 .roi-grid .hint{color:var(--muted);font-size:12.5px;margin-top:6px}
 /* The compact estimate, narrow screens only.
 
