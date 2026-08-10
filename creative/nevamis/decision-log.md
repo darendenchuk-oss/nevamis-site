@@ -100,3 +100,68 @@ flagship film is assembled last.
 - **2026-08-10** — Project opened. Tooling verified, credits counted, durable
   state created. `creative/` added to `_config.yml` exclude so working material
   is not published; finished media goes to `assets/` and is.
+
+---
+
+## D4 — The capability ceiling, and who was lying
+
+**Decision:** `creative/nevamis/truth-basis.md` is the factual floor. Every line
+of copy and every frame of film is checked against it.
+
+**The finding that reframes the project:** the engine's source of truth is
+already honest, and the WEBSITE is what overstates. `agent-draft.ts:235`
+provisions every tenant agent with `["end_call"]` and no booking tool;
+`entitlement-claims.ts:18-22` explicitly refuses "books the job into your
+calendar" and cites that line as proof. Meanwhile the homepage asserts booking
+in up to ten places, and `hvac.html`'s meta description promises "books the
+visit" to search engines.
+
+**Resolved by direct reading, not by preferring an agent.** One audit pass
+reported `canonical.ts` still claiming the agent books; it does not, on master.
+That text survives only on `lane-f-oss-review`, two commits behind, which is
+what that pass had open. Verified myself on `origin/master`.
+
+**Consequence:** the overhaul cannot ship on top of the site's current claims.
+The truth debt in truth-basis.md is fixed as part of Phase 2, not filed after it.
+
+---
+
+## D5 — The reposition is achievable, and the repo will enforce it
+
+Production has zero client workspaces, zero subscriptions, $0 collected. So "AI
+automation and integration platform" is not true today as a description of
+inventory. It IS true as a description of architecture, which is what the
+directive actually asks for, and it survives only with the three tiers kept
+visibly separate: LIVE NOW / BEING BUILT / PLATFORM DIRECTION.
+
+This is enforced, not promised. Content cannot reach `approved` unless every
+declared claim slug is approved in `mkt_claims`, `lintCopy` finds no blocked
+phrase, and the entitlement sweep passes. That machinery is a gift: it makes the
+honest version of this reposition the only one that can ship.
+
+**Watch item for Phase 1:** *never miss a call* is a blocked phrase, and the
+current headline is *"Never miss the time that matters."* Not the blocked
+string, and it passes today — but the campaign line chosen in Phase 1 must clear
+the sweep on its own merit rather than by a one-word margin.
+
+---
+
+## D6 — What the audit says about the ground we build on
+
+- **Page set:** 22 pages, all declared in `content-map.json`; 19 indexable. A
+  hand-authored core of 12 and a GENERATED layer of 9 written whole by
+  `scripts/build-content.mjs` from `scripts/content/pages.mjs`. Editing those 9
+  HTML files directly is wasted work — they are overwritten with no error.
+- **The generated layer is the weakest surface:** 40-43% byte-identical
+  boilerplate across the four trade pages (~300 unique words each), zero JSON-LD
+  on all 9, and no inbound links from outside their own cluster.
+- **The schema gap is invisible to CI** because the test that claims to check
+  "every public page" iterates its own hardcoded list omitting exactly those 9.
+  Same hand-maintained-list drift class as every other truth gap on this site.
+- **Design system:** ONE stylesheet, 22 custom properties, three self-hosted
+  families. No spacing, radius, shadow or type scale — every value is a literal
+  chosen by measurement. A cinematic system needs a real token layer added
+  underneath it, not a replacement of it.
+- **No video pipeline exists yet.** The 152–368 ms LCP is achieved by inlined
+  CSS and metric-matched font fallbacks. A full-bleed hero video is the single
+  biggest threat to that budget and gets designed against it from the start.
