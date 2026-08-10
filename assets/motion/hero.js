@@ -160,6 +160,73 @@ export function initHero() {
   // ---------------------------------------------------------------
   if (reduce) {
     paintResolved();
+
+    /* paintResolved is shared with the timeline's END state, where hiding the
+       story is right: it has already played and it will replay. Under reduced
+       motion it never plays at all, so the same call left the right half of the
+       hero as an arc and a glowing ball with every label at opacity 0 — a
+       spinner that never resolves, with nothing to say what it depicts.
+
+       Reduced motion means remove the MOTION, not the content. Animated
+       visitors see four steps over time; this shows the same four at once, so
+       the preference costs nothing but the movement.
+
+       The four .step groups are drawn on top of each other at x=310, y=452 —
+       the animation reveals one at a time — so they have to be spread before
+       they can all be read. Spacing and origin are derived from the markup's
+       own geometry rather than typed in twice: STEP_GAP is the label-to-frag
+       distance the SVG already uses, and the stack is centred on the row the
+       single step used to occupy.
+
+       #progress goes with them. Four segments exist to say which of four steps
+       you are on; when all four are named and visible it is answering a
+       question nobody is asking. */
+    /* The finished frame, with its labels on — not a redrawn one.
+
+       Showing all four steps at once was the first attempt and it is the wrong
+       shape for this artwork. The four .step groups are drawn on top of each
+       other at one baseline, so they have to be spread to be read, and there
+       is not room: measured, spreading them below the resting dot overlapped
+       by 1px on desktop even when the spacing was derived from getBBox, and
+       ran past the bottom of the SVG on mobile. Forcing four rows into a
+       square that holds one is how a fix becomes a second defect.
+
+       So the reduced view is the story's LAST beat, in the position the
+       artwork already gives it: the arc closed, the dot at rest, "CALL
+       ANSWERED", "TEXT / booking confirmed", and all four progress segments
+       filled. That is a completed call, which is exactly what the animation
+       spends nine seconds arriving at.
+
+       The honest cost: an animated visitor sees four beats, this visitor sees
+       the outcome. That is a smaller gap than the one it replaces, which was
+       an unlabelled arc and a glowing ball with nothing to say what either
+       meant. */
+    gsap.set([story, status], { opacity: 1 });
+    stepEls.forEach((el, i) => gsap.set(el, { opacity: i === stepEls.length - 1 ? 1 : 0 }));
+    segs.forEach((s) => gsap.set(s, { scaleX: 1, opacity: 1 }));
+
+    /* Let the headline wrap. Found by looking at a screenshot of the fix
+       above, which is the only reason it was found at all.
+
+       Each masked line is one .w joined with NON-BREAKING spaces, so the
+       intro can reveal it as a single unit. That leaves the line with no
+       break opportunity anywhere in it. The animated path splits the words
+       into 32 per-character spans, and those breaks are what let the line
+       re-wrap; reduced motion never splits, so the line stays one 663px
+       object inside a 385px .line mask with overflow:hidden.
+
+       Measured on the homepage: the headline overflowed by 290px at 1440,
+       288px at 1280 and 167px at 1024, so "Never miss the time that matters."
+       was read as "Never miss / the time tha". Mobile was unaffected, which
+       is why it survived: the column is narrow enough that the break lands
+       before the clip.
+
+       Ordinary spaces restore the break opportunities the split would have
+       provided. The h1 keeps its aria-label either way, so this was never a
+       screen-reader problem — only a sighted one, for the visitors who asked
+       for less motion. */
+    $$('h1 .w').forEach((w) => { w.textContent = w.textContent.replace(/ /g, ' '); });
+
     window.__heroTL = gsap.timeline({ paused: true }); // inert handle for tooling
     window.__heroBeats = MOTION.beats;
     return { reduced: true };
