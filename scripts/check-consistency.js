@@ -620,6 +620,83 @@ for (const p of contentPages) {
   }
 }
 
+/* 7e. config/elevenlabs/ IS A PRICING SURFACE, and until 2026-08-10 no rule
+       here treated it as one.
+
+       Guard 6b has swept that directory since it was written — but only against
+       the `banned` list, which is about client-base claims and retired slogans
+       and contains no price, no plan name and no offer. Guards 7c and 7d, the
+       two rules that actually understand the commercial model, ran over
+       `contentPages` plus llms.txt: a non-recursive readdir of root *.html. So
+       the directory holding the live agent's knowledge base and its acceptance
+       criteria was swept for the wrong thing, and reported as swept.
+
+       WHAT IT COST. On 2026-08-09 the pilot, the C$150 fee, the C$850 Pro price
+       and the two-number framing were retired everywhere a guard could see.
+       nevamis-agent-test-cases.md kept all four as PASS CRITERIA: rows 5, 6, 6b,
+       7, 8, 21 and 22 required the agent to quote "first month C$1,000 then
+       C$850/month" and to sell the C$150 seven-day pilot. Row 5 contradicted
+       itself in a single cell, demanding that no retired price be spoken while
+       requiring C$850 be spoken. Those criteria would have FAILED an agent for
+       behaving correctly and PASSED one that quoted prices nobody may be
+       charged, and every guard in this file was green the whole time.
+
+       The scope decision in 7c ("only this repo's published pages, because the
+       cold-calling kit lives on somebody else's schedule") was right about the
+       cross-repo surfaces and was silently applied to this one too. This
+       directory is committed here, editable here, and fixable in the same commit
+       as the failure — so it is held to the full standard, and a failure here is
+       err() not wait().
+
+       ONE LOCAL RELAXATION, and only here: a chunk ending in "?" is not judged.
+       These files quote the CALLER verbatim ("Is there a setup fee on top of the
+       monthly?", "Can you knock the setup fee off if I sign up today?"), and the
+       wrong premise in a buyer's question is exactly what the agent is being
+       tested on refusing. An interrogative cannot make an offer or charge
+       anyone. It is scoped to this guard rather than added to DENIAL because
+       DENIAL is shared with the page rules, where "Setup fee? C$500." would
+       then split into a question that is excused and a fragment that matches
+       nothing. Every real defect listed above was declarative and is still
+       caught; verified by reverting the file and re-running. */
+{
+  const surfaceDir = path.join(root, "config", "elevenlabs");
+  const isQuestion = (s) => /\?\s*$/.test(s.trim());
+  /* Same shape as statesBanned(), plus the interrogative exemption. Written out
+     rather than parameterised so the difference from the shared classifier is
+     visible at the point of use. */
+  const offersHere = (text, re) => text
+    .replace(/\*\*|__|\*/g, "")
+    .split(/(?<=[.!?])\s+|\n+/)
+    .some((s) => re.test(s) && !isQuestion(s) && !DENIAL.some((d) => d.test(s)));
+
+  const files = walk(surfaceDir);
+  if (!files.length) {
+    err("config/elevenlabs/ has no .md or .txt files. That directory holds the live agent's knowledge "
+      + "base, prompt and acceptance criteria; an empty sweep means this guard is proving nothing.");
+  }
+  for (const file of files) {
+    const label = path.relative(root, file).replace(/\\/g, "/");
+    const text = fs.readFileSync(file, "utf8");
+    for (const b of RETIRED_OFFERS) {
+      if (offersHere(text, b)) {
+        err(`${label}: a spoken-agent surface states a retired commercial term ${b} as live. `
+          + `The approved model is one monthly price per plan, charged the day the client subscribes and `
+          + `every month after: no setup, no activation, no pilot, no trial, and never a second figure. `
+          + `This file instructs or grades the agent that answers the demo line, so a retired offer here `
+          + `reaches a prospect out loud. A sentence that DENIES the offer is allowed, and so is a quoted `
+          + `caller question; extend DENIAL rather than dropping the pattern.`);
+      }
+    }
+    for (const b of ADDITIVE) {
+      if (offersHere(text, b)) {
+        err(`${label}: a spoken-agent surface describes the price additively (${b}). There is no setup, `
+          + `activation, onboarding, implementation or launch charge. State one monthly figure, and if the `
+          + `point is that nothing else is charged, say it as a denial ("no setup fee") rather than as a line item.`);
+      }
+    }
+  }
+}
+
 /* 8. The demo agent says prices out loud to real prospects, which makes its
       prompt a pricing surface exactly like pricing.html. It writes them as
       words ("two forty-nine a month") because a digit string gets read back as
