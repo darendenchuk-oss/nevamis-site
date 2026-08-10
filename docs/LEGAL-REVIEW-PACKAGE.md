@@ -1,5 +1,19 @@
 # LEGAL REVIEW PACKAGE
 
+> **THE COMMERCIAL MODEL, STATED UP FRONT so counsel does not have to reach
+> the pricing section to learn it.** Since 2026-08-09 Nevamis sells ONE
+> recurring price per plan, charged the day the client subscribes and every
+> month after: Core C$250/month, Growth C$500/month, Pro C$1,000/month, CAD
+> plus GST/HST. There is no setup fee, activation fee, onboarding fee,
+> implementation fee or launch charge, no money-back guarantee, and no pilot
+> or trial at any price. Month to month, cancel any time from the portal.
+> Every other commercial shape named anywhere below - the C$249 / C$449 /
+> C$849 ladder, the Pay As You Go C$49/month tier, annual prepay, the free
+> seven-day pilot, its C$150 paid replacement, the setup fee and the
+> founding-client waiver - is RETIRED and is listed only as superseding
+> history. `pricing-config.js` is the source of truth; docs/CLAIMS-LEDGER.md
+> row CLM-18 is the approval. Banner added 2026-08-10.
+
 For the qualified Alberta lawyer who reviews Nevamis's public terms,
 privacy policy, and client service agreement (engine OWNER_ACTIONS A5).
 Prepared 2026-07-27 by a drafting pass on the owner's instruction; nothing

@@ -107,7 +107,12 @@ const wait = (m) => { console.error("WAIT: " + m); waiting++; };
    the word, or the only page telling a visitor the truth is the one that
    fails. */
 const DENIAL = [
-  /\bnever\s+(?:quote|say|offer|promise|use|mention)\b/i,
+  /* "state", "charge", "describe" and "list" added 2026-08-10 with the widened
+     ADDITIVE list. llms.txt already said "Never state a setup, activation,
+     onboarding, implementation or launch charge" and the classifier did not
+     recognise it as a denial, so the first surface to fail the new patterns
+     was the surface instructing every answer engine not to make the claim. */
+  /\bnever\s+(?:quote|say|offer|promise|use|mention|state|charge|describe|list)\b/i,
   /\b(?:is|are|was|were)\s+retired\b/i, /\bretired\b/i,
   /\bthere is no\b/i, /\bthere are no\b/i, /\bwe do not\b/i, /\bdo not\s+(?:quote|say|offer|promise)\b/i,
   /\bno longer\b/i, /\bnot a current\b/i, /\bsuperseded\b/i, /\bprohibited\b/i,
@@ -171,7 +176,32 @@ const ADDITIVE = [
   /\bsetup fee\b/i,
   /plus (?:a )?(?:one-time )?setup/i,
   /\+\s*(?:one-time )?setup/i,
+  /* Added 2026-08-10. The error string this guard PRINTS has named activation,
+     onboarding, implementation and launch charges since 7c was written, and
+     not one of them was detectable: the list only knew the word "setup". A
+     guard that tells you about five forbidden charges and can only see one is
+     worse than an honest guard that sees one, because the error text is what
+     the next reader believes the coverage to be. */
+  /\bactivation fee\b/i,
+  /\bonboarding fee\b/i,
+  /\bimplementation fee\b/i,
+  /\blaunch (?:fee|charge)\b/i,
+  /\bone-time (?:fee|charge)\b/i,
 ];
+/* RETIRED_OFFERS carried only the two figures that were retired on 2026-08-09
+   (C$150 and C$850) and none of the ladder retired on 2026-08-06. Everything
+   below the first block was added 2026-08-10 after a check proved the guard
+   passed green on "Core is C$249/month and Growth is C$449/month. Pro includes
+   1,200 minutes, roughly 400 to 600 calls." going into the live agent's
+   knowledge base.
+
+   Three shapes are needed for each retired figure, not one:
+     - written  ($849, C$849, 849/month)
+     - SPOKEN   (eight hundred and forty-nine dollars) - config/elevenlabs/
+       feeds a VOICE agent and its own prompt documents that prices are written
+       as words on purpose, so the digit form alone guards nothing there
+     - bare $ as well as C$ - /\bC\$\s?850\b/ let plain "$850" walk through,
+       which is the exact form ai-assistant/SALES_PITCH.md uses. */
 const RETIRED_OFFERS = [
   /\b\d+[- ]day live pilot\b/i,
   /\b(?:7|seven)[- ]day pilot\b/i,
@@ -186,6 +216,31 @@ const RETIRED_OFFERS = [
   /\bthen\s+C\$[\d,]+\s*\/\s*month/i,
   /\bcredited toward your first month\b/i,
   /\bcomes off (?:that|your) first month\b/i,
+
+  /* The retired ladder, written. Anchored to a currency mark or to a
+     per-month phrase so that a bare "449" in a pixel value, a year or a
+     phone number cannot trip it. 250/500/1000 are CURRENT and absent by
+     design; 850 keeps its C$-only entry above and gains the bare-$ form here. */
+  /(?:C\$|\$)\s?(?:49|150|197|249|397|449|499|797|849|850)\b(?!\d)/,
+  /\b(?:49|150|197|249|397|449|499|797|849|850)\s*(?:dollars?\s*)?(?:a|per|\/)\s*month\b/i,
+
+  /* The retired ladder, spoken. This is the form that reaches a prospect's
+     ear from config/elevenlabs/. */
+  /\b(?:forty[- ]nine|one hundred and fifty|two hundred and forty[- ]nine|three hundred and ninety[- ]seven|four hundred and forty[- ]nine|eight hundred and forty[- ]nine|eight hundred and fifty)\s+dollars\b/i,
+
+  /* Retired entitlements. Pro was 1,200 minutes and "400 to 600 calls" until
+     2026-08-09; both are now 1,400 and 470 to 700. A surface can carry the
+     right price and the wrong allowance, and nothing above would see it. */
+  /\b1[,.]?200\s+(?:AI\s+)?minutes\b/i,
+  /\b400\s*(?:to|-|–|—)\s*600\s+calls\b/i,
+
+  /* Retired plan names. "After Hours" and "Scale" became Core and Pro on
+     2026-08-06. Deliberately requires the word plan or tier beside the name:
+     this site sells after-hours answering and has a page called
+     after-hours-answering.html, so the bare phrase is legitimate copy and
+     banning it would fail the pages doing their job. */
+  /\b(?:After[- ]Hours|Scale)\s+(?:plan|tier)\b/i,
+  /\bPay[- ]As[- ]You[- ]Go\b/i,
 ];
 
 const navOf = (html) => {
@@ -692,6 +747,175 @@ for (const p of contentPages) {
         err(`${label}: a spoken-agent surface describes the price additively (${b}). There is no setup, `
           + `activation, onboarding, implementation or launch charge. State one monthly figure, and if the `
           + `point is that nothing else is charged, say it as a denial ("no setup fee") rather than as a line item.`);
+      }
+    }
+  }
+}
+
+/* 7f. FORM DEFAULTS ARE PRICING COPY. Added 2026-08-10, after the homepage ROI
+       calculator shipped `value="449"` to nevamis.ca under the label "Prefilled
+       with the Growth plan" and stayed there through a full pricing sweep and
+       every guard in this file.
+
+       Why nothing saw it. Guard 7d is the rule that would have caught the
+       figure, and its readable() does `.replace(/<[^>]+>/g, " ")` — it deletes
+       tags to read body copy, and an input's default value lives INSIDE the
+       tag it deletes. Guard 7c strips comments and reads sentences, so it sees
+       nothing either. tests/interactions.spec.js has the retired list
+       [49,150,197,249,397,449,499,797,849,850] but scopes it to
+       `#pricePreview .price-card`, and the same spec file TYPES 449 into this
+       very field, so a page-wide text scan would have been self-poisoned by
+       the suite meant to protect it. Three mechanisms, all green, one wrong
+       price in front of every visitor.
+
+       So this reads attributes, which no other rule here does, and it reads
+       them against pricing-config.js rather than against a list of numbers:
+       a figure that is merely NOT retired is not the same as the right one.
+       The C$449 default was wrong the day Growth became C$500, whether or not
+       anybody had got round to adding 449 to a retired list.
+
+       The runtime prefill in site.js is the real fix; this guard exists
+       because the markup default is what a no-JS visitor sees, what an answer
+       engine scrapes, and what the next person editing the form copies. */
+{
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const cfg = w.NV_PRICING;
+  const plans = cfg && Array.isArray(cfg.plans) ? cfg.plans : [];
+  const rec = plans.find((p) => p.recommended) || plans[0];
+  const live = new Set(plans.map((p) => Number(p.monthly)));
+
+  /* Every monthly figure this business has ever published and no longer
+     charges. Kept as a literal list rather than derived, because the point of
+     the rule is to recognise a number the config no longer mentions at all.
+     Mirrors tests/interactions.spec.js:45; if you add one there, add it here. */
+  const RETIRED_MONTHLY = [49, 150, 197, 249, 397, 449, 499, 797, 849, 850];
+
+  for (const f of contentPages) {
+    const html = fs.readFileSync(path.join(root, f), "utf8");
+    /* Comments first: this file's own explanation of the defect quotes
+       value="449", and a rule that fails on its own post-mortem gets the
+       post-mortem deleted. */
+    const markup = html.replace(/<!--[\s\S]*?-->/g, " ");
+    /* A field is only judged if its own <label> says it holds MONEY. Without
+       this the rule fails pricing.html's plan recommender, whose "Calls a
+       month you expect us to answer" defaults to 150 - a call count that
+       happens to collide with a retired dollar figure. Standing rule: money
+       that is not Nevamis pricing is not this sweep's business, and a number
+       that is not money at all is even less so. The label is the right test
+       because it is the same string that tells the VISITOR what the number
+       means. */
+    const labelFor = (id) => {
+      const m = markup.match(new RegExp(`<label[^>]*\\bfor="${id}"[^>]*>([\\s\\S]*?)</label>`, "i"));
+      return m ? m[1].replace(/<[^>]+>/g, " ") : "";
+    };
+    const isMoneyField = (id) => /\$|\bprice\b|\bplan\b|\bquote\b|\bfee\b|\bcost\b/i.test(labelFor(id));
+
+    const inputRe = /<input\b[^>]*>/gi;
+    let tag;
+    while ((tag = inputRe.exec(markup)) !== null) {
+      const vm2 = tag[0].match(/\bvalue="([\d,.]+)"/i);
+      if (!vm2) continue;
+      const n = Number(vm2[1].replace(/,/g, ""));
+      if (!Number.isFinite(n)) continue;
+      const idm = tag[0].match(/\bid="([^"]+)"/i);
+      const id = idm ? idm[1] : "(no id)";
+      if (!idm || !isMoneyField(id)) continue;
+      if (RETIRED_MONTHLY.includes(n) && !live.has(n)) {
+        err(`${f}: <input id="${id}"> defaults to ${n}, a retired monthly price. `
+          + `A default is a published claim: it is what a visitor with JavaScript off sees, what an `
+          + `answer engine scrapes, and what the next person editing this form copies. Set it from `
+          + `pricing-config.js, not from a literal.`);
+      }
+    }
+
+    /* The ROI comparison field specifically. It is the one input on the site
+       whose value IS a plan price, and its label says which plan, so both
+       halves are checked against the same record. */
+    const quote = markup.match(/<input\b[^>]*\bid="roiQuote"[^>]*>/i);
+    if (quote && rec) {
+      const v = quote[0].match(/\bvalue="([\d,]+)"/i);
+      const n = v ? Number(v[1].replace(/,/g, "")) : NaN;
+      if (n !== Number(rec.monthly)) {
+        err(`${f}: #roiQuote defaults to ${v ? v[1] : "nothing"}, but the recommended plan `
+          + `(${rec.name}) is C$${Number(rec.monthly).toLocaleString("en-CA")}/month in pricing-config.js. `
+          + `The field is labelled with the plan name, so a mismatch quotes a price nobody may be charged.`);
+      }
+      const named = markup.match(/<span id="roiQuotePlan">([^<]*)<\/span>/i);
+      if (!named) {
+        err(`${f}: #roiQuote's hint no longer names the plan through <span id="roiQuotePlan">. `
+          + `That span is how site.js keeps the label and the figure reading from one record; without it `
+          + `the plan name is a literal again and can drift from the price beside it.`);
+      } else if (rec.name && named[1].trim() !== String(rec.name).trim()) {
+        err(`${f}: #roiQuote is labelled "${named[1].trim()}" but the recommended plan in `
+          + `pricing-config.js is "${rec.name}".`);
+      }
+    }
+  }
+}
+
+/* 7g. docs/ AND creative/ ARE UNGUARDED, AND THAT IS WHERE THE SWEEPS WORK.
+
+       Added 2026-08-10. `contentPages` is a non-recursive readdir of root
+       *.html, so guards 7c and 7d see 22 pages and llms.txt and nothing else;
+       7e added config/elevenlabs/. Every remaining .md in this repository -
+       the claims ledger, the legal review package, the agent upgrade notes,
+       the onboarding pack, the creative truth basis - was reachable by no
+       pricing rule at all. That is precisely where the last two pricing
+       sweeps did most of their editing, so the files that were "fixed" were
+       the files nothing could check, and the next edit to any of them is
+       ungated again.
+
+       WHAT IS AND IS NOT REQUIRED. This repository is full of documents that
+       must keep retired figures: the ledger records what was retired, the
+       legal package lists the superseding history so counsel is not surprised
+       by an older file, docs/ideas/* were authored against the C$249 ladder
+       and are kept so the reasoning is traceable. Deleting those numbers
+       would destroy the record. So the rule is not "no retired figure in
+       docs/" - it is the repository's own existing convention, enforced:
+
+         a file may state a retired figure IF it carries a dated banner near
+         the top saying the model it was written against is superseded.
+
+       A file with the banner is exempt entirely. A file without one is judged
+       sentence by sentence with the same DENIAL classifier the page rules
+       use, so "there is no setup fee to charge" and "the C$150 pilot is
+       retired" still pass in an unbannered file. What fails is a document
+       with no banner making a plain present-tense claim, which is exactly the
+       shape of every genuine miss the verifiers found. */
+{
+  /* A banner has to do TWO things to exempt a file, and both are checked,
+     because either alone is the failure mode. Saying "retired" without naming
+     what replaced it leaves the reader with a dead number and no live one -
+     which is how a stale figure gets re-quoted from a file that technically
+     disclaimed it. Naming the current model without marking the old one as
+     over leaves two live-looking price lists in one document. Written as two
+     regexes rather than one long alternation so a future banner phrasing only
+     has to satisfy the two ideas, not match a sentence template. */
+  const RETIRED_MARK = /\bretired\b|\bsuperseded\b|\bhistorical\b|\bkept (?:as|for) (?:one|history)\b|\bis history\b|\bno longer (?:exists|offered)\b|\bnot approved\b|\bnot for publication\b|\binternal hypothes/i;
+  const CURRENT_MARK = /C\$\s?250|C\$\s?1,?000|one recurring price|pricing-config\.js|NOT NEVAMIS PRICING/i;
+  const BANNER = { test: (h) => RETIRED_MARK.test(h) && CURRENT_MARK.test(h) };
+  const roots = [walk(path.join(root, "docs")), walk(path.join(root, "creative"))].flat();
+  const rootDocs = fs.readdirSync(root)
+    .filter((f) => /\.(md|txt)$/i.test(f))
+    .filter((f) => f !== "llms.txt")   /* already held to the page standard by 7c and 7d */
+    .map((f) => path.join(root, f));
+  for (const file of [...roots, ...rootDocs]) {
+    const label = path.relative(root, file).replace(/\\/g, "/");
+    const text = fs.readFileSync(file, "utf8");
+    /* The banner window is the first 30 NON-EMPTY lines, not the first 30
+       lines: a markdown title, a rule and two blank lines already spend four
+       of them, and a banner pushed below the window by whitespace is still a
+       banner a reader sees first. */
+    const head = text.split(/\r?\n/).filter((l) => l.trim()).slice(0, 30).join("\n");
+    if (BANNER.test(head)) continue;
+    for (const b of [...RETIRED_OFFERS, ...ADDITIVE]) {
+      if (statesBanned(text, b)) {
+        err(`${label}: states a retired commercial term ${b} with no superseded banner. `
+          + `Either correct the sentence to the current model (one recurring price per plan, nothing `
+          + `charged beside it, no pilot at any price), or - if the file is a record of what USED to be `
+          + `true and the figure must stay - add a dated banner in the first lines saying so, the way `
+          + `docs/ideas/*, docs/payment-flow.md and PRELAUNCH.md already do. Do not delete the history.`);
       }
     }
   }

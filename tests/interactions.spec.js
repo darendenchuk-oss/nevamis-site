@@ -195,7 +195,19 @@ test('the ROI calculator computes and shows break-even with a quote', async ({ p
   await expect(page.locator('#roiOpp')).toHaveText('$5,196');
   await expect(page.locator('#roiRec')).toHaveText('$2,598');
 
-  await page.locator('#roiQuote').fill('449');
+  /* The default is PREFILLED FROM pricing-config.js by site.js, so assert it
+     against the config rather than against a literal. The markup carried
+     value="449" - a price retired 2026-08-06 - into production, and this test
+     could not have noticed, because it opened by TYPING 449 into the field.
+     A suite that types a retired figure onto the page it is guarding poisons
+     any page-wide scan for that figure, so the typed value is now 675: a
+     number this business has never charged, which is the point of it. */
+  const growth = await page.evaluate(() =>
+    (window.NV_PRICING.plans.find((p) => p.recommended) || window.NV_PRICING.plans[0]).monthly);
+  await expect(page.locator('#roiQuote')).toHaveValue(String(growth));
+  await expect(page.locator('#roiQuotePlan')).toHaveText('Growth');
+
+  await page.locator('#roiQuote').fill('675');
   await expect(page.locator('#roiBeRow')).toBeVisible();
   await expect(page.locator('#roiBe')).toContainText('booked jobs per month');
 });

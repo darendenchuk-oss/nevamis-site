@@ -1663,8 +1663,17 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           </div>
           <div>
             <label for="roiQuote">Plan you are comparing against ($/month)</label>
-            <input type="number" id="roiQuote" inputmode="numeric" min="0" value="449">
-            <p class="hint" id="roiQuoteHint">Prefilled with the Growth plan. Change it to any plan, or to a
+            <!-- value= and the plan name below are the NO-JS FALLBACK ONLY.
+                 site.js overwrites both from window.NV_PRICING on load, so the
+                 live field cannot drift from pricing-config.js. It did: this
+                 shipped value="449", a price retired 2026-08-06, to
+                 production, labelled "the Growth plan", past every gate,
+                 because nothing that reads pricing-config.js was looking at
+                 an input attribute. Keep these two literals equal to the
+                 recommended plan; check-consistency.js guard 7f now enforces
+                 it. -->
+            <input type="number" id="roiQuote" inputmode="numeric" min="0" value="500">
+            <p class="hint" id="roiQuoteHint">Prefilled with the <span id="roiQuotePlan">Growth</span> plan. Change it to any plan, or to a
               quote you were given, to see how many booked jobs cover it.</p>
           </div>
         </form>

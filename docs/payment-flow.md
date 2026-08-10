@@ -1,5 +1,5 @@
-﻿> SUPERSEDED 2026-07-25, AND AGAIN 2026-08-09. The guarantee-based commercial model described below is retired, and so is the Model B free-pilot model this banner used to name as current. The current model is ONE recurring price per plan, charged the day the client subscribes and every month after: Core C$250/month, Growth C$500/month, Pro C$1,000/month. There is no setup fee, activation fee, onboarding fee or one-time charge of any kind, no founding-client waiver, and no pilot or trial at any price. pricing-config.js is the source of truth. This file is kept for history; do not copy wording, numbers, or Stripe product shapes from it.
-# Payment flow â€” Nevamis (architecture, pre-implementation)
+> SUPERSEDED 2026-07-25, AND AGAIN 2026-08-09. The guarantee-based commercial model described below is retired, and so is the Model B free-pilot model this banner used to name as current. The current model is ONE recurring price per plan, charged the day the client subscribes and every month after: Core C$250/month, Growth C$500/month, Pro C$1,000/month. There is no setup fee, activation fee, onboarding fee or one-time charge of any kind, no founding-client waiver, and no pilot or trial at any price. pricing-config.js is the source of truth. This file is kept for history; do not copy wording, numbers, or Stripe product shapes from it.
+# Payment flow — Nevamis (architecture, pre-implementation)
 
 Status: **architecture doc.** The site is static (GitHub Pages, no server), so
 billing runs on Stripe-hosted surfaces (Checkout, Payment Links, Invoices,
@@ -8,7 +8,7 @@ commercial model is selected (see commercial-model-decision.md) and prices are
 approved (pricing-config.js `approved: true`).
 
 > **SUPERSEDED 2026-07-23: the owner selected Model B (true free 7-day live
-> pilot) â€” see docs/commercial-model-decision.md. The Model A flow below is
+> pilot) — see docs/commercial-model-decision.md. The Model A flow below is
 > retained as the documented alternative if pilot economics ever force a
 > change. Under Model B, payment enters only at step 8 of the published pilot
 > sequence: after the client explicitly chooses a plan, send the Stripe
@@ -19,12 +19,12 @@ approved (pricing-config.js `approved: true`).
 ## Documented alternative (A): paid setup + 7-day risk-free launch
 
 Timing:
-1. Strategy call â†’ written service order (docs/service-order-template.md) â†’ client accepts.
+1. Strategy call → written service order (docs/service-order-template.md) → client accepts.
 2. **Setup fee** paid via Stripe Invoice or one-time Payment Link. Build starts only after Stripe shows `paid` (verify in dashboard or via API; never from a success redirect).
-3. Build â†’ test â†’ client approval.
+3. Build → test → client approval.
 4. **Subscription checkout** (Stripe product per plan; monthly price). Activation only after the subscription is `active`.
 5. Production goes live; the 7-day guarantee window starts at the recorded activation timestamp (America/Edmonton).
-6. Guarantee cancellation â†’ refund first monthly fee via Stripe; setup fee remains earned after build began.
+6. Guarantee cancellation → refund first monthly fee via Stripe; setup fee remains earned after build began.
 
 ## Stripe objects
 
@@ -38,13 +38,13 @@ Timing:
 | Customer Portal | invoices, payment method, cancel at period end |
 
 Existing test-mode objects (from the earlier session): product `prod_Uw2OClwmoGPN0K`
-with $300 setup / $397 monthly â€” **superseded by this plan structure; archive
+with $300 setup / $397 monthly — **superseded by this plan structure; archive
 them when the new prices are approved.**
 
 ## Client states
-lead â†’ qualified â†’ scope_approved â†’ awaiting_setup_payment â†’ setup_paid â†’
-onboarding â†’ testing â†’ awaiting_client_approval â†’ awaiting_subscription_payment
-â†’ active â†’ guarantee_period â†’ (past_due | cancel_at_period_end | cancelled) â†’ offboarded
+lead → qualified → scope_approved → awaiting_setup_payment → setup_paid →
+onboarding → testing → awaiting_client_approval → awaiting_subscription_payment
+→ active → guarantee_period → (past_due | cancel_at_period_end | cancelled) → offboarded
 
 Tracked initially in a founder-maintained sheet/CRM; states must match Stripe
 truth (invoice paid, subscription status) before advancing.
@@ -59,7 +59,7 @@ truth (invoice paid, subscription status) before advancing.
 
 ## Webhooks (when a backend exists later)
 `checkout.session.completed`, `invoice.paid`, `invoice.payment_failed`,
-`customer.subscription.updated/deleted` â€” signature-verified, idempotent by
+`customer.subscription.updated/deleted` — signature-verified, idempotent by
 event id, tolerant of out-of-order delivery. Until then: manual verification
 in the Stripe dashboard is the required activation step (documented above).
 

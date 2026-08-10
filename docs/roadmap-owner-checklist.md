@@ -1,5 +1,18 @@
 # Roadmap Owner Checklist
 
+> **NOT NEVAMIS PRICING. Every fee in this file is an internal hypothesis,
+> not approved, for a product that does not exist yet.** Noted 2026-08-10. These
+> figures have never been offered, quoted or charged, and no setup fee, pilot
+> or trial described here has been approved. The one thing Nevamis actually
+> sells is the AI receptionist, and it is sold as ONE recurring price per plan
+> with nothing charged beside it: Core C$250/month, Growth C$500/month, Pro
+> C$1,000/month, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 /
+> C$0.75 overage. No setup fee, no activation fee, no onboarding fee, no pilot
+> and no trial at any price. `pricing-config.js` is the source of truth and
+> docs/CLAIMS-LEDGER.md row CLM-18 is the approval. Nothing below may be
+> quoted to a prospect; a price here would need approving on its own first.
+
+
 Owner decision dashboard for the 13 planned Nevamis services.
 Last reviewed: 2026-07-23. Review after every batch of discovery calls.
 

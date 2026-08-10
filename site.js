@@ -699,6 +699,27 @@
         window.nvTrack("roi_calculator_complete");
       }
     }
+    /* The comparison figure is PREFILLED FROM pricing-config.js, not from the
+       markup. The markup literal is only the no-JS fallback. This existed as a
+       hardcoded value="449" and shipped a price retired 2026-08-06 to
+       production, under a label that named it "the Growth plan": invisible to
+       every guard, because none of them read input attributes and none of the
+       pricing renderers touched this field. Reading it from the same record
+       the price cards read means the two cannot disagree again. Runs BEFORE
+       the first calc() so the break-even row is computed from the real
+       figure. */
+    var quoteEl = document.getElementById("roiQuote");
+    var NVP = window.NV_PRICING;
+    if (quoteEl && NVP && NVP.approved && Array.isArray(NVP.plans)) {
+      var recPlan = NVP.plans.filter(function (pl) { return pl.recommended; })[0]
+        || NVP.plans[0];
+      if (recPlan && Number(recPlan.monthly) > 0) {
+        quoteEl.value = String(Number(recPlan.monthly));
+        var planLabel = document.getElementById("roiQuotePlan");
+        if (planLabel && recPlan.name) planLabel.textContent = recPlan.name;
+      }
+    }
+
     roiForm.addEventListener("input", calc);
     roiForm.addEventListener("submit", function (e) { e.preventDefault(); calc(); });
     calc();
