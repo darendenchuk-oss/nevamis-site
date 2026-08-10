@@ -80,21 +80,21 @@ function scene(t) {
     : `radial-gradient(115% 95% at 40% 34%, #FFFFFF 0%, #F2F6F4 55%, #DFE9E4 100%)`
 
   // PLANE A — the hero. oblique, edges beyond frame, folds, then rushes the lens.
-  const aZ = lerp(-320, 240, R(t, 0, 3.0)) + rush * 2100
-  const aRY = lerp(-34, -12, R(t, 0, 2.6)) + rush * 16
-  const aRX = lerp(16, -6, R(t, .4, 3.0)) - rush * 22
+  const aZ = lerp(-40, 300, R(t, 0, 3.0)) + rush * 2100
+  const aRY = lerp(-34, -12, R(t, 0, 2.6)) + rush * 16 - post * 15
+  const aRX = lerp(16, -6, R(t, .4, 3.0)) - rush * 22 + post * 13
   const aScale = 1 + rush * 1.9
-  const bowA = lerp(.30, -.16, R(t, .6, 2.9))
-  const aOp = (1 - post * .55)
+  const bowA = lerp(.30, -.16, R(t, .6, 2.9)) + post * (0.34 + 0.13 * Math.sin(t * 1.5))
+  const aOp = (1 - post * .18)
   // after the crossing the same surface keeps travelling and becomes the mark's arc
   const resolve = R(t, 4.3, 5.6)
 
   // PLANE B — counter-plane, converges on the signal point
-  const bZ = lerp(-760, -180, R(t, .3, 3.2)) + rush * 900
+  const bZ = lerp(-330, -120, R(t, 0, 3.2)) + rush * 900
   const bRY = lerp(28, 8, R(t, .3, 3.2))
   const bRX = lerp(-13, 9, R(t, .3, 3.2))
-  const bowB = lerp(-.22, .26, R(t, .8, 3.2))
-  const bOp = (0.55 + .25 * R(t, .3, 1.6)) * (1 - post * .75)
+  const bowB = lerp(-.22, .26, R(t, .8, 3.2)) - post * (0.30 + 0.10 * Math.sin(t * 1.15 + .6))
+  const bOp = (0.72 + .18 * R(t, 0, 1.6)) * (1 - post * .34)
 
   // typography rides ON the geometry (same 3D space, same transform basis)
   const tw = (s, a, b, z, ry, rx, x, y, size, col, op2 = 1) => {
@@ -108,8 +108,10 @@ function scene(t) {
   }
 
   // MOVEMENT: mark forms out of the travelling surface, off-centre, still moving
-  const markX = lerp(1180, 690, resolve), markY = lerp(300, 470, resolve)
-  const markS = lerp(120, 240, resolve) * (1 + .06 * Math.sin(t * 3.4))
+  const drift2 = R(t, 5.6, 8.0)
+  const markX = lerp(1330, 430, resolve) - drift2 * 130
+  const markY = lerp(210, 300, resolve) + drift2 * 46
+  const markS = lerp(300, 1020, resolve) * (1 - drift2 * .16) * (1 + .02 * Math.sin(t * 2.6))
   const markOp = resolve * (1 - R(t, 7.6, 8.0) * .1)
 
   // the pulse — launched from the mark, still in flight when the test ends
@@ -128,7 +130,7 @@ function scene(t) {
   // the product target — enters large, becomes the next focal point, unresolved at 8s
   const cardIn = R(t, 6.5, 8.0)
   const card = cardIn <= .002 ? '' : `
-    <div style="position:absolute;right:${lerp(-1180, -120, cardIn).toFixed(0)}px;top:430px;width:1180px;
+    <div style="position:absolute;right:${lerp(-1240, -60, cardIn).toFixed(0)}px;top:392px;width:1240px;
       transform:perspective(1700px) rotateY(${lerp(-26, -9, cardIn).toFixed(1)}deg);transform-origin:right center;
       opacity:${Math.min(1, cardIn * 1.5).toFixed(3)};
       background:linear-gradient(168deg,${T.navy3},${T.navy2} 52%,#091721);
@@ -157,14 +159,14 @@ function scene(t) {
       </div>
     </div>
     ${markOp > .004 ? `<div style="position:absolute;left:${markX.toFixed(0)}px;top:${markY.toFixed(0)}px;
-      transform:rotate(${lerp(-24, 0, resolve).toFixed(1)}deg);opacity:${markOp.toFixed(3)}">
+      transform:rotate(${(lerp(-26, 0, resolve) + drift2 * -5).toFixed(1)}deg);opacity:${markOp.toFixed(3)}">
       <svg width="${markS.toFixed(0)}" height="${markS.toFixed(0)}" viewBox="0 0 64 64" fill="none">
         <path d="M 15 38 A 17 17 0 0 1 49 38" stroke="${T.em}" stroke-width="8" stroke-linecap="round"/>
         <circle cx="32" cy="48" r="6" fill="${T.mint}"/></svg></div>` : ''}
     ${pulse}${card}
     ${(() => { const o = t < 4.55 ? 0 : Math.min(R(t, 4.55, 5.1), 1 - R(t, 7.7, 8.0) * .35); return o <= .004 ? '' :
-      `<div style="position:absolute;left:150px;top:${lerp(820, 760, R(t, 4.55, 5.4)).toFixed(0)}px;opacity:${o.toFixed(3)};
-        font-family:'Bricolage',system-ui,sans-serif;font-weight:600;font-size:118px;color:${T.ink};letter-spacing:-.015em">NEVAMIS ANSWERS.</div>` })()}
+      `<div style="position:absolute;left:132px;top:${lerp(742, 676, R(t, 4.55, 5.4)).toFixed(0)}px;opacity:${o.toFixed(3)};
+        font-family:'Bricolage',system-ui,sans-serif;font-weight:600;font-size:104px;color:${T.ink};letter-spacing:-.015em">NEVAMIS ANSWERS.</div>` })()}
   </div>`
 }
 
