@@ -66,8 +66,8 @@ shot. **Four lines do not fit the specified boundaries.**
 | **C03** | 0:08.3–0:14.0 | 5.7 | **B** Cassidy | "Calls arrive while your hands are full. Miss one, and the job can be gone." | 4.25 | ok, 1.45 spare |
 | **C04** | 0:14.0–0:15.5 | 1.5 | — | *(silent — the turn)* | — | — |
 | **C05** | 0:15.5–0:20.2 | 4.7 | **C** Vincent | "NEVAMIS starts there. Calls answered. Opportunities captured, day or night." | 5.13 | **over 0.43** |
-| **C06** | 0:20.2–0:24.7 | 4.5 | **D** Jessica | "Who they are. What they need. Where, when, and how urgent." | 4.34 | ok, 0.16 spare |
-| **C07** | 0:24.7–0:29.6 | 4.9 | **A** James | "It follows your rules. It never guesses. Important decisions come back to you." | 6.81 | **over 1.91** |
+| **C06** | 0:20.2–0:24.7 | 4.5 | **D** Jessica | "Who they are. What they need. And how urgent it is." | 3.60 | ok, 0.16 spare |
+| **C07** | 0:24.7–0:29.6 | 4.9 | **A** James | "It follows your rules. It won't make up a price. Important decisions come back to you." | 6.67 | **over 1.77** |
 | **C08** | 0:29.6–0:33.5 | 3.9 | **B** Cassidy | "The job is captured. The next move is clear." | 2.44 | ok, 1.46 spare |
 | **C09** | 0:33.5–0:40.0 | 6.5 | **C** Vincent | "Next, NEVAMIS will connect your company, automate repetitive work, and uncover value between systems." | 7.27 | **over 0.77** |
 | **C10** | 0:40.0–0:44.4 | 4.4 | **D** Jessica | "So growth takes less of your life, not more." | 2.86 | ok, 1.54 spare |
@@ -150,14 +150,24 @@ All composited in post from the real product typefaces. **Nothing generated.**
 | C01 | `MISSED` |
 | C03 | `CALL` → `LEAD` → `LOST` |
 | C05 | `CALL ANSWERED` · `LEAD CAPTURED` · `DAY OR NIGHT` |
-| C06 | `WHO` · `WHAT` · `WHERE` · `WHEN` · `URGENCY` |
+| C06 | `WHO` · `WHAT` · `URGENCY` · `NEXT STEP` |
 | C07 | `RULES CHECKED` · `NEEDS YOU` |
 | C08 | `JOB CAPTURED` |
-| C09 | `CALLS · LIVE` `LEADS · LIVE` `SCHEDULING · EXPANDING` `REPORTING · EXPANDING` `FOLLOW-UP · NEXT` `QUOTES · NEXT` |
+| C09 | `CALLS · LIVE` `LEADS · LIVE` `REPORTING · IN PILOT` `FOLLOW-UP · NEXT` `TRACKING · NEXT` `QUOTE CHASING · NEXT` |
 | C12 | `NEVAMIS` / `THE WORK MOVES. YOU STILL DECIDE.` |
 
-Live glows fully · expanding pulses at medium · next remains outlined but
+Live glows fully · in-pilot pulses at medium · next remains outlined but
 visibly connected.
+
+**Corrected 2026-08-10 after an adversarial truth audit (8 findings survived
+refutation of 26 raised).** `WHERE` and `WHEN` were cut because no such fields
+exist — `DRAFT_DATA_COLLECTION` has no address and no time-window field, and
+`call_summaries` has no such columns. `SCHEDULING` was dropped entirely: it is
+absent from `CANONICAL.capabilities` at every tier and exists in the codebase
+only as a refused entitlement. `EXPANDING` was retired as a status word because
+it is not one of the six `Availability` values, so no guard could ever check it.
+"It never guesses" was replaced with "It won't make up a price", which is
+provable from the hard rule at `agent-draft.ts:143`.
 
 ---
 

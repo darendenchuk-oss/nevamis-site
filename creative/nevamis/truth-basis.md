@@ -22,12 +22,47 @@ Where the auditors disagreed, the disagreement was resolved by reading current
 
 ## The capability, stated exactly
 
-**NEVAMIS answers the line, qualifies the caller against rules the owner
-approves, captures the job, the address and the time window they want, escalates
-or transfers by those rules, and texts and emails the owner a summary within
-seconds. A person on the business's side confirms the slot.**
+**NEVAMIS answers the line on the business's existing number, qualifies the
+caller against rules the owner approves, captures who they are, a callback
+number, what they need, whether they are in the service area, how urgent it is
+and the next step promised, refuses what the rules forbid, escalates or
+transfers by those rules, and texts and emails the owner a summary within
+seconds. Everything after that is done by a person.**
 
 That sentence is the ceiling. Nothing may claim more.
+
+### CORRECTED 2026-08-10 — this file previously overclaimed
+
+Until today this section read *"captures the job, **the address and the time
+window they want**"*. **Both were false**, and because this file is the ceiling
+every downstream document inherited the error — including two committed
+production boards and a narration line that was described as verified.
+
+Verified on `origin/master`:
+
+- `src/domain/agent-draft.ts:52-69` — `DRAFT_DATA_COLLECTION` provisions exactly
+  eleven fields: `contact_name`, `callback_number`, `intent`, `service`,
+  `service_area_result`, `urgency`, `appointment_outcome`, `booking_confirmed`,
+  `human_follow_up_required`, `next_step`, `sms_confirmation_requested`.
+  **No address field. No time-window field.**
+- `src/db/schema.ts` (`call_summaries`) — no address column and no requested-time
+  column. `locationResult` is commented `// in/out of service area` and holds
+  only `in_area | out_of_area | unknown`. A three-state area verdict is not an
+  address.
+- Schema-wide, the only address columns are the tenant's own `mailing_address`
+  and email addresses.
+- `src/domain/product-contracts/booking-identity-job-details.ts` states it
+  outright: **"There is no job-site address field."** The same record carries
+  `job-site-address` with `storedAt: null, present: false`.
+
+**And the address is actively discarded.** The same contract notes the agent *is
+instructed* to collect "address when a site visit is needed" — so the caller
+says it out loud and it lands nowhere. This is the `callback_number` defect
+repeating: a prompt asking for a value with no column to hold it. That one was
+fixed by adding a field; this one is still open.
+
+**Nothing may claim an address or a requested time window until a column exists
+to hold it.**
 
 ### It does not book
 

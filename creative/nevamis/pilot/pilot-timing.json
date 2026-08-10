@@ -3,54 +3,54 @@
     {
       "shot": "C02",
       "in": 2.6,
-      "out": 7.71,
+      "out": 7.83,
       "voice": "James"
     },
     {
       "shot": "C03",
-      "in": 7.71,
-      "out": 13.46,
+      "in": 7.83,
+      "out": 13.58,
       "voice": "Cassidy"
     },
     {
       "shot": "C05",
-      "in": 13.46,
-      "out": 18.84,
+      "in": 13.58,
+      "out": 19.09,
       "voice": "Michael C. Vincent"
     },
     {
       "shot": "C06",
-      "in": 18.84,
-      "out": 23.43,
+      "in": 19.09,
+      "out": 23.06,
       "voice": "Jessica Anne Bogart"
     },
     {
       "shot": "C07",
-      "in": 23.43,
-      "out": 30.48,
+      "in": 23.06,
+      "out": 30.11,
       "voice": "James"
     },
     {
       "shot": "C08",
-      "in": 30.48,
-      "out": 33.17,
+      "in": 30.11,
+      "out": 32.92,
       "voice": "Cassidy"
     },
     {
       "shot": "C09",
-      "in": 33.17,
-      "out": 40.69,
+      "in": 32.92,
+      "out": 40.57,
       "voice": "Michael C. Vincent"
     },
     {
       "shot": "C10",
-      "in": 40.69,
-      "out": 44.15,
+      "in": 40.57,
+      "out": 44.03,
       "voice": "Jessica Anne Bogart"
     },
     {
       "shot": "C12",
-      "in": 44.15,
+      "in": 44.03,
       "out": 48,
       "voice": "Jessica Anne Bogart"
     }
@@ -78,7 +78,7 @@
       "room": 5.7,
       "spoken": 4.25,
       "lufs": -23,
-      "cue": 7.709
+      "cue": 7.834
     },
     {
       "shot": "C05",
@@ -90,7 +90,7 @@
       "room": 4.7,
       "spoken": 5.13,
       "lufs": -23.5,
-      "cue": 13.459
+      "cue": 13.584
     },
     {
       "shot": "C06",
@@ -98,11 +98,11 @@
       "tout": 24.7,
       "vk": "D",
       "voice": "Jessica Anne Bogart",
-      "text": "Who they are. What they need. Where, when, and how urgent.",
+      "text": "Who they are. What they need. And how urgent it is.",
       "room": 4.5,
-      "spoken": 4.34,
-      "lufs": -23,
-      "cue": 18.837
+      "spoken": 3.6,
+      "lufs": -23.1,
+      "cue": 19.089
     },
     {
       "shot": "C07",
@@ -110,11 +110,11 @@
       "tout": 29.6,
       "vk": "A",
       "voice": "James",
-      "text": "It follows your rules. It never guesses. Important decisions come back to you.",
+      "text": "It follows your rules. It won't make up a price. Important decisions come back to you.",
       "room": 4.9,
-      "spoken": 6.81,
-      "lufs": -22.9,
-      "cue": 23.426
+      "spoken": 6.67,
+      "lufs": -23.2,
+      "cue": 23.063
     },
     {
       "shot": "C08",
@@ -126,7 +126,7 @@
       "room": 3.9,
       "spoken": 2.44,
       "lufs": -23,
-      "cue": 30.484
+      "cue": 30.107
     },
     {
       "shot": "C09",
@@ -138,7 +138,7 @@
       "room": 6.5,
       "spoken": 7.27,
       "lufs": -22.7,
-      "cue": 33.173
+      "cue": 32.921
     },
     {
       "shot": "C10",
@@ -150,7 +150,7 @@
       "room": 4.4,
       "spoken": 2.86,
       "lufs": -23,
-      "cue": 40.691
+      "cue": 40.566
     },
     {
       "shot": "C12",
@@ -162,7 +162,7 @@
       "room": 3,
       "spoken": 3.6,
       "lufs": -22.9,
-      "cue": 44.151
+      "cue": 44.026
     }
   ]
 }
