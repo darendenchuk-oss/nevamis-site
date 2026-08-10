@@ -1,4 +1,4 @@
-﻿> SUPERSEDED 2026-07-25: the guarantee-based commercial model described below is RETIRED. The current model is Model B, a free 7-day live pilot with no card and no auto-billing (see docs/commercial-model-decision.md). This file is kept for history; do not copy wording from it.
+﻿> SUPERSEDED 2026-07-25, AND AGAIN 2026-08-09. DO NOT FILL THIS IN AND DO NOT SEND IT TO A CLIENT. The guarantee-based model below is retired; so is the Model B free-pilot model this banner used to name as current. The form itself now encodes a retired offer in its own field names: there is no "One-time setup fee" to enter, no first-7-live-days guarantee, and the plans are Core / Growth / Pro, not After Hours / Growth / Scale. The current model is one recurring price per plan (Core C$250/month, Growth C$500/month, Pro C$1,000/month), charged the day the client subscribes and every month after, with nothing charged beside it and no pilot or trial. Read pricing-config.js. This file is kept for history only.
 # Service order template (present before any payment)
 
 **Nevamis AI service order** Â· Date: ____ Â· Pricing version: (from pricing-config.js lastUpdated)

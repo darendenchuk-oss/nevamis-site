@@ -1,5 +1,13 @@
 # Nevamis Site Audit — 2026-07-23
 
+> **Historical audit — every commercial figure below is retired.** This is a point-in-time
+> record of the site on 2026-07-23 and is kept as one. It describes Model B (a free 7-day live
+> pilot), the C$249 / C$449 / C$849 ladder, setup fees of C$500 / C$750 / C$1,250 and a
+> founding-client waiver. None of that is offered. Since 2026-08-09 the model is one recurring
+> price per plan — Core C$250/month, Growth C$500/month, Pro C$1,000/month — with nothing
+> charged beside it and no pilot or trial at any price. Read the findings, not the figures;
+> pricing-config.js is the source of truth.
+
 Repo: `C:\Users\daren\nevamis-site` · Source of truth: `pricing-config.js` (approved 2026-07-23, Model B — free 7-day live pilot, plans C$249/C$449/C$849, setups C$500/C$750/C$1250, founding-client offer with 5 spots / setup waived). `coming-soon.html` does not exist. Nav is fully static per page (`site.js` injects no links).
 
 ## Nav/footer consistency

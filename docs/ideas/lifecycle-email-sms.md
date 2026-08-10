@@ -1,5 +1,20 @@
 # Lifecycle Email & SMS — 60 improvements
 
+> **SUPERSEDED 2026-08-09 — the commercial model this file was written against no longer exists.**
+> Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
+> After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
+> setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
+> Every one of those is retired. The current model is ONE recurring price per plan, charged the
+> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
+> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
+> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
+> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+>
+> The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
+> survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
+> and any idea whose whole premise is a setup fee, a pilot, PAYG or annual prepay is moot.
+
+
 Right now Nevamis has almost no working lifecycle communication, and the reason is unusually concrete: `nevamis-engine/src/lib/mailer.ts` defaults to `NEVAMIS_EMAIL_MODE=off`, `docs/EMAIL-DNS-AUDIT.md` confirms there is no DMARC record and no Resend DKIM on nevamis.ca, and the only four templates that exist are `verification`, `passwordReset`, `workspaceLinked`, and `agentReady`. Everything else in the funnel is a markdown template a human retypes — `docs/pilot/daily-call-log-digest-template.md` is compiled by hand each morning, `day7-pilot-report-template.md` is filled in by hand, and the day-8 promise printed on `pilot.html` ("Silence never becomes a subscription") has no email behind it at all. The CASL surface is thinner than it looks: `coming-soon.html` collects a consent checkbox (`#ifConsent`) that `src/app/api/interest/route.ts` never stores, there is no `/unsubscribe` page anywhere on nevamis.ca, `src/lib/twilio.ts` can physically only text the founder's own cell, and `consentRecords` in `db/schema.ts` requires a `contactId` that prospects do not have. The 60 items below build the sequences in the order the business will actually need them — pilot first, because the pilot is the only thing that closes a sale — while fixing the consent and unsubscribe plumbing that has to exist before a single non-transactional message goes out. Nothing here requires a client, a testimonial, or a metric that does not exist.
 
 ---

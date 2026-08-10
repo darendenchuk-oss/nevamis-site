@@ -1,5 +1,20 @@
 # Analytics & experimentation — 55 improvements
 
+> **SUPERSEDED 2026-08-09 — the commercial model this file was written against no longer exists.**
+> Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
+> After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
+> setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
+> Every one of those is retired. The current model is ONE recurring price per plan, charged the
+> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
+> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
+> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
+> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+>
+> The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
+> survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
+> and any idea whose whole premise is a setup fee, a pilot, PAYG or annual prepay is moot.
+
+
 Nevamis already has more measurement machinery than most pre-revenue businesses: `nvTrack()` in `site.js`, a first-party beacon to `app.nevamis.ca/api/events`, a `site_events` table, `/ops/analytics`, and `/ops/weekly`. But reading the code end-to-end exposes a specific set of holes that matter far more than adding tools. `nvSend()` in site.js line 21 serialises only `{name, page, referrer, source}` — it silently **throws away the `data` argument**, so `roadmap_service_interest_clicked`'s `service` slug and every other property in `docs/analytics-events.md` never reaches the server. There is no session or visit identifier, so `/ops/analytics` can only show raw counts, never a conversion rate. The homepage's two biggest interactive assets — the 6-stage simulator in `motion.js` (~200 lines) and the 15-item FAQ — emit nothing at all. The server's `ALLOWED_NAMES` set in `src/app/api/events/route.ts` is a silent drop gate that already contains four dead names and is missing several the site emits. And a single phone number, `(587) 413-0035`, carries every channel, so call attribution is currently zero. The ideas below fix the pipeline first, then instrument the surfaces that answer real sales questions, then build the smallest dashboard and the smallest weekly number set a solo founder should actually look at. Experimentation ideas are deliberately conservative: at current traffic levels, honest sequential measurement and qualitative evidence beat a split test that will never reach significance, and several entries say so explicitly.
 
 ---

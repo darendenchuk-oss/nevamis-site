@@ -1,5 +1,17 @@
 # ElevenLabs Agent Upgrade: Published Pricing, Live Pilot, Response Quality
 
+> **SUPERSEDED 2026-08-09 — do not brief the live agent from this document.**
+> It was written against the C$249 / C$449 / C$849 ladder and the free 7-day
+> live pilot, then patched on 2026-08-07 with a paragraph instructing the agent
+> to speak TWO figures per plan ("Pro C$1,000 then C$850/month") and to offer
+> the C$150 pilot credit. Every one of those is retired. The current model is
+> one recurring figure per plan — Core C$250/month, Growth C$500/month, Pro
+> C$1,000/month — charged the day the client subscribes and every month after,
+> with no setup, activation or onboarding charge and no pilot or trial at any
+> price. The individual sections below have been corrected in place rather than
+> left as a trap, but the source of truth is pricing-config.js and the live
+> prompt snapshot in nevamis-engine/docs/agent-prompts/demo.md, never this file.
+
 Date: 2026-07-23
 Status: Proposed. Nothing in this document is live yet. The production agent runs its current prompt until the rollout plan below completes and the owner signs off.
 Agent affected: Nevamis Demo Receptionist (id `agent_9101ky43tys1fswstde818j7j8wt`), the sales and product demonstration agent on the public demo line, (587) 413-0035.
@@ -16,11 +28,11 @@ The live agent should match the clarity the website already promises. Concretely
 - Safe under uncertainty: unknowns produce an honest "I can't confirm that" plus a path forward, never a guess.
 - Directional: each answer ends with a clear next step or one focused question.
 
-The goal is not longer answers everywhere. Most turns should stay short. The standard is that when a caller asks something the website answers publicly (pricing, the pilot, how the product works), the agent answers it just as directly, then layers detail only if the caller wants it.
+The goal is not longer answers everywhere. Most turns should stay short. The standard is that when a caller asks something the website answers publicly (pricing, how a business starts, how the product works), the agent answers it just as directly, then layers detail only if the caller wants it.
 
 ## 2. Why now
 
-nevamis.ca publishes exact plans (`pricing-config.js`, approved 2026-07-23) and a free 7-day live pilot. The current agent prompt does the opposite: its PRICING section deflects every price question to Daren, contains no dollar figures, and never mentions the pilot. A caller who read the site before dialing gets contradicted by the product that is supposed to be the demo. That is the single worst impression an AI receptionist company can make.
+nevamis.ca publishes exact plans (`pricing-config.js`). The agent prompt as of 2026-07-23 did the opposite: its PRICING section deflected every price question to Daren and contained no dollar figures. A caller who read the site before dialing gets contradicted by the product that is supposed to be the demo. That is the single worst impression an AI receptionist company can make. (The original sentence here also said the site publishes a free 7-day live pilot and that the prompt should describe it. It did, then; the pilot is retired and the agent must not describe it now.)
 
 ## 3. What changes and why
 
@@ -28,29 +40,27 @@ nevamis.ca publishes exact plans (`pricing-config.js`, approved 2026-07-23) and 
 
 The deflection-only PRICING section is replaced with the approved published pricing. The agent states the real shape on request:
 
-- After Hours: C$249/month, no setup fee, 250 connected AI minutes included (typically 80 to 125 calls), overage C$1.10/min. For small businesses that need evenings, weekends, and overflow covered.
-- Growth (recommended): C$449/month, no setup fee, 600 minutes (typically 200 to 300 calls), overage C$0.90/min. Up to two lines, flows, or calendars, advanced qualification, transfer rules, and one standard CRM or automation connection when supported.
-- Scale: from C$849/month, no setup fee, 1,200 minutes (typically 400 to 600 calls), overage C$0.75/min. Multi-location and complex routing.
+- Core: C$250/month, 250 connected AI minutes included (typically 80 to 125 calls), overage C$1.10/min. For small businesses that need evenings, weekends, and overflow covered.
+- Growth (recommended): C$500/month, 600 minutes (typically 200 to 300 calls), overage C$0.90/min. For growing businesses putting a meaningful share of inbound calls through it, not just the after-hours ones.
+- Pro: C$1,000/month, 1,400 minutes (typically 470 to 700 calls), overage C$0.75/min. For high-volume businesses that would run past the Growth minutes every month.
+
+(The plans listed here until 2026-08-09 were After Hours C$249, Growth C$449 and Scale from C$849 with 1,200 minutes and a 400-to-600-call range. Those names, prices, minute counts and call ranges are all retired.)
 
 All prices are CAD plus applicable tax, month to month, cancel before the next renewal. The agent may also explain, on request, what a connected AI minute is (starts when the AI answers a connected call, ends when the AI portion ends; calls that never connect are not counted; spam that reaches the AI is counted) and the usage-alert behaviour (alerts at 75%, 90%, and 100%; near the limit the client chooses automatic overage, fallback answering, or a hard cap).
 
-Each plan has a first-month amount and a recurring monthly amount, and the two are never added together (2026-08-07). Core is C$250 then C$250/month, Growth C$500 then C$500/month, Pro C$1,000 then C$850/month. The agent should give BOTH figures for the plan being discussed whenever cost comes up, because a caller who leaves believing Core costs C$500 on day one has been misled by two correct numbers. The C$150 pilot fee comes off the first month if they continue. There is no founding-client offer, no waiver, and no scarcity of any kind to imply.
+Each plan has exactly ONE figure and the agent speaks exactly one (2026-08-09). Core C$250/month, Growth C$500/month, Pro C$1,000/month, charged the day the client subscribes and on that day every month after. There is no setup fee, no activation fee and no onboarding fee, and the agent should say so plainly, because being the only provider in this market with published prices and nothing charged beside them is a selling point. There is no pilot and no trial, no founding-client offer, no waiver, and no scarcity of any kind to imply.
 
-*(This paragraph said "No setup fee, on any plan, for anyone (2026-07-31)" and told the agent to state it plainly. Setup was reinstated on 2026-08-06 and reframed as the first month on 2026-08-07; the instruction survived both and would have had the live agent denying a charge the invoice makes.)*
+*(The history of this one paragraph is the argument for the rule. It read "No setup fee, on any plan, for anyone" from 2026-07-31; setup was reinstated 2026-08-06 and the paragraph did not follow, so it had the agent denying a charge the invoice made. On 2026-08-07 it was rewritten to demand BOTH figures — "Core C$250 then C$250/month ... Pro C$1,000 then C$850/month" — plus "the C$150 pilot fee comes off the first month". On 2026-08-09 the setup fee, the second figure and the pilot were all deleted, and this paragraph again did not follow, so for a day it instructed the live agent to quote C$850 and sell a retired pilot. Twice out of three changes, the instruction outlived the thing it described. That is why the figures live in pricing-config.js and this file points at it.)*
 
 Why: the site publishes these numbers. An agent that hides them looks evasive and loses the caller who already knows them.
 
-### 3.2 New PILOT section
+### 3.2 PILOT section — WITHDRAWN 2026-08-09, the prompt must have no such section
 
-The prompt gains a section describing the approved Model B free pilot, exactly as published:
+This section used to specify a PILOT block for the prompt: a 7-day live pilot on the client's real line, zero dollars, no card, capped at 60 connected AI minutes or 30 calls, ending on day eight unless the client chose a plan. That offer was later repriced to C$150 and then retired outright on 2026-08-09, at any price and on any terms. The prompt must not carry a pilot section, and the agent must not offer, price, schedule or half-promise a pilot, a trial, an evaluation period or a free first week.
 
-- 7-day live pilot on the client's real phone line. Zero dollars, no card, no automatic billing.
-- Caps: one line, one call flow, one calendar, up to 60 connected AI minutes or 30 calls, whichever comes first, and one revision.
-- The seven days start when the pilot goes live, not at application.
-- On day eight the pilot simply ends unless the client explicitly chooses a plan. Silence never becomes a subscription.
-- Pilots are founder-led and accepted based on fit and onboarding capacity.
+What the agent says instead, when a caller asks for one: the pilot is retired, and the monthly price is already the low-commitment way in — one figure, cancel any time from the portal, service runs to the end of the month paid for. That is cheaper per day than the retired pilot was, lasts longer, and can be stopped; there is nothing to invent in its place.
 
-Why: the pilot is the site's primary call to action. An agent that cannot describe it cannot close the loop the website opens.
+Why the whole section is kept rather than deleted: the pilot was the site's primary call to action for weeks, and callers who saw it then still ask. An agent that has never been told the offer is gone will improvise one.
 
 ### 3.3 Response-quality standard
 
@@ -58,9 +68,9 @@ A new standard governs how answers are shaped: answer, then explanation, then ne
 
 - Level 1 (default): the direct answer in one or two short sentences.
 - Level 2 (when the caller asks for more, or the question implies it): the plain-language explanation of how or why.
-- Level 3 (on explicit request): full published detail, such as per-plan overage rates, the connected-minute definition, or pilot caps.
+- Level 3 (on explicit request): full published detail, such as per-plan overage rates, the connected-minute definition, or the usage-alert thresholds.
 
-Every substantive answer ends with either a clear next step (book the intro call, start a pilot application, take a callback) or one focused question back to the caller. Never two questions. Voice pacing rules stay: one thought per turn, no spoken bullet lists.
+Every substantive answer ends with either a clear next step (book the intro call, take a callback) or one focused question back to the caller. Never two questions. Voice pacing rules stay: one thought per turn, no spoken bullet lists.
 
 Why: the failure mode to avoid is not short answers, it is incomplete ones. Layering keeps calls fast for callers who want a number and thorough for callers who want the mechanics.
 
@@ -85,7 +95,7 @@ Why: one confident wrong yes about an integration costs more than a hundred hone
 
 ### 3.6 Knowledge base populated
 
-The agent's knowledge base is currently empty (0 documents). This upgrade uploads `config/elevenlabs/nevamis-knowledge-base.md` as the single knowledge-base document. Division of labour: the prompt carries behaviour, tone, tool rules, and the pricing and pilot shape; the knowledge base carries the full published detail (per-plan figures, minute definition, alert thresholds, pilot caps, positioning, and the integration-honesty facts) so the agent retrieves exact numbers instead of paraphrasing them.
+The agent's knowledge base is currently empty (0 documents). This upgrade uploads `config/elevenlabs/nevamis-knowledge-base.md` as the single knowledge-base document. Division of labour: the prompt carries behaviour, tone, tool rules, and the shape of the one recurring price; the knowledge base carries the full published detail (per-plan figures, minute definition, alert thresholds, the retired-offers list, positioning, and the integration-honesty facts) so the agent retrieves exact numbers instead of paraphrasing them.
 
 Why: exact figures belong in a retrievable document kept in lockstep with `pricing-config.js`, not scattered through prose the model might compress.
 
@@ -121,9 +131,11 @@ The weak version overclaims. The target makes uncertainty a feature: honest fall
 
 Weak: "Pricing depends on your call volume and what you need, so Daren scopes it on a short call. It's built to cost a fraction of a receptionist."
 
-Target: "Plans run from C$249 to C$849 a month depending on coverage and call volume: After Hours at C$249, Growth at C$449, which is the one most people pick, and Scale from C$849 for multi-location. Each has a one-time setup fee, though we're waiving setup for our first five founding clients. And before any of that, there's a free 7-day live pilot on your real line, no card needed. Roughly how many calls a week do you get?"
+Target: "Plans run from C$250 to C$1,000 a month depending on coverage and call volume: Core at C$250, Growth at C$500, which is the one we recommend for most trades, and Pro at C$1,000 for high call volume. That's the whole price, charged the day you start and again a month later, with no setup fee and no activation fee, and you can cancel any time. Roughly how many calls a week do you get?"
 
-The weak version is the current behaviour and it contradicts the website. The target states the real shape, the setup fees, the founding waiver, and the free pilot, then asks the one question that determines plan fit.
+The weak version is the current behaviour and it contradicts the website. The target states the real shape, one figure per plan, says plainly that nothing else is charged, then asks the one question that determines plan fit.
+
+*(This target answer quoted the retired ladder, a one-time setup fee, the founding waiver and the free pilot until 2026-08-09 — and said Growth was "the one most people pick", which is a claim about a client base that does not exist. "The one we recommend" is an opinion, is true, and matches `recommended: true` in pricing-config.js.)*
 
 ## 5. Rollout plan
 
@@ -131,7 +143,7 @@ The public demo number stays pointed at the production agent with its approved c
 
 1. Backup confirmed. A full backup of the production agent configuration (prompt, settings, tool config) was taken 2026-07-23. It is stored privately, not in this repository, because the configuration contains the on-call transfer number.
 2. Staging duplicate. Create a duplicate agent in ElevenLabs from the production configuration. Apply the new prompt and upload `config/elevenlabs/nevamis-knowledge-base.md` to the staging agent only.
-3. Simulation suite. Run the full simulation suite against the staging agent. Scenarios must cover pricing accuracy (exact published figures), pilot terms (caps, day-eight ending, no card), unknown-integration questions, tool failure honesty (booking failure, notify failure), booking flow with `check_booking` first, and disclosure behaviour. All scenarios must pass before any human calls.
+3. Simulation suite. Run the full simulation suite against the staging agent. Scenarios must cover pricing accuracy (exact published figures, one per plan), refusal of retired offers (a caller asking for the pilot, a trial, or a setup-fee discount), unknown-integration questions, tool failure honesty (booking failure, notify failure), booking flow with `check_booking` first, and disclosure behaviour. All scenarios must pass before any human calls.
 4. Manual phone testing. At least ten manual test calls to the staging agent over a real phone, covering the same scenarios plus free-form conversation, interruptions, and a hostile-caller case.
 5. Owner review. Daren reviews sample transcripts and recordings from the simulation and manual calls, plus the prompt diff against the current production prompt.
 6. Production update. Only after explicit owner sign-off is the new prompt applied to the production agent and the knowledge-base document attached to it. The phone number configuration is untouched throughout.

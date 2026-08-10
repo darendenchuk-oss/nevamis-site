@@ -1,5 +1,18 @@
 # NEVAMIS SERVICE AGREEMENT (DRAFT)
 
+> **SUPERSEDED 2026-08-09 — DO NOT SEND OR SIGN THIS TEXT.** Parts A and B below
+> describe a commercial model that no longer exists: a free 7-day live pilot,
+> and a paid service that charges a setup fee alongside a monthly fee. Both are
+> retired. The current model is ONE recurring price per plan, charged the day
+> the client subscribes and every month after (Core C$250/month, Growth
+> C$500/month, Pro C$1,000/month), with no setup, activation, onboarding,
+> implementation or launch charge, and no pilot or trial at any price. See
+> pricing-config.js, which is the source of truth, and docs/CLAIMS-LEDGER.md
+> row CLM-18. This draft is kept for the drafting work in Parts C onward
+> (liability, data handling, acceptable use, Alberta law), which survives the
+> pricing change; a redraft on the single-price model has to go to counsel
+> before a client sees it (engine OWNER_ACTIONS A5).
+
 STATUS: DRAFT PENDING QUALIFIED LEGAL REVIEW. Prepared 2026-07-27 as a
 lawyer-style drafting pass on the owner's written instruction. Do not sign
 clients on this text until a qualified Alberta lawyer has reviewed it

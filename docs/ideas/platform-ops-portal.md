@@ -1,5 +1,20 @@
 # Platform, Ops App & Client Portal — 60 improvements
 
+> **SUPERSEDED 2026-08-09 — the commercial model this file was written against no longer exists.**
+> Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
+> After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
+> setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
+> Every one of those is retired. The current model is ONE recurring price per plan, charged the
+> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
+> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
+> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
+> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+>
+> The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
+> survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
+> and any idea whose whole premise is a setup fee, a pilot, PAYG or annual prepay is moot.
+
+
 Grounded in a full read of `C:/Users/daren/nevamis-engine` as it stands on 2026-07-27: the 19 `/ops` pages, the 4 `/portal` pages, `src/domain/{onboarding,onboarding-sops,queue,usage,portal-metrics,calls,escalation,agent-draft,email}.ts`, `src/components/usage-meter.tsx`, `src/lib/{mailer,portal,tenant,pii}.ts`, and `src/db/schema.ts`. The engine is genuinely well built — a live-computed action queue, a real readiness gate, drift detection, per-task SOPs, PII masking, a training gate, 253 tests. The gaps are not "more features"; they are (a) three places where live copy promises something the product does not have, (b) the free 7-day pilot — the actual sales wedge — has **no representation in the platform at all** (onboarding only exists after a signed, paid, closed-won deal), (c) almost every ops screen is scoped to one switched-to tenant, which quietly caps the founder at about one client's worth of attention, and (d) work that is recorded but never surfaced (usage alerts, `timeSpentMinutes`, decided account requests). These 60 are ordered roughly by theme, not priority; the impact-per-effort ranking is in the returned summary. Nothing here requires inventing a client, a number, or a testimonial.
 
 ---

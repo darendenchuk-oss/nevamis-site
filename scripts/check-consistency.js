@@ -134,6 +134,60 @@ const statesBanned = (text, re) => text
   .split(/(?<=[.!?])\s+|\n+/)
   .some((s) => re.test(s) && !DENIAL.some((d) => d.test(s)));
 
+/* Walked rather than listed, so a script added to the calling kit tomorrow is
+   covered without anyone remembering to add it here. Every truth gap found on
+   this site so far has been a page missing from a hand-maintained array.
+
+   HOISTED TO MODULE SCOPE 2026-08-10, and that move is half the fix for a real
+   defect. This function already knew how to read config/elevenlabs/ recursively
+   — guard 6b has swept it for banned phrases since it was written — but it was a
+   local inside 6b's block, so no other rule could reach the directory. The
+   result was a folder that was checked for one thing and unchecked for
+   everything else, which reads as "covered" in a summary and is not. */
+const walk = (dir) => {
+  if (!fs.existsSync(dir)) return [];
+  let out = [];
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) {
+      if (/node_modules|[\\/]\.|archive|staging-tests|__pycache__|venv/i.test(p)) continue;
+      out = out.concat(walk(p));
+    } else if (/\.(md|txt)$/i.test(e.name)) out.push(p);
+  }
+  return out;
+};
+
+/* The two sentence-level pricing detectors, hoisted here on 2026-08-10 so that
+   guards 7c, 7d and 7e share ONE definition of each.
+
+   They were block-locals, and that is the mechanical reason this repository
+   shipped a directory nobody price-checked. Extending the rules to
+   config/elevenlabs/ meant either moving these lists or copying them, and a copy
+   drifts from the original the first time a pattern is added to one of them.
+   Add a pattern here and every surface gets it at once, which is the only
+   arrangement that survives the next pricing change. */
+const ADDITIVE = [
+  /one-time setup/i,
+  /\bsetup fee\b/i,
+  /plus (?:a )?(?:one-time )?setup/i,
+  /\+\s*(?:one-time )?setup/i,
+];
+const RETIRED_OFFERS = [
+  /\b\d+[- ]day live pilot\b/i,
+  /\b(?:7|seven)[- ]day pilot\b/i,
+  /\b(?:14|fourteen)[- ]day pilot\b/i,
+  /\bpilot fee\b/i,
+  /\bpaid pilot\b/i,
+  /\bfree pilot\b/i,
+  /\bpilot (?:price|credit)\b/i,
+  /\bC\$\s?150\b/,
+  /\bC\$\s?850\b/,
+  /\bfirst month\s+C\$/i,
+  /\bthen\s+C\$[\d,]+\s*\/\s*month/i,
+  /\bcredited toward your first month\b/i,
+  /\bcomes off (?:that|your) first month\b/i,
+];
+
 const navOf = (html) => {
   const m = html.match(/<nav class="main-nav"[^>]*>([\s\S]*?)<\/nav>/);
   return m ? m[1].replace(/ aria-current="page"/g, "").replace(/\s+/g, " ").trim() : null;
@@ -220,21 +274,7 @@ for (const p of contentPages) {
     path.join(root, "..", "nevamis-engine", "docs", "agent-prompts", "escalation.md"),
   ];
 
-  /* Walked rather than listed, so a script added to the calling kit tomorrow is
-     covered without anyone remembering to add it here. Every truth gap found on
-     this site so far has been a page missing from a hand-maintained array. */
-  const walk = (dir) => {
-    if (!fs.existsSync(dir)) return [];
-    let out = [];
-    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-      const p = path.join(dir, e.name);
-      if (e.isDirectory()) {
-        if (/node_modules|[\\/]\.|archive|staging-tests|__pycache__|venv/i.test(p)) continue;
-        out = out.concat(walk(p));
-      } else if (/\.(md|txt)$/i.test(e.name)) out.push(p);
-    }
-    return out;
-  };
+  /* walk() is at module scope; see the note beside it for why it moved. */
 
   /* Judged per SENTENCE by the hoisted statesBanned(), and only where the
      sentence is not itself FORBIDDING the phrase it contains. See DENIAL near
@@ -493,12 +533,7 @@ for (const p of contentPages) {
        run of THIS working tree, and a red command nobody can fix is a command
        that stops being read. */
 {
-  const additive = [
-    /one-time setup/i,
-    /\bsetup fee\b/i,
-    /plus (?:a )?(?:one-time )?setup/i,
-    /\+\s*(?:one-time )?setup/i,
-  ];
+  /* ADDITIVE is at module scope now, shared with guard 7e. */
   /* Comments are stripped first. The files that FIXED this defect are the ones
      that quote the retired sentence in order to explain why it is retired, and
      a rule that fires on its own explanation teaches the next person to delete
@@ -523,7 +558,7 @@ for (const p of contentPages) {
     if (!fs.existsSync(file)) continue;
     const text = visible(fs.readFileSync(file, "utf8"));
     const label = path.relative(root, file).replace(/\\/g, "/");
-    for (const b of additive) {
+    for (const b of ADDITIVE) {
       if (statesBanned(text, b)) {
         err(`${label}: ${b} charges something beside the monthly price. There is no setup, activation, `
           + `onboarding, implementation or launch charge. Write "C$X/month", and if the point is that `
@@ -555,21 +590,7 @@ for (const p of contentPages) {
        to DENIAL, never to drop the pattern. Dropping the pattern re-opens the
        claim for every page at once. */
 {
-  const RETIRED_OFFERS = [
-    /\b\d+[- ]day live pilot\b/i,
-    /\b(?:7|seven)[- ]day pilot\b/i,
-    /\b(?:14|fourteen)[- ]day pilot\b/i,
-    /\bpilot fee\b/i,
-    /\bpaid pilot\b/i,
-    /\bfree pilot\b/i,
-    /\bpilot (?:price|credit)\b/i,
-    /\bC\$\s?150\b/,
-    /\bC\$\s?850\b/,
-    /\bfirst month\s+C\$/i,
-    /\bthen\s+C\$[\d,]+\s*\/\s*month/i,
-    /\bcredited toward your first month\b/i,
-    /\bcomes off (?:that|your) first month\b/i,
-  ];
+  /* RETIRED_OFFERS is at module scope now, shared with guard 7e. */
   /* Comments and scripts are stripped before the text is read. The files that
      FIXED this defect are the ones that quote a retired sentence in order to
      explain why it is retired, and a rule that fires on its own explanation

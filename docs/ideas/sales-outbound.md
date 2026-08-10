@@ -1,5 +1,20 @@
 # Sales & Outbound — 70 improvements toward client #1
 
+> **SUPERSEDED 2026-08-09 — the commercial model this file was written against no longer exists.**
+> Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
+> After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
+> setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
+> Every one of those is retired. The current model is ONE recurring price per plan, charged the
+> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
+> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
+> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
+> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+>
+> The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
+> survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
+> and any idea whose whole premise is a setup fee, a pilot, PAYG or annual prepay is moot.
+
+
 Nevamis already has more sales *documentation* than most funded startups: `ai-assistant/outreach/` holds a README daily loop, a 22-row `prospect-tracker.csv`, six objection cards, an ROI one-pager, a day-8 conversion script, a trades FAQ and a referral offer; `SEVEN-DAY-SALES-SCHEDULE.md`, `WEEKLY-RHYTHM.md`, `FOUNDER-SCORECARD.md` and `PARTNER-CHANNEL.md` sit one level up; the site has `pilot.html`, `demo.html` and `book.html` doing the pre-sell. What it does not have is a list long enough to survive one week of dialing (22 rows ≈ 1.1 days at the 20/day target), verified phone numbers (21 of 22 `phone_verify` cells are blank), owner names for the scripts that open with "Hey [name]", a confirmed referral offer (still marked DRAFT), a consent ledger that makes CASL auditable, or any first-party proof that Edmonton trades actually miss calls. The 70 items below fix those gaps and then push on the parts of the funnel that convert: the demo line as the whole pitch, the supply-house and partner channels that reach owners in batches, a disciplined follow-up cadence, and a close that ends with forwarding switched on rather than "let me think about it." Nothing here requires a client, a testimonial, a metric, or a claim that does not exist today.
 
 ---

@@ -1,4 +1,4 @@
-﻿> SUPERSEDED 2026-07-25: the guarantee-based commercial model described below is RETIRED. The current model is Model B, a free 7-day live pilot with no card and no auto-billing (see docs/commercial-model-decision.md). This file is kept for history; do not copy wording from it.
+﻿> SUPERSEDED 2026-07-25, AND AGAIN 2026-08-09. The guarantee-based commercial model described below is retired, and so is the Model B free-pilot model this banner used to name as current. The current model is ONE recurring price per plan, charged the day the client subscribes and every month after: Core C$250/month, Growth C$500/month, Pro C$1,000/month. There is no setup fee, activation fee, onboarding fee or one-time charge of any kind, no founding-client waiver, and no pilot or trial at any price. pricing-config.js is the source of truth. This file is kept for history; do not copy wording, numbers, or Stripe product shapes from it.
 # Payment flow â€” Nevamis (architecture, pre-implementation)
 
 Status: **architecture doc.** The site is static (GitHub Pages, no server), so

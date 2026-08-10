@@ -174,7 +174,12 @@ test('secondary pages get the heading curtains too, and finish visible', async (
      arrives about four seconds after the page paints, so masking one took a
      heading the visitor had been reading and snapped it offstage.
      pricing.html is the case that proves it — it has exactly one curtainable
-     h2, "7-day live pilot", 515px down a 900px viewport. */
+     h2 inside the first screen of a 900px viewport. That heading read
+     "7-day live pilot" when this test was written; the offer was retired on
+     2026-08-09 and it now reads "One price. Nothing beside it." The test
+     finds the heading by position rather than by text, so it did not break,
+     which is exactly how a comment ends up quoting a price nobody may be
+     charged. */
   await page.goto('/pricing.html');
   await page.waitForTimeout(700);
   const firstScreen = await page.evaluate(() => {

@@ -1,9 +1,25 @@
 # Pricing, offers and packaging — 60 improvements
 
-The numbers themselves are settled and owner-approved: `pricing-config.js` holds After Hours
-C$249, Growth C$449, Scale from C$849, Pay As You Go C$49 + C$1.95/min, annual at ten months
-for twelve, a free 7-day live pilot, and setup waived for the first five founding clients.
-Nothing below changes a single approved figure. What is broken is everything *around* those
+> **SUPERSEDED 2026-08-09 — the commercial model this file was written against no longer exists.**
+> Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
+> After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
+> setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
+> Every one of those is retired. The current model is ONE recurring price per plan, charged the
+> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
+> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
+> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
+> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+>
+> The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
+> survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
+> and any idea whose whole premise is a setup fee, a pilot, PAYG or annual prepay is moot.
+
+
+The numbers this file was written against are gone. When it was authored, `pricing-config.js`
+held After Hours C$249, Growth C$449, Scale from C$849, Pay As You Go C$49 + C$1.95/min, annual
+at ten months for twelve, a free 7-day live pilot, and setup waived for the first five founding
+clients; every one of those is retired (see the banner above). Nothing below changes a single
+approved figure, and nothing below may be read as quoting one. What is broken is everything *around* those
 numbers: `pricing.html` renders three plan cards and silently drops Pay As You Go and annual
 prepay entirely — even though `home.html:1076–1088` renders both — so the page a buyer lands on
 from search shows two-thirds of the commercial model. There is no first-month total anywhere,

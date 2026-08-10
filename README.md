@@ -23,7 +23,7 @@ domain `nevamis.ca` (DNS at Porkbun).
 
 - **Phone number / email:** search-replace `(587) 413-0035`, `+15874130035`, `Sales@nevamis.ca` across the HTML files.
 - **Booking link:** `book.html` â†’ `https://cal.com/daren-qvlah4/nevamis-intro`. Change here if the Cal.com event moves.
-- **Offers (free 7-day pilot, no guarantee):** `index.html` section `#risk` and the FAQ. The money-back guarantee is retired (Model B). Confirm with docs/CLAIMS-LEDGER.md before changing anything public.
+- **Offers:** there is exactly one, and it is the price. One recurring figure per plan (pricing-config.js), no setup or activation charge, no pilot and no trial; the free 7-day pilot and the money-back guarantee are both retired. The copy lives in `index.html` section `#risk`, the FAQ, and `pilot.html` (kept at that URL on purpose, as the How You Start page). Confirm with docs/CLAIMS-LEDGER.md before changing anything public.
 - **Demo transcript:** `index.html` + `demo.html` `.line` blocks must match the audio verbatim; regenerate text via speech-to-text if the audio changes.
 
 ## Deploy

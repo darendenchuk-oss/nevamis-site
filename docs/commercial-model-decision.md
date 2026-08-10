@@ -1,6 +1,21 @@
 # Commercial model decision record
 
-**Status: DECIDED 2026-07-23.** Owner delegated with the direction "do what you
+> **SUPERSEDED 2026-08-09 — this record is history, not the offer.** Model B
+> below (a free 7-day live pilot plus a founding-client offer) was decided
+> 2026-07-23 and is retired, along with the paid C$150 pilot that briefly
+> replaced it, the founding waiver, the setup fee, Pay As You Go, annual prepay,
+> and the C$249 / C$449 / C$849 ladder quoted further down. The current model is
+> ONE recurring price per plan: Core C$250/month, Growth C$500/month, Pro
+> C$1,000/month, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 /
+> C$0.75 overage, charged the day the client subscribes and every month after,
+> nothing charged beside it, no pilot and no trial. pricing-config.js is the
+> source of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+>
+> Several other files in this repo used to point HERE for "the current model".
+> They have been repointed at pricing-config.js, which is the only file a guard
+> reads.
+
+**Status: DECIDED 2026-07-23, SUPERSEDED 2026-08-09.** Owner delegated with the direction "do what you
 think is best for a new company; our biggest issue is not having reviews by
 real businesses."
 
@@ -43,10 +58,14 @@ risk reversal, and stacking two overlapping promises confuses terms (brief
 rule: no overlapping seven-day promises / conflicting models). Month-to-month
 + cancel-anytime stays.
 
-## Pricing (approved same date, competitor-grounded)
+## Pricing (approved same date, competitor-grounded) — FIGURES RETIRED
 See pricing-config.js. Market context (2026): DIY AI receptionists US$25–199/mo
 (Rosie 49, Goodcall 59–79, AIRA 25); hybrid Smith.ai US$95–292; human services
 US$235+. Nevamis prices as done-for-you service above DIY, below/near human
-services: **After Hours C$249/mo · Growth C$449/mo · Scale from C$849/mo, no
-setup fee on any of them**, overages 1.10/0.90/0.75 per minute. Most competitors
-in that list do charge to set up, so this is a real point of difference.
+services. The ladder approved on this date was **After Hours C$249/mo · Growth
+C$449/mo · Scale from C$849/mo**, overages 1.10/0.90/0.75 per minute; every one
+of those figures and both of those plan names are retired. The current ladder is
+Core C$250/month · Growth C$500/month · Pro C$1,000/month, same overage rates.
+The point of difference that survives all of it: most competitors in that list
+charge to set up, and Nevamis has no setup fee, no activation fee and no
+onboarding fee at any tier.

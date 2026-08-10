@@ -23,8 +23,8 @@ Every box must be ticked before any production change. No exceptions, no partial
 
 - [ ] All P0 simulation tests pass. A single P0 failure blocks activation.
 - [ ] P1 pass threshold met per the test plan.
-- [ ] Pricing answers match nevamis.ca exactly: plan names, monthly prices, setup fees, included minutes, overage rates, month-to-month terms. No drift, no rounding, no improvisation.
-- [ ] Pilot answers match nevamis.ca exactly: 7-day live pilot, zero dollars, no card, caps (one line, one call flow, one calendar, up to 60 connected AI minutes or 30 calls, one revision), the seven days start at go-live, and on day eight the pilot simply ends unless the client explicitly chooses a plan. Silence never becomes a subscription.
+- [ ] Pricing answers match nevamis.ca exactly: plan names (Core, Growth, Pro), ONE monthly price per plan, included minutes, overage rates, month-to-month terms. No drift, no rounding, no improvisation, and no second figure of any kind: a first-month amount quoted beside a recurring one is a failure even when both numbers are right.
+- [ ] No retired offer is made, at any price or under any name. There is no setup fee, activation fee or onboarding fee, no 7-day pilot, no trial and no evaluation period. A caller who asks for one is told plainly that it is retired and given the current terms (one price, cancel any time) rather than a hedge, a substitute discount, or a promise to check.
 - [ ] Unknown integration questions produce no false claims. The agent says it cannot confirm the specific integration and that Daren verifies compatibility on the strategy call. Never a false yes.
 
 ### Booking verification

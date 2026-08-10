@@ -1,5 +1,20 @@
 # Retention, Expansion and Referral — 55 improvements
 
+> **SUPERSEDED 2026-08-09 — the commercial model this file was written against no longer exists.**
+> Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
+> After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
+> setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
+> Every one of those is retired. The current model is ONE recurring price per plan, charged the
+> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
+> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
+> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
+> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+>
+> The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
+> survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
+> and any idea whose whole premise is a setup fee, a pilot, PAYG or annual prepay is moot.
+
+
 Nevamis has zero paying clients today, which makes this domain look premature — it is the opposite. The first five founding clients are the entire proof supply for every sales asset the business will ever need, and the systems that turn them into renewals, upgrades, referrals and reviews have to exist *before* they arrive, not after the first one quietly stops forwarding their line. The engine already has most of the raw material: `onboardingProjects`/`onboardingTasks` with a `hypercare` stage that has no tasks in it, `tenants.status` with a `paused` value nothing ever writes, `billingCredits` with no referral reason, `changeRequests`, `qualityReviews`, `usageAlerts`, `portalMetrics`, and a live `/ops/day8` packet that computes real numbers with no fabrication. The site has a risk-reversal section, a founding-client offer, and a 14-item FAQ that ends at "what if it is not a fit" — and no page at all about what month two looks like. `ai-assistant/outreach/REFERRAL-OFFER.md` is written but still marked DRAFT, and `docs/OFFBOARDING-SOP.md` is genuinely good but disconnected from any data. The ideas below turn those loose parts into a retention program: define first value and instrument it, prove captured revenue with numbers the client themselves confirmed, put a rhythm on the tuning reviews that are already being sold, name the churn signals with thresholds, build the upgrade ladder, ship the referral terms, and collect case studies and reviews with permission and without ever gating a waiver on a positive word.
 
 ---

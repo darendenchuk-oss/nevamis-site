@@ -1,5 +1,20 @@
 # Trust, Proof, and Objections — 60 improvements
 
+> **SUPERSEDED 2026-08-09 — the commercial model this file was written against no longer exists.**
+> Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
+> After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
+> setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
+> Every one of those is retired. The current model is ONE recurring price per plan, charged the
+> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
+> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
+> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
+> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+>
+> The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
+> survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
+> and any idea whose whole premise is a setup fee, a pilot, PAYG or annual prepay is moot.
+
+
 Nevamis has zero clients and therefore zero conventional social proof, but it is not short of *honest* proof: a live phone number a stranger can dial at 3am, a real ElevenLabs agent with a published guardrail prompt, eleven real AI voice files on the homepage, a genuinely free pilot with hard caps and a written day-eight rule, fully published pricing, a claims ledger, a GitHub Actions uptime tripwire, and a founder with a face and a name in Edmonton. The failure mode is not "no proof" — it is proof that is unlabelled, unverifiable, contradicted elsewhere, or hidden behind three clicks. This list starts with the contradictions currently live on the site (a retired claim is still in the hero, the live agent prompt disagrees with `pricing-config.js`, and `llms.txt` promises call recordings the site never mentions), then builds out the recorded-proof library, the objection-handling surfaces, and the mechanisms that will convert pilot one into publishable evidence the day it ends. Everything here is buildable with what exists today; nothing requires a client, a testimonial, or a number that has not been measured.
 
 ---

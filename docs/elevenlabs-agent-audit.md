@@ -2,7 +2,9 @@
 
 **Audit date:** 2026-07-23 (current state, before the planned upgrade)
 **Agent:** Nevamis Demo Receptionist (`agent_9101ky43tys1fswstde818j7j8wt`)
-**Auditor scope:** configuration, prompt, tools, privacy posture, and behaviour gaps versus the published website. This document describes the agent as it exists today. It does not claim any upgrade has been applied; production changes require passing tests and owner approval.
+**Auditor scope:** configuration, prompt, tools, privacy posture, and behaviour gaps versus the published website. This document describes the agent as it existed on the audit date. It does not claim any upgrade has been applied; production changes require passing tests and owner approval.
+
+> **Historical record — the "published" column is the site of 2026-07-23, not the site today.** The commercial model has changed twice since: the C$249 / C$449 / C$849 ladder, the plan names After Hours and Scale, the setup fees, and the free 7-day live pilot named below are all retired. Since 2026-08-09 the published model is one recurring price per plan (Core C$250/month, Growth C$500/month, Pro C$1,000/month), nothing charged beside it, and no pilot or trial at any price. The gaps this audit found are still the gaps it found; do not read its right-hand column as what the site says now, and never brief an agent from it. Source of truth: pricing-config.js.
 
 ---
 
@@ -103,7 +105,7 @@ An earlier behavioural test suite of 22 scenarios passed 22/22 during developmen
 
 **Primary cause: the prompt itself.**
 - The PRICING section explicitly instructs deflection: be transparent about the "shape, not a made-up number," and if pushed, say Daren sets the price after scoping. The prompt contains **no dollar figures at all**. The agent is behaving exactly as written; it cannot state plans it was never given.
-- There is **no pilot section**. The free 7-day live pilot does not appear anywhere in the prompt, so the agent cannot describe it, even though the website advertises it.
+- There is **no pilot section**. The free 7-day live pilot did not appear anywhere in the prompt, so the agent could not describe it, even though the website advertised it on the audit date. Read this finding as closed rather than outstanding: the pilot was retired on 2026-08-09, so the prompt is now correct to have no pilot section, and adding one would be the defect.
 - There is no layered-answer standard (short answer first, then offer depth), so explanations can come out thin or clipped rather than complete.
 
 **Secondary cause: the empty knowledge base.** With 0 documents, the agent has no fallback source for plan details, minute definitions, or pilot terms beyond the prompt text.
@@ -116,8 +118,8 @@ The website (nevamis.ca) now publishes exact plans and a free pilot. The live ag
 
 | Topic | Website says | Agent currently says |
 |---|---|---|
-| Pricing | Published plans: After Hours C$249/mo, Growth C$449/mo, Scale from C$849/mo, with setup fees, included connected AI minutes, and per-minute overage rates | Deflects all price questions to Daren; states no figures |
-| Free pilot | 7-day live pilot on the caller's real line, zero dollars, no card, capped, ends on day eight unless the client chooses a plan | Never mentioned; the agent cannot describe it |
+| Pricing | Published on the audit date: After Hours C$249/mo, Growth C$449/mo, Scale from C$849/mo, with setup fees, included connected AI minutes, and per-minute overage rates. All retired; the current ladder is Core C$250/mo, Growth C$500/mo, Pro C$1,000/mo with no setup fee | Deflects all price questions to Daren; states no figures |
+| Free pilot | 7-day live pilot on the caller's real line, zero dollars, no card, capped, ends on day eight unless the client chooses a plan. Retired 2026-08-09 at any price and on any terms; there is nothing here for the agent to describe | Never mentioned; the agent cannot describe it |
 | Founding clients | Setup fee waived for the first five founding clients | Never mentioned |
 | Minute definition | "Connected AI minute" defined, with 75/90/100 percent usage alerts and near-limit choices | Never mentioned |
 

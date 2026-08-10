@@ -1,5 +1,20 @@
 # Local Market & Partnerships — 55 improvements
 
+> **SUPERSEDED 2026-08-09 — the commercial model this file was written against no longer exists.**
+> Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
+> After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
+> setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
+> Every one of those is retired. The current model is ONE recurring price per plan, charged the
+> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
+> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
+> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
+> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+>
+> The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
+> survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
+> and any idea whose whole premise is a setup fee, a pilot, PAYG or annual prepay is moot.
+
+
 Nevamis sells to Edmonton trades owners who verify vendors the same way their own customers verify them: they Google the name, look for a map pin, check who else in town uses it, and ask the guy at the supply counter. Right now the local surface is almost empty. `home.html` carries `geo.region CA-AB`, a `PostalAddress` with no street, an eyebrow that reads "Edmonton-built AI receptionists", and a `Service` node whose `areaServed` is `Canada` plus the single city `Edmonton` — and that is the whole local footprint. There is no Google Business Profile, no `sameAs` array, no citation anywhere, no association membership, no chamber listing, no partner page, no service-area list, and `PARTNER-CHANNEL.md` names three referral sources in one sentence with no costs, no contacts, and no tracker. Meanwhile the assets that would make all of this land already exist: a live demo line that *is* the pitch, `pricing-config.js` as a published price list, a free pilot with no card, `PRESS-BOILERPLATE.md` with pre-cleared copy, and an honest claims discipline that most local competitors cannot match. The 55 items below turn that into a local presence — profile and citations first (cheapest, compounds fastest), then the association, supply-house, chamber and partner channels that reach Edmonton trades owners in batches instead of one dial at a time, then the hyper-local content only an Alberta company can honestly write. Nothing here needs a client, a testimonial, a statistic, or a claim the business cannot support today. Ratings are impact (pipeline or revenue effect) over effort (solo-founder days).
 
 ---

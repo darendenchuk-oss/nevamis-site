@@ -1,5 +1,20 @@
 # Technical & On-Page SEO — 65 Improvements
 
+> **SUPERSEDED 2026-08-09 — the commercial model this file was written against no longer exists.**
+> Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
+> After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
+> setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
+> Every one of those is retired. The current model is ONE recurring price per plan, charged the
+> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
+> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
+> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
+> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+>
+> The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
+> survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
+> and any idea whose whole premise is a setup fee, a pilot, PAYG or annual prepay is moot.
+
+
 Nevamis has a genuinely good technical foundation for a solo-founder static site: eleven hand-written pages on GitHub Pages, per-page canonicals, `en-CA` lang, self-hosted woff2 fonts, a git-derived `sitemap.xml` generator, a `check-consistency.js` guard, `llms.txt`, and 37 Playwright tests. What it does not yet have is schema beyond `Organization`/`WebSite`/`BreadcrumbList`, a heading hierarchy that survives a crawl (pricing.html goes `h1` straight to `h3`), pricing markup that exists without JavaScript on the homepage, or a Core Web Vitals story — the full-screen opaque `#wake` overlay in `home.html` almost certainly delays LCP, and three internal design comps plus a 1.3 MB unused `three.module.js` are published live at `nevamis.ca/concept.html` and `nevamis.ca/brand/`. The list below is ordered roughly schema → on-page → linking → crawl → performance → images → Search Console. Every item is grounded in the files as they actually exist on 2026-07-27; nothing here requires a client count, a testimonial, a response-time statistic, or any other claim the business cannot support today.
 
 ---

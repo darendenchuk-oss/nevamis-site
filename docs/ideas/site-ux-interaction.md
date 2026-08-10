@@ -1,5 +1,20 @@
 # Site UX & Interaction — 65 improvements
 
+> **SUPERSEDED 2026-08-09 — the commercial model this file was written against no longer exists.**
+> Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
+> After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
+> setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
+> Every one of those is retired. The current model is ONE recurring price per plan, charged the
+> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
+> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
+> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
+> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+>
+> The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
+> survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
+> and any idea whose whole premise is a setup fee, a pilot, PAYG or annual prepay is moot.
+
+
 Written after reading `home.html` (858 lines, 16 sections), `assets/motion/site.css`, `site.js`, `motion.js`, `assets/motion/{tokens,cursor,sonar,main,hero,aurora}.js`, `pricing-config.js`, and the secondary pages (`book`, `pilot`, `demo`, `pricing`, `404`). The motion system is genuinely good — pooled sonar rings, a guarded cursor with a watchdog, fail-open `try/catch` in both site.js and motion.js, `@media(hover:hover)` gating on card lifts, a real `prefers-reduced-motion` path. The gaps are not taste gaps, they are *thumb and first-30-seconds* gaps: on a phone the hero CTA sits below a 300px decorative SVG, anchor links land under the fixed 68px header, the audio player restarts instead of pausing, the ROI result is invisible while you type on mobile, the motion toggle exists on exactly two of twelve pages, and a desktop visitor who clicks "Call the live AI" gets a `tel:` link that does nothing. Every item below names the file and the exact change. Nothing here requires a claim the business cannot support — no testimonials, no counts, no invented proof. Ordered roughly hero → mobile → motion → components → forms → a11y → verification.
 
 ---

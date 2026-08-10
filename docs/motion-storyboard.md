@@ -20,7 +20,7 @@ motion toggle, and the page reads complete with zero JS.
 | 10 | Industry cards | Is this for my trade? | poster → 4–6s loop on hover/in-view active card | hover/IO (**pending: trial gate**) | 4–6s loops ≤1.5MB | ind-*.mp4 + posters; gradient = current fallback | posters only | posters only, lazy | video only near viewport | relevance + premium |
 | 11 | ROI calc | What am I losing? | value tween on change; missed→booked mini-flow pulse | input | 350ms | CSS/JS | instant values | same | trivial | makes loss visceral |
 | 12 | Comparison | Why not voicemail/DIY? | rows check in sequentially per column | IO | 80ms stagger | CSS | visible | same | trivial | frames the category |
-| 13 | Build Stack | What am I paying for? | 9 layers assemble into one stack | IO | 120ms stagger | CSS | assembled | same | trivial | justifies setup fee + monthly |
+| 13 | Build Stack | What am I paying for? | 9 layers assemble into one stack | IO | 120ms stagger | CSS | assembled | same | trivial | justifies the monthly price |
 | 14 | First week | How fast? | day markers activate along a timeline | IO | 150ms stagger | CSS | visible | vertical | trivial | urgency + credibility |
 | 15 | Founder | Can I trust them? | single clean image reveal | IO | 500ms | photo | visible | same | trivial | trust, restraint |
 | 16 | FAQ | Objections | height+chevron transition | click | 220ms | CSS | instant | same | trivial | speed of answers |

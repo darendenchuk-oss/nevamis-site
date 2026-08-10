@@ -65,7 +65,15 @@ here has had professional review yet. Documents in scope: terms.html
 
 - Nevamis AI Inc., federal incorporation reported by the owner; GST/HST
   registered (number on terms), Edmonton AB.
-- Model B commercial model: free 7-day pilot, no card, no money-back
-  guarantee anywhere; $249/$449/$849 CAD plans plus PAYG and annual prepay.
+- Commercial model as of 2026-08-09: one recurring price per plan, charged the
+  day the client subscribes and on that day every month after. Core C$250/month,
+  Growth C$500/month, Pro C$1,000/month, CAD plus GST/HST. No setup, activation,
+  onboarding, implementation or launch charge. No pilot and no trial, paid or
+  free. No money-back guarantee. Month to month, cancel any time from the
+  portal, service runs to the end of the month paid for. Superseding history,
+  so counsel is not surprised by an older document on this disk: the
+  $249/$449/$849 ladder, the Pay As You Go $49/month tier, annual prepay, the
+  free 7-day pilot, its $150 paid replacement, the setup fee and the
+  founding-client waiver are all retired and none may be offered.
 - Stripe fully activated (live charges and payouts).
 - Providers: Twilio, ElevenLabs, Cal.com, Stripe, Vercel, Turso, GitHub.

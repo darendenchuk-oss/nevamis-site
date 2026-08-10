@@ -68,7 +68,7 @@ Notes: This category matters most for the trades-first strategy. Jobber is the m
 
 | Integration | Scope | Status |
 |---|---|---|
-| Stripe | Checkout, subscriptions, setup fees | **Live / in use (test mode)** |
+| Stripe | Checkout and monthly subscriptions (one recurring price per plan; there is no setup fee to charge) | **Live / in use (test mode)** |
 | Accounting or invoicing system | QuickBooks or similar, for revenue reconciliation | Evaluate on demand |
 
 Notes: Stripe is integrated and verified in test mode only. Do not describe live payment processing publicly until production mode is enabled, tested, and the owner approves the commercial terms it enforces. Accounting integration becomes relevant for Revenue Clarity (attribution and collected-revenue reconciliation).
