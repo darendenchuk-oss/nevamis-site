@@ -247,6 +247,17 @@ export function initAurora() {
 
   let flow = 0;             // drift — sign follows scroll direction
   let energy = 0;           // fed by scroll velocity
+
+  /* THE CEILING ON SCROLL-DRIVEN LIGHT.
+     Two channels answer scrolling: velocity, in the tick below, and a +pulse
+     when a section enters (scroll.js). They are independent, they stack, and
+     between them they reached 0.96 on an ordinary wheel scroll. The shader
+     spends this as `master = 0.70 + uEnergy * 0.55`, so the sky went from 0.70
+     gain at rest to 1.23 — 76% brighter — for scrolling the page normally.
+     Both channels now share one ceiling, because the visitor experiences one
+     sky and does not care which channel lit it. */
+  const SCROLL_CEIL = 0.45; // the most that scrolling, by any route, may light
+  const VEL_FULL = 3400;    // px/s that would reach it on velocity alone
   /* The sky answers exactly one thing: scrolling. A slower-decaying second
      channel was tried on 2026-08-01 so the hero timeline could surge the sky
      at its story beats — the owner read the result as a flashing background
@@ -306,8 +317,14 @@ export function initAurora() {
      velocity channel DELIBERATELY: it reads as at most a half-second breath.
      A slower channel made these pulses legible and the owner vetoed the
      result as flashing — leave the decay fast. */
+  /* A section arriving nudges the sky. It used to be able to push energy to 1
+     regardless of the velocity channel, and scroll.js fires it on every
+     section enter, so a run down the page stacked pulse on top of velocity and
+     overshot anything the velocity ramp did. Held to the same scroll ceiling:
+     the caller still chooses the size of the nudge, but not how bright the sky
+     may become. */
   window.__auroraPulse = (amount) => {
-    energy = Math.min(1, energy + Math.max(0, Math.min(0.5, Number(amount) || 0)));
+    energy = Math.min(SCROLL_CEIL, energy + Math.max(0, Math.min(0.5, Number(amount) || 0)));
   };
 
   if (reduce) {
@@ -329,7 +346,27 @@ export function initAurora() {
     lastY = y;
     velSmooth += (vel - velSmooth) * 0.08;
 
-    energy += ((Math.min(Math.abs(velSmooth) / 2200, 1)) - energy) * 0.05;
+    /* Scrolling may breathe the sky. It may not storm it.
+
+       This was Math.min(|velSmooth| / 2200, 1), and 2200 px/s is not a fast
+       scroll, it is an ordinary one. Measured on production: a normal wheel
+       scroll peaked at 0.96 energy, and clicking an in-page anchor peaked at
+       0.96 and held above 0.8 for 41 frames — the brightest and longest surge
+       on the page came from following a link. The shader spends energy as
+       `master = 0.70 + uEnergy * 0.55`, so the sky was going from 0.70 gain at
+       rest to 1.23: 76% brighter, on a gesture nobody thinks of as dramatic.
+
+       Two changes, both to the VELOCITY channel only. The ramp is slower, so
+       ordinary speeds sit lower on it; and it is ceilinged, so no scroll of
+       any speed reaches storm. Peak gain is now 0.93, a 33% lift rather than
+       76%. The resting sky and the shader's own range are untouched.
+
+       __auroraPulse is deliberately NOT capped here: it is already soft-capped
+       at +0.5 per call and decays fast, and this lerp pulls it back down. The
+       owner vetoed story-driven brightness on 2026-08-01 after reading it as a
+       flashing background; the velocity channel had been doing the same thing
+       more quietly ever since. */
+    energy += ((Math.min(Math.abs(velSmooth) / VEL_FULL, SCROLL_CEIL)) - energy) * 0.05;
 
     /* Both clocks scale together. The idle term in `flow` is ambient drift and
        belongs to the same budget as uTime — slowing one and not the other just
