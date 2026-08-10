@@ -1,192 +1,117 @@
 {
-  "$comment": "Machine-readable record of every Higgsfield generation for NEVAMIS. A row exists BEFORE the credit is spent, and is updated with the outcome after. This file must allow a later reproduction of any asset. Budget is finite: 1,210 credits, unlim off, every generation paid.",
-  "project": "NEVAMIS cinematic identity",
+  "$comment": "NEVAMIS generation manifest — CGI direction. NOTHING in this file has been generated. Every row is status 'awaiting_approval' and no credit is spent until the revised direction is explicitly approved.",
+  "project": "NEVAMIS — The Layer (CGI)",
   "line": "The work moves. You still decide.",
+  "directionChangedOn": "2026-08-10",
+  "supersedes": "The human-led photorealistic direction and all contractor imagery, which is rejected and has been deleted from the repository.",
   "budget": {
-    "creditsAtStart": 1210,
-    "plan": "7 video shots total (S05/S06/S07/S10/S12 are composited type and cost nothing). ~378 credits for one attempt each at 54, leaving real headroom for selection and retries. Mobile and social variants are ffmpeg derivations of the 1080p master, not extra generations.",
-    "unlim": false,
-    "costPerGeneration": {
-      "soul_2 image (2k)": "0.12 credits — preflighted with get_cost, confirmed by balance delta",
-      "seedance_2_0 video (1080p, std, 6s, no audio)": "54 credits — preflighted with get_cost",
-      "method": "generate_image/generate_video accept get_cost:true, which prices a job without submitting it. Used before every spend; no calibration-by-spending was necessary."
-    },
-    "policy": "Still before video, always: a rejected still costs a fraction of a rejected clip. Identity locked once and reused. No generation without a row here first.",
     "creditsRemaining": 1209.04,
-    "spentSoFar": 0.96
-  },
-  "identityLocks": [
-    {
-      "id": "REF-RAY",
-      "objective": "Lock the owner-operator's identity so every shot containing him is the same man: early 50s, electrical contractor, grey at the temples, worn hands, no blazer. Competent, never comic, never flustered.",
-      "model": "soul_2",
-      "modelReason": "Soul 2.0 issues a soul_id for personalised generation, which is the mechanism for character consistency across later shots.",
-      "aspectRatio": "3:2",
-      "prompt": "Photographic portrait of a 52-year-old Canadian electrical contractor in an unfinished basement. Weathered face, grey at the temples, three-day stubble, calm and focused. Worn navy work shirt with sleeves rolled, scuffed tool belt. Hands show real work. Lit by a single warm worklamp from frame left, deep shadow falloff behind him, cool ambient fill. Shallow depth of field, 50mm, fine film grain, deep neutral background. Documentary realism, not a stock portrait.",
-      "negative": "smiling at camera, corporate headshot, blazer, hard hat cliche, clean hands, studio backdrop, robot, hologram, HUD, neon, purple gradient, lens flare, plastic skin, beauty retouching",
-      "references": [],
-      "status": "selected",
-      "generationId": null,
-      "outputPath": "creative/nevamis/references/REF-RAY.png",
-      "creditsSpent": 0.96,
-      "rejectionReason": null,
-      "finalUse": "Character reference passed to every subsequent Ray shot.",
-      "generationsRun": 8,
-      "selectedFrom": "ref-ray-v3.png (batch 1, job 21b7f4b7-2638-4d05-998a-cba1a4d177c3), cropped to face-only 560x600 at offset 690,15",
-      "selectionReason": "Correct age read (early 50s), grey temples and beard, weathered and calm, warm key from frame left with the specified hard falloff. Best identity match of eight.",
-      "rejections": [
-        {
-          "file": "ref-ray-v0.png",
-          "reason": "Bald rather than grey at the temples; posed with hands clasped, reading as waiting rather than working; gibberish text on a paper at frame left, which is an explicit rejection criterion."
-        },
-        {
-          "file": "ref-ray-v1.png",
-          "reason": "Red chest patch carrying clear gibberish lettering. Also reads mid-40s and the background is lit cool, which inverts the warm-for-people rule."
-        },
-        {
-          "file": "ref-ray-v2.png",
-          "reason": "Not selected; superseded by v3 on age and lighting."
-        },
-        {
-          "file": "ray-b0.png / ray-b2.png / ray-b3.png",
-          "reason": "Saturated workwear branding present despite an explicit no-logo instruction."
-        },
-        {
-          "file": "ray-b1.png",
-          "reason": "Best posture of the second batch — looking down at his hands, genuinely mid-work — but reads early 60s rather than early 50s, and carries YELLOW chest embroidery that a red-only screen missed."
-        }
-      ],
-      "lessons": [
-        "Soul 2.0 reliably invents workwear branding on work shirts, and a no-logo instruction in the prompt does not stop it. Do not fight it prompt-side.",
-        "An identity lock needs a FACE, not a torso. Cropping above the chest removes every wardrobe brand mark deterministically and costs nothing.",
-        "My first branding screen tested for saturated RED and passed an image whose logo was YELLOW. The corrected screen tests for any strongly saturated non-skin hue.",
-        "An earlier version of that screen counted 38,209 red pixels that were warm-lit SKIN. A detector has to be checked against a known case before its verdict is trusted."
-      ]
+    "spentOnRejectedDirection": 0.96,
+    "unlim": false,
+    "knownCosts": {
+      "soul_2 / nano_banana_pro / cinematic_studio_2_5 image (2k)": "0.12 credits",
+      "seedance_2_0 video (1080p, std, 6s, audio off)": "54 credits",
+      "method": "get_cost:true prices a job without submitting it. Every row below is preflighted before it is run."
     },
+    "phase1Projection": "~12 stills (1.4) + 2 video shots with one retry each (216) ≈ 218 credits",
+    "totalProjection": "≈ 550 of 1,209, leaving ~650 for selection and failure"
+  },
+  "globalPromptFragments": {
+    "$comment": "Appended to every prompt so the world stays one world. Written once here rather than retyped per shot.",
+    "world": "Vast dark architectural interior, graphite and anodised metal, precise planes and edges, enormous scale, volumetric light with real body, deep blue-black #02080D environment.",
+    "optics": "Cinematic large-format look, shallow depth of field, subtle edge chromatic aberration, faint bloom on emissive surfaces only, fine film grain, photographic contrast with a true black point.",
+    "banned": "no people, no faces, no hands, no robots, no humanoid figures, no text, no lettering, no logos, no circuit board patterns, no wireframe globes, no neon signage, no holographic HUD, no glass spheres, no 3D blobs, no purple gradient background, no server racks, no lens flare, no cyberpunk city"
+  },
+  "phase1": [
     {
-      "id": "REF-ENV",
-      "objective": "Lock the environment and lighting of the panel scene so S01, S02 and S03 are continuous.",
-      "model": "nano_banana_pro",
-      "modelReason": "Highest photoreal quality with 4K output; used as the environment plate and lighting reference.",
+      "id": "KEY-01",
+      "beat": "C04",
+      "objective": "The single most important image in the system: NEVAMIS resolving out of the dark as a lattice that catches what was falling. NEVAMIS is the structure, never an object.",
+      "model": "cinematic_studio_2_5",
+      "modelReason": "Cinematic stills at up to 4K; camera and colour character matter more than character consistency, and no subject identity is involved.",
       "aspectRatio": "16:9",
       "resolution": "2k",
-      "prompt": "Unfinished residential basement, open electrical breaker panel on a stud wall, cover off, breakers and copper visible. A single warm worklamp clamped to a joist throws hard light across the panel; the rest of the room falls into deep blue-black shadow. Concrete floor, exposed joists, a step ladder just in frame. No people. Cinematic, 35mm, shallow depth of field, fine grain, realistic and code-plausible wiring.",
-      "negative": "impossible wiring, glowing wires, sparks, neon, server room, data centre, holographic overlay, sci-fi, cables that go nowhere, text, signage, logos",
-      "references": [],
-      "status": "planned",
-      "generationId": null,
-      "outputPath": null,
-      "creditsSpent": null,
-      "rejectionReason": null,
-      "finalUse": "Start frame for S01 and lighting reference for S02/S03."
+      "count": 4,
+      "prompt": "A vast dark architectural interior. Emerging from the blackness below, a precise violet lattice of light resolves into view — an ordered geometric plane spanning the entire volume, as though it was always present and the light has only now reached it. Above it, small luminous electric-blue rectangular data objects descend and come to rest on the lattice instead of falling past it. The lattice is structure, not an object: no housing, no device, no glowing box. Brushed graphite architecture, volumetric beams with real body, glass edge caustics on the blue objects. Cinematic large-format look, shallow depth of field, faint bloom on emissive surfaces only, fine film grain, true black point.",
+      "negativeInPrompt": "no people, no faces, no hands, no robots, no text, no lettering, no logos, no circuit board patterns, no wireframe globe, no neon signage, no HUD, no glass spheres, no blobs, no server racks, no lens flare",
+      "status": "awaiting_approval",
+      "estimatedCredits": 0.48,
+      "finalUse": "Website section image + start frame for the C04 video in Phase 3."
+    },
+    {
+      "id": "KEY-02",
+      "beat": "C07",
+      "objective": "A captured call opening into layered glass panels of structured information. This is the shot that proves the product is a product.",
+      "model": "nano_banana_pro",
+      "modelReason": "Highest photoreal material quality; glass refraction and layered depth are the whole point of this frame.",
+      "aspectRatio": "16:9",
+      "resolution": "2k",
+      "count": 4,
+      "prompt": "A single luminous electric-blue data object at rest, opening into three or four layered panes of thick refractive glass suspended in a dark architectural void. Each pane is a clean empty surface catching light — no writing on any of them. The panes are separated in depth so the rear ones refract through the front ones, with visible edge caustics and soft internal reflections. Cool blue key light from the object itself, violet rim light from far behind, deep graphite surroundings. Cinematic large-format, very shallow depth of field, faint bloom, fine grain, true black point.",
+      "negativeInPrompt": "no text, no lettering, no numbers, no UI labels, no icons, no people, no faces, no hands, no robots, no logos, no circuit patterns, no HUD, no neon, no spheres, no blobs, no lens flare",
+      "criticalNote": "Panes MUST be empty. All type is composited in post from the real product's typefaces — a generated label is gibberish and gibberish in a product shot is a lie about the product.",
+      "status": "awaiting_approval",
+      "estimatedCredits": 0.48,
+      "finalUse": "Website 'interactive workflow' section + start frame for C07."
+    },
+    {
+      "id": "KEY-03",
+      "beat": "C10",
+      "objective": "The platform image: one flow revealed as one strand among many across an entire architecture.",
+      "model": "cinematic_studio_2_5",
+      "aspectRatio": "16:9",
+      "resolution": "2k",
+      "count": 4,
+      "prompt": "An extreme wide view of an enormous dark architectural structure built from tiers of violet light-paths, seen from a high vantage. Many parallel routes run through it carrying small blue luminous objects. One single route is brighter than the rest and traced in pale mint-green, running the full depth of the structure. The remaining routes are drawn but unlit, present yet dormant. Immense sense of scale and quiet order. Graphite and dark metal surfaces, volumetric haze, cinematic large-format, shallow depth of field, faint bloom on emissive elements only, fine grain, true black point.",
+      "negativeInPrompt": "no people, no faces, no city skyline, no cyberpunk, no text, no lettering, no logos, no circuit board, no wireframe globe, no neon signage, no HUD, no spheres, no blobs, no lens flare",
+      "status": "awaiting_approval",
+      "estimatedCredits": 0.48,
+      "finalUse": "Website 'operating layer' section + start frame for C10."
+    },
+    {
+      "id": "HERO-LOOP",
+      "beats": "C05 → C06",
+      "objective": "Seamless 8-second homepage hero: the lattice extending, and one call arriving and coming to rest on it. Must loop invisibly and read at 390px wide.",
+      "model": "seedance_2_0",
+      "modelReason": "Takes start_image AND end_image, which is the only reliable way to make a clip whose last frame matches its first.",
+      "aspectRatio": "16:9",
+      "resolution": "1080p",
+      "mode": "std",
+      "duration": 8,
+      "generate_audio": false,
+      "startImage": "selected KEY-01 variant",
+      "endImage": "same frame, regenerated with the arriving object removed — so the loop closes",
+      "prompt": "Slow lateral camera track across a vast dark architectural interior. A precise violet lattice of light extends smoothly across the volume. A single luminous electric-blue data object enters from frame right, travels along the lattice, and comes gently to rest. Continuous unbroken motion, no cuts. Volumetric light, glass edge caustics, cinematic large-format, shallow depth of field, fine grain, true black point.",
+      "negativeInPrompt": "no people, no faces, no hands, no text, no logos, no cuts, no camera shake, no zoom, no flashing, no strobing, no circuit patterns, no HUD, no neon",
+      "status": "awaiting_approval",
+      "estimatedCredits": "54, plus 54 if a retry is needed",
+      "loopRule": "If the cycle point is visible, reject. A loop that visibly restarts is worse than no loop.",
+      "derivatives": {
+        "$comment": "ffmpeg, not extra generations — no additional credits.",
+        "mobile": "720p reframed to 9:16 with the action re-centred, ~40% smaller file",
+        "poster": "AVIF/WebP still pulled from frame 1 for poster-first paint",
+        "webm": "VP9 for modern browsers, MP4/H.264 fallback"
+      },
+      "finalUse": "Homepage hero."
+    },
+    {
+      "id": "REF-MATERIAL",
+      "objective": "A materials and lighting plate: the exact glass, graphite and volumetric-light character every later shot is matched against. Generated once, referenced thereafter.",
+      "model": "nano_banana_pro",
+      "aspectRatio": "16:9",
+      "resolution": "2k",
+      "count": 4,
+      "prompt": "A study of materials in a dark architectural space: a thick slab of refractive glass edge-lit in electric blue resting on brushed graphite, with a violet volumetric beam crossing behind it. No subject, no product, no figure — purely surface, light and depth. Cinematic large-format, macro detail on the glass edge caustics, shallow depth of field, fine grain, true black point.",
+      "negativeInPrompt": "no people, no text, no logos, no product, no device, no robots, no neon, no circuit patterns",
+      "status": "awaiting_approval",
+      "estimatedCredits": 0.48,
+      "finalUse": "Reference image passed to every subsequent generation to hold the look together."
     }
   ],
-  "shots": [
-    {
-      "id": "S01",
-      "phase": 1,
-      "objective": "Open on competence. Both hands on the work — the honest reason he cannot answer.",
-      "model": "seedance_2_0",
-      "modelReason": "Accepts start_image and end_image plus image references; macro motion needs frame control more than genre character.",
-      "startFrame": "REF-ENV derived still",
-      "cameraMotion": "slow push in, ~6% over 6s",
-      "lens": "100mm macro",
-      "duration": 6,
-      "aspectRatio": "16:9",
-      "prompt": "Extreme close-up: a gloved hand seats a breaker into an open panel with a torque screwdriver, deliberate and unhurried. Warm worklamp from frame left, deep shadow behind. Very slow push in. Shallow depth of field, fine film grain.",
-      "negative": "sparks, glowing wires, robot hand, prosthetic, extra fingers, malformed hand, text, UI, hologram, neon",
-      "status": "planned",
-      "generationId": null,
-      "outputPath": null,
-      "creditsSpent": null,
-      "rejectionReason": null,
-      "finalUse": "Film beat 1 and the first segment of HERO-LOOP."
-    },
-    {
-      "id": "S03",
-      "phase": 1,
-      "objective": "The call arrives and is not answered. The buzz carries the tension.",
-      "model": "seedance_2_0",
-      "startFrame": "still from REF-RAY + REF-ENV",
-      "cameraMotion": "locked off",
-      "lens": "85mm",
-      "duration": 5,
-      "aspectRatio": "16:9",
-      "prompt": "Close-up of a phone in the chest pocket of a worn navy work shirt, screen upward, buzzing faintly against the fabric. The man does not look down; his attention stays on the work off-frame. Warm worklamp, cool shadow, very shallow depth of field, fine grain.",
-      "negative": "notification bubbles, cartoon UI, readable text on screen, glowing screen halo, hologram, neon",
-      "status": "planned",
-      "generationId": null,
-      "outputPath": null,
-      "creditsSpent": null,
-      "rejectionReason": null,
-      "finalUse": "Film beat 2 and the second segment of HERO-LOOP."
-    },
-    {
-      "id": "S04",
-      "phase": 1,
-      "objective": "NEVAMIS answers. Shown as the van's interior light rising at dusk, never as a screen.",
-      "model": "cinematic_studio_video_v2",
-      "modelReason": "Camera character and colour matter more than identity here; no face in frame.",
-      "cameraMotion": "slow lateral track, left to right",
-      "lens": "35mm",
-      "duration": 6,
-      "aspectRatio": "16:9",
-      "prompt": "A tradesman's work van parked on a suburban driveway at dusk, rear doors closed. The interior dome light comes up softly, glowing through the windows. Cool blue evening ambience, one warm interior source. Slow lateral camera track. Cinematic, shallow depth of field, fine grain.",
-      "negative": "logos, signage, readable text, brand names, neon, sci-fi, holographic, flying vehicle, futuristic car",
-      "status": "planned",
-      "generationId": null,
-      "outputPath": null,
-      "creditsSpent": null,
-      "rejectionReason": null,
-      "finalUse": "Film beat 3, HERO-LOOP tail, and PROOF-01 still."
-    },
-    {
-      "id": "S09",
-      "phase": 1,
-      "priority": "highest",
-      "objective": "The thesis frame: warm practical and cool screen in one shot. The summary reaches him without stopping him.",
-      "model": "seedance_2_0",
-      "cameraMotion": "slow push",
-      "lens": "35mm",
-      "duration": 5,
-      "aspectRatio": "16:9",
-      "prompt": "Night, suburban driveway. A contractor in his early fifties closes the rear doors of a work van. He glances at the phone in his hand; its cool screen light falls across his face while warm sodium street light rims him from behind. He reads for barely two seconds and keeps walking. Cinematic, shallow depth of field, fine grain.",
-      "negative": "readable UI text, notification bubbles, smiling at camera, robot, hologram, neon, lens flare",
-      "status": "planned",
-      "generationId": null,
-      "outputPath": null,
-      "creditsSpent": null,
-      "rejectionReason": null,
-      "finalUse": "Film beat 8 and PROOF-02. Reserved warm-plus-cool frame from the visual bible."
-    },
-    {
-      "id": "S11",
-      "phase": 1,
-      "priority": "highest",
-      "objective": "The campaign line made literal. One tap, phone face-down, back to dinner.",
-      "model": "seedance_2_0",
-      "cameraMotion": "locked off",
-      "lens": "50mm",
-      "duration": 5,
-      "aspectRatio": "16:9",
-      "prompt": "A warm domestic kitchen at night. A contractor in his early fifties sits at a dinner table with family; ordinary evening life around him. A phone lies face-up on the table showing a single line. He reaches over, taps once, turns the phone face-down and returns to the meal. Warm practical light, natural and unposed. Cinematic, shallow depth of field, fine grain.",
-      "negative": "readable UI text, staged family portrait, smiling at camera, stock photo warmth, robot, hologram, neon",
-      "status": "planned",
-      "generationId": null,
-      "outputPath": null,
-      "creditsSpent": null,
-      "rejectionReason": null,
-      "finalUse": "Film beat 10 and PROOF-03."
-    }
-  ],
-  "compositedNotGenerated": {
-    "$comment": "These beats are type on black, built in ffmpeg from the real product's typography. They cost no credits and are the most credible seconds in the film precisely because no model renders their text.",
-    "shots": [
-      "S05",
-      "S06",
-      "S07",
-      "S10",
-      "S12"
-    ]
+  "phase3": {
+    "$comment": "Produced after the website is rebuilt, so the film can show the real redesigned product. Not costed in detail until Phase 1 lands.",
+    "shots": ["C01", "C02", "C03", "C08", "C09", "C11"],
+    "compositedNotGenerated": ["C12", "all on-screen type in C03, C05, C06, C07, C08, C09, C10"],
+    "estimate": "~6 video shots ≈ 324 credits with one retry each"
   }
 }

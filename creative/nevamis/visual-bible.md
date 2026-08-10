@@ -1,161 +1,120 @@
-# NEVAMIS — visual bible
+# NEVAMIS — visual bible (CGI direction)
 
-One world. The website, the film, the stills, the ads and the product screens
-are views into it. If an asset could belong to another company, it is wrong.
+Premium cinematic 3D. No humans, no actors, no documentary photography. The
+protagonist is **the system**, and the drama is **information finding its
+place**.
+
+Benchmark: a world-class technology launch film — Apple-level restraint,
+Unreal-grade CGI materials and light, premium title design, sophisticated 3D
+motion graphics. It must never read as stock footage, a trades commercial, a
+slideshow, a SaaS explainer or an AI-person montage.
 
 Read `truth-basis.md` first. Nothing here licenses a claim that file refuses.
 
 ---
 
-## 1. The idea the pictures have to carry
+## 1. The world
 
-**Control. Freedom. Momentum.**
+A **dark architectural volume** — vast, quiet, precisely built. Think the
+interior of a structure rather than a landscape: planes, edges, depth, real
+scale. Not a void, not space, not a cyber city.
 
-Not "AI helps you". The business **keeps moving** while the owner is doing the
-work only they can do. The camera's job is to show continuity: something
-completes while nobody is watching it complete.
+Everything the business does exists here as **physical objects made of light and
+glass**. A call is an object. A lead is an object. A schedule is a structure.
+They have weight, edges, and they cast light on the architecture around them.
 
-The enemy image is a person staring at a screen looking pleased. The right
-image is a person **not** looking at a screen, because they do not need to.
-
----
-
-## 2. Palette — extend, do not replace
-
-The site already has a disciplined dark system. The cinematic grade is built
-**from these values** so footage and interface cannot drift apart.
-
-| Token | Value | Role on film |
-|---|---|---|
-| `--navy-0` | `#02080D` | true black point; the deepest shadow in the grade |
-| `--navy` | `#0B1620` | base environment; night, cab interiors, shop shadow |
-| `--navy-2` | `#0D1C27` | panel surface; the colour UI sits on in composites |
-| `--navy-3` | `#10222E` | raised surface; separation without a line |
-| `--emerald` | `#2FBF8F` | the system acting. Used sparingly and only when NEVAMIS does something |
-| `--emerald-deep` | `#0E5C4B` | the same signal in shadow |
-| `--mint` | `#9FF0CE` | the highest-value accent. Confirmation. Never decoration |
-| `--ink` | `#EAF3EE` | type on dark |
-| `--muted` | `#8AA5A0` | secondary type |
-| `--warm` | `#F0B462` | **practical light around humans only** — worklamp, sodium, kitchen, headlamp |
-| `--bad` | `#E5837B` | failure states only. Never in marketing imagery |
-
-### The colour rule that makes this brand legible
-
-**Warm light belongs to people. Cool light belongs to the system.**
-
-Every frame with a human in it is lit by a source that exists in the world:
-worklamp, headlamp, van dome light, kitchen bulb, low sun. Every frame where
-NEVAMIS acts is cooler, cleaner, and carries mint only at the moment of
-confirmation.
-
-When the two meet — the owner's phone lighting their face with a summary — the
-warm and the cool are in the same frame, and that shot is the thesis of the
-company. Use it once, deliberately.
-
-Mint is a currency. Spend it on confirmation and nothing else. A frame with
-mint everywhere says nothing.
+**NEVAMIS is never an object.** It is the layer that catches, orders and
+connects — visible only as its effect: a lattice forming beneath things that
+were falling, a path resolving between things that were unconnected. The moment
+NEVAMIS becomes a glowing box or a logo-shaped entity, the film fails.
 
 ---
 
-## 3. Typography
+## 2. Palette
 
-Already self-hosted, already metric-matched, already good. Unchanged, and now
-given a cinematic register.
+**A decision is required here — see `decision-log.md` D8.** The brief asks for
+electric-blue, violet and white; the live product and site are navy with
+mint/emerald. Filmed literally, the film and the website would not look like the
+same company, which the directive elsewhere forbids.
 
-| Family | Weights | Use |
+**Recommended resolution — and what this bible assumes:**
+
+| Role | Colour | Why |
 |---|---|---|
-| **Bricolage Grotesque** (variable 200–800) | 700–800 headline, 500 sub | Titles, campaign line, on-screen film type |
-| **Atkinson Hyperlegible** (400/700) | body | All running copy. Chosen for legibility and it earns it |
-| **Spline Sans Mono** (variable) | 300–500 | State, timestamps, system labels, UI in composites |
+| Environment | `#02080D` → `#0B1620` graphite/navy-black | Already the site's true black and base. Keeps the world grounded and premium. |
+| **Data in motion** | electric blue `#3D7BFF` | Unresolved information: raw calls, messages, leads. Cool, fast, slightly cold. |
+| **Structure and rules** | violet `#8B6BFF` | The business's own rules and workflows. The colour of order. |
+| **Confirmation** | mint `#9FF0CE` | **Only** when NEVAMIS completes something. Already the product's success colour, in the real UI. |
+| Type and edges | white `#EAF3EE` | Titles, mono state, architectural highlights. |
 
-**Film type rules.** Titles set in Bricolage 700, letter-spacing tightened
-slightly, always left-aligned on the safe margin, never centred over a face.
-System state on screen is always **mono** — that is what makes an overlay read
-as a machine rather than a caption. The final wordmark card is the only centred
-type in the film.
+That gives the brief its blue and violet, keeps the mint that the actual
+software uses to mean *done*, and lets the website adopt blue/violet as
+secondary accents without discarding its identity. **Mint is earned, never
+ambient** — it appears at most four times in the film.
 
-The wordmark is **NEVAMIS**, letter-spaced, never locked to a symbol, never
-followed by "AI".
+Alternative if you'd rather go all-in on the brief: drop mint entirely and use
+white as confirmation. That is a full brand-palette change and would require
+re-skinning the site and product UI. Say which and the bible is updated.
+
+---
+
+## 3. Materials and light
+
+- **Glass** — thick, with real refraction and edge caustics. Data panels are
+  glass, not flat UI planes.
+- **Brushed graphite and anodised metal** — the architecture. Matte, with
+  fine anisotropic highlights.
+- **Volumetric light** — beams have body. Objects light the room; the room
+  never lights itself evenly.
+- **Real optics** — shallow depth of field, subtle chromatic aberration at the
+  frame edge, faint bloom only on emissive surfaces, fine grain.
+
+No neon tubes. No wireframe globes. No circuit-board textures. No particles for
+their own sake — every particle is a piece of information going somewhere.
 
 ---
 
 ## 4. Camera
 
-Deliberate. The camera has a reason to be where it is.
+Slow, weighty, deliberate — a large camera on a crane, not a drone.
 
-- **Prefer:** slow push, slow lateral track, locked-off with motion inside the
-  frame, a single considered handheld shot when the moment is physical.
-- **Avoid:** drifting handheld everywhere, orbiting drone hero shots, whip pans,
-  speed ramps as punctuation, anything that looks like a stock library.
-- **Lenses:** 35mm and 50mm for people and environments; 85mm for the phone and
-  the hands; macro for the physical detail — a connector, a torque wrench, a
-  work glove, condensation on a van window.
-- **Depth:** real and shallow-ish. Backgrounds readable, never abstract mush.
-
-**One move per shot.** If a shot needs two moves it is two shots.
+- Long push-ins, slow orbits, precise vertical reveals.
+- **One move per shot.** Motion inside the frame does the rest.
+- Anamorphic-ish framing: strong negative space, subject off-centre, horizon
+  lines that respect the architecture.
+- Speed is expressed by *objects*, never by fast cutting or whip pans.
 
 ---
 
-## 5. Environments and people
+## 5. Type
 
-Real Alberta field-service work. Edmonton is the company's home and it should
-look like somewhere with weather.
-
-- Vans, ladders, panels, copper, ducting, tools that have been used.
-- Workshops, unfinished basements, driveways at dusk, a kitchen at 7pm.
-- Clothing with wear. Hands with work on them. Nobody in a blazer.
-- **Ages 30–55.** Competent. Busy because they are working, not because they are
-  disorganised. Never comic, never harried, never rescued.
-
-The owner is never shown failing. They are shown **working** — which is why they
-cannot pick up. That distinction is the whole emotional premise and a single
-frame of "flustered person drops phone" destroys it.
+- **Bricolage Grotesque 700** for the title card and the closing line.
+- **Spline Sans Mono 300–400** for system state — `CALL CAPTURED`,
+  `RULES CHECKED`, `TIME WINDOW HELD`. Three words maximum.
+- Type is **composited in post**, never generated. Generative video renders
+  gibberish, and gibberish in a product film is a lie about the product.
+- Type sits *in* the space — parallaxed, occluded by geometry, catching the
+  same light as everything else. Never a flat overlay.
 
 ---
 
-## 6. Banned imagery
-
-Non-negotiable. Any asset containing these is rejected regardless of quality.
+## 6. Banned
 
 Humanoid robots · robot hands · glowing brains · floating "AI" letters · Matrix
-code · cyberpunk cities · neon circuitry · holographic HUDs over faces · random
-glowing orbs · purple SaaS gradients · handshake stock photos · fake executives
-in fake boardrooms · particle fields · glass spheres · 3D blobs · server rooms as
-a metaphor for software · a phone with cartoon notification bubbles.
+code · cyberpunk cities · neon signage · circuit-board textures · holographic
+HUDs · glass spheres · 3D blobs · purple SaaS gradients · server racks · wireframe
+globes · lens flares as decoration · particle fields with no meaning · **any
+human face** · any recurring character.
 
-NEVAMIS reads as advanced because of **what the business is doing**, not because
-the picture contains a robot.
-
----
-
-## 7. How the interface appears on film
-
-The product is shown as the product. Generative video **never** renders UI text —
-it produces gibberish, and gibberish in a product shot is a lie about the
-product.
-
-- Capture the real interface. Composite it in post, deterministically.
-- On-screen state is mono, minimal: `CALL ANSWERED` · `JOB CAPTURED` ·
-  `SUMMARY SENT`. Three words maximum.
-- The screen is a **light source** in the scene. It falls on a hand, a dashboard,
-  a countertop. That is what sells it as present in the world.
-- Never a floating rectangle with a drop shadow.
+Humans may appear **only** as tiny abstract silhouettes at architectural scale —
+to give the space size, never to be a protagonist. No features, no closeups, no
+one to identify with. If a silhouette reads as a person you know, it is wrong.
 
 ---
 
-## 8. Grade
+## 7. The one-frame test
 
-Contrast with real black and no crushed detail. Cool shadows, neutral mids,
-warm practicals kept warm. Highlights allowed to bloom slightly on the mint
-confirmation and nowhere else. Fine grain — enough to read as photographed, not
-as noise. No teal-and-orange. No lens flares as decoration.
+Any still, pulled at random, must answer: **what information is this, where is
+it going, and what is holding it together?**
 
----
-
-## 9. The one-frame test
-
-Any still, pulled at random, must answer: **who is this person, what are they
-doing, and what just happened without them?**
-
-If a frame is beautiful and answers none of those, it is a screensaver. Reject
-it and note why in the manifest.
+A frame that is only beautiful is a screensaver. Reject it, and record why.

@@ -1,77 +1,88 @@
-# NEVAMIS — storyboard
+# NEVAMIS — storyboard (CGI direction)
 
-Ten beats from `film-treatment.md`. Every shot carries what a generation needs
-and what post needs. Shots marked **P1** are produced in Phase 1 because the
-website needs them; the rest are produced in Phase 3 against the rebuilt site.
+**Working title:** *The Layer*
+**Length:** 62 seconds · 16:9 master · 9:16 and 1:1 reframed, never cropped
+**Line:** The work moves. You still decide.
 
-Grade, palette and banned imagery: `visual-bible.md`. Claim ceiling:
-`truth-basis.md`.
-
-**Global:** 16:9 master, 24fps feel, 35mm unless stated, one camera move per
-shot, warm practicals on people / cool light on system, film grain, real black
-point `#02080D`.
+No humans, no faces, no character. The protagonist is the system; the drama is
+information finding its place. Palette, materials and bans: `visual-bible.md`.
+Claim ceiling: `truth-basis.md`.
 
 ---
 
-## Shot table
+## Structure
 
-| ID | Beat | Sec | Environment | Subject / action | Lens · move | Light | Audio | On-screen (mono, composited in post) |
-|---|---|---|---|---|---|---|---|---|
-| **S01** `P1` | 1 | 0–6 | Unfinished basement, open breaker panel | Macro: torque screwdriver seating a breaker; Ray's hands only | 100mm macro · slow push 6% | Warm worklamp `#F0B462` from frame left, deep falloff | Panel hum, ladder settle, no music | — |
-| **S02** | 1 | 3–6 | Same | Ray's face lit from below by the lamp, eyes on the work | 50mm · locked | Same source, underlit | Room tone | — |
-| **S03** `P1` | 2 | 6–11 | Same | Phone in chest pocket, screen-up, buzzing against fabric. He does not look | 85mm · locked, shallow | Warm, screen glow just visible | Buzz is loudest element | — |
-| **S04** `P1` | 3 | 11–17 | Driveway, dusk | Work van, interior light rising as the call connects | 35mm · slow lateral track L→R | Cool ambient dusk, one warm interior | Motif cue #1 | `CALL ANSWERED` lower-left |
-| **S05** | 4 | 17–24 | Black field | Caller fragments resolving into structured fields | — · type only | — | Low pulse enters | `panel humming · no power to kitchen · tonight · Millwoods` |
-| **S06** | 5 | 24–31 | Shop wall → black | Ray's handwriting on a whiteboard dissolving into the mono rule list | 50mm · slow push | Practical shop light → cool | Pulse continues | `after 6pm → urgent only` · `no panel work quoted by phone` |
-| **S07** | 6 | 31–37 | Black field | Job / address / **time window** captured. A quote request visibly held back by a rule | — · type only | — | Motif cue #2 | `JOB CAPTURED` · `QUOTE → HELD BY RULE` |
-| **S08** | 7 | 37–43 | Suburban kitchen, evening | Caller, phone to ear, shoulders dropping; returns to her evening | 50mm · locked | Warm kitchen practical | Room, kettle | — |
-| **S09** `P1` | 8 | 43–48 | Driveway, night | Ray closing van rear doors; phone lights his face — **warm + cool in one frame** | 35mm · slow push | Warm sodium + cool screen | Doors, motif tail | Summary glimpsed, unreadable by design |
-| **S10** | 9 | 48–53 | Abstract field | The one flow repeats and widens; live solid, future outlined | — · slow pull back | Cool | Pulse opens out | `leads · scheduling · follow-up · quotes · records · reporting` |
-| **S11** `P1` | 10 | 53–56 | Ray's kitchen, night | Dinner, other people. Phone face-up shows one line. **One tap.** Face-down | 50mm · locked | Warm domestic | Room noise only — music **out** | one line, then nothing |
-| **S12** | 10 | 56–58 | Black | Wordmark, then line | — | — | Motif cue #3, then silence | `NEVAMIS` / *The work moves. You still decide.* |
-
----
-
-## Phase 1 production subset
-
-The website needs five things. Nothing else is generated yet.
-
-| Asset | Built from | Why the site needs it |
+| | Movement | Beats |
 |---|---|---|
-| **REF-RAY** | Soul 2.0 character reference | Identity lock so every later shot is the same man. Generated once, reused as reference for all Ray shots. |
-| **REF-ENV** | Nano Banana Pro still | Basement/panel environment lock — lighting and palette reference for continuity. |
-| **HERO-LOOP** | S01 → S03 → S04 as a seamless 6–10s loop | The homepage hero. Must loop invisibly and read at 390px wide. |
-| **PROOF-01/02/03** | S04, S09, S11 as stills | Section imagery for the rebuilt homepage; S09 and S11 are the two emotionally load-bearing frames. |
-| **POSTER** | Frame pulled from HERO-LOOP | Poster-first rendering so the hero paints before any video byte arrives. |
-
-**S09 and S11 are the two that matter most.** S09 is the visual bible's reserved
-warm-plus-cool frame; S11 is the campaign line made literal. If credits get
-tight, they are the last two to be cut.
+| I | **Disconnection** — activity in darkness, opportunities falling away | 1–3 |
+| II | **The layer** — NEVAMIS forms and catches | 4–5 |
+| III | **One call, all the way through** | 6–9 |
+| IV | **Scale** — the same logic under a whole company | 10–11 |
+| V | **Wordmark** | 12 |
 
 ---
 
-## Generation strategy
+## Shot list
 
-1. **Still first, always.** Generate and select a still, then use it as the
-   `start_image` for video. A rejected still costs a fraction of a rejected clip.
-2. **Identity before variety.** REF-RAY is locked before any shot containing him
-   is attempted. Wardrobe, age, build and hands stay fixed by reference.
-3. **Seedance 2.0 for motion** — it takes `start_image` + `end_image` and image
-   references, which is exactly the control this storyboard is written for.
-   Cinema Studio Video for shots where camera character matters more than
-   identity.
-4. **No UI is ever generated.** S05, S06, S07, S10 and S12 are type on black,
-   composited in ffmpeg from the real product's typography. This is why they cost
-   almost nothing and why they will be the most credible seconds in the film.
-5. **Loop discipline.** HERO-LOOP is generated with matched first and last
-   frames so it cycles without a cut. A loop that visibly restarts is rejected.
+| ID | Sec | What is on screen | Camera | Colour | Audio | Composited type |
+|---|---|---|---|---|---|---|
+| **C01** | 0–5 | Black. Single blue data-object drifts in from frame right, alone, tumbling slightly. Enormous dark architecture barely readable behind it. | slow push, 35mm equiv | blue on black | low room tone, one soft impact | — |
+| **C02** | 5–11 | Wide: dozens of these objects moving through the volume on unrelated paths. None touch. Scale reveal — the space is vast. | slow crane up | blue | pulse enters, sparse | — |
+| **C03** | 11–17 | Several objects reach the edge of a lightless drop and **fall**, dimming as they go. One passes camera close enough to see it is a call. | locked, objects move | blue dimming to nothing | pulse thins, a low absence | `MISSED` once, small, low-left |
+| **C04** | 17–23 | Beneath the fall, a **lattice resolves out of the dark** — violet, precise, architectural. It was always there; the light simply reaches it. Falling objects land on it and stop. | slow reveal, tilt down | violet emerges | first confirmation cue | — |
+| **C05** | 23–28 | The lattice extends across the whole volume in one continuous move. Objects that were drifting now travel along it, ordered. | slow lateral track | violet + blue | pulse gains a floor | `NEVAMIS` mono, once, small |
+| **C06** | 28–34 | **One call arrives.** A single blue object enters fast, is caught, and comes to rest on the lattice. Camera settles with it. | push in to rest | blue | impact, then quiet | `CALL CAPTURED` |
+| **C07** | 34–40 | The object **opens** into layered glass panels — the caller's need, resolving into structured fields. Real product typography, composited. | slow orbit 20° | blue → white | pulse detail | `WHO · WHAT · WHERE · WHEN` |
+| **C08** | 40–46 | Violet **rule-planes** slide across the panels and check them. One field is held back by a rule and dims — visibly refused, not ignored. | locked, motion inside | violet over blue | two-note motif | `RULES CHECKED` · `QUOTE HELD` |
+| **C09** | 46–51 | What survives resolves into a **held time window** and a summary object that leaves along a light trail. **Mint, first real use.** A second trail returns and the window locks — the human confirmation, shown as a returning signal, not a person. | slow push | **mint** | confirmation cue | `TIME WINDOW HELD` → `CONFIRMED` |
+| **C10** | 51–56 | Pull back hard: the single flow we followed is **one strand among many** across a whole architecture — leads, scheduling, follow-up, quotes, records, reporting as parallel structures. Live strand solid; the others drawn but unlit. | fast-but-smooth crane out | violet field, one mint strand | pulse opens out | six labels, the unlit ones dimmed |
+| **C11** | 56–59 | The architecture reads as a single building of light. At the very bottom of frame, **two tiny silhouettes** cross a floor — scale only, no features. | locked wide | deep blue-black | pulse resolves | — |
+| **C12** | 59–62 | Black. **NEVAMIS** resolves in white, letter-spaced. Then the line. | locked | white on black | motif, then silence | `NEVAMIS` / *The work moves. You still decide.* |
+
+---
+
+## What the film refuses
+
+- **No face, no character, no actor.** Silhouettes appear once, at C11, at
+  architectural scale, and are unidentifiable by design.
+- **No generated type.** Every word on screen is composited in ffmpeg from the
+  real product's typefaces.
+- **No calendar filling itself in.** C09 shows a *held time window* and a
+  returning confirmation, because that is what the product does.
+- **Mint appears three times only** — C04, C09, C10. It means *done*.
+- **No music swell into the wordmark.** The pulse resolves and stops.
+
+---
+
+## Production order and cost
+
+Still-first, always: generate a still, select, then use it as `start_image`.
+A rejected still costs 0.12; a rejected clip costs 54.
+
+**Phase 1 (website needs these five):**
+
+| Asset | From | Purpose |
+|---|---|---|
+| `KEY-01` | C04 still | The lattice forming — the single most important image in the system |
+| `KEY-02` | C07 still | Glass panels opening — proof the product is a product |
+| `KEY-03` | C10 still | The whole architecture — the platform image |
+| `HERO-LOOP` | C05 → C06, 8s seamless | Homepage hero |
+| `POSTER` | frame from HERO-LOOP | Poster-first paint, before any video byte |
+
+**Estimated spend for Phase 1:** ~12 stills (1.4 credits) + 2 video shots with
+one retry each (216 credits) ≈ **218 of 1,209**.
+
+**Phase 3 (remaining):** C01, C02, C03, C08, C09, C11 ≈ 6 shots, ~324 with
+retries. C12 is composited, free.
+
+**Total projected ≈ 550 of 1,209**, leaving ~650 for selection and failures.
 
 ---
 
 ## Rejection criteria
 
-Reject and record the reason: malformed hands · wrong or impossible tools ·
-a breaker panel that is not wirable · gibberish text anywhere in frame · a face
-that is not REF-RAY · wardrobe drift · a calendar or booking UI · mint used
-anywhere but confirmation · a robot, orb, HUD or particle field · a shot that
-fails the one-frame test in `visual-bible.md`.
+Reject and record: any human face · a recognisable recurring figure · gibberish
+text · a logo that is not NEVAMIS · circuit-board or wireframe cliché · neon
+signage · a glowing box standing in for NEVAMIS itself · mint used anywhere but
+confirmation · particles with no destination · a frame that fails the one-frame
+test.

@@ -209,3 +209,56 @@ the promise; the section beneath it is the proof.
 campaign line: *"It does not improvise."* (scored 8 with two judges — the
 strongest single expression of the rules boundary) and *"Keep both hands on the
 work."* (15.4 aggregate — the most physical, best suited to the film's opening).
+
+---
+
+## D8 — Direction change: CGI, no humans. Supersedes D4's cast and the whole photoreal approach.
+
+**2026-08-10.** The human-led photorealistic direction is **rejected** by the
+owner. No contractor, no "Ray", no identity locks, no actors, no testimonials,
+no simulated live-action. All nine generated contractor images are deleted from
+the repository and must not be reused.
+
+**The new direction:** premium cinematic 3D. Dark architectural environments,
+luminous data objects, glass interfaces, light trails. Business activity —
+calls, leads, schedules, estimates, workflows — represented as physical 3D
+objects. NEVAMIS is the invisible operating layer that catches and connects.
+Benchmark: a world-class technology launch film. Apple restraint, Unreal-grade
+CGI, premium title design.
+
+Humans absent, except tiny abstract silhouettes at architectural scale, once,
+for scale only.
+
+**Cost of the rejected direction: 0.96 credits.** Eight stills. Nothing else was
+generated, because the still-first rule meant no video had been reached.
+
+### D8a — The palette conflict, which needs a decision
+
+The brief asks for **electric-blue, violet and white**. The live product and
+site are **navy with mint/emerald**, and mint is what the real software already
+uses to mean *done*. Filmed literally, the film and the website would not look
+like the same company — which this directive elsewhere explicitly forbids.
+
+**Recommended, and what the rewritten bible assumes:** blue for data in motion,
+violet for structure and rules, white for type — and **mint kept for
+confirmation only**, three appearances in the whole film. That gives the brief
+its blue and violet, keeps the colour the product actually uses for success, and
+lets the site adopt blue/violet as secondary accents without discarding its
+identity.
+
+**Alternative:** drop mint entirely, use white as confirmation. That is a full
+brand-palette change requiring the site and product UI to be re-skinned.
+
+Not decided unilaterally — it changes the product's UI, so it goes with the
+approval.
+
+### D8b — What survives the direction change
+
+`truth-basis.md` is unaffected: the capability ceiling and the six refusals are
+facts about the product, not about the treatment. The campaign line (D7) is
+unaffected and arguably stronger here — "you still decide" is now expressed as a
+returning confirmation signal rather than a man at a dinner table.
+
+The still-first, manifest-before-spend and preflight-with-get_cost disciplines
+carry over unchanged. They are why the rejected direction cost 96 hundredths of
+a credit instead of several hundred.
