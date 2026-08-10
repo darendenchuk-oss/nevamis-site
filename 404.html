@@ -202,6 +202,17 @@ strong{color:var(--ink)}
   padding:10px 16px;border-radius:0 0 8px 0;font-weight:700}
 .skip:focus{left:0}
 .visually-hidden{position:absolute;left:-9999px}
+.hero .copy{position:relative}
+.hero .copy::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:-30px -190px -30px -44px;
+  background:linear-gradient(100deg,
+    rgba(9,18,26,.72) 0%,
+    rgba(9,18,26,.72) 58%,
+    rgba(9,18,26,.34) 82%,
+    rgba(9,18,26,0)   100%);
+}
+html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
 .site-header{position:fixed;z-index:50;top:0;left:0;right:0;
   background:linear-gradient(to bottom,rgba(11,22,32,.82),rgba(11,22,32,0));
   transition:background .3s var(--e-out),box-shadow .3s var(--e-out)}

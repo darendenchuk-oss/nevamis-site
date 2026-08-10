@@ -78,6 +78,44 @@ strong{color:var(--ink)}
    visitor has to read may drop below 11px. Audited 2026-07-28. */
 
 
+/* ---------- the hero copy needs a floor under it ----------
+   The aurora is a fixed, full-viewport WebGL canvas at opacity .9 and z-index
+   0; the copy sits at z-index 3, and every layer between them was transparent.
+   So the contrast of the hero text was whatever the shader happened to be
+   painting that frame.
+
+   Measured on production at 1440x900, at rest, with nobody scrolling: the
+   worst background point behind the .lede swung 2.15:1 to 4.72:1 over six
+   seconds of the shader's own drift, and 19 frames in 20 contained a point
+   below the 4.5:1 that 19px/400 text requires. Worst pixel rgb(15,118,72).
+   The scroll-energy ceiling added in 2d06ada does not help: that swing is the
+   resting animation, not scroll.
+
+   This is also why the CSS audit reported zero contrast failures. A
+   getComputedStyle walk composites ancestors and gradient stops, and a WebGL
+   canvas is neither.
+
+   A plain painted scrim, NOT backdrop-filter: see the header note below, where
+   a filter over this same canvas is recorded as the page's largest standing
+   cost, because it re-blurs every frame the shader repaints.
+
+   .72 is derived, not chosen. Against the brightest pixel measured behind the
+   paragraph, .60 is the floor that reaches 4.5:1; .72 leaves headroom for a
+   frame brighter than any of the twenty sampled. It fades out to the right so
+   the artwork side of the hero is untouched, and it is inset generously so no
+   edge lands where the eye is. */
+.hero .copy{position:relative}
+.hero .copy::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:-30px -190px -30px -44px;
+  background:linear-gradient(100deg,
+    rgba(9,18,26,.72) 0%,
+    rgba(9,18,26,.72) 58%,
+    rgba(9,18,26,.34) 82%,
+    rgba(9,18,26,0)   100%);
+}
+html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
+
 /* ---------- header ---------- */
 /* Backdrop blur only once content scrolls beneath the header. At the top
    of the page it sat over the live aurora canvas, and a backdrop-filter over
