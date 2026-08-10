@@ -1,0 +1,168 @@
+{
+  "retimed": [
+    {
+      "shot": "C02",
+      "in": 2.6,
+      "out": 7.71,
+      "voice": "James"
+    },
+    {
+      "shot": "C03",
+      "in": 7.71,
+      "out": 13.46,
+      "voice": "Cassidy"
+    },
+    {
+      "shot": "C05",
+      "in": 13.46,
+      "out": 18.84,
+      "voice": "Michael C. Vincent"
+    },
+    {
+      "shot": "C06",
+      "in": 18.84,
+      "out": 23.43,
+      "voice": "Jessica Anne Bogart"
+    },
+    {
+      "shot": "C07",
+      "in": 23.43,
+      "out": 30.48,
+      "voice": "James"
+    },
+    {
+      "shot": "C08",
+      "in": 30.48,
+      "out": 33.17,
+      "voice": "Cassidy"
+    },
+    {
+      "shot": "C09",
+      "in": 33.17,
+      "out": 40.69,
+      "voice": "Michael C. Vincent"
+    },
+    {
+      "shot": "C10",
+      "in": 40.69,
+      "out": 44.15,
+      "voice": "Jessica Anne Bogart"
+    },
+    {
+      "shot": "C12",
+      "in": 44.15,
+      "out": 48,
+      "voice": "Jessica Anne Bogart"
+    }
+  ],
+  "lines": [
+    {
+      "shot": "C02",
+      "tin": 2.6,
+      "tout": 8.3,
+      "vk": "A",
+      "voice": "James",
+      "text": "You built the business for freedom. Then running it started taking all of yours.",
+      "room": 5.7,
+      "spoken": 4.86,
+      "lufs": -23,
+      "cue": 2.6
+    },
+    {
+      "shot": "C03",
+      "tin": 8.3,
+      "tout": 14,
+      "vk": "B",
+      "voice": "Cassidy",
+      "text": "Calls arrive while your hands are full. Miss one, and the job can be gone.",
+      "room": 5.7,
+      "spoken": 4.25,
+      "lufs": -23,
+      "cue": 7.709
+    },
+    {
+      "shot": "C05",
+      "tin": 15.5,
+      "tout": 20.2,
+      "vk": "C",
+      "voice": "Michael C. Vincent",
+      "text": "NEVAMIS starts there. Calls answered. Opportunities captured, day or night.",
+      "room": 4.7,
+      "spoken": 5.13,
+      "lufs": -23.5,
+      "cue": 13.459
+    },
+    {
+      "shot": "C06",
+      "tin": 20.2,
+      "tout": 24.7,
+      "vk": "D",
+      "voice": "Jessica Anne Bogart",
+      "text": "Who they are. What they need. Where, when, and how urgent.",
+      "room": 4.5,
+      "spoken": 4.34,
+      "lufs": -23,
+      "cue": 18.837
+    },
+    {
+      "shot": "C07",
+      "tin": 24.7,
+      "tout": 29.6,
+      "vk": "A",
+      "voice": "James",
+      "text": "It follows your rules. It never guesses. Important decisions come back to you.",
+      "room": 4.9,
+      "spoken": 6.81,
+      "lufs": -22.9,
+      "cue": 23.426
+    },
+    {
+      "shot": "C08",
+      "tin": 29.6,
+      "tout": 33.5,
+      "vk": "B",
+      "voice": "Cassidy",
+      "text": "The job is captured. The next move is clear.",
+      "room": 3.9,
+      "spoken": 2.44,
+      "lufs": -23,
+      "cue": 30.484
+    },
+    {
+      "shot": "C09",
+      "tin": 33.5,
+      "tout": 40,
+      "vk": "C",
+      "voice": "Michael C. Vincent",
+      "text": "Next, NEVAMIS will connect your company, automate repetitive work, and uncover value between systems.",
+      "room": 6.5,
+      "spoken": 7.27,
+      "lufs": -22.7,
+      "cue": 33.173
+    },
+    {
+      "shot": "C10",
+      "tin": 40,
+      "tout": 44.4,
+      "vk": "D",
+      "voice": "Jessica Anne Bogart",
+      "text": "So growth takes less of your life, not more.",
+      "room": 4.4,
+      "spoken": 2.86,
+      "lufs": -23,
+      "cue": 40.691
+    },
+    {
+      "shot": "C12",
+      "tin": 45,
+      "tout": 48,
+      "vk": "D",
+      "voice": "Jessica Anne Bogart",
+      "text": "NEVAMIS. The work moves. You still decide.",
+      "room": 3,
+      "spoken": 3.6,
+      "lufs": -22.9,
+      "cue": 44.151
+    }
+  ]
+}
