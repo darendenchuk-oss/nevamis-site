@@ -66,21 +66,32 @@ test('the header CTA lands on the booking control, not near it', async ({ page }
   expect(contains, '#pick-a-time must contain the scheduler iframe').toBe(true);
 });
 
-/* .site-header is position:fixed, and this site sets scroll-margin nowhere, so
-   an anchor with no offset drops its heading underneath the header. Pinned
-   against the fixed header's own height rather than a copied number. */
+/* .site-header is position:fixed and this site sets scroll-margin nowhere, so
+   an anchor with no offset drops its heading underneath the header.
+
+   This performs the jump and measures the heading, rather than asserting that
+   scroll-margin-top >= header height. That proxy passes today but it is not the
+   property anyone cares about: in production the panel's own box lands 6px
+   under the header while its heading sits 21px clear, because the panel has
+   26px of padding. A proxy that is 26px out of step with the truth is a proxy
+   that will one day be green while the heading is hidden. */
 test('the scheduler anchor clears the fixed header', async ({ page }) => {
   await page.goto('/book.html');
+  await page.evaluate(() => { location.hash = '#pick-a-time'; });
+  await page.waitForTimeout(600);
   const r = await page.evaluate(() => {
-    const t = document.querySelector('#pick-a-time');
-    const h = document.querySelector('.site-header');
+    const h2 = document.querySelector('#pick-a-time h2');
+    const hdr = document.querySelector('.site-header');
     return {
-      margin: parseFloat(getComputedStyle(t).scrollMarginTop) || 0,
-      headerH: h ? Math.round(h.getBoundingClientRect().height) : 0,
-      headerFixed: h ? getComputedStyle(h).position : null,
+      headerFixed: getComputedStyle(hdr).position,
+      headerBottom: Math.round(hdr.getBoundingClientRect().bottom),
+      headingTop: Math.round(h2.getBoundingClientRect().top),
+      headingText: h2.textContent.trim(),
     };
   });
   expect(r.headerFixed, 'premise of this test').toBe('fixed');
-  expect(r.margin, `scroll-margin-top ${r.margin}px must clear the ${r.headerH}px fixed header`)
-    .toBeGreaterThanOrEqual(r.headerH);
+  expect(
+    r.headingTop,
+    `"${r.headingText}" lands at ${r.headingTop}px, under the header's ${r.headerBottom}px edge`,
+  ).toBeGreaterThanOrEqual(r.headerBottom);
 });
