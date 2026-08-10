@@ -1,5 +1,16 @@
 # NEVAMIS — what may be said, and what may not
 
+> **PRICING, STATED FIRST, because this is the file every line of copy is
+> checked against.** Since 2026-08-09 there is ONE recurring price per plan,
+> charged the day the client subscribes and every month after: Core
+> C$250/month, Growth C$500/month, Pro C$1,000/month, with 250 / 600 / 1,400
+> included minutes and C$1.10 / C$0.90 / C$0.75 overage. No setup fee, no
+> activation fee, no pilot and no trial at any price. Any other figure that
+> appears below - C$850, C$150, C$249, C$449, C$849, C$49 - is RETIRED and
+> appears only as the subject of a defect or a correction, never as something
+> quotable. `pricing-config.js` is the source of truth. Banner added
+> 2026-08-10.
+
 The factual floor under the cinematic system, the website and the film. Every
 line of new copy and every frame of the film is checked against this file.
 
@@ -55,12 +66,12 @@ on top of these.
 |---|---|
 | Homepage asserts booking | in up to **ten** places, while a fifth-place line on the same page says booking is "Not built" |
 | `hvac.html` meta description | promises "triages the call, **books the visit**" — on the surface search engines quote |
-| ROI calculator | prefills a retired **$449** plan price on the homepage |
+| ROI calculator | **RESOLVED 2026-08-10.** It prefilled a retired **$449** plan price on the homepage, labelled "the Growth plan", and shipped that way to nevamis.ca. `#roiQuote` is now prefilled from `pricing-config.js` by `site.js`, the markup fallback reads 500, and `check-consistency.js` guard 7f fails the build if either drifts from the recommended plan. This row survived a full pricing sweep after it was written here, which is why the fix is a guard and not an edit |
 | Meta descriptions | 3 of 9 generated pages truncate mid-word from a blind `.slice(0,155)` |
 | JSON-LD | **zero** on 9 of 19 indexed pages, and the test that claims to check "every public page" iterates its own hardcoded list that omits exactly those 9 |
 | `demo_phone_click` | fires on an internal anchor on `revenue-engine.html`, not a phone link |
 | Stripe live catalog | last synced 2026-08-06 against a model retired 2026-08-09: still holds Pro at the retired $850 and per-plan setup fees |
-| Live phone agent | not updated to the single-price model; no commit can change what it says |
+| Live phone agent | **STALE AS WRITTEN, corrected 2026-08-10.** The claim that it is "not updated to the single-price model" was checked against the ElevenLabs API rather than against this file: the live prompt for `agent_9101ky43tys1fswstde818j7j8wt` (26,309 chars, sha `821e70b6af74`) quotes Core/Growth/Pro at C$250/C$500/C$1,000 with 1,400 minutes and 470-700 calls on Pro, and names C$850, C$150, C$249, C$449 and C$849 only in its never-quote list. The second half of the row stands and is the reason this needed checking at all: no commit can change what it says, so its state is only ever known by asking it |
 
 ---
 

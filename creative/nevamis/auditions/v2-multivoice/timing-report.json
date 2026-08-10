@@ -1,0 +1,102 @@
+[
+  {
+    "shot": "C02",
+    "voice": "Cassidy",
+    "text": "It's 4:40. Your hands are full. The phone rings. Again.",
+    "file": "C:/Users/daren/nevamis-site/creative/nevamis/auditions/v2-multivoice/C02-Cassidy.mp3",
+    "cue": 4,
+    "spoken": 2.879274,
+    "room": 4,
+    "over": false
+  },
+  {
+    "shot": "C03",
+    "voice": "Cassidy",
+    "text": "No message. You never find out who called.",
+    "file": "C:/Users/daren/nevamis-site/creative/nevamis/auditions/v2-multivoice/C03-Cassidy.mp3",
+    "cue": 8,
+    "spoken": 1.857596,
+    "room": 3.5,
+    "over": false
+  },
+  {
+    "shot": "C04",
+    "voice": "Michael C. Vincent",
+    "text": "NEVAMIS is the layer under your number. It answers at 4:40.",
+    "file": "C:/Users/daren/nevamis-site/creative/nevamis/auditions/v2-multivoice/C04-Michael-C-Vincent.mp3",
+    "cue": 11.5,
+    "spoken": 4.040272,
+    "room": 5,
+    "over": false
+  },
+  {
+    "shot": "C06",
+    "voice": "Michael C. Vincent",
+    "text": "Nine at night. On a Sunday. It picks up.",
+    "file": "C:/Users/daren/nevamis-site/creative/nevamis/auditions/v2-multivoice/C06-Michael-C-Vincent.mp3",
+    "cue": 19.5,
+    "spoken": 2.600635,
+    "room": 4,
+    "over": false
+  },
+  {
+    "shot": "C07",
+    "voice": "Michael C. Vincent",
+    "text": "Who called. What broke. The address. The time they want you.",
+    "file": "C:/Users/daren/nevamis-site/creative/nevamis/auditions/v2-multivoice/C07-Michael-C-Vincent.mp3",
+    "cue": 23.5,
+    "spoken": 4.133152,
+    "room": 5,
+    "over": false
+  },
+  {
+    "shot": "C08",
+    "voice": "Michael C. Vincent",
+    "text": "Your rules run it. It won't make up a price.",
+    "file": "C:/Users/daren/nevamis-site/creative/nevamis/auditions/v2-multivoice/C08-Michael-C-Vincent.mp3",
+    "cue": 28.5,
+    "spoken": 2.693515,
+    "room": 4.5,
+    "over": false
+  },
+  {
+    "shot": "C09",
+    "voice": "Cassidy",
+    "text": "Texted to you before you're off the ladder. Judgment stays yours.",
+    "file": "C:/Users/daren/nevamis-site/creative/nevamis/auditions/v2-multivoice/C09-Cassidy.mp3",
+    "cue": 33,
+    "spoken": 3.065034,
+    "room": 4.5,
+    "over": false
+  },
+  {
+    "shot": "C10",
+    "voice": "Michael C. Vincent",
+    "text": "Two are live. The rest are half-built or on paper.",
+    "file": "C:/Users/daren/nevamis-site/creative/nevamis/auditions/v2-multivoice/C10-Michael-C-Vincent.mp3",
+    "cue": 37.5,
+    "spoken": 3.204354,
+    "room": 4.5,
+    "over": false
+  },
+  {
+    "shot": "C12a",
+    "voice": "Michael C. Vincent",
+    "text": "NEVAMIS. The work moves.",
+    "file": "C:/Users/daren/nevamis-site/creative/nevamis/auditions/v2-multivoice/C12a-Michael-C-Vincent.mp3",
+    "cue": 44.5,
+    "spoken": 2.043356,
+    "room": 2.1000000000000014,
+    "over": false
+  },
+  {
+    "shot": "C12b",
+    "voice": "Cassidy",
+    "text": "You still decide.",
+    "file": "C:/Users/daren/nevamis-site/creative/nevamis/auditions/v2-multivoice/C12b-Cassidy.mp3",
+    "cue": 46.6,
+    "spoken": 1.068118,
+    "room": 1.3999999999999986,
+    "over": false
+  }
+]

@@ -92,17 +92,17 @@ hold 48.0s exactly.
 | Shot | In–Out | Dur | On screen | Narration | Capability shown (real) |
 |---|---|---|---|---|---|
 | **C01** | 0:00–0:03.0 | 3.0 | One blue object drifts. At **0:02.6 it reaches an edge and falls**, dimming out. `MISSED` | *(silence)* | — |
-| **C02** | 0:03.0–0:08.0 | 5.0 | Crane out: dozens more on unrelated paths, several already falling. Scale reveal | **in at 0:04.0** — "Every day, work arrives while you're busy earning the last of it." | Calls arrive when the line is unattended |
-| **C03** | 0:08.0–0:11.5 | 3.5 | One passes camera close enough to read as a call, and dims | "Some of it never reaches you." | The loss is the missed call |
-| **C04** | 0:11.5–0:16.5 | 5.0 | A violet **lattice resolves out of the dark beneath the fall**. Falling objects land and stop | "NEVAMIS is the layer underneath. It catches what would have fallen." | Answers 24/7 on the existing number |
+| **C02** | 0:03.0–0:08.0 | 5.0 | Crane out: dozens more on unrelated paths, several already falling. Scale reveal | **in at 0:04.0** · *Cassidy* — "It's 4:40. Your hands are full. The phone rings. Again." | Calls arrive when the line is unattended |
+| **C03** | 0:08.0–0:11.5 | 3.5 | One passes camera close enough to read as a call, and dims | *Cassidy* — "No message. You never find out who called." | The loss is silent — that is the point |
+| **C04** | 0:11.5–0:16.5 | 5.0 | A violet **lattice resolves out of the dark beneath the fall**. Falling objects land and stop | **SWITCH 1** · *M. C. Vincent* — "NEVAMIS is the layer under your number. It answers at 4:40." | Answers 24/7 on the **existing number** |
 | **C05** | 0:16.5–0:19.5 | 3.0 | Lattice extends across the volume in one move; drift becomes ordered traffic | *(silence)* | One line, always on |
-| **C06** | 0:19.5–0:23.5 | 4.0 | One blue object arrives fast, is caught, comes to rest | "A call becomes information." | Call captured |
-| **C07** | 0:23.5–0:28.5 | 5.0 | It opens into layered **glass panes**; structured fields resolve | "Who it is. What they need. Where. And when they want it." | Qualifies caller; captures job, address, **requested time window** |
-| **C08** | 0:28.5–0:33.0 | 4.5 | Violet **rule-planes** sweep the panes. Compliant fields **pass straight through and lock**. One field **dims and is held** | "It follows the rules you set. What it isn't allowed to answer, it doesn't." | Owner-approved rules; **routine passes automatically**; quote refused by rule |
-| **C09** | 0:33.0–0:37.5 | 4.5 | The captured record **locks itself — mint**, no external input. The held quote **branches away on a violet path to a human review plane** | "The job is captured. Anything needing judgment comes back to you." | Capture completes unattended; summary texted + emailed in seconds; exceptions route to a person |
-| **C10** | 0:37.5–0:42.0 | 4.5 | Pull back: one strand among six. Two lit, two half-lit, two drawn dark | "This is one strand. The rest of the business is next." | Live / partial / planned, labelled honestly |
+| **C06** | 0:19.5–0:23.5 | 4.0 | One blue object arrives fast, is caught, comes to rest | *M. C. Vincent* — "Nine at night. On a Sunday. It picks up." | 24/7 answering |
+| **C07** | 0:23.5–0:28.5 | 5.0 | It opens into layered **glass panes**; structured fields resolve | *M. C. Vincent* — "Who called. What broke. The address. The time they want you." | Qualifies caller; captures job, address, **requested time window** |
+| **C08** | 0:28.5–0:33.0 | 4.5 | Violet **rule-planes** sweep the panes. Compliant fields **pass straight through and lock**. One field **dims and is held** | *M. C. Vincent* — "Your rules run it. It won't make up a price." | Owner-approved rules; **routine passes automatically**; quote refused by rule |
+| **C09** | 0:33.0–0:37.5 | 4.5 | The captured record **locks itself — mint**, no external input. The held quote **branches away on a violet path to a human review plane** | **SWITCH 2** · *Cassidy* — "Texted to you before you're off the ladder. Judgment stays yours." | Summary texted + emailed in seconds; exceptions route to a person |
+| **C10** | 0:37.5–0:42.0 | 4.5 | Pull back: one strand among six. Two lit, two half-lit, two drawn dark | **SWITCH 3** · *M. C. Vincent* — "Two are live. The rest are half-built or on paper." | Live / partial / planned, stated out loud |
 | **C11** | 0:42.0–0:44.5 | 2.5 | One building of light. Two tiny silhouettes cross a floor far below | *(silence)* | — |
-| **C12** | 0:44.5–0:48.0 | 3.5 | Black. **NEVAMIS** resolves. Then the line | "NEVAMIS. The work moves. You still decide." | — |
+| **C12** | 0:44.5–0:48.0 | 3.5 | Black. **NEVAMIS** resolves. Then the line | **SWITCH 4, in-line** · *M. C. Vincent* — "NEVAMIS. The work moves." → *Cassidy* — "You still decide." | — |
 
 Sum: 3.0 + 5.0 + 3.5 + 5.0 + 3.0 + 4.0 + 5.0 + 4.5 + 4.5 + 4.5 + 2.5 + 3.5 = **48.0s**
 
@@ -120,19 +120,46 @@ survive — C05, and **C11's 2.5s payoff, which stays entirely silent**.
 
 ---
 
-## Narration script (corrected, 88 words)
+## Narration script v2 — two voices, 87 words
 
-> Every day, work arrives while you're busy earning the last of it.
-> Some of it never reaches you.
-> NEVAMIS is the layer underneath. It catches what would have fallen.
-> A call becomes information.
-> Who it is. What they need. Where. And when they want it.
-> It follows the rules you set. What it isn't allowed to answer, it doesn't.
-> The job is captured. Anything needing judgment comes back to you.
-> This is one strand. The rest of the business is next.
-> NEVAMIS. The work moves. You still decide.
+Rewritten 2026-08-10 for impact. The v1 script explained a system; this one
+names a loss the owner has already lived. Every line is timed and fits its shot.
 
-Contains no instance of "AI". Two brand mentions, both bare.
+| Shot | Voice | Line | Spoken |
+|---|---|---|---|
+| C02 | **Cassidy** | "It's 4:40. Your hands are full. The phone rings. Again." | 2.88s / 4.00s |
+| C03 | **Cassidy** | "No message. You never find out who called." | 1.86s / 3.50s |
+| C04 | **M. C. Vincent** | "NEVAMIS is the layer under your number. It answers at 4:40." | 4.04s / 5.00s |
+| C06 | **M. C. Vincent** | "Nine at night. On a Sunday. It picks up." | 2.60s / 4.00s |
+| C07 | **M. C. Vincent** | "Who called. What broke. The address. The time they want you." | 4.13s / 5.00s |
+| C08 | **M. C. Vincent** | "Your rules run it. It won't make up a price." | 2.69s / 4.50s |
+| C09 | **Cassidy** | "Texted to you before you're off the ladder. Judgment stays yours." | 3.07s / 4.50s |
+| C10 | **M. C. Vincent** | "Two are live. The rest are half-built or on paper." | 3.20s / 4.50s |
+| C12 | **M. C. Vincent** | "NEVAMIS. The work moves." | 2.04s / 2.10s |
+| C12 | **Cassidy** | "You still decide." | 1.07s / 1.40s |
+
+Contains no instance of "AI". Two brand mentions, both bare. Every line fits —
+verified by generating each and measuring against its shot, not by estimating.
+
+**Why this beats the v1 script.** v1 opened on "Every day, work arrives while
+you're busy earning the last of it" — a sentence about a category. v2 opens on
+"It's 4:40. Your hands are full. The phone rings. Again." — a sentence about a
+Tuesday. The whole film now runs on physical detail the owner recognises:
+*4:40*, *nine at night on a Sunday*, *before you're off the ladder*. C03 lands
+the cruelty of the actual problem — "You never find out who called" — which is
+the fact that makes a missed call worse than a lost one.
+
+C10 stopped being a promise and became an admission: **"Two are live. The rest
+are half-built or on paper."** Saying that out loud is the most persuasive
+sentence in the film, because no one selling vapour would say it.
+
+### C12 is split across both voices — this needs explicit sign-off
+
+The locked line is **verbatim and unaltered**: same words, same order, same
+punctuation. But it is *read* by two people — he says "NEVAMIS. The work
+moves.", she says "You still decide." Splitting a line marked "locked" is a
+reading decision, not a copy change, and should be approved on purpose rather
+than assumed.
 
 ---
 
@@ -236,7 +263,55 @@ No instance of "AI" anywhere in this table.
 
 ---
 
-## Narrator (correction 3)
+## The voice scheme — two voices, one rule
+
+**The rule: the woman speaks about *you*. The man speaks about *the layer*.**
+Neither ever crosses, and only the man ever says the brand name.
+
+A viewer cannot state that rule, but they already understand the thing it
+tracks — the person losing the work and the thing that catches it are not the
+same party. So when the film changes hands, it reads as a fact, not a
+production flourish.
+
+| Voice | Clones | Shots | What it represents |
+|---|---|---|---|
+| **Cassidy** — crisp, direct, middle-aged American | 1,174,508 · **rank 2 of 881 women** | C02, C03 · C09 · the last four words of C12 | **The owner's side.** What he loses, what reaches his hand, what he still decides. Never says the brand, never describes a capability |
+| **Michael C. Vincent** — confident, middle-aged American | 1,510,259 · **rank 5 of men** | C04 · C06–C08 · C10 · the first four words of C12 | **The layer's witness.** What it is, what it does, what it refuses, what isn't built. Never says "I" or "we" |
+
+**The four switches.** C04 on the turn — he arrives at the exact frame the
+lattice resolves, and his first act is to repeat her timestamp: she says "It's
+4:40", he says "It answers at 4:40". Two witnesses, one minute. C09 on the mint
+lock — the instant the work reaches the owner, her voice returns. C10 on the
+pull-back — what is and isn't built is a fact about the layer, so he states it.
+C12 in-line, the only mid-line switch in the film: forty-four seconds of an
+absorbed rule now hands the last four words to the only voice that has ever
+spoken for the owner. The campaign line stops being a claim and becomes a
+handover.
+
+**Three guards that keep it legible rather than decorative:**
+1. The man never says "I" or "we", so he cannot harden into a character or be
+   heard as the product describing itself.
+2. The woman never describes a capability, so she can never be heard as a
+   receptionist answering a phone — the one register this film cannot afford.
+3. Pronoun discipline: in her lines the ringing thing is "the phone", never
+   "it". "It" belongs to him and always means the layer. One pronoun, one
+   referent, all 48 seconds.
+
+**Why these two and not the top of the clone list.** The most-cloned voices
+skew young, casual and upbeat, because that is what social-media content
+demands — Mark (3.75M), Hope (1.23M), Brittney (979k) would each destroy a dark
+architectural film inside the first four seconds, over a fall. Cassidy is the
+highest-cloned woman whose register survives; Hope outranks her by 4.5%, inside
+the noise, and is disqualified on read. Michael C. Vincent was chosen on
+**measured** evidence — see below.
+
+Emma (Australian, female) is the live receptionist. Both film voices are
+American, and guard (2) means no line in the film could be mistaken for the
+product speaking about itself.
+
+---
+
+## Narrator selection — measured, and one earlier note corrected
 
 **Emma** (`56bWURjYFHyYyVf490Dp`, Australian, female) is the current NEVAMIS
 receptionist voice, confirmed live on the agent. **Ava is retired** — the
@@ -268,6 +343,50 @@ difference worth your ear:** Jon and Peter render it *"Nevamiss"*; Michael C.
 Vincent renders closer to *"Nevermiss"*, which drifts toward "never miss".
 
 **No full narration has been recorded.** These are auditions only.
+
+### The wordmark shootout — and a note of mine that was wrong
+
+The brand name lands once at the wordmark reveal, and that is the most
+important two seconds of audio in the film. All nine most-cloned men were
+measured saying "NEVAMIS. The work moves." across seven fixed seeds, scored on
+whether the name was transcribable at all and whether it drifted to "never".
+
+| Voice | Clones | name missing | heard as "never" | wrong stress |
+|---|---|---|---|---|
+| **Michael C. Vincent** | 1,510,259 | **1/7** | **2/7** | 0/7 |
+| Mark | 3,751,295 | 0/7 | 4/7 | 0/7 |
+| James | 1,768,970 | 0/7 | 4/7 | 0/7 |
+| Adam Stone | 1,503,501 | 0/7 | 4/7 | 0/7 |
+| Peter | 1,348,375 | 0/7 | 5/7 | 0/7 |
+| Spuds Oxley | 2,509,390 | **3/7** | 3/7 | 0/7 |
+| Christopher | 1,308,779 | 3/7 | 3/7 | 0/7 |
+| Adam (dark) | 1,915,918 | 1/7 | 5/7 | 0/7 |
+| Adam | 1,255,390 | 0/7 | 6/7 | 0/7 |
+
+**Stress is correct on every voice (0/7 wrong across all nine)** — the alias
+dictionary works universally, which is the thing that actually had to be true.
+
+**An earlier note in this file was wrong and misled the selection.** The v1
+board recorded that Michael C. Vincent "renders closer to *Nevermiss*". That
+came from a *single take of a different passage*. Measured properly — seven
+seeds, in the exact wordmark position — he is the **least** "never"-prone of the
+nine. The note is withdrawn.
+
+### The "never miss" adjacency — a real constraint, verified
+
+`nevamis-engine/src/domain/marketing.ts:84` lists **"never miss a call"** as
+`PROHIBITED_PHRASES[0]`: *"absolute claim; the agent answers eligible forwarded
+calls, not all calls."* ("Never Miss" was also a retired plan name.)
+
+The approved pronunciation /ˈnɛvəmɪs/ is phonetically adjacent to a non-rhotic
+"never miss" — every one of the nine voices drifted there at least twice. This
+is a property of the pronunciation itself, not of any voice, so it cannot be
+engineered away without abandoning the approved reading.
+
+**Mitigation, adopted:** the brand name is never immediately followed by
+"call", "calls" or "a call", so the blocked phrase can never assemble in the
+ear. The current script satisfies this — C04's next word is "is", C12's is
+"The". **This is now a standing rule for all NEVAMIS voice work.**
 
 ### Settings (identical across all three)
 
