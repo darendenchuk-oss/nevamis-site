@@ -90,10 +90,23 @@ run('consistency', process.execPath, ['scripts/check-consistency.js']);
   results.push({ label: 'site audit', ok });
 }
 
-// 3. Playwright: the slowest, so it goes last.
+/* 3. Is the suite about to run the WHOLE suite? Immediately before playwright,
+      so a failure prints next to the test count it invalidates. This checkout
+      once sat four commits behind origin/main: three spec files did not exist,
+      15 of 18 were collected, and "121 passed" was reported. Nothing was
+      broken and nothing said anything. */
+run('suite collection', process.execPath, ['scripts/check-suite.mjs']);
+{
+  const suite = results.at(-1);
+  if (suite && suite.status === 2) suite.needsYou =
+    'could not verify this checkout is current - no network, no origin, or a detached HEAD. '
+    + 'The tests below may be a smaller suite than you think. Run: git fetch && git status';
+}
+
+// 4. Playwright: the slowest, so it goes last.
 run('playwright', 'npx', ['playwright', 'test']);
 
-// 4. Agent sync + spoken-price drift, in the engine repo when it is present.
+// 5. Agent sync + spoken-price drift, in the engine repo when it is present.
 {
   const engine = path.join(root, '..', 'nevamis-engine');
   const { existsSync } = await import('node:fs');

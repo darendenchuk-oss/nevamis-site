@@ -1177,6 +1177,32 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       if (window.__nvBooked) return;      // one booking, one event
       window.__nvBooked = true;
       if (window.nvTrack) window.nvTrack("booking_completed");
+
+      /* The page has to stop contradicting the visitor. Cal confirms the
+         appointment itself - inside the iframe, then by email and a calendar
+         invite - and duplicating that would be a second, competing
+         confirmation from a system that does not own the booking. But the
+         block below still asked "Not ready to pick a time?" of somebody who
+         had just picked one, which reads as though it did not register.
+
+         So: retire the alternative, and say the one useful thing Cal cannot,
+         which is what Nevamis does next. The scheduler is left alone; a
+         booking can still be rescheduled from inside it. */
+      try {
+        var cbw = document.getElementById("cbWrap");
+        if (cbw && !cbw.hidden) {
+          var f = document.getElementById("cbForm");
+          if (f) f.hidden = true;
+          var h = cbw.querySelector(".cb-h");
+          var s = cbw.querySelector(".cb-sub");
+          if (h) h.textContent = "You are on the calendar.";
+          if (s) {
+            s.textContent = "Nothing to prepare: bring your rough call numbers and Daren does the rest. "
+              + "If you would rather hear the agent before you speak to him, it answers on (587) 413-0035.";
+          }
+          cbw.setAttribute("data-booked", "true");
+        }
+      } catch (e2) { /* the booking is real whatever the page does next */ }
     });
   } catch (e) { /* measurement only */ }
 })();

@@ -9,7 +9,8 @@
     "proof": "playwright test",
     "check": "node scripts/check-all.mjs",
     "consistency": "node scripts/check-consistency.js",
-    "audit": "node scripts/audit-site.mjs"
+    "audit": "node scripts/audit-site.mjs",
+    "suite": "node scripts/check-suite.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0"
