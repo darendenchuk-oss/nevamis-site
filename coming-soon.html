@@ -1261,7 +1261,10 @@ document.addEventListener("DOMContentLoaded", function () {
            page and is in the sitemap. */
         phone: (document.getElementById("ifPhone") || { value: "" }).value,
         note: noteLines.join(" | "),
-        source: "coming-soon" + (location.search || ""),
+        /* Allowed campaign tags only. This already produced the "label?tags"
+           shape the engine parses; it produced it by copying the whole query
+           string, which is the same fault that put a name into analytics. */
+        source: "coming-soon" + (typeof window.nvSourceTags === "function" ? window.nvSourceTags() : ""),
         website: (document.getElementById("ifWebsite") || { value: "" }).value
       }),
       signal: ctrl ? ctrl.signal : undefined

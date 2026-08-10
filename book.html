@@ -1045,7 +1045,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       var email = (document.getElementById("bkEmail").value || "").trim();
       var notes = [];
       if (biz) notes.push("Business: " + biz);
-      if (location.search.length > 1) notes.push("Source: " + location.search.slice(1, 200));
+      /* Allowed campaign tags only, rebuilt by site.js. This line used to send
+         the raw query string to Cal.com, so anything a future link carried,
+         including a person's name, would have been typed into a third party's
+         booking note. Guarded rather than assumed: if site.js has not loaded,
+         send no source at all rather than fall back to the raw string. */
+      var attrib = typeof window.nvAttributionQuery === "function" ? window.nvAttributionQuery() : "";
+      if (attrib) notes.push("Source: " + attrib.slice(0, 200));
       var url = base;
       if (name) url += "&name=" + encodeURIComponent(name);
       if (email) url += "&email=" + encodeURIComponent(email);
@@ -1127,7 +1133,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             email: val("cbEmail"),
             business: val("cbBiz"),
             website: val("cbWebsite"),
-            source: "book-callback" + (location.search ? " " + location.search.slice(1, 180) : "")
+            /* "label?tags" is the shape src/domain/attributionFrom parses: it
+               looks for the first "?" and reads the tags after it. This joined
+               with a SPACE and stripped the "?", so every callback lead has
+               arrived with its campaign unparseable. Fixed with the sanitising
+               change rather than after it, because both faults are this one
+               expression. */
+            source: "book-callback" + (typeof window.nvSourceTags === "function" ? window.nvSourceTags() : "")
           }),
           signal: ctrl ? ctrl.signal : undefined
         }).then(function (r) {

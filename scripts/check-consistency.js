@@ -1009,7 +1009,72 @@ for (const p of contentPages) {
   }
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html.");
+/* ============================================================
+   GUARD: the published privacy promise, enforced by code shape.
+
+   privacy.html tells visitors that each analytics count records "only the
+   event name, the page path, the referring site's hostname, and campaign
+   tags", and that "no identifiers are stored". For a long time that held only
+   because no page happened to carry anything personal in its URL - and then
+   proposal.html started carrying ?to=<recipient name>, and a real person's
+   name began reaching site_events.source.
+
+   Grepping for "to=" would be useless: the next identifier will be called
+   something else, and ?%74%6f= and ?To= both defeat a substring search while
+   URLSearchParams resolves them. So this guards the SHAPE instead.
+
+   The rule: location.search may only be READ through URLSearchParams, or
+   ASSIGNED to (which is navigation, not telemetry). It may never be
+   interpolated into a string, because that is how a whole query string ends
+   up inside a payload. Campaign tags reach telemetry through the one
+   allowlist in site.js (NV_ATTRIB_KEYS), which rebuilds the string from named
+   keys rather than copying it.
+
+   Adding a key to that allowlist is a deliberate, reviewable act. Writing
+   "+ location.search" is not, which is precisely why it is the thing banned.
+   ============================================================ */
+{
+  const files = [
+    ...contentPages,
+    "site.js", "motion.js",
+    ...fs.readdirSync(path.join(root, "assets/motion"))
+      .filter((f) => f.endsWith(".js")).map((f) => "assets/motion/" + f),
+  ];
+  /* Read-only parse, and navigation. Everything else is a serialisation.
+     Assignment is navigation: it sends the visitor somewhere and posts
+     nothing, which is why the mailto fallback and the search box are fine. */
+  const SAFE = [
+    /new URLSearchParams\(\s*(?:window\.)?location\.search\s*\)/g,
+    /(?:window\.)?location\.(?:search|href)\s*=[^=]/g,
+  ];
+  /* Comments are stripped first, or a file that EXPLAINS this rule trips it -
+     which is exactly what site.js did on the first run. Blank the bodies
+     rather than deleting them, so reported line numbers stay true. */
+  const decomment = (s) => s
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "))
+    .replace(/(^|[^:])\/\/[^\n]*/g, (m, p) => p + m.slice(p.length).replace(/./g, " "))
+    .replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, " "));
+  for (const rel of files) {
+    const full = path.join(root, rel);
+    if (!fs.existsSync(full)) continue;
+    let src = decomment(fs.readFileSync(full, "utf8"));
+    for (const re of SAFE) src = src.replace(re, (m) => m.replace(/./g, " "));
+    const stray = [...src.matchAll(/location\.(search|href)\b/g)];
+    for (const m of stray) {
+      const line = src.slice(0, m.index).split("\n").length;
+      const text = src.split("\n")[line - 1].trim().slice(0, 90);
+      /* location.href resolving a relative URL is not telemetry. */
+      if (/new URL\([^)]*location\.href/.test(text)) continue;
+      err(`${rel}:${line}: ${m[0]} used outside URLSearchParams.\n`
+        + `       ${text}\n`
+        + `       Campaign tags must come from window.nvAttributionQuery() / window.nvSourceTags()\n`
+        + `       (site.js NV_ATTRIB_KEYS). Interpolating the query string puts whatever a link\n`
+        + `       carried - a name, an email, an id - into analytics, which privacy.html forbids.`);
+    }
+  }
+}
+
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no raw query string reaches telemetry.");
 /* 1 = something here is broken. 2 = nothing here is broken but the live
    phone agent needs a change only the owner can make. 0 = clean. */
 if (fail === 0 && waiting > 0) console.error(`

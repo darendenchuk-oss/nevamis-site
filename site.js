@@ -13,6 +13,69 @@
   var motionOff = reduced || safeGet("nv-motion") === "off";
   if (motionOff) document.documentElement.classList.add("motion-off");
 
+  /* ---------- the attribution boundary ----------
+     THE one place that decides which URL parameters may leave this browser.
+
+     nevamis.ca/privacy promises that each count records "only the event name,
+     the page path, the referring site's hostname, and campaign tags", and that
+     "no identifiers are stored". Everything that reported a "source" used to
+     satisfy that by accident, by copying location.search wholesale and trusting
+     that every page only ever carried utm tags. proposal.html carries ?to=<the
+     recipient's name>, so a personal name was reaching site_events.source, and
+     ?customer_id=12345 or any future ?email= would have done the same.
+
+     The rule is REBUILD, NEVER COPY. Nothing derived from the original query
+     string is passed through: the allowed keys are read individually and a new
+     string is assembled from them. That kills the whole bypass class rather
+     than the one instance we found - ?%74%6f=Sneaky decodes to to=Sneaky and
+     would defeat any filter that pattern-matched the raw string, but it cannot
+     survive a rebuild, because "to" is simply never asked for.
+
+     Keys are matched exactly, lower-case. URL parameters are case-sensitive by
+     spec, the funnel intake below has always read them that way, and the engine
+     reads exactly these names (src/domain/attribution.ts). So ?UTM_SOURCE=x is
+     dropped: a mis-cased campaign link loses its tag, which is a real but small
+     cost, and the alternative is a second matching rule that disagrees with
+     every consumer. */
+  var NV_ATTRIB_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term",
+    "utm_content", "gclid", "msclkid", "fbclid"];
+
+  /** Allowed campaign tags from the CURRENT url, as an object. */
+  function nvAttribution() {
+    var out = {};
+    try {
+      var q = new URLSearchParams(location.search);
+      for (var i = 0; i < NV_ATTRIB_KEYS.length; i++) {
+        var k = NV_ATTRIB_KEYS[i], v = q.get(k);
+        if (v) out[k] = String(v).slice(0, 120);
+      }
+    } catch (e) { /* older browser: no tags rather than a broken page */ }
+    return out;
+  }
+
+  /** The same tags as a query string, rebuilt and re-encoded from scratch.
+   *  This is the ONLY value any payload may use to describe where a visit came
+   *  from. Exposed on window because book.html and coming-soon.html post their
+   *  own lead forms and must not reinvent this. */
+  function nvAttributionQuery() {
+    var o = nvAttribution(), parts = [];
+    for (var i = 0; i < NV_ATTRIB_KEYS.length; i++) {
+      var k = NV_ATTRIB_KEYS[i];
+      if (o[k]) parts.push(encodeURIComponent(k) + "=" + encodeURIComponent(o[k]));
+    }
+    return parts.join("&");
+  }
+  window.nvAttributionQuery = nvAttributionQuery;
+
+  /** The same tags as a "?a=b&c=d" suffix, or "" when there are none.
+   *  Lead forms post source as "<label><suffix>", which is the shape
+   *  src/domain/attribution.ts parses: it finds the first "?" and reads the
+   *  tags after it. Kept here so no page has to remember that contract. */
+  window.nvSourceTags = function () {
+    var q = nvAttributionQuery();
+    return q ? "?" + q : "";
+  };
+
   /* ---------- analytics event layer (first-party, owner-approved 2026-07-27) ----------
      Events go to the Nevamis engine only: anonymous counts (event name, page,
      referrer host, utm), no cookies, no IPs stored. Sent as text/plain so the
@@ -24,7 +87,7 @@
         name: name,
         page: location.pathname,
         referrer: document.referrer || "",
-        source: location.search ? location.search.slice(1, 200) : ""
+        source: nvAttributionQuery().slice(0, 200)
       });
       if (navigator.sendBeacon) { navigator.sendBeacon(NV_EVENTS_URL, payload); return; }
       if (typeof window.fetch === "function") {
@@ -58,17 +121,15 @@
        - reads campaign tags from the CURRENT URL only
      Consequence, accepted on purpose: attribution is campaign-level and
      strongest on the landing hit. Persisting tags across a multi-page
-     journey would require changing the published policy first. */
+     journey would require changing the published policy first.
+
+     This block already did the right thing - it named its keys instead of
+     copying the query string - which is why it never leaked. It now shares the
+     one allowlist above rather than keeping a second copy that drifted: this
+     list omitted fbclid, which the engine has always accepted, so a Facebook
+     click id was parsed from lead forms and dropped from the funnel intake. */
   var NV_MKT_URL = "https://app.nevamis.ca/api/mkt/events";
-  function nvParams() {
-    var out = {};
-    try {
-      var q = new URLSearchParams(location.search);
-      ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "msclkid"]
-        .forEach(function (k) { var v = q.get(k); if (v) out[k] = v.slice(0, 120); });
-    } catch (e) { /* older browser: send without tags rather than break */ }
-    return out;
-  }
+  function nvParams() { return nvAttribution(); }
   function nvFunnel(name) {
     try {
       var p = nvParams();
