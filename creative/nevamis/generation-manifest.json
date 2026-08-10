@@ -4,10 +4,16 @@
   "line": "The work moves. You still decide.",
   "budget": {
     "creditsAtStart": 1210,
-    "plan": "plus",
+    "plan": "7 video shots total (S05/S06/S07/S10/S12 are composited type and cost nothing). ~378 credits for one attempt each at 54, leaving real headroom for selection and retries. Mobile and social variants are ffmpeg derivations of the 1080p master, not extra generations.",
     "unlim": false,
-    "costPerGeneration": "UNKNOWN — not published in models_explore. Calibrated empirically by measuring the balance delta of the first generation before planning the rest.",
-    "policy": "Still before video, always: a rejected still costs a fraction of a rejected clip. Identity locked once and reused. No generation without a row here first."
+    "costPerGeneration": {
+      "soul_2 image (2k)": "0.12 credits — preflighted with get_cost, confirmed by balance delta",
+      "seedance_2_0 video (1080p, std, 6s, no audio)": "54 credits — preflighted with get_cost",
+      "method": "generate_image/generate_video accept get_cost:true, which prices a job without submitting it. Used before every spend; no calibration-by-spending was necessary."
+    },
+    "policy": "Still before video, always: a rejected still costs a fraction of a rejected clip. Identity locked once and reused. No generation without a row here first.",
+    "creditsRemaining": 1209.04,
+    "spentSoFar": 0.96
   },
   "identityLocks": [
     {
@@ -19,12 +25,43 @@
       "prompt": "Photographic portrait of a 52-year-old Canadian electrical contractor in an unfinished basement. Weathered face, grey at the temples, three-day stubble, calm and focused. Worn navy work shirt with sleeves rolled, scuffed tool belt. Hands show real work. Lit by a single warm worklamp from frame left, deep shadow falloff behind him, cool ambient fill. Shallow depth of field, 50mm, fine film grain, deep neutral background. Documentary realism, not a stock portrait.",
       "negative": "smiling at camera, corporate headshot, blazer, hard hat cliche, clean hands, studio backdrop, robot, hologram, HUD, neon, purple gradient, lens flare, plastic skin, beauty retouching",
       "references": [],
-      "status": "planned",
+      "status": "selected",
       "generationId": null,
-      "outputPath": null,
-      "creditsSpent": null,
+      "outputPath": "creative/nevamis/references/REF-RAY.png",
+      "creditsSpent": 0.96,
       "rejectionReason": null,
-      "finalUse": "Character reference passed to every subsequent Ray shot."
+      "finalUse": "Character reference passed to every subsequent Ray shot.",
+      "generationsRun": 8,
+      "selectedFrom": "ref-ray-v3.png (batch 1, job 21b7f4b7-2638-4d05-998a-cba1a4d177c3), cropped to face-only 560x600 at offset 690,15",
+      "selectionReason": "Correct age read (early 50s), grey temples and beard, weathered and calm, warm key from frame left with the specified hard falloff. Best identity match of eight.",
+      "rejections": [
+        {
+          "file": "ref-ray-v0.png",
+          "reason": "Bald rather than grey at the temples; posed with hands clasped, reading as waiting rather than working; gibberish text on a paper at frame left, which is an explicit rejection criterion."
+        },
+        {
+          "file": "ref-ray-v1.png",
+          "reason": "Red chest patch carrying clear gibberish lettering. Also reads mid-40s and the background is lit cool, which inverts the warm-for-people rule."
+        },
+        {
+          "file": "ref-ray-v2.png",
+          "reason": "Not selected; superseded by v3 on age and lighting."
+        },
+        {
+          "file": "ray-b0.png / ray-b2.png / ray-b3.png",
+          "reason": "Saturated workwear branding present despite an explicit no-logo instruction."
+        },
+        {
+          "file": "ray-b1.png",
+          "reason": "Best posture of the second batch — looking down at his hands, genuinely mid-work — but reads early 60s rather than early 50s, and carries YELLOW chest embroidery that a red-only screen missed."
+        }
+      ],
+      "lessons": [
+        "Soul 2.0 reliably invents workwear branding on work shirts, and a no-logo instruction in the prompt does not stop it. Do not fight it prompt-side.",
+        "An identity lock needs a FACE, not a torso. Cropping above the chest removes every wardrobe brand mark deterministically and costs nothing.",
+        "My first branding screen tested for saturated RED and passed an image whose logo was YELLOW. The corrected screen tests for any strongly saturated non-skin hue.",
+        "An earlier version of that screen counted 38,209 red pixels that were warm-lit SKIN. A detector has to be checked against a known case before its verdict is trusted."
+      ]
     },
     {
       "id": "REF-ENV",
@@ -144,6 +181,12 @@
   ],
   "compositedNotGenerated": {
     "$comment": "These beats are type on black, built in ffmpeg from the real product's typography. They cost no credits and are the most credible seconds in the film precisely because no model renders their text.",
-    "shots": ["S05", "S06", "S07", "S10", "S12"]
+    "shots": [
+      "S05",
+      "S06",
+      "S07",
+      "S10",
+      "S12"
+    ]
   }
 }
