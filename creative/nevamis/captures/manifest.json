@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-10T09:44:01.345Z",
+  "generatedAt": "2026-08-10T16:24:36.426Z",
   "generatedBy": "scripts/film-capture.mjs",
   "source": {
     "baseUrl": "http://localhost:3417",
@@ -53,27 +53,27 @@
         "height": 900,
         "deviceScaleFactor": 2
       },
-      "scrollY": 0,
+      "scrollY": 14,
       "stickyHeaderPx": 178,
-      "clearanceBelowHeaderPx": 141,
+      "clearanceBelowHeaderPx": 127,
       "elementRectCss": {
         "x": 212,
         "y": 319,
         "width": 856,
-        "height": 80
+        "height": 120
       },
       "text": "YOUR DEDICATED NEVAMIS NUMBER\n\n+15875550190\n\nThis is the number your calls forward to. It is yours and it does not change.",
       "formFields": [],
       "legibleFieldText": null,
-      "bytes": 40572,
+      "bytes": 43097,
       "pixels": {
         "width": 1712,
-        "height": 162,
-        "meanLuma": 35.87,
+        "height": 242,
+        "meanLuma": 32.93,
         "minLuma": 6.9,
         "maxLuma": 243.9,
-        "brightPixelPct": 4.64,
-        "distinctColoursSampled": 140
+        "brightPixelPct": 3.12,
+        "distinctColoursSampled": 139
       }
     },
     {
@@ -575,27 +575,27 @@
         "height": 930,
         "deviceScaleFactor": 3
       },
-      "scrollY": 2,
+      "scrollY": 122,
       "stickyHeaderPx": 153,
-      "clearanceBelowHeaderPx": 220,
+      "clearanceBelowHeaderPx": 100,
       "elementRectCss": {
         "x": 20,
         "y": 375,
         "width": 390,
-        "height": 101
+        "height": 141
       },
       "text": "YOUR DEDICATED NEVAMIS NUMBER\n\n+15875550190\n\nThis is the number your calls forward to. It is yours and it does not change.",
       "formFields": [],
       "legibleFieldText": null,
-      "bytes": 60602,
+      "bytes": 63966,
       "pixels": {
         "width": 1170,
-        "height": 303,
-        "meanLuma": 42.05,
-        "minLuma": 9.2,
+        "height": 423,
+        "meanLuma": 37.85,
+        "minLuma": 7.4,
         "maxLuma": 243.9,
-        "brightPixelPct": 8.04,
-        "distinctColoursSampled": 146
+        "brightPixelPct": 5.8,
+        "distinctColoursSampled": 136
       }
     },
     {
