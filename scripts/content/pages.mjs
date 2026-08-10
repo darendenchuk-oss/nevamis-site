@@ -64,7 +64,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
       <h2>${urgency}</h2>
       <p>${afterHours} For anything outside the rules you approved, it takes a message and
         flags the summary rather than inventing an answer. You decide what gets escalated,
-        what gets booked, and what waits until morning.</p>
+        what gets captured, and what waits until morning.</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-ghost" href="/pilot.html" data-evt="trade_start_click">See how you start</a>
@@ -111,7 +111,7 @@ export const PAGES = {
       urgency: 'No heat with a newborn in the house is a different call.',
       afterHours: `You define what an emergency means for your business: a temperature
         threshold, no heat at all, vulnerable occupants, or a commercial account. Calls that
-        meet it transfer to your on-call tech. Everything else is booked into the first slot
+        meet it transfer to your on-call tech. Everything else is captured with the first slot
         your calendar actually has.`,
       jobs: [
         { t: 'No-heat and no-cool calls', d: 'Triaged by your emergency criteria, not a generic script.' },
@@ -126,7 +126,7 @@ export const PAGES = {
 
   'plumbers.html': {
     h1: 'Burst pipes and blocked drains, answered',
-    lede: `Burst pipes, blocked drains, and no hot water. The calls that cannot wait are the ones you are least able to answer. Nevamis answers them, qualifies them, and books them.`,
+    lede: `Burst pipes, blocked drains, and no hot water. The calls that cannot wait are the ones you are least able to answer. Nevamis answers them, qualifies them, and gets the details to you.`,
     body: tradeBody({
       trade: 'plumbing',
       whenItRings: 'Water damage does not leave a voicemail and wait.',
@@ -135,11 +135,11 @@ export const PAGES = {
         details.`,
       urgency: 'Active flooding gets treated as active flooding.',
       afterHours: `Active water gets your emergency path immediately. Slow drains and
-        fixture replacements get booked normally. You set the line between the two, and it
+        fixture replacements are captured normally. You set the line between the two, and it
         holds on every call at every hour.`,
       jobs: [
         { t: 'Emergency leaks', d: 'Shut-off guidance from your approved script, then escalation.' },
-        { t: 'Drains and blockages', d: 'Qualified and booked with the details your tech needs.' },
+        { t: 'Drains and blockages', d: 'Qualified and written up with the details your tech needs.' },
         { t: 'Hot water tanks', d: 'Age, type, and symptoms captured before anyone drives out.' },
         { t: 'Renovation quotes', d: 'Captured as leads rather than lost to voicemail.' },
         { t: 'Trip and diagnostic fees', d: 'Quoted consistently, exactly as you approve them.' },
