@@ -11,6 +11,18 @@ artifacts/
 # Throwaway local scripts. One got swept into a commit by "git add -A".
 _scratch-*.mjs
 
+# The WIDE refusal capture, deliberately shot and deliberately never kept.
+# film-capture.mjs re-shoots c07b-refusal on every run, so it reappears as an
+# untracked file each time; its own `what` note says the frame's lower half is
+# the CASL block showing the shipped placeholder "123 Example Ave NW, Edmonton,
+# AB T5A 0A1" and directs the film to c07b-refusal-statement instead, which
+# carries a mustNotContain guard against exactly that text. Nothing here is real
+# client data (mailingAddress is NULL) — the point is that address-shaped text
+# must not reach the film, and the -statement- pair is what ships. Only these
+# two names: the -statement- captures ARE tracked and must stay so.
+creative/nevamis/captures/c07b-refusal-16x9.png
+creative/nevamis/captures/c07b-refusal-9x16.png
+
 # Credentials. THIS REPO IS PUBLIC — it is served by GitHub Pages at
 # nevamis.ca. It had no .env rule at all until 2026-08-06, while shipping an
 # .env.example that names TWILIO_AUTH_TOKEN, ELEVENLABS_API_KEY, CALCOM_API_KEY
