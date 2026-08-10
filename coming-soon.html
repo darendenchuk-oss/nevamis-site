@@ -1062,7 +1062,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           </div>
         </div>
         <div class="cta-row" style="margin-top:18px">
-          <button type="submit" class="btn btn-primary" data-evt="roadmap_form_submitted">Send it to Nevamis</button>
+          <!-- No data-evt here, the same reason book.html's callback submit has
+               none: a click is intent, not a captured lead. This button carried
+               one, and site.js fires a delegated handler for every [data-evt]
+               click, so roadmap_form_submitted was emitted TWICE per submission
+               - and once more for every click that reportValidity() rejected,
+               which submits nothing at all. It sits in the `captured` funnel
+               stage, whose own description calls it "the only stage that is
+               worth money". The JS below fires it once, on a real submission. -->
+          <button type="submit" class="btn btn-primary">Send it to Nevamis</button>
         </div>
         <p class="form-note">Submitting sends your answers straight to Nevamis. If it cannot send, you get a pre-filled email to Sales@nevamis.ca as a fallback. Submitting does not create a contract, guarantee access, or start a paid service.</p>
         <p class="form-note" id="ifStatus" role="status"></p>
