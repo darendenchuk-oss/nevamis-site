@@ -86,11 +86,11 @@ const F1 = () => `
 <!-- caller transcript: developing live caption, lower right, NOT a big centred box -->
 <div class="mid" style="left:1090px;top:742px;width:700px">
   <div class="mono" style="font-size:22px;color:${T.muted};letter-spacing:.2em;margin-bottom:16px">CALLER</div>
-  <div style="font-size:40px;line-height:1.34;color:${T.ink}">“Hi, we lost power at our shop.<br>
-    <span style="opacity:.5">We need someone today.</span><span style="color:${T.mint}">▌</span></div>
+  <div style="font-size:40px;line-height:1.34;color:${T.ink}">“Hi, I own a shop. Half our power<br>
+    <span style="opacity:.5">just went out, and we need someone today.</span><span style="color:${T.mint}">▌</span></div>
 </div>
 <div class="mono" style="position:absolute;left:96px;top:96px;font-size:23px;color:${T.muted};letter-spacing:.22em">
-  2:11 AM · TUESDAY</div>`
+  AFTER HOURS</div>`
 
 /* ---------- FRAME 2 — two signals meet at the capture point. Camera closer. ---------- */
 const F2 = () => `
@@ -109,7 +109,7 @@ const F2 = () => `
 <!-- transcript on two separate spatial planes -->
 <div class="mid" style="left:118px;top:772px;width:640px;transform:rotateY(11deg) scale(.93);opacity:.42">
   <div class="mono" style="font-size:21px;color:${T.muted};letter-spacing:.2em;margin-bottom:12px">CALLER</div>
-  <div style="font-size:33px;line-height:1.3">“…we lost power at our shop.”</div></div>
+  <div style="font-size:33px;line-height:1.3">“…half our power just went out.”</div></div>
 <div class="mid" style="right:118px;top:742px;width:740px;text-align:right;transform:rotateY(-7deg)">
   <div class="mono" style="font-size:22px;color:${T.mint};letter-spacing:.2em;margin-bottom:14px">NEVAMIS</div>
   <div style="font-size:42px;line-height:1.32;color:${T.ink}">“I can help. Is anything<br>sparking or unsafe?”</div></div>`
@@ -117,8 +117,8 @@ const F2 = () => `
 /* ---------- FRAME 3 — transformation caught mid-flight. Source left, structure right. ---------- */
 const F3 = () => {
   const rows = [
-    ['WHO', 'Northline Workshop', 0, 0, 1.00, 1],
-    ['WHAT', 'Power outage', 52, 196, .965, .93],
+    ['WHO', 'Shop owner', 0, 0, 1.00, 1],
+    ['WHAT', 'Partial power outage', 52, 196, .965, .93],
     ['URGENCY', 'Immediate', 104, 392, .93, .84],
     ['NEXT STEP', 'Call back now', 156, 588, .895, .74],
   ]
@@ -128,10 +128,9 @@ const F3 = () => {
 <div class="mid" style="left:96px;top:210px;width:660px;transform:rotateY(15deg);transform-origin:left center">
   <div class="mono" style="font-size:22px;color:${T.muted};letter-spacing:.2em;margin-bottom:26px">FROM THE CALL</div>
   <div style="font-size:37px;line-height:1.62;color:${T.muted}">
-    “Hi, this is <span class="hi">Northline Workshop</span>.<br>
-    We’ve had a <span class="hi">power outage</span> —<br>
-    half the shop is down.<br>
-    We need someone <span class="hi">today</span>.”</div>
+    “Hi, I own a <span class="hi">shop</span>.<br>
+    Half our <span class="hi">power</span> just went out,<br>
+    and we need someone <span class="hi">today</span>.”</div>
 </div>
 <!-- MIDGROUND: signal paths carrying phrases into structure -->
 <svg class="mid" style="left:0;top:0" width="1920" height="1080">
@@ -190,7 +189,7 @@ const F5 = () => `
 <div class="glow" style="left:1180px;top:150px;width:700px;height:640px;background:rgba(47,191,143,.20)"></div>
 <!-- BACKGROUND: where it came from — receding transcript + fields -->
 <div class="bg-far" style="left:70px;top:120px;width:820px;transform:rotateY(17deg);transform-origin:left center;opacity:.30">
-  <div style="font-size:32px;line-height:1.7;color:${T.muted}">“Hi, this is Northline Workshop.<br>We’ve had a power outage —<br>half the shop is down.”</div>
+  <div style="font-size:32px;line-height:1.7;color:${T.muted}">“Hi, I own a shop.<br>Half our power just went out,<br>and we need someone today.”</div>
 </div>
 <svg class="bg-far" width="1920" height="1080" style="opacity:.28">
   ${[250, 330, 410].map((y, i) => `<rect x="120" y="${y + 300}" width="620" height="2" fill="${T.em}" opacity="${.5 - i * .12}"/>`).join('')}
@@ -200,14 +199,14 @@ const F5 = () => `
   transform:rotateY(-9deg) rotateX(1.6deg);transform-origin:right center">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:38px">
     <span class="pill p-mint mono" style="font-size:24px"><i class="dot"></i>LEAD CAPTURED</span></div>
-  <div class="val" style="font-size:74px;line-height:1.06">Northline Workshop</div>
-  <div style="font-size:38px;color:${T.muted};margin-top:20px">Power outage — half the shop is down</div>
+  <div class="val" style="font-size:74px;line-height:1.06">Urgent service call</div>
+  <div style="font-size:38px;color:${T.muted};margin-top:20px">Shop owner · partial power outage</div>
   <div style="margin:34px 0"><span class="pill p-warm mono"><i class="dot"></i>IMMEDIATE</span></div>
   <div style="height:1px;background:rgba(159,240,206,.11);margin-bottom:30px"></div>
   <div class="lbl mono" style="font-size:22px">NEXT STEP</div>
   <div class="val" style="font-size:52px;margin-top:10px">Call back now</div>
   <div class="mono" style="font-size:21px;color:${T.muted};margin-top:34px;letter-spacing:.16em">
-    RECEIVED 2:11 AM &nbsp;·&nbsp; RECORDING 3:31</div>
+    SUMMARY READY &nbsp;·&nbsp; RECORDING AVAILABLE</div>
 </div>
 <!-- concentrated delivery signal into a real message preview -->
 <svg class="mid" style="left:0;top:0" width="1920" height="1080">
@@ -216,8 +215,8 @@ const F5 = () => `
 </svg>
 <div class="mid card" style="left:1330px;top:530px;width:500px;padding:32px 34px;border-color:rgba(159,240,206,.30)">
   <div class="mono" style="font-size:20px;color:${T.mint};letter-spacing:.2em;margin-bottom:16px">TEXTED TO YOU</div>
-  <div style="font-size:27px;line-height:1.45;color:${T.ink}">Northline Workshop — power outage, immediate. Call back now.</div>
-  <div class="mono" style="font-size:19px;color:${T.muted};margin-top:20px;letter-spacing:.14em">2:11 AM</div>
+  <div class="mono" style="font-size:22px;color:${T.ink};letter-spacing:.12em;margin-bottom:12px">URGENT SERVICE CALL</div>
+  <div style="font-size:27px;line-height:1.45;color:${T.ink}">Partial power outage. Call back now.</div>
 </div>
 <div class="mid bric" style="left:118px;bottom:88px;font-size:46px;font-weight:600;color:${T.ink}">
   The call you couldn’t answer. <span style="color:${T.mint}">Captured.</span></div>`
@@ -291,8 +290,8 @@ const F8 = () => `
 <!-- MIDDLE ZONE: the lead card, 88% of width -->
 <div class="card" style="position:absolute;left:64px;width:952px;top:706px;padding:52px 48px">
   <span class="pill p-mint mono" style="font-size:23px"><i class="dot"></i>LEAD CAPTURED</span>
-  <div class="val" style="font-size:70px;line-height:1.08;margin-top:34px">Northline<br>Workshop</div>
-  <div style="font-size:34px;color:${T.muted};margin-top:20px">Power outage</div>
+  <div class="val" style="font-size:70px;line-height:1.08;margin-top:34px">Urgent<br>service call</div>
+  <div style="font-size:34px;color:${T.muted};margin-top:20px">Shop owner · partial power outage</div>
   <div style="margin:30px 0"><span class="pill p-warm mono"><i class="dot"></i>IMMEDIATE</span></div>
   <div style="height:1px;background:rgba(159,240,206,.11);margin-bottom:26px"></div>
   <div class="lbl mono" style="font-size:22px">NEXT STEP</div>
@@ -336,8 +335,8 @@ await poster.setContent(`<style>${CSS}</style><div class="stage" style="width:10
   <div class="glow" style="left:520px;top:180px;width:620px;height:560px;background:rgba(47,191,143,.20)"></div>
   <div class="card" style="position:absolute;left:70px;width:800px;top:250px;padding:48px 46px;transform:rotateY(-7deg);transform-origin:right center">
     <span class="pill p-mint mono" style="font-size:22px"><i class="dot"></i>LEAD CAPTURED</span>
-    <div class="val" style="font-size:64px;line-height:1.08;margin-top:30px">Northline<br>Workshop</div>
-    <div style="font-size:32px;color:${T.muted};margin-top:18px">Power outage — half the shop is down</div>
+    <div class="val" style="font-size:64px;line-height:1.08;margin-top:30px">Urgent<br>service call</div>
+    <div style="font-size:32px;color:${T.muted};margin-top:18px">Shop owner · partial power outage</div>
     <div style="margin:28px 0"><span class="pill p-warm mono"><i class="dot"></i>IMMEDIATE</span></div>
     <div style="height:1px;background:rgba(159,240,206,.11);margin-bottom:24px"></div>
     <div class="lbl mono" style="font-size:21px">NEXT STEP</div>

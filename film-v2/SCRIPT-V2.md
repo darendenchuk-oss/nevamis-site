@@ -5,7 +5,7 @@ only inside the demonstrated call. No line-by-line narrator rotation.
 
 | Time | Voice | Line | On screen |
 |---|---|---|---|
-| 0:00–0:04 | CALLER | "Hi, we lost power at our shop. We need someone today." | `● INCOMING CALL` · `02:11 · TUESDAY` |
+| 0:00–0:04 | CALLER | "Hi, we lost power at our shop. We need someone today." | `● INCOMING CALL` · `after hours · TUESDAY` |
 | 0:04–0:07 | AGENT | "I can help. Is anything sparking or unsafe?" | `● NEVAMIS ANSWERED` |
 | 0:07–0:12 | NARRATOR | "On the tools, at dinner, asleep — the line still gets answered." | `ANSWERED 24/7` |
 | 0:12–0:18 | NARRATOR | "NEVAMIS qualifies the caller, takes the job down, and texts you the details in seconds." | `WHO` `WHAT` `URGENCY` `NEXT STEP` |

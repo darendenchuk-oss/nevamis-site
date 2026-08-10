@@ -48,7 +48,7 @@ Easing `cubic-bezier(.16,1,.3,1)`; exits `cubic-bezier(.7,0,.84,0)`.
 
 | Frame | Sees | Understands | Feels | Proves | Silent? |
 |---|---|---|---|---|---|
-| 01 | A signal travelling in from off-frame at 2:11 AM toward a mark | A call is arriving, at night, and something waits to catch it | Something is at stake | problem - no claim | YES |
+| 01 | A signal travelling in from off-frame at after hours toward a mark | A call is arriving, at night, and something waits to catch it | Something is at stake | problem - no claim | YES |
 | 02 | Two waves meeting at the mark, ANSWERED 24/7 on the capture point | It was answered, calmly | Relief | Answers 24/7 - **LIVE** | YES |
 | 03 | Underlined phrases with paths flying into labelled fields | The call is being *understood*, not recorded | Competence | Captures who / what / urgency / next step - **LIVE** | YES |
 | 04 | One line through, one line stopped and bent away | It follows rules and hands judgment back | Trust | Will not quote - **LIVE, provable** | YES |

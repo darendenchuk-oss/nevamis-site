@@ -48,6 +48,6 @@ moves. You still decide."` — the previously locked line, already cleared.
 making the object of the sentence something the product genuinely protects.
 
 ## Secondary notes
-- **WHO shows a business name** ("Northline Workshop"). `contact_name` is *"Caller's name as given"* — a caller may give a business name, so this is legitimate, but the label reads as person-or-business. Acceptable; flagged for awareness.
+- **WHO shows a business name** ("Shop owner"). `contact_name` is *"Caller's name as given"* — a caller may give a business name, so this is legitimate, but the label reads as person-or-business. Acceptable; flagged for awareness.
 - The in-call agent line *"Is anything sparking or unsafe?"* is **illustrative**. Before it is voiced at Gate D it must be confirmed against the live agent prompt, or softened to a question the prompt actually asks.
 - Narration is tight against 40s (96 + 21 words). Measure at Gate B; do not pre-emptively cut copy.

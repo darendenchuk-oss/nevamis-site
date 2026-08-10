@@ -84,7 +84,7 @@ const F1 = () => `<div class="bg">
     <div class="tsline"><div class="who mono" style="color:${T.muted}">CALLER</div>
       <div class="said">“Hi, we lost power at our shop.<br>We need someone today.”</div></div>
   </div>
-  <div class="caption mono">02:11 &nbsp;·&nbsp; TUESDAY</div>`
+  <div class="caption mono">after hours &nbsp;·&nbsp; TUESDAY</div>`
 
 const F2 = () => `<div class="bg"><svg width="1920" height="1080">${SONAR(960, 520, 5, 260, 200, 0.4)}</svg></div>
   <div style="position:absolute;left:0;right:0;top:150px;text-align:center">
@@ -109,8 +109,8 @@ const F3 = () => `<div class="bg"><svg width="1920" height="1080">${SONAR(960, 5
   <div class="panel" style="left:170px;right:170px;top:150px;bottom:190px;padding:74px 86px">
     <div class="mono" style="font-size:30px;color:${T.mint};margin-bottom:56px">● &nbsp;CAPTURED FROM THE CALL</div>
     <div class="grid4">
-      <div><div class="lbl mono">WHO</div><div class="val" style="font-size:76px;margin-top:14px">Northline Workshop</div></div>
-      <div><div class="lbl mono">WHAT</div><div class="val" style="font-size:76px;margin-top:14px">Power outage</div></div>
+      <div><div class="lbl mono">WHO</div><div class="val" style="font-size:76px;margin-top:14px">Shop owner</div></div>
+      <div><div class="lbl mono">WHAT</div><div class="val" style="font-size:76px;margin-top:14px">Partial partial power outage</div></div>
       <div><div class="lbl mono">URGENCY</div><div style="margin-top:20px"><span class="pill pill-warm mono"><i class="dot"></i>IMMEDIATE</span></div></div>
       <div><div class="lbl mono">NEXT STEP</div><div class="val" style="font-size:76px;margin-top:14px">Call back now</div></div>
     </div>
@@ -140,9 +140,9 @@ const F5 = () => `<div class="bg"><svg width="1920" height="1080">${SONAR(1500, 
   <div class="panel" style="left:150px;width:1180px;top:170px;bottom:200px;padding:66px 74px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:46px">
       <span class="mono" style="font-size:30px;color:${T.mint}">● &nbsp;LEAD CAPTURED</span>
-      <span class="mono" style="font-size:26px;color:${T.muted}">02:11 · 3:31</span></div>
-    <div class="val" style="font-size:82px">Northline Workshop</div>
-    <div style="font-size:42px;color:${T.muted};margin-top:22px">Power outage — half the shop has no power</div>
+      <span class="mono" style="font-size:26px;color:${T.muted}">SUMMARY READY · RECORDING AVAILABLE</span></div>
+    <div class="val" style="font-size:82px">Shop owner</div>
+    <div style="font-size:42px;color:${T.muted};margin-top:22px">Partial partial power outage — half the shop has no power</div>
     <div style="margin:44px 0"><span class="pill pill-warm mono"><i class="dot"></i>IMMEDIATE</span></div>
     <div style="height:1px;background:rgba(159,240,206,.10);margin-bottom:40px"></div>
     <div class="lbl mono">NEXT STEP</div>
@@ -190,8 +190,8 @@ const VERT = () => `<div class="bg"><svg width="1080" height="1920">${SONAR(540,
   <div style="position:absolute;left:0;right:0;top:210px;text-align:center">
     <span class="mono" style="font-size:34px;color:${T.mint}">● &nbsp;LEAD CAPTURED</span></div>
   <div class="panel" style="left:70px;right:70px;top:320px;padding:64px 58px">
-    <div class="val" style="font-size:76px;line-height:1.15">Northline Workshop</div>
-    <div style="font-size:40px;color:${T.muted};margin-top:26px">Power outage</div>
+    <div class="val" style="font-size:76px;line-height:1.15">Shop owner</div>
+    <div style="font-size:40px;color:${T.muted};margin-top:26px">Partial partial power outage</div>
     <div style="margin:44px 0"><span class="pill pill-warm mono"><i class="dot"></i>IMMEDIATE</span></div>
     <div style="height:1px;background:rgba(159,240,206,.10);margin-bottom:38px"></div>
     <div class="lbl mono" style="font-size:30px">NEXT STEP</div>

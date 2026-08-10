@@ -69,7 +69,7 @@ Higgsfield MCP and the ElevenLabs API were **available and not called**.
   - `video/references/dramaturgy.md` - the **scene formula** (desire / obstacle /
     space geometry / controlled gaze) drove the one-focal-point-per-frame rule, and
     the **three-detail rule** (environmental pressure + micro-action + motif) is why
-    frame 01 carries `2:11 AM - TUESDAY` as pressure rather than decoration.
+    frame 01 carries `after hours - TUESDAY` as pressure rather than decoration.
   - `video/references/camera-lighting-vocabulary.md` - framing, light direction and
     quality; its **transition vocabulary** (motion relay, match cut, occlusion mask)
     is the basis of the 1-2-3-4-5-6-7 transformation plan in `GATE-A2.md`.

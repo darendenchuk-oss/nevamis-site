@@ -11,7 +11,7 @@ Journey: **RING → CONVERSATION → WHO/WHAT/URGENCY → RULES CHECK → LEAD C
 
 ### 01 · Incoming urgent call — `01-incoming-call.png`
 - **Understands in 5s:** a real call is arriving, right now, and it is urgent.
-- **Evidence:** live mint waveform at cinematic scale; `● INCOMING CALL`; the caller's own words at 44px; `02:11 · TUESDAY` — the middle of the night.
+- **Evidence:** live mint waveform at cinematic scale; `● INCOMING CALL`; the caller's own words at 44px; `after hours · TUESDAY` — the middle of the night.
 - **Claim:** calls arrive when nobody is there to answer. *(No product claim.)*
 - **State:** n/a — problem statement.
 - **Without narration:** ✅ the timestamp does the work.
