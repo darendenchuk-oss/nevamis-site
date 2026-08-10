@@ -262,3 +262,56 @@ returning confirmation signal rather than a man at a dinner table.
 The still-first, manifest-before-spend and preflight-with-get_cost disciplines
 carry over unchanged. They are why the rejected direction cost 96 hundredths of
 a credit instead of several hundred.
+
+---
+
+## D9 — Pronunciation is a measured mechanism, not a spelling note (2026-08-10)
+
+**Target: NEV-uh-miss /ˈnɛvəmɪs/.** The earlier board recorded neh-VAH-miss.
+That was wrong and is corrected. **Internal production instruction only — never
+shown to the audience** in any form, including captions, subtitles, alt text or
+video descriptions.
+
+**The mechanism is model-dependent, and the obvious choice is destructive.**
+Measured over five fixed seeds per candidate, using character-level timestamps
+for stress and `scribe_v1` transcription to confirm the word was spoken:
+
+| Model | plain | IPA phoneme rule | alias `Nevuhmiss` |
+|---|---|---|---|
+| `eleven_multilingual_v2` (film) | wrong stress 3/5 | **word missing 5/5** | wrong stress 0/5 |
+| `eleven_flash_v2` (live agent) | wrong stress 3/5 | spoken 5/5, correct | 1/5 dropped |
+
+On the film master model an IPA `<phoneme>` rule does not adjust pronunciation —
+it deletes the word. Unverified, the brand name would have been absent from the
+finished film.
+
+**Film locks the alias** `KOEuSZPGJDk3gmxvcDH5` / `WIWATkk90AdVxkw4qUBH`,
+`NEVAMIS → Nevuhmiss`, ratios 0.17–0.25. **No hyphens in an alias** — hyphens
+are spoken as pauses, which caused the 2026-07-23 rollback.
+
+Plain text is not a neutral default: it mis-stresses in 3 takes out of 5 on both
+models.
+
+**Two records corrected while verifying this.** The live agent has **no**
+pronunciation dictionary attached (`conversation_config.tts
+.pronunciation_dictionary_locators` is `[]`), contradicting the memory note that
+a live IPA rule was in place. And a first attempt at this measurement used a
+dictionary whose IPA had been mojibaked to `'n?v?m?s` by the Windows shell —
+non-ASCII in a `curl -d` payload does not survive. Build dictionaries through
+Node `fetch`, then read the PLS file back and compare bytes before trusting any
+result derived from it.
+
+## D10 — C09 cannot say "the appointment is confirmed" (2026-08-10)
+
+The requested C09 line asserts a booking. `agent-draft.ts:235` provisions every
+agent with `builtInToolsJson: ["end_call"]`, and `entitlement-claims.ts:18-22`
+explicitly refuses the claim "Books the job into your calendar while they are
+still on the line". NEVAMIS cannot confirm an appointment.
+
+The *intent* — routine work completes without the owner, only judgment returns —
+is fully true of what ships. C09 therefore reads **"The job is captured.
+Anything needing judgment comes back to you."**, keeping the requested second
+sentence verbatim and moving the mint lock onto `JOB CAPTURED`.
+
+**Flagged for the founder, not resolved unilaterally**, because it overrides a
+directly requested line.
