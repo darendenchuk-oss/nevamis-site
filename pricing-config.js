@@ -210,7 +210,7 @@
         ].concat(EVERY_PLAN)
       },
       {
-        id: "growth", name: "Growth", recommended: true,
+        id: "growth", name: "Growth",
         monthly: 500, includedMinutes: 600,
         callRange: "200 to 300 typical calls", overage: 0.90,
         bestFor: "Growing businesses putting a meaningful share of their inbound calls through it, not just the after-hours ones.",
@@ -221,10 +221,23 @@
         ].concat(EVERY_PLAN)
       },
       {
-        id: "pro", name: "Pro",
+        /* THE RECOMMENDED PLAN MOVED HERE ON 2026-08-11, and it is not a
+           badge change. Pro is the Revenue OS tier: the engagement where we
+           keep looking for what the business is losing rather than only
+           answering its phone. Core and Growth remain real offers for an
+           owner who wants the line covered and nothing else, which is why
+           they were not deleted.
+
+           THE PHONE IS A SECOND SURFACE. docs/agent-prompts/demo.md in the
+           engine said "Growth, the recommended plan" out loud, and no commit
+           changes what a caller hears. Moving this flag without patching the
+           live agent would put the site and the phone in contradiction — the
+           site's own consistency guard reads that file for exactly this
+           reason. */
+        id: "pro", name: "Pro", recommended: true,
         monthly: 1000, includedMinutes: 1400,
         callRange: "470 to 700 typical calls", overage: 0.75,
-        bestFor: "High-volume businesses that would run past the Growth minutes every month, and want the lowest rate on the ones past them.",
+        bestFor: "Owners who want the whole loop: we keep looking for where revenue is leaking, estimate what each leak is worth, build the fix, and measure whether it held. The phone is the first system, not the only one.",
         features: [
           "One business phone line",
           "Two call reviews each month, and tuning from what the calls actually show",
