@@ -281,7 +281,18 @@ for (const p of contentPages) {
         const twoNumber = /first month\s+C\$|then\s+C\$[\d,]+\s*\/\s*month/i;
         if (twoNumber.test(body)) err('pricing fallback "' + name + '": describes the price as a first-month amount and a recurring amount. '
           + 'That offer is retired. One price, charged the day they subscribe and every month after: "' + name + ' — C$' + plan.monthly.toLocaleString("en-CA") + '/month".');
+        /* INVERTED 2026-08-15. This required the fallback to STATE the config
+           price, which is the published-pricing model written as a contract.
+           NEVAMIS is priced after a scan, so the fallback must now carry no
+           figure at all and must say why — and the guard still fails, in the
+           other direction, if a number comes back. The crawler-visible
+           fallback is exactly where a stale price would survive unnoticed. */
+        if (cfg.publishedPricing) {
         if (!monthly || num(monthly[1]) !== plan.monthly) err('pricing fallback "' + name + '": monthly price differs from config (' + plan.monthly + '); expected "C$' + plan.monthly.toLocaleString("en-CA") + '/month"');
+        } else {
+          if (monthly) err('pricing fallback "' + name + '": still states C$' + monthly[1] + '/month. Pricing is quoted after a scan; the fallback must carry no figure.');
+          if (!/priced after your scan/i.test(body)) err('pricing fallback "' + name + '": does not say the price is quoted after a scan, so a reader with no JavaScript is told nothing about how it is priced.');
+        }
         if (!mins || num(mins[1]) !== plan.includedMinutes) err('pricing fallback "' + name + '": included minutes differ from config (' + plan.includedMinutes + ")");
         if (!over || Number(over[1]) !== plan.overage) err('pricing fallback "' + name + '": overage differs from config (' + plan.overage + ")");
       }
@@ -410,8 +421,14 @@ for (const p of contentPages) {
        against it. If the commercial model changes, this line changes with the
        decision, not with the page. */
     const PLAN_TERMS = "No setup fee, no activation fee, and no minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.";
+    /* INVERTED with the model, 2026-08-15. The static line a prospect reads
+       with scripts blocked must NOT be a ladder price: the proposal renders a
+       real quote from ?quote=, and its no-JavaScript fallback has to say where
+       the number comes from rather than print somebody else's. */
     eq("proposal.html", "planMonthly", flat(textOf(pr, "planMonthly")),
-      money(dflt.monthly) + "/month, charged the day you start and every month after.");
+      cfg.publishedPricing
+        ? money(dflt.monthly) + "/month, charged the day you start and every month after."
+        : "Your monthly amount comes from your scan, then it is charged the day you start and every month after.");
     eq("proposal.html", "planTerms", flat(textOf(pr, "planTerms")), PLAN_TERMS);
     eq("proposal.html", "planName", flat(textOf(pr, "planName")), dflt.name.toUpperCase());
     eq("proposal.html", "planIncludes", flat(textOf(pr, "planIncludes")),

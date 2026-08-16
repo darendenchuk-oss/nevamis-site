@@ -779,7 +779,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <h2>Recommended plan</h2>
     <div class="plan-box">
       <p class="mono" style="color:var(--mint);font-size:11.5px;letter-spacing:.14em" id="planName">PRO</p>
-      <p class="amount" id="planPrice">C$500<span>/month</span></p>
+      <p class="amount" id="planPrice">Priced after your scan</p>
       <!-- Real text, not an empty span. Everything in this box is overwritten
            from pricing-config.js on load; with scripts blocked this is what the
            prospect reads, and a blank line under a monthly price is where he
@@ -789,7 +789,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            phone was 0.060 of this page's 0.060 CLS: the whole of it, in one
            shift, on the one document written to close a sale. -->
       <p class="plan-line" id="planIncludes">1400 included AI minutes per month, about 470 to 700 typical calls. Additional minutes C$0.75 each.</p>
-      <p class="plan-line" id="planMonthly">C$1,000/month, charged the day you start and every month after.</p>
+      <p class="plan-line" id="planMonthly">Your monthly amount comes from your scan, then it is charged the day you start and every month after.</p>
       <p class="plan-line" id="planTerms">No setup fee, no activation fee, and no minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.</p>
       <p class="plan-line" id="planAnnual"></p>
       <ul class="ticks" id="planFeatures">
@@ -920,10 +920,25 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     {
       plan = plan || P.plans[1];
       set("planName", plan.name.toUpperCase() + (plan.recommended ? " · " + (P.recommendedLabel || "RECOMMENDED") : ""));
+      /* THE QUOTED AMOUNT, or nothing. Priced after a scan since 2026-08-15:
+         a proposal exists only once a scan has run, so ?quote= carries the real
+         figure for this business. With no quote supplied the box says so, and it
+         must NEVER fall back to plan.monthly, because that is the reference a
+         quote is reasoned from and printing it on a named prospect's document
+         is how a stranger's number gets quoted as his. */
+      var quoted = Number(new URLSearchParams(location.search).get("quote") || 0);
       var priceEl = document.getElementById("planPrice");
-      priceEl.textContent = (plan.startingAt ? "from " : "") + money(plan.monthly);
-      var per = document.createElement("span"); per.textContent = "/month";
-      priceEl.appendChild(per);
+      if (quoted > 0) {
+        priceEl.textContent = money(quoted);
+        var per = document.createElement("span"); per.textContent = "/month";
+        priceEl.appendChild(per);
+      } else if (P.publishedPricing) {
+        priceEl.textContent = (plan.startingAt ? "from " : "") + money(plan.monthly);
+        var per2 = document.createElement("span"); per2.textContent = "/month";
+        priceEl.appendChild(per2);
+      } else {
+        priceEl.textContent = (P.pricingBasis && P.pricingBasis.label) || "Priced after your scan";
+      }
       set("planIncludes", plan.includedMinutes + " included AI minutes per month, about "
         + plan.callRange + ". Additional minutes " + money(plan.overage) + " each.");
 
@@ -940,7 +955,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          is one figure. The terms line beneath it says what is NOT charged,
          because on a document a prospect keeps, the absence of a setup fee
          has to be written down or he supplies his own guess. */
-      set("planMonthly", money(plan.monthly) + "/month, charged the day you start and every month after.");
+      set("planMonthly", quoted > 0
+        ? money(quoted) + "/month, charged the day you start and every month after."
+        : (P.publishedPricing
+          ? money(plan.monthly) + "/month, charged the day you start and every month after."
+          : "Your monthly amount comes from your scan, then it is charged the day you start and every month after."));
       set("planTerms", "No setup fee, no activation fee, and no minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.");
 
       if (P.annual && P.annual.active && plan.annual) {

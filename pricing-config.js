@@ -110,6 +110,37 @@
        while this is false, and the engine's checkout refuses independently:
        neither relies on the other. */
     sellable: false,
+    /* WHETHER A PLAN PRICE MAY BE SHOWN TO A STRANGER.
+
+       FALSE since 2026-08-15: NEVAMIS is priced after a scan. What a business
+       pays is quoted from what the scan finds in that business, and it moves
+       as services are added — so a number on this page is not their price, it
+       is somebody else's.
+
+       The `monthly` figures below STAY, and are not a lie waiting to happen:
+       they are the internal reference a quote is reasoned from, they set the
+       shape of each tier, and the engine's canonical.ts documents them the
+       same way. A price with no reference is a price with no rationale. What
+       changed is who may see one.
+
+       Mirrors CANONICAL.pricing.publishedPricing in nevamis-engine, and the
+       engine's checkPricing enforces it across this repo: while it is false,
+       the guard stops asking whether a published figure is RIGHT and starts
+       asking why a published figure exists at all. Flip both together or the
+       cross-repo check fails, which is the point of it. */
+    publishedPricing: false,
+    /* What replaces the number, in the words the page uses. Written here so
+       the pricing page, the plan cards, the JSON-LD and the proposal cannot
+       each invent their own way of saying it — the failure this file exists
+       to prevent. */
+    pricingBasis: {
+      label: "Priced after your scan",
+      short: "Your price comes from your scan.",
+      why: "What this is worth to you depends on what we find: how many calls you are missing, "
+        + "what a job is worth to you, and which parts of the follow-up are costing you time. "
+        + "We scan first, show you the evidence, and then quote.",
+      cta: "Start with a scan",
+    },
     /* The badge on the recommended plan. It read "MOST COMMON" on the pricing
        page, the homepage, the staging twin, and the proposal document sent to a
        named prospect. That is a statistic about a client base, and there are no

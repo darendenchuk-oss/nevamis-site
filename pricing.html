@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pricing | Nevamis | Plans for Edmonton trades</title>
-<meta name="description" content="AI receptionist plans in Canadian dollars. Core $250/month, Growth $500/month, Pro $1,000/month. One price, charged the day you start. No setup fee, no contract.">
+<meta name="description" content="Answering plans for Canadian businesses, priced after a scan of your own setup. One monthly amount, no setup fee, no contract. Hear the line first: (587) 413-0035.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://nevamis.ca/pricing.html">
 <meta property="og:title" content="Pricing | Nevamis">
-<meta property="og:description" content="AI receptionist plans in Canadian dollars. Core $250/month, Growth $500/month, Pro $1,000/month. One price, charged the day you start. No setup fee, no contract.">
+<meta property="og:description" content="Answering plans for Canadian businesses, priced after a scan of your own setup. One monthly amount, no setup fee, no contract. Hear the line first: (587) 413-0035.">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -775,7 +775,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     "@id": "https://nevamis.ca/pricing.html",
     "url": "https://nevamis.ca/pricing.html",
     "name": "Pricing | Nevamis | Plans for Edmonton trades",
-    "description": "AI receptionist plans in Canadian dollars. Core $250/month, Growth $500/month, Pro $1,000/month. One price, charged the day you start. No setup fee, no contract.",
+    "description": "Answering plans for Canadian businesses, priced after a scan of your own setup. One monthly amount, no setup fee, no contract. Hear the line first: (587) 413-0035.",
     "isPartOf": {
       "@type": "WebSite",
       "name": "Nevamis",
@@ -868,17 +868,17 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            reappears here, whatever the figures are. -->
       <div class="plans" id="plans"><div id="plansFallback" style="grid-column:1/-1">
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
-          <h3 style="font-size:18px">Core &mdash; C$250/month</h3>
+          <h3 style="font-size:18px">Core &mdash; priced after your scan</h3>
           <p style="color:var(--muted);font-size:14.5px">250 included AI minutes · C$1.10 per extra minute. Evenings, weekends, and overflow coverage.</p>
           <p style="margin-top:10px"><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
-          <h3 style="font-size:18px">Growth &mdash; C$500/month (recommended)</h3>
+          <h3 style="font-size:18px">Growth &mdash; priced after your scan (recommended)</h3>
           <p style="color:var(--muted);font-size:14.5px">600 included AI minutes · C$0.90 per extra minute. For putting a meaningful share of your inbound calls through it, not just the after-hours ones.</p>
           <p style="margin-top:10px"><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
-          <h3 style="font-size:18px">Pro &mdash; C$1,000/month</h3>
+          <h3 style="font-size:18px">Pro &mdash; priced after your scan</h3>
           <p style="color:var(--muted);font-size:14.5px">1,400 included AI minutes · C$0.75 per extra minute. For higher volume, at the lowest rate on the minutes past what is included.</p>
           <p style="margin-top:10px"><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
         </div>
@@ -1019,8 +1019,23 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        and now the price itself with what it buys.
        There is no `pl.setup` to read any more, deliberately: the defect is
        unrepresentable rather than forbidden. */
-    h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
-    h += '<div class="setup">Charged the day you start and every month after. No setup fee, no minimum term.</div>';
+    /* PRICED AFTER A SCAN, 2026-08-15. The figure is not shown while
+       P.publishedPricing is false, because for any given business it is not
+       their price: it is the reference a quote is reasoned from.
+
+       What takes its place is deliberately NOT "contact us for pricing", which
+       is the weakest sentence in B2B: it asks for a call and offers nothing.
+       The tier still shows what it IS, with its included minutes right there
+       on the next line, and the price line carries the reason the number is
+       missing. The scan is the offer, not the toll gate in front of one. */
+    if (P.publishedPricing) {
+      h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
+      h += '<div class="setup">Charged the day you start and every month after. No setup fee, no minimum term.</div>';
+    } else {
+      h += '<div class="price price-quoted">' + (P.pricingBasis && P.pricingBasis.label || "Priced after your scan") + "</div>";
+      h += '<div class="setup">' + (P.pricingBasis && P.pricingBasis.short || "Your price comes from your scan.")
+        + " One monthly amount, no setup fee, no minimum term.</div>";
+    }
     h += '<div class="usage">' + grp(pl.includedMinutes) + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
     h += "<ul>" + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
     h += '<div class="best"><strong>Best for:</strong> <span></span></div>';
@@ -1126,20 +1141,25 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            "setup" with no noun of its own, so the sentence read as naming an
            activation charge. Both denials are now written in full rather than
            shared between one "fee". */
-        "description": "C$" + grp(pl.monthly)
-          + "/month, charged the day you start and every month after, with no setup fee and no activation fee. " + pl.bestFor,
-        "price": String(pl.monthly),
+        "description": (P.publishedPricing
+          ? "C$" + grp(pl.monthly) + "/month, charged the day you start and every month after, with no setup fee and no activation fee. "
+          : "Priced after a scan of your business, then one monthly amount with no setup fee and no activation fee. ") + pl.bestFor,
+        /* NO price and NO priceSpecification.price while pricing is
+           unpublished. schema.org lets an Offer say what it INCLUDES without
+           saying what it costs, which is exactly the true shape here. A number
+           emitted only to structured data would be a price published to
+           machines and hidden from people, which is worse than either. */
         "priceCurrency": P.currency,
-        "priceSpecification": {
+        "priceSpecification": Object.assign({
           "@type": "UnitPriceSpecification",
-          "price": String(pl.monthly),
           "priceCurrency": P.currency,
           "unitText": "MONTH",
+        }, P.publishedPricing ? { "price": String(pl.monthly) } : {}, {
           "referenceQuantity": {
             "@type": "QuantitativeValue", "value": pl.includedMinutes,
             "unitText": "included AI minutes per month"
           }
-        },
+        }),
         "availability": "https://schema.org/InStock",
         "url": "https://nevamis.ca/pricing.html",
         "seller": { "@id": "https://nevamis.ca/#organization" }
@@ -1158,8 +1178,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       "offers": {
         "@type": "AggregateOffer",
         "priceCurrency": P.currency,
-        "lowPrice": String(P.plans[0].monthly),
-        "highPrice": String(P.plans[P.plans.length - 1].monthly),
+        /* lowPrice/highPrice omitted while pricing is unpublished, for the same
+           reason as the per-offer price: a range is still a published price,
+           and a range is the specific thing a business would hold us to. */
+        ...(P.publishedPricing ? {
+          "lowPrice": String(P.plans[0].monthly),
+          "highPrice": String(P.plans[P.plans.length - 1].monthly),
+        } : {}),
         "offerCount": offers.length,
         "offers": offers
       }
