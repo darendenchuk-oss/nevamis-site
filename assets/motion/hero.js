@@ -487,6 +487,10 @@ export function initHero() {
   let pingCall = null;
   let replayTl = null;
   let stageVisible = true;
+  /* Has the stage EVER been on screen? You cannot scroll away from
+     something you have not seen, and the skip below depends on the
+     difference. */
+  let stageHasBeenSeen = false;
   let motionHalted = false;
 
   // The site-wide "pause motion" toggle (site.js) calls these so the hero
@@ -611,14 +615,25 @@ export function initHero() {
   // ---------------------------------------------------------------
   const io = new IntersectionObserver(([entry]) => {
     stageVisible = entry.isIntersecting;
+    if (stageVisible) stageHasBeenSeen = true;
     if (idle) idle[stageVisible ? 'play' : 'pause']();
     if (replayTl && replayTl.isActive()) replayTl[stageVisible ? 'play' : 'pause']();
-    if (!stageVisible && tl.progress() < 1 && !tl.paused()) {
+    if (stageHasBeenSeen && !stageVisible && tl.progress() < 1 && !tl.paused()) {
       // The visitor scrolled away mid-intro. Never pause here: pausing would
       // freeze the wake overlay mid-fade and leave a dark veil over the page.
       // Scrolling past the hero means "skip the intro" — finish instantly.
       // suppressEvents=true: a skip jumps state, it must never fire the
       // callbacks it passes over.
+      //
+      // stageHasBeenSeen GUARDS THE WHOLE THING. An IntersectionObserver
+      // always delivers one callback describing the CURRENT state, before
+      // any scrolling has happened. On a 375x812 phone the stage starts at
+      // y=857 - below a 812px fold - so that opening callback said "not
+      // intersecting", this branch read it as "scrolled away", and the film
+      // was skipped to its final frame before the visitor had touched
+      // anything. The whole cinematic hero never played on the commonest
+      // small phone, and it looked like correct behaviour because the
+      // finished state is what the film ends on anyway.
       tl.progress(1, true);
     }
   }, { threshold: 0.02 });
