@@ -1622,25 +1622,25 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       </div>
       <div class="ind-grid">
         <div class="ind-card reveal" data-tilt>
-          <div class="art" aria-hidden="true" style="background-image:url(assets/industries/electrical.webp)"></div>
+          <div class="art" aria-hidden="true" data-bg="assets/industries/electrical.webp"></div>
           <span class="mono">ELECTRICAL</span>
           <h3>Electricians</h3>
           <p>Emergency and service calls answered while the crew is on the tools. Panel upgrade or dead outlets, the job is on your phone before the caller tries the next name.</p>
         </div>
         <div class="ind-card reveal" data-tilt>
-          <div class="art" aria-hidden="true" style="background-image:url(assets/industries/hvac.webp)"></div>
+          <div class="art" aria-hidden="true" data-bg="assets/industries/hvac.webp"></div>
           <span class="mono">HVAC · PLUMBING</span>
           <h3>HVAC and plumbing</h3>
           <p>A furnace out at 11 PM in January does not wait for opening hours. Capture urgent after-hours demand before the caller reaches a competitor.</p>
         </div>
         <div class="ind-card reveal" data-tilt>
-          <div class="art" aria-hidden="true" style="background-image:url(assets/industries/restoration.webp)"></div>
+          <div class="art" aria-hidden="true" data-bg="assets/industries/restoration.webp"></div>
           <span class="mono">RESTORATION</span>
           <h3>Restoration and property services</h3>
           <p>Flood and damage calls arrive stressed and urgent. Gather incident details calmly, route priority calls, and book the assessment.</p>
         </div>
         <div class="ind-card reveal" data-tilt>
-          <div class="art" aria-hidden="true" style="background-image:url(assets/industries/automotive.webp)"></div>
+          <div class="art" aria-hidden="true" data-bg="assets/industries/automotive.webp"></div>
           <span class="mono">AUTOMOTIVE · APPOINTMENTS</span>
           <h3>Automotive and appointment businesses</h3>
           <p>Answer the questions you answer forty times a week and book available slots, without pulling anyone off the floor.</p>
@@ -2062,12 +2062,48 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     if (w && !window.__heroTL) { w.style.opacity = '0'; w.style.visibility = 'hidden'; }
   }, 2500);
 </script>
+<!-- The four industry photographs are CSS backgrounds on elements that sit
+     ~1,600 lines down the page, and a CSS background has no loading="lazy":
+     the browser fetched all four on first load, 112KB competing for Slow-4G
+     bandwidth with the 75KB display font that gates the headline. They are
+     decorative (aria-hidden) and their box is a fixed 86px, so deferring
+     them cannot shift layout.
+
+     noscript keeps them for a reader with JS off, because "decorative" is a
+     reason to defer an image, not a reason to make it require JavaScript. -->
+<noscript><style>
+.art[data-bg="assets/industries/electrical.webp"]{background-image:url(assets/industries/electrical.webp)}
+.art[data-bg="assets/industries/hvac.webp"]{background-image:url(assets/industries/hvac.webp)}
+.art[data-bg="assets/industries/restoration.webp"]{background-image:url(assets/industries/restoration.webp)}
+.art[data-bg="assets/industries/automotive.webp"]{background-image:url(assets/industries/automotive.webp)}
+</style></noscript>
 <script src="pricing-config.js"></script>
 <script src="assets/vendor/gsap.min.js" defer></script>
 <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
 <script src="assets/vendor/MotionPathPlugin.min.js" defer></script>
 <script src="site.js" defer></script>
 <script src="motion.js" defer></script>
+<script>
+/* 200px of lead time: the image starts arriving before the card does, so
+   nothing appears to pop in, and it still never loads for a visitor who
+   does not scroll that far. */
+(function(){
+  var art = document.querySelectorAll(".art[data-bg]");
+  if (!art.length) return;
+  if (!("IntersectionObserver" in window)) {
+    art.forEach(function(el){ el.style.backgroundImage = "url(" + el.dataset.bg + ")"; });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (!e.isIntersecting) return;
+      e.target.style.backgroundImage = "url(" + e.target.dataset.bg + ")";
+      io.unobserve(e.target);
+    });
+  }, { rootMargin: "200px" });
+  art.forEach(function(el){ io.observe(el); });
+})();
+</script>
 <script type="module" src="assets/motion/main.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
