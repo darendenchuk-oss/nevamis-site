@@ -778,30 +778,30 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   <section>
     <h2>Recommended plan</h2>
     <div class="plan-box">
-      <p class="mono" style="color:var(--mint);font-size:11.5px;letter-spacing:.14em" id="planName">PRO</p>
-      <p class="amount" id="planPrice">Priced after your scan</p>
+      <p class="mono" style="color:var(--mint);font-size:11.5px;letter-spacing:.14em" id="planName">GROW</p>
+      <p class="amount" id="planPrice">C$750<span>/month</span></p>
       <!-- Real text, not an empty span. Everything in this box is overwritten
            from pricing-config.js on load; with scripts blocked this is what the
            prospect reads, and a blank line under a monthly price is where he
-           supplies his own guess about a setup fee.
+           supplies his own guess about what starting costs.
            The same rule now covers what is included and the feature list. They
            shipped empty, and filling them 1.9s after first paint on a throttled
            phone was 0.060 of this page's 0.060 CLS: the whole of it, in one
            shift, on the one document written to close a sale. -->
-      <p class="plan-line" id="planIncludes">1400 included AI minutes per month, about 470 to 700 typical calls. Additional minutes C$0.75 each.</p>
-      <p class="plan-line" id="planMonthly">Your monthly amount comes from your scan, then it is charged the day you start and every month after.</p>
-      <p class="plan-line" id="planTerms">No setup fee, no activation fee, and no minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.</p>
+      <p class="plan-line" id="planIncludes">600 included AI minutes per month, about 200 to 300 typical calls. Additional minutes C$0.90 each.</p>
+      <p class="plan-line" id="planMonthly">C$750/month, charged the day you start and every month after.</p>
+      <p class="plan-line" id="planTerms">One-time C$1,000 Launch &amp; Implementation to start. Plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement. Overage past your included minutes is the only other usage billing. No minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.</p>
       <p class="plan-line" id="planAnnual"></p>
       <ul class="ticks" id="planFeatures">
         <li>One business phone line</li>
         <li>Two call reviews each month, and tuning from what the calls actually show</li>
         <li>Priority email support</li>
-        <li>Higher-volume usage priced with you before you commit to it</li>
         <li>Answers your line around the clock, configured from your own hours, services, service area, prices and FAQs</li>
         <li>Asks the qualifying questions you approved, in your words</li>
         <li>Captures the caller's name, callback number, what they want, the service, how urgent it is, how the call ended and what happens next, as one structured lead</li>
         <li>Texts and emails you that summary within seconds of the call ending, and records honestly whether each one was delivered</li>
         <li>Every call recorded and playable in your portal, with CSV export of the lead record</li>
+        <li>Automatic quality review of any call where a caller used emergency language, or the agent claimed a booking it could not confirm</li>
       </ul>
     </div>
     <p class="meta">Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime.
@@ -920,12 +920,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     {
       plan = plan || P.plans[1];
       set("planName", plan.name.toUpperCase() + (plan.recommended ? " · " + (P.recommendedLabel || "RECOMMENDED") : ""));
-      /* THE QUOTED AMOUNT, or nothing. Priced after a scan since 2026-08-15:
-         a proposal exists only once a scan has run, so ?quote= carries the real
-         figure for this business. With no quote supplied the box says so, and it
-         must NEVER fall back to plan.monthly, because that is the reference a
-         quote is reasoned from and printing it on a named prospect's document
-         is how a stranger's number gets quoted as his. */
+      /* THE QUOTED AMOUNT, or the published plan price. ?quote= carries a
+         per-client figure where one was agreed and always wins. Since the
+         2026-08-15 evening directive the ladder is published again, so with
+         no quote the box states the plan's own monthly; the morning's
+         "priced after a scan" fallback survives only for the unpublished
+         state, as "quoted per client". */
       var quoted = Number(new URLSearchParams(location.search).get("quote") || 0);
       var priceEl = document.getElementById("planPrice");
       if (quoted > 0) {
@@ -937,30 +937,33 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         var per2 = document.createElement("span"); per2.textContent = "/month";
         priceEl.appendChild(per2);
       } else {
-        priceEl.textContent = (P.pricingBasis && P.pricingBasis.label) || "Priced after your scan";
+        priceEl.textContent = "Quoted per client";
       }
       set("planIncludes", plan.includedMinutes + " included AI minutes per month, about "
         + plan.callRange + ". Additional minutes " + money(plan.overage) + " each.");
 
-      /* One number, stated plainly, never struck through and never "waived".
-         A fee shown with a line through it is a discount off a price nobody
-         was charged, which is the same fabrication class as a fake original
-         price on a sale tag.
+      /* Both figures, stated plainly with the rule joining them, never struck
+         through and never "waived". A fee shown with a line through it is a
+         discount off a price nobody was charged, which is the same
+         fabrication class as a fake original price on a sale tag.
 
-         This line has been wrong twice in opposite ways. It read "One-time
-         setup C$500." directly under "C$500/month", and a prospect reading a
-         document sent to close him totalled it to C$1,000 due on signing. It
-         was then corrected to "First month C$500, then C$500/month from month
-         two", which was true and still asked him to hold two figures. There
-         is one figure. The terms line beneath it says what is NOT charged,
-         because on a document a prospect keeps, the absence of a setup fee
-         has to be written down or he supplies his own guess. */
+         This pair has been wrong twice in opposite ways: "One-time setup
+         C$500." directly under "C$500/month" was totalled to C$1,000 due on
+         signing, and "First month C$500, then C$500/month from month two"
+         was true and still asked the reader to infer the rule. Since
+         2026-08-15 (evening) the rule is stated in words: the one-time
+         Launch & Implementation fee starts the build, beside the first
+         month, and the monthly recurs. */
       set("planMonthly", quoted > 0
         ? money(quoted) + "/month, charged the day you start and every month after."
         : (P.publishedPricing
           ? money(plan.monthly) + "/month, charged the day you start and every month after."
-          : "Your monthly amount comes from your scan, then it is charged the day you start and every month after."));
-      set("planTerms", "No setup fee, no activation fee, and no minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.");
+          : "Your monthly amount is quoted per client, then it is charged the day you start and every month after."));
+      set("planTerms", "One-time " + money(plan.launch) + " Launch & Implementation to start."
+        + (plan.performanceNote ? " " + plan.performanceNote : "")
+        + " Overage past your included minutes is the only other usage billing."
+        + " No minimum term. Cancel any time from your portal and service runs to the end of the month you paid for."
+        + (plan.selfServe === false ? " This plan is offered by invitation and approval." : ""));
 
       if (P.annual && P.annual.active && plan.annual) {
         set("planAnnual", "Or " + money(plan.annual) + " for the year: pay ten months, get twelve.");

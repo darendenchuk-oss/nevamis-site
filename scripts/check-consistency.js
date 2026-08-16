@@ -275,23 +275,29 @@ for (const p of contentPages) {
         const monthly = body.match(/C\$([\d,]+)\/month\b/i);
         const mins = body.match(/([\d,]+) included AI minutes/);
         const over = body.match(/C\$([\d.]+) per extra minute/);
-        /* The retired two-number framing, in either half. A fallback that
-           reintroduces "first month C$X" or "then C$Y/month" has restored the
-           offer this model replaced, whatever the figures say. */
+        /* The retired two-number framing: an ambiguous pair with no stated
+           rule joining it. The CURRENT model is also two numbers, and that is
+           not a contradiction: the approved shape states the rule in words —
+           "C$1,000 Launch & Implementation to start, then C$750 a month" —
+           where "first month C$X" and "then C$Y/month" never did. */
         const twoNumber = /first month\s+C\$|then\s+C\$[\d,]+\s*\/\s*month/i;
-        if (twoNumber.test(body)) err('pricing fallback "' + name + '": describes the price as a first-month amount and a recurring amount. '
-          + 'That offer is retired. One price, charged the day they subscribe and every month after: "' + name + ' — C$' + plan.monthly.toLocaleString("en-CA") + '/month".');
-        /* INVERTED 2026-08-15. This required the fallback to STATE the config
-           price, which is the published-pricing model written as a contract.
-           NEVAMIS is priced after a scan, so the fallback must now carry no
-           figure at all and must say why — and the guard still fails, in the
-           other direction, if a number comes back. The crawler-visible
-           fallback is exactly where a stale price would survive unnoticed. */
+        if (twoNumber.test(body)) err('pricing fallback "' + name + '": uses the retired first-month/then-per-month framing. '
+          + 'State the approved shape instead: "C$' + plan.launch.toLocaleString("en-CA") + ' Launch & Implementation to start, then C$' + plan.monthly.toLocaleString("en-CA") + ' a month".');
+        /* INVERTED TWICE, most recently 2026-08-15 (evening). The morning
+           model required NO figure ("priced after your scan"); the evening
+           directive published the OPERATE/GROW/PARTNERSHIP ladder with a
+           one-time Launch & Implementation fee, so under publishedPricing the
+           fallback must state BOTH halves of the offer: the monthly AND the
+           launch figure. A crawler that reads only the fallback must see the
+           whole price, because half a price is the August defect again. */
         if (cfg.publishedPricing) {
-        if (!monthly || num(monthly[1]) !== plan.monthly) err('pricing fallback "' + name + '": monthly price differs from config (' + plan.monthly + '); expected "C$' + plan.monthly.toLocaleString("en-CA") + '/month"');
+          if (!monthly || num(monthly[1]) !== plan.monthly) err('pricing fallback "' + name + '": monthly price differs from config (' + plan.monthly + '); expected "C$' + plan.monthly.toLocaleString("en-CA") + '/month"');
+          const launch = body.match(/C\$([\d,]+)\s+Launch\s+(?:&|&amp;|and)\s+Implementation/i);
+          if (!launch || num(launch[1]) !== plan.launch) err('pricing fallback "' + name + '": does not state the one-time Launch & Implementation fee from config ('
+            + plan.launch + '); expected "C$' + plan.launch.toLocaleString("en-CA") + ' Launch &amp; Implementation to start".');
         } else {
-          if (monthly) err('pricing fallback "' + name + '": still states C$' + monthly[1] + '/month. Pricing is quoted after a scan; the fallback must carry no figure.');
-          if (!/priced after your scan/i.test(body)) err('pricing fallback "' + name + '": does not say the price is quoted after a scan, so a reader with no JavaScript is told nothing about how it is priced.');
+          if (monthly) err('pricing fallback "' + name + '": still states C$' + monthly[1] + '/month. Pricing is unpublished; the fallback must carry no figure.');
+          if (!/quoted per client|priced after your scan/i.test(body)) err('pricing fallback "' + name + '": does not say how the price is arrived at, so a reader with no JavaScript is told nothing about how it is priced.');
         }
         if (!mins || num(mins[1]) !== plan.includedMinutes) err('pricing fallback "' + name + '": included minutes differ from config (' + plan.includedMinutes + ")");
         if (!over || Number(over[1]) !== plan.overage) err('pricing fallback "' + name + '": overage differs from config (' + plan.overage + ")");
@@ -420,15 +426,22 @@ for (const p of contentPages) {
        edit, and a proposal that quietly regrows a setup fee or a trial fails
        against it. If the commercial model changes, this line changes with the
        decision, not with the page. */
-    const PLAN_TERMS = "No setup fee, no activation fee, and no minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.";
-    /* INVERTED with the model, 2026-08-15. The static line a prospect reads
-       with scripts blocked must NOT be a ladder price: the proposal renders a
-       real quote from ?quote=, and its no-JavaScript fallback has to say where
-       the number comes from rather than print somebody else's. */
+    /* REWRITTEN 2026-08-15 (evening) with the OPERATE/GROW/PARTNERSHIP model:
+       the one-time Launch & Implementation fee is real and published, so the
+       terms line now NAMES it and its default-plan amount instead of denying
+       that anything is charged to start. "Setup fee" and "activation fee"
+       remain retired names and are not used; the launch fee itself is never
+       denied. The figure is Grow's launch fee because Grow is the default
+       plan the static proposal renders. */
+    const PLAN_TERMS = "One-time C$1,000 Launch & Implementation to start. Plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement. Overage past your included minutes is the only other usage billing. No minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.";
+    /* INVERTED TWICE with the model, most recently 2026-08-15 (evening):
+       published pricing is back, so the static line a prospect reads with
+       scripts blocked states the default plan's monthly. A real quote from
+       ?quote= still overrides it at render time. */
     eq("proposal.html", "planMonthly", flat(textOf(pr, "planMonthly")),
       cfg.publishedPricing
         ? money(dflt.monthly) + "/month, charged the day you start and every month after."
-        : "Your monthly amount comes from your scan, then it is charged the day you start and every month after.");
+        : "Your monthly amount is quoted per client, then it is charged the day you start and every month after.");
     eq("proposal.html", "planTerms", flat(textOf(pr, "planTerms")), PLAN_TERMS);
     eq("proposal.html", "planName", flat(textOf(pr, "planName")), dflt.name.toUpperCase());
     eq("proposal.html", "planIncludes", flat(textOf(pr, "planIncludes")),
@@ -516,9 +529,11 @@ for (const p of contentPages) {
     for (const b of ADDITIVE) {
       const clause = offendingClause(text, b);
       if (clause) {
-        err(`${label}: ${b} charges something beside the monthly price.\n      clause: "${clause}"\n      There is no setup, activation, `
-          + `onboarding, implementation or launch charge. Write "C$X/month", and if the point is that `
-          + `nothing else is charged, say so as a denial ("no setup fee") rather than as a line item.`);
+        err(`${label}: ${b} names the one-time charge with retired vocabulary or joins it additively.\n      clause: "${clause}"\n      `
+          + `"Setup fee", "activation fee" and "onboarding fee" are retired names. The one-time charge is `
+          + `called "Launch & Implementation", and it is joined to the monthly with the approved shape `
+          + `"C$X Launch & Implementation to start, then C$Y a month" — never with "plus", "+" or "and". `
+          + `A denial of a retired name ("no setup fee") is allowed; a denial of the launch fee is not.`);
       }
     }
   }
@@ -574,10 +589,12 @@ for (const p of contentPages) {
     for (const b of RETIRED_OFFERS) {
       const clause = offendingClause(text, b);
       if (clause) {
-        err(`${label}: offers a retired commercial term ${b}.\n      clause: "${clause}"\n      The approved model is one monthly price, `
-          + `charged the day they subscribe and every month after: no setup, no activation, no pilot, no trial. `
-          + `A CLAUSE that denies the retired offer is allowed; extend DENIAL rather than dropping the pattern. `
-          + `Note the scope: a denial in a NEIGHBOURING clause no longer excuses this one.`);
+        err(`${label}: states a retired commercial term ${b}.\n      clause: "${clause}"\n      The approved model is a one-time `
+          + `Launch & Implementation fee to start, then the plan's monthly price, with nothing else billed `
+          + `beside the monthly except overage. No pilot, no trial, and never a denial of the launch fee `
+          + `("no implementation fee", "one recurring monthly price" and "nothing charged to start" are the `
+          + `new false claims). A CLAUSE that denies a retired offer is allowed; extend DENIAL rather than `
+          + `dropping the pattern. Note the scope: a denial in a NEIGHBOURING clause no longer excuses this one.`);
       }
     }
   }
@@ -642,19 +659,21 @@ for (const p of contentPages) {
       const clause = offersHere(text, b);
       if (clause) {
         err(`${label}: a spoken-agent surface states a retired commercial term ${b} as live.\n      clause: "${clause}"\n      `
-          + `The approved model is one monthly price per plan, charged the day the client subscribes and `
-          + `every month after: no setup, no activation, no pilot, no trial, and never a second figure. `
-          + `This file instructs or grades the agent that answers the demo line, so a retired offer here `
-          + `reaches a prospect out loud. A CLAUSE that denies the offer is allowed, and so is a quoted `
-          + `caller question; extend DENIAL rather than dropping the pattern.`);
+          + `The approved model is a one-time Launch & Implementation fee to start, then the plan's monthly `
+          + `price, spoken with the approved joins ("to start", "then") and never as an addition. No pilot, `
+          + `no trial, no retired figure, and never a denial of the launch fee. This file instructs or grades `
+          + `the agent that answers the demo line, so a retired offer here reaches a prospect out loud. A `
+          + `CLAUSE that denies a retired offer is allowed, and so is a quoted caller question; extend DENIAL `
+          + `rather than dropping the pattern.`);
       }
     }
     for (const b of ADDITIVE) {
       const clause = offersHere(text, b);
       if (clause) {
-        err(`${label}: a spoken-agent surface describes the price additively (${b}).\n      clause: "${clause}"\n      There is no setup, `
-          + `activation, onboarding, implementation or launch charge. State one monthly figure, and if the `
-          + `point is that nothing else is charged, say it as a denial ("no setup fee") rather than as a line item.`);
+        err(`${label}: a spoken-agent surface uses retired fee vocabulary or an additive join (${b}).\n      clause: "${clause}"\n      `
+          + `"Setup fee", "activation fee" and "onboarding fee" are retired names. The one-time charge is `
+          + `"Launch & Implementation", spoken as "one thousand dollars Launch and Implementation to start, `
+          + `then seven hundred and fifty dollars a month" — never joined with "plus" or "on top".`);
       }
     }
   }
@@ -696,8 +715,9 @@ for (const p of contentPages) {
   /* Every monthly figure this business has ever published and no longer
      charges. Kept as a literal list rather than derived, because the point of
      the rule is to recognise a number the config no longer mentions at all.
-     Mirrors tests/interactions.spec.js:45; if you add one there, add it here. */
-  const RETIRED_MONTHLY = [49, 150, 197, 249, 397, 449, 499, 797, 849, 850];
+     500 joined 2026-08-15 (evening): Growth's month became Grow's C$750.
+     Mirrors tests/interactions.spec.js; if you add one there, add it here. */
+  const RETIRED_MONTHLY = [49, 150, 197, 249, 397, 449, 499, 500, 797, 849, 850];
 
   for (const f of contentPages) {
     const html = fs.readFileSync(path.join(root, f), "utf8");
@@ -801,7 +821,11 @@ for (const p of contentPages) {
      regexes rather than one long alternation so a future banner phrasing only
      has to satisfy the two ideas, not match a sentence template. */
   const RETIRED_MARK = /\bretired\b|\bsuperseded\b|\bhistorical\b|\bkept (?:as|for) (?:one|history)\b|\bis history\b|\bno longer (?:exists|offered)\b|\bnot approved\b|\bnot for publication\b|\binternal hypothes/i;
-  const CURRENT_MARK = /C\$\s?250|C\$\s?1,?000|one recurring price|pricing-config\.js|NOT NEVAMIS PRICING/i;
+  /* Anchors updated 2026-08-15 (evening): the current model is C$750/C$1,000
+     monthlies with a Launch & Implementation fee. "one recurring price" was
+     an anchor and is now itself a retired claim, so it is gone — a banner
+     that named it would exempt the very file still asserting it. */
+  const CURRENT_MARK = /C\$\s?750|C\$\s?1,?000|Launch (?:&|and) Implementation|pricing-config\.js|NOT NEVAMIS PRICING/i;
   const BANNER = { test: (h) => RETIRED_MARK.test(h) && CURRENT_MARK.test(h) };
   const roots = [walk(path.join(root, "docs")), walk(path.join(root, "creative"))].flat();
   const rootDocs = fs.readdirSync(root)
@@ -821,10 +845,11 @@ for (const p of contentPages) {
       const clause = offendingClause(text, b);
       if (clause) {
         err(`${label}: states a retired commercial term ${b} with no superseded banner.\n      clause: "${clause}"\n      `
-          + `Either correct the clause to the current model (one recurring price per plan, nothing `
-          + `charged beside it, no pilot at any price), or - if the file is a record of what USED to be `
-          + `true and the figure must stay - add a dated banner in the first lines saying so, the way `
-          + `docs/ideas/*, docs/payment-flow.md and PRELAUNCH.md already do. Do not delete the history.`);
+          + `Either correct the clause to the current model (a one-time Launch & Implementation fee to `
+          + `start, then the plan's monthly price, nothing else billed beside the monthly except overage, `
+          + `no pilot at any price), or - if the file is a record of what USED to be true and the figure `
+          + `must stay - add a dated banner in the first lines saying so, the way docs/ideas/*, `
+          + `docs/payment-flow.md and PRELAUNCH.md already do. Do not delete the history.`);
       }
     }
   }
@@ -895,10 +920,16 @@ for (const p of contentPages) {
        The retired-phrase list is EXTENDED, never trimmed. Every entry is
        something a prospect was told out loud at some point, and the prompt is
        edited by hand in a dashboard where nothing else can see it. */
-    const noSetupFee = w.NV_PRICING.plans.every((p) => p.setup === undefined);
-    if (noSetupFee) {
-      const saysFree = /no setup fee|no one-time setup|nothing to set up|no set-up fee|no setup or activation/.test(spoken);
-      if (!saysFree) wait("demo.md: there is no setup fee anywhere in pricing-config.js, but the prompt never says so. It is a selling point and the agent should say it.");
+    /* INVERTED 2026-08-15 (evening). This branch used to REQUIRE the prompt
+       to say "no setup fee", and under the OPERATE/GROW/PARTNERSHIP model a
+       one-time Launch & Implementation fee is real and published — so the
+       prompt must NAME the fee instead, and a denial of it is the new wrong
+       thing. `p.setup === undefined` still gates it: the presence of a
+       `setup` key anywhere would be its own cross-repo failure. */
+    const noSetupKey = w.NV_PRICING.plans.every((p) => p.setup === undefined);
+    if (noSetupKey && w.NV_PRICING.publishedPricing) {
+      const naysLaunch = /launch (?:and|&) implementation/.test(spoken);
+      if (!naysLaunch) wait("demo.md: the one-time Launch & Implementation fee is never named. The agent must state it in the approved shape (\"one thousand dollars Launch and Implementation to start, then seven hundred and fifty dollars a month\"), never call it a setup, activation or onboarding fee, and never deny it.");
     }
     const RETIRED_SPOKEN = [
       "five hundred dollars one-time setup", "seven hundred and fifty dollars setup",
@@ -909,6 +940,14 @@ for (const p of contentPages) {
       "one hundred and fifty dollars", "a hundred and fifty dollars",
       "eight hundred and fifty dollars", "eight fifty a month",
       "free trial", "trial period",
+      /* Retired 2026-08-15 (evening): Growth's C$500 month, and the
+         pre-directive plan names. The agent says Operate, Grow and
+         Performance Partnership now. */
+      "five hundred dollars a month", "five hundred a month",
+      "core plan", "growth plan", "pro plan",
+      /* Denials of the launch fee, which are the new false claims. */
+      "no implementation fee", "no launch fee", "no launch charge",
+      "one recurring monthly price", "nothing charged to start",
     ];
     /* Classified per PARAGRAPH here, not per sentence as everywhere else, and
        the difference is deliberate. demo.md is hard-wrapped prose: its
@@ -929,7 +968,11 @@ for (const p of contentPages) {
     }
 
     for (const plan of w.NV_PRICING.plans) {
-      const checks = [["monthly", dollarForms(plan.monthly)], ["overage", centForms(plan.overage)]];
+      /* `launch` joined 2026-08-15 (evening): the one-time Launch &
+         Implementation fee is part of the published offer, so a prompt that
+         never speaks it is quoting half a price. Same dollarForms tolerance
+         as the monthly, because it is said the same way. */
+      const checks = [["monthly", dollarForms(plan.monthly)], ["launch", dollarForms(plan.launch)], ["overage", centForms(plan.overage)]];
       for (const [label, forms] of checks) {
         if (!forms.some((f) => spoken.includes(f)))
           wait(`demo.md: ${plan.name} ${label} (${plan[label]}) is never spoken; say one of: ${forms.join(" / ")}`);
@@ -971,27 +1014,38 @@ for (const p of contentPages) {
     const money = (n) => [String(n), Number(n).toLocaleString("en-CA")];
     /* Retired figures, checked per row rather than per file: the prose around
        the table legitimately records that $150 and $850 were retired, and a
-       whole-file scan would fail the sentence doing that work. */
-    const RETIRED_FIGURES = ["$150", "$850", "$249", "$449", "$849", "$49"];
+       whole-file scan would fail the sentence doing that work. $500 joined
+       2026-08-15 (evening) with Growth's reprice to Grow at $750. */
+    const RETIRED_FIGURES = ["$150", "$850", "$249", "$449", "$849", "$49", "$500"];
     for (const plan of w.NV_PRICING.plans) {
       const row = md.split(/\r?\n/).find((l) => /^\|/.test(l) && l.includes("| " + plan.name + " |"));
       if (!row) { err(`PLAYBOOK.md: no tier row for "${plan.name}"`); continue; }
       const has = (forms) => forms.some((f) => row.includes("$" + f));
       if (!has(money(plan.monthly))) err(`PLAYBOOK.md "${plan.name}": monthly is not $${plan.monthly} as in pricing-config.js`);
+      /* The launch fee is part of the offer the founder quotes, so a row
+         without it is a row that quotes half a price. */
+      if (!has(money(plan.launch))) err(`PLAYBOOK.md "${plan.name}": the one-time Launch & Implementation fee is not $${plan.launch} as in pricing-config.js`);
       if (!new RegExp(`\\|\\s*${plan.includedMinutes}\\s*\\|`).test(row)) err(`PLAYBOOK.md "${plan.name}": included minutes are not ${plan.includedMinutes}`);
       if (!row.includes("$" + plan.overage.toFixed(2))) err(`PLAYBOOK.md "${plan.name}": overage is not $${plan.overage.toFixed(2)}/min`);
       for (const fig of RETIRED_FIGURES) {
         if (row.includes(fig)) err(`PLAYBOOK.md "${plan.name}": the tier row still quotes the retired figure ${fig}. `
-          + `The plan is one price, ${"$" + plan.monthly}/month, with nothing charged beside it.`);
+          + `The plan is $${plan.launch} Launch & Implementation to start, then $${plan.monthly} a month.`);
       }
     }
-    /* The column itself, not just its contents. A Setup header with the right
-       numbers under it is still the two-number offer, and that arrangement is
-       what a founder reads off the page to a prospect. */
+    /* The columns themselves, not just their contents. INVERTED 2026-08-15
+       (evening): the table must now CARRY a "Launch & Implementation" column,
+       because the one-time fee is part of the offer and a founder reading a
+       table without it quotes half a price — and it must still REFUSE a
+       "Setup" column, because that is the retired name and the retired
+       arrangement. */
     const tierHeader = md.split(/\r?\n/).find((l) => /^\|\s*Tier\s*\|/i.test(l));
     if (tierHeader && /\|\s*Setup\b/i.test(tierHeader)) {
-      err("PLAYBOOK.md: the tier table still has a Setup column. There is no setup, activation, onboarding or launch charge; "
-        + "one monthly price is the whole offer, and a column for a second number is how a founder ends up quoting one.");
+      err("PLAYBOOK.md: the tier table has a Setup column. \"Setup\" is a retired name; the one-time charge is "
+        + "\"Launch & Implementation\" and its column must say so, or the founder reads the retired offer off the page.");
+    }
+    if (tierHeader && !/\|\s*Launch (?:&|and) Implementation/i.test(tierHeader)) {
+      err("PLAYBOOK.md: the tier table has no \"Launch & Implementation\" column. The one-time fee is part of the "
+        + "published offer, and a table without it is how a founder quotes half a price to a prospect.");
     }
   }
 }

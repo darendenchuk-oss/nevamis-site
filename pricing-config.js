@@ -1,78 +1,71 @@
 /* ============================================================
    NEVAMIS PRICING — SINGLE SOURCE OF TRUTH
    APPROVED 2026-08-06, MODEL CLARIFIED 2026-08-07,
-   SIMPLIFIED TO ONE RECURRING PRICE 2026-08-09.
+   SIMPLIFIED TO ONE RECURRING PRICE 2026-08-09,
+   PRICED AFTER A SCAN (morning) AND THEN THE
+   OPERATE / GROW / PERFORMANCE PARTNERSHIP MODEL (evening) 2026-08-15.
    Do not duplicate these values in HTML — render from here.
 
    THE COMMERCIAL MODEL, IN ONE TABLE:
 
-     Plan     price
-     Core     C$250/month
-     Growth   C$500/month
-     Pro      C$1,000/month
+     Plan                     Launch & Implementation   Monthly      Performance
+     Operate                  C$1,000 one-time          C$1,000      none
+     Grow (recommended)       C$1,000 one-time          C$750        10% attributable collected revenue
+     Performance Partnership  C$2,000 one-time          C$250        15% attributable collected revenue
+       (invite / approval based — never the default, never self-serve)
+     Enterprise               starting at C$5,000       custom       optional
+       (quoted per client, from what a PULSE scan finds)
 
-   ONE PRICE PER PLAN, CHARGED THE DAY THEY SUBSCRIBE AND EVERY MONTH
-   AFTER. There is no setup fee, activation fee, onboarding fee,
-   implementation fee or launch charge. There is no pilot and no trial,
-   paid or free. Month to month, cancel any time.
+   THE ONE-TIME FEE IS BACK, AND IT HAS ONE NAME AND ONE MEANING.
+   "Launch & Implementation" is a real one-time charge for the build:
+   implementation, integrations, automation configuration, a PULSE baseline
+   and go-live validation. It is charged once, at the start, BESIDE the first
+   month — never instead of it. The approved sentence shape is
+   "C$1,000 Launch & Implementation to start, then C$750 a month": the joins
+   are "to start" and "then", never "plus", "+" or "and", because the additive
+   framing is what made two right numbers read as one wrong bill in August.
 
-   The `setup` key is GONE, not zeroed. A zero would still have been a
-   second number for a card to render and a buyer to wonder about, and
-   nevamis-engine's checkPricing now treats the PRESENCE of a setup figure
-   as the defect rather than checking its size — so a surface that keeps
-   the field fails the cross-repo guard on purpose. The `pilot` record was
-   removed on the same principle on 2026-08-09; see below.
+   "Setup fee", "activation fee" and "onboarding fee" remain RETIRED
+   VOCABULARY: they may be denied, never used as the name of this fee. And
+   the launch fee itself must never be denied — "no implementation fee",
+   "no launch charge", "one recurring monthly price" and "nothing charged to
+   start" are all now FALSE and the guards refuse them.
 
    WHAT CHANGED AND WHY, because earlier versions of this header argued
    the opposite case and someone will find all of them:
      - 2026-07-31  setup fee waived — zero for everyone
      - 2026-08-06  setup fee returned; the build is real work on day one
-                   and pricing it at zero taught the buyer it was worth zero
-     - 2026-08-07  renamed to make it mean month one, because "C$250/month"
-                   above "One-time setup: C$250" reads as C$500 on day one.
-                   Right numbers, wrong sentence — the worst combination,
-                   because nothing that compares numbers can see it
-     - 2026-08-09  deleted. The rename fixed the record and left the OFFER
-                   ambiguous: a buyer still had to hold two numbers and a
-                   rule joining them. One number cannot be misread into two
+     - 2026-08-07  renamed to mean month one; right numbers, wrong sentence
+     - 2026-08-09  deleted. One recurring price, nothing beside it
+     - 2026-08-15  (morning) prices unpublished: "priced after your scan"
+     - 2026-08-15  (evening) the OPERATE / GROW / PERFORMANCE PARTNERSHIP
+                   ladder, published, each with a one-time Launch &
+                   Implementation fee. What is being bought changed under the
+                   price: implementation, integrations, automation, a PULSE
+                   baseline and revenue attribution, and a build that costs
+                   real hours cannot honestly be priced at zero. The
+                   scan-derived quote survives as the ENTERPRISE mechanism,
+                   not as the default ladder.
 
-     - Pro is C$1,000/month. It was C$1,000 then C$850 — the only split in
-       the ladder, and it existed to price the build separately. With the
-       build no longer priced separately, the second number had nothing
-       left to mean. C$850 is retired, and listed as retired in the engine
-       so a stale quote of it is visible to the guards.
-     - THE PILOT IS RETIRED, and its record is DELETED rather than flagged
-       inactive (2026-08-09). With no setup fee, C$250/month cancel-anytime
-       beats C$150 for seven days on every axis a buyer cares about:
-       cheaper per day, longer, and cancellable. A dominated option beside
-       the real one is not a cheaper way in, it is a contradiction of the
-       offer.
+   KEYS ARE STABLE AND NAMES MOVED. `pro` recurred at C$1,000 and Operate
+   recurs at C$1,000; `starter` recurred at C$250 and Performance Partnership
+   recurs at C$250; `growth` is the one true reprice (C$500 -> C$750), so
+   C$500 is retired and the guards watch for it. Order is display order and
+   the default: index 1 is Grow, the recommended plan.
 
-       Deleted rather than kept dormant for the reason written into the Pay
-       As You Go note below: a dormant record is only as dormant as its
-       laziest reader, and proposal.html once quoted C$49/month out of one.
-       The pilot record had FIVE readers (pricing.html's banner, its card
-       renderer, its JSON-LD, proposal.html's plan line and its pilot box),
-       none of which checked a flag, because there was no flag to check.
-       Removing the record makes every one of them a reference error at
-       build time instead of a retired offer on a prospect's screen.
-
-       If a retired offer ever needs to be RECOGNISED again (an old link,
-       an old invoice, a settlement obligation already created), that
-       belongs in the engine's retired-offer list that the guards read, not
-       in a record on this file shaped like something for sale.
-     - Prices are round. C$249 is a retail signal, and this is a
-       managed professional service; the price should read like one.
-     - Annual prepay is switched off, not deleted.
+   The `launch` key is the one-time fee. It is deliberately NOT called
+   `setup`: nevamis-engine's checkPricing treats the PRESENCE of a `setup`
+   figure as a defect, and the engine parser reads `launch` instead.
    ============================================================ */
 (function () {
   /* WHAT EVERY PLAN INCLUDES, written once.
 
      One array, spread into all three plans, because the plans do not differ
      by capability and a per-plan copy of this list would let them look as
-     though they did. The only honest differences are the metered ones:
-     included minutes, the price of a minute past them, and how often we sit
-     down with the call log. Those are the only per-plan entries below.
+     though they did. The honest differences are the metered ones (included
+     minutes, the price of a minute past them, review cadence) and, since
+     2026-08-15, the commercial ones: the Launch & Implementation fee and the
+     performance component. Those are the only per-plan entries below.
 
      Every line here is something the system does today, end to end, for a
      paying client. That is the bar, and it excluded several lines that were
@@ -99,78 +92,58 @@
   window.NV_PRICING = {
     approved: true,
     currency: "CAD",
-    lastUpdated: "2026-08-09",
+    lastUpdated: "2026-08-15",
     taxNote: "Prices in Canadian dollars, plus applicable GST/HST.",
-    commercialModel: "V3-single-recurring-price",
+    commercialModel: "V4-launch-and-implementation",
     /* Whether a visitor may complete a purchase without talking to anyone.
-       FALSE until the monthly price is collected at the right amount at
-       checkout and the entitlements behind each price are re-approved
-       against the list above. Publishing the price is honest; taking money
+       FALSE until the whole new-customer path has been rehearsed end to end
+       at the new amounts. Publishing the price is honest; taking money
        under half-finished terms is not. The buy buttons read "Talk to us"
        while this is false, and the engine's checkout refuses independently:
        neither relies on the other. */
     sellable: false,
     /* WHETHER A PLAN PRICE MAY BE SHOWN TO A STRANGER.
 
-       FALSE since 2026-08-15: NEVAMIS is priced after a scan. What a business
-       pays is quoted from what the scan finds in that business, and it moves
-       as services are added — so a number on this page is not their price, it
-       is somebody else's.
-
-       The `monthly` figures below STAY, and are not a lie waiting to happen:
-       they are the internal reference a quote is reasoned from, they set the
-       shape of each tier, and the engine's canonical.ts documents them the
-       same way. A price with no reference is a price with no rationale. What
-       changed is who may see one.
+       TRUE again since the 2026-08-15 EVENING directive. It was false for
+       roughly twelve hours that same day ("priced after a scan", the
+       morning's decision); the evening directive replaced the default ladder
+       with the OPERATE / GROW / PERFORMANCE PARTNERSHIP model and made those
+       prices publishable. Scan-derived per-client quoting survives on the
+       `enterprise` record below, where it belongs.
 
        Mirrors CANONICAL.pricing.publishedPricing in nevamis-engine, and the
-       engine's checkPricing enforces it across this repo: while it is false,
-       the guard stops asking whether a published figure is RIGHT and starts
-       asking why a published figure exists at all. Flip both together or the
-       cross-repo check fails, which is the point of it. */
-    publishedPricing: false,
-    /* What replaces the number, in the words the page uses. Written here so
-       the pricing page, the plan cards, the JSON-LD and the proposal cannot
-       each invent their own way of saying it — the failure this file exists
-       to prevent. */
-    pricingBasis: {
-      label: "Priced after your scan",
-      short: "Your price comes from your scan.",
-      why: "What this is worth to you depends on what we find: how many calls you are missing, "
-        + "what a job is worth to you, and which parts of the follow-up are costing you time. "
-        + "We scan first, show you the evidence, and then quote.",
-      cta: "Start with a scan",
+       engine's checkPricing enforces it across this repo. Flip both together
+       or the cross-repo check fails, which is the point of it. */
+    publishedPricing: true,
+    /* ENTERPRISE, deliberately NOT a plans[] entry: it has no universal
+       monthly price, and a record shaped like a priced plan gets rendered as
+       one by the laziest reader (the Pay As You Go lesson). This is where the
+       2026-08-15 morning's "priced after your scan" model survives: an
+       Enterprise quote is built per client, from what a PULSE scan finds.
+       `launchFrom` is a floor ("starting at"), never a price. */
+    enterprise: {
+      name: "Enterprise",
+      launchFrom: 5000,
+      note: "Multi-location, custom integrations, custom data pipelines and advanced deployments are quoted per client, from what a scan of the business finds. Launch & Implementation starting at C$5,000 or custom quoted; the recurring amount and any performance component are quoted per client."
     },
-    /* The badge on the recommended plan. It read "MOST COMMON" on the pricing
-       page, the homepage, the staging twin, and the proposal document sent to a
-       named prospect. That is a statistic about a client base, and there are no
-       clients: no plan has ever been the most common one.
-
-       "RECOMMENDED" is an opinion, which is true and defensible, and it is what
-       the live phone agent already says out loud ("Growth, the recommended
-       plan"), so the site and the agent tell a caller the same thing.
-       Versioned here so the four places that render it cannot drift apart. */
+    /* The badge on the recommended plan. "RECOMMENDED" is an opinion, which
+       is true and defensible. It moved to Grow on 2026-08-15: Grow is the
+       plan the wider product story actually sells, and the checkout default
+       reads the same record. Versioned here so the places that render it
+       cannot drift apart. */
     recommendedLabel: "RECOMMENDED",
     /* The referral offer. Mirrors CANONICAL.referral in nevamis-engine, and the
        engine's consistency checker validates these values against it — so a
        number changed here and not there is caught rather than becoming the thing
        Nevamis is publicly held to.
 
-       DECISION OF 2026-08-09: the referred business gets the NORMAL published
-       price, and nothing else. `referredPilotDays: 14` is gone with the pilot
-       it doubled. It was not replaced with a discount, a free week or a longer
-       anything: inventing a substitute would have reintroduced a second way in
-       on the same day the single way in was locked, which is the exact mistake
-       the pilot itself was retired for. The published price is already the
-       best terms anyone gets, and a referral that has to sweeten it is telling
-       the referrer their friend would not have bought otherwise.
-
-       The REFERRER's free month is untouched, because it is an obligation to
-       an existing client rather than an inducement to a new one. It is earned
-       on the referred business's first PAID invoice, not on their signup. That
-       is stated on the page because a referral offer that hides its trigger is
-       the kind of small print this company has spent the whole build
-       removing. */
+       DECISION OF 2026-08-09, unchanged by the 2026-08-15 model: the referred
+       business gets the published offer, and nothing else. The REFERRER's free
+       month is an obligation to an existing client rather than an inducement to
+       a new one. It is earned on the referred business's first PAID invoice,
+       not on their signup. That is stated on the page because a referral offer
+       that hides its trigger is the kind of small print this company has spent
+       the whole build removing. */
     referral: {
       referrerRewardMonths: 1,
       headline: "Know another business that misses calls?",
@@ -178,12 +151,12 @@
       trigger: "The free month is earned when the business you referred pays their first invoice, and it comes off your next bill.",
       howTo: "Clients get their own link in the portal. Send it yourself: we never email somebody just because you named them."
     },
-    /* Retired 2026-07-31 with the old zero setup fee. The offer was "setup fee
-       waived for our first five founding clients". It stays retired under the
-       single-price model: the monthly price is what the service costs, and a
-       business that opens by discounting its own work has told the buyer what
-       it thinks that work is worth. A new founding offer is a commercial
-       decision for the owner, not something to fill this slot with. */
+    /* Retired 2026-07-31. The offer was a founding-client waiver of the old
+       zero-era setup fee. It stays retired under the 2026-08-15 model: the
+       Launch & Implementation fee is priced work, and a business that opens
+       by discounting its own work has told the buyer what it thinks that work
+       is worth. A new founding offer is a commercial decision for the owner,
+       not something to fill this slot with. */
     foundingClient: {
       active: false,
       spots: 0,
@@ -191,10 +164,11 @@
       note: ""
     },
     /* Suspended 2026-08-06. The mechanism is kept so it is not re-derived from
-       memory later, but the approved model locks three monthly prices and
-       approves no annual figure. Publishing C$2,500/year would be inventing a
-       price nobody signed off, which is worse than publishing a wrong one:
-       there is no correct value to check it against. */
+       memory later, but the approved model publishes monthly prices and a
+       one-time Launch & Implementation fee and approves no annual figure.
+       Publishing an annual price would be inventing a number nobody signed
+       off, which is worse than publishing a wrong one: there is no correct
+       value to check it against. */
     annual: {
       active: false,
       monthsCharged: 10,
@@ -207,10 +181,9 @@
        meant no surface could offer it. That was true of every surface but one:
        proposal.html read the record with no `active` check at all, so
        ?plan=pay-as-you-go still built a prospect-facing proposal quoting
-       C$49/month and C$0 setup. A dormant record is only as dormant as the
-       laziest reader of it, and there are no historic rows to protect — nothing
-       has ever been sold. Removed rather than re-flagged. The pilot record
-       followed it out on 2026-08-09 under the same precedent.
+       C$49/month. A dormant record is only as dormant as the laziest reader of
+       it. Removed rather than re-flagged. The pilot record followed it out on
+       2026-08-09 under the same precedent.
 
        If a retired price ever needs to be RECOGNISED again (an old link, an old
        invoice), that belongs in a retired-price list the guards read, not in a
@@ -224,27 +197,37 @@
         "Near the limit you choose: automatic overage, fallback answering, or a hard cap."
       ]
     },
-    /* `monthly` is the whole price. There is no second field, which is the
-       strongest available guarantee that no surface can add two numbers
-       together — the defect of 2026-08-07 is now unrepresentable rather than
-       merely forbidden. */
+    /* `monthly` recurs; `launch` is charged once, at the start, beside the
+       first month — never instead of it. There is deliberately no `setup`
+       key: the engine's checkPricing refuses the field name, because `setup`
+       was caught meaning two things at once in August and the word is
+       retired. `performanceNote` is the approved customer wording for the
+       performance component, or null where the plan has none — it is never
+       "a percent of all revenue" and never profit-based. `selfServe: false`
+       marks an invite/approval-based plan that no surface may present as the
+       default choice. */
     plans: [
       {
-        id: "starter", name: "Core",
-        monthly: 250, includedMinutes: 250,
-        callRange: "80 to 125 typical calls", overage: 1.10,
-        bestFor: "Small service businesses that mainly need evenings, weekends, and overflow covered.",
+        id: "pro", name: "Operate",
+        monthly: 1000, launch: 1000, includedMinutes: 1400,
+        callRange: "470 to 700 typical calls", overage: 0.75,
+        selfServe: true,
+        performanceNote: null,
+        bestFor: "Businesses that want NEVAMIS to run the operational side: the front desk, lead capture, intake and reporting, with no performance fee and no revenue share.",
         features: [
           "One business phone line",
-          "A call review each month, and tuning from what the calls actually show",
-          "Email support"
+          "Two call reviews each month, and tuning from what the calls actually show",
+          "Priority email support",
+          "Higher-volume usage priced with you before you commit to it"
         ].concat(EVERY_PLAN)
       },
       {
-        id: "growth", name: "Growth",
-        monthly: 500, includedMinutes: 600,
+        id: "growth", name: "Grow", recommended: true,
+        monthly: 750, launch: 1000, includedMinutes: 600,
         callRange: "200 to 300 typical calls", overage: 0.90,
-        bestFor: "Growing businesses putting a meaningful share of their inbound calls through it, not just the after-hours ones.",
+        selfServe: true,
+        performanceNote: "Plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement.",
+        bestFor: "Businesses where NEVAMIS actively helps create and recover revenue: capture, follow-up, recovery and attribution, not just answering.",
         features: [
           "One business phone line",
           "Two call reviews each month, and tuning from what the calls actually show",
@@ -252,28 +235,21 @@
         ].concat(EVERY_PLAN)
       },
       {
-        /* THE RECOMMENDED PLAN MOVED HERE ON 2026-08-11, and it is not a
-           badge change. Pro is the Revenue OS tier: the engagement where we
-           keep looking for what the business is losing rather than only
-           answering its phone. Core and Growth remain real offers for an
-           owner who wants the line covered and nothing else, which is why
-           they were not deleted.
-
-           THE PHONE IS A SECOND SURFACE. docs/agent-prompts/demo.md in the
-           engine said "Growth, the recommended plan" out loud, and no commit
-           changes what a caller hears. Moving this flag without patching the
-           live agent would put the site and the phone in contradiction — the
-           site's own consistency guard reads that file for exactly this
-           reason. */
-        id: "pro", name: "Pro", recommended: true,
-        monthly: 1000, includedMinutes: 1400,
-        callRange: "470 to 700 typical calls", overage: 0.75,
-        bestFor: "Owners who want the whole loop: we keep looking for where revenue is leaking, estimate what each leak is worth, build the fix, and measure whether it held. The phone is the first system, not the only one.",
+        /* INVITE / APPROVAL BASED. `selfServe: false` is what keeps a C$250
+           monthly from being read as "the cheap tier": NEVAMIS carries
+           acquisition risk here and chooses when to offer it. Described,
+           never presented as the default, and checkout refuses to sell it
+           without an approval. */
+        id: "starter", name: "Performance Partnership",
+        monthly: 250, launch: 2000, includedMinutes: 250,
+        callRange: "80 to 125 typical calls", overage: 1.10,
+        selfServe: false,
+        performanceNote: "Plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement.",
+        bestFor: "A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. Not suitable for every business, and never the default.",
         features: [
           "One business phone line",
-          "Two call reviews each month, and tuning from what the calls actually show",
-          "Priority email support",
-          "Higher-volume usage priced with you before you commit to it"
+          "A call review each month, and tuning from what the calls actually show",
+          "Email support"
         ].concat(EVERY_PLAN)
       }
     ]

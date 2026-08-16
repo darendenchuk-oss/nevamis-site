@@ -757,11 +757,36 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .hero{position:relative;min-height:100svh;overflow:hidden;padding:0}
   .hero .wrap{position:relative;z-index:3;display:grid;grid-template-columns:1.02fr .98fr;
     gap:36px;align-items:center;min-height:100svh;padding-top:96px;padding-bottom:36px}
-  .copy{max-width:36ch}
+  /* 36ch is a READING measure, and it was capping the display headline
+     too: the h1 sat at 384.9px from 1100px all the way to 1920px while
+     its longest line needs 653.7px. The lede keeps its own measure
+     below; the column belongs to the headline. */
+  .copy{max-width:none}
+  /* Sized against THIS COLUMN, not the viewport. The headline has to fit
+     the space it is actually in, and vw does not know how wide that is:
+     between 900px and 1180px the column grows with the viewport, and
+     past 1180px the wrap stops growing while vw keeps going. cqi cannot
+     get that wrong. */
+  .hero .copy{container-type:inline-size}
   .hero h1{font-weight:700;letter-spacing:-.03em;line-height:1.0;margin:20px 0 0;
-    font-size:clamp(40px,5.6vw,72px)}
-  .hero h1 .line{display:block;overflow:hidden;padding-bottom:.06em}
-  .hero h1 .w{display:inline-block}
+    /* 9.8, not 10.6. The headline has TWO widths: with reduced motion the
+       text is never split into .ch spans, and the unsplit run is ~8% wider
+       than the split one because the -.03em margin that is meant to make
+       them identical does not quite. Sized for the wider case, or nowrap
+       turns the difference into 46px of overflow for exactly the visitors
+       who asked for less motion. */
+    font-size:clamp(40px,9.5cqi,72px)}
+  /* .14em, not .06em: line-height:1.0 puts the font's descent below the
+     line box, so "your business is losing." was having its descenders
+     shaved by the reveal mask. */
+  .hero h1 .line{display:block;overflow:hidden;padding-bottom:.14em}
+  /* THE MID-WORD BREAK. The reveal animation splits the headline into
+     per-character inline-block spans, and a browser may break between any
+     two inline-blocks, so the line broke INSIDE words ("Find the rev /
+     enue", "your busine / ss is losing."). The &nbsp; joining the words
+     could not prevent it, because the breaks were never at the spaces.
+     A phrase is one line by design; this says so. */
+  .hero h1 .w{display:inline-block;white-space:nowrap}
   .hero h1 .g{color:var(--mint)}
   /* char-split spans: inline-block breaks the h1's letter-spacing between
      spans, so it is reapplied as a margin to keep the split word exactly as
@@ -854,7 +879,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     .stage{order:6;height:clamp(200px,32vh,290px);min-height:0;margin:22px 0 4px}
     .hero-search{order:7;max-width:none;margin-top:20px}
     .hero-links{order:8}
-    .hero h1{font-size:clamp(34px,9vw,48px)}
+    /* `.copy` is display:contents here, so it cannot be a query container
+       and cqi is unavailable: the headline is a direct grid child of
+       .wrap. Back to vw, sized so the longest line fits the narrowest
+       phone. At 320px the old 9vw gave 34px, which needed 328px of a
+       280px column and broke "your busine / ss is losing." mid-word. */
+    .hero h1{font-size:clamp(26px,8.4vw,48px)}
     .lede{max-width:none}
     .step-label{font-size:38px;letter-spacing:.1em}
     .step-frag{font-size:25px}
@@ -900,45 +930,45 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     "offers": [
       {
         "@type": "Offer",
-        "name": "Core",
-        "description": "250 included AI minutes. Small service businesses that mainly need evenings, weekends, and overflow covered.",
-        "price": "250",
-        "priceCurrency": "CAD",
-        "priceSpecification": {
-          "@type": "UnitPriceSpecification",
-          "price": "250",
-          "priceCurrency": "CAD",
-          "unitText": "MONTH",
-          "billingIncrement": 1
-        },
-        "availability": "https://schema.org/InStock",
-        "url": "https://nevamis.ca/pricing.html"
-      },
-      {
-        "@type": "Offer",
-        "name": "Growth",
-        "description": "600 included AI minutes. Growing businesses putting a meaningful share of their inbound calls through it, not just the after-hours ones.",
-        "price": "500",
-        "priceCurrency": "CAD",
-        "priceSpecification": {
-          "@type": "UnitPriceSpecification",
-          "price": "500",
-          "priceCurrency": "CAD",
-          "unitText": "MONTH",
-          "billingIncrement": 1
-        },
-        "availability": "https://schema.org/InStock",
-        "url": "https://nevamis.ca/pricing.html"
-      },
-      {
-        "@type": "Offer",
-        "name": "Pro",
-        "description": "1400 included AI minutes. Owners who want the whole loop: we keep looking for where revenue is leaking, estimate what each leak is worth, build the fix, and measure whether it held. The phone is the first system, not the only one.",
+        "name": "Operate",
+        "description": "C$1,000 Launch & Implementation to start, then C$1,000 a month. 1400 included AI minutes. Businesses that want NEVAMIS to run the operational side: the front desk, lead capture, intake and reporting, with no performance fee and no revenue share.",
         "price": "1000",
         "priceCurrency": "CAD",
         "priceSpecification": {
           "@type": "UnitPriceSpecification",
           "price": "1000",
+          "priceCurrency": "CAD",
+          "unitText": "MONTH",
+          "billingIncrement": 1
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html"
+      },
+      {
+        "@type": "Offer",
+        "name": "Grow",
+        "description": "C$1,000 Launch & Implementation to start, then C$750 a month. Plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement. 600 included AI minutes. Businesses where NEVAMIS actively helps create and recover revenue: capture, follow-up, recovery and attribution, not just answering.",
+        "price": "750",
+        "priceCurrency": "CAD",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "750",
+          "priceCurrency": "CAD",
+          "unitText": "MONTH",
+          "billingIncrement": 1
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html"
+      },
+      {
+        "@type": "Offer",
+        "name": "Performance Partnership",
+        "description": "C$2,000 Launch & Implementation to start, then C$250 a month. Plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement. Offered by invitation and approval; never the default. 250 included AI minutes. A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. Not suitable for every business, and never the default.",
+        "price": "250",
+        "priceCurrency": "CAD",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "250",
           "priceCurrency": "CAD",
           "unitText": "MONTH",
           "billingIncrement": 1
@@ -955,24 +985,24 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Core plan",
-            "description": "250 included AI minutes. Small service businesses that mainly need evenings, weekends, and overflow covered."
+            "name": "Operate plan",
+            "description": "C$1,000 Launch & Implementation to start, then C$1,000 a month. 1400 included AI minutes. Businesses that want NEVAMIS to run the operational side: the front desk, lead capture, intake and reporting, with no performance fee and no revenue share."
           }
         },
         {
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Growth plan",
-            "description": "600 included AI minutes. Growing businesses putting a meaningful share of their inbound calls through it, not just the after-hours ones."
+            "name": "Grow plan",
+            "description": "C$1,000 Launch & Implementation to start, then C$750 a month. Plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement. 600 included AI minutes. Businesses where NEVAMIS actively helps create and recover revenue: capture, follow-up, recovery and attribution, not just answering."
           }
         },
         {
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Pro plan",
-            "description": "1400 included AI minutes. Owners who want the whole loop: we keep looking for where revenue is leaking, estimate what each leak is worth, build the fix, and measure whether it held. The phone is the first system, not the only one."
+            "name": "Performance Partnership plan",
+            "description": "C$2,000 Launch & Implementation to start, then C$250 a month. Plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement. Offered by invitation and approval; never the default. 250 included AI minutes. A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. Not suitable for every business, and never the default."
           }
         }
       ]
@@ -1068,15 +1098,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "name": "What does it cost?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "We scan your business first, then quote. What this is worth to you depends on how many calls are going unanswered, what a job is worth, and which parts of the follow-up are costing you time. After that it is one monthly amount, charged the day you start and every month after. There is no setup fee, no activation fee and no onboarding charge, so your first bill is the same as your second. Canadian dollars plus GST/HST, month to month, cancel anytime. What each plan includes is on the pricing page, and your exact fit is confirmed on a short strategy call."
+          "text": "Two published numbers, joined by one rule. Operate is C$1,000 Launch & Implementation to start, then C$1,000 a month, with no performance fee. Grow, the recommended plan, is C$1,000 Launch & Implementation to start, then C$750 a month, plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement. Canadian dollars plus GST/HST, month to month, cancel anytime. The full ladder, including the invitation-based Performance Partnership, is on the pricing page, and your exact fit is confirmed on a short strategy call."
         }
       },
       {
         "@type": "Question",
-        "name": "Why is there nothing to pay up front?",
+        "name": "What does the Launch & Implementation fee cover?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Building it is real work and it happens before you go live: your agent is configured around your hours, services, prices, service area and rules, then run against written call scenarios before a phone number is pointed at it. We price that inside the monthly fee rather than beside it, because a second number on day one is the thing every buyer has to stop and work out. What you avoid is a cheaper monthly price attached to a template that does not know your business."
+          "text": "The build, priced in the open instead of hidden in the monthly. Before you go live your agent is configured around your hours, services, prices, service area and rules, your integrations and automations are connected, a baseline of your business is taken, and the system is run against written call scenarios before a phone number is pointed at it. That is real work, it happens once, and the one-time fee is charged once, at the start, beside your first month, never again."
         }
       },
       {
@@ -1188,7 +1218,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <span class="ctamask"><a class="btn btn-ghost" href="/book.html" data-evt="hero_book_call_click" data-cta>Book a 15-min call</a></span>
         </div>
         <p class="proof">Live demo line: <a class="mono" href="tel:+15874130035">(587)&nbsp;413-0035</a> · answers in seconds. It is the AI, not a salesperson, and nothing is sold to you.</p>
-        <p class="proof pilot-promise">Then put it on your own line: <strong>Revenue OS is quoted after your scan, nothing charged to start, and you can cancel it yourself any month.</strong> If the phone is all you need, the scan will say so and the quote is smaller. <a href="/pricing.html">See what is included</a></p>
+        <p class="proof pilot-promise">Then put it on your own line: <strong>a one-time Launch &amp; Implementation fee to start, then your plan's monthly price, and you can cancel it yourself any month.</strong> If the phone is all you need, we will say so and recommend the smaller plan. <a href="/pricing.html">See the plans and prices</a></p>
         <!-- Search sits below the CTAs on purpose: dialling the line is the thing
              this page is for, and a box that competes with it in the eye would
              be a worse page. This is for the visitor who arrived with a
@@ -1308,7 +1338,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap">
       <ul>
         <li>Keep your existing phone number</li>
-        <li>Nothing charged to start, ever</li>
+        <li>The full cost published before you commit</li>
         <li>Month to month, cancel anytime</li>
         <li>Switch it off from your own phone</li>
         <li>Built and tuned for you, not a template</li>
@@ -1674,8 +1704,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
                  an input attribute. Keep these two literals equal to the
                  recommended plan; check-consistency.js guard 7f now enforces
                  it. -->
-            <input type="number" id="roiQuote" inputmode="numeric" min="0" value="1000">
-            <p class="hint" id="roiQuoteHint">Prefilled with the <span id="roiQuotePlan">Pro</span> plan. Change it to any plan, or to a
+            <input type="number" id="roiQuote" inputmode="numeric" min="0" value="750">
+            <p class="hint" id="roiQuoteHint">Prefilled with the <span id="roiQuotePlan">Grow</span> plan. Change it to any plan, or to a
               quote you were given, to see how many booked jobs cover it.</p>
           </div>
         </form>
@@ -1847,11 +1877,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       </div>
       <div class="midcta reveal" style="margin-top:22px">
         <a class="btn btn-primary" href="/pricing.html" data-evt="pricing_view_click">Compare plans in detail</a>
-        <!-- "One amount for month one, then the monthly price" until
-             2026-08-09. Both halves were the right number and the shape was
-             the claim: it prices a first month separately from the ones after
-             it, and there is one price that recurs. -->
-        <span class="mono" style="color:var(--muted);font-size:13px">One monthly price, charged the day you start and every month after · Canadian dollars + GST/HST · cancel anytime</span>
+        <!-- Rewritten with the model on 2026-08-15 (evening): the offer is a
+             one-time Launch & Implementation fee and a monthly price, joined
+             by "to start" and "then": the rule is stated in words, which is
+             what the retired "first month X, then Y" framing never did. -->
+        <span class="mono" style="color:var(--muted);font-size:13px">Launch &amp; Implementation to start, then the plan's monthly price · Canadian dollars + GST/HST · cancel anytime</span>
       </div>
     </div>
   </section>
@@ -1864,7 +1894,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2>One month, and you can end it yourself.</h2>
       </div>
       <div class="assure reveal">
-        <p><span class="ok">✓</span><span><strong>Nothing to pay before it works.</strong> No setup fee, no activation fee, no onboarding charge. Your first bill is the monthly price of the plan you chose, and it is your only bill.</span></p>
+        <p><span class="ok">✓</span><span><strong>You know the full cost before you commit.</strong> A one-time Launch &amp; Implementation fee starts the build, C$1,000 on Operate and Grow, then your plan's monthly price. Both are published, and past the start, the only recurring charges are the monthly and any overage past your included minutes.</span></p>
         <p><span class="ok">✓</span><span><strong>You judge it from the call log, not a promise.</strong> Every call is recorded and playable in your portal with what it captured beside it, from day one.</span></p>
         <p><span class="ok">✓</span><span>Month to month after that. Cancel anytime. No contracts.</span></p>
         <div class="founder">
@@ -1943,8 +1973,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <details><summary>Can you cover more than one location, or more than one language?</summary><p>Not today. A plan covers one business phone line, and multi-location or multi-department routing is not something we can provision, so we do not sell it. If that is what you need, say so on the strategy call and we will tell you honestly whether to wait for us or use somebody else.</p></details>
       <details><summary>How long does setup take?</summary><p>Days, not months. Discovery, build, written call scenarios run at the agent before a number is pointed at it, then your forwarding proven with a real call.</p></details>
       <details><summary>Can I review calls and summaries?</summary><p>Yes. Every call produces a summary, and call review is part of how we tune your agent over time.</p></details>
-      <details><summary>What does it cost?</summary><p>We scan your business first, then quote. What this is worth to you depends on what the scan finds: how many calls are going unanswered, what a job is worth to you, and which parts of the follow-up are costing you time. After that it is one monthly amount: no setup fee, no activation fee, no onboarding fee, no minimum term, and you can cancel it yourself any month.</p></details><!--x--><p>There is no setup fee, no activation fee and no onboarding charge, so your first bill is the same as your second. Canadian dollars plus GST/HST, month to month, cancel anytime. What each plan includes is on the <a href="/pricing.html">pricing page</a>, and your exact fit is confirmed on a short strategy call.</p></details>
-      <details><summary>Why is there nothing to pay up front?</summary><p>Building it is real work and it happens before you go live: your agent is configured around your hours, services, prices, service area and rules, then run against written call scenarios before a phone number is pointed at it. We price that inside the monthly fee rather than beside it, because a second number on day one is the thing every buyer has to stop and work out. What you avoid is a cheaper monthly price attached to a template that does not know your business.</p></details>
+      <details><summary>What does it cost?</summary><p>Two published numbers, joined by one rule. Operate is C$1,000 Launch &amp; Implementation to start, then C$1,000 a month, with no performance fee. Grow, the recommended plan, is C$1,000 Launch &amp; Implementation to start, then C$750 a month, plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement. Canadian dollars plus GST/HST, month to month, cancel anytime. The full ladder, including the invitation-based Performance Partnership, is on the <a href="/pricing.html">pricing page</a>, and your exact fit is confirmed on a short strategy call.</p></details>
+      <details><summary>What does the Launch &amp; Implementation fee cover?</summary><p>The build, priced in the open instead of hidden in the monthly. Before you go live your agent is configured around your hours, services, prices, service area and rules, your integrations and automations are connected, a baseline of your business is taken, and the system is run against written call scenarios before a phone number is pointed at it. That is real work, it happens once, and the one-time fee is charged once, at the start, beside your first month, never again.</p></details>
       <details><summary>Can I try it before I commit?</summary><p>There is no trial, paid or free, and the seven-day paid pilot Nevamis used to sell is retired. What replaced it is a shorter commitment than any trial: you start on a plan, you are charged monthly, and you can cancel from your portal on any day, with service running to the end of the month you paid for. You judge it from your own call recordings in the portal rather than from a promise. More on the <a href="/pilot.html">how you start page</a>.</p></details>
       <details><summary>How is customer information handled?</summary><p>Call details are used to run your service: the lead record, your summaries, and the recording in your portal. See the privacy page for what this website itself collects. Businesses remain responsible for notices appropriate to their own jurisdiction and call-recording requirements.</p></details>
       <details><summary>What if it is not a fit?</summary><p>You cancel it yourself from the portal, and service runs to the end of the month you already paid for. There is no term to serve out, no cancellation fee, and nobody to talk into letting you go. The most it can cost you to find out is one month.</p></details>
@@ -2057,11 +2087,12 @@ document.addEventListener("DOMContentLoaded", function () {
     var per = document.createElement("span"); per.textContent = "/month";
     amount.appendChild(per);
     var meta = document.createElement("p"); meta.className = "meta";
-    /* One number. "setup C$250" under "C$250/month" was read as C$500 on day
-       one; "First month C$250, then C$250/month" fixed the arithmetic and
-       still made the reader do some. There is no `pl.setup` left to print. */
-    meta.textContent = "Charged monthly, nothing to start · "
-      + Number(pl.includedMinutes).toLocaleString("en-CA") + " AI minutes included";
+    /* Both figures, with the rule joining them stated in words. "setup C$250"
+       under "C$250/month" was read as C$500 on day one; the approved shape
+       says what each number is and when it is charged. */
+    meta.textContent = "C$" + Number(pl.launch).toLocaleString("en-CA") + " Launch & Implementation to start · "
+      + Number(pl.includedMinutes).toLocaleString("en-CA") + " AI minutes included"
+      + (pl.selfServe === false ? " · by invitation" : "");
     d.appendChild(h3); d.appendChild(amount); d.appendChild(meta);
     if (P.annual && P.annual.active && pl.annual) {
       var an = document.createElement("p"); an.className = "annual-line";

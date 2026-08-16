@@ -69,7 +69,10 @@ export const DENIAL = [
      onboarding, implementation or launch charge" and the classifier did not
      recognise it as a denial, so the first surface to fail the new patterns
      was the surface instructing every answer engine not to make the claim. */
-  /\bnever\s+(?:quote|say|offer|promise|use|mention|state|charge|describe|list)\b/i,
+  /* "call" joined 2026-08-15 (evening): "never call the Launch &
+     Implementation fee a setup fee" is the sentence that defends the fee's
+     one name, and it has to be able to say the retired name it forbids. */
+  /\bnever\s+(?:quote|say|offer|promise|use|mention|state|charge|describe|list|call)\b/i,
   /\b(?:is|are|was|were)\s+retired\b/i, /\bretired\b/i,
   /\bthere is no\b/i, /\bthere are no\b/i, /\bwe do not\b/i, /\bdo not\s+(?:quote|say|offer|promise)\b/i,
   /\bno longer\b/i, /\bnot a current\b/i, /\bsuperseded\b/i, /\bprohibited\b/i,
@@ -77,21 +80,20 @@ export const DENIAL = [
      and here is why" is the correct handling of a retired offer, and it needs
      to be able to name what it is refusing. */
   /\bwe don't\b/i, /\bno pilot\b/i, /\bno trial\b/i, /\bnot offered\b/i, /\bused to\b/i,
-  /* "No setup fee" is the SELLING POINT of the approved model and it cannot be
-     said without saying "setup fee". Before these three entries existed, guard
-     7c failed the sentence stating the thing it exists to protect, and its
-     remediation text told the writer to restore the two-number offer. */
+  /* "No setup fee" remains a legal DENIAL OF RETIRED VOCABULARY: "setup fee",
+     "activation fee" and "onboarding fee" are retired NAMES, and a surface may
+     still say the one-time fee is not called that. Before these entries
+     existed, guard 7c failed the sentence stating the thing it exists to
+     protect, and its remediation text told the writer to restore the
+     two-number offer. */
   /\bno setup fee\b/i, /\bno activation fee\b/i, /\bno one-time setup\b/i,
   /\bnothing to set up\b/i, /\bno set-up fee\b/i, /\bno setup or activation\b/i,
-  /* The same three ideas for the charges ADDITIVE learned about on 2026-08-10.
-     terms.html and the agent knowledge base both already wrote "no onboarding
-     fee" and "no implementation fee", and those clauses passed only because a
-     denial elsewhere in the sentence reached them. Naming them here makes the
-     correct sentence self-denying instead of dependent on its neighbours,
-     which is the difference between a page that stays green when it is edited
-     and one that goes red when a comma moves. */
-  /\bno onboarding fee\b/i, /\bno implementation fee\b/i, /\bno launch (?:fee|charge)\b/i,
-  /\bno onboarding charge\b/i, /\bno implementation charge\b/i,
+  /\bno onboarding fee\b/i, /\bno onboarding charge\b/i,
+  /* "no implementation fee", "no implementation charge" and "no launch
+     (fee|charge)" were denials here until 2026-08-15 (evening). They are GONE
+     from this allowlist and are now offences in RETIRED_OFFERS: the Launch &
+     Implementation fee is a real, published, one-time charge, and denying it
+     is the new false claim. Do not re-add them; see FALSE_DENIALS below. */
 ];
 
 /* The two sentence-level pricing detectors, hoisted here on 2026-08-10 so that
@@ -108,17 +110,23 @@ export const ADDITIVE = [
   /\bsetup fee\b/i,
   /plus (?:a )?(?:one-time )?setup/i,
   /\+\s*(?:one-time )?setup/i,
-  /* Added 2026-08-10. The error string this guard PRINTS has named activation,
-     onboarding, implementation and launch charges since 7c was written, and
-     not one of them was detectable: the list only knew the word "setup". A
-     guard that tells you about five forbidden charges and can only see one is
-     worse than an honest guard that sees one, because the error text is what
-     the next reader believes the coverage to be. */
+  /* Added 2026-08-10. The error string this guard PRINTS has named activation
+     and onboarding charges since 7c was written, and not one of them was
+     detectable: the list only knew the word "setup". A guard that tells you
+     about forbidden charges and can only see one is worse than an honest
+     guard that sees one, because the error text is what the next reader
+     believes the coverage to be. */
   /\bactivation fee\b/i,
   /\bonboarding fee\b/i,
-  /\bimplementation fee\b/i,
-  /\blaunch (?:fee|charge)\b/i,
-  /\bone-time (?:fee|charge)\b/i,
+  /* /\bimplementation fee\b/, /\blaunch (?:fee|charge)\b/ and
+     /\bone-time (?:fee|charge)\b/ were REMOVED 2026-08-15 (evening): they are
+     now the CORRECT vocabulary. The published model carries a one-time
+     "Launch & Implementation" fee, charged at the start beside the first
+     month, and the approved sentence shape is "C$1,000 Launch &
+     Implementation to start, then C$750 a month" — joined by "to start" and
+     "then", never by "plus"/"+"/"and". The additive-join patterns above still
+     stand, and "setup fee"/"activation fee"/"onboarding fee" remain retired
+     NAMES for it. */
 ];
 
 /* RETIRED_OFFERS carried only the two figures that were retired on 2026-08-09
@@ -135,6 +143,26 @@ export const ADDITIVE = [
        as words on purpose, so the digit form alone guards nothing there
      - bare $ as well as C$ - /\bC\$\s?850\b/ let plain "$850" walk through,
        which is the exact form ai-assistant/SALES_PITCH.md uses. */
+/* DENIALS OF THE LAUNCH FEE, added 2026-08-15 (evening). These are the
+   inversion of the 2026-08-09 model: the one-time Launch & Implementation
+   fee is real and published, so a surface that DENIES it — "no
+   implementation fee", "no launch charge", "one recurring monthly price",
+   "nothing charged to start" — is making the new false claim. Kept as their
+   own list because offendingClause() refuses every excuse for them: the
+   pattern IS a denial, so the denial allowlist would launder every
+   occurrence, and it has no finite verb, so the fragment rule would launder
+   the rest. Only a quoted caller question is excused, where the guard allows
+   questions at all. The negative lookbehinds keep the fee's own NAME safe:
+   "never call the Launch & Implementation fee a setup fee" must not fire. */
+export const FALSE_DENIALS = [
+  /\bno (?:(?<!launch & )(?<!launch and )implementation|launch)[- ](?:fee|charge)s?\b/i,
+  /\bno launch (?:&|and) implementation fee\b/i,
+  /\b(?:no|never)\b[^.;:!?]{0,160}?\b(?:fee|charge)s?,[^.;:!?]{0,120}?\b(?:(?<!launch & )(?<!launch and )implementation|launch)[- ](?:fee|charge)s?\b/i,
+  /\bone recurring (?:monthly )?price\b/i,
+  /\bnothing (?:is )?charged (?:to (?:start|begin)|before|up ?front)\b/i,
+  /\bnothing to pay (?:before|up ?front|to start|to begin)\b/i,
+];
+
 export const RETIRED_OFFERS = [
   /\b\d+[- ]day live pilot\b/i,
   /\b(?:7|seven)[- ]day pilot\b/i,
@@ -152,14 +180,20 @@ export const RETIRED_OFFERS = [
 
   /* The retired ladder, written. Anchored to a currency mark or to a
      per-month phrase so that a bare "449" in a pixel value, a year or a
-     phone number cannot trip it. 250/500/1000 are CURRENT and absent by
-     design; 850 keeps its C$-only entry above and gains the bare-$ form here. */
-  /(?:C\$|\$)\s?(?:49|150|197|249|397|449|499|797|849|850)\b(?!\d)/,
-  /\b(?:49|150|197|249|397|449|499|797|849|850)\s*(?:dollars?\s*)?(?:a|per|\/)\s*month\b/i,
+     phone number cannot trip it. 250/750/1000 are CURRENT monthlies and
+     1000/2000/5000 are CURRENT launch fees, all absent by design; 850 keeps
+     its C$-only entry above and gains the bare-$ form here. 500 joined
+     2026-08-15 (evening): it was Growth's month from 2026-08-09 until the
+     OPERATE/GROW/PARTNERSHIP ladder landed, and no surface may quote it. */
+  /(?:C\$|\$)\s?(?:49|150|197|249|397|449|499|500|797|849|850)\b(?!\d)/,
+  /\b(?:49|150|197|249|397|449|499|500|797|849|850)\s*(?:dollars?\s*)?(?:a|per|\/)\s*month\b/i,
 
   /* The retired ladder, spoken. This is the form that reaches a prospect's
-     ear from config/elevenlabs/. */
-  /\b(?:forty[- ]nine|one hundred and fifty|two hundred and forty[- ]nine|three hundred and ninety[- ]seven|four hundred and forty[- ]nine|eight hundred and forty[- ]nine|eight hundred and fifty)\s+dollars\b/i,
+     ear from config/elevenlabs/. "five hundred" joined with the written 500:
+     the cold-calling kit spoke it ("five hundred a month"), and "seven
+     hundred and fifty" — the CURRENT Grow month — does not contain it. */
+  /\b(?:forty[- ]nine|one hundred and fifty|two hundred and forty[- ]nine|three hundred and ninety[- ]seven|four hundred and forty[- ]nine|five hundred|eight hundred and forty[- ]nine|eight hundred and fifty)\s+dollars\b/i,
+  /\bfive hundred\s+(?:dollars\s+)?a month\b/i,
 
   /* Retired entitlements. Pro was 1,200 minutes and "400 to 600 calls" until
      2026-08-09; both are now 1,400 and 470 to 700. A surface can carry the
@@ -168,12 +202,23 @@ export const RETIRED_OFFERS = [
   /\b400\s*(?:to|-|–|—)\s*600\s+calls\b/i,
 
   /* Retired plan names. "After Hours" and "Scale" became Core and Pro on
-     2026-08-06. Deliberately requires the word plan or tier beside the name:
-     this site sells after-hours answering and has a page called
-     after-hours-answering.html, so the bare phrase is legitimate copy and
-     banning it would fail the pages doing their job. */
+     2026-08-06; "Core", "Growth" and "Pro" became Performance Partnership,
+     Grow and Operate on 2026-08-15 (evening). Deliberately requires the word
+     plan or tier beside the name: this site sells after-hours answering, has
+     a page called after-hours-answering.html, uses "grow"/"pro" as ordinary
+     words, and "Growth" (retired) is word-bounded so the live name "Grow"
+     never matches inside it. */
   /\b(?:After[- ]Hours|Scale)\s+(?:plan|tier)\b/i,
+  /* Case-sensitive on purpose: "Core", "Growth" and "Pro" are retired NAMES,
+     while "a growth plan for your business" is ordinary lowercase English and
+     must not fire. */
+  /\b(?:Core|Growth|Pro)\s+(?:plan|tier)\b/,
   /\bPay[- ]As[- ]You[- ]Go\b/i,
+
+  /* DENIALS OF THE LAUNCH FEE, added 2026-08-15 (evening); the patterns live
+     in FALSE_DENIALS below and are spread in here so every guard sweeps
+     them. */
+  ...FALSE_DENIALS,
 ];
 
 /* CAVEAT worth knowing before writing plain text for a swept surface: this
@@ -318,6 +363,13 @@ const isQuestion = (s) => /\?["')\]]*\s*$/.test(s.trim());
    reader to find the sentence; on a 400-line knowledge base that is the
    difference between a fixable report and an ignored one. */
 export function offendingClause(text, re, { allowQuestions = false } = {}) {
+  /* A launch-fee denial is judged with NO excuses. The pattern IS a denial,
+     so the denial allowlist would launder every occurrence; the pattern has
+     no finite verb ("no implementation fee"), so the fragment rule would
+     launder the rest. Only a quoted caller question is excused, where the
+     guard allows questions at all. */
+  const falseDenial = FALSE_DENIALS.includes(re);
+
   for (const sentence of splitSentences(text)) {
     if (!re.test(sentence)) continue;
     /* Scoped to the caller rather than added to DENIAL: these files quote the
@@ -327,6 +379,17 @@ export function offendingClause(text, re, { allowQuestions = false } = {}) {
        anyone. In DENIAL it would instead split "Setup fee? C$500." into a
        question that is excused and a fragment that matches nothing. */
     if (allowQuestions && isQuestion(sentence)) continue;
+    if (falseDenial) {
+      /* Still reported clause-first so the failure quotes the words, and a
+         quoted caller question is still excused cell-by-cell in the guards
+         that allow questions (a table row is one "sentence" to the splitter,
+         and the question mark sits mid-line). */
+      const cs = splitClauses(sentence);
+      const hit = cs.find((c) => re.test(c) && !(allowQuestions && isQuestion(c)));
+      if (hit) return hit.trim();
+      if (!cs.some((c) => re.test(c))) return sentence.trim(); /* straddle */
+      continue; /* every matching clause was an allowed caller question */
+    }
 
     const clauses = splitClauses(sentence);
     const denies = clauses.map((c) => DENIAL.some((d) => d.test(c)));
