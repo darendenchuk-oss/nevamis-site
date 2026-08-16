@@ -2078,6 +2078,41 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 .art[data-bg="assets/industries/automotive.webp"]{background-image:url(assets/industries/automotive.webp)}
 </style></noscript>
 <script src="pricing-config.js"></script>
+<script>
+/* priceRange on the Organization node.
+
+   A ProfessionalService that publishes a ladder and no priceRange is a
+   local-answer result with the one field the answer wants left blank. It was
+   never set on any page - not stale, simply absent - and the evening
+   directive publishing the ladder is what makes it answerable.
+
+   Derived from NV_PRICING rather than typed, because a second copy of a
+   price in markup is a second thing to forget: this repository has a gate
+   whose whole job is catching exactly that. Same runtime-from-config shape
+   pricing.html already uses for its offers. Silent when pricing is
+   unpublished, so the unpublished page keeps saying nothing about price. */
+(function(){
+  var P = window.NV_PRICING;
+  if (!P || !P.publishedPricing || !P.plans || !P.plans.length) return;
+  var m = P.plans.map(function(x){ return x.monthly; })
+                 .filter(function(n){ return typeof n === "number"; });
+  if (!m.length) return;
+  var grp = function(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
+  var range = "C$" + grp(Math.min.apply(null, m)) + "–C$" + grp(Math.max.apply(null, m));
+  var nodes = document.querySelectorAll('script[type="application/ld+json"]');
+  for (var i = 0; i < nodes.length; i++) {
+    if (nodes[i].textContent.indexOf("#organization") === -1) continue;
+    var o; try { o = JSON.parse(nodes[i].textContent); } catch (e) { continue; }
+    var arr = [].concat(o), hit = false;
+    for (var j = 0; j < arr.length; j++) {
+      if (arr[j] && String(arr[j]["@id"] || "").indexOf("#organization") !== -1) {
+        arr[j].priceRange = range; hit = true;
+      }
+    }
+    if (hit) nodes[i].textContent = JSON.stringify(Array.isArray(o) ? arr : arr[0]);
+  }
+})();
+</script>
 <script src="assets/vendor/gsap.min.js" defer></script>
 <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
 <script src="assets/vendor/MotionPathPlugin.min.js" defer></script>

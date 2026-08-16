@@ -161,7 +161,14 @@ test('pricing publishes a parseable price table for answer engines', async ({ pa
      schema advertised to crawlers while no human could see it anywhere on the
      page. The plan was removed 2026-08-07; the floor a crawler is told is now
      the floor a buyer is shown. */
-  expect(Number(agg.lowPrice)).toBe(cfg.plans[0].monthly);
+  /* The LOWEST of the offers, which is what schema.org means by lowPrice -
+     not plans[0]. Those were the same number only while the ladder happened
+     to be sorted ascending; the 2026-08-15 evening model leads with Operate
+     at the TOP of the range, and this started demanding that the cheapest
+     plan cost C$1,000. Order-independent now, so reordering the ladder is
+     not a test failure. */
+  const monthlies = cfg.plans.map((p) => p.monthly);
+  expect(Number(agg.lowPrice)).toBe(Math.min(...monthlies));
   expect(Number(agg.lowPrice)).toBe(250);
 });
 
