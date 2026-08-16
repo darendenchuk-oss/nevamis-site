@@ -1,3 +1,4 @@
+<!-- commercial-truth: CURRENT_CANONICAL — live agent material, stated to the 2026-08-15 evening model (Launch & Implementation fee, Operate / Grow / Performance Partnership); checked against src/domain/canonical.ts on every consistency run. -->
 # Nevamis Client Support Knowledge Base (JOB B)
 
 This is the reference knowledge base for the Nevamis Client Support Agent (Job B), which supports EXISTING Nevamis paying clients. It is separate from the public sales knowledge base (nevamis-knowledge-base.md, Job A) and from any single client's receptionist configuration (Job C). The support agent answers ONLY from this document plus account facts returned by verified tools. Everything here is a DRAFT and must be approved by Daren before the agent uses it. All prices are in Canadian dollars (CAD) plus applicable tax.

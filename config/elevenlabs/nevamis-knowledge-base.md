@@ -1,3 +1,4 @@
+<!-- commercial-truth: CURRENT_CANONICAL — live agent material, stated to the 2026-08-15 evening model (Launch & Implementation fee, Operate / Grow / Performance Partnership); checked against src/domain/canonical.ts on every consistency run. -->
 # Nevamis AI Knowledge Base
 
 This document is the reference knowledge base for the Nevamis demo receptionist agent. Every section is self-contained. All prices are in Canadian dollars (CAD) plus applicable tax. Facts here match the published website at https://nevamis.ca.
