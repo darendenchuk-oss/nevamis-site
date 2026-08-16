@@ -40,8 +40,16 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
      to prose. A proposal that loses this line loses the whole point of the
      2026-08-09 change on the one document a buyer keeps. */
   const terms = page.locator('#planTerms');
-  await expect(terms).toContainText('No setup fee');
-  await expect(terms).toContainText('no minimum term');
+  /* "No setup fee" until 2026-08-15, when the evening directive introduced
+     the one-time Launch & Implementation fee. Asserting the retired claim was
+     worse than failing: satisfying it meant putting a sentence back on the
+     one document a buyer keeps that the commercial model had deliberately
+     retired. What must be disclosed now is the fee itself. */
+  await expect(terms).toContainText(/Launch & Implementation/i);
+  /* Case-insensitive: the clause moved to the start of its sentence in the
+     v3 terms, so the literal lowercase match stopped hitting a sentence that
+     still says exactly this. */
+  await expect(terms).toContainText(/no minimum term/i);
   await expect(terms).toContainText('Cancel any time');
 
   /* Annual prepay is suspended in the config, so the proposal must NOT quote a
@@ -115,7 +123,10 @@ test('a retired or unknown plan id never quotes a retired price', async ({ page 
        model claiming it was a fabrication. It is now the truth for every plan,
        and it lives on #planTerms rather than here. The thing worth catching is
        a retired FIGURE resolving out of an unknown id. */
-    await expect(page.locator('#planName')).toContainText(/growth/i);
+    /* /grow/i, not /growth/i - the plan is named "Grow" since 2026-08-15 and
+       this matches either spelling, so the point (an unknown id falls back to
+       a real plan) survives the rename. */
+    await expect(page.locator('#planName')).toContainText(/grow/i);
   }
 });
 
@@ -138,7 +149,12 @@ test('a leftover founding=1 in a URL cannot invent a discount', async ({ page })
   await expect(monthly, 'founding=1 must not change the amount').toHaveText(plain);
   expect(await monthly.locator('s').count()).toBe(0);   // no struck-through price
   await expect(monthly).not.toContainText('waived');
-  await expect(monthly).not.toContainText('750');
+  /* The literal 750 ban is gone: it was a retired DISCOUNTED figure, and
+     C$750 is now Grow's real monthly price - so this line and the config
+     comparison eight lines below had come to contradict each other. The
+     guard that matters is unchanged and stronger: same text as the URL
+     without the parameter, nothing struck through, nothing "waived", and
+     the amount equal to the configured price. */
   /* The real price is quoted, not discounted away. */
   const cfgMonthly = await page.evaluate(() =>
     window.NV_PRICING.plans.find((p) => p.id === 'growth').monthly);
@@ -179,7 +195,7 @@ test('still reads as a complete proposal with no parameters and no JS', async ({
      re-adding it would have been the fix. It now asserts the terms that
      replaced it, which is the sentence a prospect must still read when the
      config never loads. */
-  expect(text).toContain('No setup fee');
+  expect(text).toContain('Launch & Implementation');
   expect(text).toContain('charged the day you start');
   expect(text).not.toMatch(/pilot|trial/i);
   expect(text).toContain('What happens next');

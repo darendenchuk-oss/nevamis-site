@@ -35,6 +35,7 @@ test('pricing preview renders every plan from the single source of truth', async
   const cfg = await page.evaluate(() => ({
     plans: window.NV_PRICING.plans.map((p) => ({
       name: p.name, monthly: p.monthly, minutes: p.includedMinutes,
+      recommended: !!p.recommended,
     })),
     recommendedLabel: window.NV_PRICING.recommendedLabel,
     annualActive: !!(window.NV_PRICING.annual && window.NV_PRICING.annual.active),
@@ -74,7 +75,13 @@ test('pricing preview renders every plan from the single source of truth', async
      Asserting the CONFIGURED label instead proves the badge renders from the
      single source of truth without insisting on any particular claim. */
   expect(cfg.recommendedLabel, 'pricing-config must define recommendedLabel').toBeTruthy();
-  const recIndex = cfg.plans.findIndex((p) => p.name === 'Growth');
+  /* By the FLAG, not by the name. This read `p.name === 'Growth'`, and when
+     the 2026-08-15 evening model renamed that plan to "Grow" the lookup
+     returned -1, so `cards.nth(-1)` silently asserted against the LAST card
+     instead of the recommended one. The same hardcoding this test's own
+     comment above warns about, three lines below the warning. */
+  const recIndex = cfg.plans.findIndex((p) => p.recommended);
+  expect(recIndex, 'a plan must be marked recommended').toBeGreaterThanOrEqual(0);
   await expect(cards.nth(recIndex)).toContainText(cfg.recommendedLabel);
 
   /* Annual prepay is suspended. Advertising "two months free" against a yearly
@@ -205,7 +212,9 @@ test('the ROI calculator computes and shows break-even with a quote', async ({ p
   const growth = await page.evaluate(() =>
     (window.NV_PRICING.plans.find((p) => p.recommended) || window.NV_PRICING.plans[0]).monthly);
   await expect(page.locator('#roiQuote')).toHaveValue(String(growth));
-  await expect(page.locator('#roiQuotePlan')).toHaveText('Growth');
+  const recName = await page.evaluate(() =>
+    (window.NV_PRICING.plans.find((p) => p.recommended) || window.NV_PRICING.plans[0]).name);
+  await expect(page.locator('#roiQuotePlan')).toHaveText(recName);
 
   await page.locator('#roiQuote').fill('675');
   await expect(page.locator('#roiBeRow')).toBeVisible();
