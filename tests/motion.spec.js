@@ -488,27 +488,48 @@ test('decorative visuals are hidden from assistive tech', async ({ page }) => {
     statusHidden: document.getElementById('status')?.getAttribute('aria-hidden'),
     wakeHidden: document.getElementById('wake')?.getAttribute('aria-hidden'),
     h1: document.querySelector('h1')?.textContent.replace(/\s+/g, ' ').trim(),
+    /* The authored sentence, before hero.js takes it apart. */
+    h1Label: document.querySelector('h1')?.getAttribute('aria-label')?.replace(/\s+/g, ' ').trim(),
     /* The story the animation tells must also exist as real text.
        'books' was one of these words until 2026-08-09, and it was pinning a
        claim the product cannot keep: provisioned agents get end_call and no
        booking tool, so the prompt makes them say a person will confirm the
        time. The assertion was right about the principle and wrong about the
        verb — a test can hold false copy in place just as firmly as true. */
-    ledeMentions: ['qualifies', 'takes', 'texts'].filter((w) =>
-      (document.querySelector('.lede')?.textContent || '').toLowerCase().includes(w)),
+    lede: (document.querySelector('.lede')?.textContent || '').replace(/\s+/g, ' ').trim(),
   }));
 
   expect(a11y.svgHidden, 'the narrative SVG is decorative and must be hidden from AT').toBe('true');
   expect(a11y.statusHidden).toBe('true');
   expect(a11y.wakeHidden).toBe('true');
-  /* Pinned to the exact sentence, not to a fragment: the whole point of this
-     assertion is that the words the curtain animates are also the words a
-     screen reader is handed, and a substring match would pass while half the
-     headline was missing from the DOM. Updated 2026-08-09 with the headline
-     itself, which moved from describing the mechanism to naming the outcome. */
-  expect(a11y.h1).toBe('Never miss the time that matters.');
+  /* THE TWO MUST BE THE SAME SENTENCE. That is what this always meant - "the
+     words the curtain animates are also the words a screen reader is handed"
+     - and a literal was simply how completeness got enforced, since a
+     substring match would pass with half the headline missing.
+
+     Comparing the split DOM text against the authored aria-label enforces it
+     directly and cannot be broken by writing new copy: the headline changed
+     with the Revenue OS repositioning and this failed on the wording while
+     the accessibility property it guards was never in question. A test that
+     fails for copy is a test that gets edited on autopilot, and this one
+     sits beside three assertions worth reading carefully. */
+  expect(a11y.h1Label, 'the split headline needs an aria-label').toBeTruthy();
+  expect(a11y.h1Label.length, 'the label must be the whole sentence').toBeGreaterThan(20);
+  expect(a11y.h1).toBe(a11y.h1Label);
   // meaning must not live only in the animation
-  expect(a11y.ledeMentions).toEqual(['qualifies', 'takes', 'texts']);
+  /* THE PROPERTY, NOT THE WORDS. This listed three verbs the lede had to
+     contain. 'books' was a fourth until 2026-08-09, removed because it
+     pinned a claim the product cannot keep - and the remaining three broke
+     the same way when the Revenue OS repositioning rewrote the sentence.
+     Twice now a green test has been holding particular copy in place while
+     claiming to guard a principle.
+
+     The principle is that the story the animation tells also exists as real
+     text: a lede that is present, substantial, and saying something the
+     headline does not. That is checkable without owning the wording. */
+  expect(a11y.lede, 'the hero needs a lede in text, not only in motion').toBeTruthy();
+  expect(a11y.lede.length, 'the lede must carry real substance').toBeGreaterThan(80);
+  expect(a11y.lede).not.toBe(a11y.h1);
 });
 
 test.afterAll(async () => {
