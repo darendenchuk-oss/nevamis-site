@@ -2,7 +2,7 @@
 
 This document is the reference knowledge base for the Nevamis demo receptionist agent. Every section is self-contained. All prices are in Canadian dollars (CAD) plus applicable tax. Facts here match the published website at https://nevamis.ca.
 
-Revised 2026-08-09 for the single recurring price. Editing this file changes nothing a caller hears: the ElevenLabs knowledge base is its own deploy surface and has to be re-uploaded, and the demo agent's prompt pushed, before the phone says any of it.
+Revised 2026-08-15 for the OPERATE / GROW / PERFORMANCE PARTNERSHIP model with the one-time Launch & Implementation fee. Editing this file changes nothing a caller hears: the ElevenLabs knowledge base is its own deploy surface and has to be re-uploaded, and the demo agent's prompt pushed, before the phone says any of it.
 
 ## What Nevamis is
 
@@ -38,7 +38,7 @@ All modes run on the business's existing number through call forwarding. The bus
 
 ## Qualification
 
-The AI Front Desk qualifies callers before booking or escalating. It gathers the caller's name, a callback number, what they need, and how urgent it is, and it confirms details back to the caller. Qualification rules are tuned per business during setup: for example, a plumbing company can have the AI ask about the type of job and location before offering a booking. On the Growth and Pro plans, more advanced qualification and routing rules are available.
+The AI Front Desk qualifies callers before booking or escalating. It gathers the caller's name, a callback number, what they need, and how urgent it is, and it confirms details back to the caller. Qualification rules are tuned per business during setup: for example, a plumbing company can have the AI ask about the type of job and location before offering a booking. On the Grow and Operate plans, more advanced qualification and routing rules are available.
 
 ## Booking flow
 
@@ -62,25 +62,27 @@ The AI only states things it knows. If a caller asks something outside its knowl
 
 ## Current integrations
 
-Booking and telephony currently run on Cal.com (calendar and booking) and Twilio (phone lines and SMS). Those are the verified integrations today. The Growth plan includes one standard CRM or automation connection when supported. No specific CRM or job-management integration is verified yet. If someone asks about a specific tool (for example a particular CRM, field service platform, or scheduling app), the correct answer is: "I can't confirm that specific integration; Daren verifies compatibility on the strategy call." Never answer yes to an integration question that is not listed here.
+Booking and telephony currently run on Cal.com (calendar and booking) and Twilio (phone lines and SMS). Those are the verified integrations today. The Grow plan includes one standard CRM or automation connection when supported. No specific CRM or job-management integration is verified yet. If someone asks about a specific tool (for example a particular CRM, field service platform, or scheduling app), the correct answer is: "I can't confirm that specific integration; Daren verifies compatibility on the strategy call." Never answer yes to an integration question that is not listed here.
 
 ## Pricing
 
-Nevamis publishes its pricing. All prices are in Canadian dollars plus applicable tax, billed month to month. Each plan has ONE figure, and it is the same every month: the client is charged on the day they subscribe and on that same day every month after. There are three plans:
+Nevamis publishes its pricing. All prices are in Canadian dollars plus applicable tax, billed month to month. Each plan has two published figures joined by one stated rule: a one-time Launch & Implementation fee, charged once at the start beside the first month, then a monthly price charged on the day the client subscribes and on that same day every month after. Say it in the approved shape, with the joins "to start" and "then": for example, "one thousand dollars Launch and Implementation to start, then seven hundred and fifty dollars a month". Never join the two figures with "plus" or add them into one total, and never call the Launch & Implementation fee a setup fee, an activation fee or an onboarding fee. There are three plans:
 
-- Core: C$250 per month. Includes 250 connected AI minutes per month, which is typically 80 to 125 calls. Overage is C$1.10 per minute. Best for small businesses that need evenings, weekends, and overflow covered.
-- Growth (recommended): C$500 per month. Includes 600 connected AI minutes per month, typically 200 to 300 calls. Overage is C$0.90 per minute. Supports up to two lines, call flows, or calendars, advanced qualification, transfer rules, and one standard CRM or automation connection when supported.
-- Pro: C$1,000 per month. Includes 1,400 connected AI minutes per month, typically 470 to 700 calls. Overage is C$0.75 per minute. Built for multi-location businesses and complex routing.
+- Operate: C$1,000 Launch & Implementation to start, then C$1,000 per month. No performance fee. Includes 1,400 connected AI minutes per month, typically 470 to 700 calls. Overage is C$0.75 per minute. For businesses that want NEVAMIS to run the operational side: front desk, lead capture, intake and reporting, with no revenue share.
+- Grow (recommended): C$1,000 Launch & Implementation to start, then C$750 per month, plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to the client's agreement. Includes 600 connected AI minutes per month, typically 200 to 300 calls. Overage is C$0.90 per minute. For businesses where NEVAMIS actively helps create and recover revenue.
+- Performance Partnership: offered by invitation and approval only. Never present it as the default choice, never as self-serve, and never as "the cheap plan". C$2,000 Launch & Implementation to start, then C$250 per month, plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to the client's agreement. Includes 250 connected AI minutes per month, typically 80 to 125 calls. Overage is C$1.10 per minute. If a caller asks for it, describe it and route them to the strategy call; approval happens there, not on this line.
 
-There is no setup fee, no activation fee, no onboarding fee and no second charge of any kind. A caller on Core owes C$250 on the day they subscribe, and C$250 again a month later — never C$500 on day one, and never one amount for month one and a different amount afterwards. If a caller has already asked and been told otherwise, correct it plainly.
+Enterprise (multi-location, custom integrations, custom data pipelines, advanced deployments) is quoted per client: Launch & Implementation starting at C$5,000 or custom quoted, recurring custom, performance optional. There is no universal Enterprise monthly price, so never state one; the strategy call is where an Enterprise quote starts.
 
-The monthly price covers the build as well as the running: discovery, configuration, the business's own knowledge and rules, testing, and go-live all happen inside the first month at the same price as every month after it. The price is not discounted, and there is no founding-client offer.
+The performance fee, where a plan carries one, is never "a percent of all revenue" and never profit-based. It applies only to collected revenue directly attributable to qualified NEVAMIS-generated opportunities, as defined and governed by the client's executed agreement. Operate has no performance fee at all.
 
-If a caller names a price that is not on this list, say it is not a current price and quote the list above. Prices retired and no longer offered: C$249, C$449 and C$849 per month (retired 2026-08-06); C$850 per month, which was Pro's price until 2026-08-09; the Pay As You Go plan at C$49 per month plus C$1.95 per minute; and annual prepay. The C$150 seven-day live pilot fee is retired too, along with the credit it used to earn against a first month — see the retired-offers section below. Never say that a plan costs one amount for the first month and another amount after that; that framing is retired, and there is only one figure per plan. The plans were renamed and the old names are no longer offered: what was called After Hours is now Core, what was called Scale is now Pro, and what was called Starter is now Core. Recognise an old name if a caller uses one, say which plan it is now, and quote that plan's current price.
+The Launch & Implementation fee covers the build: discovery, configuration, integrations, the business's own knowledge and rules, a baseline of the business, testing, and go-live validation. It is charged once, at the start, beside the first month, and never again. The monthly price is not discounted, and there is no founding-client offer.
+
+If a caller names a price that is not on this list, say it is not a current price and quote the list above. Prices retired and no longer offered: C$249, C$449 and C$849 per month (retired 2026-08-06); C$850 per month, which was Pro's price until 2026-08-09; C$500 per month, which was Growth's price until 2026-08-15 and is retired with that plan name; the Pay As You Go plan at C$49 per month plus C$1.95 per minute; and annual prepay. The C$150 seven-day live pilot fee is retired too, along with the credit it used to earn against a first month — see the retired-offers section below. The plans were renamed on 2026-08-15 and the old names are no longer offered: what was called Pro (earlier Scale) is now Operate, what was called Growth is now Grow, and what was called Core (earlier After Hours, and Starter before that) is now the invitation-based Performance Partnership. Recognise an old name if a caller uses one, say which plan it is now, and quote that plan's current figures in the approved shape.
 
 ## Connected AI minutes, usage alerts, and overage
 
-A connected AI minute starts when the AI answers a connected call and ends when the AI portion of the call ends. Failed calls that never connect are not counted. Spam calls that reach the AI are counted, because the AI still answered them. Clients get usage alerts at 75 percent, 90 percent, and 100 percent of their included minutes. When an account passes its included minutes, the extra minutes bill at that plan's overage rate. A client-selectable choice between automatic overage, fallback answering, and a hard cap is published on nevamis.ca and is being built, but it is not available today, so never tell a caller they can choose between them yet. Overage rates by plan: Core C$1.10 per minute, Growth C$0.90 per minute, Pro C$0.75 per minute.
+A connected AI minute starts when the AI answers a connected call and ends when the AI portion of the call ends. Failed calls that never connect are not counted. Spam calls that reach the AI are counted, because the AI still answered them. Clients get usage alerts at 75 percent, 90 percent, and 100 percent of their included minutes. When an account passes its included minutes, the extra minutes bill at that plan's overage rate. A client-selectable choice between automatic overage, fallback answering, and a hard cap is published on nevamis.ca and is being built, but it is not available today, so never tell a caller they can choose between them yet. Overage rates by plan: Operate C$0.75 per minute, Grow C$0.90 per minute, Performance Partnership C$1.10 per minute.
 
 ## Retired offers: never quote, never agree to, never book
 
@@ -91,7 +93,7 @@ These were real offers and are not any more. They are listed so the agent recogn
 - A trial of any description is retired, and there never was a complimentary one. Never offer a trial.
 - If a caller says they were told about one of these, do not contradict them flatly. Say it is not something Nevamis runs any more, say what is on offer instead, and offer the strategy call.
 
-What replaces all of it is the shape of the plan: month to month, the same amount every month, cancel before the next renewal, so the most a client ever has at stake is one month. The assistant is built, tested on the business's real call scenarios, and approved by the client before it answers a single customer.
+What replaces all of it is the shape of the plan: the Launch & Implementation fee pays for the build once, the monthly is the same amount every month, and the client can cancel before the next renewal, so past the start the most they ever have at stake is one month. The assistant is built, tested on the business's real call scenarios, and approved by the client before it answers a single customer.
 
 ## Setup process and founder-led onboarding
 
@@ -111,7 +113,7 @@ Calls are handled on third-party telephony and voice AI platforms. Businesses re
 
 ## Cancellation
 
-Plans are month to month. There are no long-term contracts. To cancel, the client cancels before the next renewal date, and service continues to the end of the paid period. Because there is one price and it simply recurs, cancelling before the renewal date is the whole of it: the subscription stops at the end of the period already paid for, and the next month is never billed.
+Plans are month to month. There are no long-term contracts. To cancel, the client cancels before the next renewal date, and service continues to the end of the paid period. The monthly simply recurs, so cancelling before the renewal date is the whole of it: the subscription stops at the end of the period already paid for, and the next month is never billed. The Launch & Implementation fee was charged once at the start and does not recur or return on cancellation.
 
 ## Contact and strategy call
 

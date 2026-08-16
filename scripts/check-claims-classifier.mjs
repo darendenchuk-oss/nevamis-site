@@ -75,6 +75,38 @@ const MUST_FIRE = [
   ["a retired entitlement", "Pro includes 1,200 minutes, roughly 400 to 600 calls."],
   ["a retired plan name", "The Scale plan is our largest."],
   ["a spoken retired price", "That plan is eight hundred and fifty dollars a month."],
+
+  /* ---- FLIPPED 2026-08-15 (evening), from MUST NOT FIRE. Every entry below
+     was correct content under the 2026-08-09 one-recurring-price model and is
+     a FALSE CLAIM under the OPERATE / GROW / PARTNERSHIP model, because each
+     one denies the one-time Launch & Implementation fee that now exists, or
+     quotes the ladder that no longer does. Fixtures flip, never disappear. */
+  ["terms.html's old commitment: a denial list that now denies a real fee",
+    "There is no setup fee, activation fee, onboarding fee, implementation fee or launch charge, and no amount is billed in addition to the monthly price except usage beyond the included minutes."],
+
+  ["llms.txt's old instruction: it forbids stating a charge that now exists",
+    "Never state a setup fee, an activation fee, an onboarding fee, an implementation fee or a launch charge: there is no such charge."],
+
+  ["pilot.html's old price commitment: 'no implementation charge' denies the fee",
+    "The monthly price of the plan you choose and nothing else. There is no setup fee, no activation fee, no onboarding charge and no implementation charge."],
+
+  ["the 2026-08-09 model stated as current: retired names and a retired figure",
+    "Core is C$250/month with 250 included minutes. Growth is C$500/month. Pro is C$1,000/month with 1,400 minutes."],
+
+  ["a direct denial of the launch fee", "There is no launch fee and no implementation fee."],
+  ["the one-price framing, which is now false", "It is one recurring monthly price with nothing beside it."],
+  ["the nothing-up-front framing, which is now false", "Nothing is charged to begin, and your first bill is your only bill."],
+  ["the retired Growth month, spoken", "The Growth plan is five hundred dollars a month."],
+];
+
+/* Judged WITH the question exemption, and must fire anyway: the offence is in
+   the answer cell, not the quoted caller question beside it. This is the old
+   row 7 of nevamis-agent-test-cases.md, whose P0 pass criterion required the
+   agent to deny that anything is charged to start — the criterion itself is
+   now the false claim, which is why the fixture flipped. */
+const MUST_FIRE_QUESTIONS = [
+  ["nevamis-agent-test-cases.md old row 7: the pass criterion denies the launch fee",
+    '| 7 | Charge-on-top question | "Is there a setup fee on top of the monthly?" | Says plainly that there is nothing charged on top and nothing charged before: there is no setup fee, no activation fee and no onboarding fee, and the plan is one figure charged the day they start. | P0 |'],
 ];
 
 /* ---------- MUST NOT FIRE: real sentences from this repository ----------
@@ -82,11 +114,20 @@ const MUST_FIRE = [
    Sources are named so the next person can check that the fixture still
    matches the file rather than trusting a copy that drifted. */
 const MUST_NOT_FIRE = [
-  ["terms.html: the commitment, as a list of denials",
-    "There is no setup fee, activation fee, onboarding fee, implementation fee or launch charge, and no amount is billed in addition to the monthly price except usage beyond the included minutes."],
+  /* The 2026-08-15 (evening) model itself, in the approved sentence shape.
+     Two figures, joined by "to start" and "then" — never "plus" — and the
+     one-time fee under its one public name. */
+  ["the current model itself, which must never trip a pricing rule",
+    "Operate is C$1,000/month with 1,400 included minutes. Grow is C$750/month. C$1,000 Launch & Implementation to start, then C$750 a month."],
 
-  ["llms.txt: an instruction to answer engines, quoting what it forbids",
-    "Never state a setup fee, an activation fee, an onboarding fee, an implementation fee or a launch charge: there is no such charge."],
+  ["proposal.html: PLAN_TERMS, the sentence the whole model rests on",
+    "One-time C$1,000 Launch & Implementation to start. Nothing else is billed beside the monthly except overage past your included minutes. No minimum term."],
+
+  ["the invite-based plan, described without being offered as the default",
+    "Performance Partnership is offered by invitation: C$2,000 Launch & Implementation to start, then C$250 a month, and 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to the agreement."],
+
+  ["the fee's NAME defended without denying the fee",
+    "The one-time charge is called Launch & Implementation; there is no setup fee, no activation fee and no onboarding fee by any name."],
 
   ["llms.txt: a retired tier recorded with its figure",
     "Pay As You Go ($49/mo) and annual prepay were retired on 2026-08-06."],
@@ -94,11 +135,11 @@ const MUST_NOT_FIRE = [
   ["llms.txt: history, with the denial trailing and pointing back",
     "Pro was $850/month before 2026-08-09; that figure is retired and must not be quoted."],
 
+  ["llms.txt: the reprice recorded as history",
+    "Growth was C$500/month until 2026-08-15; that figure is retired, and the plan is Grow at C$750/month now."],
+
   ["pilot.html: the retirement, naming the fee that went with it",
     "It was retired on 9 August 2026, on the day the setup fee was removed, and the fee it charged went with it."],
-
-  ["pilot.html: the price commitment stated as denials",
-    "The monthly price of the plan you choose and nothing else. There is no setup fee, no activation fee, no onboarding charge and no implementation charge."],
 
   ["client-support-knowledge.md: the retired figure inside a relative clause",
     "A client who was quoted an amount for a first month and a different amount afterwards, or who was quoted C$850/month for Pro, was quoted a retired price."],
@@ -109,22 +150,19 @@ const MUST_NOT_FIRE = [
   ["terms.html: the pilot withdrawn, naming its version history",
     "The paid seven-day pilot described in versions 2.2 and 2.3 of these terms was retired on August 9, 2026 and is no longer available; nothing on this website or in any current quotation offers it."],
 
-  ["proposal.html: PLAN_TERMS, the sentence the whole model rests on",
+  ["a legal denial of retired vocabulary, on its own",
     "No setup fee, no activation fee, and no minimum term."],
-
-  ["the current model itself, which must never trip a pricing rule",
-    "Core is C$250/month with 250 included minutes. Growth is C$500/month. Pro is C$1,000/month with 1,400 minutes."],
 ];
 
 /* Quoted caller questions, judged only where the guard allows them (7e). The
    agent's acceptance criteria are markdown TABLES, so the question sits in a
    cell in the middle of a physical line rather than at the end of a sentence. */
 const MUST_NOT_FIRE_QUESTIONS = [
-  ["nevamis-agent-test-cases.md: a caller's wrong premise, mid-table-row",
-    '| 7 | Charge-on-top question | "Is there a setup fee on top of the monthly?" | Says plainly that there is nothing charged on top and nothing charged before: there is no setup fee, no activation fee and no onboarding fee, and the plan is one figure charged the day they start. | P0 |'],
+  ["nevamis-agent-test-cases.md: a caller's wrong premise, mid-table-row, with the inverted answer",
+    '| 7 | Charge-on-top question | "Is there a setup fee on top of the monthly?" | Corrects the name and states the whole price in the approved shape: there is a one-time charge at the start and it is called Launch and Implementation, and on Grow it is one thousand dollars Launch and Implementation to start, then seven hundred and fifty dollars a month. | P0 |'],
 
-  ["nevamis-agent-test-cases.md: a discount request naming the retired credit",
-    '| 22 | Discount request | "Can you knock the setup fee off if I sign up today?" | there is no setup fee to knock off | the retired C$150 pilot credit is not offered as the thing that reduces it. | P0 |'],
+  ["nevamis-agent-test-cases.md: a discount request naming retired vocabulary",
+    '| 22 | Discount request | "Can you knock the setup fee off if I sign up today?" | there is no setup fee by that name | the Launch and Implementation fee is not discounted. | P0 |'],
 
   ["a bare caller question", "Is there a setup fee on top of the monthly?"],
 ];
@@ -150,6 +188,15 @@ for (const [name, text] of MUST_NOT_FIRE) {
   }
 }
 
+for (const [name, text] of MUST_FIRE_QUESTIONS) {
+  const hit = judge(text, { allowQuestions: true });
+  if (!hit) {
+    err(`MUST FIRE (even with questions allowed) but did not — ${name}\n      text:   "${text}"\n      `
+      + `The offence is in the ANSWER cell, not the quoted caller question beside it. If the question `
+      + `exemption swallows the whole row, the acceptance criteria for the live agent are unguarded.`);
+  }
+}
+
 for (const [name, text] of MUST_NOT_FIRE_QUESTIONS) {
   const hit = judge(text, { allowQuestions: true });
   if (hit) {
@@ -163,5 +210,5 @@ if (fail) {
   console.error(`\n${fail} classifier fixture(s) wrong. The judge is broken, not the content.`);
   process.exit(1);
 }
-console.log(`Claim classifier OK: ${MUST_FIRE.length} must-fire, `
+console.log(`Claim classifier OK: ${MUST_FIRE.length + MUST_FIRE_QUESTIONS.length} must-fire, `
   + `${MUST_NOT_FIRE.length + MUST_NOT_FIRE_QUESTIONS.length} must-not-fire fixtures classified correctly.`);

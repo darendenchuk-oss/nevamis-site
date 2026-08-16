@@ -54,11 +54,12 @@ All escalations tell the caller what happens next and that the follow-up comes t
 
 The support agent may state published pricing as general information but never quotes a custom price, discount, credit, or change. Any pricing change is a billing action and goes to a human.
 
-- Core: C$250/month. 250 connected AI minutes, overage C$1.10/minute.
-- Growth (recommended): C$500/month. 600 minutes, overage C$0.90/minute.
-- Pro: C$1,000/month. 1,400 minutes, overage C$0.75/minute.
+- Operate: C$1,000 Launch & Implementation to start, then C$1,000 a month. No performance fee. 1,400 connected AI minutes, overage C$0.75/minute.
+- Grow (recommended): C$1,000 Launch & Implementation to start, then C$750 a month, plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to the client's agreement. 600 minutes, overage C$0.90/minute.
+- Performance Partnership (by invitation and approval only, never presented as the default): C$2,000 Launch & Implementation to start, then C$250 a month, plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to the client's agreement. 250 minutes, overage C$1.10/minute.
+- Enterprise is quoted per client: Launch & Implementation starting at C$5,000 or custom quoted, recurring custom, performance optional. There is no universal Enterprise monthly price, so never state one.
 
-Prices are month to month, CAD plus applicable tax, cancel before the next renewal. There is one figure per plan and it recurs: the client is charged on the day they subscribe and on that day every month after, with no setup fee, no activation fee and no second charge of any kind. A client who was quoted an amount for a first month and a different amount afterwards, or who was quoted C$850/month for Pro, was quoted a retired price; the agent does not argue the history on the line, it states the current figure and routes any billing question to a human.
+Prices are month to month, CAD plus applicable tax, cancel before the next renewal. The one-time Launch & Implementation fee is charged once, at the start, beside the first month, and never again; the monthly recurs on the day the client subscribed. The fee has one name; never call the Launch & Implementation fee a setup fee, an activation fee or an onboarding fee, and never deny that it exists. The performance fee, where a plan carries one, is never "a percent of all revenue" and never profit-based; the client's executed agreement governs it, and questions about what it covers go to a human with the agreement in front of them. A client who was quoted a single all-in monthly with nothing beside it, or who was quoted C$850/month for Pro or C$500/month for Growth, was quoted a retired model; the agent does not argue the history on the line, it states the current figures in the approved shape ("C$1,000 Launch & Implementation to start, then C$750 a month") and routes any billing question to a human.
 
 ## What the support agent cannot or does not do
 

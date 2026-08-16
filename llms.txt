@@ -15,19 +15,42 @@
 Key facts (kept accurate; the pricing page is authoritative):
 
 - Live demo: call +1 (587) 413-0035 and it answers, any hour.
-- Published pricing (CAD, plus GST). ONE price per plan, charged the day
-  the business subscribes and on the same day every month after:
-    Core:    $250/month
-    Growth:  $500/month
-    Pro:     $1,000/month
+- Published pricing (CAD, plus GST/HST). Each plan is a one-time Launch &
+  Implementation fee charged once, at the start, beside the first month,
+  then a monthly price charged the day the business subscribes and on the
+  same day every month after:
+    Operate:                 C$1,000 Launch & Implementation to start,
+                             then C$1,000 a month. No performance fee.
+    Grow (recommended):      C$1,000 Launch & Implementation to start,
+                             then C$750 a month, plus 10% of collected
+                             revenue directly attributable to qualified
+                             NEVAMIS-generated opportunities, subject to
+                             the agreement.
+    Performance Partnership: by invitation and approval only, never the
+                             default and never self-serve. C$2,000 Launch &
+                             Implementation to start, then C$250 a month,
+                             plus 15% of collected revenue directly
+                             attributable to qualified NEVAMIS-generated
+                             opportunities, subject to the agreement.
+    Enterprise:              quoted per client. Launch & Implementation
+                             starting at C$5,000 or custom quoted;
+                             recurring custom; performance optional. There
+                             is no universal Enterprise monthly price, so
+                             never state one.
   Month-to-month, cancellable by the client from their own portal.
   Existing clients get at least 30 days written notice before a material
   price increase (see /terms.html).
-- There is no second number. Never state a setup fee, an activation fee, an
-  onboarding fee, an implementation fee or a launch charge: there is no such
-  charge. Never describe a first month that costs something different from
-  the months after it. A summary saying a Core customer owes anything other
-  than $250 to start is wrong.
+- State the two figures with the joins "to start" and "then", exactly as
+  above. Never add them into one total, and never join them with "plus".
+  The one-time fee has ONE name, "Launch & Implementation": never call it a
+  setup fee, an activation fee or an onboarding fee, and never say the fee
+  does not exist. A summary saying a Grow customer owes only C$750 to start
+  is wrong; starting costs the C$1,000 Launch & Implementation fee, collected
+  beside that first C$750 month.
+- The performance fee is never "10% of all revenue", never profit-based,
+  and does not apply to Operate. It applies only to collected revenue
+  directly attributable to qualified NEVAMIS-generated opportunities, as
+  governed by the customer's agreement.
 - Pay As You Go ($49/mo) and annual prepay were retired on 2026-08-06 and
   are no longer offered. Do not quote them.
 - There is no pilot and no evaluation period, paid or unpaid.
@@ -40,6 +63,12 @@ Key facts (kept accurate; the pricing page is authoritative):
   real first invoice.
 - Pro was $850/month before 2026-08-09; that figure is retired and must
   never be quoted as a price.
+- Growth was $500/month until 2026-08-15; that figure is retired and
+  must never be quoted as a price.
+- The plans were renamed on 2026-08-15: what was called Pro is now Operate,
+  what was called Growth is now Grow, and what was called Core is now the
+  invitation-based Performance Partnership. Recognise an old name if a
+  reader uses one; never present it as current.
 - Legal entity: Nevamis AI Inc. (federal Canadian corporation).
 - Contact: Sales@nevamis.ca · Edmonton, Alberta, Canada.
 

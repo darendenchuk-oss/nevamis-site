@@ -119,7 +119,15 @@ if (faq.length < 5) {
 const PLANS = NV.plans.map((p) => ({
   name: p.name,
   price: p.monthly,
-  desc: `${p.includedMinutes} included AI minutes. ${p.bestFor}`,
+  /* The whole offer, in the approved shape: an answer engine quotes this
+     verbatim, so it carries the one-time Launch & Implementation fee with
+     the rule joining it to the monthly, the performance sentence where the
+     plan has one, and the invitation status where the plan is not
+     self-serve. */
+  desc: `C$${p.launch.toLocaleString('en-CA')} Launch & Implementation to start, then C$${p.monthly.toLocaleString('en-CA')} a month.`
+    + (p.performanceNote ? ` ${p.performanceNote}` : '')
+    + (p.selfServe === false ? ' Offered by invitation and approval; never the default.' : '')
+    + ` ${p.includedMinutes} included AI minutes. ${p.bestFor}`,
 }));
 
 const service = {
