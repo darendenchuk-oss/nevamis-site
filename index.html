@@ -757,28 +757,29 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .hero{position:relative;min-height:100svh;overflow:hidden;padding:0}
   .hero .wrap{position:relative;z-index:3;display:grid;grid-template-columns:1.02fr .98fr;
     gap:36px;align-items:center;min-height:100svh;padding-top:96px;padding-bottom:36px}
-  /* 36ch is a READING measure, and it was capping the display headline too:
-     the h1 sat at 384.9px from 1100px all the way to 1920px while its longest
-     line needed 653.7px. The lede keeps its own measure below; the column is
-     the headline's. */
+  /* 36ch is a READING measure, and it was capping the display headline
+     too: the h1 sat at 384.9px from 1100px all the way to 1920px while
+     its longest line needs 653.7px. The lede keeps its own measure
+     below; the column belongs to the headline. */
   .copy{max-width:none}
-  /* Sized against THIS COLUMN, not the viewport. The headline has to fit the
-     space it is actually in, and vw does not know how wide that is — between
-     900px and 1180px the column grows while the viewport does, and past 1180px
-     the wrap stops growing but vw keeps going. cqi cannot get that wrong. */
+  /* Sized against THIS COLUMN, not the viewport. The headline has to fit
+     the space it is actually in, and vw does not know how wide that is:
+     between 900px and 1180px the column grows with the viewport, and
+     past 1180px the wrap stops growing while vw keeps going. cqi cannot
+     get that wrong. */
   .hero .copy{container-type:inline-size}
   .hero h1{font-weight:700;letter-spacing:-.03em;line-height:1.0;margin:20px 0 0;
     font-size:clamp(40px,10.6cqi,72px)}
-  /* .14em, not .06em: line-height:1.0 puts the font's descent below the line
-     box, so "your business is losing." was having its descenders shaved by the
-     reveal mask. */
+  /* .14em, not .06em: line-height:1.0 puts the font's descent below the
+     line box, so "your business is losing." was having its descenders
+     shaved by the reveal mask. */
   .hero h1 .line{display:block;overflow:hidden;padding-bottom:.14em}
   /* THE MID-WORD BREAK. The reveal animation splits the headline into
-     per-character inline-block spans, and a browser may break between any two
-     inline-blocks — so the line broke INSIDE words ("Find the rev / enue",
-     "your busine / ss is losing.") and the &nbsp; joining the words could not
-     prevent it, because the breaks were never at the spaces. A phrase is one
-     line by design; this says so. */
+     per-character inline-block spans, and a browser may break between any
+     two inline-blocks, so the line broke INSIDE words ("Find the rev /
+     enue", "your busine / ss is losing."). The &nbsp; joining the words
+     could not prevent it, because the breaks were never at the spaces.
+     A phrase is one line by design; this says so. */
   .hero h1 .w{display:inline-block;white-space:nowrap}
   .hero h1 .g{color:var(--mint)}
   /* char-split spans: inline-block breaks the h1's letter-spacing between
@@ -872,11 +873,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     .stage{order:6;height:clamp(200px,32vh,290px);min-height:0;margin:22px 0 4px}
     .hero-search{order:7;max-width:none;margin-top:20px}
     .hero-links{order:8}
-    /* `.copy` is display:contents here, so it cannot be a query container and
-       cqi is unavailable — the headline is a direct grid child of .wrap. Back
-       to vw, but sized so the longest line fits the narrowest phone: at 320px
-       the old 9vw gave 34px, which needed 328px of a 280px column and broke
-       "your busine / ss is losing." mid-word. */
+    /* `.copy` is display:contents here, so it cannot be a query container
+       and cqi is unavailable: the headline is a direct grid child of
+       .wrap. Back to vw, sized so the longest line fits the narrowest
+       phone. At 320px the old 9vw gave 34px, which needed 328px of a
+       280px column and broke "your busine / ss is losing." mid-word. */
     .hero h1{font-size:clamp(26px,8.8vw,48px)}
     .lede{max-width:none}
     .step-label{font-size:38px;letter-spacing:.1em}
