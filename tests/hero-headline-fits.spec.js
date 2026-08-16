@@ -64,6 +64,18 @@ const measure = () => {
   });
 };
 
+/* BOTH MOTION PATHS, because they are two different layouts.
+
+   With reduced motion the headline is never split into .ch spans, and the
+   unsplit run is about 8% WIDER than the split one: `.ch{margin-right:-.03em}`
+   exists to make the two identical and does not quite manage it. Tuning the
+   font size against the split width alone put 46px of overflow in front of
+   exactly the visitors who asked for less motion, and this file passed the
+   whole time because it only ever measured the animated path. */
+for (const motion of /** @type {const} */ (['no-preference', 'reduce'])) {
+test.describe(`motion: ${motion}`, () => {
+  test.use({ reducedMotion: motion });
+
 for (const vp of VIEWPORTS) {
   test(`the headline keeps each phrase on one line — ${vp.name} (${vp.width}px)`, async ({ page }) => {
     await page.setViewportSize({ width: vp.width, height: vp.height });
@@ -89,6 +101,9 @@ for (const vp of VIEWPORTS) {
       ).toBeLessThanOrEqual(0);
     }
   });
+}
+
+});
 }
 
 test('the headline never scrolls the page sideways', async ({ page }) => {

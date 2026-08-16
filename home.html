@@ -768,7 +768,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      get that wrong. */
   .hero .copy{container-type:inline-size}
   .hero h1{font-weight:700;letter-spacing:-.03em;line-height:1.0;margin:20px 0 0;
-    font-size:clamp(40px,10.6cqi,72px)}
+    /* 9.8, not 10.6. The headline has TWO widths: with reduced motion the
+       text is never split into .ch spans, and the unsplit run is ~8% wider
+       than the split one because the -.03em margin that is meant to make
+       them identical does not quite. Sized for the wider case, or nowrap
+       turns the difference into 46px of overflow for exactly the visitors
+       who asked for less motion. */
+    font-size:clamp(40px,9.5cqi,72px)}
   /* .14em, not .06em: line-height:1.0 puts the font's descent below the
      line box, so "your business is losing." was having its descenders
      shaved by the reveal mask. */
@@ -877,7 +883,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        .wrap. Back to vw, sized so the longest line fits the narrowest
        phone. At 320px the old 9vw gave 34px, which needed 328px of a
        280px column and broke "your busine / ss is losing." mid-word. */
-    .hero h1{font-size:clamp(26px,8.8vw,48px)}
+    .hero h1{font-size:clamp(26px,8.4vw,48px)}
     .lede{max-width:none}
     .step-label{font-size:38px;letter-spacing:.1em}
     .step-frag{font-size:25px}
