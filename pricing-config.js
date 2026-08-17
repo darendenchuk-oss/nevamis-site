@@ -10,8 +10,8 @@
 
      Plan                     Launch & Implementation   Monthly      Performance
      Operate                  C$1,000 one-time          C$1,000      none
-     Grow (recommended)       C$1,000 one-time          C$750        10% attributable collected revenue
-     Performance Partnership  C$2,000 one-time          C$250        15% attributable collected revenue
+     Grow (recommended)       C$1,000 one-time          C$750        10% attributable collected revenue, 12 months
+     Performance Partnership  C$2,000 one-time          C$250        15% attributable collected revenue, 12 months
        (invite / approval based — never the default, never self-serve)
      Enterprise               starting at C$5,000       custom       optional
        (quoted per client, from what a PULSE scan finds)
@@ -207,7 +207,12 @@
        was caught meaning two things at once in August and the word is
        retired. `performanceNote` is the approved customer wording for the
        performance component, or null where the plan has none — it is never
-       "a percent of all revenue" and never profit-based. `selfServe: false`
+       "a percent of all revenue" and never profit-based. It also states the
+       TERM, added 2026-08-17: the engine's canonical has carried
+       performanceFee.feeDurationMonths since the commercial model landed and
+       no surface anywhere read it, so a buyer could learn the rate on this
+       page and had no way to learn how long they pay it. A rate without a
+       term is not a price. `selfServe: false`
        marks an invite/approval-based plan that no surface may present as the
        default choice. */
     plans: [
@@ -230,7 +235,7 @@
         monthly: 750, launch: 1000, includedMinutes: 600,
         callRange: "200 to 300 typical calls", overage: 0.90,
         selfServe: true,
-        performanceNote: "Plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement.",
+        performanceNote: "Plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, charged for 12 months from that customer's first attributable collected revenue, subject to your agreement.",
         bestFor: "Businesses where NEVAMIS actively helps create and recover revenue: capture, follow-up, recovery and attribution, not just answering.",
         features: [
           "One business phone line",
@@ -248,7 +253,7 @@
         monthly: 250, launch: 2000, includedMinutes: 250,
         callRange: "80 to 125 typical calls", overage: 1.10,
         selfServe: false,
-        performanceNote: "Plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement.",
+        performanceNote: "Plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, charged for 12 months from that customer's first attributable collected revenue, subject to your agreement.",
         bestFor: "A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. Not suitable for every business, and never the default.",
         features: [
           "One business phone line",
