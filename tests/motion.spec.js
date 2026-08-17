@@ -469,7 +469,11 @@ test('keyboard users reach every control with a visible focus ring', async ({ pa
 
   const labels = reached.map((r) => r.text).join(' | ');
   expect(labels, 'the primary CTA must be keyboard reachable').toContain('Hear it answer');
-  expect(labels, 'the secondary CTA must be keyboard reachable').toContain('Book a 15-min call');
+  /* 'Book a 15-min call' until 2026-08-17, when the secondary slot went to
+     the live PULSE scanner — the headline promises to find lost revenue and
+     the page finally has the thing that does it. Booking stayed reachable in
+     the nav, which this same walk covers. */
+  expect(labels, 'the secondary CTA must be keyboard reachable').toContain('Scan my business');
 
   for (const r of reached) {
     expect(r.focusIndicator, `no visible focus ring on "${r.text}"`).not.toBe('NONE');
