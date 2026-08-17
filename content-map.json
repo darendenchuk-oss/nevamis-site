@@ -7,7 +7,7 @@
     { "file": "book.html", "url": "/book.html", "priority": "0.9", "cluster": "core", "nav": "Book a Call", "blurb": "A short strategy call and a quote scoped to your call volume." },
     { "file": "pricing.html", "url": "/pricing.html", "priority": "0.8", "cluster": "core", "nav": "Pricing", "blurb": "Every plan, what is included, and how usage is counted." },
     { "file": "pilot.html", "url": "/pilot.html", "priority": "0.8", "cluster": "core", "nav": "How You Start", "blurb": "There is no pilot and no trial. Here is exactly what happens before your line is answered." },
-    { "file": "solutions.html", "url": "/solutions.html", "priority": "0.8", "cluster": "hub", "nav": "Solutions", "title": "Solutions by trade and situation", "blurb": "Every trade, situation, and comparison in one place." },
+    { "file": "solutions.html", "url": "/solutions.html", "priority": "0.8", "cluster": "hub", "nav": "Solutions", "title": "Solutions by outcome, trade and situation", "blurb": "Every outcome, trade, situation, and comparison in one place." },
 
     { "file": "electricians.html", "url": "/electricians.html", "priority": "0.7", "cluster": "trade", "nav": "Electricians",
       "title": "Answering Service for Electricians",
