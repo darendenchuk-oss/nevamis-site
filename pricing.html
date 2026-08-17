@@ -1073,8 +1073,27 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        whole allowlisted name. That keeps the engine's drift guard readable, and
        it doubles as the fallback: a plan with no id keeps plan_quote_click,
        which is allowlisted and lands in the same funnel stage. */
-    var quoteCta = d.querySelector('.buy a[data-evt="plan_quote_click"]');
-    if (quoteCta && pl.id) quoteCta.setAttribute("data-evt", "plan_quote_click_" + pl.id);
+    /* Both CTAs, not just the quote one. This selector used to name
+       plan_quote_click alone, which was complete when it was written: checkout
+       was shut, so every card rendered "Talk to us" and there was no other
+       button to find. Opening sellable on 2026-08-16 gave every card a "Buy
+       now" instead, the selector matched nothing, and all three tiers began
+       reporting the same flat plan_buy_click — so the tier dimension died on
+       the highest-intent click the page has, at the exact moment that click
+       became possible.
+
+       Keyed on pl.id, never pl.name: the entry plan is displayed as "Core" and
+       its id is still `starter`, because the label was renamed and the identity
+       was not. A name-derived event would already have drifted.
+
+       Set here rather than in the template strings above so each literal stays
+       a whole allowlisted name — that keeps the engine's drift guard readable,
+       and it doubles as the fallback: a plan with no id keeps the bare name,
+       which is allowlisted and lands in the same funnel stage. */
+    ["plan_quote_click", "plan_buy_click"].forEach(function (base) {
+      var cta = d.querySelector('.buy a[data-evt="' + base + '"]');
+      if (cta && pl.id) cta.setAttribute("data-evt", base + "_" + pl.id);
+    });
     d.querySelector("h3").textContent = pl.name;
     var lis = d.querySelectorAll("li");
     pl.features.forEach(function (f, i) { lis[i].textContent = f; });
