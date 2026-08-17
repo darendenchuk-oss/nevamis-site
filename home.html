@@ -47,7 +47,14 @@
       { "@type": "City", "name": "Spruce Grove" }
     ],
     "address": { "@type": "PostalAddress", "addressLocality": "Edmonton", "addressRegion": "AB", "addressCountry": "CA" },
-    "contactPoint": { "@type": "ContactPoint", "telephone": "+1-587-413-0035", "contactType": "sales", "areaServed": "CA", "availableLanguage": "English" },
+    "contactPoint": { "@type": "ContactPoint", "telephone": "+1-587-413-0035", "contactType": "sales", "areaServed": "CA", "availableLanguage": "English",
+      "hoursAvailable": { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "00:00", "closes": "23:59" } },
+    "openingHoursSpecification": { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "00:00", "closes": "23:59" },
+    "potentialAction": {
+      "@type": "ReserveAction",
+      "name": "Book a 15-minute intro call",
+      "target": { "@type": "EntryPoint", "urlTemplate": "https://nevamis.ca/book.html", "actionPlatform": ["https://schema.org/DesktopWebPlatform", "https://schema.org/MobileWebPlatform"] }
+    },
     "makesOffer": { "@id": "https://nevamis.ca/#service" },
     "knowsAbout": [
       "AI receptionist",
