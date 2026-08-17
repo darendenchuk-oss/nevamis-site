@@ -96,12 +96,16 @@
     taxNote: "Prices in Canadian dollars, plus applicable GST/HST.",
     commercialModel: "V4-launch-and-implementation",
     /* Whether a visitor may complete a purchase without talking to anyone.
-       FALSE until the whole new-customer path has been rehearsed end to end
-       at the new amounts. Publishing the price is honest; taking money
-       under half-finished terms is not. The buy buttons read "Talk to us"
-       while this is false, and the engine's checkout refuses independently:
-       neither relies on the other. */
-    sellable: false,
+
+       TRUE since 2026-08-16, on the owner's explicit authorization, which
+       supersedes the rehearsal requirement that had held it FALSE since
+       2026-08-10. The prior condition — the whole new-customer path
+       rehearsed end to end at the new amounts before anyone pays — was not
+       met; the owner chose to open anyway, and the first paying customer
+       runs the sequence with the ops queue watching. The engine's checkout
+       gate opened the same day with the same authorization recorded on it;
+       neither side relies on the other, which is still the point. */
+    sellable: true,
     /* WHETHER A PLAN PRICE MAY BE SHOWN TO A STRANGER.
 
        TRUE again since the 2026-08-15 EVENING directive. It was false for
