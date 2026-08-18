@@ -1078,7 +1078,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        was shut, so every card rendered "Talk to us" and there was no other
        button to find. Opening sellable on 2026-08-16 gave every card a "Buy
        now" instead, the selector matched nothing, and all three tiers began
-       reporting the same flat plan_buy_click — so the tier dimension died on
+       reporting the same flat plan_buy_click, so the tier dimension died on
        the highest-intent click the page has, at the exact moment that click
        became possible.
 
@@ -1087,7 +1087,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        was not. A name-derived event would already have drifted.
 
        Set here rather than in the template strings above so each literal stays
-       a whole allowlisted name — that keeps the engine's drift guard readable,
+       a whole allowlisted name, which keeps the engine's drift guard readable,
        and it doubles as the fallback: a plan with no id keeps the bare name,
        which is allowlisted and lands in the same funnel stage. */
     ["plan_quote_click", "plan_buy_click"].forEach(function (base) {
