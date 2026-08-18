@@ -120,6 +120,37 @@ run('playwright', 'npx', ['playwright', 'test']);
   const engine = path.join(root, '..', 'nevamis-engine');
   const { existsSync } = await import('node:fs');
   if (existsSync(engine)) {
+    /* WHICH ENGINE ARE WE ASKING?
+
+       These two checks judge the LIVE agent against a canonical they read out
+       of whatever the sibling engine checkout happens to have on disk. On
+       2026-08-18 that checkout sat on `apex/priced-after-a-scan` - a branch
+       whose canonical says prices are NOT published, a commercial model that
+       was superseded the same evening it was written. Both checks therefore
+       read a live agent quoting the correct v3 prices and called it drift,
+       and the printed instruction was to go and 'fix' a phone line that was
+       already right.
+
+       Following that would have edited a production agent to STOP quoting
+       current prices. A judge on a superseded branch is worse than no judge,
+       because it is confidently wrong in the direction of action - so this
+       declines to render a verdict rather than render a false one. */
+    const engineBranch = (() => {
+      const r = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'],
+        { cwd: engine, encoding: 'utf8' });
+      return r.status === 0 ? String(r.stdout).trim() : null;
+    })();
+    const engineOnMaster = engineBranch === null || engineBranch === 'master';
+    if (!engineOnMaster) {
+      console.log(`
+── agent checks ── NOT RUN: nevamis-engine is on '${engineBranch}', not master.`);
+      console.log('   They compare the live agent against the canonical in that checkout, so a');
+      console.log('   stale branch reports a correct agent as drifted.');
+      console.log('   Fix: git -C ../nevamis-engine checkout master');
+      results.push({ label: 'agent checks', ok: false, status: 0, needsYou:
+        `nevamis-engine is checked out on '${engineBranch}', so neither agent check can be `
+        + 'trusted in either direction. Put it on master and re-run before changing any agent.' });
+    } else {
     run('agent sync', process.execPath, ['scripts/check-agent-sync.mjs'], { cwd: engine });
     /* Flagged as needing a decision rather than as a broken check. The live
        agent genuinely does not mention Pay As You Go, which is real drift and
@@ -135,6 +166,7 @@ run('playwright', 'npx', ['playwright', 'test']);
       'the live agent is missing a published plan, and hardcodes a time zone offset that is wrong in winter. Both changes are written out in '
       + 'nevamis-engine/docs/agent-prompts/PROPOSED-live-agent-changes.md';
     void drift;
+    }
   } else {
     console.log('\n── agent checks ── skipped: nevamis-engine is not beside this repo');
   }
