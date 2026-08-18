@@ -911,6 +911,34 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     .hero-links a:hover{color:var(--ink)}
   }
   @media(prefers-reduced-motion:reduce){#wake,#topsig{display:none}}
+
+/* ---- the loop miniature (#moves) ---- */
+.loop-mini{margin:6px 0 18px;padding:18px 14px 10px;border:1px solid var(--line);border-radius:16px;background:rgba(10,26,36,.45)}
+.loop-mini svg{width:100%;height:auto;display:block}
+.loop-mini .loop-lab text,.loop-mini text{font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.14em;fill:var(--muted)}
+.loop-mini .loop-name{font-size:12px;letter-spacing:.22em;fill:var(--ink)}
+.loop-sig{fill:none;stroke:var(--muted);stroke-width:1.6}
+.loop-line{fill:none;stroke:var(--line);stroke-width:1.5}
+.loop-rose path{fill:none;stroke:rgba(159,240,206,.38);stroke-width:2;stroke-linecap:round}
+.loop-ring{fill:none;stroke:var(--line);stroke-width:1}
+.loop-hub{fill:var(--emerald)}
+.loop-chip{fill:none;stroke:var(--line);stroke-width:1.2}
+.loop-chip-win{stroke:rgba(47,191,143,.55)}
+.loop-win-text{fill:var(--emerald)}
+.loop-return{fill:none;stroke:var(--line);stroke-width:1.2;stroke-dasharray:5 5}
+.loop-learn{opacity:.8}
+.loop-mini figcaption{margin-top:8px;font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;display:flex;gap:14px;flex-wrap:wrap}
+.loop-mini figcaption a{color:var(--emerald)}
+/* One quiet cycle: a call arrives, the hub takes it, a text goes out, the
+   booking lights. 14s, mostly rest, so the section stays calm. */
+.loop-dot{fill:var(--mint);opacity:0;offset-path:path("M 118 52 C 200 52 240 78 300 88 L 360 92 L 420 92 C 470 92 480 62 520 58");offset-rotate:0deg;animation:loop-travel 14s ease-in-out infinite}
+@keyframes loop-travel{0%{offset-distance:0%;opacity:0}4%{opacity:1}26%{offset-distance:100%;opacity:1}30%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
+.loop-hub{animation:loop-pulse 14s ease-in-out infinite}
+@keyframes loop-pulse{0%,10%{transform:scale(1)}13%{transform:scale(1.25)}16%,100%{transform:scale(1)}}
+.loop-chip-win{animation:loop-win 14s ease-in-out infinite}
+@keyframes loop-win{0%,24%{stroke:rgba(47,191,143,.55)}28%{stroke:var(--emerald)}40%,100%{stroke:rgba(47,191,143,.55)}}
+@media (prefers-reduced-motion:reduce){.loop-dot,.loop-hub,.loop-chip-win{animation:none}.loop-dot{opacity:0}}
+
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -1384,6 +1412,55 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2>Find the leak. Fix it. Grow past it.</h2>
         <p>Four moves, in order, each one measured before the next is trusted.</p>
       </div>
+      <!-- THE LOOP, AT A GLANCE. Same visual DNA as the full Brain at
+           app.nevamis.ca/brain: signals on the left, the routing rose in
+           the middle, outcomes on the right, LEARN returning underneath.
+           Pure inline SVG with one CSS-driven cycle (a missed call being
+           recovered); zero requests, static under reduced motion, and the
+           frozen frame is designed to read on its own. -->
+      <figure class="loop-mini reveal" aria-label="The NEVAMIS loop: signals in, decisions in the middle, measured outcomes out, learning returning underneath">
+        <svg viewBox="0 0 720 210" role="img" preserveAspectRatio="xMidYMid meet">
+          <title>Signals enter, NEVAMIS decides and acts, results are measured, learning returns.</title>
+          <!-- signal rail -->
+          <g class="mono loop-lab" text-anchor="start">
+            <circle cx="24" cy="52" r="4.5" class="loop-sig"/><text x="38" y="56">CALLS</text>
+            <circle cx="24" cy="92" r="4.5" class="loop-sig"/><text x="38" y="96">WEBSITE</text>
+            <circle cx="24" cy="132" r="4.5" class="loop-sig"/><text x="38" y="136">FORMS</text>
+          </g>
+          <!-- feeds -->
+          <path class="loop-line" d="M 118 52 C 200 52 240 78 300 88"/>
+          <path class="loop-line" d="M 118 92 C 200 92 240 92 300 92"/>
+          <path class="loop-line" d="M 118 132 C 200 132 240 106 300 96"/>
+          <!-- the routing rose -->
+          <g transform="translate(360 92)">
+            <g class="loop-rose">
+              <path d="M -34 0 A 34 34 0 0 1 -24 -24" /><path d="M -17 -29 A 34 34 0 0 1 17 -29"/>
+              <path d="M 24 -24 A 34 34 0 0 1 34 0"/><path d="M 34 12 A 34 34 0 0 1 20 28"/>
+              <path d="M -20 28 A 34 34 0 0 1 -34 12" transform="scale(-1,1) rotate(0)"/>
+            </g>
+            <circle r="20" class="loop-ring"/>
+            <circle r="7" class="loop-hub"/>
+          </g>
+          <text x="360" y="148" text-anchor="middle" class="mono loop-name">NEVAMIS</text>
+          <!-- action + outcomes -->
+          <path class="loop-line" d="M 420 92 C 470 92 480 62 520 58"/>
+          <path class="loop-line" d="M 420 92 C 470 92 480 122 520 118"/>
+          <g class="mono loop-lab">
+            <rect x="520" y="44" width="150" height="26" rx="13" class="loop-chip"/>
+            <text x="595" y="61" text-anchor="middle">TEXT-BACK SENT</text>
+            <rect x="520" y="104" width="150" height="26" rx="13" class="loop-chip loop-chip-win"/>
+            <text x="595" y="121" text-anchor="middle" class="loop-win-text">BOOKED</text>
+          </g>
+          <!-- learn return -->
+          <path class="loop-return" d="M 595 140 C 595 190 130 190 60 150"/>
+          <text x="360" y="196" text-anchor="middle" class="mono loop-lab loop-learn">LEARN</text>
+          <!-- the travelling signal: a missed call, recovered -->
+          <circle class="loop-dot" r="5"/>
+        </svg>
+        <figcaption class="mono">A missed call, recovered. The loop at a glance.
+          <a href="https://app.nevamis.ca/brain" data-evt="moves_brain_click">Explore the full Brain</a>
+        </figcaption>
+      </figure>
       <ol class="path-steps reveal" role="list" style="list-style:none;padding:0">
         <li class="pstep"><h3>Find</h3><p>PULSE reads what is public about your business and puts a range on what is leaking. Free, no email required, about a minute.</p></li>
         <li class="pstep"><h3>Fix</h3><p>We build the system that closes the leak, starting with the phone. Nothing contacts a customer without your say-so.</p></li>
