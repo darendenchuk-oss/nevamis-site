@@ -26,20 +26,28 @@ window.NV_ROADMAP = {
     { slug: "lead-generation", name: "Lead Generation", pillar: "grow", status: "available", stage: "now",
       desc: "Finds businesses that need what you do, works out which are worth calling, and brings you the ones that are, each with the reason it ranked where it did. Worked by a person, never by a robot dialling strangers.",
       outcome: "A call list worth working, instead of a cold directory.", cta: "/book.html" },
-    { slug: "instant-lead-follow-up", name: "Instant Lead Follow-Up", pillar: "convert", status: "planned", stage: "next",
-      desc: "When a new lead calls, submits a form, or requests a quote, the approved follow-up starts immediately instead of waiting until someone has time.",
+    /* AVAILABLE 2026-08-19, and the claims shrank to the shipped truth
+       (mirror of canonical.ts): one text per missed call, ever, with the
+       business's name on it and a working opt-out — not a retry sequence,
+       not form responses. What ships is what is sold. */
+    { slug: "instant-lead-follow-up", name: "Instant Lead Follow-Up", pillar: "convert", status: "available", stage: "now",
+      desc: "A caller you missed gets one text back while the job is still winnable — during business hours, on your say-so, with your business name on it.",
       problem: "Leads contact several companies. The fastest response usually wins the job.",
-      functions: ["Missed-call text back", "Instant form responses", "Approved SMS and email follow-up", "Appointment links", "Human escalation and stop rules"],
-      outcome: "Faster responses, fewer lost inquiries, more booked appointments." },
+      functions: ["Missed-call text back", "One text per missed call, ever", "Your identification and a working opt-out on every message", "Hands over the moment they reply or call back"],
+      outcome: "Missed callers hear back before they ring the next company." },
     { slug: "automatic-lead-tracking", name: "Automatic Lead Tracking", pillar: "operate", status: "available", stage: "now",
       desc: "Calls, messages, forms, appointments, and follow-ups become organized customer records, so owners can see which opportunities need attention.",
       problem: "Leads live in texts, notebooks, and memory. Nobody can see what is pending.",
       functions: ["Contact creation and matching", "Lead-source capture", "Call summaries attached to records", "Stage and task tracking", "Stale-lead alerts"],
       outcome: "Cleaner records, fewer forgotten opportunities, real visibility." },
-    { slug: "quote-recovery", name: "Quote Recovery", pillar: "convert", status: "planned", stage: "next",
-      desc: "Open quotes get tracked and politely followed up at the right times, with staff alerted the moment a customer is ready to move.",
+    /* AVAILABLE 2026-08-19, claims shrunk to the shipped truth: detection
+       on the owner's own threshold plus ONE approved follow-up email per
+       quiet quote — "reminder sequences" and "reply classification" are
+       not built and are not claimed. */
+    { slug: "quote-recovery", name: "Quote Recovery", pillar: "convert", status: "available", stage: "now",
+      desc: "Quotes that go quiet past your threshold get spotted and followed up once, with your name on the email and your approval before it goes.",
       problem: "Quotes are sent and forgotten. Interested customers drift away.",
-      functions: ["Quote-status tracking", "Approved reminder sequences", "Reply classification", "Human escalation", "Lost-reason capture"],
+      functions: ["Quiet-quote detection on your threshold", "One approved follow-up email per quote", "Your identification on every message", "Recovered value reported against the quotes that came back"],
       outcome: "Recovered revenue that was already almost won." },
     { slug: "schedule-protection", name: "Schedule Protection", pillar: "convert", status: "planned", stage: "future",
       desc: "Reminders, approved rescheduling, and cancellation recovery that keep valuable appointment slots from going unused.",
