@@ -23,23 +23,38 @@ window.NV_ROADMAP = {
     { slug: "pulse-scan", name: "PULSE Business Scan", pillar: "grow", status: "available", stage: "now",
       desc: "Looks at your business from the outside and tells you where the money is leaking, with what it is basing that on. Every figure is a range with a confidence level, and feeding it your real numbers sharpens all of them.",
       outcome: "You see the leaks before you pay to fix any of them.", cta: "https://app.nevamis.ca/scan" },
+    /* TWO PATHS since 2026-08-19, mirroring canonical.ts: finding the
+       client's own paying customers, AND finding jobs and tenders Nevamis
+       bids on. The bid half is gated by the service agreement (§1.1, §3)
+       and the gate is part of the sentence, not a footnote: the client's
+       named approver signs off on that specific bid, the prices are the
+       client's, Nevamis is not a party to the contract that results and does
+       not do the work. Nothing here may promise a job is won. */
     { slug: "lead-generation", name: "Lead Generation", pillar: "grow", status: "available", stage: "now",
-      desc: "Finds businesses that need what you do, works out which are worth calling, and brings you the ones that are, each with the reason it ranked where it did. Worked by a person, never by a robot dialling strangers.",
-      outcome: "A call list worth working, instead of a cold directory.", cta: "/book.html" },
-    { slug: "instant-lead-follow-up", name: "Instant Lead Follow-Up", pillar: "convert", status: "planned", stage: "next",
-      desc: "When a new lead calls, submits a form, or requests a quote, the approved follow-up starts immediately instead of waiting until someone has time.",
+      desc: "Two things. It finds the customers who need what you do and ranks them with the reason each one ranked where it did, worked by a person, never by a robot dialling strangers. And it finds jobs and tenders you could win: we prepare the bid at your prices, submit nothing until the person you name signs off on that specific bid, and hand you the job if it lands. The contract is yours and you do the work.",
+      outcome: "A call list worth working, and bids going in on work you would not have seen.", cta: "/book.html" },
+    /* AVAILABLE 2026-08-19, and the claims shrank to the shipped truth
+       (mirror of canonical.ts): one text per missed call, ever, with the
+       business's name on it and a working opt-out — not a retry sequence,
+       not form responses. What ships is what is sold. */
+    { slug: "instant-lead-follow-up", name: "Instant Lead Follow-Up", pillar: "convert", status: "available", stage: "now",
+      desc: "A caller you missed gets one text back while the job is still winnable — during business hours, on your say-so, with your business name on it.",
       problem: "Leads contact several companies. The fastest response usually wins the job.",
-      functions: ["Missed-call text back", "Instant form responses", "Approved SMS and email follow-up", "Appointment links", "Human escalation and stop rules"],
-      outcome: "Faster responses, fewer lost inquiries, more booked appointments." },
+      functions: ["Missed-call text back", "One text per missed call, ever", "Your identification and a working opt-out on every message", "Hands over the moment they reply or call back"],
+      outcome: "Missed callers hear back before they ring the next company." },
     { slug: "automatic-lead-tracking", name: "Automatic Lead Tracking", pillar: "operate", status: "available", stage: "now",
       desc: "Calls, messages, forms, appointments, and follow-ups become organized customer records, so owners can see which opportunities need attention.",
       problem: "Leads live in texts, notebooks, and memory. Nobody can see what is pending.",
       functions: ["Contact creation and matching", "Lead-source capture", "Call summaries attached to records", "Stage and task tracking", "Stale-lead alerts"],
       outcome: "Cleaner records, fewer forgotten opportunities, real visibility." },
-    { slug: "quote-recovery", name: "Quote Recovery", pillar: "convert", status: "planned", stage: "next",
-      desc: "Open quotes get tracked and politely followed up at the right times, with staff alerted the moment a customer is ready to move.",
+    /* AVAILABLE 2026-08-19, claims shrunk to the shipped truth: detection
+       on the owner's own threshold plus ONE approved follow-up email per
+       quiet quote — "reminder sequences" and "reply classification" are
+       not built and are not claimed. */
+    { slug: "quote-recovery", name: "Quote Recovery", pillar: "convert", status: "available", stage: "now",
+      desc: "Quotes that go quiet past your threshold get spotted and followed up once, with your name on the email and your approval before it goes.",
       problem: "Quotes are sent and forgotten. Interested customers drift away.",
-      functions: ["Quote-status tracking", "Approved reminder sequences", "Reply classification", "Human escalation", "Lost-reason capture"],
+      functions: ["Quiet-quote detection on your threshold", "One approved follow-up email per quote", "Your identification on every message", "Recovered value reported against the quotes that came back"],
       outcome: "Recovered revenue that was already almost won." },
     { slug: "schedule-protection", name: "Schedule Protection", pillar: "convert", status: "planned", stage: "future",
       desc: "Reminders, approved rescheduling, and cancellation recovery that keep valuable appointment slots from going unused.",
