@@ -7,8 +7,8 @@
    Last reviewed: 2026-07-23
    ============================================================ */
 window.NV_ROADMAP = {
-  lastUpdated: "2026-07-23",
-  truthStatement: "These services are in development or planned. Availability, features, integrations, and pricing may change as we test them with real businesses.",
+  lastUpdated: "2026-08-19",
+  truthStatement: "Services marked AVAILABLE NOW are live today, described exactly as narrowly as they work. The rest are in development or planned, and their availability, features, integrations and pricing may change as we test them with real businesses.",
   highlights: ["instant-lead-follow-up", "automatic-lead-tracking", "quote-recovery"],
   pillars: [
     { id: "capture", name: "Capture", line: "Every opportunity answered" },

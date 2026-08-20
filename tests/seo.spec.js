@@ -231,7 +231,18 @@ test('every page with real Q&A publishes it, except claims under review', async 
   // to say "only" and "available today" so a quoted fragment cannot read as a
   // catalogue of shipped services.
   const answers = faq.mainEntity.map((q) => q.acceptedAnswer.text).join(' ').toLowerCase();
-  expect(answers).toContain('only the front desk is available today');
+  /* THE FACT CHANGED 2026-08-19 AND THE GUARD DID NOT. Six services are
+     available now, not one, so "only the front desk is available today"
+     stopped being true — but the PROPERTY this test defends is unchanged:
+     an answer engine quoting a fragment of this must not read as a
+     catalogue of shipped services. So the assertion pins the property,
+     not the sentence: the answer has to qualify what is live (rather than
+     implying all of it is) AND has to say the rest is unbuilt. Both
+     halves, because either alone can be quoted into a lie. */
+  expect(answers, 'the status answer must qualify what is live').toMatch(
+    /\b(some are|marked available now|available now on this page)\b/);
+  expect(answers, 'the status answer must say the rest is unbuilt').toContain(
+    'planned or being researched');
 
   // revenue-engine sells something that does not exist yet, so its Q&A is the
   // most quotable place on the site to accidentally claim traction. It is now
