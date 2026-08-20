@@ -23,9 +23,16 @@ window.NV_ROADMAP = {
     { slug: "pulse-scan", name: "PULSE Business Scan", pillar: "grow", status: "available", stage: "now",
       desc: "Looks at your business from the outside and tells you where the money is leaking, with what it is basing that on. Every figure is a range with a confidence level, and feeding it your real numbers sharpens all of them.",
       outcome: "You see the leaks before you pay to fix any of them.", cta: "https://app.nevamis.ca/scan" },
+    /* TWO PATHS since 2026-08-19, mirroring canonical.ts: finding the
+       client's own paying customers, AND finding jobs and tenders Nevamis
+       bids on. The bid half is gated by the service agreement (§1.1, §3)
+       and the gate is part of the sentence, not a footnote: the client's
+       named approver signs off on that specific bid, the prices are the
+       client's, Nevamis is not a party to the contract that results and does
+       not do the work. Nothing here may promise a job is won. */
     { slug: "lead-generation", name: "Lead Generation", pillar: "grow", status: "available", stage: "now",
-      desc: "Finds businesses that need what you do, works out which are worth calling, and brings you the ones that are, each with the reason it ranked where it did. Worked by a person, never by a robot dialling strangers.",
-      outcome: "A call list worth working, instead of a cold directory.", cta: "/book.html" },
+      desc: "Two things. It finds the customers who need what you do and ranks them with the reason each one ranked where it did, worked by a person, never by a robot dialling strangers. And it finds jobs and tenders you could win: we prepare the bid at your prices, submit nothing until the person you name signs off on that specific bid, and hand you the job if it lands. The contract is yours and you do the work.",
+      outcome: "A call list worth working, and bids going in on work you would not have seen.", cta: "/book.html" },
     /* AVAILABLE 2026-08-19, and the claims shrank to the shipped truth
        (mirror of canonical.ts): one text per missed call, ever, with the
        business's name on it and a working opt-out — not a retry sequence,
