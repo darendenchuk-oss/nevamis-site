@@ -4,12 +4,11 @@
 > below (a free 7-day live pilot plus a founding-client offer) was decided
 > 2026-07-23 and is retired, along with the paid C$150 pilot that briefly
 > replaced it, the founding waiver, the setup fee, Pay As You Go, annual prepay,
-> and the C$249 / C$449 / C$849 ladder quoted further down. The current model is
-> ONE recurring price per plan: Core C$250/month, Growth C$500/month, Pro
-> C$1,000/month, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 /
-> C$0.75 overage, charged the day the client subscribes and every month after,
-> nothing charged beside it, no pilot and no trial. pricing-config.js is the
-> source of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+> and the C$249 / C$449 / C$849 ladder quoted further down. The current model
+> (v4, owner directive 2026-08-22) is a one-time Launch & Implementation fee
+> to start, then a monthly price per plan, with no pilot and no trial at any
+> price. pricing-config.js and the engine's src/domain/canonical.ts are the
+> source of truth; no figure in this file may be quoted.
 >
 > Several other files in this repo used to point HERE for "the current model".
 > They have been repointed at pricing-config.js, which is the only file a guard

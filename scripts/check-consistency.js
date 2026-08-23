@@ -431,9 +431,11 @@ for (const p of contentPages) {
        terms line now NAMES it and its default-plan amount instead of denying
        that anything is charged to start. "Setup fee" and "activation fee"
        remain retired names and are not used; the launch fee itself is never
-       denied. The figure is Grow's launch fee because Grow is the default
-       plan the static proposal renders. */
-    const PLAN_TERMS = "One-time C$1,000 Launch & Implementation to start. Plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement. Overage past your included minutes is the only other usage billing. No minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.";
+       denied. REWRITTEN 2026-08-22 (v4): the figure is the AI Front Desk's
+       launch fee because it is the default plan the static proposal renders;
+       a minimum term exists, so "no minimum term" and "cancel any time" are
+       themselves retired sentences this pin must never bless again. */
+    const PLAN_TERMS = "One-time C$1,500 Launch & Implementation to start. Overage past your included minutes is the only other usage billing. Three-month minimum to start, six months when any automation add-on or The Works is included; month one is the build, and the results show in months two and three. After the minimum: month to month, 30 days notice, cancellation from your portal, with service running to the end of the period you paid for. Your price is locked for 12 months.";
     /* INVERTED TWICE with the model, most recently 2026-08-15 (evening):
        published pricing is back, so the static line a prospect reads with
        scripts blocked states the default plan's monthly. A real quote from
@@ -821,11 +823,12 @@ for (const p of contentPages) {
      regexes rather than one long alternation so a future banner phrasing only
      has to satisfy the two ideas, not match a sentence template. */
   const RETIRED_MARK = /\bretired\b|\bsuperseded\b|\bhistorical\b|\bkept (?:as|for) (?:one|history)\b|\bis history\b|\bno longer (?:exists|offered)\b|\bnot approved\b|\bnot for publication\b|\binternal hypothes/i;
-  /* Anchors updated 2026-08-15 (evening): the current model is C$750/C$1,000
-     monthlies with a Launch & Implementation fee. "one recurring price" was
-     an anchor and is now itself a retired claim, so it is gone — a banner
-     that named it would exempt the very file still asserting it. */
-  const CURRENT_MARK = /C\$\s?750|C\$\s?1,?000|Launch (?:&|and) Implementation|pricing-config\.js|NOT NEVAMIS PRICING/i;
+  /* Anchors updated 2026-08-22 (v4): the current model is C$1,000/C$1,800
+     monthlies with C$1,500/C$2,500 Launch & Implementation fees and priced
+     add-ons. C$750 was an anchor and is now itself a retired figure, so it
+     is gone — a banner that named it would exempt the very file still
+     asserting it. */
+  const CURRENT_MARK = /C\$\s?1,?800|C\$\s?1,?000|C\$\s?1,?500|C\$\s?2,?500|Launch (?:&|and) Implementation|pricing-config\.js|NOT NEVAMIS PRICING/i;
   const BANNER = { test: (h) => RETIRED_MARK.test(h) && CURRENT_MARK.test(h) };
   const roots = [walk(path.join(root, "docs")), walk(path.join(root, "creative"))].flat();
   const rootDocs = fs.readdirSync(root)
@@ -941,10 +944,14 @@ for (const p of contentPages) {
       "eight hundred and fifty dollars", "eight fifty a month",
       "free trial", "trial period",
       /* Retired 2026-08-15 (evening): Growth's C$500 month, and the
-         pre-directive plan names. The agent says Operate, Grow and
-         Performance Partnership now. */
+         pre-directive plan names. */
       "five hundred dollars a month", "five hundred a month",
       "core plan", "growth plan", "pro plan",
+      /* Retired 2026-08-22 (v4): Grow's C$750 month, and the v3 plan names.
+         The agent says The Works, AI Front Desk and Performance Partnership
+         now. */
+      "seven hundred and fifty dollars a month", "seven hundred and fifty a month", "seven fifty a month",
+      "operate plan", "grow plan",
       /* Denials of the launch fee, which are the new false claims. */
       "no implementation fee", "no launch fee", "no launch charge",
       "one recurring monthly price", "nothing charged to start",
@@ -1016,7 +1023,8 @@ for (const p of contentPages) {
        the table legitimately records that $150 and $850 were retired, and a
        whole-file scan would fail the sentence doing that work. $500 joined
        2026-08-15 (evening) with Growth's reprice to Grow at $750. */
-    const RETIRED_FIGURES = ["$150", "$850", "$249", "$449", "$849", "$49", "$500"];
+    /* $750 joined 2026-08-22 (v4) with Grow's retirement into The Works. */
+    const RETIRED_FIGURES = ["$150", "$850", "$249", "$449", "$849", "$49", "$500", "$750"];
     for (const plan of w.NV_PRICING.plans) {
       const row = md.split(/\r?\n/).find((l) => /^\|/.test(l) && l.includes("| " + plan.name + " |"));
       if (!row) { err(`PLAYBOOK.md: no tier row for "${plan.name}"`); continue; }

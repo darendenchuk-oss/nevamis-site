@@ -16,7 +16,11 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
     annual: window.NV_PRICING.plans.find((p) => p.id === 'growth').annual,
   }));
 
-  await expect(page.locator('#planPrice')).toContainText(`C$${cfg.monthly}`);
+  /* Locale-formatted, since 2026-08-22: The Works' C$1,800 is the first
+     four-digit monthly this page has rendered, and the page writes it with
+     its separator. Deriving the expectation the same way keeps the test
+     asserting "the config's number, as money" rather than a spelling. */
+  await expect(page.locator('#planPrice')).toContainText('C$' + cfg.monthly.toLocaleString('en-CA'));
   await expect(page.locator('#planIncludes')).toContainText(String(cfg.minutes));
 
   /* The proposal is emailed to a named prospect, so this line is the one that
@@ -46,11 +50,16 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
      one document a buyer keeps that the commercial model had deliberately
      retired. What must be disclosed now is the fee itself. */
   await expect(terms).toContainText(/Launch & Implementation/i);
-  /* Case-insensitive: the clause moved to the start of its sentence in the
-     v3 terms, so the literal lowercase match stopped hitting a sentence that
-     still says exactly this. */
-  await expect(terms).toContainText(/no minimum term/i);
-  await expect(terms).toContainText('Cancel any time');
+  /* INVERTED 2026-08-22 (v4): a minimum term now EXISTS — three months on a
+     plan alone, six with add-ons or The Works — so "no minimum term" and
+     "Cancel any time" flipped from required disclosures to retired
+     sentences. What the buyer's kept document must disclose now is the term
+     itself, its month-to-month tail, and the price lock. */
+  await expect(terms).toContainText(/minimum/i);
+  await expect(terms).toContainText(/month to month/i);
+  await expect(terms).toContainText(/locked for 12 months/i);
+  await expect(terms).not.toContainText(/no minimum term/i);
+  await expect(terms).not.toContainText(/cancel any time/i);
 
   /* Annual prepay is suspended in the config, so the proposal must NOT quote a
      yearly figure. This assertion used to demand "pay ten months, get twelve"
@@ -123,10 +132,10 @@ test('a retired or unknown plan id never quotes a retired price', async ({ page 
        model claiming it was a fabrication. It is now the truth for every plan,
        and it lives on #planTerms rather than here. The thing worth catching is
        a retired FIGURE resolving out of an unknown id. */
-    /* /grow/i, not /growth/i - the plan is named "Grow" since 2026-08-15 and
-       this matches either spelling, so the point (an unknown id falls back to
-       a real plan) survives the rename. */
-    await expect(page.locator('#planName')).toContainText(/grow/i);
+    /* /front desk/i since 2026-08-22 (v4): the recommended fallback plan is
+       the AI Front Desk. The point is unchanged - an unknown id falls back to
+       a real, current plan and never a retired figure. */
+    await expect(page.locator('#planName')).toContainText(/front desk/i);
   }
 });
 

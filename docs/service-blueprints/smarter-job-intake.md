@@ -1,15 +1,18 @@
 # Service Blueprint: Smarter Job Intake
 
 > **NOT NEVAMIS PRICING. Every fee in this file is an internal hypothesis,
-> not approved, for a product that does not exist yet.** Noted 2026-08-10. These
-> figures have never been offered, quoted or charged, and no setup fee, pilot
-> or trial described here has been approved. The one thing Nevamis actually
-> sells is the AI receptionist, and it is sold as ONE recurring price per plan
-> with nothing charged beside it: Core C$250/month, Growth C$500/month, Pro
-> C$1,000/month, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 /
-> C$0.75 overage. No setup fee, no activation fee, no onboarding fee, no pilot
-> and no trial at any price. `pricing-config.js` is the source of truth and
-> docs/CLAIMS-LEDGER.md row CLM-18 is the approval. Nothing below may be
+> not approved, for a product that does not exist yet.** Noted 2026-08-10;
+> restated for v4 on 2026-08-22. These figures have never been offered,
+> quoted or charged, and nothing described here has been approved for sale.
+> What Nevamis actually sells is a one-time Launch & Implementation fee
+> to start, then a monthly price:
+> The Works C$2,500 to start, then C$1,800/month (1,400 minutes, C$0.75/min overage);
+> AI Front Desk C$1,500 to start, then C$1,000/month (1,400 minutes, C$0.75/min overage);
+> Performance Partnership (invite-only) C$2,000 to start, then C$250/month plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 minutes, C$1.10/min overage).
+> Sellable add-ons, each its own sale on its own three-month start:
+> Missed-Call Recovery C$300/month, Quote-Chase Engine C$450/month, Get-Paid Autopilot C$450/month.
+> No pilot and no trial at any price. `pricing-config.js` and the engine's
+> `src/domain/canonical.ts` are the source of truth. Nothing below may be
 > quoted to a prospect; a price here would need approving on its own first.
 
 
@@ -255,8 +258,8 @@ A pilot is successful when the primary metric is met, intake time improves again
 
 All figures are internal hypothesis, not approved. Canadian dollars. Do not publish.
 
-- Setup: $1,500 to $5,000 (internal hypothesis, not approved).
-- Monthly: $750 to $2,500 plus usage (internal hypothesis, not approved).
+- One-time build: $1,500 to $5,000 (internal hypothesis, not approved).
+- Monthly (internal hypothesis, not approved): $750 to $2,500 plus usage.
 - Structure: one-time setup fee, monthly management fee, included usage allotment, transparent overage, custom integration fee for systems outside the supported list, additional location fee.
 - Setup is at the high end of the add-on range because this service requires rules workshops with the client, job-management integration, service-area configuration, and emergency-path testing before go-live.
 - Cost model must include: telephony and messaging usage, AI usage, founder onboarding time, ongoing support, failure recovery, reporting time, refund risk, and payment-processing fees, not just software markup. Price the implemented outcome, risk, customization, and ongoing management, not the tooling.

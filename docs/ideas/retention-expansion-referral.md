@@ -4,11 +4,18 @@
 > Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
 > After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
 > setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
-> Every one of those is retired. The current model is ONE recurring price per plan, charged the
-> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
-> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
-> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
-> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+> Every one of those is retired, and the single-recurring-price model that replaced them on
+> 2026-08-09 was itself superseded by v4 (owner directive 2026-08-22). The current model is a
+> one-time Launch & Implementation fee to start, then a monthly price:
+> **The Works** C$2,500 to start, then C$1,800/month (1,400 included minutes, C$0.75/min overage);
+> **AI Front Desk** (recommended) C$1,500 to start, then C$1,000/month (1,400 included minutes, C$0.75/min overage);
+> **Performance Partnership** (invite-only) C$2,000 to start, then C$250/month plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 included minutes, C$1.10/min overage).
+> Sellable add-ons, each its own sale on its own three-month start:
+> Missed-Call Recovery C$300/month, Quote-Chase Engine C$450/month, Get-Paid Autopilot C$450/month.
+> Terms: three months minimum on a plan alone, six with any add-on or The Works,
+> then month to month on thirty days notice, with the price locked for twelve months.
+> No pilot or trial at any price. `pricing-config.js` and the engine's
+> `src/domain/canonical.ts` are the source of truth.
 >
 > The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
 > survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
@@ -106,7 +113,7 @@ impact 4/5 · effort 1/5 · touches: nevamis-site/home.html (#faq), pilot.html, 
 29. **RETENTION-EXPANSION-REFERRAL-029 — Add a "month two onward" section to the homepage, because the site currently ends at go-live.** `#first-week` in `home.html` walks day 1 to day 7 and then the narrative stops. Add a short companion block: a tuning review every month, a call-log review, a monthly numbers report, a named person who answers, and change requests as part of the service. Prospects on a $449/mo month-to-month plan are silently asking "what am I paying for in month six" and nothing on the page answers.
 impact 5/5 · effort 2/5 · touches: nevamis-site/home.html (#first-week), assets/motion/site.css
 
-30. **RETENTION-EXPANSION-REFERRAL-030 — Turn a hit minute cap into an upgrade decision with the arithmetic shown.** `src/components/usage-meter.tsx` already alerts at 50/75/90/100%. At 90% on After Hours, render the comparison in dollars: 250 included plus 120 overage minutes at $1.10 is $381 on top of $249; Growth is $449 flat with 600 minutes. Add a "move me to Growth" button that files a change request. Upgrades should be the client's obvious arithmetic, never your ask.
+30. **RETENTION-EXPANSION-REFERRAL-030 — Turn a hit minute cap into an upgrade decision with the arithmetic shown.** `src/components/usage-meter.tsx` already alerts at 50/75/90/100%. At 90% on the 250-minute Performance Partnership allowance, render the comparison in dollars: 250 included plus 120 overage minutes at $1.10 is $132 of overage; the AI Front Desk carries 1,400 included minutes at a lower overage rate. Add a "move me up" button that files a change request. Upgrades should be the client's obvious arithmetic, never your ask.
 impact 5/5 · effort 2/5 · touches: nevamis-engine/src/components/usage-meter.tsx, src/domain/usage.ts, nevamis-site/pricing-config.js
 
 31. **RETENTION-EXPANSION-REFERRAL-031 — Make Pay As You Go compute its own break-even and say it.** At $49/mo plus $1.95 per connected minute, a PAYG client passes the $249 After Hours price at about 103 minutes, and After Hours includes 250. Render "you used 141 minutes last month ($324) — After Hours would have been $249 with 109 minutes to spare" on the PAYG usage view. PAYG exists to lower the entry barrier; it should graduate people automatically rather than quietly overcharging them.

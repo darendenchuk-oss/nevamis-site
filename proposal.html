@@ -781,8 +781,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   <section>
     <h2>Recommended plan</h2>
     <div class="plan-box">
-      <p class="mono" style="color:var(--mint);font-size:11.5px;letter-spacing:.14em" id="planName">GROW</p>
-      <p class="amount" id="planPrice">C$750<span>/month</span></p>
+      <p class="mono" style="color:var(--mint);font-size:11.5px;letter-spacing:.14em" id="planName">AI FRONT DESK</p>
+      <p class="amount" id="planPrice">C$1,000<span>/month</span></p>
       <!-- Real text, not an empty span. Everything in this box is overwritten
            from pricing-config.js on load; with scripts blocked this is what the
            prospect reads, and a blank line under a monthly price is where he
@@ -791,23 +791,23 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            shipped empty, and filling them 1.9s after first paint on a throttled
            phone was 0.060 of this page's 0.060 CLS: the whole of it, in one
            shift, on the one document written to close a sale. -->
-      <p class="plan-line" id="planIncludes">600 included AI minutes per month, about 200 to 300 typical calls. Additional minutes C$0.90 each.</p>
-      <p class="plan-line" id="planMonthly">C$750/month, charged the day you start and every month after.</p>
-      <p class="plan-line" id="planTerms">One-time C$1,000 Launch &amp; Implementation to start. Plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement. Overage past your included minutes is the only other usage billing. No minimum term. Cancel any time from your portal and service runs to the end of the month you paid for.</p>
+      <p class="plan-line" id="planIncludes">1400 included AI minutes per month, about 470 to 700 typical calls. Additional minutes C$0.75 each.</p>
+      <p class="plan-line" id="planMonthly">C$1,000/month, charged the day you start and every month after.</p>
+      <p class="plan-line" id="planTerms">One-time C$1,500 Launch &amp; Implementation to start. Overage past your included minutes is the only other usage billing. Three-month minimum to start, six months when any automation add-on or The Works is included; month one is the build, and the results show in months two and three. After the minimum: month to month, 30 days notice, cancellation from your portal, with service running to the end of the period you paid for. Your price is locked for 12 months.</p>
       <p class="plan-line" id="planAnnual"></p>
       <ul class="ticks" id="planFeatures">
         <li>One business phone line</li>
+        <li>Automation add-ons available one at a time, each its own price, each on its own three-month start</li>
         <li>Two call reviews each month, and tuning from what the calls actually show</li>
         <li>Priority email support</li>
+        <li>Higher-volume usage priced with you before you commit to it</li>
         <li>Answers your line around the clock, configured from your own hours, services, service area, prices and FAQs</li>
         <li>Asks the qualifying questions you approved, in your words</li>
         <li>Captures the caller's name, callback number, what they want, the service, how urgent it is, how the call ended and what happens next, as one structured lead</li>
         <li>Texts and emails you that summary within seconds of the call ending, and records honestly whether each one was delivered</li>
-        <li>Every call recorded and playable in your portal, with CSV export of the lead record</li>
-        <li>Automatic quality review of any call where a caller used emergency language, or the agent claimed a booking it could not confirm</li>
       </ul>
     </div>
-    <p class="meta">Canadian dollars, plus applicable GST/HST. Month to month, cancel anytime.
+    <p class="meta">Canadian dollars, plus applicable GST/HST. Three-month start, then month to month from your portal.
       Full plan comparison at <a href="/pricing.html" style="color:var(--mint)">nevamis.ca/pricing</a>.</p>
     <!-- The decision happens here, at the price, not 1,300px further down.
          This document is sent to a named prospect after a call, and its only
@@ -962,10 +962,18 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         : (P.publishedPricing
           ? money(plan.monthly) + "/month, charged the day you start and every month after."
           : "Your monthly amount is quoted per client, then it is charged the day you start and every month after."));
+      /* The term sentence reads pricing-config.js (v4, 2026-08-22): a minimum
+         term exists, so "no minimum term" and "cancel any time" are retired
+         sentences this builder may never emit again. */
+      var T = P.terms || {};
       set("planTerms", "One-time " + money(plan.launch) + " Launch & Implementation to start."
         + (plan.performanceNote ? " " + plan.performanceNote : "")
         + " Overage past your included minutes is the only other usage billing."
-        + " No minimum term. Cancel any time from your portal and service runs to the end of the month you paid for."
+        + " " + (T.minimumMonthsCore || 3) + "-month minimum to start, " + (T.minimumMonthsWithAddOns || 6)
+        + " months when any automation add-on or The Works is included; month one is the build, and the results show in months two and three."
+        + " After the minimum: month to month, " + (T.cancellationNoticeDays || 30) + " days notice, cancellation from your portal,"
+        + " with service running to the end of the period you paid for."
+        + " Your price is locked for " + (T.priceLockMonths || 12) + " months."
         + (plan.selfServe === false ? " This plan is offered by invitation and approval." : ""));
 
       if (P.annual && P.annual.active && plan.annual) {

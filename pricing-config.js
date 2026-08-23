@@ -3,79 +3,75 @@
    APPROVED 2026-08-06, MODEL CLARIFIED 2026-08-07,
    SIMPLIFIED TO ONE RECURRING PRICE 2026-08-09,
    PRICED AFTER A SCAN (morning) AND THEN THE
-   OPERATE / GROW / PERFORMANCE PARTNERSHIP MODEL (evening) 2026-08-15.
+   OPERATE / GROW / PERFORMANCE PARTNERSHIP MODEL (evening) 2026-08-15,
+   THE ADD-ON MODEL (v4) 2026-08-22.
    Do not duplicate these values in HTML — render from here.
 
-   THE COMMERCIAL MODEL, IN ONE TABLE:
+   THE COMMERCIAL MODEL, IN ONE TABLE (v4, owner directive 2026-08-22):
 
      Plan                     Launch & Implementation   Monthly      Performance
-     Operate                  C$1,000 one-time          C$1,000      none
-     Grow (recommended)       C$1,000 one-time          C$750        10% attributable collected revenue, 12 months
+     The Works (the bundle)   C$2,500 one-time          C$1,800      none
+     AI Front Desk (start)    C$1,500 one-time          C$1,000      none
      Performance Partnership  C$2,000 one-time          C$250        15% attributable collected revenue, 12 months
        (invite / approval based — never the default, never self-serve)
      Enterprise               starting at C$5,000       custom       optional
        (quoted per client, from what a PULSE scan finds)
 
-   THE ONE-TIME FEE IS BACK, AND IT HAS ONE NAME AND ONE MEANING.
-   "Launch & Implementation" is a real one-time charge for the build:
-   implementation, integrations, automation configuration, a PULSE baseline
-   and go-live validation. It is charged once, at the start, BESIDE the first
-   month — never instead of it. The approved sentence shape is
-   "C$1,000 Launch & Implementation to start, then C$750 a month": the joins
-   are "to start" and "then", never "plus", "+" or "and", because the additive
-   framing is what made two right numbers read as one wrong bill in August.
+     Add-ons (each its own sale, on top of the AI Front Desk):
+       Missed-Call Recovery   C$300/month     sellable today
+       Quote-Chase Engine     C$450/month     sellable today
+       Get-Paid Autopilot     C$450/month     sellable today
+       Review Engine          C$300/month     NOT yet sellable (prototype)
+       Customer Reactivation  C$2,000/campaign  NOT yet sellable (prototype)
 
-   "Setup fee", "activation fee" and "onboarding fee" remain RETIRED
-   VOCABULARY: they may be denied, never used as the name of this fee. And
-   the launch fee itself must never be denied — "no implementation fee",
-   "no launch charge", "one recurring monthly price" and "nothing charged to
-   start" are all now FALSE and the guards refuse them.
+   WHAT V4 CHANGED AND WHY. Every automation is its own product with its own
+   price, sold on its own evidence, instead of bundled invisibly into a
+   tier's monthly. Grow (C$750 + 10%) left the ladder: its key `growth` now
+   sells THE WORKS, the everything bundle, priced under the sum of its parts
+   and carrying no performance fee. C$750 joined the retired prices; "Grow"
+   and "Operate" joined the retired names. The reprice was made at zero live
+   subscriptions, which is the one moment a key can change meaning without a
+   stored amount misreading. Performance pricing survives only on the
+   invite-only Partnership.
 
-   WHAT CHANGED AND WHY, because earlier versions of this header argued
-   the opposite case and someone will find all of them:
-     - 2026-07-31  setup fee waived — zero for everyone
-     - 2026-08-06  setup fee returned; the build is real work on day one
-     - 2026-08-07  renamed to mean month one; right numbers, wrong sentence
-     - 2026-08-09  deleted. One recurring price, nothing beside it
-     - 2026-08-15  (morning) prices unpublished: "priced after your scan"
-     - 2026-08-15  (evening) the OPERATE / GROW / PERFORMANCE PARTNERSHIP
-                   ladder, published, each with a one-time Launch &
-                   Implementation fee. What is being bought changed under the
-                   price: implementation, integrations, automation, a PULSE
-                   baseline and revenue attribution, and a build that costs
-                   real hours cannot honestly be priced at zero. The
-                   scan-derived quote survives as the ENTERPRISE mechanism,
-                   not as the default ladder.
+   A MINIMUM TERM EXISTS SINCE V4: three months on the AI Front Desk alone,
+   six months when any add-on or The Works is included, then month to month
+   with 30 days notice, price locked for 12 months from signing. "No
+   contract" and "cancel any time" are therefore RETIRED VOCABULARY on every
+   surface: the honest sentence is the results window — month one is the
+   build and the tuning, the wins show in months two and three.
 
-   KEYS ARE STABLE AND NAMES MOVED. `pro` recurred at C$1,000 and Operate
-   recurs at C$1,000; `starter` recurred at C$250 and Performance Partnership
-   recurs at C$250; `growth` is the one true reprice (C$500 -> C$750), so
-   C$500 is retired and the guards watch for it. Order is display order and
-   the default: index 1 is Grow, the recommended plan.
+   THE ONE-TIME FEE still has one name and one meaning. "Launch &
+   Implementation" is charged once, at the start, BESIDE the first month —
+   never instead of it. The approved sentence shape is "C$1,500 Launch &
+   Implementation to start, then C$1,000 a month": the joins are "to start"
+   and "then", never "plus", "+" or "and". "Setup fee", "activation fee" and
+   "onboarding fee" remain RETIRED VOCABULARY: they may be denied, never used
+   as the name of this fee. And the launch fee itself must never be denied.
+
+   KEYS ARE STABLE AND NAMES MOVED, AGAIN. `pro` recurred at C$1,000 and the
+   AI Front Desk recurs at C$1,000; `starter` recurs at C$250 unchanged;
+   `growth` is the one v4 reprice (C$750 -> C$1,800, made at zero
+   subscriptions). Order is display order: index 0 is The Works (the anchor
+   a reader sees first), index 1 is the AI Front Desk — the recommended
+   start and the checkout default.
 
    The `launch` key is the one-time fee. It is deliberately NOT called
    `setup`: nevamis-engine's checkPricing treats the PRESENCE of a `setup`
    figure as a defect, and the engine parser reads `launch` instead.
    ============================================================ */
 (function () {
-  /* WHAT EVERY PLAN INCLUDES, written once.
+  /* WHAT THE FRONT DESK INCLUDES, written once.
 
-     One array, spread into all three plans, because the plans do not differ
-     by capability and a per-plan copy of this list would let them look as
-     though they did. The honest differences are the metered ones (included
-     minutes, the price of a minute past them, review cadence) and, since
-     2026-08-15, the commercial ones: the Launch & Implementation fee and the
-     performance component. Those are the only per-plan entries below.
+     One array, spread into the plans, because the front-desk capability does
+     not differ by plan and a per-plan copy of this list would let it look as
+     though it did. The honest differences are the metered ones, the
+     commercial ones (the Launch & Implementation fee), and — since v4 —
+     WHICH AUTOMATIONS ARE IN: none on the AI Front Desk (they are add-ons),
+     all of the sellable ones on The Works.
 
      Every line here is something the system does today, end to end, for a
-     paying client. That is the bar, and it excluded several lines that were
-     on this page until 2026-08-09: booking into a calendar (the agents are
-     given end_call and no tenant calendar credential exists), any CRM, ads
-     or automation connection (the operations page lists them as NOT BUILT),
-     multi-location, multi-department, call routing and more than one number
-     per tenant, transcripts in the portal, customer-facing confirmation
-     texts, and outbound of any kind. Selling those was selling a roadmap as
-     an entitlement. What replaced them is not smaller, it is just true. */
+     paying client. That is the bar. */
   var EVERY_PLAN = [
     "Answers your line around the clock, configured from your own hours, services, service area, prices and FAQs",
     "Asks the qualifying questions you approved, in your words",
@@ -88,68 +84,91 @@
     "Included minutes metered in the portal, with alerts at 50%, 75%, 90% and 100%, and your choice of overage, fallback answering or a hard cap",
     "A PULSE scan of your business, with every figure a range and a confidence level, recalibrated as you feed it real numbers",
     "A portal Pulse page that keeps your scans, and Results that label every number as measured or modelled",
-    "Invoices, plan changes and cancel-at-period-end you can do yourself, without asking us"
+    "Invoices and plan changes you handle yourself in the portal, and self-serve cancellation once past your minimum term"
   ];
 
   window.NV_PRICING = {
     approved: true,
     currency: "CAD",
-    lastUpdated: "2026-08-15",
+    lastUpdated: "2026-08-22",
     taxNote: "Prices in Canadian dollars, plus applicable GST/HST.",
-    commercialModel: "V4-launch-and-implementation",
+    commercialModel: "V4-addon-model",
     /* Whether a visitor may complete a purchase without talking to anyone.
-
-       TRUE since 2026-08-16, on the owner's explicit authorization, which
-       supersedes the rehearsal requirement that had held it FALSE since
-       2026-08-10. The prior condition — the whole new-customer path
-       rehearsed end to end at the new amounts before anyone pays — was not
-       met; the owner chose to open anyway, and the first paying customer
-       runs the sequence with the ops queue watching. The engine's checkout
-       gate opened the same day with the same authorization recorded on it;
-       neither side relies on the other, which is still the point. */
+       TRUE since 2026-08-16, on the owner's explicit authorization. The
+       engine's checkout gate opened the same day with the same authorization
+       recorded on it; neither side relies on the other. */
     sellable: true,
-    /* WHETHER A PLAN PRICE MAY BE SHOWN TO A STRANGER.
-
-       TRUE again since the 2026-08-15 EVENING directive. It was false for
-       roughly twelve hours that same day ("priced after a scan", the
-       morning's decision); the evening directive replaced the default ladder
-       with the OPERATE / GROW / PERFORMANCE PARTNERSHIP model and made those
-       prices publishable. Scan-derived per-client quoting survives on the
-       `enterprise` record below, where it belongs.
-
-       Mirrors CANONICAL.pricing.publishedPricing in nevamis-engine, and the
-       engine's checkPricing enforces it across this repo. Flip both together
-       or the cross-repo check fails, which is the point of it. */
+    /* WHETHER A PLAN PRICE MAY BE SHOWN TO A STRANGER. TRUE since the
+       2026-08-15 evening directive, carried through v4. Mirrors
+       CANONICAL.pricing.publishedPricing in nevamis-engine, and the engine's
+       checkPricing enforces it across this repo. Flip both together or the
+       cross-repo check fails, which is the point of it. */
     publishedPricing: true,
+    /* THE CONTRACT TERM, v4. Mirrors CANONICAL.pricing.terms in
+       nevamis-engine. Stated here because a term a buyer discovers at the
+       agreement is a term that was hidden; the pricing page says it in the
+       open, framed the way it is true: month one is the build, the results
+       show in months two and three. */
+    terms: {
+      minimumMonthsCore: 3,
+      minimumMonthsWithAddOns: 6,
+      cancellationNoticeDays: 30,
+      priceLockMonths: 12,
+      note: "Three-month start on the AI Front Desk; six months when any add-on or The Works is included. Month one is the build and the tuning — the results window is the point. After the minimum: month to month, 30 days notice, cancellation from your own portal, and your price is locked for 12 months from signing."
+    },
     /* ENTERPRISE, deliberately NOT a plans[] entry: it has no universal
        monthly price, and a record shaped like a priced plan gets rendered as
-       one by the laziest reader (the Pay As You Go lesson). This is where the
-       2026-08-15 morning's "priced after your scan" model survives: an
-       Enterprise quote is built per client, from what a PULSE scan finds.
-       `launchFrom` is a floor ("starting at"), never a price. */
+       one by the laziest reader (the Pay As You Go lesson). An Enterprise
+       quote is built per client, from what a PULSE scan finds. `launchFrom`
+       is a floor ("starting at"), never a price. */
     enterprise: {
       name: "Enterprise",
       launchFrom: 5000,
       note: "Multi-location, custom integrations, custom data pipelines and advanced deployments are quoted per client, from what a scan of the business finds. Launch & Implementation starting at C$5,000 or custom quoted; the recurring amount and any performance component are quoted per client."
     },
-    /* The badge on the recommended plan. "RECOMMENDED" is an opinion, which
-       is true and defensible. It moved to Grow on 2026-08-15: Grow is the
-       plan the wider product story actually sells, and the checkout default
-       reads the same record. Versioned here so the places that render it
-       cannot drift apart. */
+    /* The badge on the recommended plan. It moved to the AI Front Desk on
+       2026-08-22: The Works is the anchor a reader prices the ladder against,
+       and the Front Desk is the start most businesses actually make — the
+       checkout default reads the same record. */
     recommendedLabel: "RECOMMENDED",
+    /* THE ADD-ON CATALOG, v4: every automation is its own product, added to
+       the AI Front Desk one at a time, each on its own three-month start.
+       `sellable: false` marks a module whose machinery has not shipped
+       end-to-end yet — it may be described as coming, never sold, and no
+       surface may render it with a Buy control. C$450 and not C$500 for the
+       two engines is deliberate: C$500 is a retired monthly and billing
+       refuses retired amounts. */
+    addOns: [
+      {
+        id: "missed_call_recovery", name: "Missed-Call Recovery",
+        monthly: 300, sellable: true,
+        blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out — before they ring the next name on Google."
+      },
+      {
+        id: "quote_chase", name: "Quote-Chase Engine",
+        monthly: 450, sellable: true,
+        blurb: "Every estimate that goes quiet gets followed up — the day it stales, day four, day eleven — each touch approved by you, stopping the moment the customer replies."
+      },
+      {
+        id: "get_paid", name: "Get-Paid Autopilot",
+        monthly: 450, sellable: true,
+        blurb: "Overdue invoices get a gentle nudge, a firm one a week later — and at three weeks YOU get told instead, because past that point the judgment call belongs to a person."
+      },
+      {
+        id: "review_engine", name: "Review Engine",
+        monthly: 300, sellable: false,
+        blurb: "Post-job review requests by text, policy-safe. Coming — not sellable until it ships end to end."
+      },
+      {
+        id: "reactivation", name: "Customer Reactivation",
+        perCampaign: 2000, sellable: false,
+        blurb: "A win-back campaign over your own past-customer list, inside the consent rules. Coming — not sellable until it ships end to end."
+      }
+    ],
     /* The referral offer. Mirrors CANONICAL.referral in nevamis-engine, and the
-       engine's consistency checker validates these values against it — so a
-       number changed here and not there is caught rather than becoming the thing
-       Nevamis is publicly held to.
-
-       DECISION OF 2026-08-09, unchanged by the 2026-08-15 model: the referred
-       business gets the published offer, and nothing else. The REFERRER's free
-       month is an obligation to an existing client rather than an inducement to
-       a new one. It is earned on the referred business's first PAID invoice,
-       not on their signup. That is stated on the page because a referral offer
-       that hides its trigger is the kind of small print this company has spent
-       the whole build removing. */
+       engine's consistency checker validates these values against it. The
+       REFERRER's free month is earned on the referred business's first PAID
+       invoice, not on their signup. */
     referral: {
       referrerRewardMonths: 1,
       headline: "Know another business that misses calls?",
@@ -157,43 +176,21 @@
       trigger: "The free month is earned when the business you referred pays their first invoice, and it comes off your next bill.",
       howTo: "Clients get their own link in the portal. Send it yourself: we never email somebody just because you named them."
     },
-    /* Retired 2026-07-31. The offer was a founding-client waiver of the old
-       zero-era setup fee. It stays retired under the 2026-08-15 model: the
-       Launch & Implementation fee is priced work, and a business that opens
-       by discounting its own work has told the buyer what it thinks that work
-       is worth. A new founding offer is a commercial decision for the owner,
-       not something to fill this slot with. */
+    /* Retired 2026-07-31, still retired under v4. */
     foundingClient: {
       active: false,
       spots: 0,
       offer: "",
       note: ""
     },
-    /* Suspended 2026-08-06. The mechanism is kept so it is not re-derived from
-       memory later, but the approved model publishes monthly prices and a
-       one-time Launch & Implementation fee and approves no annual figure.
-       Publishing an annual price would be inventing a number nobody signed
-       off, which is worse than publishing a wrong one: there is no correct
-       value to check it against. */
+    /* Suspended 2026-08-06; no annual figure is approved and none is invented
+       here. */
     annual: {
       active: false,
       monthsCharged: 10,
       offer: "",
       note: ""
     },
-    /* Pay As You Go was retired 2026-08-06 and REMOVED 2026-08-07.
-
-       It was kept for a day as an inert record on the theory that `active:false`
-       meant no surface could offer it. That was true of every surface but one:
-       proposal.html read the record with no `active` check at all, so
-       ?plan=pay-as-you-go still built a prospect-facing proposal quoting
-       C$49/month. A dormant record is only as dormant as the laziest reader of
-       it. Removed rather than re-flagged. The pilot record followed it out on
-       2026-08-09 under the same precedent.
-
-       If a retired price ever needs to be RECOGNISED again (an old link, an old
-       invoice), that belongs in a retired-price list the guards read, not in a
-       record shaped like an offer. */
     usagePolicy: {
       minuteDef: "A connected AI minute starts when the AI answers a connected call and ends when the AI portion of the call ends.",
       notes: [
@@ -205,44 +202,43 @@
     },
     /* `monthly` recurs; `launch` is charged once, at the start, beside the
        first month — never instead of it. There is deliberately no `setup`
-       key: the engine's checkPricing refuses the field name, because `setup`
-       was caught meaning two things at once in August and the word is
-       retired. `performanceNote` is the approved customer wording for the
-       performance component, or null where the plan has none — it is never
-       "a percent of all revenue" and never profit-based. It also states the
-       TERM, added 2026-08-17: the engine's canonical has carried
-       performanceFee.feeDurationMonths since the commercial model landed and
-       no surface anywhere read it, so a buyer could learn the rate on this
-       page and had no way to learn how long they pay it. A rate without a
-       term is not a price. `selfServe: false`
-       marks an invite/approval-based plan that no surface may present as the
-       default choice. */
+       key. `performanceNote` is the approved customer wording for the
+       performance component, or null where the plan has none. `selfServe:
+       false` marks an invite/approval-based plan that no surface may present
+       as the default choice. Order: The Works first (the anchor), the AI
+       Front Desk second (the recommended start and checkout default). */
     plans: [
       {
-        id: "pro", name: "Operate",
-        monthly: 1000, launch: 1000, includedMinutes: 1400,
+        id: "growth", name: "The Works",
+        monthly: 1800, launch: 2500, includedMinutes: 1400,
         callRange: "470 to 700 typical calls", overage: 0.75,
         selfServe: true,
         performanceNote: null,
-        bestFor: "Businesses that want NEVAMIS to run the operational side: the front desk, lead capture, intake and reporting, with no performance fee and no revenue share.",
+        bestFor: "The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts, with no performance fee.",
         features: [
-          "One business phone line",
-          "Two call reviews each month, and tuning from what the calls actually show",
-          "Priority email support",
-          "Higher-volume usage priced with you before you commit to it"
-        ].concat(EVERY_PLAN)
-      },
-      {
-        id: "growth", name: "Grow", recommended: true,
-        monthly: 750, launch: 1000, includedMinutes: 600,
-        callRange: "200 to 300 typical calls", overage: 0.90,
-        selfServe: true,
-        performanceNote: "Plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, charged for 12 months from that customer's first attributable collected revenue, subject to your agreement.",
-        bestFor: "Businesses where NEVAMIS actively helps create and recover revenue: capture, follow-up, recovery and attribution, not just answering.",
-        features: [
+          "Everything in the AI Front Desk",
+          "Missed-Call Recovery: one text back to every missed caller, with opt-out",
+          "Quote-Chase Engine: follow-up on every quiet estimate — day it stales, day 4, day 11 — each touch approved by you",
+          "Get-Paid Autopilot: overdue-invoice reminders, with the owner told at three weeks instead of a third email",
+          "Review requests and customer reactivation join The Works at no extra monthly when they ship — they are not sellable yet and nothing here sells them",
           "One business phone line",
           "Two call reviews each month, and tuning from what the calls actually show",
           "Priority email support"
+        ].concat(EVERY_PLAN)
+      },
+      {
+        id: "pro", name: "AI Front Desk", recommended: true,
+        monthly: 1000, launch: 1500, includedMinutes: 1400,
+        callRange: "470 to 700 typical calls", overage: 0.75,
+        selfServe: true,
+        performanceNote: null,
+        bestFor: "The start most businesses make: the front desk answering every call, with automation add-ons joining one at a time, each on its own evidence.",
+        features: [
+          "One business phone line",
+          "Automation add-ons available one at a time, each its own price, each on its own three-month start",
+          "Two call reviews each month, and tuning from what the calls actually show",
+          "Priority email support",
+          "Higher-volume usage priced with you before you commit to it"
         ].concat(EVERY_PLAN)
       },
       {

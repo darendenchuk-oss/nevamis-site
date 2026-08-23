@@ -4,10 +4,13 @@
 > It was written against the C$249 / C$449 / C$849 ladder and the free 7-day
 > live pilot, then patched on 2026-08-07 with a paragraph instructing the agent
 > to speak TWO figures per plan ("Pro C$1,000 then C$850/month") and to offer
-> the C$150 pilot credit. Every one of those is retired. The current model is
-> one recurring figure per plan — Core C$250/month, Growth C$500/month, Pro
-> C$1,000/month — charged the day the client subscribes and every month after,
-> with no setup, activation or onboarding charge and no pilot or trial at any
+> the C$150 pilot credit. Every one of those is retired, as is the 2026-08-09
+> one-figure model. The current model (v4, owner directive 2026-08-22) is a
+> one-time Launch & Implementation fee to start, then a monthly price:
+> The Works C$2,500 to start, then C$1,800/month;
+> AI Front Desk C$1,500 to start, then C$1,000/month;
+> Performance Partnership (invite-only) C$2,000 to start, then C$250/month
+> with no pilot or trial at any
 > price. The individual sections below have been corrected in place rather than
 > left as a trap, but the source of truth is pricing-config.js and the live
 > prompt snapshot in nevamis-engine/docs/agent-prompts/demo.md, never this file.
@@ -40,15 +43,15 @@ nevamis.ca publishes exact plans (`pricing-config.js`). The agent prompt as of 2
 
 The deflection-only PRICING section is replaced with the approved published pricing. The agent states the real shape on request:
 
-- Core: C$250/month, 250 connected AI minutes included (typically 80 to 125 calls), overage C$1.10/min. For small businesses that need evenings, weekends, and overflow covered.
-- Growth (recommended): C$500/month, 600 minutes (typically 200 to 300 calls), overage C$0.90/min. For growing businesses putting a meaningful share of inbound calls through it, not just the after-hours ones.
-- Pro: C$1,000/month, 1,400 minutes (typically 470 to 700 calls), overage C$0.75/min. For high-volume businesses that would run past the Growth minutes every month.
+- The Works: C$2,500 Launch & Implementation to start, then C$1,800/month, 1,400 minutes (typically 470 to 700 calls), overage C$0.75/min. The whole engine: the AI Front Desk plus every sellable automation add-on, priced under the sum of its parts.
+- AI Front Desk (recommended): C$1,500 Launch & Implementation to start, then C$1,000/month, 1,400 minutes (typically 470 to 700 calls), overage C$0.75/min. The start most businesses make; automation add-ons join one at a time, each its own sale.
+- Performance Partnership (by invitation and approval only): C$2,000 Launch & Implementation to start, then C$250/month plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, 250 minutes (typically 80 to 125 calls), overage C$1.10/min.
 
 (The plans listed here until 2026-08-09 were After Hours C$249, Growth C$449 and Scale from C$849 with 1,200 minutes and a 400-to-600-call range. Those names, prices, minute counts and call ranges are all retired.)
 
-All prices are CAD plus applicable tax, month to month, cancel before the next renewal. The agent may also explain, on request, what a connected AI minute is (starts when the AI answers a connected call, ends when the AI portion ends; calls that never connect are not counted; spam that reaches the AI is counted) and the usage-alert behaviour (alerts at 75%, 90%, and 100%; near the limit the client chooses automatic overage, fallback answering, or a hard cap).
+All prices are CAD plus applicable tax, on a three-month minimum (six with any add-on or The Works), then month to month on thirty days notice, with the price locked for twelve months. The agent may also explain, on request, what a connected AI minute is (starts when the AI answers a connected call, ends when the AI portion ends; calls that never connect are not counted; spam that reaches the AI is counted) and the usage-alert behaviour (alerts at 75%, 90%, and 100%; near the limit the client chooses automatic overage, fallback answering, or a hard cap).
 
-Each plan has exactly ONE figure and the agent speaks exactly one (2026-08-09). Core C$250/month, Growth C$500/month, Pro C$1,000/month, charged the day the client subscribes and on that day every month after. There is no setup fee, no activation fee and no onboarding fee, and the agent should say so plainly, because being the only provider in this market with published prices and nothing charged beside them is a selling point. There is no pilot and no trial, no founding-client offer, no waiver, and no scarcity of any kind to imply.
+Each plan has two published figures and one stated rule (owner directive 2026-08-22, v4): a one-time Launch & Implementation fee charged once at the start beside the first month, then the monthly price charged on the day the client subscribes and on that day every month after, joined as "to start, then", never with "plus" and never totalled. There is no setup fee, no activation fee and no onboarding fee by those names — the one-time charge has one name, Launch & Implementation, and the agent never denies it exists. There is no pilot and no trial, no founding-client offer, no waiver, and no scarcity of any kind to imply.
 
 *(The history of this one paragraph is the argument for the rule. It read "No setup fee, on any plan, for anyone" from 2026-07-31; setup was reinstated 2026-08-06 and the paragraph did not follow, so it had the agent denying a charge the invoice made. On 2026-08-07 it was rewritten to demand BOTH figures — "Core C$250 then C$250/month ... Pro C$1,000 then C$850/month" — plus "the C$150 pilot fee comes off the first month". On 2026-08-09 the setup fee, the second figure and the pilot were all deleted, and this paragraph again did not follow, so for a day it instructed the live agent to quote C$850 and sell a retired pilot. Twice out of three changes, the instruction outlived the thing it described. That is why the figures live in pricing-config.js and this file points at it.)*
 

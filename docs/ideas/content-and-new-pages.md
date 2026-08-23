@@ -4,11 +4,18 @@
 > Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
 > After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
 > setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
-> Every one of those is retired. The current model is ONE recurring price per plan, charged the
-> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
-> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
-> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
-> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+> Every one of those is retired, and the single-recurring-price model that replaced them on
+> 2026-08-09 was itself superseded by v4 (owner directive 2026-08-22). The current model is a
+> one-time Launch & Implementation fee to start, then a monthly price:
+> **The Works** C$2,500 to start, then C$1,800/month (1,400 included minutes, C$0.75/min overage);
+> **AI Front Desk** (recommended) C$1,500 to start, then C$1,000/month (1,400 included minutes, C$0.75/min overage);
+> **Performance Partnership** (invite-only) C$2,000 to start, then C$250/month plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 included minutes, C$1.10/min overage).
+> Sellable add-ons, each its own sale on its own three-month start:
+> Missed-Call Recovery C$300/month, Quote-Chase Engine C$450/month, Get-Paid Autopilot C$450/month.
+> Terms: three months minimum on a plan alone, six with any add-on or The Works,
+> then month to month on thirty days notice, with the price locked for twelve months.
+> No pilot or trial at any price. `pricing-config.js` and the engine's
+> `src/domain/canonical.ts` are the source of truth.
 >
 > The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
 > survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
@@ -309,7 +316,7 @@ pipeline effect) over effort (a solo non-technical founder's day).
     Owners benchmark against a person, so the page must do the fully loaded arithmetic honestly:
     Alberta wage range (cite Alberta OCCinfo or Job Bank with the retrieval date), plus CPP, EI, WCB,
     vacation, statutory holidays, training, turnover, and the eight-hour coverage ceiling against
-    C$449/mo for 600 minutes. Present it as a worked example with every input visible and editable
+    C$1,000/mo for 1,400 minutes. Present it as a worked example with every input visible and editable
     rather than a single dramatic number. Add a row to the claims ledger for each cited source.
     impact 5/5 · effort 3/5 · touches: ai-receptionist-vs-hiring-a-receptionist.html (new), docs/CLAIMS-LEDGER.md
 
@@ -445,7 +452,7 @@ pipeline effect) over effort (a solo non-technical founder's day).
     `pricing-config.js` defines it precisely ("starts when the AI answers a connected call and ends
     when the AI portion of the call ends") plus four usage notes including the honest spam-consumes-
     minutes point. Give it a full anchor section with a worked example (a 3 minute 20 second call on
-    the 600-minute Growth plan), and link every occurrence of "minutes" on `/pricing.html` and the
+    the 1,400-minute AI Front Desk plan), and link every occurrence of "minutes" on `/pricing.html` and the
     homepage pricing preview to `/glossary.html#connected-ai-minute`. Billing-unit confusion is a
     real deal-killer and this removes it for free.
     impact 4/5 · effort 1/5 · touches: glossary.html, pricing.html, home.html #pricing-preview

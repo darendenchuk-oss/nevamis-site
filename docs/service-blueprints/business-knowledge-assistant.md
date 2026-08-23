@@ -1,15 +1,18 @@
 # Service Blueprint: Business Knowledge Assistant (Internal Knowledge and SOP Assistant)
 
 > **NOT NEVAMIS PRICING. Every fee in this file is an internal hypothesis,
-> not approved, for a product that does not exist yet.** Noted 2026-08-10. These
-> figures have never been offered, quoted or charged, and no setup fee, pilot
-> or trial described here has been approved. The one thing Nevamis actually
-> sells is the AI receptionist, and it is sold as ONE recurring price per plan
-> with nothing charged beside it: Core C$250/month, Growth C$500/month, Pro
-> C$1,000/month, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 /
-> C$0.75 overage. No setup fee, no activation fee, no onboarding fee, no pilot
-> and no trial at any price. `pricing-config.js` is the source of truth and
-> docs/CLAIMS-LEDGER.md row CLM-18 is the approval. Nothing below may be
+> not approved, for a product that does not exist yet.** Noted 2026-08-10;
+> restated for v4 on 2026-08-22. These figures have never been offered,
+> quoted or charged, and nothing described here has been approved for sale.
+> What Nevamis actually sells is a one-time Launch & Implementation fee
+> to start, then a monthly price:
+> The Works C$2,500 to start, then C$1,800/month (1,400 minutes, C$0.75/min overage);
+> AI Front Desk C$1,500 to start, then C$1,000/month (1,400 minutes, C$0.75/min overage);
+> Performance Partnership (invite-only) C$2,000 to start, then C$250/month plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 minutes, C$1.10/min overage).
+> Sellable add-ons, each its own sale on its own three-month start:
+> Missed-Call Recovery C$300/month, Quote-Chase Engine C$450/month, Get-Paid Autopilot C$450/month.
+> No pilot and no trial at any price. `pricing-config.js` and the engine's
+> `src/domain/canonical.ts` are the source of truth. Nothing below may be
 > quoted to a prospect; a price here would need approving on its own first.
 
 
@@ -215,7 +218,7 @@ At minimum, before any client goes live:
 
 All figures are internal hypotheses in Canadian dollars requiring owner approval. They are not public prices and must not appear on the website.
 
-- Setup: $1,500 to $7,500, reflecting document collection size, cleanup effort, and permission-model complexity.
+- One-time build: $1,500 to $7,500, reflecting document collection size, cleanup effort, and permission-model complexity.
 - Monthly: $500 to $2,500.
 - Follows the brief's add-on structure: one-time setup fee, monthly management fee, included usage, transparent overage on AI usage beyond the included volume, and a custom integration fee if a client later needs a storage system beyond the MVP set. Additional location fee where a second location has its own document set.
 - No performance component for this service; its value is internal time saved and consistency, not attributable revenue.

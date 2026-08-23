@@ -1,4 +1,4 @@
-> SUPERSEDED 2026-07-25, AND AGAIN 2026-08-09. The guarantee-based commercial model described below is retired, and so is the Model B free-pilot model this banner used to name as current. The current model is ONE recurring price per plan, charged the day the client subscribes and every month after: Core C$250/month, Growth C$500/month, Pro C$1,000/month. There is no setup fee, activation fee, onboarding fee or one-time charge of any kind, no founding-client waiver, and no pilot or trial at any price. pricing-config.js is the source of truth. This file is kept for history; do not copy wording, numbers, or Stripe product shapes from it.
+> SUPERSEDED 2026-07-25, AND AGAIN 2026-08-09. The guarantee-based commercial model described below is retired, and so is the Model B free-pilot model this banner used to name as current. The current model (v4, owner directive 2026-08-22) is a one-time Launch & Implementation fee to start, then a monthly price per plan, with no pilot or trial at any price; pricing-config.js and the engine's src/domain/canonical.ts are the source of truth, and no figure in this file may be quoted. This file is kept for history; do not copy wording, numbers, or Stripe product shapes from it.
 # Payment flow — Nevamis (architecture, pre-implementation)
 
 Status: **architecture doc.** The site is static (GitHub Pages, no server), so
@@ -38,7 +38,7 @@ Timing:
 | Customer Portal | invoices, payment method, cancel at period end |
 
 Existing test-mode objects (from the earlier session): product `prod_Uw2OClwmoGPN0K`
-with $300 setup / $397 monthly — **superseded by this plan structure; archive
+with a $300 build price and $397 recurring — **superseded by this plan structure; archive
 them when the new prices are approved.**
 
 ## Client states

@@ -4,12 +4,13 @@
 > Noted 2026-08-10. They are unapproved guesses for products that do not exist
 > yet (CAPTURE+, CONVERT, OPERATE, GROW, OPTIMIZE, PARTNERSHIP) and no figure in
 > them has been offered to anyone. The one row that IS live, CAPTURE, is the
-> receptionist, and it is sold as ONE recurring price per plan with nothing
-> charged beside it: **Core C$250/month · Growth C$500/month · Pro
-> C$1,000/month**, 250 / 600 / 1,400 included minutes, C$1.10 / C$0.90 / C$0.75
-> overage, no setup fee, no activation fee, no pilot and no trial at any price.
-> `pricing-config.js` is the source of truth; docs/CLAIMS-LEDGER.md row CLM-18
-> is the approval. The C$249 in the OPERATE row is a draft monthly for a
+> receptionist family, sold since the 2026-08-22 v4 directive as a one-time
+> Launch & Implementation fee to start, then a monthly price:
+> The Works C$2,500 to start, then C$1,800/month (1,400 minutes, C$0.75/min overage);
+> AI Front Desk C$1,500 to start, then C$1,000/month (1,400 minutes, C$0.75/min overage);
+> Performance Partnership (invite-only) C$2,000 to start, then C$250/month plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 minutes, C$1.10/min overage).
+> No pilot and no trial at any price. `pricing-config.js` and the engine's
+> src/domain/canonical.ts are the source of truth. The C$249 in the OPERATE row is a draft monthly for a
 > different product; it is NOT the retired C$249 receptionist tier, which is
 > dead. Nothing in this table may be quoted to a prospect, and a setup fee for
 > any of these pillars would need approving on its own before it could be.

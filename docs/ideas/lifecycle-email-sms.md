@@ -4,11 +4,18 @@
 > Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
 > After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
 > setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
-> Every one of those is retired. The current model is ONE recurring price per plan, charged the
-> day the client subscribes and every month after: **Core C$250/month · Growth C$500/month · Pro
-> C$1,000/month**, with 250 / 600 / 1,400 included minutes and C$1.10 / C$0.90 / C$0.75 overage,
-> nothing charged beside it, and no pilot or trial at any price. `pricing-config.js` is the source
-> of truth; docs/CLAIMS-LEDGER.md row CLM-18 is the approval.
+> Every one of those is retired, and the single-recurring-price model that replaced them on
+> 2026-08-09 was itself superseded by v4 (owner directive 2026-08-22). The current model is a
+> one-time Launch & Implementation fee to start, then a monthly price:
+> **The Works** C$2,500 to start, then C$1,800/month (1,400 included minutes, C$0.75/min overage);
+> **AI Front Desk** (recommended) C$1,500 to start, then C$1,000/month (1,400 included minutes, C$0.75/min overage);
+> **Performance Partnership** (invite-only) C$2,000 to start, then C$250/month plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 included minutes, C$1.10/min overage).
+> Sellable add-ons, each its own sale on its own three-month start:
+> Missed-Call Recovery C$300/month, Quote-Chase Engine C$450/month, Get-Paid Autopilot C$450/month.
+> Terms: three months minimum on a plan alone, six with any add-on or The Works,
+> then month to month on thirty days notice, with the price locked for twelve months.
+> No pilot or trial at any price. `pricing-config.js` and the engine's
+> `src/domain/canonical.ts` are the source of truth.
 >
 > The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
 > survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
@@ -124,7 +131,7 @@ impact 5/5 · effort 1/5 · touches: nevamis-engine/src/lib/mailer.ts, docs/pilo
 35. **LIFECYCLE-EMAIL-SMS-035 — Give "undecided" a real three-touch branch with a stated end.** The day-7 report has an explicit ☐ Undecided box and nothing behind it. Follow up on day 10 (the one number from their own pilot that mattered most), day 17 (an answer to the specific objection they raised, drawn from `outreach/OBJECTION-CARDS.md`), and day 31 ("I'm closing your file — say the word any time and the config is still there"). Three touches, then stop, and say so in the first one; open-ended pestering is what turns a maybe into a block.
 impact 5/5 · effort 2/5 · touches: nevamis-engine/docs/lifecycle/SEQUENCES.md, ai-assistant/outreach/OBJECTION-CARDS.md
 
-36. **LIFECYCLE-EMAIL-SMS-036 — Write the acceptance email that starts billing, and make written acceptance a reply, not a signature ceremony.** The SOP is emphatic that billing begins only after explicit written acceptance. Template it with the chosen plan rendered from `pricing-config.js` values (e.g. Growth C$449/mo + C$750 setup, 600 minutes), the annual prepay alternative (C$4,490 for twelve months), the founding-client waiver if it applies, the GST line, and one instruction: "reply with the word ACCEPT and the plan name." Friction at the yes is the most expensive friction in the business.
+36. **LIFECYCLE-EMAIL-SMS-036 — Write the acceptance email that starts billing, and make written acceptance a reply, not a signature ceremony.** The SOP is emphatic that billing begins only after explicit written acceptance. Template it with the chosen plan rendered from `pricing-config.js` values (e.g. the AI Front Desk at C$1,500 Launch & Implementation to start, then C$1,000/mo, 1,400 minutes), the GST line, and one instruction: "reply with the word ACCEPT and the plan name." Friction at the yes is the most expensive friction in the business.
 impact 5/5 · effort 2/5 · touches: nevamis-site/pricing-config.js, nevamis-engine/src/lib/mailer.ts, docs/pilot/pilot-end-teardown-checklist.md
 
 37. **LIFECYCLE-EMAIL-SMS-037 — Fix the GST contradiction before any money email goes out.** `docs/pilot/day7-pilot-report-template.md` section 5 and `docs/pilot/pilot-sop.md` section 0 both state "not GST/HST registered — do not add GST", while the business is registered as 705729200 RT0001. Whichever is current, every quote, acceptance, invoice, and receipt template must state it identically and show the registration number when GST is charged. A pilot report that says "no GST" followed by an invoice that adds 5% is the kind of small inconsistency that makes a cautious owner re-read the whole agreement.
