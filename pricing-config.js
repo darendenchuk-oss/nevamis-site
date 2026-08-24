@@ -141,23 +141,23 @@
     addOns: [
       {
         id: "missed_call_recovery", name: "Missed-Call Recovery",
-        monthly: 300, sellable: true,
+        monthly: 350, launch: 500, sellable: true,
         blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out — before they ring the next name on Google."
       },
       {
         id: "quote_chase", name: "Quote-Chase Engine",
-        monthly: 450, sellable: true,
+        monthly: 500, launch: 750, sellable: true,
         blurb: "Every estimate that goes quiet gets followed up — the day it stales, day four, day eleven — each touch approved by you, stopping the moment the customer replies."
       },
       {
         id: "get_paid", name: "Get-Paid Autopilot",
-        monthly: 450, sellable: true,
+        monthly: 500, launch: 750, sellable: true,
         blurb: "Overdue invoices get a gentle nudge, a firm one a week later — and at three weeks YOU get told instead, because past that point the judgment call belongs to a person."
       },
       {
         id: "review_engine", name: "Review Engine",
-        monthly: 300, sellable: false,
-        blurb: "Post-job review requests by text, policy-safe. Coming — not sellable until it ships end to end."
+        monthly: 300, launch: 500, sellable: true,
+        blurb: "Post-job review requests by text, policy-safe — one ask per finished job, with your own review link, and every request released by a person."
       },
       {
         id: "reactivation", name: "Customer Reactivation",
@@ -210,7 +210,7 @@
     plans: [
       {
         id: "growth", name: "The Works",
-        monthly: 1800, launch: 2500, includedMinutes: 1400,
+        monthly: 2100, launch: 3000, includedMinutes: 1400,
         callRange: "470 to 700 typical calls", overage: 0.75,
         selfServe: true,
         performanceNote: null,
@@ -248,10 +248,10 @@
            never presented as the default, and checkout refuses to sell it
            without an approval. */
         id: "starter", name: "Performance Partnership",
-        monthly: 250, launch: 2000, includedMinutes: 250,
+        monthly: 350, monthlyRange: [250, 500], launch: 2500, includedMinutes: 250,
         callRange: "80 to 125 typical calls", overage: 1.10,
         selfServe: false,
-        performanceNote: "Plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, charged for 12 months from that customer's first attributable collected revenue, subject to your agreement.",
+        performanceNote: "Lower fixed cost, plus performance-based compensation tied to verified results. The monthly, the percentage, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged — nothing here is a rate on its own.",
         bestFor: "A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. Not suitable for every business, and never the default.",
         features: [
           "One business phone line",
