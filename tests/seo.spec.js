@@ -169,7 +169,12 @@ test('pricing publishes a parseable price table for answer engines', async ({ pa
      not a test failure. */
   const monthlies = cfg.plans.map((p) => p.monthly);
   expect(Number(agg.lowPrice)).toBe(Math.min(...monthlies));
-  expect(Number(agg.lowPrice)).toBe(250);
+  /* The literal is the second opinion on the derived line above — it moves
+     only when a directive moves the ladder. 250 was the Partnership monthly
+     through v4; v5 (owner-authored, 2026-08-24) made 350 the published
+     default, and the C$250-500 band's floor is an agreement matter, not an
+     offer — schema.org lowPrice is the lowest OFFER a crawler may quote. */
+  expect(Number(agg.lowPrice)).toBe(350);
 });
 
 test('every price promised to a crawler is visible to a buyer', async ({ page }) => {
