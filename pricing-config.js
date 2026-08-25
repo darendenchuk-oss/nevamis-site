@@ -210,6 +210,11 @@
     plans: [
       {
         id: "growth", name: "The Works",
+        /* The bundle carries automations, so it carries the LONGER agreed
+           start. Stated as a flag rather than inferred from the id, because
+           the term is a contractual fact and a card should not have to know
+           which plan key happens to mean "the bundle". */
+        includesAutomations: true,
         monthly: 2100, launch: 3000, includedMinutes: 1400,
         callRange: "470 to 700 typical calls", overage: 0.75,
         selfServe: true,

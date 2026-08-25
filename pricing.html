@@ -846,8 +846,33 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div id="termsBanner" style="background:var(--navy-2);border:1px solid rgba(47,191,143,.45);border-radius:14px;padding:20px 24px;margin-bottom:30px">
         <h2 style="font-size:19px;margin-bottom:6px;letter-spacing:-.01em">Launch &amp; Implementation to start. Then the monthly, every month.</h2>
         <p style="color:var(--muted);font-size:15px">Every plan starts with a one-time Launch &amp; Implementation fee: the audit, configuration, integrations, testing and go-live are real work and they are priced in the open, not hidden in the monthly. It is collected once, at the start, beside your first month. After that, your plan's monthly price is charged on the same day every month, and past the start the only recurring charges are that monthly and any overage past your included minutes. There is no trial to convert out of.</p>
-        <p style="color:var(--muted);font-size:13.5px;margin-top:8px">Month to month. You can cancel from your own portal at any time and service runs to the end of the month you already paid for. We do not ask for a term, and we do not need one.</p>
+        <!-- Until 2026-08-25 this paragraph ended "We do not ask for a term,
+             and we do not need one." That was true of the model this page
+             was built for and false from the day the agreed start shipped:
+             the same page said "Three-month start" two sections lower, and
+             this was the sentence a buyer read on the way to the button. The
+             figures below match pricing-config.js terms; if that block moves,
+             this paragraph is stale and the guard in the engine says so. -->
+        <p style="color:var(--muted);font-size:13.5px;margin-top:8px">The billing is month to month, and the agreement locks in your first three months on the AI Front Desk, or six when any automation or The Works is included. Month one is the build and the tuning, which is the point of a results window. After the minimum it stays month to month: 30 days notice, cancelled from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing.</p>
         <p style="font-size:14.5px;margin-top:10px"><a href="/pilot.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">What happens before your line is answered</a> · <a href="/book.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Book a strategy call</a></p>
+      </div>
+      <!-- THE COVERAGE CHOOSER (2026-08-25). A price list asks a business to
+           translate its own problem into a product name before it can tell
+           what it costs; this asks about the problem instead and does the
+           translation. Everything it renders comes from pricing-config.js,
+           so it cannot quote a price or a module the price list does not
+           carry, and a module with sellable:false never appears as a choice.
+
+           It is deliberately NOT a cart. Add-ons have no self-serve price:
+           checkout charges the plan, and the chosen automations travel to
+           the signup page as a recorded request that an operator sees. The
+           result panel says exactly that, because a total shown next to a
+           button reads as a bill unless it is told otherwise. -->
+      <div id="chooser" style="background:var(--navy-2);border:1px solid var(--line);border-radius:16px;padding:20px 24px;margin-bottom:30px" hidden>
+        <h2 style="font-size:19px;margin-bottom:4px;letter-spacing:-.01em">Not sure what you need? Start with where the money leaks.</h2>
+        <p style="color:var(--muted);font-size:14.5px;margin-bottom:14px">Tick what is happening in your business. We will put the coverage together and show you what it costs, with nothing hidden underneath it.</p>
+        <div id="leaks" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px"></div>
+        <div id="chooserResult" aria-live="polite"></div>
       </div>
       <div id="foundingBanner" style="background:rgba(240,180,98,.08);border:1px solid rgba(240,180,98,.35);border-radius:14px;padding:16px 24px;margin-bottom:30px" hidden>
         <p style="font-size:15px;color:#F0B462;font-weight:700" id="foundingOffer"></p>
@@ -900,7 +925,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <li>Missed-Call Recovery &middot; C$350/month &middot; C$500 launch &middot; a caller you missed gets one text back, during business hours, with your name on it and a working opt-out.</li>
           <li>Quote-Chase Engine &middot; C$500/month &middot; C$750 launch &middot; every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.</li>
           <li>Get-Paid Autopilot &middot; C$500/month &middot; C$750 launch &middot; overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead.</li>
-          <li>Review Engine &middot; coming &middot; post-job review requests by text. Not sellable until it ships end to end.</li>
+          <li>Review Engine &middot; C$300/month &middot; C$500 launch &middot; one review request by text per finished job, with your own review link, every request released by a person.</li>
           <li>Customer Reactivation &middot; coming &middot; a win-back campaign over your own past-customer list. Not sellable until it ships end to end.</li>
         </ul>
         <p id="termsNote" style="font-size:13px;color:var(--muted);margin-top:10px">Three-month start on the AI Front Desk; six months when any add-on or The Works is included. Month one is the build and the tuning. After the minimum: month to month, 30 days notice, cancellation from your own portal, and your price is locked for 12 months from signing.</p>
@@ -1027,6 +1052,28 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      misread number costs a sale. The no-JS fallback already groups thousands;
      the rendered cards were the ones concatenating raw values. */
   function grp(n) { return Number(n).toLocaleString("en-CA"); }
+  /* The agreed start, per plan, in the words the call script uses: it is a
+     LOCK-IN on month-to-month billing, never a "setup period". A plan that
+     carries automations carries the longer one, which is why this asks the
+     plan what it includes rather than hard-coding a number per card. */
+  /* The short form, for under the Buy button, where a long sentence would
+     not be read. Same source as the long one. */
+  function startNote(pl) {
+    var t = P.terms || {};
+    var months = pl.includesAutomations ? t.minimumMonthsWithAddOns : t.minimumMonthsCore;
+    if (!months) return "Fifteen minutes to scope it, then we build and test it before it answers anything.";
+    return "Your first " + months + " months are agreed up front, then month to month with "
+      + t.cancellationNoticeDays + " days notice.";
+  }
+  function termSentence(pl) {
+    var t = P.terms || {};
+    var months = pl.includesAutomations ? t.minimumMonthsWithAddOns : t.minimumMonthsCore;
+    if (!months) return "";
+    return "The billing is month to month, and the agreement locks in your first "
+      + months + " months. After that: month to month, " + t.cancellationNoticeDays
+      + " days notice, cancelled from your own portal, and your price is locked for "
+      + t.priceLockMonths + " months from signing.";
+  }
   P.plans.forEach(function (pl) {
     var d = document.createElement("div");
     d.className = "plan" + (pl.recommended ? " rec" : "");
@@ -1049,13 +1096,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        flipped in both directions inside one calendar day. */
     if (P.publishedPricing) {
       h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
-      h += '<div class="setup">C$' + grp(pl.launch) + " Launch &amp; Implementation to start, then C$" + grp(pl.monthly) + " a month. No minimum term."
+      /* THE TERM, and it is derived, not typed. This sentence said "No
+         minimum term." from the day the page was written until 2026-08-25,
+         which was true of the old month-to-month model and became false the
+         moment v4 introduced the agreed start. It went on rendering on every
+         card, directly under the price and directly above a Buy button, on a
+         page whose own terms note said "Three-month start" two sections
+         lower: the page contradicted itself, and the half attached to the
+         money was the wrong one. Read from P.terms so a change to the term
+         moves this line with it. */
+      h += '<div class="setup">C$' + grp(pl.launch) + " Launch &amp; Implementation to start, then C$" + grp(pl.monthly) + " a month. " + termSentence(pl)
         + (pl.performanceNote ? " " + pl.performanceNote : "")
         + (pl.selfServe === false ? " Offered by invitation and approval; never the default." : "")
         + "</div>";
     } else {
       h += '<div class="price price-quoted">Quoted per client</div>';
-      h += '<div class="setup">Your price is quoted per client, then charged monthly. No minimum term.</div>';
+      h += '<div class="setup">Your price is quoted per client, then charged monthly, with the agreed start set in your quote.</div>';
     }
     h += '<div class="usage">' + grp(pl.includedMinutes) + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
     h += "<ul>" + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
@@ -1077,7 +1133,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         + '<div class="buy-note">' + (pl.startingAt ? "Higher-volume builds are priced on the call." : "Fifteen minutes to scope it, then we build and test it before it answers anything.") + "</div></div>";
     } else {
       h += '<div class="buy"><a class="btn btn-primary" href="https://app.nevamis.ca/signup?plan=' + encodeURIComponent(pl.id) + '" data-evt="plan_buy_click">Buy now <span class="arw" aria-hidden="true">›</span></a>'
-        + '<div class="buy-note">Cancel anytime.</div></div>';
+        /* "Cancel anytime." sat here until 2026-08-25, under the one button
+           on this site that takes money. It was retired sales vocabulary
+           from the day the agreed start shipped, and it was the last place
+           on the page still promising the old model, and the buyer read it at
+           the exact moment they committed. The note now states the start
+           they are agreeing to, from the same terms block as the card. */
+        + '<div class="buy-note">' + startNote(pl) + "</div></div>";
     }
     d.innerHTML = h;
     /* Which tier the prospect reached for. All three cards used to emit the
@@ -1245,6 +1307,126 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     });
     document.head.appendChild(node);
   } catch (e) { /* the visible price table is the source of truth regardless */ }
+})();
+</script>
+
+<script>
+/* THE COVERAGE CHOOSER, 2026-08-25.
+
+   Reads pricing-config.js and nothing else: every price, name and term
+   below comes from P, so this cannot outlive a price change. A module the
+   config marks unsellable never becomes a tick box, which is the whole
+   reason the loop filters rather than listing the leaks by hand.
+
+   The recommendation is arithmetic, not a funnel: if the bundle costs less
+   than the pieces the visitor picked, it says so and sends them to the
+   cheaper one. A chooser that quietly preferred the dearer answer would be
+   the most expensive kind of dishonest, because it would be right about
+   the problem. */
+(function () {
+  var P = window.NV_PRICING;
+  var box = document.getElementById("chooser");
+  if (!P || !P.plans || !P.addOns || !box) return;
+
+  function plan(id) { return P.plans.filter(function (p) { return p.id === id; })[0]; }
+  var core = plan("pro"), bundle = plan("growth");
+  if (!core || !bundle || P.sellable === false || !P.publishedPricing) return;
+
+  function addOn(id) {
+    return P.addOns.filter(function (a) { return a.id === id && a.sellable && a.monthly; })[0];
+  }
+  /* Each leak is a sentence a business would say about itself, mapped to
+     the one module that answers it. The first has no module because the
+     core plan IS the answer to it. */
+  var LEAKS = [
+    { id: "calls",    say: "Calls go to voicemail",            mod: null },
+    { id: "missed",   say: "People ring while I am on a job",  mod: "missed_call_recovery" },
+    { id: "quotes",   say: "Quotes go quiet",                  mod: "quote_chase" },
+    { id: "invoices", say: "Invoices sit unpaid",              mod: "get_paid" },
+    { id: "reviews",  say: "Not enough reviews coming in",     mod: "review_engine" }
+  ].filter(function (l) { return !l.mod || addOn(l.mod); });
+
+  var picked = {};
+  var leaks = document.getElementById("leaks");
+  var out = document.getElementById("chooserResult");
+
+  function grp(n) { return Number(n).toLocaleString("en-CA"); }
+
+  LEAKS.forEach(function (l) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "btn btn-ghost";
+    b.setAttribute("aria-pressed", "false");
+    b.style.cssText = "font-size:14px;padding:8px 14px";
+    b.textContent = l.say;
+    b.addEventListener("click", function () {
+      picked[l.id] = !picked[l.id];
+      b.setAttribute("aria-pressed", picked[l.id] ? "true" : "false");
+      b.style.borderColor = picked[l.id] ? "var(--mint)" : "";
+      b.style.color = picked[l.id] ? "var(--mint)" : "";
+      render();
+    });
+    leaks.appendChild(b);
+  });
+
+  function render() {
+    var mods = LEAKS.filter(function (l) { return picked[l.id] && l.mod; })
+      .map(function (l) { return addOn(l.mod); });
+    var any = LEAKS.some(function (l) { return picked[l.id]; });
+    if (!any) { out.innerHTML = ""; return; }
+
+    var addMonthly = mods.reduce(function (n, a) { return n + a.monthly; }, 0);
+    var addLaunch = mods.reduce(function (n, a) { return n + (a.launch || 0); }, 0);
+    var pieces = { monthly: core.monthly + addMonthly, launch: core.launch + addLaunch };
+    var useBundle = mods.length > 0 && bundle.monthly <= pieces.monthly;
+
+    var chosen = useBundle ? bundle : core;
+    var monthly = useBundle ? bundle.monthly : pieces.monthly;
+    var launch = useBundle ? bundle.launch : pieces.launch;
+    var months = (useBundle || mods.length)
+      ? P.terms.minimumMonthsWithAddOns : P.terms.minimumMonthsCore;
+
+    var lines = ["<strong style=\"color:var(--ink)\">" + chosen.name + "</strong>, C$"
+      + grp(chosen.monthly) + " a month"];
+    if (useBundle) {
+      lines.push("every automation included, which is why it beats the pieces");
+    } else {
+      mods.forEach(function (a) {
+        lines.push(a.name + ", C$" + grp(a.monthly) + " a month plus C$" + grp(a.launch) + " to build");
+      });
+    }
+
+    var href = "https://app.nevamis.ca/signup?plan=" + encodeURIComponent(chosen.id)
+      + (useBundle || !mods.length ? "" : "&coverage="
+        + encodeURIComponent(mods.map(function (a) { return a.id; }).join(",")));
+
+    var h = '<div style="border-top:1px solid var(--line);padding-top:14px">';
+    h += '<p style="font-size:14px;color:var(--muted);margin-bottom:6px">Your coverage</p>';
+    h += '<ul style="font-size:14.5px;color:var(--muted);padding-left:20px;margin-bottom:10px"><li>'
+      + lines.join("</li><li>") + "</li></ul>";
+    h += '<p style="font-size:16px;color:var(--ink);margin-bottom:6px">C$' + grp(launch)
+      + " Launch and Implementation to start, then C$" + grp(monthly) + " a month, plus GST.</p>";
+    h += '<p style="font-size:13.5px;color:var(--muted);margin-bottom:12px">Your first ' + months
+      + " months are agreed up front, then month to month with " + P.terms.cancellationNoticeDays
+      + " days notice, cancelled from your own portal.";
+    if (useBundle) {
+      h += " Bought separately these would be C$" + grp(pieces.monthly) + " a month, so the bundle saves you C$"
+        + grp(pieces.monthly - bundle.monthly) + " every month.";
+    } else if (mods.length) {
+      /* The honest half of a chooser that is not a cart. */
+      h += " Checkout charges the " + chosen.name + " plan, C$" + grp(chosen.monthly)
+        + " a month. The automations you ticked are recorded with your signup and we set them up with you,"
+        + " so nothing extra is charged today.";
+    }
+    h += "</p>";
+    h += '<a class="btn btn-primary" data-evt="plan_buy_click" href="' + href
+      + '">Start with this <span class="arw" aria-hidden="true">&rsaquo;</span></a>';
+    h += ' <a class="btn btn-ghost" href="/book.html" data-evt="pricing_book_call_click">Talk it through first</a>';
+    h += "</div>";
+    out.innerHTML = h;
+  }
+
+  box.hidden = false;
 })();
 </script>
 </body>
