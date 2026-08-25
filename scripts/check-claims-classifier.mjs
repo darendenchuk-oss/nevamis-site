@@ -90,13 +90,20 @@ const MUST_FIRE = [
   ["pilot.html's old price commitment: 'no implementation charge' denies the fee",
     "The monthly price of the plan you choose and nothing else. There is no setup fee, no activation fee, no onboarding charge and no implementation charge."],
 
-  ["the 2026-08-09 model stated as current: retired names and a retired figure",
-    "Core is C$250/month with 250 included minutes. Growth is C$500/month. Pro is C$1,000/month with 1,400 minutes."],
+  /* Re-pointed 2026-08-25 (v5): the 2026-08-09 fixture leaned on C$500 as its
+     retired figure, and v5 made C$500 a live add-on price — the sentence
+     genuinely stopped being detectable by FIGURE, which is the classifier
+     working, not failing. The dead-model-as-current shape is preserved on
+     the era whose figures are retired today. */
+  ["the 2026-08-22 v4 model stated as current: a retired figure as the live price",
+    "The Works is C$1,800/month with 1,400 included minutes. C$2,500 Launch & Implementation to start, then C$1,800 a month."],
 
   ["a direct denial of the launch fee", "There is no launch fee and no implementation fee."],
   ["the one-price framing, which is now false", "It is one recurring monthly price with nothing beside it."],
   ["the nothing-up-front framing, which is now false", "Nothing is charged to begin, and your first bill is your only bill."],
-  ["the retired Growth month, spoken", "The Growth plan is five hundred dollars a month."],
+  /* "five hundred dollars a month" is LIVE spoken copy under v5 (the two
+     engines), so the spoken tripwire moved to the figure v5 retired. */
+  ["the retired Works month, spoken", "The Works plan is eighteen hundred dollars a month."],
 ];
 
 /* Judged WITH the question exemption, and must fire anyway: the offence is in
@@ -118,13 +125,13 @@ const MUST_NOT_FIRE = [
      Two figures, joined by "to start" and "then" — never "plus" — and the
      one-time fee under its one public name. */
   ["the current model itself, which must never trip a pricing rule",
-    "Operate is C$1,000/month with 1,400 included minutes. Grow is C$750/month. C$1,000 Launch & Implementation to start, then C$750 a month."],
+    "The AI Front Desk is C$1,000/month with 1,400 included minutes. The Works is C$2,100/month. C$3,000 Launch & Implementation to start, then C$2,100 a month."],
 
   ["proposal.html: PLAN_TERMS, the sentence the whole model rests on",
     "One-time C$1,000 Launch & Implementation to start. Nothing else is billed beside the monthly except overage past your included minutes. No minimum term."],
 
   ["the invite-based plan, described without being offered as the default",
-    "Performance Partnership is offered by invitation: C$2,000 Launch & Implementation to start, then C$250 a month, and 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to the agreement."],
+    "Performance Partnership is offered by invitation: C$2,500 Launch & Implementation to start, then C$350 a month, and 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to the agreement."],
 
   ["the fee's NAME defended without denying the fee",
     "The one-time charge is called Launch & Implementation; there is no setup fee, no activation fee and no onboarding fee by any name."],
@@ -136,7 +143,7 @@ const MUST_NOT_FIRE = [
     "Pro was $850/month before 2026-08-09; that figure is retired and must not be quoted."],
 
   ["llms.txt: the reprice recorded as history",
-    "Growth was C$500/month until 2026-08-15; that figure is retired, and the plan is Grow at C$750/month now."],
+    "The Works was C$1,800/month until 2026-08-24; that figure is retired, and the plan is C$2,100/month now."],
 
   ["pilot.html: the retirement, naming the fee that went with it",
     "It was retired on 9 August 2026, on the day the setup fee was removed, and the fee it charged went with it."],
@@ -159,7 +166,7 @@ const MUST_NOT_FIRE = [
    cell in the middle of a physical line rather than at the end of a sentence. */
 const MUST_NOT_FIRE_QUESTIONS = [
   ["nevamis-agent-test-cases.md: a caller's wrong premise, mid-table-row, with the inverted answer",
-    '| 7 | Charge-on-top question | "Is there a setup fee on top of the monthly?" | Corrects the name and states the whole price in the approved shape: there is a one-time charge at the start and it is called Launch and Implementation, and on Grow it is one thousand dollars Launch and Implementation to start, then seven hundred and fifty dollars a month. | P0 |'],
+    '| 7 | Charge-on-top question | "Is there a setup fee on top of the monthly?" | Corrects the name and states the whole price in the approved shape: there is a one-time charge at the start and it is called Launch and Implementation, and on the AI Front Desk it is fifteen hundred dollars Launch and Implementation to start, then one thousand dollars a month. | P0 |'],
 
   ["nevamis-agent-test-cases.md: a discount request naming retired vocabulary",
     '| 22 | Discount request | "Can you knock the setup fee off if I sign up today?" | there is no setup fee by that name | the Launch and Implementation fee is not discounted. | P0 |'],

@@ -717,9 +717,18 @@ for (const p of contentPages) {
   /* Every monthly figure this business has ever published and no longer
      charges. Kept as a literal list rather than derived, because the point of
      the rule is to recognise a number the config no longer mentions at all.
-     500 joined 2026-08-15 (evening): Growth's month became Grow's C$750.
-     Mirrors tests/interactions.spec.js; if you add one there, add it here. */
-  const RETIRED_MONTHLY = [49, 150, 197, 249, 397, 449, 499, 500, 797, 849, 850];
+     500 joined 2026-08-15 (evening) and LEFT 2026-08-25: v5 prices the
+     Quote-Chase and Get-Paid engines at C$500/mo, and a retired list holding
+     a live amount fails every correct page (the engine's canonical made the
+     same surgery, with the same reasoning, the same day). 450 joins (the v4
+     engine monthly), 1800 joins (The Works' v4 month). 750 stays OUT of this
+     field-level list although it is a retired monthly: it is the live launch
+     fee on both engines, and this rule cannot tell a monthly field from a
+     launch field — the monthly-marker regex in claims.mjs is where C$750
+     "a month" is still caught.
+     Mirrors tests/interactions.spec.js and scripts/lib/claims.mjs; a change
+     here lands in all three or the drift the comment warns about is this. */
+  const RETIRED_MONTHLY = [49, 150, 197, 249, 397, 449, 450, 499, 797, 849, 850, 1800];
 
   for (const f of contentPages) {
     const html = fs.readFileSync(path.join(root, f), "utf8");
@@ -892,6 +901,10 @@ for (const p of contentPages) {
         let base = `${small(th)} thousand`;
         if (rh) base += ` ${small(rh)} hundred`;
         if (rr) { out.add(`${base} ${small(rr)}`); out.add(`${base} and ${small(rr)}`); } else out.add(base);
+        /* "two thousand AND five hundred" — the form the live agent actually
+           speaks (and the engine's own spokenForms produces). Absent here,
+           a correct prompt reads as never speaking the fee (2026-08-25). */
+        if (rh && !rr) out.add(`${small(th)} thousand and ${small(rh)} hundred`);
       }
       return [...out];
     };

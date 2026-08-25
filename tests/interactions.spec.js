@@ -43,7 +43,7 @@ test('pricing preview renders every plan from the single source of truth', async
        old Pro price. The list only ever grows: every entry is a number a real
        page published, and the reason C$249, C$449 and C$849 lingered is that
        the sweep once checked C$49 alone. */
-    retired: [49, 150, 197, 249, 397, 449, 499, 797, 849, 850],
+    retired: [49, 150, 197, 249, 397, 449, 450, 499, 750, 797, 849, 850, 1800],
   }));
 
   const cards = page.locator('#pricePreview .price-card');

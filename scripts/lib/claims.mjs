@@ -185,8 +185,8 @@ export const RETIRED_OFFERS = [
      its C$-only entry above and gains the bare-$ form here. 500 joined
      2026-08-15 (evening): it was Growth's month from 2026-08-09 until the
      OPERATE/GROW/PARTNERSHIP ladder landed, and no surface may quote it. */
-  /(?:C\$|\$)\s?(?:49|150|197|249|397|449|499|500|750|797|849|850)\b(?!\d)/,
-  /\b(?:49|150|197|249|397|449|499|500|750|797|849|850)\s*(?:dollars?\s*)?(?:a|per|\/)\s*month\b/i,
+  /(?:C\$|\$)\s?(?:49|150|197|249|397|449|450|499|797|849|850|1,?800)\b(?!\d)/,
+  /\b(?:49|150|197|249|397|449|450|499|750|797|849|850|1,?800)\s*(?:dollars?\s*)?(?:a|per|\/)\s*month\b/i,
 
   /* The retired ladder, spoken. This is the form that reaches a prospect's
      ear from config/elevenlabs/. "five hundred" joined with the written 500:
@@ -198,7 +198,7 @@ export const RETIRED_OFFERS = [
      loud, and without them the "five hundred" inside it reports as the
      retired figure — a live price failing as a dead one on the day it
      shipped. Same fix, same day, as the engine's SPOKEN_NOT_A_TAIL. */
-  /(?<!twenty[- ])(?<!thirty[- ])(?<!forty[- ])(?<!fifty[- ])(?<!sixty[- ])(?<!seventy[- ])(?<!eighty[- ])(?<!ninety[- ])\b(?:forty[- ]nine|one hundred and fifty|two hundred and forty[- ]nine|three hundred and ninety[- ]seven|four hundred and forty[- ]nine|five hundred|seven hundred and fifty|eight hundred and forty[- ]nine|eight hundred and fifty)\s+dollars\b/i,
+  /(?<!twenty[- ])(?<!thirty[- ])(?<!forty[- ])(?<!fifty[- ])(?<!sixty[- ])(?<!seventy[- ])(?<!eighty[- ])(?<!ninety[- ])\b(?:forty[- ]nine|one hundred and fifty|two hundred and forty[- ]nine|three hundred and ninety[- ]seven|four hundred and forty[- ]nine|four hundred and fifty|seven hundred and fifty|eighteen hundred|one thousand and eight hundred|eight hundred and forty[- ]nine|eight hundred and fifty)\s+dollars\b/i,
   /(?<!twenty[- ])(?<!thirty[- ])(?<!forty[- ])(?<!fifty[- ])(?<!sixty[- ])(?<!seventy[- ])(?<!eighty[- ])(?<!ninety[- ])\b(?:five hundred|seven hundred and fifty)\s+(?:dollars\s+)?a month\b/i,
 
   /* Retired entitlements. Pro was 1,200 minutes and "400 to 600 calls" until
