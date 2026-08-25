@@ -6,9 +6,9 @@
 > them has been offered to anyone. The one row that IS live, CAPTURE, is the
 > receptionist family, sold since the 2026-08-22 v4 directive as a one-time
 > Launch & Implementation fee to start, then a monthly price:
-> The Works C$2,500 to start, then C$1,800/month (1,400 minutes, C$0.75/min overage);
+> The Works C$3,000 to start, then C$2,100/month (1,400 minutes, C$0.75/min overage);
 > AI Front Desk C$1,500 to start, then C$1,000/month (1,400 minutes, C$0.75/min overage);
-> Performance Partnership (invite-only) C$2,000 to start, then C$250/month plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 minutes, C$1.10/min overage).
+> Performance Partnership (invite-only) from C$2,500 to start, then C$350/month plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 minutes, C$1.10/min overage).
 > No pilot and no trial at any price. `pricing-config.js` and the engine's
 > src/domain/canonical.ts are the source of truth. The C$249 in the OPERATE row is a draft monthly for a
 > different product; it is NOT the retired C$249 receptionist tier, which is

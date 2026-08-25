@@ -1,3 +1,8 @@
+<!-- commercial-truth: HISTORICAL_REFERENCE_ALLOWED — superseded twice in its
+     own first line, in words no checker can read, and marked on 2026-08-24
+     when v5 made the figures it describes retired ones. It is an
+     architecture note about a commercial model that no longer exists. -->
+
 > SUPERSEDED 2026-07-25, AND AGAIN 2026-08-09. The guarantee-based commercial model described below is retired, and so is the Model B free-pilot model this banner used to name as current. The current model (v4, owner directive 2026-08-22) is a one-time Launch & Implementation fee to start, then a monthly price per plan, with no pilot or trial at any price; pricing-config.js and the engine's src/domain/canonical.ts are the source of truth, and no figure in this file may be quoted. This file is kept for history; do not copy wording, numbers, or Stripe product shapes from it.
 # Payment flow — Nevamis (architecture, pre-implementation)
 

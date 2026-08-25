@@ -1,3 +1,10 @@
+<!-- commercial-truth: HISTORICAL_REFERENCE_ALLOWED — this document has said
+     SUPERSEDED in its own first line since 2026-08-09, in words no checker
+     can read. Marked on 2026-08-24, when v5 retired the figures it quotes and
+     they became findings: a record of an upgrade that happened necessarily
+     names the prices that upgrade shipped. The live agent is briefed from
+     config/elevenlabs/, never from here. -->
+
 # ElevenLabs Agent Upgrade: Published Pricing, Live Pilot, Response Quality
 
 > **SUPERSEDED 2026-08-09 — do not brief the live agent from this document.**
@@ -7,9 +14,9 @@
 > the C$150 pilot credit. Every one of those is retired, as is the 2026-08-09
 > one-figure model. The current model (v4, owner directive 2026-08-22) is a
 > one-time Launch & Implementation fee to start, then a monthly price:
-> The Works C$2,500 to start, then C$1,800/month;
+> The Works C$3,000 to start, then C$2,100/month;
 > AI Front Desk C$1,500 to start, then C$1,000/month;
-> Performance Partnership (invite-only) C$2,000 to start, then C$250/month
+> Performance Partnership (invite-only) from C$2,500 to start, then C$350/month
 > with no pilot or trial at any
 > price. The individual sections below have been corrected in place rather than
 > left as a trap, but the source of truth is pricing-config.js and the live

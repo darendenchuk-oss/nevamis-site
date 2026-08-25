@@ -19,17 +19,17 @@ Key facts (kept accurate; the pricing page is authoritative):
   Implementation fee charged once, at the start, beside the first month,
   then a monthly price charged the day the business subscribes and on the
   same day every month after:
-    The Works:               C$2,500 Launch & Implementation to start,
-                             then C$1,800 a month. No performance fee.
+    The Works:               C$3,000 Launch & Implementation to start,
+                             then C$2,100 a month. No performance fee.
                              The whole engine: the AI Front Desk plus
                              every sellable automation add-on, priced
                              under the sum of its parts.
     AI Front Desk (recommended): C$1,500 Launch & Implementation to
                              start, then C$1,000 a month. No performance
                              fee. Automation add-ons join one at a time:
-                             Missed-Call Recovery C$300/month,
-                             Quote-Chase Engine C$450/month, Get-Paid
-                             Autopilot C$450/month.
+                             Missed-Call Recovery C$350/month,
+                             Quote-Chase Engine C$500/month, Get-Paid
+                             Autopilot C$500/month, Review Engine C$300/month.
     Performance Partnership: by invitation and approval only, never the
                              default and never self-serve. C$2,000 Launch &
                              Implementation to start, then C$250 a month,

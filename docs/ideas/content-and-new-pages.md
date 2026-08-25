@@ -5,13 +5,16 @@
 > After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
 > setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
 > Every one of those is retired, and the single-recurring-price model that replaced them on
-> 2026-08-09 was itself superseded by v4 (owner directive 2026-08-22). The current model is a
+> 2026-08-09 was itself superseded by v4 (2026-08-22) and then by v5 (owner
+> directive 2026-08-24). The current model is a
 > one-time Launch & Implementation fee to start, then a monthly price:
-> **The Works** C$2,500 to start, then C$1,800/month (1,400 included minutes, C$0.75/min overage);
+> **The Works** C$3,000 to start, then C$2,100/month (1,400 included minutes, C$0.75/min overage);
 > **AI Front Desk** (recommended) C$1,500 to start, then C$1,000/month (1,400 included minutes, C$0.75/min overage);
-> **Performance Partnership** (invite-only) C$2,000 to start, then C$250/month plus 15% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 included minutes, C$1.10/min overage).
+> **Performance Partnership** (invite-only) from C$2,500 to start, then C$350/month plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 included minutes, C$1.10/min overage).
 > Sellable add-ons, each its own sale on its own three-month start:
-> Missed-Call Recovery C$300/month, Quote-Chase Engine C$450/month, Get-Paid Autopilot C$450/month.
+> Missed-Call Recovery C$350/month, Quote-Chase Engine C$500/month, Get-Paid Autopilot C$500/month,
+> Review Engine C$300/month — each with a one-time Launch & Implementation fee of its own
+> (C$500, C$750, C$750, C$500).
 > Terms: three months minimum on a plan alone, six with any add-on or The Works,
 > then month to month on thirty days notice, with the price locked for twelve months.
 > No pilot or trial at any price. `pricing-config.js` and the engine's

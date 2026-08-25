@@ -1,3 +1,9 @@
+<!-- commercial-truth: HISTORICAL_REFERENCE_ALLOWED — a plan drafted against
+     the v4 offer and never approved. Marked on 2026-08-24: v5 retired the
+     figures its cases assert, and a test plan is a record of what was going
+     to be checked, not an offer. The live agent's cases are
+     config/elevenlabs/nevamis-agent-test-cases.md, which carries v5. -->
+
 # ElevenLabs Agent Test Plan
 
 Status: draft for owner approval. Nothing in this document means the live agent has already been changed. This plan defines how the upgraded prompt and configuration are tested before production activation, which happens only after every gate below passes and Daren signs off.
