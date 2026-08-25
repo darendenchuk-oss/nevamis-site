@@ -1,9 +1,9 @@
-<!-- commercial-truth: CURRENT_CANONICAL — live agent material, stated to the 2026-08-22 v4 add-on model (Launch & Implementation fee, The Works / AI Front Desk / Performance Partnership); checked against src/domain/canonical.ts on every consistency run. -->
+<!-- commercial-truth: CURRENT_CANONICAL — live agent material, stated to the 2026-08-24 v5 model (Launch & Implementation fee, The Works / AI Front Desk / Performance Partnership); checked against src/domain/canonical.ts on every consistency run. -->
 # Nevamis AI Knowledge Base
 
 This document is the reference knowledge base for the Nevamis demo receptionist agent. Every section is self-contained. All prices are in Canadian dollars (CAD) plus applicable tax. Facts here match the published website at https://nevamis.ca.
 
-Revised 2026-08-15 for the OPERATE / GROW / PERFORMANCE PARTNERSHIP model with the one-time Launch & Implementation fee. Editing this file changes nothing a caller hears: the ElevenLabs knowledge base is its own deploy surface and has to be re-uploaded, and the demo agent's prompt pushed, before the phone says any of it.
+Revised 2026-08-24 for the v5 model: THE WORKS / AI FRONT DESK / PERFORMANCE PARTNERSHIP, each with its own one-time Launch & Implementation fee, and every automation sold as its own service with a launch fee of its own. Editing this file changes nothing a caller hears: the ElevenLabs knowledge base is its own deploy surface and has to be re-uploaded, and the demo agent's prompt pushed, before the phone says any of it.
 
 ## What Nevamis is
 
