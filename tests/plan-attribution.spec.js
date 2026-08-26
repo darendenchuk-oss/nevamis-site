@@ -36,12 +36,17 @@ function config() {
    nobody clicking. */
 const ALLOWED = /^plan_(quote|buy)_click_[a-z0-9_]{1,24}$/;
 
-/** Which CTA this plan should render, from the same two conditions pricing.html
+/** Which CTA this plan should render, from the same three conditions pricing.html
     branches on. A quoted "from C$X" plan keeps the strategy call whatever the
     gate says, because sending it to a checkout that charges exactly C$X would
-    contradict the price above the button. */
+    contradict the price above the button. An invite/approval-only plan
+    (selfServe: false) keeps the strategy call too — until 2026-08-26 this
+    fixture mirrored pricing.html's own bug (the condition it copied never
+    checked selfServe), so it asserted a "Buy now" button was correct for
+    Performance Partnership and passed while confirming the defect instead
+    of catching it. */
 function expectedCta(P, pl) {
-  return (!P.sellable || pl.startingAt)
+  return (!P.sellable || pl.startingAt || pl.selfServe === false)
     ? { evt: 'plan_quote_click_' + pl.id, href: '/book.html' }
     : { evt: 'plan_buy_click_' + pl.id, href: '/signup?plan=' + pl.id };
 }

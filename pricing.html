@@ -1116,7 +1116,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     h += '<div class="usage">' + grp(pl.includedMinutes) + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
     h += "<ul>" + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
     h += '<div class="best"><strong>Best for:</strong> <span></span></div>';
-    /* The buy path, in three cases.
+    /* The buy path, in four cases.
 
        P.sellable === false routes EVERY plan to the strategy call. The
        entitlements behind each price were rewritten on 2026-08-09 and the
@@ -1127,8 +1127,17 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
        A "from C$X" plan is quoted, not fixed, so sending it to a checkout that
        charges exactly C$X would contradict the price right above the button;
-       those keep the strategy call whatever the gate says. */
-    if (!P.sellable || pl.startingAt) {
+       those keep the strategy call whatever the gate says.
+
+       selfServe === false (found 2026-08-26): this card's OWN text three
+       lines up already says "Offered by invitation and approval; never the
+       default," but nothing had stopped the button beneath it from reading
+       "Buy now" and linking straight to signup?plan=starter anyway — the
+       one surface a prospect actually sees before the app-side gates
+       (signup, checkout, plan-change) correctly refuse it one click later.
+       Checked here so the card can't say one thing and its own button
+       another. */
+    if (!P.sellable || pl.startingAt || pl.selfServe === false) {
       h += '<div class="buy"><a class="btn ' + (pl.recommended ? "btn-primary" : "btn-ghost") + '" href="/book.html" data-evt="plan_quote_click">Talk to us <span class="arw" aria-hidden="true">›</span></a>'
         + '<div class="buy-note">' + (pl.startingAt ? "Higher-volume builds are priced on the call." : "Fifteen minutes to scope it, then we build and test it before it answers anything.") + "</div></div>";
     } else {
