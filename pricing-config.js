@@ -4,29 +4,41 @@
    SIMPLIFIED TO ONE RECURRING PRICE 2026-08-09,
    PRICED AFTER A SCAN (morning) AND THEN THE
    OPERATE / GROW / PERFORMANCE PARTNERSHIP MODEL (evening) 2026-08-15,
-   THE ADD-ON MODEL (v4) 2026-08-22.
+   THE ADD-ON MODEL (v4) 2026-08-22, THE V5 REPRICE 2026-08-24.
    Do not duplicate these values in HTML — render from here.
 
-   THE COMMERCIAL MODEL, IN ONE TABLE (v4, owner directive 2026-08-22):
+   THE COMMERCIAL MODEL, IN ONE TABLE (v5, owner directive 2026-08-24):
 
-     Plan                     Launch & Implementation   Monthly      Performance
-     The Works (the bundle)   C$2,500 one-time          C$1,800      none
-     AI Front Desk (start)    C$1,500 one-time          C$1,000      none
-     Performance Partnership  C$2,000 one-time          C$250        15% attributable collected revenue, 12 months
+     Plan                     Launch & Implementation   Monthly                 Performance
+     The Works (the bundle)   C$3,000 one-time          C$2,100                 none
+     AI Front Desk (start)    C$1,500 one-time          C$1,000                 none
+     Performance Partnership  from C$2,500 one-time     C$350 (band C$250-500)  10% attributable collected revenue, 12 months, NEVER spoken on a call
        (invite / approval based — never the default, never self-serve)
-     Enterprise               starting at C$5,000       custom       optional
+     Enterprise               starting at C$5,000       custom                  optional
        (quoted per client, from what a PULSE scan finds)
 
-     Add-ons (each its own sale, on top of the AI Front Desk):
-       Missed-Call Recovery   C$300/month     sellable today
-       Quote-Chase Engine     C$450/month     sellable today
-       Get-Paid Autopilot     C$450/month     sellable today
-       Review Engine          C$300/month     NOT yet sellable (prototype)
-       Customer Reactivation  C$2,000/campaign  NOT yet sellable (prototype)
+     Add-ons (each its own sale on top of the AI Front Desk, each with its
+     own one-time Launch & Implementation fee since v5):
+       Missed-Call Recovery   C$500 L&I, C$350/month    sellable today
+       Quote-Chase Engine     C$750 L&I, C$500/month    sellable today
+       Get-Paid Autopilot     C$750 L&I, C$500/month    sellable today
+       Review Engine          C$500 L&I, C$300/month    sellable since 2026-08-24 (end-to-end drill, docs/verification/REVIEW-ENGINE-E2E.md)
+       Customer Reactivation  C$2,000/campaign          NOT yet sellable (prototype)
 
-   WHAT V4 CHANGED AND WHY. Every automation is its own product with its own
-   price, sold on its own evidence, instead of bundled invisibly into a
-   tier's monthly. Grow (C$750 + 10%) left the ladder: its key `growth` now
+   WHAT V5 CHANGED AND WHY (2026-08-24). The Works and Performance
+   Partnership repriced up (C$1,800->C$2,100/mo, C$250->C$350/mo default in
+   a published C$250-500 band); every add-on gained its own one-time Launch
+   & Implementation fee, which forced C$500 off the retired-monthly-price
+   list since two engines now legitimately bill C$500/month; Performance
+   Partnership's rate dropped 15%->10% and is now never spoken as a number
+   on a call — only "the agreed share of attributable collected revenue,
+   subject to your agreement." Review Engine flipped from prototype to
+   sellable on exercised end-to-end evidence, not assertion.
+
+   WHAT V4 CHANGED AND WHY (2026-08-22, superseded by v5 above but the
+   structural change still stands). Every automation is its own product with
+   its own price, sold on its own evidence, instead of bundled invisibly into
+   a tier's monthly. Grow (C$750 + 10%) left the ladder: its key `growth` now
    sells THE WORKS, the everything bundle, priced under the sum of its parts
    and carrying no performance fee. C$750 joined the retired prices; "Grow"
    and "Operate" joined the retired names. The reprice was made at zero live
@@ -34,12 +46,12 @@
    stored amount misreading. Performance pricing survives only on the
    invite-only Partnership.
 
-   A MINIMUM TERM EXISTS SINCE V4: three months on the AI Front Desk alone,
-   six months when any add-on or The Works is included, then month to month
-   with 30 days notice, price locked for 12 months from signing. "No
-   contract" and "cancel any time" are therefore RETIRED VOCABULARY on every
-   surface: the honest sentence is the results window: the build takes
-   days, and the wins show across the months after it.
+   A MINIMUM TERM EXISTS SINCE V4, UNCHANGED BY V5: three months on the AI
+   Front Desk alone, six months when any add-on or The Works is included,
+   then month to month with 30 days notice, price locked for 12 months from
+   signing. "No contract" and "cancel any time" are therefore RETIRED
+   VOCABULARY on every surface: the honest sentence is the results window:
+   the build takes days, and the wins show across the months after it.
 
    THE ONE-TIME FEE still has one name and one meaning. "Launch &
    Implementation" is charged once, at the start, BESIDE the first month —
@@ -50,11 +62,12 @@
    as the name of this fee. And the launch fee itself must never be denied.
 
    KEYS ARE STABLE AND NAMES MOVED, AGAIN. `pro` recurred at C$1,000 and the
-   AI Front Desk recurs at C$1,000; `starter` recurs at C$250 unchanged;
-   `growth` is the one v4 reprice (C$750 -> C$1,800, made at zero
-   subscriptions). Order is display order: index 0 is The Works (the anchor
-   a reader sees first), index 1 is the AI Front Desk — the recommended
-   start and the checkout default.
+   AI Front Desk recurs at C$1,000, unchanged by v5; `starter` is Performance
+   Partnership, moved by v5 from a fixed C$250 to a C$350 default inside a
+   published C$250-500 band; `growth` is The Works, moved C$750->C$1,800 by
+   v4 then C$1,800->C$2,100 by v5. Order is display order: index 0 is The
+   Works (the anchor a reader sees first), index 1 is the AI Front Desk —
+   the recommended start and the checkout default.
 
    The `launch` key is the one-time fee. It is deliberately NOT called
    `setup`: nevamis-engine's checkPricing treats the PRESENCE of a `setup`
@@ -90,9 +103,9 @@
   window.NV_PRICING = {
     approved: true,
     currency: "CAD",
-    lastUpdated: "2026-08-22",
+    lastUpdated: "2026-08-24",
     taxNote: "Prices in Canadian dollars, plus applicable GST/HST.",
-    commercialModel: "V4-addon-model",
+    commercialModel: "V5-reprice",
     /* Whether a visitor may complete a purchase without talking to anyone.
        TRUE since 2026-08-16, on the owner's explicit authorization. The
        engine's checkout gate opened the same day with the same authorization
