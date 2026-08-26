@@ -38,8 +38,8 @@
    six months when any add-on or The Works is included, then month to month
    with 30 days notice, price locked for 12 months from signing. "No
    contract" and "cancel any time" are therefore RETIRED VOCABULARY on every
-   surface: the honest sentence is the results window — month one is the
-   build and the tuning, the wins show in months two and three.
+   surface: the honest sentence is the results window: the build takes
+   days, and the wins show across the months after it.
 
    THE ONE-TIME FEE still has one name and one meaning. "Launch &
    Implementation" is charged once, at the start, BESIDE the first month —
@@ -107,14 +107,14 @@
     /* THE CONTRACT TERM, v4. Mirrors CANONICAL.pricing.terms in
        nevamis-engine. Stated here because a term a buyer discovers at the
        agreement is a term that was hidden; the pricing page says it in the
-       open, framed the way it is true: month one is the build, the results
-       show in months two and three. */
+       open, framed the way it is true: the build takes days, and the results
+       show across the months after it. */
     terms: {
       minimumMonthsCore: 3,
       minimumMonthsWithAddOns: 6,
       cancellationNoticeDays: 30,
       priceLockMonths: 12,
-      note: "Three-month start on the AI Front Desk; six months when any add-on or The Works is included. Month one is the build and the tuning — the results window is the point. After the minimum: month to month, 30 days notice, cancellation from your own portal, and your price is locked for 12 months from signing."
+      note: "Three-month start on the AI Front Desk; six months when any add-on or The Works is included. The build takes days, not weeks: your line is answered inside the first week. The term is for the results window, which runs across a season of quotes and invoices. After the minimum: month to month, 30 days notice, cancellation from your own portal, and your price is locked for 12 months from signing."
     },
     /* ENTERPRISE, deliberately NOT a plans[] entry: it has no universal
        monthly price, and a record shaped like a priced plan gets rendered as
