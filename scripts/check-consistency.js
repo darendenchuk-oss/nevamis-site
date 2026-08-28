@@ -437,6 +437,143 @@ for (const p of contentPages) {
   }
 }
 
+/* 7i. THE HOMEPAGE CAPABILITY LISTS ARE DERIVED, OR THEY ARE NOTHING.
+
+      Section 4 of the rebuilt homepage answers one question a buyer is
+      entitled to a straight answer on: what can I actually buy today. It is
+      the highest-consequence list on the public site, and the shape it takes
+      is exactly the shape 7h describes as this repository's standing defect:
+      names and sentences typed into HTML with nothing comparing them to the
+      record the checkout bills from.
+
+      So it is checked instead of trusted, in BOTH directions:
+
+        every sellable thing in pricing-config.js appears in #capAvailable,
+        with the config's own sentence, in the config's own order;
+        nothing appears in #capAvailable that the config does not mark
+        sellable; and every add-on the config marks NOT sellable appears in
+        #capDevelopment instead, so a module cannot be promoted by silence.
+
+      PRE-RENDERED, NOT BUILT AT RUNTIME, which is why this guard is worth
+      having at all. The pricing preview two sections below is drawn by
+      JavaScript from the same config and cannot drift by construction, at
+      the cost of being invisible to a visitor with scripts blocked and to
+      every answer engine. For a decorative price card that trade is fine.
+      For the sentence "this is what is for sale" it is not, so the markup
+      carries the real text and this rule carries the guarantee. Same
+      reasoning as 7a, applied to capabilities rather than prices. */
+{
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const cfg = w.NV_PRICING;
+  const plans = cfg && Array.isArray(cfg.plans) ? cfg.plans : [];
+  const addOns = cfg && Array.isArray(cfg.addOns) ? cfg.addOns : [];
+  const planBy = (id) => plans.find((p) => p.id === id);
+
+  /* <li><strong>NAME</strong><span>SENTENCE</span></li>, flattened. Simple on
+     purpose: an entry that needs nested markup is an entry that has stopped
+     being a name and a sentence. */
+  const listItems = (html, id) => {
+    const m = html.match(new RegExp('<ul[^>]*\\bid="' + id + '"[^>]*>([\\s\\S]*?)</ul>', "i"));
+    if (!m) return null;
+    return [...m[1].matchAll(/<li[^>]*>\s*<strong>([\s\S]*?)<\/strong>\s*<span>([\s\S]*?)<\/span>\s*<\/li>/g)]
+      .map((x) => [x[1], x[2]].map((s) => s.replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim()));
+  };
+
+  const front = planBy("pro"), works = planBy("growth");
+  if (!front || !works) err("pricing-config.js: plans `pro` and `growth` are what the homepage capability list is built from, and one is missing");
+  else {
+    const expected = [
+      [front.name, String(front.bestFor)],
+      ...addOns.filter((a) => a.sellable === true).map((a) => [a.name, String(a.blurb)]),
+      [works.name, String(works.bestFor)],
+    ].map(([n, t]) => [n, t.replace(/\s+/g, " ").trim()]);
+
+    for (const page of ["home.html", "index.html"]) {
+      const p = path.join(root, page);
+      if (!fs.existsSync(p)) continue;
+      const html = fs.readFileSync(p, "utf8");
+      const got = listItems(html, "capAvailable");
+      if (!got) { err(`${page}: <ul id="capAvailable"> is gone. The homepage's "what you can actually buy" list is the one block on the public site that must be derived from pricing-config.js, and deleting it is how it stops being derived.`); continue; }
+      if (got.length !== expected.length || got.some((g, i) => g[0] !== expected[i][0] || g[1] !== expected[i][1])) {
+        err(`${page}: #capAvailable drifted from pricing-config.js\n      page:   `
+          + got.map((g) => g[0] + " :: " + g[1].slice(0, 60)).join("\n              ")
+          + `\n      config: ` + expected.map((g) => g[0] + " :: " + g[1].slice(0, 60)).join("\n              ")
+          + `\n      Every entry is name + the config's own sentence: pro.bestFor, then each sellable`
+          + ` add-on's blurb in config order, then growth.bestFor. Edit pricing-config.js and follow it here.`);
+      }
+
+      /* And the other half: a module the config refuses to sell must be on the
+         "in development" list, by name. Silence is how a prototype gets sold. */
+      const soon = listItems(html, "capDevelopment");
+      if (!soon) { err(`${page}: <ul id="capDevelopment"> is gone, so nothing states which capabilities are NOT for sale.`); continue; }
+      const soonNames = soon.map((s) => s[0]);
+      for (const a of addOns.filter((x) => x.sellable === false)) {
+        if (!soonNames.includes(a.name)) {
+          err(`${page}: pricing-config.js marks "${a.name}" not sellable, but it is not named in #capDevelopment. `
+            + `A capability that is neither sold nor declared unsold reads as available to anyone skimming.`);
+        }
+      }
+      for (const a of addOns.filter((x) => x.sellable === false)) {
+        if (got.some((g) => g[0] === a.name)) err(`${page}: "${a.name}" is listed as available but pricing-config.js marks it not sellable`);
+      }
+    }
+  }
+}
+
+/* 7j. THE PUBLIC DEMONSTRATION SPEAKS THE CLIENT MAP'S CONTRACT.
+
+      Section 5 of the homepage shows three flows. They are not the site's
+      words: publicDemoMap() in nevamis-engine's
+      src/domain/intelligence/client-map.ts is the single author, exported by
+      nv-shared-contract/scripts/export-public-map.mts into
+      config/public-demo-map.json and pre-rendered into the table here.
+
+      Two repositories describing the same demonstration in their own words
+      diverge inside a month. The whole point of the shared contract is that
+      the public demo and the map a paying client opens in their portal are
+      the same object seen from two places, so the site is allowed to lay it
+      out and forbidden to reword it. Re-export the JSON and follow it here
+      when the engine changes.
+
+      config/ is excluded from the Jekyll build, so the JSON is a source file
+      rather than something the page fetches: no request, no CLS, and the
+      table reads with scripting off. */
+{
+  const dataPath = path.join(root, "config", "public-demo-map.json");
+  if (!fs.existsSync(dataPath)) {
+    err("config/public-demo-map.json is missing. The homepage demonstration renders it, and without it the table on the page is unsourced prose.");
+  } else {
+    let flows = null;
+    try { flows = JSON.parse(fs.readFileSync(dataPath, "utf8")); }
+    catch (e) { err("config/public-demo-map.json does not parse: " + String(e.message).slice(0, 90)); }
+    if (Array.isArray(flows)) {
+      const cells = (html) => {
+        const t = html.match(/<table[^>]*\bid="demoMap"[^>]*>([\s\S]*?)<\/table>/i);
+        if (!t) return null;
+        const body = (t[1].match(/<tbody>([\s\S]*?)<\/tbody>/i) || [null, ""])[1];
+        return [...body.matchAll(/<tr>([\s\S]*?)<\/tr>/g)].map((r) =>
+          [...r[1].matchAll(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/g)]
+            .map((c) => c[1].replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim()));
+      };
+      for (const page of ["home.html", "index.html"]) {
+        const p = path.join(root, page);
+        if (!fs.existsSync(p)) continue;
+        const rows = cells(fs.readFileSync(p, "utf8"));
+        if (!rows) { err(`${page}: <table id="demoMap"> is gone. Section 5 is the one demonstration on the homepage and it has to be the exported map, not a retelling of it.`); continue; }
+        const expected = flows.map((f) => [String(f.when), String(f.understands), String(f.acts), String(f.verified && f.verified.label)]);
+        if (rows.length !== expected.length || rows.some((r, i) => r.join("|") !== expected[i].join("|"))) {
+          err(`${page}: #demoMap drifted from config/public-demo-map.json\n      page:   `
+            + rows.map((r) => r.join(" | ")).join("\n              ")
+            + `\n      export: ` + expected.map((r) => r.join(" | ")).join("\n              ")
+            + `\n      Re-run: npx tsx scripts/export-public-map.mts (in nv-shared-contract) > config/public-demo-map.json,`
+            + ` then follow it in the markup. The site lays this out; the engine writes it.`);
+        }
+      }
+    }
+  }
+}
+
 /* 7h. THE ADD-ON CATALOG ON pricing.html IS A HAND-TYPED LIST.
 
       Guard 7 above validates the three PLANS against pricing-config.js and
@@ -1359,33 +1496,42 @@ for (const p of contentPages) {
    reading another, on the page whose entire job is proof. Nothing else notices,
    because both files are valid HTML and every audio path resolves.
 
-   index.html is the reference because it is the homepage. Any other page using
-   the same files must carry the same turns in the same order. */
+   index.html WAS the reference, because it was the homepage and the homepage
+   played the call. On 2026-08-27 the seven-section rebuild moved the player to
+   demo.html, and a reference file that no longer carries any turns turns this
+   whole rule into a silent no-op: reference.length would be 0, the loop would
+   never run, and the guard would report success while checking nothing. That
+   is the exact failure mode the rest of this file exists to prevent, so the
+   reference is now DISCOVERED rather than named. Whichever pages play the
+   audio are compared against each other, with demo.html preferred as the
+   reference because it is the page whose entire job is proof; if no page plays
+   it at all, there is genuinely nothing to compare and the rule stands down. */
 {
   const turnsOf = (html) => [...html.matchAll(/data-audio="([^"]+)"[\s\S]*?<p>([\s\S]*?)<\/p>/g)]
     .map((m) => [m[1], m[2].replace(/\s+/g, " ").trim()]);
 
-  const referenceFile = path.join(root, "index.html");
-  if (fs.existsSync(referenceFile)) {
-    const reference = turnsOf(fs.readFileSync(referenceFile, "utf8"));
+  const players = contentPages.filter((p) =>
+    /data-audio="assets\/call-/.test(fs.readFileSync(path.join(root, p), "utf8")));
+  const referencePage = players.includes("demo.html") ? "demo.html" : players[0];
+  if (referencePage) {
+    const reference = turnsOf(fs.readFileSync(path.join(root, referencePage), "utf8"));
     if (reference.length > 0) {
-      for (const page of contentPages) {
-        if (page === "index.html") continue;
+      for (const page of players) {
+        if (page === referencePage) continue;
         const html = fs.readFileSync(path.join(root, page), "utf8");
-        if (!/data-audio="assets\/call-/.test(html)) continue;
         const turns = turnsOf(html);
         if (turns.length !== reference.length) {
-          err(`${page}: plays the example call but shows ${turns.length} turns where index.html has ${reference.length} `
+          err(`${page}: plays the example call but shows ${turns.length} turns where ${referencePage} has ${reference.length} `
             + `(the audio is one recording; a page showing fewer turns cuts the call off mid-conversation)`);
           continue;
         }
         for (let i = 0; i < turns.length; i++) {
           if (turns[i][0] !== reference[i][0]) {
-            err(`${page}: turn ${i + 1} plays ${turns[i][0]} where index.html plays ${reference[i][0]}`);
+            err(`${page}: turn ${i + 1} plays ${turns[i][0]} where ${referencePage} plays ${reference[i][0]}`);
           } else if (turns[i][1] !== reference[i][1]) {
-            err(`${page}: turn ${i + 1} (${turns[i][0]}) shows different words than index.html — the transcript does not match the audio\n`
+            err(`${page}: turn ${i + 1} (${turns[i][0]}) shows different words than ${referencePage}: the transcript does not match the audio\n`
               + `       ${page}: ${turns[i][1].slice(0, 80)}\n`
-              + `       index.html: ${reference[i][1].slice(0, 80)}`);
+              + `       ${referencePage}: ${reference[i][1].slice(0, 80)}`);
           }
         }
       }

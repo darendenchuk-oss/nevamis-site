@@ -25,7 +25,7 @@ const CONTROLS = [
   ['/book.html', '#cbName', 'callback form'],
   ['/book.html', '#bkName', 'scheduler prefill'],
   ['/coming-soon.html', '#ifName', 'interest form'],
-  ['/', '#roiMissed', 'homepage calculator'],
+  ['/roi.html', '#roiMissed', 'the calculator page'],
   ['/pricing.html', '.rc input', 'plan fit calculator'],
 ];
 

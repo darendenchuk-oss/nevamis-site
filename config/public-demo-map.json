@@ -1,0 +1,38 @@
+[
+  {
+    "key": "demo.missed_call",
+    "when": "Missed call received",
+    "understands": "Job details understood",
+    "acts": "Owner notified",
+    "verified": {
+      "state": "verified",
+      "label": "Opportunity preserved",
+      "at": null
+    },
+    "status": "on"
+  },
+  {
+    "key": "demo.missed_call_text",
+    "when": "The caller hangs up without leaving a message",
+    "understands": "The number, the time, and that the job is still winnable",
+    "acts": "A short text goes back to them once you approve it",
+    "verified": {
+      "state": "verified",
+      "label": "Your customer replied",
+      "at": null
+    },
+    "status": "on"
+  },
+  {
+    "key": "demo.quiet_quote",
+    "when": "A quote has gone quiet for two weeks",
+    "understands": "The quote is still open, and what winning it is worth",
+    "acts": "Up to three short follow-up notes over two weeks, then it stops",
+    "verified": {
+      "state": "awaiting",
+      "label": "No result confirmed yet",
+      "at": null
+    },
+    "status": "on"
+  }
+]

@@ -3,21 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>How You Start | Nevamis | Edmonton</title>
-<meta name="description" content="There is no pilot and no trial at Nevamis. A one-time Launch and Implementation fee starts the build, then the monthly price on a three-month start. Here is exactly what happens first.">
-<link rel="canonical" href="https://nevamis.ca/pilot.html">
+<title>Missed-Call Calculator | What Missed Calls Cost You | Nevamis</title>
+<meta name="description" content="Put your own numbers in: missed calls a week, what a job is worth, your close rate. See the monthly opportunity reaching voicemail and what covers a plan.">
+<link rel="canonical" href="https://nevamis.ca/roi.html">
 <meta name="robots" content="index, follow">
-<meta property="og:title" content="How you start | Nevamis">
-<meta property="og:description" content="No trial to convert out of. A one-time Launch and Implementation fee starts the build, then the monthly price on a three-month start. Tested against scripted callers before it goes live.">
+<meta property="og:title" content="What are missed calls costing you?">
+<meta property="og:description" content="Use your own numbers. The math is shown, the assumptions are yours to change.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://nevamis.ca/pilot.html">
+<meta property="og:url" content="https://nevamis.ca/roi.html">
 <meta property="og:site_name" content="Nevamis">
 <meta property="og:locale" content="en_CA">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
- {"@type":"ListItem","position":1,"name":"Home","item":"https://nevamis.ca/"},
- {"@type":"ListItem","position":2,"name":"How You Start","item":"https://nevamis.ca/pilot.html"}]}
-</script>
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -705,25 +700,20 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 <!-- /generated:css -->
 
 <style>
-  /* ---------- pilot hero (page-specific; everything else in assets/motion/site.css) ---------- */
-  .hero{position:relative;overflow:hidden;padding:150px 0 56px}
-  .hero h1{font-weight:700;letter-spacing:-.03em;line-height:1.05;margin:18px 0 0}
-  .lede{color:var(--muted);font-size:clamp(16px,1.5vw,19px);margin-top:18px;line-height:1.55;max-width:52ch}
-  .lede strong{color:var(--ink);font-weight:700}
-  .hero .cta-row{margin-top:28px}
-  .proof{margin-top:18px;color:var(--muted);font-size:14px;max-width:56ch}
-
-  .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
-  .twocol > div { background: linear-gradient(180deg,var(--navy-2),#0C1A25); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
-  .twocol h3 { font-size: 18px; margin-bottom: 12px; }
-  .twocol ul { list-style: none; padding: 0; margin: 0; }
-  .twocol li { font-size: 14.5px; color: var(--muted); padding: 5px 0 5px 22px; position: relative; }
-  .inc li::before { content: "✓"; position: absolute; left: 0; color: var(--emerald); font-weight: 700; }
-  .exc li::before { content: "·"; position: absolute; left: 6px; color: var(--muted); font-weight: 700; }
-  @media (max-width: 820px) { .twocol { grid-template-columns: 1fr; } }
-  .qa dt { font-weight: 700; margin-top: 16px; }
-  .qa dd { color: var(--muted); margin: 4px 0 0; font-size: 15.5px; }
-  .founding-note { background: rgba(240,180,98,.08); border: 1px solid rgba(240,180,98,.35); border-radius: 16px; padding: 18px 24px; margin-top: 30px; }
+  /* page-specific: the calculator page hero (everything else lives in
+     assets/motion/site.css, inlined above by scripts/build-pages.mjs). */
+  .hero{padding:150px 0 46px}
+  .hero .wrap{max-width:820px}
+  .hero h1{font-weight:700;letter-spacing:-.03em;line-height:1.06;margin:16px 0 0;
+    font-size:clamp(36px,5.4vw,64px)}
+  .lede{color:var(--muted);font-size:clamp(16px,1.5vw,19px);margin:18px 0 0;line-height:1.55;max-width:56ch}
+  .cta-row{margin-top:26px}
+  .proof{margin-top:18px;color:var(--muted);font-size:14px}
+  .crumb{color:var(--muted);font-size:13px;margin-bottom:14px}
+  .crumb a{color:var(--emerald)}
+  /* The calculator section keeps id="roi" so the sticky compact estimate,
+     which the generated stylesheet pins with #roi{overflow:visible}, behaves
+     exactly as it did on the homepage. */
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -741,18 +731,18 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       {
         "@type": "ListItem",
         "position": 2,
-        "name": "How You Start",
-        "item": "https://nevamis.ca/pilot.html"
+        "name": "Missed-Call Calculator",
+        "item": "https://nevamis.ca/roi.html"
       }
     ]
   },
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "@id": "https://nevamis.ca/pilot.html",
-    "url": "https://nevamis.ca/pilot.html",
-    "name": "How You Start | Nevamis | Edmonton",
-    "description": "There is no pilot and no trial at Nevamis. A one-time Launch and Implementation fee starts the build, then the monthly price on a three-month start. Here is exactly what happens first.",
+    "@id": "https://nevamis.ca/roi.html",
+    "url": "https://nevamis.ca/roi.html",
+    "name": "Missed-Call Calculator | What Missed Calls Cost You | Nevamis",
+    "description": "Put your own numbers in: missed calls a week, what a job is worth, your close rate. See the monthly opportunity reaching voicemail and what covers a plan.",
     "isPartOf": {
       "@type": "WebSite",
       "name": "Nevamis",
@@ -786,7 +776,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a href="/#how" data-nav>How it works</a></span>
       <span class="navitem"><a href="/solutions.html" data-nav>Solutions</a></span>
       <span class="navitem"><a href="/pricing.html" data-nav>Pricing</a></span>
-      <span class="navitem"><a href="/pilot.html" aria-current="page" data-nav>How you start</a></span>
+      <span class="navitem"><a href="/pilot.html" data-nav>How you start</a></span>
       <span class="navitem"><a href="/demo.html" data-nav>Demo</a></span>
       <span class="navitem"><a class="nav-min" href="/coming-soon.html" data-nav>Roadmap</a></span>
       <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
@@ -801,118 +791,139 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   <section class="hero">
     <div class="grid-lines" aria-hidden="true"></div>
     <div class="glow" style="width:600px;height:380px;right:-140px;top:-80px" aria-hidden="true"></div>
-    <div class="wrap" style="max-width:860px">
-      <div>
-        <span class="eyebrow"><span class="dot" aria-hidden="true"></span>How you start</span>
-        <h1 style="font-size:clamp(38px,5.6vw,68px)">There is no trial. The term is published.</h1>
-        <p class="lede">You pay a one-time Launch &amp; Implementation fee that starts the build, then your plan's monthly price from the day you start, on a published minimum term of three months (six when any add-on or The Works is included), after which it continues month to month on 30 days notice and you stop it yourself from your portal. <strong>Both figures are published before you commit, and past the start, the only recurring charges are the monthly and any overage past your included minutes.</strong> Before a single customer reaches it, the system is built from your business and tested against written call scenarios, with your line proven by a real call.</p>
-        <div class="cta-row">
-          <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a strategy call</a>
-          <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear the AI first</a>
-        </div>
-        <p class="proof">Every build is done and reviewed by the founder, so we take on a limited number at a time. That is a capacity limit, not a scarcity tactic.</p>
+    <div class="wrap">
+      <p class="crumb"><a href="/">Home</a> / Missed-call calculator</p>
+      <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Missed-call math</span>
+      <h1>What are missed calls costing you?</h1>
+      <p class="lede">Use your own numbers. The math is shown, the assumptions are yours
+        to change, and nothing here is a guarantee. It moved off the homepage on purpose:
+        a calculator is worth a page of its own, and worth reading properly.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary btn-lg" href="#roi">Go to the calculator</a>
+        <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer &middot; (587)&nbsp;413-0035</a>
       </div>
+      <p class="proof">Prefer a real number to an estimate? The free scan reads what is
+        public about your business and puts a range on what is actually leaking, with a
+        confidence level beside each one.</p>
     </div>
   </section>
 
-  <section class="tight" data-spine>
-    <div class="wrap" style="max-width:900px">
+  <section class="roi" id="roi">
+    <div class="wrap">
       <div class="section-head reveal">
-        <p class="eyebrow mono">Exactly how it works</p>
-        <h2>The honest fine print, in plain language.</h2>
+        <p class="eyebrow mono">The calculator</p>
+        <h2>Your numbers, your assumptions.</h2>
+        <p>Change any field and the estimate below updates as you type.</p>
       </div>
-
-      <!-- WHY THIS PAGE STILL EXISTS AT /pilot.html.
-
-           Until 2026-08-09 this URL sold a seven-day paid trial. That offer is
-           retired, and the two obvious options were to delete the page or to
-           bounce it at /pricing.html. Both were rejected.
-
-           Deleting it breaks the footer link on 22 pages, the sitemap entry,
-           the llms.txt line and the call to action on every trade page. This
-           site is on GitHub Pages, which cannot serve a 301, so a "redirect"
-           here is a meta refresh: a 200 response that hides its own content
-           and drops the visitor somewhere they did not ask for, having never
-           answered the question they arrived with.
-
-           And the question outlives the offer. "Can I try it before I commit"
-           is what a business owner types, and it is what he asks on the phone,
-           whether or not there is a product called a trial. So the page keeps
-           the URL, keeps the inbound links, and answers the question honestly:
-           there is nothing to try because there is nothing to be trapped by.
-           The alternative, quietly repurposing the URL into a new offer with a
-           different name, is how a retired pilot comes back wearing a hat. -->
-      <div class="twocol reveal">
-        <div class="inc">
-          <h3>What happens before a customer ever reaches it</h3>
-          <ul>
-            <li>A discovery call: your hours, services, service area, prices and the rules the AI must follow</li>
-            <li>Your agent built from those answers, not from a template with your name in it</li>
-            <li>The qualifying questions written in your words, and approved by you</li>
-            <li>Written call scenarios run at the live agent before any phone number is pointed at it</li>
-            <li>You hear it and push on it, and it changes until you sign off</li>
-            <li>Call forwarding proven by placing a real call to your line and watching it land</li>
-            <li>Your portal ready on day one: recordings, lead records, CSV export, invoices</li>
-          </ul>
+      <div class="roi-grid">
+        <!-- Narrow screens only. The grid collapses to one column below 900px,
+             which puts the estimate BELOW the form, so on a phone the number
+             moved while nobody could see it: measured on production, the result
+             panel is off-screen through all five edits at 390px and 768px, and
+             four of five at 320px. Desktop is unaffected, where .roi-out is
+             sticky beside a two-column grid.
+             Pinning the real panel is not an option - it is 541px of an 844px
+             viewport, 64%, and would leave no room for the form. This carries
+             the headline figure only, at about 50px, and sits under the fixed
+             header rather than the bottom, where .callbar already lives.
+             aria-hidden because #roiLive already announces every change
+             politely; a visible mirror must not make a screen reader say it
+             twice. -->
+        <div class="roi-mini" aria-hidden="true">
+          <span class="roi-mini-lbl mono">REACHING VOICEMAIL / MONTH</span>
+          <span class="roi-mini-val" id="roiMini">$0</span>
         </div>
-        <div class="exc">
-          <h3>What it does not do</h3>
-          <!-- Every item below is a REFUSAL and stays one. Until 2026-08-09
-               each carried its negation in the h3 above it and nowhere
-               else, so a bullet read on its own (which is how copy travels:
-               into a schema string, a screenshot, a rep's notes) was the
-               promise it exists to refuse. The negation now lives inside each
-               item. Nothing was softened and nothing was dropped. -->
-          <ul>
-            <li>It does not book into your calendar. It takes the request and the times that suit; you confirm</li>
-            <li>It does not connect to a CRM, an ads account or an automation tool</li>
-            <li>It does not handle multiple locations, departments, or more than one number</li>
-            <li>It does not send anything outbound: no campaigns, no bulk messaging, no follow-up texts to your callers</li>
-            <li>It does not collect payment or give a binding quote</li>
-            <li>It does not do emergency dispatch, or medical, legal or other regulated advice</li>
-          </ul>
+        <form id="roiForm" novalidate class="reveal">
+          <div>
+            <label for="roiMissed">Missed calls per week</label>
+            <input type="number" id="roiMissed" inputmode="numeric" min="0" max="500" value="10">
+          </div>
+          <div>
+            <label for="roiReal">Share that are real opportunities (%)</label>
+            <input type="number" id="roiReal" inputmode="numeric" min="0" max="100" value="60">
+            <p class="hint">Not every call is a job. Set this to what you see in your own calls.</p>
+          </div>
+          <div>
+            <label for="roiValue">Average job or customer value ($)</label>
+            <input type="number" id="roiValue" inputmode="numeric" min="0" value="400">
+          </div>
+          <div>
+            <label for="roiClose">Your close rate on real inquiries (%)</label>
+            <input type="number" id="roiClose" inputmode="numeric" min="0" max="100" value="50">
+          </div>
+          <div>
+            <label for="roiQuote">Plan you are comparing against ($/month)</label>
+            <!-- value= and the plan name below are the NO-JS FALLBACK ONLY.
+                 site.js overwrites both from window.NV_PRICING on load, so the
+                 live field cannot drift from pricing-config.js. It did: this
+                 shipped value="449", a price retired 2026-08-06, to
+                 production, labelled "the Growth plan", past every gate,
+                 because nothing that reads pricing-config.js was looking at
+                 an input attribute. Keep these two literals equal to the
+                 recommended plan; check-consistency.js guard 7f now enforces
+                 it. -->
+            <input type="number" id="roiQuote" inputmode="numeric" min="0" value="1000">
+            <p class="hint" id="roiQuoteHint">Prefilled with the <span id="roiQuotePlan">AI Front Desk</span> plan. Change it to any plan, or to a
+              quote you were given, to see how many booked jobs cover it.</p>
+          </div>
+        </form>
+        <div class="roi-out reveal" aria-label="Calculator results">
+          <h3>Your estimate</h3>
+          <div class="row">
+            <div class="lbl mono">OPPORTUNITY REACHING VOICEMAIL / MONTH</div>
+            <div class="big" id="roiOpp">$0</div>
+          </div>
+          <div class="row">
+            <div class="lbl mono">CONSERVATIVE RECOVERED BOOKINGS (HALF)</div>
+            <div class="big" id="roiRec">$0</div>
+          </div>
+          <div class="row" id="roiBeRow" hidden>
+            <div class="lbl mono">BREAK-EVEN AT YOUR QUOTE</div>
+            <div class="big" id="roiBe" style="font-size:clamp(20px,2.2vw,26px)">–</div>
+          </div>
+          <div class="midcta" style="margin-top:18px">
+            <a class="btn btn-primary" href="/book.html" data-evt="roi_book_click">Check these against your real call log</a>
+          </div>
+          <p class="disclaimer">Estimate only, not a guarantee. Formula: missed calls × 4.33 weeks × opportunity share × job value × close rate. Recovery assumes half of voicemail-bound calls are captured.</p>
+          <p aria-live="polite" class="visually-hidden" id="roiLive"></p>
         </div>
       </div>
 
-      <dl class="qa reveal" style="margin-top:34px">
-        <dt>Is there a trial?</dt>
-        <dd>No, paid or free. You start on a plan with its term published in advance: three months on the AI Front Desk, six months when any add-on or The Works is included. You are charged the day you start. After the minimum it continues month to month on 30 days notice, cancelled from your own portal, with service running to the end of the period you already paid for.</dd>
-        <!-- A HISTORICAL record, kept deliberately: a prospect who was quoted
-             the pilot before 9 August 2026 should find it named and buried
-             rather than silently vanished. The retirement now sits in the
-             SAME sentence as the pilot, because every classifier here reads
-             one sentence at a time and "seven-day pilot." followed by a
-             separate sentence retiring it is still a bare offer on its own. -->
-        <dt>You used to sell a seven-day pilot, now retired. What happened to it?</dt>
-        <dd>It was retired on 9 August 2026, and the fee it charged went with it. A week of it was worse than a month of the real thing on every measure a buyer cares about: shorter, and it ended in a decision instead of a service. A cheaper-looking option that is worse than the real one is not a way in, it is a contradiction, so it is gone rather than renamed. It stays retired under the current model: the way in is the plan itself, started by the one-time Launch &amp; Implementation fee and cancellable from your portal once you are past the term you agreed.</dd>
-        <dt>Then what protects me if it does not work?</dt>
-        <dd>The cancel button, and the call log. Every call is recorded and playable in your portal with the lead record beside it, so by the end of the first week you are not judging a promise, you are reading what actually happened on your own line. If it is not worth the money, you stop paying for it yourself at the end of your term, without asking us and without a phone call.</dd>
-        <dt>What does it cost to start?</dt>
-        <dd>Two published figures: the one-time Launch &amp; Implementation fee, then the monthly price of the plan you choose. On the AI Front Desk, the recommended plan, that is C$1,500 Launch &amp; Implementation to start, then C$1,000 a month. The fee pays for the build itself, once, and is never charged again; past the start, the only recurring charges are the monthly, any automation add-ons you chose, and any overage past your included minutes. There is a three-month start; the build takes days and your line is answered inside the first week, and the results show across the months after that. Every plan's figures are on the <a href="/pricing.html" style="color:var(--mint)">pricing page</a>, in Canadian dollars, plus GST/HST.</dd>
-        <dt>What do you need from me?</dt>
-        <dd>One 30 to 45 minute discovery call, a short review of what we wrote down, and one session where you listen to it and tell us what to change. Nevamis does the build. Forwarding is set on your own phone and you can switch it off from there whenever you want.</dd>
-        <dt>Who can we take on?</dt>
-        <dd>Legitimate businesses handling their own inbound calls, with the authority to forward the business line, in an industry we can support safely. High-risk and regulated uses need a separate conversation before we agree to anything.</dd>
-        <dt>What if a caller has an emergency, or the AI does not know?</dt>
-        <dd>It uses the fallbacks you approved: take a message, flag the summary as urgent, or fall back to your voicemail. On an urgent call NEVAMIS captures the urgent details and alerts your team. It does not invent answers outside your rules, and any call where a caller used emergency language is flagged for review automatically rather than waiting for you to find it.</dd>
-        <dt>What happens to the call data?</dt>
-        <dd>Call details exist to run your service: the summary to you, the record in your portal. Recording settings are agreed with you before you go live, and you can export the lead record to CSV yourself at any time. If you cancel, data is retained only as our <a href="/privacy.html" style="color:var(--mint)">privacy policy</a> describes, then deleted.</dd>
-      </dl>
+    </div>
+  </section>
 
-      <!-- This block promised the first five businesses a waived setup fee.
-           That offer was retired on 2026-07-31 and never removed from this
-           page, so it outlived the fee it discounted and then outlived the
-           policy that replaced it. It is gone. What stands in its place is
-           the capacity limit, which is the only part of it that was ever
-           true. -->
-      <div class="reveal founding-note">
-        <p style="font-weight:700;color:#F0B462">We take on a few businesses at a time.</p>
-        <p style="font-size:13px;color:var(--muted);margin-top:4px">A real limit, not marketing: every build is done and reviewed by the founder, and founder-led onboarding caps how many can run at once.</p>
+  <section class="tight">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">How the math works</p>
+        <h2>Nothing hidden in the formula.</h2>
+        <p>Five inputs, one multiplication, and one deliberately conservative halving.
+          If a number here looks wrong for your business, it probably is: change it.</p>
       </div>
+      <div class="proc">
+        <div class="reveal"><h3>Opportunity reaching voicemail</h3><p>Missed calls per week &times; 4.33 weeks &times; the share that are real opportunities &times; your average job value &times; your close rate. That is the money that rang and went to voicemail in a month.</p></div>
+        <div class="reveal"><h3>Conservative recovered bookings</h3><p>Half of the figure above. Not every voicemail-bound caller would have booked even with a perfect answer, so the recovery estimate assumes half of them.</p></div>
+        <div class="reveal"><h3>Break-even at your quote</h3><p>How many booked jobs a month it would take to cover the plan you are comparing against. Prefilled with the recommended plan, and you can type any quote you were given.</p></div>
+      </div>
+      <p class="proof" style="margin-top:20px">Estimate only, not a guarantee. Nevamis
+        does not publish client numbers or success rates, because we are not going to
+        invent them. What the portal shows you later is measured, and it is labelled
+        measured or modelled so you can tell which is which.</p>
+    </div>
+  </section>
 
-      <div class="midcta reveal" style="margin-top:32px">
-        <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a strategy call</a>
-        <a class="btn btn-light-ghost btn-lg" href="/pricing.html">See the plans</a>
+  <section class="tight">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">What to do with the number</p>
+        <h2>An estimate is a reason to look at the real thing.</h2>
+        <p>The figure above is built from what you believe about your own calls. The two
+          things below replace belief with evidence.</p>
+      </div>
+      <div class="proc">
+        <div class="reveal"><h3>Run the free scan</h3><p>PULSE reads what is public about your business and puts a range and a confidence level on each leak it finds. Free, no email required, about a minute. <a href="https://app.nevamis.ca/scan" data-evt="platform_scan_click">Scan my business</a></p></div>
+        <div class="reveal"><h3>Hear it take a call</h3><p>A recorded example call, a transcript, and a real number you can dial yourself at any hour. <a href="/demo.html" data-evt="compare_demo_click">Go to the demo page</a></p></div>
+        <div class="reveal"><h3>See what it costs</h3><p>Two published numbers and one rule joining them, with the start length published before you buy. <a href="/pricing.html" data-evt="pricing_view_click">See the plans and prices</a></p></div>
       </div>
     </div>
   </section>
@@ -960,6 +971,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
 <a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer · (587) 413-0035</a>
 
+<!-- The calculator prefills its comparison field and its plan label from
+     window.NV_PRICING, which is how the figure and the name beside it cannot
+     drift from pricing-config.js. Loaded before site.js reads it. -->
+<script src="pricing-config.js"></script>
 <script src="assets/vendor/gsap.min.js"></script>
 <script src="assets/vendor/ScrollTrigger.min.js"></script>
 <script src="assets/vendor/MotionPathPlugin.min.js"></script>

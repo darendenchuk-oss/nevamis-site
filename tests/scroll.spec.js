@@ -9,6 +9,12 @@
 import { test, expect } from '@playwright/test';
 
 const PLAIN = '/home.html';
+/* The after-hours night band lived on the homepage until the seven-section
+   rebuild on 2026-08-27 moved it, unchanged, to /demo.html. Its scroll
+   choreography is the same choreography and every assertion below is the same
+   assertion; only the page it is asked of changed. Deliberately a constant
+   rather than inlined, so the next move is one edit rather than five. */
+const NIGHT = '/demo.html';
 
 /** Scroll the whole page in steps, like a person, so every trigger fires. */
 async function scrollThrough(page, step = 600, settle = 120) {
@@ -44,23 +50,24 @@ test('a full scroll-through leaves no masked word and no scene hidden (desktop)'
         if (m && Math.abs(Number(m[1].split(',')[5])) > 1) bad.push(el.textContent);
       }
     }
-    for (const s of document.querySelectorAll('.nb-scene')) {
-      const cs = getComputedStyle(s);
-      // In the pinned choreography earlier scenes legitimately end faded out;
-      // what must never happen is ALL scenes hidden at rest.
-      s.dataset.op = cs.opacity;
-    }
-    const sceneOps = [...document.querySelectorAll('.nb-scene')].map((s) => Number(s.dataset.op));
-    return { stuckWords: bad, sceneOps };
+    return { stuckWords: bad };
   });
 
   expect(hidden.stuckWords, 'words still translated offstage after a full read').toEqual([]);
-  expect(Math.max(...hidden.sceneOps), 'at least the final scene must be visible at rest').toBeGreaterThan(0.9);
+
+  /* The scenes live on the demo page now, and the rule they answer to is
+     unchanged: a full read may never end with every scene faded out. */
+  await page.goto(NIGHT);
+  await scrollThrough(page);
+  const sceneOps = await page.evaluate(() =>
+    [...document.querySelectorAll('.nb-scene')].map((s) => Number(getComputedStyle(s).opacity)));
+  expect(sceneOps.length, 'the night band must still exist somewhere to be proven').toBeGreaterThan(0);
+  expect(Math.max(...sceneOps), 'at least the final scene must be visible at rest').toBeGreaterThan(0.9);
 });
 
 test('the night band pins on desktop and never pins on a phone', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto(PLAIN);
+  await page.goto(NIGHT);
   await page.waitForFunction(() => !!window.__heroTL);
   const pinnedDesktop = await page.evaluate(() =>
     document.documentElement.classList.contains('nv-pin-night'));
@@ -88,7 +95,10 @@ test('when ScrollTrigger never loads, headings are plain visible text', async ({
     st: !!window.ScrollTrigger,
     wrapped: document.querySelectorAll('h2[data-masked]').length,
     firstH2Visible: (() => {
-      const h = document.querySelector('#proof h2');
+      /* Was '#proof h2', the live-call block, which moved to /demo.html. Any
+         below-the-fold heading proves the same thing: with the library gone,
+         headings must be plain readable text. */
+      const h = document.querySelector('#leaks h2');
       const cs = getComputedStyle(h);
       return cs.visibility === 'visible' && Number(cs.opacity) > 0;
     })(),
@@ -107,20 +117,30 @@ test('reduced motion gets the complete page with no scroll choreography at all',
   const state = await page.evaluate(() => ({
     wrapped: document.querySelectorAll('h2[data-masked]').length,
     pinned: document.documentElement.classList.contains('nv-pin-night'),
-    scenesVisible: [...document.querySelectorAll('.nb-scene')].every((s) =>
-      Number(getComputedStyle(s).opacity) > 0.9),
   }));
   expect(state.wrapped, 'no heading surgery under reduced motion').toBe(0);
   expect(state.pinned, 'no pinning under reduced motion').toBe(false);
-  expect(state.scenesVisible, 'every scene plainly visible').toBe(true);
+
+  /* Same rule, asked of the page the scenes now live on. */
+  await page.goto(NIGHT);
+  await page.waitForTimeout(800);
+  const night = await page.evaluate(() => ({
+    wrapped: document.querySelectorAll('h2[data-masked]').length,
+    pinned: document.documentElement.classList.contains('nv-pin-night'),
+    scenes: [...document.querySelectorAll('.nb-scene')].map((s) => Number(getComputedStyle(s).opacity)),
+  }));
+  expect(night.wrapped, 'no heading surgery under reduced motion').toBe(0);
+  expect(night.pinned, 'no pinning under reduced motion').toBe(false);
+  expect(night.scenes.length, 'the scenes must exist to be proven visible').toBeGreaterThan(0);
+  expect(night.scenes.every((o) => o > 0.9), 'every scene plainly visible').toBe(true);
   await ctx.close();
 });
 
 test('the ROI count-up ends on exactly the number the calculator computed', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto(PLAIN);
-  await page.waitForFunction(() => !!window.__heroTL);
-  await page.evaluate(() => { window.__heroTL.progress(1).pause(); });
+  /* The calculator has its own page since 2026-08-27, and that page has no
+     hero film to settle first. */
+  await page.goto('/roi.html');
 
   // the value site.js computed from the default inputs, before any animation
   const before = await page.evaluate(() => document.getElementById('roiOpp').textContent);

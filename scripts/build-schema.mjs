@@ -205,6 +205,10 @@ const PAGES = [
      longer exists. */
   { file: 'pilot.html', name: 'How You Start', type: 'WebPage' },
   { file: 'demo.html', name: 'Live Demo', type: 'WebPage' },
+  /* Added 2026-08-27, when the calculator left the homepage for a page of its
+     own. It has to be here or it ships with no breadcrumb at all, which is
+     the one structured-data field a page reached from a footer link needs. */
+  { file: 'roi.html', name: 'Missed-Call Calculator', type: 'WebPage' },
   { file: 'book.html', name: 'Book a Strategy Call', type: 'ContactPage' },
   { file: 'about.html', name: 'About', type: 'AboutPage' },
   { file: 'coming-soon.html', name: 'Coming Soon', type: 'WebPage' },

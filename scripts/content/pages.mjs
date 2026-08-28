@@ -254,7 +254,7 @@ export const PAGES = {
         and how often you close one. Nothing is assumed for you and the formula is shown.</p>
     </div>
     <div class="midcta reveal">
-      <a class="btn btn-primary" href="/#roi" data-evt="situation_roi_click">Open the missed-call calculator</a>
+      <a class="btn btn-primary" href="/roi.html" data-evt="situation_roi_click">Open the missed-call calculator</a>
     </div>
   </div>
 </section>

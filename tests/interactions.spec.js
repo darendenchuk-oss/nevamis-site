@@ -102,8 +102,16 @@ test('pricing preview renders every plan from the single source of truth', async
   expect(errors, errors.join('\n')).toEqual([]);
 });
 
+/* PLAIN was the homepage until 2026-08-27. The player, its outcome chips and
+   the six-stage simulator all moved to /demo.html when the homepage was rebuilt
+   as seven sections: the homepage demonstration is now one static, sanitized
+   system map, and anything that plays or imitates live activity belongs on the
+   page a visitor opened to be shown a demonstration. The components did not
+   change; only their address did. */
+const DEMO = '/demo.html';
+
 test('the call player plays through the transcript and lights the chips', async ({ page }) => {
-  await page.goto(PLAIN);
+  await page.goto(DEMO);
   const play = page.locator('#playBtn');
   await play.scrollIntoViewIfNeeded();
   await play.click();
@@ -137,7 +145,7 @@ test('the call player plays through the transcript and lights the chips', async 
 });
 
 test('the simulator runs a scenario through all six stages', async ({ page }) => {
-  await page.goto(PLAIN);
+  await page.goto(DEMO);
   const sim = page.locator('#sim');
   await sim.scrollIntoViewIfNeeded();
 
@@ -172,7 +180,7 @@ test('the simulator runs a scenario through all six stages', async ({ page }) =>
    whole time. Computed opacity is the only thing that matches what a human
    sees. */
 test('the simulator says how to start it, before you start it', async ({ page }) => {
-  await page.goto(PLAIN);
+  await page.goto(DEMO);
   await page.locator('#sim').scrollIntoViewIfNeeded();
   const hint = page.locator('.sim-log .sim-line').first();
   await expect(hint).toHaveText(/press play/i);
@@ -194,8 +202,9 @@ test('coverage tabs switch with mouse and arrow keys', async ({ page }) => {
   await expect(tabs.nth(2)).toHaveAttribute('aria-selected', 'true');
 });
 
+/* And the calculator moved to a page of its own for the same rebuild. */
 test('the ROI calculator computes and shows break-even with a quote', async ({ page }) => {
-  await page.goto(PLAIN);
+  await page.goto('/roi.html');
   await page.locator('#roiMissed').scrollIntoViewIfNeeded();
 
   // defaults: 10 × 4.33 × .6 × 400 × .5 = 5196

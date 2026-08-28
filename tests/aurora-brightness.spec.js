@@ -46,7 +46,7 @@ const GESTURES = [
   }],
   /* The worst case before the fix, and the least dramatic act: a link. */
   ['following an in-page anchor', async (page) => {
-    await page.evaluate(() => { location.hash = '#roi'; });
+    await page.evaluate(() => { location.hash = '#faq'; });
     await page.waitForTimeout(900);
   }],
 ];

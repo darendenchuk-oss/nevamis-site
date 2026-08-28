@@ -950,6 +950,39 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 @keyframes loop-win{0%,24%{stroke:rgba(47,191,143,.55)}28%{stroke:var(--emerald)}40%,100%{stroke:rgba(47,191,143,.55)}}
 @media (prefers-reduced-motion:reduce){.loop-dot,.loop-hub,.loop-chip-win{animation:none}.loop-dot{opacity:0}}
 
+/* ---------- the capability lists (section 4) ----------
+   Same card as .proc and .stack, with one deliberate difference: no
+   opacity:0 resting state. .stack .layer starts invisible and waits for
+   assets/motion/scroll.js to add .in, which is acceptable for a decorative
+   list of build layers and is NOT acceptable for the one block on this page
+   that tells a buyer what is genuinely for sale. If the motion module never
+   loads, this list still reads. The .reveal on the wrapper is the enhancement
+   and html.no-js already restores it. */
+.caplist{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;list-style:none;padding:0}
+.caplist li{background:linear-gradient(180deg,var(--navy-2),#0C1A25);
+  border:1px solid var(--line);border-radius:16px;padding:20px}
+.caplist strong{display:block;font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  font-size:16.5px;letter-spacing:-.01em;margin-bottom:6px}
+.caplist span{color:var(--muted);font-size:14px}
+/* Dashed, dimmer, and it says so in words above it. A coming capability must
+   never be able to pass for a sold one at a glance. */
+.caplist.soon li{border-style:dashed;border-color:rgba(159,240,206,.10);background:none}
+.cap-sub{margin:34px 0 14px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);font-family:"Spline Sans Mono",ui-monospace,monospace;font-weight:400}
+@media(max-width:900px){.caplist{grid-template-columns:1fr}}
+
+/* The coverage tabs used to be their own <section class="modes tight">, so the
+   tablist and the panel were siblings inside .wrap and the section padding did
+   the spacing. Inside section 4 they are a block, and the block has to carry
+   its own gap. */
+.modes [role=tablist]{margin-bottom:16px}
+
+/* The demonstration table (section 5). .compare already styles the columns;
+   the only change is that its rows are sentences rather than one-word
+   verdicts, so the first column stops being narrow. */
+#demoMap tbody th{width:26%;vertical-align:top}
+#demoMap td{vertical-align:top}
+
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -1078,26 +1111,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       },
       {
         "@type": "Question",
-        "name": "Will it sound robotic?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Call (587) 413-0035 and judge. It speaks in a natural voice, handles interruptions, and keeps answers short the way a good receptionist does."
-        }
-      },
-      {
-        "@type": "Question",
         "name": "Can I keep my current phone number?",
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Yes. Your number stays exactly as it is. Call forwarding sends calls to Nevamis always, after hours, or only when you miss the call. You can switch it off from your own phone at any time."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Can it answer only after hours or when we miss a call?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes. That is exactly what conditional forwarding does: you answer when you can, Nevamis catches everything else instead of voicemail."
         }
       },
       {
@@ -1110,42 +1127,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       },
       {
         "@type": "Question",
-        "name": "What happens when a caller has an unusual question?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "The agent only commits to what your rules allow. For anything outside them it takes a message and flags the summary, in the way we configure escalation with you."
-        }
-      },
-      {
-        "@type": "Question",
         "name": "What happens on an urgent call?",
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "NEVAMIS captures the urgent details and alerts your team. We define together what counts as urgent for your business, and a call that meets it is flagged that way the moment it ends. Live transfer to a person is not part of the service."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Can you cover more than one location, or more than one language?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Not today. A plan covers one business phone line, and multi-location or multi-department routing is not something we can provision, so we do not sell it. If that is what you need, say so on the strategy call and we will tell you honestly whether to wait for us or use somebody else."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How long does setup take?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Days, not months. Discovery, build, written call scenarios run at the agent before a number is pointed at it, then your forwarding proven with a real call."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Can I review calls and summaries?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes. Every call produces a summary, and call review is part of how we tune your agent over time."
         }
       },
       {
@@ -1158,14 +1143,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       },
       {
         "@type": "Question",
-        "name": "What does the Launch & Implementation fee cover?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "The build, priced in the open instead of hidden in the monthly. Before you go live your agent is configured around your hours, services, prices, service area and rules, your integrations and automations are connected, a baseline of your business is taken, and the system is run against written call scenarios before a phone number is pointed at it. That is real work, it happens once, and the one-time fee is charged once, at the start, beside your first month, never again."
-        }
-      },
-      {
-        "@type": "Question",
         "name": "Can I try it before I commit?",
         "acceptedAnswer": {
           "@type": "Answer",
@@ -1174,18 +1151,18 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       },
       {
         "@type": "Question",
-        "name": "How is customer information handled?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Call details are used to run your service: the lead record, your summaries, and the recording in your portal. See the privacy page for what this website itself collects. Businesses remain responsible for notices appropriate to their own jurisdiction and call-recording requirements."
-        }
-      },
-      {
-        "@type": "Question",
         "name": "What if it is not a fit?",
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Past your minimum term you cancel it yourself from the portal, on 30 days notice, and service runs to the end of the period you already paid for. There is no cancellation fee and nobody to talk into letting you go. The term is published before you buy rather than discovered in the agreement: three months on the AI Front Desk, six months when any add-on or The Works is included."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is customer information handled?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Call details are used to run your service: the lead record, your summaries, and the recording in your portal. See the privacy page for what this website itself collects. Businesses remain responsible for notices appropriate to their own jurisdiction and call-recording requirements."
         }
       }
     ]
@@ -1223,8 +1200,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
 <main id="main">
 
-  <!-- ================= HERO ================= -->
-  <section class="hero">
+  <!-- ================= 1. HERO ================= -->
+  <!-- SECTION 1 of the seven: the stable promise and the primary action.
+       UNCHANGED by the information-architecture rebuild, deliberately and to
+       the byte below this comment. The stage's intro only plays when the
+       stage is about 2% in view at load, and at 812px it already starts at
+       y=808: one more line of copy anywhere above it and the film never runs
+       on a phone. Nothing was added here, and nothing may be. -->
+  <section class="hero" data-ia="1">
     <div class="grid-lines" aria-hidden="true"></div>
     <div class="wrap">
       <div class="copy">
@@ -1431,22 +1414,63 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     </div>
   </div>
 
-  <!-- ================= THE FOUR MOVES ================= -->
-  <!-- The company in one pass, before any single product is argued for.
-       Wording is bounded by canonical the same way the solutions hub is:
-       lead generation is finding and scoring worked by a person plus bids
-       the client signs off before they are submitted, nothing promises
-       automated customer contact, nothing promises a job is won, and LEARN
-       claims measurement rather than magic. Plain .reveal section -
-       deliberately NOT data-spine, which belongs to the call-flow sequence
-       below and is
-       choreographed for exactly that section. -->
-  <section class="tight" id="moves">
+  <!-- ================= 2. THE LEAKS ================= -->
+  <!-- SECTION 2 of the seven the owner specified: the revenue problems
+       NEVAMIS detects, before anything is sold. Every sentence here is
+       moved: the check families are the Diagnose card's own list, the
+       missed-call lines come from the hero lede, the night band and the
+       industries cards. The one action is the free scan, because the scan
+       is what turns "these are the problems" into "here are yours". -->
+  <section class="tight" id="leaks" data-ia="2">
     <div class="wrap">
       <div class="section-head reveal">
-        <p class="eyebrow mono">What Nevamis is</p>
-        <h2>Find the leak. Fix it. Grow past it.</h2>
-        <p>Four moves, in order, each one measured before the next is trusted.</p>
+        <p class="eyebrow mono">What we look for</p>
+        <h2>The places revenue escapes.</h2>
+        <p>Twenty-two checks look for the places revenue escapes: missed-call
+          exposure, booking friction, response-time clarity, lead capture,
+          follow-up, trust proof, and service coverage.</p>
+      </div>
+      <div class="proc">
+        <div class="reveal">
+          <h3>Calls nobody answered</h3>
+          <p>Missed calls become missed jobs. A furnace out at 11 PM in January does
+            not wait for opening hours, and voicemail sends that caller to the next
+            number on the list. <a href="/roi.html" data-evt="dayone_roi_click">Put your
+            own numbers on it</a>.</p>
+        </div>
+        <div class="reveal">
+          <h3>Quotes that went quiet</h3>
+          <p>Slow follow-up kills leads you already paid for. An estimate that goes
+            quiet is a job somebody has already priced and nobody has chased.</p>
+        </div>
+        <div class="reveal">
+          <h3>Work already done, not yet paid</h3>
+          <p>Invoices age while everyone is on the tools. Past three weeks of chasing,
+            the judgment call belongs to a person rather than another email.</p>
+        </div>
+      </div>
+      <div class="midcta reveal" style="margin-top:24px">
+        <a class="btn btn-primary" href="https://app.nevamis.ca/scan" data-evt="moves_scan_click">Run the free scan</a>
+        <span class="mono">Free, no email required, about a minute.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. THE SYSTEM ================= -->
+  <!-- SECTION 3: the simple explanation. Keeps id="how" because the header
+       nav and the shared footer both point at /#how, and this is now the
+       honest destination for "How it works". The loop figure and the four
+       steps are moved verbatim from the retired "What Nevamis is" and
+       "The platform" sections. -->
+  <section class="tight" id="how" data-ia="3">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">How it works</p>
+        <h2>One loop runs the whole thing.</h2>
+        <p>Nevamis is not a stack of disconnected AI tools. It is one loop: observe the
+          business, understand it, find what is costing money, act inside rules you
+          approve, measure what changed, and learn from the result. The phone is one
+          capability inside that loop.</p>
       </div>
       <!-- THE LOOP, AT A GLANCE. Same visual DNA as the full Brain at
            app.nevamis.ca/brain: signals on the left, the routing rose in
@@ -1503,602 +1527,208 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <li class="pstep"><h3>Grow</h3><p>Lead generation is in development, not running for a client yet: it is being built to find the customers who need what you do and hand you a call list worth working, and to find jobs and tenders you could win, bid at your prices and submitted only once you sign off.</p></li>
         <li class="pstep"><h3>Learn</h3><p>Every result is measured against what it cost, labelled by how sure we are, so what works is kept and what does not is dropped.</p></li>
       </ol>
-      <div class="midcta reveal" style="margin-top:14px">
-        <a class="btn btn-primary" href="https://app.nevamis.ca/scan" data-evt="moves_scan_click">Start with the free scan</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="tight" id="beyond">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">The platform</p>
-        <h2>One intelligence loop runs the whole thing.</h2>
-        <p>Nevamis is not a stack of disconnected AI tools. It is one loop: observe the
-          business, understand it, find what is costing money, act inside rules you
-          approve, measure what changed, and learn from the result. The phone is one
-          capability inside that loop. Each stage below says exactly where it stands
-          today, and you can <a href="https://app.nevamis.ca/brain">explore the full map</a> of how it thinks.</p>
-      </div>
-      <div class="proc reveal">
-        <div><h3>Observe <span class="tagchip">LIVE</span></h3><p>PULSE reads what can legitimately be seen about how your business runs: your site, your booking path, your hours, your coverage, how a caller is handled. What was observed is written down as observed, and what was assumed as assumed. The scan is free and takes about a minute.</p></div>
-        <div><h3>Diagnose <span class="tagchip">LIVE</span></h3><p>Twenty-two checks look for the places revenue escapes: missed-call exposure, booking friction, response-time clarity, lead capture, follow-up, trust proof, service coverage.</p></div>
-        <div><h3>Quantify <span class="tagchip">LIVE</span></h3><p>Where the evidence supports it, each leak gets an estimated range and a confidence level. Where it does not, the report says so and names what would raise it. Feed it your real numbers and every figure recalibrates.</p></div>
-        <div><h3>Act <span class="tagchip">LIVE</span></h3><p>The highest-value fixes get built and run: the phone answered in seconds, the job and the time the caller wants taken down, lead records kept without anyone typing. Work runs unattended inside rules you approve; anything that touches money stops for a person.</p></div>
-        <div><h3>Measure <span class="tagchip">LIVE</span></h3><p>Calls answered, jobs captured, response times, and what it cost you. Revenue is attributed only where a real invoice can be traced back to a real call, and every figure in your portal is labelled measured or modelled so you can tell which is which. Your portal shows the after, not a brochure of the before.</p></div>
-        <div><h3>Learn <span class="tagchip">LIVE</span></h3><p>Every result is kept beside what was expected of it, and your corrections update the model. The loop points at the next most expensive problem, which is what makes this an operating system instead of a one-off audit.</p></div>
-      </div>
-      <p class="proof" style="margin-top:18px">Still in development, and not sold as working:
-        lead generation, and win-back campaigns to past customers. This section is a
-        curated view, not the whole catalogue: <a href="/pricing.html">see all capabilities</a>,
-        and the roadmap says which is next.</p>
       <div class="midcta reveal" style="margin-top:24px">
-        <a class="btn btn-primary" href="https://app.nevamis.ca/scan" data-evt="platform_scan_click">Run the free scan</a>
-        <a class="btn btn-ghost" href="https://app.nevamis.ca/brain" data-evt="platform_brain_click">Explore the Brain</a>
+        <a class="btn btn-ghost" href="https://app.nevamis.ca/brain" data-evt="platform_brain_click">Explore the full map</a>
       </div>
     </div>
   </section>
 
-  <!-- ============ CAPABILITY DEEP-DIVE: THE AI FRONT DESK ============
-       Everything from here to the voicemail comparison is ONE capability
-       of the platform, examined closely: the proof call, the after-hours
-       path, the simulator, the mechanics, the calculator. The frame below
-       says so, which is what keeps nine phone sections from reading as
-       the company's identity. -->
-  <section class="tight" id="frontdesk-capability" aria-label="Capability deep-dive: the AI front desk">
+  <!-- ================= 4. WHAT IS AVAILABLE ================= -->
+  <!-- SECTION 4: genuinely available capabilities. The two lists below are
+       DERIVED, not written: guard 7i in scripts/check-consistency.js
+       reconstructs both from pricing-config.js and fails if a name, a blurb
+       or the sellable flag moves without this markup following. That is why
+       the copy reads exactly like the config: it IS the config.
+
+       Pre-rendered rather than built by JavaScript, for the reason guard 7a
+       exists. A capability list that arrives after first paint is a
+       capability list a no-script visitor and an answer engine never see,
+       and this is the one block on the page a buyer has to be able to trust.
+
+       The three in-development entries are the site's own existing wording:
+       lead generation from the solutions hub, reactivation from the config's
+       own blurb, calendar booking from the FAQ that has said "not built"
+       since the comparison row was corrected. -->
+  <section class="tight" id="capabilities" data-ia="4">
     <div class="wrap">
       <div class="section-head reveal">
-        <p class="eyebrow mono">Capability deep-dive</p>
-        <h2>The AI front desk, up close.</h2>
-        <p>Of everything the platform runs, the phone is the piece you can hear.
-          The next few sections take it apart: a real call, the after-hours path,
-          the mechanics, and what missed calls cost. It is one capability of the
-          loop above, and the one most clients switch on first.</p>
+        <p class="eyebrow mono">Available today</p>
+        <h2>What you can actually buy.</h2>
+        <p>This list is generated from the same record the checkout bills from. If
+          something is not on it, it is not for sale, and the second list says why.</p>
+      </div>
+      <ul class="caplist reveal" id="capAvailable">
+        <li><strong>AI Front Desk</strong><span>The start most businesses make: the front desk answering every call, with automation add-ons joining one at a time, each on its own evidence.</span></li>
+        <li><strong>Missed-Call Recovery</strong><span>A caller you missed gets one text back, during business hours, with your name on it and a working opt-out, before they ring the next name on Google.</span></li>
+        <li><strong>Quote-Chase Engine</strong><span>Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you, stopping the moment the customer replies.</span></li>
+        <li><strong>Get-Paid Autopilot</strong><span>Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks YOU get told instead, because past that point the judgment call belongs to a person.</span></li>
+        <li><strong>Review Engine</strong><span>Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person.</span></li>
+        <li><strong>The Works</strong><span>The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts, with no performance fee.</span></li>
+      </ul>
+      <h3 class="cap-sub">In development, and not sold as working</h3>
+      <ul class="caplist soon reveal" id="capDevelopment">
+        <li><strong>Lead Generation</strong><span>Being built to find the customers who need what you do and hand you a call list worth working, and to find jobs and tenders you could win, bid at your prices, with nothing submitted you have not signed off. Not running for a client yet.</span></li>
+        <li><strong>Customer Reactivation</strong><span>A win-back campaign over your own past-customer list, inside the consent rules. Coming, and not sellable until it ships end to end.</span></li>
+        <li><strong>Direct calendar booking</strong><span>Not built. The assistant takes the job, the address and the time the caller wants, then texts it to you so you can confirm the slot.</span></li>
+      </ul>
+      <!-- COVERAGE MODES, kept inside section 4 rather than given a band of
+           their own. "When does it answer" is part of what the front desk
+           IS, not a separate product, and these three panels carry the
+           sentence guard 16 exists to protect: NEVAMIS captures the urgent
+           details and alerts your team. There is no live transfer, and the
+           only place a stranger reads what actually happens on an urgent
+           call is here and in the FAQ. -->
+      <h3 class="cap-sub">Use it the way your week actually works</h3>
+      <div class="modes">
+        <div role="tablist" aria-label="Coverage modes">
+          <button role="tab" id="tabAfter" aria-controls="panelAfter" aria-selected="true">After hours</button>
+          <button role="tab" id="tabOver" aria-controls="panelOver" aria-selected="false" tabindex="-1">Overflow</button>
+          <button role="tab" id="tabFull" aria-controls="panelFull" aria-selected="false" tabindex="-1">Full-time front line</button>
+        </div>
+        <div class="mode-panel" id="panelAfter" role="tabpanel" aria-labelledby="tabAfter">
+          <dl>
+            <dt>When it answers</dt><dd>Evenings, weekends, holidays: whenever your office is closed.</dd>
+            <dt>Where calls go</dt><dd>Your number forwards to Nevamis outside business hours. During the day nothing changes.</dd>
+            <dt>Urgent calls</dt><dd>Escalation rules are configured with you: NEVAMIS captures the urgent details and alerts your team, with the summary flagged urgent.</dd>
+            <dt>Who gets the summary</dt><dd>You, by SMS or email, after every call.</dd>
+          </dl>
+        </div>
+        <div class="mode-panel" id="panelOver" role="tabpanel" aria-labelledby="tabOver" hidden>
+          <dl>
+            <dt>When it answers</dt><dd>Only when you can't: after 3 or 4 rings, or when the line is busy.</dd>
+            <dt>Where calls go</dt><dd>Conditional forwarding on your existing number. You answer when you can, Nevamis catches the rest.</dd>
+            <dt>Urgent calls</dt><dd>Configured with you: NEVAMIS captures the urgent details and alerts your cell, with the summary flagged urgent.</dd>
+            <dt>Who gets the summary</dt><dd>You, immediately after each caught call.</dd>
+          </dl>
+        </div>
+        <div class="mode-panel" id="panelFull" role="tabpanel" aria-labelledby="tabFull" hidden>
+          <dl>
+            <dt>When it answers</dt><dd>Every call, every hour. Your team stops being interrupted on the tools.</dd>
+            <dt>Where calls go</dt><dd>All calls route to Nevamis first. Callers who need a person are flagged to you by the rules you set.</dd>
+            <dt>Urgent calls</dt><dd>NEVAMIS captures the urgent details and alerts your team, with the context already collected.</dd>
+            <dt>Who gets the summary</dt><dd>Anyone you choose: owner, dispatcher, or office inbox.</dd>
+          </dl>
+        </div>
+      </div>
+      <p class="proof" style="margin-top:18px">A plan covers one business phone line.
+        Multi-location and multi-department routing is not something we can provision,
+        so we do not sell it. Live transfer to a person is not part of the service:
+        NEVAMIS captures the urgent details and alerts your team.</p>
+      <div class="midcta reveal" style="margin-top:22px">
+        <a class="btn btn-primary" href="https://app.nevamis.ca/scan" data-evt="platform_scan_click">Scan my business</a>
+        <span class="mono">The scan says which of these you actually need.</span>
       </div>
     </div>
   </section>
 
-  <!-- ================= LIVE CALL PROOF ================= -->
-  <section class="call-proof" id="proof">
-    <div class="glow" style="width:520px;height:380px;left:-180px;bottom:-160px;opacity:.5" aria-hidden="true"></div>
+  <!-- ================= 5. THE DEMONSTRATION ================= -->
+  <!-- SECTION 5: ONE sanitized demonstration, labelled Demo.
+
+       The rows are not written here. They are publicDemoMap() from
+       nevamis-engine's src/domain/intelligence/client-map.ts, exported by
+       nv-shared-contract/scripts/export-public-map.mts into
+       config/public-demo-map.json and pre-rendered into this table. Guard
+       7j rebuilds the table from that JSON and fails on any drift, so the
+       public demo and the map a client sees in their portal cannot say
+       different things about the same flow.
+
+       DELIBERATELY STATIC. No timers, no fake ticking, no "live" anything.
+       The old six-stage simulator imitated live activity and has moved to
+       /demo.html, where a visitor has asked to be shown a demonstration. -->
+  <section class="tight" id="demo" data-ia="5">
     <div class="wrap">
       <div class="section-head reveal">
-        <p class="eyebrow mono">Live call proof</p>
-        <h2>Watch it take a call.</h2>
-        <p>Dead kitchen outlets after a breaker reset. Thirty-nine seconds later the job, the address and the time they want are in your pocket. Synthesized voices, synchronized transcript.</p>
+        <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>Demo</p>
+        <h2>Three flows, as the system reads them.</h2>
+        <p>A sanitized copy of the map a client sees in their own portal. Example data,
+          example wording, nothing live: this is the shape of the thing, not a feed.</p>
       </div>
-      <div class="call-grid">
-        <div class="call-card reveal" id="callCard" aria-label="Example call with playable audio and transcript">
-          <div class="call-head">
-            <span class="label mono">Example call &middot; Cedarview Electric (fictional)</span>
-            <span class="state mono">ANSWERED</span>
-          </div>
-          <canvas id="callWave" height="46" aria-hidden="true"></canvas>
-          <div class="player-row">
-            <button class="play" id="playBtn" aria-label="Play the example call audio">
-              <span aria-hidden="true">▶</span><span id="playLabel">Hear a 39-second call</span>
-            </button>
-            <span class="timer mono" id="callTimer">0:00 / 0:39</span>
-          </div>
-          <div class="line agent" data-audio="assets/call-0.mp3">
-            <span class="who mono">Cedarview AI</span>
-            <p>Thanks for calling Cedarview Electric. This is Ava. How can I help?</p>
-          </div>
-          <div class="line caller" data-audio="assets/call-1.mp3">
-            <span class="who mono">Caller</span>
-            <p>Hi, a few outlets in my kitchen stopped working. I reset the breaker, but they're still dead.</p>
-          </div>
-          <div class="line agent" data-audio="assets/call-2.mp3">
-            <span class="who mono">Cedarview AI</span>
-            <p>Got it. Are you noticing any sparks, heat, or a burning smell?</p>
-          </div>
-          <div class="line caller" data-audio="assets/call-3.mp3">
-            <span class="who mono">Caller</span>
-            <p>No, nothing like that.</p>
-          </div>
-          <div class="line agent" data-audio="assets/call-4.mp3">
-            <span class="who mono">Cedarview AI</span>
-            <p>Okay, that's good. I can have an electrician there tomorrow between eight and ten. The service call is $95, and that amount goes toward the repair if you approve the work. Does that time work for you?</p>
-          </div>
-          <div class="line caller" data-audio="assets/call-5.mp3">
-            <span class="who mono">Caller</span>
-            <p>Yes, that works.</p>
-          </div>
-          <div class="line agent" data-audio="assets/call-6.mp3">
-            <span class="who mono">Cedarview AI</span>
-            <p>Perfect. What's the service address?</p>
-          </div>
-          <div class="line caller" data-audio="assets/call-7.mp3">
-            <span class="who mono">Caller</span>
-            <p>114 Cedar Lane.</p>
-          </div>
-          <div class="line agent">
-            <span class="who mono">Cedarview AI</span>
-            <p>Thanks. I have you down for tomorrow between eight and ten, and someone from the office will confirm that exact time with you. I have your number if anything changes.</p>
-          </div>
-          <div class="line caller" data-audio="assets/call-9.mp3">
-            <span class="who mono">Caller</span>
-            <p>Great, thank you.</p>
-          </div>
-          <div class="line agent" data-audio="assets/call-10.mp3">
-            <span class="who mono">Cedarview AI</span>
-            <p>You're welcome. We'll see you tomorrow.</p>
-          </div>
-          <div class="call-tags" aria-label="What happened on this call">
-            <span class="tagchip" data-callchip="qualified">QUALIFIED: no-hazard + job type</span>
-            <span class="tagchip warm" data-callchip="booked">REQUESTED: tomorrow 8–10</span>
-            <span class="tagchip" data-callchip="confirm">DETAILS TEXTED TO YOU</span>
-          </div>
-          <p class="foot-note">Illustrative call, fictional company. Real AI voices.</p>
-        </div>
-        <div class="owner-card reveal summary-arrive">
-          <h3>What the business receives</h3>
-          <div class="sms" role="img" aria-label="Example text message summary sent to the business owner">
-            <span class="mono">NEVAMIS SUMMARY · 8:42 PM</span>
-            New job request: kitchen outlets dead after a breaker reset, with no sparks, heat, or burning smell reported. Preferred time tomorrow 8:00–10:00 AM, $95 service call quoted, applied to the repair on approved work. Address: 114 Cedar Lane. The caller was told you will confirm the slot.
-          </div>
-          <p class="note">Example summary for the illustrative call above. Format and destination are configured for your business.</p>
-          <div class="midcta">
-            <a class="btn btn-primary" href="tel:+15874130035" data-evt="demo_phone_click">Now call it yourself</a>
-            <span class="mono">(587) 413-0035 · any hour</span>
-          </div>
-        </div>
+      <div class="compare-wrap reveal">
+        <table class="compare" id="demoMap">
+          <caption class="sr-only">Demonstration system map: three example flows and what each one does</caption>
+          <thead>
+            <tr>
+              <th scope="col">When this happens</th>
+              <th scope="col">What it understands</th>
+              <th scope="col">What it does</th>
+              <th scope="col">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Missed call received</th>
+              <td>Job details understood</td>
+              <td>Owner notified</td>
+              <td class="yes">Opportunity preserved</td>
+            </tr>
+            <tr>
+              <th scope="row">The caller hangs up without leaving a message</th>
+              <td>The number, the time, and that the job is still winnable</td>
+              <td>A short text goes back to them once you approve it</td>
+              <td class="yes">Your customer replied</td>
+            </tr>
+            <tr>
+              <th scope="row">A quote has gone quiet for two weeks</th>
+              <td>The quote is still open, and what winning it is worth</td>
+              <td>Up to three short follow-up notes over two weeks, then it stops</td>
+              <td class="part">No result confirmed yet</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="proof" style="margin-top:16px">Demonstration only. The last column is
+        what a real map would carry once a result is confirmed, and one of these three
+        deliberately shows the honest answer before anything is confirmed.</p>
+      <div class="midcta reveal" style="margin-top:22px">
+        <a class="btn btn-primary" href="/demo.html" data-evt="compare_demo_click">Hear a real call, and try to stump it</a>
       </div>
     </div>
   </section>
 
-  <!-- ================= SIMULATOR ================= -->
-
-  <!-- ============ THE NIGHT BAND ============
-       The one scroll-driven story on the page. On a desktop it pins and the
-       visitor scrubs a night call from ring to captured-and-texted; on phones,
-       with reduced motion, or with no JS it is three plain readable cards
-       (the .reveal baseline). Copy makes no claim the site does not already
-       make elsewhere: answer, qualify, take the request, text, in the same
-       words. Nothing here says a slot is confirmed: the caller is told the
-       business will confirm the time, which is what the live agent does. -->
-  <section class="night" id="night" aria-label="How an after-hours call plays out">
+  <!-- ================= 6. PROCESS, PRICING, TRUST ================= -->
+  <!-- SECTION 6: one band, four things a buyer needs before they decide.
+       All moved: the three build steps from the retired "Done for you"
+       block, the price cards from the pricing preview, the commitments from
+       the risk block, the limits from the honesty block. ONE action for the
+       whole band, on purpose. -->
+  <section class="tight" id="process" data-ia="6">
     <div class="wrap">
       <div class="section-head reveal">
-        <p class="eyebrow mono">After hours, illustrated</p>
-        <h2>Your crew goes home. Your line does not.</h2>
-        <p>The recording above is the real thing. This is the shape of every night call,
-          in the product&#39;s own four steps: answer, qualify, take the request, text.</p>
-      </div>
-      <div class="nb-stage" data-night>
-        <div class="nb-rail" aria-hidden="true"><i></i></div>
-        <article class="nb-scene reveal">
-          <p class="nb-time mono">9:41 PM</p>
-          <h3>A call your crew cannot take.</h3>
-          <p>The trucks are parked and the phones are on the chargers. Somebody&#39;s furnace
-            quits anyway, and they start dialling down the list.</p>
-          <p class="nb-note">Voicemail sends that caller to the next number on the list.</p>
-        </article>
-        <article class="nb-scene reveal">
-          <p class="nb-time mono">9:41 PM &middot; seconds later</p>
-          <h3>Nevamis answers in seconds.</h3>
-          <div class="nb-voice" data-voice aria-hidden="true"></div>
-          <p>It asks what you would ask, and writes down what you would write down:</p>
-          <p><span class="nb-chip mono">caller intent</span><span class="nb-chip mono">service type</span><span class="nb-chip mono">preferred time</span></p>
-        </article>
-        <article class="nb-scene reveal">
-          <p class="nb-time mono">9:42 PM</p>
-          <h3>Taken down, and texted to you.</h3>
-          <p>The summary sits on your phone, and you put the visit in your calendar
-            when you confirm the time. You read it over coffee, not off voicemail.</p>
-          <p class="nb-note">Every call answered. The details captured.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section id="simulator" data-spine>
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">Behind the conversation</p>
-        <h2>Watch Nevamis run the front desk.</h2>
-        <p>You heard a real call above. This is what happens behind every conversation: answer, understand, check your rules, take action, confirm, report. Demonstration data, fictional company.</p>
-      </div>
-      <div class="sim reveal" id="sim">
-        <div class="sim-head">
-          <span class="mono">SCENARIO · PRAIRIE MECHANICAL (FICTIONAL)</span>
-          <span class="mono" data-sim-state>Idle</span>
-          <div class="sim-scenarios" role="group" aria-label="Choose a scenario">
-            <button data-scen="emergency" aria-pressed="false">After-hours emergency</button>
-            <button data-scen="routine" aria-pressed="true">Routine appointment</button>
-            <button data-scen="unusual" aria-pressed="false">Unusual request</button>
-          </div>
-        </div>
-        <div class="stage-rail" id="stageRail" aria-label="Call stages">
-          <span class="stage-pill">1 · Answer</span>
-          <span class="stage-pill">2 · Understand</span>
-          <span class="stage-pill">3 · Check rules</span>
-          <span class="stage-pill">4 · Take action</span>
-          <span class="stage-pill">5 · Confirm</span>
-          <span class="stage-pill">6 · Report</span>
-        </div>
-        <div class="sim-idle" id="simIdle">
-          <div class="ghost-rail" aria-hidden="true">
-            <span>Answer</span><span>Understand</span><span>Check rules</span><span>Take action</span><span>Confirm</span><span>Report</span>
-          </div>
-          <p>Pick a scenario above, then watch one call move through all six stages: what it hears, what it captures, which of your rules it checks, and exactly what the customer and the owner receive.</p>
-          <div class="cta-row" style="justify-content:center">
-            <button class="btn btn-primary" id="simWatch" data-evt="sim_watch_click">Watch it run</button>
-            <button class="btn btn-ghost" id="simStepMode" data-evt="sim_step_click">Step through it</button>
-          </div>
-        </div>
-        <div class="sim-body" id="simBody" hidden>
-          <div class="sim-col">
-            <h3>Conversation</h3>
-            <div class="sim-log"></div>
-          </div>
-          <div class="sim-col">
-            <h3>What it captures + your rules</h3>
-            <div class="sim-chips"></div>
-            <div class="sim-rules" style="margin-top:12px"></div>
-          </div>
-          <div class="sim-col">
-            <h3>Outcomes</h3>
-            <div class="sim-outcome"></div>
-          </div>
-        </div>
-        <div class="sim-controls">
-          <button class="primary" data-sim-play>Play</button>
-          <button data-sim-back><span aria-hidden="true">◀</span> <span data-back-label>Back</span></button>
-          <button data-sim-fwd><span data-fwd-label>Next: Answer</span> <span aria-hidden="true">▶</span></button>
-          <button data-sim-replay>Replay</button>
-          <div class="sim-progress" aria-hidden="true"><i></i></div>
-          <span class="sim-elapsed">0:00 elapsed</span>
-          <span data-sim-live aria-live="polite" class="visually-hidden"></span>
-        </div>
-      </div>
-      <details class="sim-static reveal panel">
-        <summary>Prefer to read it? The full sequence as a list</summary>
-        <ol style="padding-left:22px;margin-top:10px;color:var(--muted)">
-          <li>Call comes in and is answered in your business's tone.</li>
-          <li>The caller explains what they need.</li>
-          <li>It captures the facts: service, urgency, location, contact, timing.</li>
-          <li>Your approved business rules are checked: service area, offerings, emergency criteria, calendar.</li>
-          <li>Routine requests are captured with the time they want. Emergencies are flagged urgent and your team is alerted. Unknown questions take the safe fallback instead of a made-up answer.</li>
-          <li>The caller is told what happens next, and that you will confirm the time. You get the summary.</li>
-        </ol>
-      </details>
-    </div>
-  </section>
-
-  <!-- ================= SIGNAL PATH / HOW IT WORKS ================= -->
-  <section class="tight" id="how" data-spine>
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">The signal path</p>
-        <h2>How a missed call becomes a job you can book.</h2>
-        <p>Every call moves through the same precise sequence. You approve the rules once. Nevamis runs them on every ring.</p>
-      </div>
-      <ol class="path-steps" role="list" style="list-style:none;padding:0">
-        <li class="pstep"><h3>Call comes in</h3><p>Your number forwards to Nevamis when you choose: always, after hours, or when you can't pick up.</p></li>
-        <li class="pstep"><h3>Answered in your tone</h3><p>It answers in your business's voice and style, within seconds.</p></li>
-        <li class="pstep"><h3>Caller qualified</h3><p>It asks the questions you approved: job type, urgency, location, timing.</p></li>
-        <li class="pstep"><h3>Job taken down</h3><p>It captures the job, the address, and the time they want, following the rules you approved.</p></li>
-        <li class="pstep"><h3>Caller told what happens next</h3><p>Nobody is left guessing: the caller is told plainly that someone will confirm the exact time, and never that it is already booked.</p></li>
-        <li class="pstep"><h3>You get the summary</h3><p>Name, number, need, and outcome land in your pocket after every call.</p></li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- ================= COVERAGE MODES ================= -->
-  <section class="modes tight" id="solutions">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">Coverage modes</p>
-        <h2>Use it the way your week actually works.</h2>
-      </div>
-      <div role="tablist" aria-label="Coverage modes">
-        <button role="tab" id="tabAfter" aria-controls="panelAfter" aria-selected="true">After hours</button>
-        <button role="tab" id="tabOver" aria-controls="panelOver" aria-selected="false" tabindex="-1">Overflow</button>
-        <button role="tab" id="tabFull" aria-controls="panelFull" aria-selected="false" tabindex="-1">Full-time front line</button>
-      </div>
-      <div class="mode-panel" id="panelAfter" role="tabpanel" aria-labelledby="tabAfter">
-        <dl>
-          <dt>When it answers</dt><dd>Evenings, weekends, holidays: whenever your office is closed.</dd>
-          <dt>Where calls go</dt><dd>Your number forwards to Nevamis outside business hours. During the day nothing changes.</dd>
-          <dt>Urgent calls</dt><dd>Escalation rules are configured with you: NEVAMIS captures the urgent details and alerts your team, with the summary flagged urgent.</dd>
-          <dt>Who gets the summary</dt><dd>You, by SMS or email, after every call.</dd>
-        </dl>
-      </div>
-      <div class="mode-panel" id="panelOver" role="tabpanel" aria-labelledby="tabOver" hidden>
-        <dl>
-          <dt>When it answers</dt><dd>Only when you can't: after 3 or 4 rings, or when the line is busy.</dd>
-          <dt>Where calls go</dt><dd>Conditional forwarding on your existing number. You answer when you can, Nevamis catches the rest.</dd>
-          <dt>Urgent calls</dt><dd>Configured with you: NEVAMIS captures the urgent details and alerts your cell, with the summary flagged urgent.</dd>
-          <dt>Who gets the summary</dt><dd>You, immediately after each caught call.</dd>
-        </dl>
-      </div>
-      <div class="mode-panel" id="panelFull" role="tabpanel" aria-labelledby="tabFull" hidden>
-        <dl>
-          <dt>When it answers</dt><dd>Every call, every hour. Your team stops being interrupted on the tools.</dd>
-          <dt>Where calls go</dt><dd>All calls route to Nevamis first. Callers who need a person are flagged to you by the rules you set.</dd>
-          <dt>Urgent calls</dt><dd>NEVAMIS captures the urgent details and alerts your team, with the context already collected.</dd>
-          <dt>Who gets the summary</dt><dd>Anyone you choose: owner, dispatcher, or office inbox.</dd>
-        </dl>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= INDUSTRIES ================= -->
-  <section id="industries">
-    <div class="grid-lines" aria-hidden="true"></div>
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">Built for the trades first</p>
-        <h2>Your customers call. Your competitors answer.</h2>
-        <p>Nevamis is built for appointment-based local businesses where a missed call is a lost job.</p>
-      </div>
-      <div class="ind-grid">
-        <div class="ind-card reveal" data-tilt>
-          <div class="art" aria-hidden="true" data-bg="assets/industries/electrical.webp"></div>
-          <span class="mono">ELECTRICAL</span>
-          <h3>Electricians</h3>
-          <p>Emergency and service calls answered while the crew is on the tools. Panel upgrade or dead outlets, the job is on your phone before the caller tries the next name.</p>
-        </div>
-        <div class="ind-card reveal" data-tilt>
-          <div class="art" aria-hidden="true" data-bg="assets/industries/hvac.webp"></div>
-          <span class="mono">HVAC · PLUMBING</span>
-          <h3>HVAC and plumbing</h3>
-          <p>A furnace out at 11 PM in January does not wait for opening hours. Capture urgent after-hours demand before the caller reaches a competitor.</p>
-        </div>
-        <div class="ind-card reveal" data-tilt>
-          <div class="art" aria-hidden="true" data-bg="assets/industries/restoration.webp"></div>
-          <span class="mono">RESTORATION</span>
-          <h3>Restoration and property services</h3>
-          <p>Flood and damage calls arrive stressed and urgent. Gather incident details calmly, route priority calls, and take down the assessment they need.</p>
-        </div>
-        <div class="ind-card reveal" data-tilt>
-          <div class="art" aria-hidden="true" data-bg="assets/industries/automotive.webp"></div>
-          <span class="mono">AUTOMOTIVE · APPOINTMENTS</span>
-          <h3>Automotive and appointment businesses</h3>
-          <p>Answer the questions you answer forty times a week and take down the times they want, without pulling anyone off the floor.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= ROI CALCULATOR ================= -->
-  <section class="roi" id="roi">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">Missed-call math</p>
-        <h2>What are missed calls costing you?</h2>
-        <p>Use your own numbers. The math is shown, the assumptions are yours to change.</p>
-      </div>
-      <div class="roi-grid">
-        <!-- Narrow screens only. The grid collapses to one column below 900px,
-             which puts the estimate BELOW the form, so on a phone the number
-             moved while nobody could see it: measured on production, the result
-             panel is off-screen through all five edits at 390px and 768px, and
-             four of five at 320px. Desktop is unaffected, where .roi-out is
-             sticky beside a two-column grid.
-             Pinning the real panel is not an option - it is 541px of an 844px
-             viewport, 64%, and would leave no room for the form. This carries
-             the headline figure only, at about 50px, and sits under the fixed
-             header rather than the bottom, where .callbar already lives.
-             aria-hidden because #roiLive already announces every change
-             politely; a visible mirror must not make a screen reader say it
-             twice. -->
-        <div class="roi-mini" aria-hidden="true">
-          <span class="roi-mini-lbl mono">REACHING VOICEMAIL / MONTH</span>
-          <span class="roi-mini-val" id="roiMini">$0</span>
-        </div>
-        <form id="roiForm" novalidate class="reveal">
-          <div>
-            <label for="roiMissed">Missed calls per week</label>
-            <input type="number" id="roiMissed" inputmode="numeric" min="0" max="500" value="10">
-          </div>
-          <div>
-            <label for="roiReal">Share that are real opportunities (%)</label>
-            <input type="number" id="roiReal" inputmode="numeric" min="0" max="100" value="60">
-            <p class="hint">Not every call is a job. Set this to what you see in your own calls.</p>
-          </div>
-          <div>
-            <label for="roiValue">Average job or customer value ($)</label>
-            <input type="number" id="roiValue" inputmode="numeric" min="0" value="400">
-          </div>
-          <div>
-            <label for="roiClose">Your close rate on real inquiries (%)</label>
-            <input type="number" id="roiClose" inputmode="numeric" min="0" max="100" value="50">
-          </div>
-          <div>
-            <label for="roiQuote">Plan you are comparing against ($/month)</label>
-            <!-- value= and the plan name below are the NO-JS FALLBACK ONLY.
-                 site.js overwrites both from window.NV_PRICING on load, so the
-                 live field cannot drift from pricing-config.js. It did: this
-                 shipped value="449", a price retired 2026-08-06, to
-                 production, labelled "the Growth plan", past every gate,
-                 because nothing that reads pricing-config.js was looking at
-                 an input attribute. Keep these two literals equal to the
-                 recommended plan; check-consistency.js guard 7f now enforces
-                 it. -->
-            <input type="number" id="roiQuote" inputmode="numeric" min="0" value="1000">
-            <p class="hint" id="roiQuoteHint">Prefilled with the <span id="roiQuotePlan">AI Front Desk</span> plan. Change it to any plan, or to a
-              quote you were given, to see how many booked jobs cover it.</p>
-          </div>
-        </form>
-        <div class="roi-out reveal" aria-label="Calculator results">
-          <h3>Your estimate</h3>
-          <div class="row">
-            <div class="lbl mono">OPPORTUNITY REACHING VOICEMAIL / MONTH</div>
-            <div class="big" id="roiOpp">$0</div>
-          </div>
-          <div class="row">
-            <div class="lbl mono">CONSERVATIVE RECOVERED BOOKINGS (HALF)</div>
-            <div class="big" id="roiRec">$0</div>
-          </div>
-          <div class="row" id="roiBeRow" hidden>
-            <div class="lbl mono">BREAK-EVEN AT YOUR QUOTE</div>
-            <div class="big" id="roiBe" style="font-size:clamp(20px,2.2vw,26px)">–</div>
-          </div>
-          <div class="midcta" style="margin-top:18px">
-            <a class="btn btn-primary" href="/book.html" data-evt="roi_book_click">Check these against your real call log</a>
-          </div>
-          <p class="disclaimer">Estimate only, not a guarantee. Formula: missed calls × 4.33 weeks × opportunity share × job value × close rate. Recovery assumes half of voicemail-bound calls are captured.</p>
-          <p aria-live="polite" class="visually-hidden" id="roiLive"></p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= RULES + PROCESS ================= -->
-  <section class="tight" id="process">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">Done for you</p>
-        <h2>You do not have to build or run any of it.</h2>
-        <p>Your agent is configured around your hours, service area, job types, pricing rules you approve, calendar availability, escalation rules, and FAQs. Built around the tools you already use: we confirm compatibility during the strategy call. Booking and telephony currently run on Cal.com and Twilio.</p>
+        <p class="eyebrow mono">Process, pricing and trust</p>
+        <h2>How you start.</h2>
+        <p>A standard single-line build is answering your phone the same day we talk.
+          Multi-line setups, calendar integrations and custom booking flows genuinely
+          take longer, and you get an honest schedule for those on the call rather than
+          a promise we walk back later.</p>
       </div>
       <div class="proc">
         <div class="reveal"><h3>Discovery</h3><p>A short call. We map your call patterns, services, and rules.</p></div>
         <div class="reveal"><h3>Build and test</h3><p>We build the agent around your business and test it against your real scenarios.</p></div>
         <div class="reveal"><h3>Launch and tune</h3><p>Forwarding proven with a real call, then we review the calls together and keep it sharp.</p></div>
       </div>
-    </div>
-  </section>
 
-  <!-- ================= COMPARISON ================= -->
-  <section class="tight" id="compare" data-spine>
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">The honest comparison</p>
-        <h2>Voicemail records the lost job. Nevamis catches it.</h2>
-      </div>
-      <div class="compare-wrap reveal">
-        <table class="compare">
-          <thead>
-            <tr><th scope="col">On every call</th><th scope="col">Voicemail</th><th scope="col">DIY AI app</th><th scope="col">Nevamis</th></tr>
-          </thead>
-          <tbody>
-            <tr><th scope="row">Answers immediately</th><td class="no">No</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
-            <tr><th scope="row">Uses your business rules</th><td class="no">No</td><td class="part">You configure it</td><td class="yes">Built with you</td></tr>
-            <tr><th scope="row">Qualifies the caller</th><td class="no">No</td><td class="part">Generic script</td><td class="yes">Your questions</td></tr>
-            <tr><th scope="row">Takes the job and the time wanted</th><td class="no">No</td><td class="part">Sometimes</td><td class="yes">Yes</td></tr>
-            <!-- This row said "Books the appointment: Yes" while the FAQ two
-                 screens down said direct calendar booking is not live, and the
-                 live prompt makes the agent say a person will confirm. The
-                 table is in the section headed "the honest comparison".
-                 2026-08-09: the Nevamis cell said "Not yet: you confirm",
-                 which is vaguer than the truth and reads as a promise once
-                 the row is excerpted away from its column. Nothing books:
-                 there is no booking tool on a provisioned agent and no
-                 per-tenant calendar credential, so the cell says "not built"
-                 in those words. -->
-            <tr><th scope="row">Books straight into your calendar</th><td class="no">No</td><td class="part">Sometimes</td><td class="no">Not built: you confirm</td></tr>
-            <tr><th scope="row">Tells the caller what happens next</th><td class="no">No</td><td class="part">Generic script</td><td class="yes">In your words</td></tr>
-            <tr><th scope="row">Flags urgent calls by approved rules</th><td class="no">No</td><td class="part">Not by default</td><td class="yes">Yes</td></tr>
-            <tr><th scope="row">Sends you a summary</th><td class="part">A recording</td><td class="part">A transcript</td><td class="yes">A useful summary</td></tr>
-            <tr><th scope="row">Tested and tuned for you</th><td class="no">No</td><td class="no">You are support</td><td class="yes">Done for you</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="midcta reveal" style="margin-top:26px">
-        <a class="btn btn-ghost" href="/demo.html" data-evt="compare_demo_click">See what it handles</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= BUILD STACK ================= -->
-  <section class="tight" id="build-stack" data-spine>
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">What you are actually paying for</p>
-        <h2>Not an app. A configured system.</h2>
-        <!-- "generic AI subscription" stays. It is not our positioning, it is
-             the thing we are arguing against, and the contrast is the point. -->
-        <p>Every Nevamis build assembles these layers around your business, then we maintain them. This is what a generic AI subscription does not include.</p>
-      </div>
-      <div class="stack" aria-label="What a Nevamis build includes">
-        <div class="layer"><strong>Business knowledge</strong><span>Your services, prices you approve, FAQs, service area, hours.</span></div>
-        <div class="layer"><strong>Call flow</strong><span>How your calls actually run, from greeting to goodbye.</span></div>
-        <div class="layer"><strong>Qualification questions</strong><span>The questions that separate a job from a tire-kicker.</span></div>
-        <div class="layer"><strong>Business rules</strong><span>What is captured, what is flagged urgent, what waits for you.</span></div>
-        <div class="layer"><strong>Booking rules</strong><span>Which jobs you take, and what the caller is told about timing.</span></div>
-        <div class="layer"><strong>Handover</strong><span>The job in your pocket as a text, ready for you to confirm.</span></div>
-        <div class="layer"><strong>Owner summaries</strong><span>Name, number, need, and outcome after every call.</span></div>
-        <div class="layer"><strong>Test scenarios</strong><span>Your real situations, tested before launch.</span></div>
-        <div class="layer"><strong>Ongoing tuning</strong><span>Call review and rule adjustments as your business changes.</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= DAY ONE ================= -->
-  <section class="tight" id="day-one">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">Speed, honestly stated</p>
-        <h2>What day one looks like.</h2>
-        <p>A standard single-line build is answering your phone the same day we talk. Multi-line setups, calendar integrations and custom booking flows genuinely take longer, and you get an honest schedule for those on the call rather than a promise we walk back later.</p>
-      </div>
-      <div class="week reveal">
-        <div><span class="mono">15 MINUTES</span><h3>We talk</h3><p>Your services, hours, service area, and what should happen with each kind of call.</p></div>
-        <div><span class="mono">SAME DAY</span><h3>Built</h3><p>Your agent configured from your trade's template: knowledge, call flows, business rules.</p></div>
-        <div><span class="mono">SAME DAY</span><h3>You hear it</h3><p>Test calls with you on the line. Push on it. Anything that wobbles gets fixed before a customer ever reaches it.</p></div>
-        <div><span class="mono">THAT NIGHT</span><h3>Answering</h3><p>You switch on call forwarding using the exact code we give you for your carrier. It picks up from there.</p></div>
-        <div><span class="mono">EVERY DAY AFTER</span><h3>You read the calls</h3><p>Every call recorded and playable in your portal with the lead beside it. Past your minimum term, if it is not earning its price, you cancel it yourself from there.</p></div>
-      </div>
-      <div class="midcta reveal" style="margin-top:26px">
-        <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a strategy call</a>
-        <a class="btn btn-ghost" href="#roi" data-evt="dayone_roi_click">Calculate missed-call value</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= PRICING PREVIEW ================= -->
-
-
-      <section class="tight" id="pricing-preview">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">Pricing</p>
+      <div class="section-head reveal" style="margin-top:64px">
         <h2>Clear plans. No surprises.</h2>
       </div>
       <div class="price-cards reveal" id="pricePreview">
         <noscript><p>See <a href="/pricing.html">the pricing page</a> for current plans.</p></noscript>
       </div>
-      <div class="midcta reveal" style="margin-top:22px">
-        <a class="btn btn-primary" href="/pricing.html" data-evt="pricing_view_click">Compare plans in detail</a>
-        <!-- Rewritten with the model on 2026-08-15 (evening): the offer is a
-             one-time Launch & Implementation fee and a monthly price, joined
-             by "to start" and "then": the rule is stated in words, which is
-             what the retired "first month X, then Y" framing never did. -->
-        <span class="mono" style="color:var(--muted);font-size:13px">Launch &amp; Implementation to start, then the plan's monthly price · Canadian dollars + GST/HST · three-month start, then month to month</span>
-      </div>
-    </div>
-  </section>
+      <p class="mono" style="color:var(--muted);font-size:13px;margin-top:16px">Launch &amp; Implementation to start, then the plan's monthly price · Canadian dollars + GST/HST · three-month start, then month to month</p>
 
-  <!-- ================= RISK REVERSAL + FOUNDER ================= -->
-  <section class="tight" id="risk">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">What you are committing to</p>
-        <h2>Three months to prove it. Then it earns every month.</h2>
+      <div class="section-head reveal" style="margin-top:64px">
+        <h2>What you are committing to.</h2>
       </div>
       <div class="assure reveal">
         <p><span class="ok">✓</span><span><strong>You know the full cost before you commit.</strong> A one-time Launch &amp; Implementation fee starts the build, C$1,500 on the AI Front Desk and C$3,000 on The Works, then your plan's monthly price. Both are published, and past the start, the only recurring charges are the monthly and any overage past your included minutes.</span></p>
         <p><span class="ok">✓</span><span><strong>You judge it from the call log, not a promise.</strong> Every call is recorded and playable in your portal with what it captured beside it, from day one.</span></p>
-        <p><span class="ok">✓</span><span><strong>The start is three months, and that is the point.</strong> The build takes days, not weeks; the results show across the months after that. After the minimum it is month to month, cancelled from your own portal. And it is your number and your forwarding the whole time: if we vanished tomorrow, you would flip it back in minutes and lose nothing.</span></p>
+        <p><span class="ok">✓</span><span><strong>The start is three months, and that is the point.</strong> The build takes days, not weeks; the results show across the months after that. Six months when any add-on or The Works is included. After the minimum it is month to month, cancelled from your own portal on 30 days notice. And it is your number and your forwarding the whole time: if we vanished tomorrow, you would flip it back in minutes and lose nothing.</span></p>
         <div class="founder">
           <img src="assets/daren.jpg" alt="Daren, founder of Nevamis" width="104" height="104" loading="lazy">
           <p><strong>Daren · Founder</strong><br>A real Edmonton founder. Questions go to the person building your system, not a ticket queue.</p>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- ================= COMING SOON TEASER ================= -->
-  
-
-  <!-- ================= WHAT WE WILL NOT CLAIM ================= -->
-  <section class="tight" id="honesty">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow mono">Before you decide</p>
+      <div class="section-head reveal" style="margin-top:64px">
         <h2>What we will not claim.</h2>
         <p>Nevamis is early. Rather than dress that up, here is exactly where things
           stand, so nothing on this page has to be taken on faith.</p>
@@ -2111,10 +1741,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             appear here with their permission.</p>
         </div>
         <div class="reveal">
-          <h3>The example call is fictional</h3>
-          <p>Cedarview Electric is not a real company. The conversation is scripted to
-            show the flow, spoken by the same AI voices a caller would hear. The demo
-            line, by contrast, is completely real.</p>
+          <h3>The demonstration is an example</h3>
+          <p>The map above is example data in the shape a real one takes, and the recorded
+            call on the demo page is a fictional company spoken by the same AI voices a
+            caller would hear. The demo line, by contrast, is completely real.</p>
         </div>
         <div class="reveal">
           <h3>What is live, and what is not</h3>
@@ -2124,51 +1754,42 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             way everywhere on this site.</p>
         </div>
       </div>
-      <div class="midcta reveal" style="margin-top:24px">
-        <a class="btn btn-primary" href="tel:+15874130035" data-evt="honesty_call_click">Judge it yourself · (587) 413-0035</a>
-        <span class="mono">The demo line is the proof. Everything else is a description of it.</span>
+      <div class="midcta reveal" style="margin-top:26px">
+        <a class="btn btn-primary" href="/pricing.html" data-evt="pricing_view_click">Compare plans in detail</a>
       </div>
     </div>
   </section>
 
-  <!-- ================= FAQ ================= -->
-  <section class="faq tight" id="faq">
+  <!-- ================= 7. FAQ AND THE LAST ACTION ================= -->
+  <!-- SECTION 7: the FAQ cut from fifteen questions to eight, and the
+       closing action. The eight kept are the ones that carry a commitment
+       somebody could be held to: the AI disclosure, the number, what is not
+       built, what happens on an urgent call, the price, the term, how to
+       leave, and what happens to caller data. The seven dropped were either
+       answered above (setup time, call review, coverage modes) or restate
+       another entry.
+
+       build-schema.mjs lifts these summaries and answers into the FAQPage
+       block in the head, so the structured data can only ever carry what is
+       visibly on the page. Re-run it after any change here. -->
+  <section class="faq tight" id="faq" data-ia="7">
     <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">Straight answers</p>
         <h2>Questions owners actually ask.</h2>
       </div>
-      <!-- This answer used to say the agent "identifies itself naturally, then
-           gets to work", which described a behaviour the live prompt does not
-           have: provisioned agents greet in the business's name and are
-           instructed NOT to open with a disclosure. The commitment below is
-           the one the phone line actually keeps, and it is testable by anyone
-           who dials the number and asks. -->
       <details><summary>Will callers know they are talking to an AI?</summary><p>The moment anyone asks, yes, plainly and without hedging. It does not open the call by announcing itself, any more than a receptionist opens by explaining who employs them: it greets the caller in your business's name and gets on with the job. Dial the demo line and ask it directly.</p></details>
-      <details><summary>Will it sound robotic?</summary><p>Call (587) 413-0035 and judge. It speaks in a natural voice, handles interruptions, and keeps answers short the way a good receptionist does.</p></details>
       <details><summary>Can I keep my current phone number?</summary><p>Yes. Your number stays exactly as it is. Call forwarding sends calls to Nevamis always, after hours, or only when you miss the call. You can switch it off from your own phone at any time.</p></details>
-      <details><summary>Can it answer only after hours or when we miss a call?</summary><p>Yes. That is exactly what conditional forwarding does: you answer when you can, Nevamis catches everything else instead of voicemail.</p></details>
       <details><summary>Can it book directly into my calendar?</summary><p>Not yet, and we will not pretend otherwise. The assistant takes the job, the address and the time the caller wants, then texts it to you so you can confirm the slot. Direct calendar booking is on the roadmap and is not live on any line today.</p></details>
-      <details><summary>What happens when a caller has an unusual question?</summary><p>The agent only commits to what your rules allow. For anything outside them it takes a message and flags the summary, in the way we configure escalation with you.</p></details>
       <details><summary>What happens on an urgent call?</summary><p>NEVAMIS captures the urgent details and alerts your team. We define together what counts as urgent for your business, and a call that meets it is flagged that way the moment it ends. Live transfer to a person is not part of the service.</p></details>
-      <!-- The question read "Can it handle multiple locations or languages?"
-           until 2026-08-09. build-schema.mjs lifts every summary element into
-           FAQPage JSON-LD as a bare "name" string, so the question travelled
-           away from its answer and read as the capability. The answer below
-           is unchanged; only the question stopped carrying the claim. -->
-      <details><summary>Can you cover more than one location, or more than one language?</summary><p>Not today. A plan covers one business phone line, and multi-location or multi-department routing is not something we can provision, so we do not sell it. If that is what you need, say so on the strategy call and we will tell you honestly whether to wait for us or use somebody else.</p></details>
-      <details><summary>How long does setup take?</summary><p>Days, not months. Discovery, build, written call scenarios run at the agent before a number is pointed at it, then your forwarding proven with a real call.</p></details>
-      <details><summary>Can I review calls and summaries?</summary><p>Yes. Every call produces a summary, and call review is part of how we tune your agent over time.</p></details>
       <details><summary>What does it cost?</summary><p>Two published numbers, joined by one rule. The AI Front Desk, the start most businesses make and the recommended plan, is C$1,500 Launch &amp; Implementation to start, then C$1,000 a month, with no performance fee. The Works, the whole engine with every sellable automation included, is C$3,000 Launch &amp; Implementation to start, then C$2,100 a month, also with no performance fee. Automation add-ons join the Front Desk one at a time: Missed-Call Recovery C$350 a month, Quote-Chase Engine C$500, Get-Paid Autopilot C$500, Review Engine C$300. Canadian dollars plus GST/HST. There is a three-month start on the Front Desk (six with add-ons or The Works): the build takes days and your line is answered inside the first week, the results show across the months after that, and after the minimum it is month to month you control from your portal. The full ladder, including the invitation-based Performance Partnership, is on the <a href="/pricing.html">pricing page</a>, and your exact fit is confirmed on a short strategy call.</p></details>
-      <details><summary>What does the Launch &amp; Implementation fee cover?</summary><p>The build, priced in the open instead of hidden in the monthly. Before you go live your agent is configured around your hours, services, prices, service area and rules, your integrations and automations are connected, a baseline of your business is taken, and the system is run against written call scenarios before a phone number is pointed at it. That is real work, it happens once, and the one-time fee is charged once, at the start, beside your first month, never again.</p></details>
       <details><summary>Can I try it before I commit?</summary><p>There is no trial, paid or free, and the seven-day paid pilot Nevamis used to sell is retired. What replaced it is a start with the length published in advance: three months on the AI Front Desk, six months when any add-on or The Works is included. After that it continues month to month on 30 days notice and you cancel it yourself from the portal. The build takes days, so by the end of the first week you are judging your own call recordings rather than a promise. More on the <a href="/pilot.html">how you start page</a>.</p></details>
-      <details><summary>How is customer information handled?</summary><p>Call details are used to run your service: the lead record, your summaries, and the recording in your portal. See the privacy page for what this website itself collects. Businesses remain responsible for notices appropriate to their own jurisdiction and call-recording requirements.</p></details>
       <details><summary>What if it is not a fit?</summary><p>Past your minimum term you cancel it yourself from the portal, on 30 days notice, and service runs to the end of the period you already paid for. There is no cancellation fee and nobody to talk into letting you go. The term is published before you buy rather than discovered in the agreement: three months on the AI Front Desk, six months when any add-on or The Works is included.</p></details>
+      <details><summary>How is customer information handled?</summary><p>Call details are used to run your service: the lead record, your summaries, and the recording in your portal. See the privacy page for what this website itself collects. Businesses remain responsible for notices appropriate to their own jurisdiction and call-recording requirements.</p></details>
     </div>
   </section>
 
-  <!-- ================= FINAL CTA ================= -->
-  <section class="final-cta">
+  <section class="final-cta" data-ia="7">
     <div class="glow" style="width:600px;height:400px;left:50%;top:-140px;transform:translateX(-50%);opacity:.55" aria-hidden="true"></div>
     <div class="wrap">
       <p class="eyebrow mono reveal">Next step</p>
@@ -2189,6 +1810,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       </div>
     </div>
   </section>
+
 </main>
 
 <footer class="site-footer">
@@ -2202,9 +1824,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div>
         <h2 class="foot-h">Site</h2>
         <a href="/#how">How It Works</a>
-        <a href="/#industries">Industries</a>
+        <!-- WAS /#industries until the homepage was rebuilt as seven sections
+             on 2026-08-27. There is no industries band on the homepage any
+             more, and a footer link that scrolls nowhere costs exactly the
+             visitor who was looking for their own trade. /solutions.html is
+             where the four trade pages actually live, so the link now goes to
+             the page instead of to a heading that used to be above it. -->
         <a href="/solutions.html">Solutions</a>
         <a href="/pricing.html">Pricing</a>
+        <a href="/roi.html">Missed-Call Calculator</a>
         <a href="/pilot.html">How You Start</a>
         <a href="/demo.html">Live Demo</a>
         <a href="/coming-soon.html">Coming Soon</a>

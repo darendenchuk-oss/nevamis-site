@@ -886,9 +886,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             <span class="who mono">Cedarview AI</span>
             <p>You're welcome. We'll see you tomorrow.</p>
           </div>
+          <!-- The three outcome chips came over from the homepage with the
+               player on 2026-08-27. They are the part of this component that
+               says what the call PRODUCED, and the page whose job is proof is
+               the page that should carry them. They light from the same
+               nv:callline / nv:callend events motion.js already dispatches. -->
+          <div class="call-tags" aria-label="What happened on this call">
+            <span class="tagchip" data-callchip="qualified">QUALIFIED: no-hazard + job type</span>
+            <span class="tagchip warm" data-callchip="booked">REQUESTED: tomorrow 8&ndash;10</span>
+            <span class="tagchip" data-callchip="confirm">DETAILS TEXTED TO YOU</span>
+          </div>
           <p class="foot-note">Illustrative call, fictional company. Real AI voices.</p>
         </div>
-        <div class="owner-card reveal">
+        <div class="owner-card reveal summary-arrive">
           <h3>After every call, the business gets</h3>
           <div class="sms" role="img" aria-label="Example text message summary sent to the business owner">
             <span class="mono">NEVAMIS SUMMARY · 8:42 PM</span>
@@ -902,6 +912,131 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       </div>
     </div>
   </section>
+
+  <!-- ====== MOVED FROM THE HOMEPAGE, 2026-08-27 ======
+       The after-hours story and the six-stage simulator both lived on the
+       homepage until the seven-section rebuild. Neither was deleted: the
+       homepage demonstration is now ONE static, sanitized system map, and
+       a thing that imitates live activity belongs on the page a visitor
+       opened because they asked to be shown a demonstration. Copy is
+       unchanged from the homepage, to the byte. -->
+  <!-- ============ THE NIGHT BAND ============
+       The one scroll-driven story on the page. On a desktop it pins and the
+       visitor scrubs a night call from ring to captured-and-texted; on phones,
+       with reduced motion, or with no JS it is three plain readable cards
+       (the .reveal baseline). Copy makes no claim the site does not already
+       make elsewhere: answer, qualify, take the request, text, in the same
+       words. Nothing here says a slot is confirmed: the caller is told the
+       business will confirm the time, which is what the live agent does. -->
+  <section class="night" id="night" aria-label="How an after-hours call plays out">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">After hours, illustrated</p>
+        <h2>Your crew goes home. Your line does not.</h2>
+        <p>The recording above is the real thing. This is the shape of every night call,
+          in the product&#39;s own four steps: answer, qualify, take the request, text.</p>
+      </div>
+      <div class="nb-stage" data-night>
+        <div class="nb-rail" aria-hidden="true"><i></i></div>
+        <article class="nb-scene reveal">
+          <p class="nb-time mono">9:41 PM</p>
+          <h3>A call your crew cannot take.</h3>
+          <p>The trucks are parked and the phones are on the chargers. Somebody&#39;s furnace
+            quits anyway, and they start dialling down the list.</p>
+          <p class="nb-note">Voicemail sends that caller to the next number on the list.</p>
+        </article>
+        <article class="nb-scene reveal">
+          <p class="nb-time mono">9:41 PM &middot; seconds later</p>
+          <h3>Nevamis answers in seconds.</h3>
+          <div class="nb-voice" data-voice aria-hidden="true"></div>
+          <p>It asks what you would ask, and writes down what you would write down:</p>
+          <p><span class="nb-chip mono">caller intent</span><span class="nb-chip mono">service type</span><span class="nb-chip mono">preferred time</span></p>
+        </article>
+        <article class="nb-scene reveal">
+          <p class="nb-time mono">9:42 PM</p>
+          <h3>Taken down, and texted to you.</h3>
+          <p>The summary sits on your phone, and you put the visit in your calendar
+            when you confirm the time. You read it over coffee, not off voicemail.</p>
+          <p class="nb-note">Every call answered. The details captured.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="simulator" data-spine>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">Behind the conversation</p>
+        <h2>Watch Nevamis run the front desk.</h2>
+        <p>You heard a real call above. This is what happens behind every conversation: answer, understand, check your rules, take action, confirm, report. Demonstration data, fictional company.</p>
+      </div>
+      <div class="sim reveal" id="sim">
+        <div class="sim-head">
+          <span class="mono">SCENARIO · PRAIRIE MECHANICAL (FICTIONAL)</span>
+          <span class="mono" data-sim-state>Idle</span>
+          <div class="sim-scenarios" role="group" aria-label="Choose a scenario">
+            <button data-scen="emergency" aria-pressed="false">After-hours emergency</button>
+            <button data-scen="routine" aria-pressed="true">Routine appointment</button>
+            <button data-scen="unusual" aria-pressed="false">Unusual request</button>
+          </div>
+        </div>
+        <div class="stage-rail" id="stageRail" aria-label="Call stages">
+          <span class="stage-pill">1 · Answer</span>
+          <span class="stage-pill">2 · Understand</span>
+          <span class="stage-pill">3 · Check rules</span>
+          <span class="stage-pill">4 · Take action</span>
+          <span class="stage-pill">5 · Confirm</span>
+          <span class="stage-pill">6 · Report</span>
+        </div>
+        <div class="sim-idle" id="simIdle">
+          <div class="ghost-rail" aria-hidden="true">
+            <span>Answer</span><span>Understand</span><span>Check rules</span><span>Take action</span><span>Confirm</span><span>Report</span>
+          </div>
+          <p>Pick a scenario above, then watch one call move through all six stages: what it hears, what it captures, which of your rules it checks, and exactly what the customer and the owner receive.</p>
+          <div class="cta-row" style="justify-content:center">
+            <button class="btn btn-primary" id="simWatch" data-evt="sim_watch_click">Watch it run</button>
+            <button class="btn btn-ghost" id="simStepMode" data-evt="sim_step_click">Step through it</button>
+          </div>
+        </div>
+        <div class="sim-body" id="simBody" hidden>
+          <div class="sim-col">
+            <h3>Conversation</h3>
+            <div class="sim-log"></div>
+          </div>
+          <div class="sim-col">
+            <h3>What it captures + your rules</h3>
+            <div class="sim-chips"></div>
+            <div class="sim-rules" style="margin-top:12px"></div>
+          </div>
+          <div class="sim-col">
+            <h3>Outcomes</h3>
+            <div class="sim-outcome"></div>
+          </div>
+        </div>
+        <div class="sim-controls">
+          <button class="primary" data-sim-play>Play</button>
+          <button data-sim-back><span aria-hidden="true">◀</span> <span data-back-label>Back</span></button>
+          <button data-sim-fwd><span data-fwd-label>Next: Answer</span> <span aria-hidden="true">▶</span></button>
+          <button data-sim-replay>Replay</button>
+          <div class="sim-progress" aria-hidden="true"><i></i></div>
+          <span class="sim-elapsed">0:00 elapsed</span>
+          <span data-sim-live aria-live="polite" class="visually-hidden"></span>
+        </div>
+      </div>
+      <details class="sim-static reveal panel">
+        <summary>Prefer to read it? The full sequence as a list</summary>
+        <ol style="padding-left:22px;margin-top:10px;color:var(--muted)">
+          <li>Call comes in and is answered in your business's tone.</li>
+          <li>The caller explains what they need.</li>
+          <li>It captures the facts: service, urgency, location, contact, timing.</li>
+          <li>Your approved business rules are checked: service area, offerings, emergency criteria, calendar.</li>
+          <li>Routine requests are captured with the time they want. Emergencies are flagged urgent and your team is alerted. Unknown questions take the safe fallback instead of a made-up answer.</li>
+          <li>The caller is told what happens next, and that you will confirm the time. You get the summary.</li>
+        </ol>
+      </details>
+    </div>
+  </section>
+
 </main>
 
 <footer class="site-footer">
@@ -915,9 +1050,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div>
         <h2 class="foot-h">Site</h2>
         <a href="/#how">How It Works</a>
-        <a href="/#industries">Industries</a>
+        <!-- WAS /#industries until the homepage was rebuilt as seven sections
+             on 2026-08-27. There is no industries band on the homepage any
+             more, and a footer link that scrolls nowhere costs exactly the
+             visitor who was looking for their own trade. /solutions.html is
+             where the four trade pages actually live, so the link now goes to
+             the page instead of to a heading that used to be above it. -->
         <a href="/solutions.html">Solutions</a>
         <a href="/pricing.html">Pricing</a>
+        <a href="/roi.html">Missed-Call Calculator</a>
         <a href="/pilot.html">How You Start</a>
         <a href="/demo.html">Live Demo</a>
         <a href="/coming-soon.html">Coming Soon</a>
