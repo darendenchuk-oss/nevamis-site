@@ -1,37 +1,77 @@
 /* ============================================================
    NEVAMIS HERO — the opening sequence
-   One master timeline tells one story: a call arrives, Nevamis
-   answers it, qualifies it, books it, and texts the details.
-   Everything the viewer sees is a state of that story; nothing
-   moves for decoration.
 
-   Structure (times in seconds — see MOTION.beats). Retimed 2026-08-01
-   to value-first: the film no longer gates the controls. Everything a
-   visitor can ACT on is live by ~1.3s; the story plays beside it and
-   keeps its payoff order. Re-choreographed 2026-08-01 to BLEND — one
-   camera under everything, entrances that overlap instead of queueing,
-   and handoffs where one element's death births the next. (Story-driven
-   sky surges and a #dawn light layer were tried the same day and REMOVED:
-   the owner read background brightness changes as flashing. Blending
-   lives in geometry and timing here, never in background brightness.)
-     0.00  the whole hero settles from one shared camera move as the
-           veil clears
-     0.50  "Every call," rises as a per-character curtain, overlapping
-           the copy still settling beneath it
-     0.62  the top streak dips toward the stage and DIES INTO the first
-           call wave — one signal handed between two implementations
-     0.78  both CTAs settle in — interactive from here on
-     1.50  the mark's arch draws from both ends, tips carrying light
-     2.55  the tips merge at the apex — flare, bloom, the mark is one
+   THE RULE THIS FILE EXISTS UNDER (owner, 2026-08-27):
+
+     The headline, the copy, the navigation and the CTAs must
+     remain perfectly still and readable during every animation
+     state. The animation may affect ONLY the dedicated visual
+     area — the #stage SVG. No fragmentation, masks, clipping,
+     filters, transforms or opacity changes are ever applied to
+     the content container. If the animation fails, the static
+     arch-and-dot mark must remain.
+
+   That rule is not a preference about taste; it is the fix for a
+   defect this file caused. The previous version opened by HIDING
+   real content and animating it back:
+
+     - the copy column set to autoAlpha 0
+     - both CTAs (including the phone number) to autoAlpha 0 and
+       yPercent 36
+     - the header navigation likewise
+     - the headline shredded into ~40 per-character spans pushed
+       yPercent 118 below .line{overflow:hidden} masks
+     - and a fixed, opaque, full-viewport veil (#wake, z-index
+       200) over the ENTIRE document until the timeline's first
+       tween faded it
+
+   Every one of those states depended on a tween completing. A
+   timeline is not a guarantee. Loaded into a background tab,
+   requestAnimationFrame is throttled to nothing: measured, the
+   page sat 9.7 seconds with the timeline playing but frozen at
+   progress 0 — the whole document dark under the veil, the
+   paragraph and both CTAs at visibility:hidden, every headline
+   letter parked below its mask. Any stalled or slow frame mid-
+   cycle stranded a partial set of letters (the char stagger was
+   0.024s). The site-wide "pause motion" toggle appeared to
+   "repair" the page, which is the clearest possible statement of
+   what was wrong: the fix for the animation was to stop it.
+
+   Two costs measured in this file's own comments went with it:
+   LCP 5,020ms on 4x CPU + Slow 4G, of which 5,018ms was render
+   delay, because the script hid a paragraph the browser had
+   already painted and re-dated LCP to whenever the JavaScript
+   landed; and CLS 0.1262 from that same hide-and-reshow moving
+   the copy 12px. Both are gone by construction now: the content
+   paints with the HTML and never moves again.
+
+   WHAT IS ANIMATED, THEN. One surface: the #stage SVG, and the
+   #status badge that sits inside it. One master timeline tells
+   one story there — a call arrives, Nevamis answers it,
+   qualifies it, books it, and texts the details — beside copy
+   that was legible and clickable before the film started.
+
+   Structure (times in seconds — see MOTION.beats):
+     0.35  the stage's scrim comes up; the node comes into focus
+     0.62  the first call wave closes on the node
+     1.15  the node reacts ON CONTACT, then again to the echo
+     1.50  the mark's arch draws from both ends, tips carrying
+           light
+     2.55  the tips merge at the apex — flare, bloom, and the two
+           construction halves are swapped for the single
+           continuous path
      2.75  CALL ANSWERED exhales into place (tracking settles)
-     3.40  the story routes: ANSWER → QUALIFY → BOOK → TEXT (0.55s beats)
-     5.70  the stage RECEDES (depth exit, never fighting the rising
-           headline), "captured." lands with its underline, the CTAs
-           pulse once
-     6.55  end → living idle (breath, an occasional signal along the
-           arch)
+     3.40  the story routes: ANSWER → QUALIFY → BOOK → TEXT
+           (0.55s beats)
+     5.70  the stage RECEDES (depth exit) and hands the frame
+           back to the copy that has been there all along
+     6.00  end → living idle (breath, an occasional signal along
+           the arch, and the stage story replaying on its own)
 
    Choreography rules this file follows, learned the hard way:
+   - Nothing outside #stage is ever a target. Not to hide it, not
+     to reveal it, not to pulse it. If a tween's selector could
+     match content, it does not belong here.
    - Nothing reacts before its stimulus arrives (waves land, THEN
      the node flinches; the arch answers the call, it never
      pre-empts it).
@@ -39,8 +79,11 @@
      handoff is sequential, with a clean gap between out and in.
    - One spring in the whole piece (the capture pop). Everything
      else enters and exits on restrained power curves.
-   - Exits precede entrances at the resolve: the stage clears
-     before the payoff word arrives, so it owns the frame.
+   - The stage's resting frame — arch and dot — is painted by the
+     MARKUP. Every element the film introduces ships at
+     opacity="0" in home.html, and the resting mark is taken away
+     only at the point the animated path is certainly running.
+     Fail anywhere before that and the visitor keeps the mark.
    ============================================================ */
 
 import { MOTION, prefersReduced, isFinePointer, onVisibility } from './tokens.js';
@@ -63,32 +106,6 @@ const STEP_GAP = 0.55;
 const LABEL_IN = 0.2;
 const LABEL_OUT = 0.15;
 const LABEL_OUT_AT = 0.34;   // out runs 0.34–0.49; next enters at 0.55
-
-/** Split a headline word into per-character spans, once. The h1 carries a
-    static aria-label so screen readers keep reading a sentence, never a
-    letter stream. Returns the char spans; on any surprise (empty word,
-    re-run) it returns the word span itself so the timeline still works. */
-function splitChars(wordEl) {
-  if (!wordEl || wordEl.dataset.split === '1') {
-    return wordEl ? Array.from(wordEl.querySelectorAll('.ch')) : [];
-  }
-  const text = wordEl.textContent;
-  if (!text) return [wordEl];
-  wordEl.dataset.split = '1';
-  wordEl.textContent = '';
-  const frag = document.createDocumentFragment();
-  const chars = [];
-  for (const c of text) {
-    const s = document.createElement('span');
-    s.className = 'ch';
-    // A plain space collapses inside an inline-block run; keep the nbsp.
-    s.textContent = c === ' ' ? ' ' : c;
-    frag.appendChild(s);
-    chars.push(s);
-  }
-  wordEl.appendChild(frag);
-  return chars;
-}
 
 export function initHero() {
   const gsap = window.gsap;
@@ -117,24 +134,17 @@ export function initHero() {
   const segs = $$('#progress .seg');
   const packet = $('#packet');
   const status = $('#status');
-  // The copy column takes part in the choreography rather than being
-  // uncovered by the veil: a fully-rendered paragraph under an empty
-  // headline slot reads as a loading glitch, not a sequence.
-  const copyEls = $$('.hero .eyebrow, .hero .lede, .hero .proof, .hero .hero-search');
-  // The whole hero shares one camera (see ACT 1). Optional: older cached
-  // markup simply skips it.
-  const wrap = $('.hero .wrap');
-
-  // stroke-draw setup for the two arch halves
-  [archL, archR].forEach((p) => {
-    const len = p.getTotalLength();
-    gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
-  });
+  /* Every handle above is inside #stage. There is deliberately no lookup for
+     the headline, the copy column, the CTAs, the navigation or the underline:
+     this module has no business holding a reference to any of them. */
 
   const reduce = prefersReduced();
-  const underline = $('.hero-underline');
 
-  /** The finished frame — used by reduced motion and as the timeline's end state. */
+  /** The finished STAGE frame. Nothing here touches a single property outside
+      #stage — that is the whole contract, and it is why this function is safe
+      to call from anywhere, including a failure path. Used by reduced motion,
+      by the late-start path, by the pause toggle, and as the timeline's end
+      state. */
   function paintResolved() {
     // The resting mark is the SINGLE continuous path, never the two halves:
     // their round linecaps overlap at the apex into a doubled hot spot.
@@ -142,14 +152,6 @@ export function initHero() {
     gsap.set([archL, archR], { opacity: 0 });
     if (scrim) gsap.set(scrim, { opacity: 1 });
     gsap.set(dot, { scale: 1, autoAlpha: 1 });
-    // Both granularities: .w for the un-split reduced path, .ch after a split.
-    gsap.set('h1 .w', { yPercent: 0 });
-    if (document.querySelector('h1 .ch')) gsap.set('h1 .ch', { yPercent: 0 });
-    if (underline) gsap.set(underline, { scaleX: 1 });
-    gsap.set(copyEls, { autoAlpha: 1, y: 0 });
-    gsap.set(['[data-cta]', '[data-nav]'], { yPercent: 0, autoAlpha: 1, scale: 1 });
-    gsap.set('#wake', { autoAlpha: 0 });
-    if (wrap) gsap.set(wrap, { scale: 1, y: 0, clearProps: 'transform' });
     gsap.set([story, status, packet, archHi, archTipL, archTipR, dotPulse], { opacity: 0 });
     gsap.set(waves, { opacity: 0 });
   }
@@ -157,31 +159,23 @@ export function initHero() {
   // ---------------------------------------------------------------
   // Reduced motion: show the finished hero at once. Nothing loops,
   // nothing is left running, no pointer effects are attached.
+  //
+  // FIRST, before any stage element is hidden. The order of the branches in
+  // this function is load-bearing: every early return below happens while the
+  // markup's own arch-and-dot frame is still painted, so a visitor who takes
+  // one of them can never be left looking at an empty stage.
   // ---------------------------------------------------------------
   if (reduce) {
     paintResolved();
 
-    /* paintResolved is shared with the timeline's END state, where hiding the
+    /* The finished frame, WITH ITS LABELS ON — not a redrawn one.
+
+       paintResolved is shared with the timeline's END state, where hiding the
        story is right: it has already played and it will replay. Under reduced
-       motion it never plays at all, so the same call left the right half of the
-       hero as an arc and a glowing ball with every label at opacity 0 — a
-       spinner that never resolves, with nothing to say what it depicts.
-
-       Reduced motion means remove the MOTION, not the content. Animated
-       visitors see four steps over time; this shows the same four at once, so
-       the preference costs nothing but the movement.
-
-       The four .step groups are drawn on top of each other at x=310, y=452 —
-       the animation reveals one at a time — so they have to be spread before
-       they can all be read. Spacing and origin are derived from the markup's
-       own geometry rather than typed in twice: STEP_GAP is the label-to-frag
-       distance the SVG already uses, and the stack is centred on the row the
-       single step used to occupy.
-
-       #progress goes with them. Four segments exist to say which of four steps
-       you are on; when all four are named and visible it is answering a
-       question nobody is asking. */
-    /* The finished frame, with its labels on — not a redrawn one.
+       motion it never plays at all, so the same call alone would leave the
+       right half of the hero as an arc and a glowing ball with every label at
+       opacity 0 — a spinner that never resolves, with nothing to say what it
+       depicts. Reduced motion means remove the MOTION, not the content.
 
        Showing all four steps at once was the first attempt and it is the wrong
        shape for this artwork. The four .step groups are drawn on top of each
@@ -195,7 +189,7 @@ export function initHero() {
        artwork already gives it: the arc closed, the dot at rest, "CALL
        ANSWERED", "TEXT / booking confirmed", and all four progress segments
        filled. That is a completed call, which is exactly what the animation
-       spends nine seconds arriving at.
+       spends six seconds arriving at.
 
        The honest cost: an animated visitor sees four beats, this visitor sees
        the outcome. That is a smaller gap than the one it replaces, which was
@@ -205,27 +199,12 @@ export function initHero() {
     stepEls.forEach((el, i) => gsap.set(el, { opacity: i === stepEls.length - 1 ? 1 : 0 }));
     segs.forEach((s) => gsap.set(s, { scaleX: 1, opacity: 1 }));
 
-    /* Let the headline wrap. Found by looking at a screenshot of the fix
-       above, which is the only reason it was found at all.
-
-       Each masked line is one .w joined with NON-BREAKING spaces, so the
-       intro can reveal it as a single unit. That leaves the line with no
-       break opportunity anywhere in it. The animated path splits the words
-       into 32 per-character spans, and those breaks are what let the line
-       re-wrap; reduced motion never splits, so the line stays one 663px
-       object inside a 385px .line mask with overflow:hidden.
-
-       Measured on the homepage: the headline overflowed by 290px at 1440,
-       288px at 1280 and 167px at 1024, so "Never miss the time that matters."
-       was read as "Never miss / the time tha". Mobile was unaffected, which
-       is why it survived: the column is narrow enough that the break lands
-       before the clip.
-
-       Ordinary spaces restore the break opportunities the split would have
-       provided. The h1 keeps its aria-label either way, so this was never a
-       screen-reader problem — only a sighted one, for the visitors who asked
-       for less motion. */
-    $$('h1 .w').forEach((w) => { w.textContent = w.textContent.replace(/ /g, ' '); });
+    /* A block used to sit here replacing the headline's non-breaking spaces
+       with ordinary ones, because the animated path split the words into
+       per-character spans and those breaks were the only thing letting the
+       line re-wrap; the unsplit reduced path had none and overflowed by up to
+       290px. Nothing is split any more and the markup carries ordinary spaces,
+       so there is one headline width for everyone and nothing to repair. */
 
     window.__heroTL = gsap.timeline({ paused: true }); // inert handle for tooling
     window.__heroBeats = MOTION.beats;
@@ -235,25 +214,18 @@ export function initHero() {
   // ---------------------------------------------------------------
   // TOO LATE TO BE AN INTRO.
   //
-  // The hero copy is NOT hidden by CSS — it paints with the HTML, and this
-  // file then hides it (autoAlpha 0, below) to play it back in. On a fast
-  // connection that is invisible and the sequence works. On a slow one it is
-  // the single worst thing on the page: the browser paints the paragraph,
-  // this script arrives much later, hides content the visitor is already
-  // reading, and shows it again — which re-dates Largest Contentful Paint to
-  // whenever the JavaScript landed.
+  // An intro is only an intro if it can start like one. This used to be a
+  // performance guard with teeth — past the budget, the script would otherwise
+  // arrive long after the browser had painted the hero and snatch the
+  // paragraph back to replay it, which is what put LCP at 5,020ms and CLS at
+  // 0.1262 on a throttled connection.
   //
-  // Measured on the homepage, 4x CPU + Slow 4G, LCP element P.lede:
-  //   LCP 5,020 ms, of which 5,018 ms is render delay (TTFB is 2 ms).
-  //   CLS 0.1262, from the same hide-and-reshow moving the copy 12px.
-  // Desktop, unthrottled, is 388 ms. The difference is not the animation's
-  // cost; it is 290 KB of script arriving before the animation may begin.
-  //
-  // So the intro is only an intro if it can start like one. Past the budget
-  // the finished frame is painted and nothing is taken away from someone who
-  // is already reading it. This is not a degraded experience — it is the same
-  // resolved composition reduced-motion visitors get, and it is strictly
-  // better than snatching the paragraph back to replay it.
+  // It cannot do that any more: content is never hidden, so a late script has
+  // nothing to take away and those numbers are structurally gone. What remains
+  // is a smaller, still-real judgement about the STAGE. Six seconds of opening
+  // film that begins a second and a half after the visitor started reading is
+  // not an opening; it is a distraction beside copy they are already in the
+  // middle of. Past the budget the stage simply shows its resolved frame.
   const INTRO_BUDGET_MS = 900;
   const elapsed = typeof performance !== 'undefined' && performance.now ? performance.now() : 0;
   if (elapsed > INTRO_BUDGET_MS) {
@@ -264,93 +236,58 @@ export function initHero() {
   }
 
   // ---------------------------------------------------------------
-  // Initial (pre-animation) state
-  // ---------------------------------------------------------------
-  // Per-character curtains. Split only on the animated path, so the reduced
-  // path and any no-JS render keep the intact words. The h1 carries a static
-  // aria-label in the markup, so assistive tech reads the sentence either way.
-  const chars1 = splitChars(document.querySelector('h1 .w[data-w="1"]'));
-  const chars2 = splitChars(document.querySelector('h1 .w[data-w="2"]'));
-  gsap.set([...chars1, ...chars2], { yPercent: 118, display: 'inline-block', willChange: 'transform' });
-  if (underline) gsap.set(underline, { scaleX: 0, transformOrigin: '0% 50%' });
-  // autoAlpha, not opacity: it also sets visibility:hidden, so these controls
-  // stay out of the tab order until they are actually on screen. A focusable
-  // but invisible "Hear it answer" would otherwise dial a number the
-  // keyboard user cannot see.
-  // Short travel (36/56, not 120/130): buttons should settle into place,
-  // not launch across it.
-  gsap.set('[data-cta]', { yPercent: 36, autoAlpha: 0 });
-  gsap.set('[data-nav]', { yPercent: 56, autoAlpha: 0 });
-  gsap.set(copyEls, { autoAlpha: 0, y: 12 });
-  gsap.set(dot, { transformOrigin: '50% 50%', scale: 0.55, autoAlpha: 0 });
-  gsap.set(dotPulse, { transformOrigin: '50% 50%', opacity: 0 });
-  gsap.set(markG, { transformOrigin: '50% 55%' });
-  // Hidden until their draw begins: a fully-offset round-cap path still
-  // paints its zero-length cap — two stray 14px specks floating at the arch
-  // bases through the whole opening beat.
-  gsap.set([archL, archR], { opacity: 0 });
-  gsap.set(waves, { opacity: 0 });
-  gsap.set([story, status, packet, archHi, archTipL, archTipR], { opacity: 0 });
-  gsap.set(stepEls, { opacity: 0 });
-  gsap.set(segs, { transformOrigin: '0% 50%', scaleX: 0 });
-
-  const tl = gsap.timeline({ defaults: { ease: MOTION.ease.enter } });
-
-  // --- ACT 1 · 0.0–1.3 · everything actable arrives first ------------
-  // The veil is an exit: leave fast, land soft. Chrome starts once the veil
-  // is mostly gone, so none of its motion is performed behind black. The
-  // whole copy column, the headline's first word and BOTH CTAs are in and
-  // interactive by ~1.3s; the film has not even reached its apex yet.
+  // Initial (pre-animation) state — STAGE ONLY
   //
-  // BLENDED, not sequenced: the whole hero — copy AND stage — settles from
-  // a single 1.2% scale as the veil clears, so every element rides one
-  // shared camera move and arrives belonging to the same world. One
-  // transform on one wrapper; it costs nothing.
-  // (A #dawn light layer and story-driven sky surges shipped here on
-  // 2026-08-01 and were removed the next day: the owner read background
-  // brightness changes as flashing. Blend with geometry and timing, never
-  // with the background's brightness.)
-  tl.to('#wake', { autoAlpha: 0, duration: 0.45, ease: 'power2.inOut' }, 0);
-  if (wrap) {
-    tl.fromTo(wrap, { scale: 0.988, y: 14, transformOrigin: '50% 42%' },
-      { scale: 1, y: 0, duration: 1.15, ease: 'power3.out', clearProps: 'transform' }, 0);
+  // Past every early return, so the animated path is certainly running. This
+  // is the ONLY place the resting mark is allowed to be taken away: home.html
+  // ships #archFull at opacity="1" precisely so that a failure anywhere above
+  // leaves the official arch-and-dot painted. Nothing below may move up.
+  //
+  // It is a FUNCTION rather than a run of statements for one reason, below:
+  // taking the mark away is only justified at the moment the film is about to
+  // be watched, and a page that loads in a background tab is not that moment.
+  // ---------------------------------------------------------------
+  function armStage() {
+    gsap.set(archFull, { opacity: 0 });
+    // Hidden until their draw begins: a fully-offset round-cap path still
+    // paints its zero-length cap — two stray 14px specks floating at the arch
+    // bases through the whole opening beat.
+    gsap.set([archL, archR], { opacity: 0 });
+    // stroke-draw setup for the two arch halves
+    [archL, archR].forEach((p) => {
+      const len = p.getTotalLength();
+      gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
+    });
+    gsap.set(dot, { transformOrigin: '50% 50%', scale: 0.55, autoAlpha: 0 });
+    gsap.set(dotPulse, { transformOrigin: '50% 50%', opacity: 0 });
+    gsap.set(markG, { transformOrigin: '50% 55%' });
+    gsap.set(waves, { opacity: 0 });
+    gsap.set([story, status, packet, archHi, archTipL, archTipR], { opacity: 0 });
+    gsap.set(stepEls, { opacity: 0 });
+    gsap.set(segs, { transformOrigin: '0% 50%', scaleX: 0 });
   }
-  // The streak is no longer a comet crossing an unrelated sky: it dips
-  // toward the stage and dies exactly where and when the first call wave is
-  // born (0.62 below) — the signal ARRIVES, the waves carry it the rest of
-  // the way. One perceived object handed between two implementations.
-  tl.fromTo('#topsig', { opacity: 1, x: -240, y: 0 },
-      { x: () => window.innerWidth * 0.58, y: 30, duration: 0.52, ease: 'power1.in' }, 0.1)
-    .to('#topsig', { autoAlpha: 0, duration: 0.14 }, 0.5)
-    .to('[data-nav]', { yPercent: 0, autoAlpha: 1, duration: 0.4, stagger: 0.04 }, 0.15)
-    .to(copyEls, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.055 }, 0.22)
-    // "Every call," rises one character at a time behind the line mask —
-    // slightly longer and looser than before, so the wave of characters
-    // overlaps the copy still settling beneath it instead of starting a
-    // fresh, separate event.
-    .to(chars1, { yPercent: 0, duration: 0.65, stagger: 0.024, ease: MOTION.ease.curtain }, 0.5)
-    // The SECOND line follows the first as one cascading gesture, not as a
-    // payoff withheld until the film ends.
-    //
-    // It used to release at 5.8s. For 5.8 seconds the page therefore read
-    // "Every call," — a sentence broken off at a comma. That does not scan as
-    // suspense; it scans as a rendering fault, and it withholds the one clause
-    // that says what the company does. Comprehension is not a reward for
-    // watching the film.
-    //
-    // Offset 0.16s behind line 1 (not simultaneous): a two-line curtain reads
-    // as one movement when the second line trails the first by roughly one
-    // stagger step, and as a stutter when they start together. Full sentence
-    // legible at ~1.53s against a 294ms interactive page.
-    .to(chars2, { yPercent: 0, duration: 0.65, stagger: 0.024, ease: MOTION.ease.curtain }, 0.66)
-    // CTAs settle — they do not bounce, and they do not wait for the film.
-    .to('[data-cta]', { yPercent: 0, autoAlpha: 1, duration: 0.45, stagger: MOTION.stagger.base, ease: MOTION.ease.enter }, 0.78);
 
-  // The underline is the headline's typographic finish, so it belongs to the
-  // headline's gesture — drawn as line 2 settles, not six seconds later.
-  if (underline) tl.to(underline, { scaleX: 1, duration: 0.4, ease: MOTION.ease.enter }, 1.1);
+  /* A PAGE THAT OPENS IN A BACKGROUND TAB HAS NOT STARTED ITS FILM YET.
+
+     requestAnimationFrame is throttled to nothing in a hidden tab, so a
+     timeline started there does not advance — it just sits at progress 0 with
+     the stage emptied out ready for an opening beat nobody is watching. That
+     is the precise mechanism behind the reported defect, and while the damage
+     is now confined to a decorative SVG, the answer is the same and it is
+     free: do not empty the stage until someone is there to see it filled
+     again. Until then the markup's arch-and-dot stands, which is the frame the
+     owner requires whenever the film is not running. */
+  const startHidden = document.hidden;
+  if (!startHidden) armStage();
+
+  const tl = gsap.timeline({ defaults: { ease: MOTION.ease.enter }, paused: startHidden });
 
   // --- 0.35–1.65 · the node comes into focus; the call closes on it ---
+  // The film opens here, on the stage, with nothing to uncover first. There
+  // used to be two tweens before this one — a full-viewport veil fading off,
+  // and a streak flown across the top of the page into the first wave. Both
+  // animated the document rather than the stage, and both are gone. The
+  // handoff they set up is not missed: the signal simply begins as the wave.
   if (scrim) tl.to(scrim, { opacity: 1, duration: 0.55, ease: 'none' }, 0.35);
   tl.to(dot, { scale: 1, autoAlpha: 1, duration: 0.5, ease: MOTION.ease.enter }, 0.42);
 
@@ -360,8 +297,6 @@ export function initHero() {
      node. They accelerate INWARD (power2.in) and stay bright until just
      before contact, so the signal gains energy as it arrives instead of
      evaporating mid-air. */
-  // 0.62, not 0.65: wave one is born on the same beat the streak dies (see
-  // ACT 1), which is the handoff that makes them read as one signal.
   const WAVE_AT = [0.62, 0.95];
   const WAVE_TRAVEL = 0.5;
   WAVE_AT.forEach((at, i) => {
@@ -447,38 +382,48 @@ export function initHero() {
   // TEXT — "booking confirmed", the payoff state — holds a full beat.
   tl.to(packet, { opacity: 0, duration: 0.2 }, 5.5);
 
-  // --- 5.7–6.5 · clear the stage and hand the frame back ------------
-  // Exits first, together, on one ease. The stage RECEDES — fades while
-  // stepping back a fraction — rather than translating up: a y:-10 exit used
-  // to run head-on into "captured." rising from below, two opposed verticals
-  // in one frame. Depth exits do not compete; they hand the frame over.
+  // --- 5.7–6.0 · clear the stage and hand the frame back ------------
+  // The stage RECEDES — fades while stepping back a fraction — rather than
+  // translating up: depth exits do not compete with anything, they hand the
+  // frame over.
   //
-  // What the ending now points AT changed, and this is the substance of the
-  // re-choreography rather than a moved timestamp. The film used to end by
-  // completing the sentence, which meant the sentence was the reward for
-  // watching. The headline now lands at ~1.5s, so the ending has one job
-  // instead: the demo has finished proving the claim, the stage clears, and
-  // the only lit thing left in the frame is the pair of buttons that were
-  // already live at 1.2s. The film ends by directing attention to the action,
-  // not by delivering comprehension.
+  // What the ending points AT is the substance of this beat. The demo has
+  // finished proving the claim, the stage clears, and what is left in the
+  // frame is the headline and the pair of buttons — which have been there,
+  // legible and clickable, since first paint. The film ends by directing
+  // attention to the action. It does not deliver the action, and it never
+  // touches it: there is deliberately no CTA pulse here. A 1.02 scale bump on
+  // the phone-number button was the last content tween in this file, and
+  // "only a small one" is how the whole defect was justified line by line.
   tl.to([story, status], { opacity: 0, scale: 0.97, transformOrigin: '50% 50%', duration: 0.3, ease: 'power2.in' }, 5.7)
     .set([story, status], { scale: 1 });
-  tl.to('[data-cta]', { scale: 1.02, duration: 0.16, ease: 'power2.out', stagger: 0.05 }, 6.05)
-    .to('[data-cta]', { scale: 1, duration: 0.3, ease: MOTION.ease.move, stagger: 0.05 }, 6.21);
 
   tl.eventCallback('onComplete', startIdle);
 
   window.__heroTL = tl;
   window.__heroBeats = MOTION.beats;
 
-  // A keyboard user should never have to sit through an animation to reach a
-  // control. The first Tab snaps the sequence to its finished state.
-  const skipOnTab = (e) => {
-    if (e.key !== 'Tab') return;
-    window.removeEventListener('keydown', skipOnTab);
-    if (tl.progress() < 1) tl.progress(1, true);
-  };
-  window.addEventListener('keydown', skipOnTab);
+  /* Held at the gate: the stage keeps its resting mark, and the film arms and
+     runs from its first frame the moment the visitor actually arrives. This
+     listener is registered BEFORE the general visibility handler further down
+     so it wins the race to describe the first frame; that one then finds a
+     timeline already playing and does nothing. */
+  if (startHidden) {
+    paintResolved();
+    const armWhenWatched = () => {
+      if (document.hidden) return;
+      document.removeEventListener('visibilitychange', armWhenWatched);
+      armStage();
+      tl.restart();
+    };
+    document.addEventListener('visibilitychange', armWhenWatched);
+  }
+
+  /* A "press Tab to skip the intro" handler used to live here, because a
+     keyboard user should never have to sit through an animation to reach a
+     control. There is nothing left to skip: every control is in the tab order,
+     visible and operable from first paint, and the only thing the timeline
+     owns is a decorative SVG that is aria-hidden. */
 
   // ---------------------------------------------------------------
   // Living idle
@@ -494,7 +439,9 @@ export function initHero() {
   let motionHalted = false;
 
   // The site-wide "pause motion" toggle (site.js) calls these so the hero
-  // freezes on its finished frame rather than mid-story.
+  // freezes on its finished frame rather than mid-story. The contract is
+  // unchanged: off means everything stops and the resolved STAGE is painted;
+  // on means whatever was running resumes.
   window.__heroMotionOff = () => {
     motionHalted = true;
     tl.pause();
@@ -504,17 +451,21 @@ export function initHero() {
   };
   window.__heroMotionOn = () => {
     motionHalted = false;
-    if (tl.progress() < 1) tl.play();
-    else if (idle) idle.play();
+    if (document.hidden) return;   // resume on return to the tab, not before
+    resumeWhicheverWasRunning();
   };
+
+  /** Play back whatever the state machine says should be moving. Used by both
+      the toggle and the tab-visibility handler so the two cannot disagree. */
+  function resumeWhicheverWasRunning() {
+    if (tl.progress() < 1) { tl.play(); return; }
+    if (!stageVisible) return;
+    if (idle) idle.play();
+    if (replayTl && replayTl.progress() > 0 && replayTl.progress() < 1) replayTl.play();
+  }
 
   function startIdle() {
     if (idle) return;
-    // The intro is over: the per-character layers have earned their keep.
-    // Left in place, ~24 tiny composited layers sit in GPU memory for the
-    // whole visit doing nothing — will-change is a promise about the near
-    // future, and the future of these spans is "never moves again".
-    gsap.set([...chars1, ...chars2], { clearProps: 'willChange' });
 
     idle = gsap.timeline({ repeat: -1 });
     idle.to(markG, { scale: 1.01, duration: MOTION.dur.ambient, ease: MOTION.ease.breathe })
@@ -550,7 +501,7 @@ export function initHero() {
 
   /**
    * The story runs again, but inside the stage only. The headline, navigation
-   * and CTAs are deliberately untouched — they arrived once and they stay.
+   * and CTAs are untouched — as they are by every other tween in this file.
    * Same physics as the intro: waves land, the node reacts, labels hand off
    * sequentially on the packet's axis.
    */
@@ -593,7 +544,7 @@ export function initHero() {
   }
 
   // ---------------------------------------------------------------
-  // Pointer: depth parallax + signal points bending toward the cursor
+  // Pointer: depth parallax on the stage's own SVG
   // ---------------------------------------------------------------
   if (isFinePointer()) {
     const px = gsap.quickTo(svg, 'x', { duration: 0.6, ease: 'power2' });
@@ -616,12 +567,14 @@ export function initHero() {
   const io = new IntersectionObserver(([entry]) => {
     stageVisible = entry.isIntersecting;
     if (stageVisible) stageHasBeenSeen = true;
-    if (idle) idle[stageVisible ? 'play' : 'pause']();
-    if (replayTl && replayTl.isActive()) replayTl[stageVisible ? 'play' : 'pause']();
+    if (idle && !motionHalted) idle[stageVisible ? 'play' : 'pause']();
+    if (replayTl && replayTl.isActive()) replayTl[stageVisible && !motionHalted ? 'play' : 'pause']();
     if (stageHasBeenSeen && !stageVisible && tl.progress() < 1 && !tl.paused()) {
-      // The visitor scrolled away mid-intro. Never pause here: pausing would
-      // freeze the wake overlay mid-fade and leave a dark veil over the page.
-      // Scrolling past the hero means "skip the intro" — finish instantly.
+      // The visitor scrolled past the stage mid-film. Nothing outside the
+      // stage depends on this timeline any more, so pausing would be perfectly
+      // safe — but there is no reason to keep a six-second film pending for a
+      // visitor who has moved on. Finish it, so the stage is at its resting
+      // mark whenever they scroll back.
       // suppressEvents=true: a skip jumps state, it must never fire the
       // callbacks it passes over.
       //
@@ -639,8 +592,27 @@ export function initHero() {
   }, { threshold: 0.02 });
   io.observe(stage);
 
+  /* THE TAB. This used to pause the idle loop only, and let the MAIN timeline
+     keep "playing" into a throttled requestAnimationFrame — which is the exact
+     shape of the reported defect: a page opened in a background tab had a
+     timeline that was running by every API measure and had advanced no frames,
+     while the content it was holding hostage stayed hidden. Measured at 9.7s,
+     progress 0.
+
+     Pausing the main timeline is now both correct and safe, and it is safe for
+     a structural reason rather than a lucky one: no property outside #stage
+     depends on this timeline reaching any particular progress, so a paused
+     film can never leave the page in a state a visitor cannot read or use. The
+     worst case is a decorative SVG holding still. */
   onVisibility((visible) => {
-    if (idle) idle[visible ? 'play' : 'pause']();
+    if (!visible) {
+      tl.pause();
+      if (idle) idle.pause();
+      if (replayTl) replayTl.pause();
+      return;
+    }
+    if (motionHalted) return;   // the explicit toggle outranks the tab
+    resumeWhicheverWasRunning();
   });
 
   return { tl, startIdle };

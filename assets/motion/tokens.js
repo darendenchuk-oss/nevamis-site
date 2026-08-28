@@ -50,21 +50,24 @@ export const MOTION = {
   // Each time is chosen to land in the MIDDLE of its state, so jumping to a
   // beat always shows that state fully rendered rather than mid-transition.
   //
-  // Retimed 2026-08-01 to a value-first structure. The film used to gate the
-  // CTAs until 6.45s; the verified conversion research for this audience says
-  // trust and an actable CTA convert, spectacle does not, so the page now
-  // leads with everything a visitor can act on (copy, CTAs, search by ~1.3s)
-  // and the stage film plays beside it instead of in front of it. The payoff
-  // word still lands last: the story is unchanged, only the gate is gone.
+  // These describe STAGE states and nothing else. Two of them used to name
+  // things the film did to the page — "Wake + copy" for the veil lifting off
+  // the document while the copy column faded in, and "CTAs live" for the
+  // moment the buttons were finally handed back — and since 2026-08-27 the
+  // film does neither: the copy and the CTAs are live at first paint and
+  // never move. A jump-to-state label that names a state the timeline no
+  // longer has is a debug panel lying about what it is showing, so both now
+  // name what actually happens on the stage at that time. Keys and times are
+  // unchanged; only the descriptions were wrong.
   beats: [
-    { key: 'wake',    label: 'Wake + copy',     time: 0.30 },
+    { key: 'wake',    label: 'Stage opens',     time: 0.30 },
     { key: 'detect',  label: 'Call detected',   time: 1.20 },
-    { key: 'act',     label: 'CTAs live',       time: 1.30 },
+    { key: 'act',     label: 'Signal lands',    time: 1.30 },
     { key: 'form',    label: 'Arch forms',      time: 2.05 },
     { key: 'answer',  label: 'Call answered',   time: 2.95 },
     { key: 'route',   label: 'Answer captured', time: 3.65 },
     { key: 'book',    label: 'Book → Text',     time: 4.80 },
-    { key: 'resolve', label: 'Captured lands',  time: 6.55 },
+    { key: 'resolve', label: 'Stage recedes',   time: 6.55 },
     { key: 'idle',    label: 'Living idle',     time: 6.60 },
   ],
 };
