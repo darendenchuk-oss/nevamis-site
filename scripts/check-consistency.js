@@ -307,6 +307,81 @@ for (const p of contentPages) {
   }
 }
 
+/* 7h. THE ADD-ON CATALOG ON pricing.html IS A HAND-TYPED LIST.
+
+      Guard 7 above validates the three PLANS against pricing-config.js and
+      stops there, so the four sellable add-ons and their eight published
+      figures sat in <ul id="addOnList"> as HTML literals that nothing
+      compared to anything. Found 2026-08-27 during a truth review: the
+      figures happened to be correct, which is the only reason this reads as
+      a near miss rather than an incident. It is the repo's standing defect
+      class -- a hand-maintained list drifts the first time the config moves
+      and no guard notices.
+
+      Every expectation below is DERIVED from window.NV_PRICING.addOns. No
+      figure is written into this file: copying the literals here would only
+      move the hand-maintained list into the checker, and the checker and the
+      page would then drift together and both look green.
+
+      Two directions, because an add-on can be wrong in two ways:
+        sellable       must state its own monthly AND its own one-time launch
+                       fee, matching the config exactly
+        not sellable   must NOT state a monthly, must carry a coming/not-yet
+                       marker, and must carry no Buy control. C$2,000 per
+                       campaign is a quote, not a subscription, and a reader
+                       who sees a price beside it reads it as purchasable. */
+{
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const cfg = w.NV_PRICING;
+  if (!cfg || !Array.isArray(cfg.addOns)) err("pricing-config.js: NV_PRICING.addOns not found");
+  else {
+    const ph = fs.readFileSync(path.join(root, "pricing.html"), "utf8");
+    const listMatch = ph.match(/<ul id="addOnList"[\s\S]*?<\/ul>/);
+    if (!listMatch) err('pricing.html: the <ul id="addOnList"> catalog is missing, so the add-on prices are unguarded');
+    else {
+      const items = listMatch[0].match(/<li>[\s\S]*?<\/li>/g) || [];
+      /* Money as the page writes it: C$1,000 not C$1000. One helper, used for
+         both the expectation and the error text, so a failure prints exactly
+         the string the page is missing. */
+      const money = (n) => "C$" + Number(n).toLocaleString("en-CA");
+      for (const a of cfg.addOns) {
+        const li = items.find((x) => x.includes(a.name));
+        if (!li) {
+          err('pricing.html #addOnList: add-on "' + a.name + '" is in pricing-config.js and not on the page. '
+            + "Every add-on the config carries must be listed, sellable or not: one that is missing is one nobody can price.");
+          continue;
+        }
+        const monthlyOnPage = li.match(/C\$([\d,]+)\/month\b/i);
+        const launchOnPage = li.match(/C\$([\d,]+)\s+launch\b/i);
+        const num = (x) => Number(String(x).replace(/,/g, ""));
+        if (a.sellable) {
+          if (!monthlyOnPage || num(monthlyOnPage[1]) !== a.monthly) {
+            err('pricing.html #addOnList "' + a.name + '": monthly differs from pricing-config.js. '
+              + 'expected "' + money(a.monthly) + '/month", page says "' + (monthlyOnPage ? monthlyOnPage[0] : "nothing") + '"');
+          }
+          if (!launchOnPage || num(launchOnPage[1]) !== a.launch) {
+            err('pricing.html #addOnList "' + a.name + '": one-time launch fee differs from pricing-config.js. '
+              + 'expected "' + money(a.launch) + ' launch", page says "' + (launchOnPage ? launchOnPage[0] : "nothing") + '"');
+          }
+        } else {
+          if (monthlyOnPage) {
+            err('pricing.html #addOnList "' + a.name + '": states ' + monthlyOnPage[0] + ' while pricing-config.js marks it sellable: false. '
+              + "A price beside an unshipped module is an offer to sell it.");
+          }
+          if (!/\bcoming\b|\bnot sellable\b|\bnot yet\b/i.test(li)) {
+            err('pricing.html #addOnList "' + a.name + '": pricing-config.js marks it sellable: false and the page does not say so. '
+              + 'It needs a "coming" or "not sellable" marker a reader cannot miss.');
+          }
+          if (/signup\?plan=|data-evt="plan_buy_click"|>Buy now</i.test(li)) {
+            err('pricing.html #addOnList "' + a.name + '": carries a Buy control while pricing-config.js marks it sellable: false.');
+          }
+        }
+      }
+    }
+  }
+}
+
 /* 7z. The inlined stylesheet must equal its sources.
 
        assets/motion/site.css and assets/fonts/fonts.css are still the files

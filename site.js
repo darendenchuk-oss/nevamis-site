@@ -353,7 +353,6 @@
       applyMotionLabel();
     });
   }
-  function motionAllowed() { return !document.documentElement.classList.contains("motion-off"); }
 
   /* ---------- scroll reveals (content visible without JS via .no-js) ---------- */
   var reveals = document.querySelectorAll(".reveal");

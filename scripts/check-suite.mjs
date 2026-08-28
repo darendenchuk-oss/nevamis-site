@@ -28,7 +28,7 @@
    1 = something is wrong with the run
    2 = could not tell (offline, or no remote branch) - the house "waiting" code
    ============================================================ */
-import { execFileSync, execSync } from "node:child_process";
+import { execFileSync, execSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -111,6 +111,27 @@ if (report) {
     }
     if (!fail) console.log(`suite: ${collected.size} spec file(s), all tracked and all collected.`);
   }
+}
+
+/* ---------- limb 1b: can the builders still reproduce the pages? ----------
+   A different question from the two below, and it belongs here for the same
+   reason they do: it is a way for a green run to be lying. scripts/
+   build-content.mjs overwrites nine pages whole, and on 2026-08-27 the
+   checked-in copies had drifted far enough that running the documented build
+   command would have deleted live copy from all nine and reported success.
+   Delegated rather than reimplemented: check-generator-drift.mjs owns the
+   restore, and two copies of a routine that runs builders and then
+   `git checkout --` is one copy too many. Its exit codes are this file's:
+   0 clean, 1 drift, 2 cannot tell. */
+try {
+  const r = spawnSync(process.execPath, [path.join(root, "scripts", "check-generator-drift.mjs")],
+    { cwd: root, encoding: "utf8" });
+  const out = ((r.stdout || "") + (r.stderr || "")).trim();
+  if (r.status === 0) { if (out) console.log(out); }
+  else if (r.status === 2) wait("generator drift could not be checked.\n" + out);
+  else err("the builders no longer reproduce the committed pages.\n" + out);
+} catch (e) {
+  wait(`could not run check-generator-drift.mjs (${String(e.message).split("\n")[0].slice(0, 120)}).`);
 }
 
 /* ---------- limb 2: are those files current? ---------- */
