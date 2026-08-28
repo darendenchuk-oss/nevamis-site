@@ -345,12 +345,29 @@ for (const p of contentPages) {
       The per-page em-dash rule reads static HTML, so copy injected by
       site.js was invisible to it, and site.js was shipping one. */
 {
+  /* WHO a caller could be handed to. One vocabulary, shared by the patterns
+     below, so a new way of naming the person on the other end is added once
+     rather than in each rule that cares. */
+  const PERSON = "(?:on-call\\s+(?:tech(?:nician)?|number|crew|team|person|line)"
+    + "|person\\s+on\\s+call|technician|dispatcher|team\\s+member"
+    + "|live\\s+(?:person|agent|operator)|human"
+    + "|your\\s+(?:cell|mobile|phone|team|crew)|a\\s+person|the\\s+person)";
   const TRANSFER_PROMISE = [
     /\btransfer(?:s|red|ring)?\b/i,
     /\bpatch(?:es|ing)?\s+(?:you|them|the caller)\s+through\b/i,
     /\bput(?:s|ting)?\s+(?:you|them|the caller)\s+through\b/i,
     /\bconnect(?:s|ing)?\s+(?:you|them|the caller)\s+(?:to|with)\b/i,
     /\b(?:stay|hold)\s+on\s+the\s+line\b/i,
+    /* ESCALATION WITHOUT THE WORD "TRANSFER". coming-soon.html said "the call
+       escalates to the on-call tech" and no pattern above saw it: it promises
+       the same thing in vocabulary the rule did not know. The distinction that
+       makes this safe to guard is the DESTINATION, not the verb. Escalating is
+       honest and this site says so nineteen times ("Urgent calls escalate",
+       "escalate by your rules", "Active loss is escalated, not queued") -- none
+       of which names a person to escalate TO. Requiring a person after "to" is
+       what separates the promise from the process, and it fires on nothing in
+       the current tree. */
+    new RegExp("\\bescalat\\w*\\s+(?:straight\\s+)?to\\s+(?:the|your|a)?\\s*" + PERSON, "i"),
   ];
   /* Constructions that WITHDRAW the claim in the clause that makes it. The
      site's own correction is the first entry's job; the rest are the shapes
@@ -369,7 +386,14 @@ for (const p of contentPages) {
   const promises = (c) => TRANSFER_PROMISE.some((r) => r.test(c));
   const denies = (c) => TRANSFER_DENIAL.some((r) => r.test(c));
 
-  const jsSurfaces = ["site.js", "motion.js"];
+  /* pricing-config.js and roadmap-config.js are page surfaces, not data.
+     Their string values are rendered into pricing.html and coming-soon.html
+     by JavaScript at runtime, so the per-page HTML rules never saw them --
+     which is exactly how nine em dashes reached visitors and had to be swept
+     by hand on 2026-08-27. Guarded here so the sweep does not have to happen
+     twice. Their COMMENTS are excluded like every other file's: the header of
+     pricing-config.js is full of em dashes and is not copy. */
+  const jsSurfaces = ["site.js", "motion.js", "pricing-config.js", "roadmap-config.js"];
   for (const d of ["assets/motion"]) {
     const abs = path.join(root, d);
     if (fs.existsSync(abs)) for (const f of fs.readdirSync(abs)) if (f.endsWith(".js")) jsSurfaces.push(d + "/" + f);
