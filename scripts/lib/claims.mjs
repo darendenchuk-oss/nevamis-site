@@ -378,3 +378,148 @@ export function offendingClause(text, re, { allowQuestions = false } = {}) {
 }
 
 export const statesBanned = (text, re, opts) => offendingClause(text, re, opts) !== null;
+
+/* ============================================================
+   DOES THIS TEXT CLAIM NEVAMIS BOOKS SOMETHING? — IN ANY VOICE
+
+   THE DEFECT THIS EXISTS FOR. On 2026-08-09 the ACTIVE-voice booking claims
+   were removed from this site, and the sibling engine's entitlement registry
+   was given four patterns to stop them coming back. Every one of those four
+   required Nevamis to be the grammatical SUBJECT. On 2026-08-10 the booking
+   claims still being served from nevamis.ca were run against them and twelve
+   of twelve missed:
+
+     "callers qualified, jobs booked"                (og:description)
+     "the visit is booked and confirmed"             (home)
+     "Routine requests get booked into an open slot" (home)
+     "the job books before the caller tries..."      (home)
+     "Booked, confirmed, texted to you."             (home)
+     "You're booked for tomorrow between eight..."   (the demo transcript)
+     "answered, triaged, and booked"                 (the hvac blurb, five pages)
+     "An appointment is booked ... (Live today.)"    (coming-soon)
+
+   `npm run consistency` exited 0 over all 22 pages the whole time, and a
+   green claim gate that cannot see the claim is worse than no gate: it is the
+   evidence somebody cites.
+
+   WHY IT IS HERE AS WELL AS IN THE ENGINE. The engine's registry is the
+   authority on WHAT may be claimed, and it now reads every voice. It reads one
+   LINE at a time, though, and published HTML is hard-wrapped — which is the
+   second reason "answered, qualified, and\n booked is a job" survived the
+   2026-08-09 sweep. This guard reads the RENDERED page: tags stripped,
+   whitespace collapsed, so a claim cannot hide in a line break. It also runs
+   in the repository that actually publishes the pages, which has no CI of its
+   own and where node scripts/check-consistency.js is the only machine that was
+   ever going to look.
+
+   THE DISTINCTION IT HAS TO PRESERVE is WHO IS BOOKING. A looser
+   "calendar ... booking" rule was tried in the engine on 2026-08-09 and
+   removed within the hour because it matched "Client connects calendar and
+   confirms booking rules" — the client wiring up their OWN booking link, which
+   is the honest thing this product asks for at onboarding. So: every pattern
+   below keys on the booking VERB and none of them keys on the bare noun
+   "booking", and BOOKED_BY_SOMEONE_ELSE names the subjects who may
+   legitimately be holding it.
+   ============================================================ */
+
+export const BOOKING_IN_ANY_VOICE = [
+  /* Active, Nevamis as subject. */
+  /\bbook(?:s|ed|ing)?\b[^.\n]{0,60}\b(?:your|their|the client'?s?|a connected|the connected)\s+calendar\b/i,
+  /\bbooks?\s+(?:real\s+|the\s+|an?\s+|your\s+|their\s+|available\s+|open\s+|any\s+|more\s+)*(?:appointments?|jobs?|visits?|assessments?|estimates?|slots?|tune[- ]?ups?)\b/i,
+  /\b(?:nevamis|the\s+(?:agent|assistant|receptionist)|it|we|this)\b[^.\n]{0,40}\bbooks?\s+(?:them|it)\b/i,
+  /\bbook(?:s|ed|ing)?\b[^.\n]{0,40}\bwhile (?:they|the caller) (?:are|is) still on the (?:line|phone)\b/i,
+
+  /* Passive and pronoun — the eight forms that were live on 2026-08-10. */
+  /\b(?:is|are|was|were|being|gets?|got|getting)\s+(?:then\s+|already\s+|automatically\s+|straight\s+|normally\s+|properly\s+|promptly\s+)*booked\b/i,
+  /(?:you|they|it|we)\s*['’]re\s+booked\b/i,
+  /\bbooked\s+(?:straight\s+|right\s+|directly\s+)?into\b/i,
+  /\b(?:answered|qualified|triaged|screened|captured|greeted)\b[^.\n|]{0,45}(?:\band\s+booked\b|,\s*(?:jobs?|appointments?|visits?|tune[- ]?ups?)\s+booked\b)/i,
+  /\bbooked\b[^.\n]{0,24}\btexted\b/i,
+  /\bbooked\b[\s:,-]*(?:for\s+)?(?:tomorrow|today|tonight|this\s+(?:morning|afternoon|evening|week)|next\s+\w+|mon|tues?|wed(?:nes)?|thurs?|fri|sat(?:ur)?|sun)(?:day)?\b/i,
+  /\bbooked\b[\s:,-]*(?:for\s+)?\d{1,2}(?::\d{2})?\s*(?:[ap]\.?m\.?|o'?clock|[–—-]\s*\d)/i,
+  /\b(?:the|a|your|their|that|this)\s+(?:job|appointment|visit|work)\s+books?\b/i,
+  /\b(?:becomes?|becoming|turns?\s+into|turned\s+into|into)\s+(?:an?\s+)?booked\s+(?:job|appointment|visit)\b/i,
+
+  /* The claim with the verb removed altogether. "The visit sits in your
+     calendar and the summary sits on your phone" was on the homepage on
+     2026-08-10 and says the same thing as "we book it" without using the
+     word, which is precisely the gap a word-shaped guard leaves. */
+  /\b(?:sits?|lands?|appears?|shows?\s+up|goes?|drops?)\s+(?:straight\s+)?(?:in|into|onto|on)\s+(?:your|their|the client'?s?)\s+calendar\b/i,
+];
+
+/* WHO IS BOOKING, when it is not Nevamis. */
+export const BOOKED_BY_SOMEONE_ELSE = [
+  /* The noun, never the verb. This is the exact shape the 2026-08-09 rule died
+     on and no pattern above keys on it; naming it here makes the exemption a
+     decision rather than an accident. */
+  /\bbooking\s+(?:rules?|links?|pages?|preferences?|windows?|policy|policies|software|tool|system|flows?)\b/i,
+  /\b(?:connects?|connected|connecting|links?|linked|shares?|shared|gives?|gave|sends?|sent)\b[^.\n]{0,40}\b(?:your|their|the client'?s?)\s+(?:calendar|booking\s+\w+|availability)\b/i,
+  /* A person on the client's side, or the competitor who got there first. */
+  /\b(?:you|your\s+(?:office|team|staff|dispatcher|scheduler|coordinator)|the\s+(?:owner|client|business|dispatcher|office)|a\s+person|somebody|someone|whoever|whichever)\b[^.\n]{0,24}\bbooks?\b/i,
+  /\bbook\w*\b[^.\n]{0,16}\b(?:by\s+hand|manually|yourself|themselves)\b/i,
+  /* Time with NEVAMIS, on Nevamis's own Cal.com — the one calendar this
+     business really does write to, and what /book.html is for. */
+  /\bbook(?:s|ed|ing)?\s+(?:a|an|your|the|my|their)\s+(?:\d+[- ]?(?:min(?:ute)?s?|hour)\s+)?(?:intro\s+|sales\s+|discovery\s+|strategy\s+|fifteen[- ]minute\s+|15[- ]min(?:ute)?\s+)?(?:call|demo|chat|meeting|walkthrough)\b/i,
+  /\b(?:meetings?|intro\s+calls?|sales\s+calls?|discovery\s+calls?|strategy\s+calls?|demos?)\s+(?:is|are|was|were|gets?|got)\s+booked\b/i,
+  /* "booked" as a stored OUTCOME VALUE, or as the client's own arithmetic.
+     The missed-call calculator asks how many booked jobs cover the plan; those
+     are the client's jobs, won however they win them. */
+  /\bwhether\s+(?:it|they|the\s+\w+)\s+(?:was|were|got|is|are)\s+booked\b/i,
+  /\bhow\s+many\s+booked\s+(?:jobs?|appointments?)\b/i,
+];
+
+/* A capability described as unbuilt, planned or refused. Separate from DENIAL
+   because DENIAL is about withdrawing an OFFER — "retired", "never quote" —
+   and this is about MECHANISM. The comparison table row "Books straight into
+   your calendar | No | Sometimes | Not built: you confirm" is the reason: it
+   states the claim in order to refuse it, in the column that refuses it, and a
+   guard that reddens that row teaches the next person to delete the honest
+   answer. Same reasoning as the engine's sentenceIsForwardLooking. */
+export const BOOKING_UNBUILT = [
+  /\bnot\s+(?:yet\s+)?built\b/i, /\bnot\s+live\b/i, /\bnot\s+available\b/i,
+  /\bon\s+the\s+roadmap\b/i, /\bplanned\b/i, /\bin\s+development\b/i,
+  /\bnot\s+yet\b/i, /\bnot\s+for\s+sale\b/i, /\bno\s+client\b/i,
+  /\bnothing\s+books\b/i, /\bcannot\s+book\b/i, /\bwould\s+do\b/i,
+];
+
+/* Mechanism refusals DENIAL does not carry, because DENIAL is about offers and
+   these are about what the software does. "never that it is already booked" is
+   the homepage telling the truth about what the caller is told, and it has to
+   survive being read by a rule that hunts the words "is booked". */
+const BOOKING_REFUSED =
+  /\b(?:never|nothing\s+(?:is|was)\s+booked|does\s*n[o']?t|do\s*n[o']?t|did\s+not|is\s*n[o']?t|are\s*n[o']?t|cannot|can'?t|will\s+not|won'?t|no\s+booking|instead\s+of)\b/i;
+
+/** The visible text of a rendered page, as one whitespace-normalised string.
+
+    Comments go BEFORE tags, so a comment explaining why a claim was removed —
+    and every removal in this repository leaves one — is not read as the page
+    making it. That trap has already been paid for once in the sibling engine's
+    validator; it is not being paid for twice. */
+export const renderedText = (html) => html
+  .replace(/<!--[\s\S]*?-->/g, " ")
+  .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, " ")
+  .replace(/<[^>]+>/g, " ")
+  .replace(/&nbsp;|&#160;/gi, " ")
+  .replace(/&#39;|&apos;/gi, "'")
+  .replace(/&amp;/gi, "&")
+  .replace(/\s+/g, " ");
+
+/** The sentence that claims Nevamis books something, or null.
+
+    Sentence-scoped on purpose, and that is the one place this differs from
+    offendingClause above. Agency is a property of the whole statement: the
+    subject sits in one clause and the verb in the next in every real example
+    here ("Client connects calendar and confirms booking rules"), so judging a
+    clause alone re-creates the false positive that got the first version of
+    this rule deleted. */
+export function bookingClaim(text) {
+  for (const sentence of splitSentences(text)) {
+    if (!BOOKING_IN_ANY_VOICE.some((re) => re.test(sentence))) continue;
+    if (BOOKED_BY_SOMEONE_ELSE.some((re) => re.test(sentence))) continue;
+    if (BOOKING_UNBUILT.some((re) => re.test(sentence))) continue;
+    if (DENIAL.some((re) => re.test(sentence))) continue;
+    if (BOOKING_REFUSED.test(sentence)) continue;
+    return sentence.trim();
+  }
+  return null;
+}

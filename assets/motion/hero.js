@@ -1,7 +1,8 @@
 /* ============================================================
    NEVAMIS HERO — the opening sequence
    One master timeline tells one story: a call arrives, Nevamis
-   answers it, qualifies it, books it, and texts the details.
+   answers it, qualifies it, captures the time they want, and texts
+   the details.
    Everything the viewer sees is a state of that story; nothing
    moves for decoration.
 
@@ -24,7 +25,7 @@
      1.50  the mark's arch draws from both ends, tips carrying light
      2.55  the tips merge at the apex — flare, bloom, the mark is one
      2.75  CALL ANSWERED exhales into place (tracking settles)
-     3.40  the story routes: ANSWER → QUALIFY → BOOK → TEXT (0.55s beats)
+     3.40  the story routes: ANSWER → QUALIFY → CAPTURE → TEXT (0.55s beats)
      5.70  the stage RECEDES (depth exit, never fighting the rising
            headline), "captured." lands with its underline, the CTAs
            pulse once
@@ -50,8 +51,14 @@ import { MOTION, prefersReduced, isFinePointer, onVisibility } from './tokens.js
 const STEPS = [
   { label: 'ANSWER',  frag: 'caller intent',     x: 199 },
   { label: 'QUALIFY', frag: 'service type',      x: 273 },
-  { label: 'BOOK',    frag: 'preferred time',    x: 347 },
-  { label: 'TEXT',    frag: 'booking confirmed', x: 421 },
+  /* 'BOOK' / 'booking confirmed' until 2026-08-10. A provisioned tenant
+     agent gets end_call and no booking tool, so the third beat named a thing
+     that cannot happen and the fourth reported it as confirmed. The beats
+     themselves were always real: the agent does take the preferred time, and
+     the summary really is sent. Mirrored in home.html's inline #story SVG,
+     which is what a visitor sees before this module loads. */
+  { label: 'CAPTURE', frag: 'preferred time',    x: 347 },
+  { label: 'TEXT',    frag: 'summary sent',      x: 421 },
 ];
 
 /* The routing rhythm. 0.42s per state left each label fully readable for
@@ -193,7 +200,7 @@ export function initHero() {
 
        So the reduced view is the story's LAST beat, in the position the
        artwork already gives it: the arc closed, the dot at rest, "CALL
-       ANSWERED", "TEXT / booking confirmed", and all four progress segments
+       ANSWERED", "TEXT / summary sent", and all four progress segments
        filled. That is a completed call, which is exactly what the animation
        spends nine seconds arriving at.
 
@@ -444,7 +451,7 @@ export function initHero() {
       tl.to(stepEls[i], { opacity: 0, x: -14, duration: LABEL_OUT, ease: 'power2.in' }, at + LABEL_OUT_AT);
     }
   });
-  // TEXT — "booking confirmed", the payoff state — holds a full beat.
+  // TEXT — "summary sent", the payoff state — holds a full beat.
   tl.to(packet, { opacity: 0, duration: 0.2 }, 5.5);
 
   // --- 5.7–6.5 · clear the stage and hand the frame back ------------

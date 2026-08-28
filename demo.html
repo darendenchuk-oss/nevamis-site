@@ -814,7 +814,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2>Three ways to push it.</h2>
       </div>
       <div class="proc">
-        <div class="reveal"><h3>Book something awkward</h3><p>Ask for an appointment at a specific time and see how it handles scheduling.</p></div>
+        <div class="reveal"><h3>Ask for an awkward time</h3><p>Ask for an appointment at a specific time and see how it handles scheduling.</p></div>
         <div class="reveal"><h3>Change your mind mid-call</h3><p>Give a detail, then change it halfway through. A real receptionist keeps up. So should this.</p></div>
         <div class="reveal"><h3>Ask something it should not answer</h3><p>Push for a price it has not been given. It should hold the line without making things up.</p></div>
       </div>
@@ -827,7 +827,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="section-head reveal">
         <p class="eyebrow mono">Example call</p>
         <h2>What a Nevamis agent sounds like on a client's line.</h2>
-        <p>An illustrative booking call for a fictional electrical company, with real AI voices.</p>
+        <p>An illustrative service call for a fictional electrical company, with real AI voices.</p>
       </div>
       <div class="call-grid">
         <div class="call-card reveal" id="callCard" aria-label="Example call with playable audio and transcript">
@@ -874,9 +874,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             <span class="who mono">Caller</span>
             <p>114 Cedar Lane.</p>
           </div>
-          <div class="line agent">
+          <!-- TEXT-ONLY TURN. See the same block in home.html: call-8.mp3
+               says something the product does not do, the mp3s have no
+               generation script, and re-recording is an owner step. The audio
+               was dropped from this line on 2026-08-03 and the words were
+               corrected again on 2026-08-10. Do not restore data-audio here
+               without re-recording the file. -->
+          <div class="line agent" data-text-only="call-8.mp3 not re-recorded">
             <span class="who mono">Cedarview AI</span>
-            <p>Thanks. You're booked for tomorrow between eight and ten, and I have your number if anything changes.</p>
+            <p>Thanks. I have you down for tomorrow between eight and ten, and someone will confirm that window with you shortly.</p>
           </div>
           <div class="line caller" data-audio="assets/call-9.mp3">
             <span class="who mono">Caller</span>
@@ -886,13 +892,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             <span class="who mono">Cedarview AI</span>
             <p>You're welcome. We'll see you tomorrow.</p>
           </div>
-          <p class="foot-note">Illustrative call, fictional company. Real AI voices.</p>
+          <p class="foot-note">Illustrative call, fictional company. Real AI voices. One agent turn is shown as text only: the recording for it made a claim the product cannot keep and has not been re-cut.</p>
         </div>
         <div class="owner-card reveal">
           <h3>After every call, the business gets</h3>
           <div class="sms" role="img" aria-label="Example text message summary sent to the business owner">
             <span class="mono">NEVAMIS SUMMARY · 8:42 PM</span>
-            New booking: dead kitchen outlets (partial circuit). Booked tomorrow 8:00 AM, $95 service visit quoted per your price sheet. Caller: Mike, 780-555-0142. He called 3 competitors first. Nobody answered.
+            New job: dead kitchen outlets (partial circuit). Wants tomorrow 8:00 AM, $95 service visit quoted per your price sheet. Caller told you will confirm the window. Caller: Mike, 780-555-0142. He called 3 competitors first. Nobody answered.
           </div>
           <p class="note">Example summary for the illustrative call. Your format, destination, and level of detail are configured with you.</p>
           <div class="midcta">

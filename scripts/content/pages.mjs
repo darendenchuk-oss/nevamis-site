@@ -62,9 +62,15 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
     <div class="section-head reveal">
       <p class="eyebrow mono">Urgency handled properly</p>
       <h2>${urgency}</h2>
+      <!-- "what gets booked" until 2026-08-10. The 2026-08-09 pass removed the
+           ACTIVE booking claims from this file and left every passive one
+           standing, on four trade pages at once, because the entitlement gate
+           could only recognise Nevamis as a grammatical subject. A passive
+           promise is still a promise: nothing books, so the third thing you
+           decide is what gets written up for you to confirm. -->
       <p>${afterHours} For anything outside the rules you approved, it takes a message and
         flags the summary rather than inventing an answer. You decide what gets escalated,
-        what gets booked, and what waits until morning.</p>
+        what gets written up for you to confirm, and what waits until morning.</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-ghost" href="/pilot.html" data-evt="trade_start_click">See how you start</a>
@@ -93,7 +99,7 @@ export const PAGES = {
         { t: 'Emergency triage', d: 'Sparks, heat, or burning smell escalate by your rules.' },
         { t: 'Quotes and upgrades', d: 'Panel upgrades and rewires captured as leads with the details you need.' },
         { t: 'Service-call pricing', d: 'Only the diagnostic or trip fee you approve, quoted the same way every time.' },
-        { t: 'Service area', d: 'Out-of-area callers are told honestly instead of being booked and cancelled.' },
+        { t: 'Service area', d: 'Out-of-area callers are told honestly instead of being strung along and cancelled on.' },
         { t: 'Permits and inspections', d: 'Common questions answered from your approved FAQ, not improvised.' },
       ],
     }),
@@ -101,7 +107,12 @@ export const PAGES = {
 
   'hvac.html': {
     h1: 'The 11 PM no-heat call, answered',
-    lede: `A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, books the visit, and sends you the summary.`,
+    /* "books the visit" until 2026-08-10. Same defect as restoration.html's
+       "books the assessment" a day earlier, and it survived that sweep only
+       because the object was "the visit" and the guard's object list was
+       "appointments|jobs|the job". Nothing books: no tenant agent has a
+       booking tool or a calendar credential. */
+    lede: `A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, takes the visit details and the time they want, and sends you the summary.`,
     body: tradeBody({
       trade: 'heating and cooling',
       whenItRings: 'Your busiest calls arrive at the worst possible hour.',
@@ -111,11 +122,11 @@ export const PAGES = {
       urgency: 'No heat with a newborn in the house is a different call.',
       afterHours: `You define what an emergency means for your business: a temperature
         threshold, no heat at all, vulnerable occupants, or a commercial account. Calls that
-        meet it transfer to your on-call tech. Everything else is booked into the first slot
-        your calendar actually has.`,
+        meet it transfer to your on-call tech. Everything else is written up with the time
+        they asked for, ready for you to confirm.`,
       jobs: [
         { t: 'No-heat and no-cool calls', d: 'Triaged by your emergency criteria, not a generic script.' },
-        { t: 'Seasonal tune-ups', d: 'Booked straight into open slots without interrupting anyone.' },
+        { t: 'Seasonal tune-ups', d: 'Taken down with the window they want, without interrupting anyone.' },
         { t: 'Maintenance plans', d: 'Existing plan holders recognised and handled by your rules.' },
         { t: 'Equipment questions', d: 'Answered from your approved FAQ, or taken as a message.' },
         { t: 'Diagnostic fee', d: 'Quoted exactly as you set it, every time.' },
@@ -126,7 +137,10 @@ export const PAGES = {
 
   'plumbers.html': {
     h1: 'Burst pipes and blocked drains, answered',
-    lede: `Burst pipes, blocked drains, and no hot water. The calls that cannot wait are the ones you are least able to answer. Nevamis answers them, qualifies them, and books them.`,
+    /* "and books them" until 2026-08-10 — active voice with a PRONOUN object,
+       which is why the 2026-08-09 rule walked past it: that rule required the
+       object to be spelled "appointments", "jobs" or "the job". */
+    lede: `Burst pipes, blocked drains, and no hot water. The calls that cannot wait are the ones you are least able to answer. Nevamis answers them, qualifies them, and texts you the details in seconds.`,
     body: tradeBody({
       trade: 'plumbing',
       whenItRings: 'Water damage does not leave a voicemail and wait.',
@@ -135,11 +149,11 @@ export const PAGES = {
         details.`,
       urgency: 'Active flooding gets treated as active flooding.',
       afterHours: `Active water gets your emergency path immediately. Slow drains and
-        fixture replacements get booked normally. You set the line between the two, and it
-        holds on every call at every hour.`,
+        fixture replacements are written up as ordinary jobs. You set the line between the
+        two, and it holds on every call at every hour.`,
       jobs: [
         { t: 'Emergency leaks', d: 'Shut-off guidance from your approved script, then escalation.' },
-        { t: 'Drains and blockages', d: 'Qualified and booked with the details your tech needs.' },
+        { t: 'Drains and blockages', d: 'Qualified and written up with the details your tech needs.' },
         { t: 'Hot water tanks', d: 'Age, type, and symptoms captured before anyone drives out.' },
         { t: 'Renovation quotes', d: 'Captured as leads rather than lost to voicemail.' },
         { t: 'Trip and diagnostic fees', d: 'Quoted consistently, exactly as you approve them.' },
@@ -213,9 +227,16 @@ export const PAGES = {
     <div class="section-head reveal">
       <p class="eyebrow mono">Why not just voicemail</p>
       <h2>Voicemail records the lost job. It does not save it.</h2>
+      <!-- "answered, qualified, and booked is a job" until 2026-08-10. The
+           participle sat on the far side of a line break, which is the second
+           reason this one survived: the registry reads one LINE at a time, so
+           a wrapped claim is two half-sentences to it. The published-page
+           guard in scripts/check-consistency.js normalises whitespace before
+           it reads, precisely so a line break can never hide a claim again. -->
       <p>By the time you play a message back the next morning, the caller has usually already
         reached somebody who picked up. An after-hours call that gets answered, qualified, and
-        booked is a job. The same call sent to voicemail is a note about a job you did not get.</p>
+        written down is a job you can still win. The same call sent to voicemail is a note about
+        a job you did not get.</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-ghost" href="/vs-voicemail.html" data-evt="situation_compare_click">Compare it to voicemail</a>

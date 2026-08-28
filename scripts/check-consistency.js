@@ -27,7 +27,7 @@ import { applySelfCta } from "./lib/nav-cta.mjs";
    its own fixture table, and fixtures cannot import it from this file without
    running every filesystem guard below as a side effect. See that file for the
    scope rule; see scripts/check-claims-classifier.mjs for the fixtures. */
-import { DENIAL, ADDITIVE, RETIRED_OFFERS, statesBanned, offendingClause } from "./lib/claims.mjs";
+import { DENIAL, ADDITIVE, RETIRED_OFFERS, statesBanned, offendingClause, bookingClaim, renderedText } from "./lib/claims.mjs";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
    had no shared chrome, and that exemption is exactly why its hand-copied nav
@@ -1181,6 +1181,95 @@ for (const p of contentPages) {
   }
 }
 
+/* 16. NO PUBLISHED PAGE MAY CLAIM NEVAMIS BOOKS ANYTHING, IN ANY VOICE.
+
+   THE FAILURE THIS WOULD HAVE CAUGHT, one day earlier. On 2026-08-09 the
+   active-voice booking claims were removed from this site and a registry of
+   four patterns was added to the sibling engine to stop them returning. Every
+   one of those patterns required Nevamis to be the grammatical SUBJECT. On
+   2026-08-10 the booking claims still being SERVED from nevamis.ca were run
+   against them, and twelve of twelve missed:
+
+     og:description        "callers qualified, jobs booked"
+     home.html             "the visit is booked and confirmed"
+     home.html             "Routine requests get booked into an open slot"
+     home.html             "the job books before the caller tries the next name"
+     home.html             "Booked, confirmed, texted to you."
+     home + demo           "You're booked for tomorrow between eight and ten"
+     five pages            "answered, triaged, and booked"
+     coming-soon.html      "An appointment is booked ... (Live today.)"
+
+   `npm run consistency` printed "no banned phrases" over all 22 pages the
+   whole time. That is the specific thing this guard exists to make impossible:
+   a green claim gate is otherwise proof of nothing, and it is the proof
+   somebody cites.
+
+   WHY IT READS THE RENDERED PAGE. The engine's registry now reads every voice,
+   but it reads one LINE at a time, and published HTML is hard-wrapped. That is
+   the second reason "an after-hours call that gets answered, qualified, and\n
+   booked is a job" survived the 2026-08-09 sweep — the participle was on the
+   far side of a line break, so no line-scoped reader could see the sentence.
+   `renderedText` strips tags and collapses whitespace first, so a claim cannot
+   hide in the way the source happens to be formatted.
+
+   SCOPE is every .html Jekyll publishes, derived the same way rule 7b derives
+   it, plus llms.txt — which is the page written FOR answer engines and is
+   therefore the one most likely to be quoted back with no page around it.
+   Deliberately not the kit or the agent prompts: those live in other
+   repositories on this disk and are corrected on their own schedule, and a red
+   command nobody here can fix is a command that stops being read. The engine's
+   validator covers them.
+
+   WHAT IT MUST NOT DO is forbid the honest sentence. Nevamis really does book
+   time on its own Cal.com (/book.html is nothing else), the client really is
+   asked to confirm booking rules at onboarding, and the comparison table
+   really does have to write "Books straight into your calendar" in order to
+   answer it "Not built: you confirm". scripts/lib/claims.mjs holds that
+   distinction and scripts/check-claims-classifier.mjs proves both directions
+   of it on fixtures. */
+{
+  const cfg = fs.readFileSync(path.join(root, "_config.yml"), "utf8");
+  const excluded = new Set(
+    cfg.split(/\r?\n/)
+      .map((l) => (l.match(/^\s*-\s+(\S+)\s*$/) || [])[1])
+      .filter(Boolean)
+      .map((e) => e.replace(/\/$/, ""))
+  );
+  const published = fs.readdirSync(root)
+    .filter((f) => f.endsWith(".html") && !excluded.has(f));
+
+  /* A sweep that reads nothing must never be able to print OK. Every truth gap
+     found on this site so far was a page missing from a list. */
+  if (published.length < contentPages.length) {
+    err(`booking-claim sweep found ${published.length} published pages, fewer than the `
+      + `${contentPages.length} content pages — it is reading less than the site serves`);
+  }
+
+  let sweptChars = 0;
+  const sweep = (label, text) => {
+    sweptChars += text.length;
+    const claim = bookingClaim(text);
+    if (claim) {
+      err(`${label}: claims Nevamis books something.\n`
+        + `       "${claim.slice(0, 160)}"\n`
+        + `       A provisioned agent is created with built_in_tools {end_call} and no tool_ids,\n`
+        + `       and no tenant calendar credential exists in the schema, so nothing books for a\n`
+        + `       client in any voice: not "we book it", not "it is booked", not "jobs booked".\n`
+        + `       What is true: it takes the job, the address and the time they want, tells the\n`
+        + `       caller a person will confirm that time, and texts the owner within seconds.\n`
+        + `       Booking time WITH Nevamis on /book.html is a different thing and stays sayable —\n`
+        + `       see BOOKED_BY_SOMEONE_ELSE in scripts/lib/claims.mjs.`);
+    }
+  };
+
+  for (const f of published) sweep(f, renderedText(fs.readFileSync(path.join(root, f), "utf8")));
+
+  const llms = path.join(root, "llms.txt");
+  if (fs.existsSync(llms)) sweep("llms.txt", fs.readFileSync(llms, "utf8").replace(/\s+/g, " "));
+
+  if (sweptChars === 0) err("the booking-claim sweep read zero characters — it proves nothing");
+}
+
 /* 11. index.html must BE the promotion of the current home.html.
    home.html is the staging twin everyone edits; index.html is what the world
    loads. The only thing joining them is remembering to run promote.mjs by
@@ -1347,7 +1436,7 @@ for (const p of contentPages) {
   }
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no raw query string reaches telemetry, every documented proposal link names a real plan.");
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, no booking claim in any voice, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no raw query string reaches telemetry, every documented proposal link names a real plan.");
 /* 1 = something here is broken. 2 = nothing here is broken but the live
    phone agent needs a change only the owner can make. 0 = clean. */
 if (fail === 0 && waiting > 0) console.error(`

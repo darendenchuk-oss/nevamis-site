@@ -1023,7 +1023,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <ol class="reveal">
         <li><strong>The front desk answers</strong> in seconds, any hour. (Live today.)</li>
         <li><strong>Service area and urgency are checked</strong> against the company's approved rules. (Live today.)</li>
-        <li><strong>An appointment is booked</strong> or the call escalates to the on-call tech. (Live today.)</li>
+        <!-- Read "An appointment is booked ... (Live today.)" until 2026-08-10,
+             which is the worst place on the site for it: this page exists to
+             separate what is live from what is planned, so its status label is
+             the one a reader trusts most. Nothing books: a provisioned agent
+             has no booking tool and no tenant calendar credential, so the
+             live half is the capture and the escalation, and the booking half
+             is Planned like the rest of the connected journey. -->
+        <li><strong>The job, the address and the time they want are written down</strong> and the caller is told a person will confirm that time, or the call escalates to the on-call tech. (Live today.)</li>
+        <li><strong>The appointment lands in the company's calendar</strong> without anyone re-typing it. (Planned.)</li>
         <li><strong>The customer record updates</strong> automatically with the call summary. (Planned.)</li>
         <li><strong>The customer gets confirmation</strong> by text. (Built, and off until a business turns it on.)</li>
         <li><strong>The owner gets the summary.</strong> (Live today.)</li>

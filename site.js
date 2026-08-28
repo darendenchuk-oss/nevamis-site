@@ -393,7 +393,10 @@
       { s: "ANSWERED IN SECONDS", c: "Nevamis picks up in the business's own tone.", q: "“Prairie Mechanical, how can I help you tonight?”", agent: true },
       { s: "LISTENING", c: "The caller explains. The facts are captured as they speak.", q: "“Our furnace just died and it’s minus twenty out.”" , facts: true },
       { s: "ACTION TAKEN", c: "Emergency rule passes. The on-call tech is locked in.", q: null, facts: true, book: true },
-      { s: "CALL COMPLETE · BOOKED", c: "Work never stopped. The owner knows everything.", q: null, facts: true, book: true, owner: true }
+      /* "CALL COMPLETE · BOOKED" until 2026-08-10. The state before it says
+         the on-call tech is locked in, which is true and is a transfer, not a
+         booking. Nothing this agent does writes to a calendar. */
+      { s: "CALL COMPLETE · CAPTURED", c: "Work never stopped. The owner knows everything.", q: null, facts: true, book: true, owner: true }
     ];
     var thTimer = null, thIdx = -1, thRunning = false;
     function thCard(el, on) {

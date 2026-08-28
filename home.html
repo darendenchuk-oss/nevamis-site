@@ -8,7 +8,11 @@
 <meta name="robots" content="noindex, nofollow"><!-- staging: flip to index,follow at promotion -->
 <link rel="canonical" href="https://nevamis.ca/">
 <meta property="og:title" content="Nevamis | Stop losing jobs to missed calls.">
-<meta property="og:description" content="Your line answered 24/7, callers qualified, jobs booked, and the details texted straight to you. Hear it yourself: (587) 413-0035.">
+<!-- "jobs booked" until 2026-08-10. This is the sentence a link preview shows
+     in a text message or a Slack channel, with no page around it to qualify
+     it, and it survived the 2026-08-09 sweep because the claim was a bare
+     participle with no subject. Nothing books. -->
+<meta property="og:description" content="Your line answered 24/7, callers qualified, the job and the time they want written down, and the details texted straight to you. Hear it yourself: (587) 413-0035.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nevamis.ca/">
 <meta property="og:site_name" content="Nevamis">
@@ -1268,12 +1272,18 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
               <text class="step-frag"  x="310" y="482" text-anchor="middle">service type</text>
             </g>
             <g class="step" data-i="2">
-              <text class="step-label" x="310" y="452" text-anchor="middle">BOOK</text>
+              <!-- "BOOK" / "booking confirmed" until 2026-08-10. The hero is
+                   the first claim on the page and it made the one the product
+                   cannot keep, in two words, in the product's own typography.
+                   The step is real and its name was not: what the agent takes
+                   is the preferred time, and what the text carries is the
+                   summary. Mirrored in assets/motion/hero.js STEPS. -->
+              <text class="step-label" x="310" y="452" text-anchor="middle">CAPTURE</text>
               <text class="step-frag"  x="310" y="482" text-anchor="middle">preferred time</text>
             </g>
             <g class="step" data-i="3">
               <text class="step-label" x="310" y="452" text-anchor="middle">TEXT</text>
-              <text class="step-frag"  x="310" y="482" text-anchor="middle">booking confirmed</text>
+              <text class="step-frag"  x="310" y="482" text-anchor="middle">summary sent</text>
             </g>
             <g id="progress">
               <g fill="rgba(159,240,206,.16)">
@@ -1322,7 +1332,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="section-head reveal">
         <p class="eyebrow mono">Live call proof</p>
         <h2>Watch it take a call.</h2>
-        <p>Dead kitchen outlets after a breaker reset. Thirty-nine seconds later the visit is booked and confirmed. Real AI voices, synchronized transcript.</p>
+        <p>Dead kitchen outlets after a breaker reset. Thirty-nine seconds later the job, the address and the time they want are down and on their way to the owner. Real AI voices, synchronized transcript.</p>
       </div>
       <div class="call-grid">
         <div class="call-card reveal" id="callCard" aria-label="Example call with playable audio and transcript">
@@ -1369,9 +1379,20 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             <span class="who mono">Caller</span>
             <p>114 Cedar Lane.</p>
           </div>
-          <div class="line agent">
+          <!-- TEXT-ONLY TURN, and it has to stay marked as one.
+               call-8.mp3 exists and says something this product does not do.
+               On 2026-08-03 the audio was dropped from this line rather than
+               re-cut, because the mp3s have no generation script and
+               re-recording is an owner step; the transcript was corrected and
+               the line has been silent since. On 2026-08-10 the replacement
+               was found to still say "You're booked", so the words changed
+               again; the audio did not, because it still cannot be re-cut.
+               Do NOT restore data-audio here without re-recording call-8.mp3,
+               and do not re-caption this line to match the old recording: the
+               old recording is the false claim. -->
+          <div class="line agent" data-text-only="call-8.mp3 not re-recorded">
             <span class="who mono">Cedarview AI</span>
-            <p>Thanks. You're booked for tomorrow between eight and ten, and I have your number if anything changes.</p>
+            <p>Thanks. I have you down for tomorrow between eight and ten, and someone will confirm that window with you shortly.</p>
           </div>
           <div class="line caller" data-audio="assets/call-9.mp3">
             <span class="who mono">Caller</span>
@@ -1383,16 +1404,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           </div>
           <div class="call-tags" aria-label="What happened on this call">
             <span class="tagchip" data-callchip="qualified">QUALIFIED: no-hazard + job type</span>
-            <span class="tagchip warm" data-callchip="booked">BOOKED: tomorrow 8–10</span>
-            <span class="tagchip" data-callchip="confirm">CONFIRMATION SENT</span>
+            <!-- Read "BOOKED: tomorrow 8-10" until 2026-08-10, which is the
+                 claim at its most concrete: a reader does not hear a
+                 capability, they hear a slot. The data-callchip value stays
+                 "booked" because it is the motion module's selector (motion.js
+                 lines 93-95) and three Playwright specs address it; it is a
+                 hook, not copy, and nothing renders it. -->
+            <span class="tagchip warm" data-callchip="booked">TIME REQUESTED: tomorrow 8–10</span>
+            <span class="tagchip" data-callchip="confirm">SUMMARY SENT TO OWNER</span>
           </div>
-          <p class="foot-note">Illustrative call, fictional company. Real AI voices.</p>
+          <p class="foot-note">Illustrative call, fictional company. Real AI voices. One agent turn is shown as text only: the recording for it made a claim the product cannot keep and has not been re-cut.</p>
         </div>
         <div class="owner-card reveal summary-arrive">
           <h3>What the business receives</h3>
           <div class="sms" role="img" aria-label="Example text message summary sent to the business owner">
             <span class="mono">NEVAMIS SUMMARY · 8:42 PM</span>
-            New booking: kitchen outlets dead after a breaker reset, with no sparks, heat, or burning smell reported. Booked tomorrow 8:00–10:00 AM, $95 service call quoted, applied to the repair on approved work. Address: 114 Cedar Lane. Time confirmed with the caller on the call.
+            New job: kitchen outlets dead after a breaker reset, with no sparks, heat, or burning smell reported. Wants tomorrow 8:00–10:00 AM, $95 service call quoted, applied to the repair on approved work. Address: 114 Cedar Lane. Caller told you will confirm the window.
           </div>
           <p class="note">Example summary for the illustrative call above. Format and destination are configured for your business.</p>
           <div class="midcta">
@@ -1408,17 +1435,23 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
   <!-- ============ THE NIGHT BAND ============
        The one scroll-driven story on the page. On a desktop it pins and the
-       visitor scrubs a night call from ring to booked-and-texted; on phones,
+       visitor scrubs a night call from ring to captured-and-texted; on phones,
        with reduced motion, or with no JS it is three plain readable cards
        (the .reveal baseline). Copy makes no claim the site does not already
-       make elsewhere: answer, qualify, book, text, in the same words. -->
+       make elsewhere: answer, qualify, capture, text, in the same words.
+
+       The third word was "book" until 2026-08-10, here and in the hero SVG and
+       in assets/motion/hero.js. It was the false claim in the most durable
+       place a claim can sit: the four words the whole page is organised
+       around. The passive heading beneath it ("Booked, confirmed, texted
+       to you") is the shape the entitlement gate could not see for a day. -->
   <section class="night" id="night" aria-label="How an after-hours call plays out">
     <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">After hours, illustrated</p>
         <h2>Your crew goes home. Your line does not.</h2>
         <p>The recording above is the real thing. This is the shape of every night call,
-          in the product&#39;s own four words: answer, qualify, book, text.</p>
+          in the product&#39;s own four words: answer, qualify, capture, text.</p>
       </div>
       <div class="nb-stage" data-night>
         <div class="nb-rail" aria-hidden="true"><i></i></div>
@@ -1438,9 +1471,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         </article>
         <article class="nb-scene reveal">
           <p class="nb-time mono">9:42 PM</p>
-          <h3>Booked, confirmed, texted to you.</h3>
-          <p>The visit sits in your calendar and the summary sits on your phone.
-            You read it over coffee, not off voicemail.</p>
+          <h3>Written down, confirmed back, texted to you.</h3>
+          <p>The caller hears the time read back and is told you will confirm it, and the
+            summary sits on your phone. You read it over coffee, not off voicemail.</p>
           <p class="nb-note">Every call answered. The details captured.</p>
         </article>
       </div>
@@ -1514,7 +1547,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <li>The caller explains what they need.</li>
           <li>It captures the facts: service, urgency, location, contact, timing.</li>
           <li>Your approved business rules are checked: service area, offerings, emergency criteria, calendar.</li>
-          <li>Routine requests get booked into an open slot. Emergencies transfer or get flagged urgent. Unknown questions take the safe fallback instead of a made-up answer.</li>
+          <li>Routine requests are written up with the window the caller wants, for you to confirm. Emergencies transfer or get flagged urgent. Unknown questions take the safe fallback instead of a made-up answer.</li>
           <li>The customer gets a confirmation. You get the summary.</li>
         </ol>
       </details>
@@ -1526,7 +1559,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">The signal path</p>
-        <h2>How a missed call becomes a booked job.</h2>
+        <h2>How a missed call becomes a job you can still win.</h2>
         <p>Every call moves through the same precise sequence. You approve the rules once. Nevamis runs them on every ring.</p>
       </div>
       <ol class="path-steps" role="list" style="list-style:none;padding:0">
@@ -1593,7 +1626,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <div class="art" aria-hidden="true" style="background-image:url(assets/industries/electrical.webp)"></div>
           <span class="mono">ELECTRICAL</span>
           <h3>Electricians</h3>
-          <p>Emergency and service calls answered while the crew is on the tools. Panel upgrade or dead outlets, the job books before the caller tries the next name.</p>
+          <p>Emergency and service calls answered while the crew is on the tools. Panel upgrade or dead outlets, the job is taken down before the caller tries the next name.</p>
         </div>
         <div class="ind-card reveal" data-tilt>
           <div class="art" aria-hidden="true" style="background-image:url(assets/industries/hvac.webp)"></div>
@@ -1605,13 +1638,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <div class="art" aria-hidden="true" style="background-image:url(assets/industries/restoration.webp)"></div>
           <span class="mono">RESTORATION</span>
           <h3>Restoration and property services</h3>
-          <p>Flood and damage calls arrive stressed and urgent. Gather incident details calmly, route priority calls, and book the assessment.</p>
+          <p>Flood and damage calls arrive stressed and urgent. Gather incident details calmly, route priority calls, and capture the assessment window they need.</p>
         </div>
         <div class="ind-card reveal" data-tilt>
           <div class="art" aria-hidden="true" style="background-image:url(assets/industries/automotive.webp)"></div>
           <span class="mono">AUTOMOTIVE · APPOINTMENTS</span>
           <h3>Automotive and appointment businesses</h3>
-          <p>Answer the questions you answer forty times a week and book available slots, without pulling anyone off the floor.</p>
+          <p>Answer the questions you answer forty times a week and take down the times people ask for, without pulling anyone off the floor.</p>
         </div>
       </div>
     </div>
@@ -1707,7 +1740,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="section-head reveal">
         <p class="eyebrow mono">Done for you</p>
         <h2>You do not have to build or run any of it.</h2>
-        <p>Your agent is configured around your hours, service area, job types, pricing rules you approve, calendar availability, escalation rules, and FAQs. Built around the tools you already use: we confirm compatibility during the strategy call. Booking and telephony currently run on Cal.com and Twilio.</p>
+        <p>Your agent is configured around your hours, service area, job types, pricing rules you approve, the time windows you want offered, escalation rules, and FAQs. Built around the tools you already use: we confirm compatibility during the strategy call. Telephony runs on Twilio. Cal.com is where you book time with us, not somewhere your callers are booked.</p>
       </div>
       <div class="proc">
         <div class="reveal"><h3>Discovery</h3><p>A short call. We map your call patterns, services, and rules.</p></div>
@@ -1772,7 +1805,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <div class="layer"><strong>Business knowledge</strong><span>Your services, prices you approve, FAQs, service area, hours.</span></div>
         <div class="layer"><strong>Call flow</strong><span>How your calls actually run, from greeting to goodbye.</span></div>
         <div class="layer"><strong>Qualification questions</strong><span>The questions that separate a job from a tire-kicker.</span></div>
-        <div class="layer"><strong>Business rules</strong><span>What gets booked, what transfers, what waits for you.</span></div>
+        <div class="layer"><strong>Business rules</strong><span>What gets written up for you, what transfers, what waits.</span></div>
         <div class="layer"><strong>Booking rules</strong><span>Which jobs you take, and what the caller is told about timing.</span></div>
         <div class="layer"><strong>Handover</strong><span>The job in your pocket as a text, ready for you to confirm.</span></div>
         <div class="layer"><strong>Owner summaries</strong><span>Name, number, need, and outcome after every call.</span></div>

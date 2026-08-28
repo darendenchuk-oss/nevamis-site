@@ -29,7 +29,10 @@
    stricter classifier that reddens them is not stricter, it is broken, because
    a permanently red guard stops being read.
    ============================================================ */
-import { ADDITIVE, RETIRED_OFFERS, offendingClause } from "./lib/claims.mjs";
+import {
+  ADDITIVE, RETIRED_OFFERS, offendingClause,
+  bookingClaim, BOOKING_IN_ANY_VOICE, BOOKED_BY_SOMEONE_ELSE, BOOKING_UNBUILT,
+} from "./lib/claims.mjs";
 
 const ALL = [...RETIRED_OFFERS, ...ADDITIVE];
 /* Does ANY pricing rule report this text? That is the question the guards ask,
@@ -129,6 +132,146 @@ const MUST_NOT_FIRE_QUESTIONS = [
   ["a bare caller question", "Is there a setup fee on top of the monthly?"],
 ];
 
+/* ============================================================
+   THE BOOKING CLAIM, IN EVERY VOICE
+
+   Section above proves the PRICING judge fires. This one proves the BOOKING
+   judge fires, and it exists because that judge did not.
+
+   On 2026-08-09 the active-voice booking claims were removed from this site
+   and the sibling engine gained four patterns to keep them out. All four
+   required Nevamis to be the grammatical subject. On 2026-08-10 the booking
+   claims still being SERVED from nevamis.ca were run against them and twelve
+   of twelve missed, while `npm run consistency` printed "no banned phrases"
+   across all 22 pages.
+
+   Every string in MUST_FIRE_BOOKING below is one of those twelve, verbatim
+   from the page and line it was served on. Every string in
+   MUST_NOT_FIRE_BOOKING is a sentence that must stay writable: the two the
+   first version of this rule was DELETED for matching in the engine, the
+   honest onboarding ask, the comparison-table row that names the claim in
+   order to refuse it, and the booking this business genuinely does make —
+   fifteen minutes with Daren on Nevamis's own Cal.com.
+   ============================================================ */
+const MUST_FIRE_BOOKING = [
+  ["home.html:11 og:description, the sentence a link preview shows alone",
+    "Your line answered 24/7, callers qualified, jobs booked, and the details texted straight to you."],
+  ["home.html:1441 the night-band heading",
+    "Booked, confirmed, texted to you."],
+  ["home.html:1325 the live-call-proof lede",
+    "Thirty-nine seconds later the visit is booked and confirmed."],
+  ["hvac.html:812 what happens to a non-emergency",
+    "Everything else is booked into the first slot your calendar actually has."],
+  ["home.html:1517 the rules list",
+    "Routine requests get booked into an open slot."],
+  ["home.html:1596 the electricians card, middle voice with no agent at all",
+    "Panel upgrade or dead outlets, the job books before the caller tries the next name."],
+  ["home.html:1775 the business-rules layer",
+    "What gets booked, what transfers, what waits for you."],
+  ["coming-soon.html:1026 the worst one, because that page grades what is live",
+    "An appointment is booked or the call escalates to the on-call tech."],
+  ["home.html:1374 the demo transcript, in the product's own voice",
+    "Thanks. You're booked for tomorrow between eight and ten, and I have your number if anything changes."],
+  ["home.html:1386 the call chip, the claim at its most concrete",
+    "BOOKED: tomorrow 8-10"],
+  ["hvac.html:7 the meta description, active voice with an object the old rule did not know",
+    "Nevamis answers your line around the clock, triages the call, books the visit, and sends you the summary."],
+  ["plumbers.html lede, active voice with a PRONOUN object",
+    "Nevamis answers them, qualifies them, and books them."],
+  ["home.html:1608 the restoration card",
+    "Gather incident details calmly, route priority calls, and book the assessment."],
+  ["content-map.json hvac blurb, rendered onto five pages",
+    "No-heat calls at 11 PM answered, triaged, and booked."],
+  ["home.html:1529 the process heading",
+    "How a missed call becomes a booked job."],
+  ["home.html:1443 the claim with the verb removed altogether",
+    "The visit sits in your calendar and the summary sits on your phone."],
+  ["the wrapped form, which is why a line-scoped reader missed it for a day",
+    "An after-hours call that gets answered, qualified, and booked is a job."],
+];
+
+/* Every one of these is content that must stay writable. The first two are the
+   exact strings the engine's looser rule was deleted for matching on
+   2026-08-09; if this guard ever reddens them it will be switched off within
+   the hour, and it will take the sixteen above with it. */
+const MUST_NOT_FIRE_BOOKING = [
+  ["the onboarding SOP: the CLIENT wiring up their own booking link",
+    "Client connects calendar and confirms booking rules."],
+  ["portal-pending.ts: the noun as a route fragment, not a verb",
+    'if (title.includes("calendar")) return { href: "/portal/business#booking", label: "Booking rules" };'],
+  ["home.html: the configuration layer, which is the client's own policy",
+    "Booking rules: which jobs you take, and what the caller is told about timing."],
+  ["home.html FAQ: the roadmap, stated as a roadmap",
+    "Direct calendar booking is on the roadmap and is not live on any line today."],
+  ["the honest onboarding ask, said the other way round",
+    "You give us your booking link and we read your availability from it."],
+  ["home.html comparison table: the claim NAMED in order to be refused",
+    "Books straight into your calendar No Sometimes Not built: you confirm"],
+  ["home.html process step: the denial that must never be re-written into an assertion",
+    "Nobody is left guessing: the caller is told plainly that someone will confirm the exact time, and never that it is already booked."],
+  ["book.html and every page footer: time with NEVAMIS, on Nevamis's own Cal.com",
+    "Book a 15-min call with Daren and get a quote scoped to your call volume."],
+  ["demo.html: the strategy call, which is a real booking this business makes",
+    "Book a strategy call."],
+  ["the owner doing it, which is the product working exactly as designed",
+    "You book the job once you have read the summary we texted you."],
+  ["the missed-call calculator: the client's own jobs, won however they win them",
+    "Compare that against the quote you were given, to see how many booked jobs cover it."],
+  ["the honest replacement copy now shipping on hvac.html",
+    "Nevamis answers your line around the clock, triages the call, takes the visit details and the time they want, and sends you the summary."],
+  ["the honest replacement copy now shipping in the demo transcript",
+    "Thanks. I have you down for tomorrow between eight and ten, and someone will confirm that window with you shortly."],
+  ["the honest replacement copy now shipping on coming-soon.html",
+    "The job, the address and the time they want are written down and the caller is told a person will confirm that time, or the call escalates to the on-call tech."],
+];
+
+/* ---------- WHY each must-not-fire sentence survives ----------
+
+   "It passes" is not the property worth asserting. A sentence can pass because
+   the rule is DESIGNED not to reach it, or because the rule happens to be
+   broken today, and those two look identical from the outside — which is the
+   whole reason the entitlement gate could exit 0 over 22 pages carrying the
+   claim. So each escape route is asserted separately.
+
+   NEVER_A_PATTERN is the noun. A looser "calendar ... booking" rule was
+   written in the engine on 2026-08-09 and deleted within the hour because it
+   matched these, and the deletion took every real catch with it. No pattern
+   here may key on the bare noun, ever, and that is asserted at the pattern
+   level rather than left to the allowance list to mop up. */
+const NEVER_A_PATTERN = [
+  ["the onboarding SOP, the sentence the first version of this rule died on",
+    "Client connects calendar and confirms booking rules."],
+  ["portal-pending.ts, the other one",
+    'if (title.includes("calendar")) return { href: "/portal/business#booking" };'],
+  ["home.html configuration layer: the client's own policy",
+    "Booking rules: which jobs you take, and what the caller is told about timing."],
+  ["home.html FAQ: the roadmap named as a roadmap",
+    "Direct calendar booking is on the roadmap and is not live on any line today."],
+  ["the honest ask, said the other way round",
+    "You give us your booking link and we read your availability from it."],
+  ["/book.html, which is nothing but booking time WITH Nevamis",
+    "Book a 15-min call with Daren and get a quote scoped to your call volume."],
+  ["the missed-call calculator: the client's own jobs",
+    "Compare that against the quote you were given, to see how many booked jobs cover it."],
+];
+
+/* RESCUED_BY is the mirror. Each of these DOES match a booking pattern and is
+   let through by exactly one of the three escape hatches. Deleting a hatch
+   fails here, loudly, instead of reddening a live page and teaching the next
+   person to delete the guard. */
+const RESCUED_BY = [
+  ["agency", "the owner doing it, which is the product working as designed",
+    "You book the job once you have read the summary we texted you."],
+  ["agency", "the competitor who got there first, from the cold-calling scripts",
+    "It's whoever books the estimate first."],
+  ["agency", "the client's own office doing it, once the summary lands",
+    "Your office books the job once the summary lands."],
+  ["unbuilt", "home.html comparison table: the claim NAMED in order to be refused",
+    "Books straight into your calendar No Sometimes Not built: you confirm"],
+  ["refusal", "home.html process step: a denial that must never be rewritten into an assertion",
+    "Nobody is left guessing: the caller is told plainly that someone will confirm the exact time, and never that it is already booked."],
+];
+
 let fail = 0;
 const err = (m) => { console.error("FAIL: " + m); fail++; };
 
@@ -159,9 +302,73 @@ for (const [name, text] of MUST_NOT_FIRE_QUESTIONS) {
   }
 }
 
+for (const [name, text] of MUST_FIRE_BOOKING) {
+  if (!bookingClaim(text)) {
+    err(`BOOKING MUST FIRE but did not — ${name}
+      text:   "${text}"
+      `
+      + `Nothing provisions this. A tenant agent is created with built_in_tools {end_call} and no `
+      + `tool_ids, and no tenant calendar credential exists, so this sentence promises a mechanism `
+      + `nobody can be given. Every one of these was LIVE on nevamis.ca on 2026-08-10 while the `
+      + `claim gate exited 0.`);
+  }
+}
+
+for (const [name, text] of MUST_NOT_FIRE_BOOKING) {
+  const claim = bookingClaim(text);
+  if (claim) {
+    err(`BOOKING MUST NOT FIRE but did — ${name}
+      text:   "${text}"
+      matched: "${claim}"
+      `
+      + `This is either the client booking, Nevamis's own Cal.com, or the claim being named in `
+      + `order to be refused. A looser version of this rule was deleted within an hour of being `
+      + `written for exactly this, and the deletion took every real catch with it.`);
+  }
+}
+
+for (const [name, text] of NEVER_A_PATTERN) {
+  const hit = BOOKING_IN_ANY_VOICE.find((re) => re.test(text));
+  if (hit) {
+    err(`BOOKING PATTERN reaches the NOUN — ${name}
+      text:  "${text}"
+      rule:  ${hit}
+      `
+      + `This rule must key on the booking VERB and never on the noun. The version that keyed on `
+      + `the noun was deleted an hour after it was written, for this exact sentence.`);
+  }
+}
+
+for (const [route, name, text] of RESCUED_BY) {
+  const matched = BOOKING_IN_ANY_VOICE.some((re) => re.test(text));
+  if (!matched) {
+    err(`BOOKING fixture no longer exercises anything — ${name}
+      text: "${text}"
+      `
+      + `No pattern matches it, so the "${route}" escape hatch it is supposed to prove is untested `
+      + `and this fixture passes for the wrong reason.`);
+    continue;
+  }
+  const by = BOOKED_BY_SOMEONE_ELSE.some((re) => re.test(text)) ? "agency"
+    : BOOKING_UNBUILT.some((re) => re.test(text)) ? "unbuilt"
+    : bookingClaim(text) === null ? "refusal" : "nothing";
+  if (by !== route) {
+    err(`BOOKING escape hatch changed — ${name}
+      text:     "${text}"
+      `
+      + `expected: ${route}
+      actual:   ${by}
+      `
+      + `${by === "nothing" ? "Nothing lets this through any more, so a correct sentence on a live page is now a failure."
+        : "It still passes, but by a different route than the one this fixture exists to hold in place."}`);
+  }
+}
+
 if (fail) {
   console.error(`\n${fail} classifier fixture(s) wrong. The judge is broken, not the content.`);
   process.exit(1);
 }
-console.log(`Claim classifier OK: ${MUST_FIRE.length} must-fire, `
-  + `${MUST_NOT_FIRE.length + MUST_NOT_FIRE_QUESTIONS.length} must-not-fire fixtures classified correctly.`);
+console.log(`Claim classifier OK: ${MUST_FIRE.length} pricing must-fire, `
+  + `${MUST_NOT_FIRE.length + MUST_NOT_FIRE_QUESTIONS.length} pricing must-not-fire, `
+  + `${MUST_FIRE_BOOKING.length} booking must-fire, ${MUST_NOT_FIRE_BOOKING.length} booking must-not-fire, `
+  + `${NEVER_A_PATTERN.length} noun-not-verb, ${RESCUED_BY.length} escape-hatch fixtures classified correctly.`);

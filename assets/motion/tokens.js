@@ -63,7 +63,7 @@ export const MOTION = {
     { key: 'form',    label: 'Arch forms',      time: 2.05 },
     { key: 'answer',  label: 'Call answered',   time: 2.95 },
     { key: 'route',   label: 'Answer captured', time: 3.65 },
-    { key: 'book',    label: 'Book → Text',     time: 4.80 },
+    { key: 'book',    label: 'Capture → Text',  time: 4.80 },
     { key: 'resolve', label: 'Captured lands',  time: 6.55 },
     { key: 'idle',    label: 'Living idle',     time: 6.60 },
   ],
