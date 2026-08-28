@@ -49,11 +49,17 @@ function guard(fn) {
   try { return fn(); } catch (err) {
     console.error('[motion]', err);
     try {
-      // Every granularity any module hides: nav/CTAs, whole words, split
-      // characters, and scroll-masked words. Failure means show everything.
-      gsap.set('[data-nav], [data-cta], h1 .w, h1 .ch, .mwi', { clearProps: 'all', autoAlpha: 1, yPercent: 0 });
-      const wake = document.getElementById('wake');
-      if (wake) wake.style.display = 'none';
+      /* The hero no longer hides anything here to begin with: since
+         2026-08-27 it animates the #stage SVG and nothing else, so a thrown
+         initHero cannot cost a visitor the headline, the copy or a CTA. This
+         stays for the modules that still mask their own targets (scroll.js
+         and .mwi), and it keeps nav/CTAs in the list because "failure means
+         show everything" is cheaper to keep true than to keep accurate.
+
+         Two entries went with the rewrite: `h1 .ch`, the per-character spans
+         nothing creates any more, and a lookup that force-hid the #wake veil,
+         which no longer exists. */
+      gsap.set('[data-nav], [data-cta], h1 .w, .mwi', { clearProps: 'all', autoAlpha: 1, yPercent: 0 });
     } catch (e2) { /* leave CSS defaults */ }
     return null;
   }

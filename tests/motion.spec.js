@@ -420,7 +420,15 @@ test('the opening sequence holds a smooth frame rate', async ({ page }) => {
     .toBeLessThan(0.12);
 });
 
-test('scrolling away mid-intro finishes the hero instead of freezing the wake veil', async ({ page }) => {
+/* This used to be "scrolling away mid-intro finishes the hero instead of
+   freezing the wake veil", and the veil is the reason it existed: pausing the
+   timeline mid-fade left a fixed, opaque, full-viewport overlay across the
+   whole document, so scrolling past the hero had to FINISH the film rather
+   than pause it. There is no veil now, and no property outside #stage depends
+   on this timeline reaching any progress at all, so the stakes are gone — the
+   film is still finished on scroll-away, but only so the stage rests on its
+   mark, and the assertion that matters is that the page below is untouched. */
+test('scrolling away mid-intro finishes the stage film and costs the page nothing', async ({ page }) => {
   await page.goto(PLAIN);
   await page.waitForFunction(() => !!window.__heroTL);
   // a real visitor: lands and immediately scrolls into the page
@@ -428,14 +436,19 @@ test('scrolling away mid-intro finishes the hero instead of freezing the wake ve
   await page.waitForTimeout(400);
 
   const state = await page.evaluate(() => ({
-    wakeOpacity: Number(getComputedStyle(document.getElementById('wake')).opacity),
-    wakeVisibility: getComputedStyle(document.getElementById('wake')).visibility,
+    wakeGone: !document.getElementById('wake'),
+    topsigGone: !document.getElementById('topsig'),
     heroDone: window.__heroTL.progress() === 1,
     h1Visible: getComputedStyle(document.querySelector('h1 .w')).visibility,
+    h1Opacity: Number(getComputedStyle(document.querySelector('h1')).opacity),
+    archFull: Number(getComputedStyle(document.getElementById('archFull')).opacity),
   }));
-  expect(state.wakeOpacity, 'the wake overlay must never freeze mid-fade').toBeLessThan(0.05);
-  expect(state.heroDone, 'scrolling away skips the intro').toBe(true);
+  expect(state.wakeGone, 'the full-viewport veil must not exist at all').toBe(true);
+  expect(state.topsigGone, 'the page-crossing streak must not exist at all').toBe(true);
+  expect(state.heroDone, 'scrolling away finishes the stage film').toBe(true);
   expect(state.h1Visible).toBe('visible');
+  expect(state.h1Opacity).toBe(1);
+  expect(state.archFull, 'the stage rests on the resolved mark').toBe(1);
 });
 
 test('keyboard users reach every control with a visible focus ring', async ({ page }) => {
@@ -490,10 +503,16 @@ test('decorative visuals are hidden from assistive tech', async ({ page }) => {
   const a11y = await page.evaluate(() => ({
     svgHidden: document.getElementById('mark')?.getAttribute('aria-hidden'),
     statusHidden: document.getElementById('status')?.getAttribute('aria-hidden'),
-    wakeHidden: document.getElementById('wake')?.getAttribute('aria-hidden'),
     h1: document.querySelector('h1')?.textContent.replace(/\s+/g, ' ').trim(),
-    /* The authored sentence, before hero.js takes it apart. */
-    h1Label: document.querySelector('h1')?.getAttribute('aria-label')?.replace(/\s+/g, ' ').trim(),
+    /* Every way this h1 could be given a SECOND name. Each of these used to be
+       in play: an aria-label carrying the sentence, and aria-hidden on both
+       .line spans to stop the shredded characters being read as a letter
+       stream. Nothing is shredded now, so the markup's own text is the name —
+       and these must all be empty, or the sentence gets announced twice. */
+    h1Label: document.querySelector('h1')?.getAttribute('aria-label'),
+    h1LabelledBy: document.querySelector('h1')?.getAttribute('aria-labelledby'),
+    hiddenTextInsideH1: [...document.querySelectorAll('h1 [aria-hidden="true"]')]
+      .map((el) => el.textContent.trim()).filter(Boolean),
     /* The story the animation tells must also exist as real text.
        'books' was one of these words until 2026-08-09, and it was pinning a
        claim the product cannot keep: provisioned agents get end_call and no
@@ -505,21 +524,26 @@ test('decorative visuals are hidden from assistive tech', async ({ page }) => {
 
   expect(a11y.svgHidden, 'the narrative SVG is decorative and must be hidden from AT').toBe('true');
   expect(a11y.statusHidden).toBe('true');
-  expect(a11y.wakeHidden).toBe('true');
-  /* THE TWO MUST BE THE SAME SENTENCE. That is what this always meant - "the
-     words the curtain animates are also the words a screen reader is handed"
-     - and a literal was simply how completeness got enforced, since a
-     substring match would pass with half the headline missing.
 
-     Comparing the split DOM text against the authored aria-label enforces it
-     directly and cannot be broken by writing new copy: the headline changed
-     with the Revenue OS repositioning and this failed on the wording while
-     the accessibility property it guards was never in question. A test that
-     fails for copy is a test that gets edited on autopilot, and this one
-     sits beside three assertions worth reading carefully. */
-  expect(a11y.h1Label, 'the split headline needs an aria-label').toBeTruthy();
-  expect(a11y.h1Label.length, 'the label must be the whole sentence').toBeGreaterThan(20);
-  expect(a11y.h1).toBe(a11y.h1Label);
+  /* ONE READING PATH, AND IT IS THE REAL TEXT.
+
+     This used to assert the opposite shape: that an aria-label existed and
+     matched the DOM text. It had to, because hero.js shredded the headline
+     into ~40 per-character spans, so the visible words were unreadable to
+     assistive tech and a parallel copy of the sentence was carried alongside
+     them. Two sources for one sentence, kept in agreement by this test.
+
+     Nothing is shredded now, so the parallel copy is not merely unnecessary,
+     it is a hazard: an aria-label plus unhidden real text is the sentence
+     announced twice. The property worth guarding was never "the label matches"
+     — it was "a screen reader gets this exact sentence, once." That is what is
+     checked here, and it cannot be broken by writing new copy. */
+  expect(a11y.h1Label, 'the real text is the accessible name; an aria-label duplicates it').toBeNull();
+  expect(a11y.h1LabelledBy, 'nor may the name be redirected elsewhere').toBeNull();
+  expect(a11y.hiddenTextInsideH1,
+    'no words inside the h1 may be hidden from AT — the visible sentence is the announced one')
+    .toEqual([]);
+  expect(a11y.h1.length, 'the headline must be a whole sentence in the markup').toBeGreaterThan(20);
   // meaning must not live only in the animation
   /* THE PROPERTY, NOT THE WORDS. This listed three verbs the lede had to
      contain. 'books' was a fourth until 2026-08-09, removed because it
@@ -534,6 +558,333 @@ test('decorative visuals are hidden from assistive tech', async ({ page }) => {
   expect(a11y.lede, 'the hero needs a lede in text, not only in motion').toBeTruthy();
   expect(a11y.lede.length, 'the lede must carry real substance').toBeGreaterThan(80);
   expect(a11y.lede).not.toBe(a11y.h1);
+});
+
+/* ============================================================================
+   THE STATE MATRIX — the owner's rule, checked as a state machine
+
+   "The headline, copy, navigation and CTAs must remain perfectly still and
+   readable during every animation state."
+
+   Every test above this block passed on 2026-08-27 while the live hero opened
+   by hiding all four of those things behind a full-viewport veil and animating
+   them back in. 206 green tests, and the defect was that the page was blank.
+   They passed because they all measured the RESOLVED frame: every one of them
+   either waited for the timeline, or seeked it to progress 1, or read a
+   property the intro did not touch. Nothing sampled the states in between,
+   which is where the entire defect lived.
+
+   So this block enumerates the states instead of trusting one of them, and it
+   asserts RENDERED VISIBILITY rather than a style property — computed
+   visibility and effective opacity (multiplied up the ancestor chain, because
+   a lit element inside a faded group is not lit), a real non-empty box, and
+   the element's own TEXT rectangles surviving intersection with every clipping
+   ancestor. That last part is the one that matters: the old defect left the
+   h1's box exactly where it belonged and parked its letters below a
+   .line{overflow:hidden} mask. A box check would have passed. Text-rect
+   clipping is what catches a curtain.
+   ============================================================================ */
+
+/** Serialised into the page. Returns rendered-visibility facts for one CSS
+    selector — or `{ found: false }`, which the caller decides how to read. */
+const PROBE = `(sel) => {
+  const el = document.querySelector(sel);
+  if (!el) return { found: false };
+
+  let opacity = 1;
+  for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
+    opacity *= parseFloat(getComputedStyle(n).opacity || '1');
+  }
+  const cs = getComputedStyle(el);
+  const box = el.getBoundingClientRect();
+
+  // Every ancestor that clips, intersected into one window.
+  const clips = (v) => v === 'hidden' || v === 'clip' || v === 'scroll' || v === 'auto';
+  let win = { l: -Infinity, t: -Infinity, r: Infinity, b: Infinity };
+  for (let a = el.parentElement; a; a = a.parentElement) {
+    const acs = getComputedStyle(a);
+    if (!clips(acs.overflowX) && !clips(acs.overflowY)) continue;
+    const ar = a.getBoundingClientRect();
+    if (clips(acs.overflowX)) { win.l = Math.max(win.l, ar.left); win.r = Math.min(win.r, ar.right); }
+    if (clips(acs.overflowY)) { win.t = Math.max(win.t, ar.top); win.b = Math.min(win.b, ar.bottom); }
+  }
+
+  // The glyphs themselves, not the box that nominally holds them.
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const rects = [...range.getClientRects()].filter((r) => r.width > 0 && r.height > 0);
+  let textArea = 0, visibleArea = 0;
+  for (const r of rects) {
+    textArea += r.width * r.height;
+    const w = Math.max(0, Math.min(r.right, win.r) - Math.max(r.left, win.l));
+    const h = Math.max(0, Math.min(r.bottom, win.b) - Math.max(r.top, win.t));
+    visibleArea += w * h;
+  }
+
+  return {
+    found: true,
+    visibility: cs.visibility,
+    opacity: Math.round(opacity * 1000) / 1000,
+    transform: cs.transform,
+    box: [Math.round(box.x), Math.round(box.y), Math.round(box.width), Math.round(box.height)],
+    // 1 means no glyph is being clipped by anything. The curtain scored 0.
+    unclipped: textArea === 0 ? 1 : Math.round((visibleArea / textArea) * 1000) / 1000,
+  };
+}`;
+
+/** The things that must never move or dim. The phone number is listed in its
+    own right: it is the page's primary conversion path and it was inside the
+    CTA that got hidden. */
+const STILL_DESKTOP = {
+  headline: '.hero h1',
+  'headline line 1': '.hero h1 .line',
+  lede: '.hero .lede',
+  'primary CTA': 'a.btn-primary[data-cta]',
+  'secondary CTA': 'a.btn-ghost[data-cta]',
+  'phone number': '.cta-num',
+  'header nav link': '.main-nav a[data-nav]',
+  proof: '.hero .proof',
+};
+
+/* On a 375px phone two of those are legitimately absent rather than hidden:
+   .cta-num is display:none by design below 430px (the button drops the digits
+   rather than wrapping, and tapping dials anyway), and the header nav lives
+   inside a closed menu. Asserting them here would be asserting the wrong
+   thing. Everything a phone visitor can actually see is still checked. */
+const STILL_MOBILE = {
+  headline: '.hero h1',
+  'headline line 1': '.hero h1 .line',
+  lede: '.hero .lede',
+  'primary CTA': 'a.btn-primary[data-cta]',
+  'secondary CTA': 'a.btn-ghost[data-cta]',
+  proof: '.hero .proof',
+};
+
+/** Assert the owner's rule for one sampled state. */
+async function expectContentStill(page, targets, when) {
+  for (const [name, sel] of Object.entries(targets)) {
+    const r = await page.evaluate(`(${PROBE})(${JSON.stringify(sel)})`);
+    expect(r.found, `${name} (${sel}) is missing from the DOM at ${when}`).toBe(true);
+    expect(r.visibility, `${name} is visibility:${r.visibility} at ${when}`).toBe('visible');
+    expect(r.opacity, `${name} is at opacity ${r.opacity} at ${when}`).toBeGreaterThan(0.99);
+    expect(r.box[2], `${name} has zero width at ${when}`).toBeGreaterThan(0);
+    expect(r.box[3], `${name} has zero height at ${when}`).toBeGreaterThan(0);
+    expect(r.unclipped,
+      `${(100 - r.unclipped * 100).toFixed(1)}% of ${name}'s glyphs are clipped away at ${when}`)
+      .toBeGreaterThan(0.99);
+  }
+}
+
+/** Boxes for every still target, for comparing one state against another. */
+async function boxesOf(page, targets) {
+  const out = {};
+  for (const [name, sel] of Object.entries(targets)) {
+    out[name] = (await page.evaluate(`(${PROBE})(${JSON.stringify(sel)})`)).box;
+  }
+  return out;
+}
+
+test.describe('the content is still and readable in every animation state', () => {
+  for (const vp of [
+    { name: 'desktop', width: 1440, height: 900, targets: STILL_DESKTOP },
+    { name: 'mobile', width: 375, height: 812, targets: STILL_MOBILE },
+  ]) {
+    test(`${vp.name}: load, mid-intro, story, resolved, replay, pause and resume`, async ({ browser }) => {
+      const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
+      const page = await ctx.newPage();
+      const errors = [];
+      watchErrors(page, errors);
+
+      /* STATE 1 — first paint. Deliberately domcontentloaded and no wait for
+         __heroTL: this samples the page BEFORE the motion module has had a
+         chance to apply anything, which is exactly the moment the old hero
+         turned the lights off. If a future change reintroduces a hiding
+         initial state, this is the assertion that fails first. */
+      await page.goto(PLAIN, { waitUntil: 'domcontentloaded' });
+      await expectContentStill(page, vp.targets, 'first paint (domcontentloaded)');
+      const atLoad = await boxesOf(page, vp.targets);
+      await page.screenshot({ path: path.join(OUT, `matrix-${vp.name}-load.png`) });
+      note(`matrix-${vp.name}-load.png`,
+        `${vp.name} at first paint, before the motion module runs: the whole hero already readable.`);
+
+      await page.waitForFunction(() => !!window.__heroTL, null, { timeout: 10_000 });
+
+      // STATE 2 — mid-intro, while the stage is drawing its arch.
+      await page.waitForTimeout(500);
+      await expectContentStill(page, vp.targets, 't≈0.5s (mid-intro)');
+
+      // STATE 3 — the story routing beat.
+      await page.waitForTimeout(2500);
+      await expectContentStill(page, vp.targets, 't≈3s (story routing)');
+      await page.screenshot({ path: path.join(OUT, `matrix-${vp.name}-midfilm.png`) });
+      note(`matrix-${vp.name}-midfilm.png`,
+        `${vp.name} mid-film (~3s): the stage is routing a call, the copy has not moved.`);
+
+      // STATE 4 — after the intro has completed.
+      await page.waitForTimeout(4000);
+      await expectContentStill(page, vp.targets, 't≈7s (intro complete)');
+      await page.screenshot({ path: path.join(OUT, `matrix-${vp.name}-resolved.png`) });
+      note(`matrix-${vp.name}-resolved.png`,
+        `${vp.name} resolved (~7s): stage cleared to the arch-and-dot mark, content untouched throughout.`);
+
+      /* NO LAYOUT SHIFT, as a test. Same boxes at first paint and after the
+         whole film. The old hero moved the copy 12px on this path and booked
+         CLS 0.1262 for it. */
+      const atEnd = await boxesOf(page, vp.targets);
+      expect(atEnd, 'no hero element may move between first paint and the end of the film')
+        .toEqual(atLoad);
+
+      /* STATE 5 — a full replay cycle. Driven on GSAP's own clock rather than
+         ~16s of wall time, which is the convention the replay test above
+         already uses. */
+      await page.evaluate(() => { window.gsap.globalTimeline.timeScale(12); });
+      await page.waitForFunction(
+        () => Number(getComputedStyle(document.getElementById('story')).opacity) > 0.5,
+        null, { timeout: 30_000 });
+      await expectContentStill(page, vp.targets, 'a full replay cycle later');
+      expect(await boxesOf(page, vp.targets),
+        'the stage replay must not move anything outside the stage').toEqual(atLoad);
+      await page.evaluate(() => { window.gsap.globalTimeline.timeScale(1); });
+
+      // STATE 6 — paused.
+      await page.locator('.motion-toggle-btn').click();
+      await page.waitForTimeout(200);
+      await expectContentStill(page, vp.targets, 'after pressing pause');
+      const paused = await page.evaluate(() => ({
+        halted: window.__heroTL.paused(),
+        label: document.querySelector('.motion-toggle-btn').textContent.trim(),
+        pressed: document.querySelector('.motion-toggle-btn').getAttribute('aria-pressed'),
+        archFull: Number(getComputedStyle(document.getElementById('archFull')).opacity),
+        archL: Number(getComputedStyle(document.getElementById('archL')).opacity),
+      }));
+      expect(paused.halted, 'pause must actually stop the timeline').toBe(true);
+      expect(paused.label, 'a paused control must offer to play').toBe('play motion');
+      expect(paused.pressed, 'aria-pressed must follow the real state').toBe('true');
+      expect(paused.archFull, 'pause freezes the stage on the resolved mark').toBe(1);
+      expect(paused.archL, 'never on the construction halves').toBe(0);
+
+      // STATE 7 — resumed.
+      await page.locator('.motion-toggle-btn').click();
+      await page.waitForTimeout(200);
+      await expectContentStill(page, vp.targets, 'after resuming');
+      const resumed = await page.evaluate(() => ({
+        label: document.querySelector('.motion-toggle-btn').textContent.trim(),
+        pressed: document.querySelector('.motion-toggle-btn').getAttribute('aria-pressed'),
+      }));
+      expect(resumed.label).toBe('pause motion');
+      expect(resumed.pressed).toBe('false');
+
+      expect(errors, errors.join('\n')).toEqual([]);
+      await ctx.close();
+    });
+  }
+
+  test('the pause control is a real button, keyboard operable, with a visible focus ring', async ({ page }) => {
+    await page.goto(PLAIN);
+    await page.waitForFunction(() => !!window.__heroTL);
+
+    const btn = page.locator('.motion-toggle-btn');
+    await expect(btn).toHaveCount(1);
+    expect(await btn.evaluate((el) => el.tagName)).toBe('BUTTON');
+
+    await btn.focus();
+    const focus = await btn.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return {
+        isActive: document.activeElement === el,
+        outlineWidth: parseFloat(cs.outlineWidth),
+        outlineStyle: cs.outlineStyle,
+      };
+    });
+    expect(focus.isActive, 'the control must be focusable').toBe(true);
+    expect(focus.outlineStyle, 'a focused control needs a visible ring').not.toBe('none');
+    expect(focus.outlineWidth, 'the focus ring must have real width').toBeGreaterThan(0);
+
+    // Operable by keyboard, not only by mouse — and truthful afterwards.
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(200);
+    expect(await btn.textContent()).toContain('play motion');
+    expect(await btn.getAttribute('aria-pressed')).toBe('true');
+    expect(await page.evaluate(() => window.__heroTL.paused())).toBe(true);
+
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(200);
+    expect(await btn.textContent()).toContain('pause motion');
+    expect(await btn.getAttribute('aria-pressed')).toBe('false');
+  });
+
+  test('reduced motion: content readable, stage resolved, nothing looping', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await ctx.newPage();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto(PLAIN);
+    await page.waitForTimeout(1200);
+
+    await expectContentStill(page, STILL_DESKTOP, 'prefers-reduced-motion');
+
+    const stage = await page.evaluate(() => ({
+      archFull: Number(getComputedStyle(document.getElementById('archFull')).opacity),
+      archL: Number(getComputedStyle(document.getElementById('archL')).opacity),
+      running: document.getAnimations().length,
+      gsapActive: window.gsap
+        ? window.gsap.globalTimeline.getChildren(true, true, true).filter((t) => t.isActive()).length
+        : 0,
+    }));
+    expect(stage.archFull, 'the resolved mark must be the one shown').toBe(1);
+    expect(stage.archL, 'never the construction halves').toBe(0);
+    expect(stage.running, 'nothing may loop for a visitor who asked for stillness').toBe(0);
+    expect(stage.gsapActive, 'no GSAP tween may be left running either').toBe(0);
+
+    await page.screenshot({ path: path.join(OUT, 'matrix-reduced-motion.png') });
+    note('matrix-reduced-motion.png',
+      'prefers-reduced-motion: the whole hero readable, the stage on its resolved mark, nothing animating.');
+    await ctx.close();
+  });
+
+  /* THE OWNER'S LAST RULE, AND THE ONLY ONE NOTHING ELSE COULD COVER: "if the
+     animation fails, the static official arch-and-dot symbol must remain."
+     Scripting off is the total form of that failure. Before this fix the
+     no-JS stage showed the two construction halves, both call waves, four
+     story labels stacked on one baseline, the progress bar, the packet and
+     three tracer dots parked at the SVG's origin — everything except the
+     mark, which was the one element shipped at opacity="0". */
+  test('with no JavaScript at all, the stage is the arch and the dot and nothing else', async ({ browser }) => {
+    const ctx = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1440, height: 900 } });
+    const page = await ctx.newPage();
+    await page.goto(PLAIN);
+
+    await expectContentStill(page, STILL_DESKTOP, 'no JavaScript');
+
+    const frame = await page.evaluate(() => {
+      const eff = (el) => {
+        let o = 1;
+        for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
+          o *= parseFloat(getComputedStyle(n).opacity || '1');
+        }
+        return Math.round(o * 1000) / 1000;
+      };
+      /* Only shapes that actually paint. A <g> is a grouping container — it
+         reports opacity 1 while every child inside it is at 0 — and <defs>
+         children (the gradients and filters) are never rendered at all. */
+      const lit = [];
+      for (const el of document.querySelectorAll('#mark path, #mark circle, #mark rect, #mark text')) {
+        if (el.closest('defs')) continue;
+        if (eff(el) > 0.01) lit.push(el.id || el.getAttribute('class') || el.tagName);
+      }
+      return { lit, underline: getComputedStyle(document.querySelector('.hero-underline')).transform };
+    });
+
+    expect(frame.lit.sort(), `painted with no JS: ${JSON.stringify(frame.lit)}`)
+      .toEqual(['archFull', 'dot']);
+    // The headline's underline is typography, not an event: drawn, not waiting.
+    expect(frame.underline, 'the underline must rest drawn, with no script to draw it')
+      .toBe('matrix(1, 0, 0, 1, 0, 0)');
+
+    await page.screenshot({ path: path.join(OUT, 'matrix-no-js.png') });
+    note('matrix-no-js.png',
+      'Scripting disabled: the full hero readable and the stage showing the official arch-and-dot mark alone.');
+    await ctx.close();
+  });
 });
 
 test.afterAll(async () => {
