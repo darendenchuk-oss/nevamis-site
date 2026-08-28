@@ -30,7 +30,7 @@ const byFile = Object.fromEntries(map.pages.map((p) => [p.file, p]));
    of what a head contains. There is now one idea. */
 const CSS_BLOCK = headCssBlock(readCssSources(fs, path, root));
 
-function head({ title, description, canonical }) {
+function head({ title, ogTitle, description, canonical }) {
   return `<!doctype html>
 <html lang="en-CA" class="no-js">
 <head>
@@ -40,7 +40,7 @@ function head({ title, description, canonical }) {
 <meta name="description" content="${description}">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="${canonical}">
-<meta property="og:title" content="${title}">
+<meta property="og:title" content="${ogTitle || title}">
 <meta property="og:description" content="${description}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${canonical}">
@@ -158,11 +158,18 @@ for (const [file, content] of Object.entries(PAGES)) {
   const meta = byFile[file];
   if (!meta) { console.warn(`skip ${file}: not in content-map.json`); continue; }
 
-  const title = `${meta.title} | Nevamis`;
+  /* The brand half of the title is per page. Six pages ship
+     "| The AI Front Desk by Nevamis" (restoration, historically, without
+     the "The"), and this builder hard-coded "| Nevamis", so regenerating
+     any of them silently rewrote six indexed <title> tags. Preserved
+     exactly rather than normalised: the difference is cosmetic, but a
+     title is an indexed string and a reconciliation is not the place to
+     change one. */
+  const title = `${meta.title} | ${meta.titleBrand || 'Nevamis'}`;
   const description = content.lede.replace(/\s+/g, ' ').trim().slice(0, 155);
 
   const html =
-    head({ title, description, canonical: `${SITE}${meta.url}` }) +
+    head({ title, ogTitle: `${meta.title} | Nevamis`, description, canonical: `${SITE}${meta.url}` }) +
     `
 <main id="main">
   <section class="page-hero">
@@ -175,7 +182,7 @@ for (const [file, content] of Object.entries(PAGES)) {
       <div class="cta">
         <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer &nbsp;›</a>
         <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-min call</a>
-      </div>
+      </div>${content.heroProof ? '\n' + content.heroProof : ''}
     </div>
   </section>
 ${content.body}
@@ -193,8 +200,8 @@ ${relatedFor(file)}
 // The hub: every content page in one crawlable, human-usable place
 // ---------------------------------------------------------------
 const CLUSTERS = [
-  { key: 'trade', label: 'By trade', blurb: 'Built around how your trade actually takes calls.' },
-  { key: 'situation', label: 'By situation', blurb: 'The moment you are losing calls, and what closes it.' },
+  { key: 'trade', label: 'By trade', blurb: 'The platform, tuned to how your trade actually works.' },
+  { key: 'situation', label: 'By situation', blurb: 'The moments you lose revenue, and what closes each one.' },
   { key: 'compare', label: 'Compared to', blurb: 'Honest comparisons, including where the alternative wins.' },
 ];
 
@@ -211,12 +218,33 @@ const hubHtml =
       <p class="crumb"><a href="/">Home</a> / Solutions</p>
       <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Everything in one place</span>
       <h1>Find the version of this that matches your business.</h1>
-      <p class="lede">The product is the same on every page: a front desk that answers your
-        existing line, qualifies the caller, takes the job details, and sends you the summary. These pages
-        just start from where you are.</p>
+      <p class="lede">Nevamis finds where a business is losing revenue and builds the system
+        that recovers it. For most trades that starts at the phone, so most of these pages
+        start there too. They just start from where you are.</p>
       <div class="cta">
         <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer &nbsp;›</a>
-        <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-min call</a>
+        <a class="btn btn-ghost btn-lg" href="https://app.nevamis.ca/scan" data-evt="solutions_hero_scan_click">Scan my business</a>
+      </div>
+    </div>
+  </section>
+  <!-- Ranked by what each is worth to the business, not by what was built
+       first: creating revenue outranks recovering it, recovering outranks
+       answering, and the free scan is the way in for anyone unsure which of
+       the three they need. Wording is bounded by canonical: lead generation
+       is finding and scoring, worked by a person, plus bids Nevamis prepares
+       and the client signs off on before anything is submitted. Nothing here
+       promises automated follow-up, because nothing performs it, and nothing
+       here promises a job is won. -->
+  <section class="tight">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">By outcome</p>
+        <h2>Start from what it does to your revenue.</h2>
+      </div>
+      <div class="related reveal">
+        <a href="/book.html" data-evt="solutions_leadgen_click"><strong>Lead Generation (in development)</strong><span>Being built to find the customers who need what you do and hand you a call list worth working, and to find jobs and tenders you could win, bid at your prices, with nothing submitted you have not signed off. Not running for a client yet.</span></a>
+        <a href="/missed-calls.html" data-evt="solutions_recovery_click"><strong>Revenue Recovery</strong><span>Missed calls are the loudest leak: what one actually costs, and how the front desk catches it.</span></a>
+        <a href="https://app.nevamis.ca/scan" data-evt="solutions_scan_click"><strong>Free Business Scan</strong><span>PULSE reads what is public about your business and prices what it finds. No email required, results in about a minute.</span></a>
       </div>
     </div>
   </section>
@@ -229,7 +257,9 @@ ${CLUSTERS.map((c) => `
       </div>
       <div class="related reveal">
         ${map.pages.filter((p) => p.cluster === c.key)
-          .map((p) => `<a href="${p.url}"><strong>${p.title || p.nav}</strong><span>${p.blurb}</span></a>`).join('\n        ')}
+          /* hubTitle/hubBlurb where the hub says it differently from the
+             related-links strip; falls back to the strip copy otherwise. */
+          .map((p) => `<a href="${p.url}"><strong>${p.hubTitle || p.title || p.nav}</strong><span>${p.hubBlurb || p.blurb}</span></a>`).join('\n        ')}
       </div>
     </div>
   </section>`).join('\n')}

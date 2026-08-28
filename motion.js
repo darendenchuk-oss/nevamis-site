@@ -103,8 +103,12 @@
   if (!motionOK()) { litChips(3); if (summaryCard) summaryCard.classList.add("in"); }
   document.addEventListener("nv:callline", function (e) {
     var i = e.detail.idx;
-    /* 11-line call: qualified once the hazard check lands (line 3),
-       booked + confirmation on the closing lines (8 and 9). */
+    /* 11-line call: qualified once the hazard check lands (line 3), the
+       preferred time captured and the details texted on the closing lines
+       (8 and 9). The chip keys stay `booked`/`confirm` because they are
+       internal identifiers the markup and the tests share; the LABELS a
+       visitor reads say what actually happened, which is a request taken
+       down and a summary sent to the business. */
     litChips(i >= 9 ? 3 : i >= 8 ? 2 : i >= 3 ? 1 : 0);
   });
   document.addEventListener("nv:callend", function () {
@@ -164,8 +168,8 @@
         { st: "listening", who: "Caller", say: "Our furnace just died and it's minus twenty out. We've got a newborn in the house.", rules: [], chips: [] },
         { st: "extracting", who: null, say: null, chips: ["Service: furnace failure", "Urgency: emergency", "Occupants: infant"], rules: [] },
         { st: "checking_rules", chips: [], rules: [["Service offered", "pass"], ["Inside service area", "pass"], ["Emergency criteria met", "urgent"], ["On-call tech available", "urgent"]] },
-        { st: "escalated", who: "Nevamis", say: "That qualifies as an emergency. I'm connecting you to our on-call technician right now. Stay on the line.", outcome: "transfer" },
-        { st: "summarizing", outcome: "summary", sum: "URGENT · Furnace failure, -20°C, infant on site. Transferred to on-call at 11:44 PM. Caller: Dana R., 587-555-0119." },
+        { st: "escalated", who: "Nevamis", say: "That qualifies as an emergency. I have your details and I am alerting the on-call technician now, flagged urgent.", outcome: "transfer" },
+        { st: "summarizing", outcome: "summary", sum: "URGENT · Furnace failure, -20°C, infant on site. On-call tech alerted at 11:44 PM. Caller: Dana R., 587-555-0119." },
         { st: "complete" }
       ]
     },
@@ -179,8 +183,8 @@
         { st: "checking_rules", rules: [["Service offered", "pass"], ["Inside service area", "pass"], ["Emergency criteria met", "block"], ["Calendar has openings", "pass"]] },
         { st: "selecting_slot", who: "Nevamis", say: "I can do Tuesday at 10 AM or Thursday at 1 PM. Which works better?", chips: [] },
         { st: "booked", who: "Caller", say: "Tuesday at ten.", outcome: "booked" },
-        { st: "confirming", who: "Nevamis", say: "Booked. You'll get a text confirmation in a moment.", outcome: "confirm" },
-        { st: "summarizing", outcome: "summary", sum: "Booked: furnace tune-up, Tue 10:00 AM. Caller: Sam T., 780-555-0163. New customer." },
+        { st: "confirming", who: "Nevamis", say: "I have Tuesday at ten down as the time you want. The office will confirm that slot with you.", outcome: "confirm" },
+        { st: "summarizing", outcome: "summary", sum: "Requested: furnace tune-up, Tue 10:00 AM preferred. Caller: Sam T., 780-555-0163. New customer. You confirm the slot." },
         { st: "complete" }
       ]
     },
@@ -192,7 +196,7 @@
         { st: "listening", who: "Caller", say: "If I convert to a heat pump, exactly how much will my utility bill drop over five years?", rules: [], chips: [] },
         { st: "extracting", chips: ["Topic: heat pump conversion", "Request: multi-year cost projection"], rules: [] },
         { st: "checking_rules", rules: [["Topic in approved knowledge", "amber"], ["Allowed to quote projections", "block"], ["Fallback configured", "pass"]] },
-        { st: "fallback", who: "Nevamis", say: "That deserves a real answer from our senior tech rather than a guess from me. Can I book you a free assessment, or have him call you back?", outcome: "message" },
+        { st: "fallback", who: "Nevamis", say: "That deserves a real answer from our senior tech rather than a guess from me. Can I take down a time for a free assessment, or have him call you back?", outcome: "message" },
         { st: "summarizing", outcome: "summary", sum: "Message: heat pump conversion inquiry, wants 5-year cost comparison. Prefers callback after 5 PM. Caller: Alex M., 825-555-0147." },
         { st: "complete" }
       ]
@@ -201,8 +205,8 @@
   var STATE_LABEL = {
     ringing: "Ringing", answered: "Answered", listening: "Listening", extracting: "Extracting details",
     checking_rules: "Checking your business rules", selecting_slot: "Offering available slots",
-    booked: "Booked", confirming: "Confirmation sent", summarizing: "Owner summary sent",
-    complete: "Complete", escalated: "Urgent transfer", fallback: "Safe fallback"
+    booked: "Preferred time captured", confirming: "Caller told you will confirm", summarizing: "Owner summary sent",
+    complete: "Complete", escalated: "Urgent alert sent", fallback: "Safe fallback"
   };
   var STAGES = ["Answer", "Understand", "Check rules", "Take action", "Confirm", "Report"];
   var STATE_STAGE = {
@@ -277,9 +281,9 @@
       if (st.sum) out.sum = st.sum;
     }
     el.outcome.innerHTML =
-      '<div class="sim-out-card' + (out.booked ? " on" : "") + '"><span class="mono">CALENDAR</span>' + (out.booked ? "Tue 10:00 AM locked in" : "No booking yet") + "</div>" +
-      '<div class="sim-out-card' + (out.transfer ? " on warm" : "") + '"><span class="mono">TRANSFER</span>' + (out.transfer ? "Live transfer to on-call tech" : "Not needed") + "</div>" +
-      '<div class="sim-out-card' + (out.confirm || out.message ? " on" : "") + '"><span class="mono">CUSTOMER</span>' + (out.confirm ? "Time confirmed on the call" : out.message ? "Callback promised" : "Waiting") + "</div>" +
+      '<div class="sim-out-card' + (out.booked ? " on" : "") + '"><span class="mono">CALENDAR</span>' + (out.booked ? "Tue 10:00 AM requested, yours to confirm" : "No time captured yet") + "</div>" +
+      '<div class="sim-out-card' + (out.transfer ? " on warm" : "") + '"><span class="mono">URGENT ALERT</span>' + (out.transfer ? "Urgent details captured, your team alerted" : "Not needed") + "</div>" +
+      '<div class="sim-out-card' + (out.confirm || out.message ? " on" : "") + '"><span class="mono">CUSTOMER</span>' + (out.confirm ? "Told the business will confirm the time" : out.message ? "Callback promised" : "Waiting") + "</div>" +
       '<div class="sim-out-card' + (out.sum ? " on" : "") + '"><span class="mono">OWNER SUMMARY</span>' + (out.sum || "Arrives when the call completes") + "</div>";
     /* state, stage rail, progress, elapsed */
     var label = idx < 0 ? "Idle" : (STATE_LABEL[steps[Math.min(idx, steps.length - 1)].st] || "");

@@ -26,16 +26,32 @@ Key facts (kept accurate; the pricing page is authoritative):
                              under the sum of its parts.
     AI Front Desk (recommended): C$1,500 Launch & Implementation to
                              start, then C$1,000 a month. No performance
-                             fee. Automation add-ons join one at a time:
-                             Missed-Call Recovery C$350/month,
-                             Quote-Chase Engine C$500/month, Get-Paid
-                             Autopilot C$500/month, Review Engine C$300/month.
+                             fee. Automation add-ons join one at a
+                             time, each carrying its own one-time Launch &
+                             Implementation fee: Missed-Call Recovery
+                             C$500 to start, then C$350 a month;
+                             Quote-Chase Engine C$750 to start, then
+                             C$500 a month; Get-Paid Autopilot C$750 to
+                             start, then C$500 a month; Review Engine
+                             C$500 to start, then C$300 a month.
     Performance Partnership: by invitation and approval only, never the
-                             default and never self-serve. C$2,000 Launch &
-                             Implementation to start, then C$250 a month,
-                             plus 15% of collected revenue directly
-                             attributable to qualified NEVAMIS-generated
-                             opportunities, subject to the agreement.
+                             default and never self-serve. Launch &
+                             Implementation from C$2,500 to start, then
+                             C$350 a month. That MONTHLY figure sits
+                             inside a published monthly band of C$250 to
+                             C$500; the band describes the monthly only,
+                             never the Launch & Implementation fee, which
+                             is a floor and not a fixed price. On top of
+                             the monthly there is performance-based
+                             compensation tied to verified results. The
+                             monthly, the share, the attribution window
+                             and what counts as eligible revenue are all
+                             set in the client's agreement before anything
+                             is charged. The share IS published, as a
+                             percentage, on /pricing.html: cite it from
+                             there rather than from this file, and never
+                             present it as a figure quoted on a call,
+                             because it is not one.
     Enterprise:              quoted per client. Launch & Implementation
                              starting at C$5,000 or custom quoted;
                              recurring custom; performance optional. There
@@ -55,9 +71,12 @@ Key facts (kept accurate; the pricing page is authoritative):
   is wrong; starting costs the C$1,500 Launch & Implementation fee,
   collected beside that first C$1,000 month.
 - The performance fee exists only on Performance Partnership. It is never
-  "15% of all revenue", never profit-based. It applies only to collected revenue
-  directly attributable to qualified NEVAMIS-generated opportunities, as
-  governed by the customer's agreement.
+  a share of all revenue, and never profit-based. It applies only to collected
+  revenue directly attributable to qualified NEVAMIS-generated opportunities,
+  as governed by the customer's agreement, which is where the rate is set.
+  The percentage itself is published on /pricing.html: cite it from there
+  rather than from this file, and never present it as a figure quoted on a
+  call, because it is not one.
 - Pay As You Go ($49/mo) and annual prepay were retired on 2026-08-06 and
   are no longer offered. Do not quote them.
 - There is no pilot and no evaluation period, paid or unpaid.
@@ -132,15 +151,16 @@ automotive and other trades. Trades first, Canada-wide, Edmonton-based.
   recording playback, CSV export, metered minutes and usage alerts in
   the portal), plus these automations, each consent-gated and sold as an
   add-on: instant lead follow-up (one text back per missed call),
-  automatic lead tracking, quote recovery follow-ups, and overdue-invoice
-  reminders. Lead generation and the PULSE business scan are live
-  services.
+  automatic lead tracking, quote recovery follow-ups, overdue-invoice
+  reminders, and post-job review requests (one ask per finished job, with
+  the business's own review link, every request released by a person).
+  The PULSE business scan is a live service.
 - IN DEVELOPMENT OR PLANNED, and never to be described as currently
-  available: direct calendar booking, any CRM or ads integration,
-  multi-location or multi-department routing, more than one number per
-  business, transcripts in the portal, post-job review requests, win-back
-  reactivation campaigns, cold outbound calling or messaging of any kind,
-  and the wider "Revenue Engine" attribution product.
+  available: direct calendar booking, lead generation, any CRM or ads
+  integration, multi-location or multi-department routing, more than one
+  number per business, transcripts in the portal, win-back reactivation
+  campaigns, cold outbound calling or messaging of any kind, and the wider
+  "Revenue Engine" attribution product.
 
 ## Pages
 

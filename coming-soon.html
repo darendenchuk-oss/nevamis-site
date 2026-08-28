@@ -1023,7 +1023,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <ol class="reveal">
         <li><strong>The front desk answers</strong> in seconds, any hour. (Live today.)</li>
         <li><strong>Service area and urgency are checked</strong> against the company's approved rules. (Live today.)</li>
-        <li><strong>The job and the time they want are taken down</strong> or the call escalates to the on-call tech. (Live today.)</li>
+        <li><strong>The job and the time they want are taken down</strong>, or the call is flagged urgent and the on-call tech is alerted. (Live today.)</li>
         <li><strong>The customer record updates</strong> automatically with the call summary. (Planned.)</li>
         <li><strong>The customer gets confirmation</strong> by text. (Built, and off until a business turns it on.)</li>
         <li><strong>The owner gets the summary.</strong> (Live today.)</li>
@@ -1097,7 +1097,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap">
       <p class="eyebrow mono reveal">Available today</p>
       <h2 class="reveal">The starting point is live right now.</h2>
-      <p class="reveal">The loop already runs: the scan reads your business today, the front desk answers today, lead generation works today. Hear it answer, or let it look at your business first.</p>
+      <p class="reveal">The loop already runs: the scan reads your business today, and the front desk answers today. Hear it answer, or let it look at your business first.</p>
       <div class="cta-row reveal" style="justify-content:center">
         <a class="btn btn-primary btn-lg" href="/pilot.html" data-evt="roadmap_front_desk_cta_clicked">See how you start</a>
         <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer · (587) 413-0035</a>
@@ -1132,7 +1132,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="cols">
       <div>
         <h2 class="foot-h foot-brand">Nevamis</h2>
-        <p>Nevamis is the business intelligence platform for Canadian service businesses: it finds where revenue is leaking, puts a range on what each leak is worth, runs the fixes inside rules you approve, and measures what came back. Lead generation, revenue recovery, and a round-the-clock AI front desk are how it acts.</p>
+        <p>Nevamis is the business intelligence platform for Canadian service businesses: it finds where revenue is leaking, puts a range on what each leak is worth, runs the fixes inside rules you approve, and measures what came back. Revenue recovery and a round-the-clock AI front desk are how it acts today. Lead generation is in development.</p>
         <p style="margin-top:10px"><a href="tel:+15874130035" class="mono">(587) 413-0035</a><br><a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a><br>Edmonton, Alberta, Canada</p>
       </div>
       <div>
@@ -1189,12 +1189,19 @@ document.addEventListener("DOMContentLoaded", function () {
     var h = '<span class="status ' + s.status + '"></span><h3></h3><p class="desc"></p>';
     if (s.functions) h += "<ul>" + s.functions.map(function () { return "<li></li>"; }).join("") + "</ul>";
     h += '<p class="outcome"></p>';
-    h += s.status === "available"
+    /* An AVAILABLE service needs somewhere to send the visitor. Three entries
+       were available with no cta, and this line concatenated undefined into
+       the href, so three "Start here" buttons on a live page pointed at
+       /undefined. Guarded rather than only fixed in the config: a future entry
+       that forgets its cta now degrades to the interest button, which is wrong
+       but harmless, instead of shipping a dead link. */
+    var startCta = s.status === "available" && typeof s.cta === "string" && s.cta.trim() ? s.cta.trim() : null;
+    h += startCta
       /* The interest branch below has been counted since this page shipped and
          this one never was, so the roadmap could report demand for products
          that do not exist yet and not report anyone choosing the one that
          does. No listener needed: site.js delegates every [data-evt] click. */
-      ? '<a class="btn btn-primary" data-evt="roadmap_service_start_clicked_' + s.slug.replace(/-/g, "_") + '" style="align-self:flex-start;font-size:14px;padding:10px 18px" href="' + s.cta + '">Start here</a>'
+      ? '<a class="btn btn-primary" data-evt="roadmap_service_start_clicked_' + s.slug.replace(/-/g, "_") + '" style="align-self:flex-start;font-size:14px;padding:10px 18px" href="' + startCta + '">Start here</a>'
       : '<button class="interest" data-svc="' + s.slug + '" data-name="' + s.name + '">Tell us this would help</button>';
     d.innerHTML = h;
     d.querySelector(".status").textContent = statusLabel[s.status] || s.status;
