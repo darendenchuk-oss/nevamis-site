@@ -76,19 +76,15 @@ window.NV_ROADMAP = {
     { slug: "daily-business-brief", name: "Your Daily Business Brief", pillar: "operate", status: "planned", stage: "future",
       desc: "Calls, bookings, open leads, follow-ups, and urgent issues condensed into one concise daily summary.",
       outcome: "Five minutes to know exactly where the business stands." },
-    /* SELLABLE since 2026-08-24, on an exercised end-to-end drill rather than
-       assertion: pricing-config.js carries review_engine with sellable: true,
-       and canonical.ts carries lifecycle "available". This entry still said
-       "planned" while the pricing page sold it, which is a site arguing with
-       its own checkout. The claim is narrowed to what actually ships: one ask
-       per finished job, by text, released by a person. Routing complaints
-       privately is NOT built and is no longer described. The referral half
-       left the name with it: the referral offer is a commercial term in
-       pricing-config.js, not a product on this roadmap. Slug unchanged so the
-       analytics family and every inbound reference survive the rename. */
-    { slug: "review-referral-engine", name: "Review Engine", pillar: "grow", status: "available", stage: "now",
-      desc: "After a job is finished, one review request goes out by text with your own review link on it and your name on the message. One ask per job, ever, and a person releases every request before it sends.",
-      outcome: "More legitimate reviews, asked for once and never nagged.", cta: "/pricing.html" },
+    /* NOT flipped to available, deliberately. pricing-config.js carries
+       review_engine with sellable: true and the pricing page sells it, so this
+       entry under-claims against the add-on catalog. Promoting it here is a NEW
+       public availability claim on an indexed page, which is an owner decision
+       and was not one of the four this branch was authorised to make. Left as
+       the owner last set it; raising it is a separate call. */
+    { slug: "review-referral-engine", name: "Review and Referral Engine", pillar: "grow", status: "planned", stage: "future",
+      desc: "After a completed job, approved feedback requests route concerns privately and make it easy for happy customers to leave a review.",
+      outcome: "More legitimate reviews, faster complaint awareness." },
     { slug: "customer-reactivation", name: "Customer Reactivation", pillar: "convert", status: "researching", stage: "future",
       desc: "Reconnect with eligible past customers when maintenance, seasonal work, or renewals may genuinely help them.",
       outcome: "Repeat business from relationships you already earned." },
