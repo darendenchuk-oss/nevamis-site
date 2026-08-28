@@ -762,11 +762,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
 <style>
   /* ---------- hero-specific (everything else lives in assets/motion/site.css) ---------- */
-  #wake{position:fixed;inset:0;z-index:200;background:var(--navy-0);pointer-events:none}
-  html.no-js #wake{display:none}
-  #topsig{position:fixed;top:0;left:0;z-index:190;height:2px;width:220px;pointer-events:none;
-    background:linear-gradient(90deg,transparent,var(--mint),transparent);opacity:0;
-    filter:drop-shadow(0 0 6px var(--mint))}
+  /* #wake (a fixed, opaque, full-viewport veil the timeline faded off) and
+     #topsig (a streak flown across the top of the page) both lived here until
+     2026-08-27. Both are gone, for the same reason: NOTHING outside the
+     dedicated visual area (#stage) may be animated, and a veil over the whole
+     document is the most total form of that. A backgrounded tab throttles rAF,
+     so the timeline sat at progress 0 and the veil never lifted. Measured at
+     9.7s with the entire page still dark. The stage is the only animated
+     surface now, so there is nothing to uncover. */
 
   .navitem{overflow:hidden;display:inline-flex}
   @media(max-width:880px){.navitem{display:block;overflow:visible}}
@@ -786,33 +789,42 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      get that wrong. */
   .hero .copy{container-type:inline-size}
   .hero h1{font-weight:700;letter-spacing:-.03em;line-height:1.0;margin:20px 0 0;
-    /* 9.8, not 10.6. The headline has TWO widths: with reduced motion the
-       text is never split into .ch spans, and the unsplit run is ~8% wider
-       than the split one because the -.03em margin that is meant to make
-       them identical does not quite. Sized for the wider case, or nowrap
-       turns the difference into 46px of overflow for exactly the visitors
-       who asked for less motion. */
+    /* 9.5cqi was chosen for the UNSPLIT run, which used to be the reduced-
+       motion width and is ~8% wider than the per-character one. There is only
+       one width now (nothing is ever split), and it is that wider one, so the
+       size is already correct for every visitor and is deliberately left
+       alone: changing it would move the headline, and no layout may shift. */
     font-size:clamp(40px,9.5cqi,72px)}
-  /* .14em, not .06em: line-height:1.0 puts the font's descent below the
-     line box, so "your business is losing." was having its descenders
-     shaved by the reveal mask. */
-  .hero h1 .line{display:block;overflow:hidden;padding-bottom:.14em}
-  /* THE MID-WORD BREAK. The reveal animation splits the headline into
-     per-character inline-block spans, and a browser may break between any
-     two inline-blocks, so the line broke INSIDE words ("Find the rev /
-     enue", "your busine / ss is losing."). The &nbsp; joining the words
-     could not prevent it, because the breaks were never at the spaces.
-     A phrase is one line by design; this says so. */
+  /* NO overflow:hidden. It was the curtain mask the per-character reveal rose
+     out of, which is exactly the "clipping on the content container" the
+     headline may no longer be subject to: a stalled frame left every letter
+     parked below the mask and the headline simply absent. The headline is
+     never transformed now, so there is nothing to hide and nothing to clip.
+
+     padding-bottom:.14em STAYS. It was added because line-height:1.0 puts the
+     font's descent below the line box and the mask shaved it; without the mask
+     it no longer clips anything, but it is still 0.14em of the h1's height at
+     two places, and removing it moves the lede and both CTAs up. No layout
+     shift outranks tidiness, so the rhythm is left exactly as it renders now. */
+  .hero h1 .line{display:block;padding-bottom:.14em}
+  /* A phrase is one line by design, and nowrap is what says so. It used to be
+     defending against a mid-word break introduced by the per-character split
+     ("Find the rev / enue"). The split is gone, but the intent it protected,
+     each clause reading as one unbroken phrase at every width, is the design,
+     so the rule stays and tests/hero-headline-fits.spec.js still holds it.
+     With no split, the words are joined by ORDINARY spaces: the &nbsp;s only
+     ever existed so the curtain could lift a line as a single unit. */
   .hero h1 .w{display:inline-block;white-space:nowrap}
   .hero h1 .g{color:var(--mint)}
-  /* char-split spans: inline-block breaks the h1's letter-spacing between
-     spans, so it is reapplied as a margin to keep the split word exactly as
-     wide as the static one (no layout jump at split time). */
-  .hero h1 .ch{display:inline-block;margin-right:-.03em}
+  /* The underline is drawn, full width, always. It is typography, not an
+     event: it used to rest at scaleX(0) and be drawn by the timeline, with
+     html.no-js / html.motion-off exceptions to rescue it whenever the
+     timeline could not run. Three states for one static rule, and the
+     ordinary path was the one that could fail. One state now, no exceptions,
+     nothing to rescue. */
   .hero-underline{display:block;width:5.35em;max-width:92%;height:3px;margin-top:.1em;
     border-radius:2px;background:linear-gradient(90deg,var(--mint) 0%,rgba(159,240,206,.25) 78%,rgba(159,240,206,0) 100%);
-    transform:scaleX(0);transform-origin:0 50%}
-  html.no-js .hero-underline,html.motion-off .hero-underline{transform:scaleX(1)}
+    transform:scaleX(1);transform-origin:0 50%}
   .lede{color:var(--muted);font-size:clamp(16px,1.5vw,19px);margin-top:20px;line-height:1.55;max-width:44ch}
   .lede strong{color:var(--ink);font-weight:600}
   /* The expansion line. A step down from the lede on purpose: the entry offer
@@ -911,7 +923,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     .hero-links a{color:var(--muted)}
     .hero-links a:hover{color:var(--ink)}
   }
-  @media(prefers-reduced-motion:reduce){#wake,#topsig{display:none}}
 
 /* ---- the loop miniature (#moves) ---- */
 .loop-mini{margin:6px 0 18px;padding:18px 14px 10px;border:1px solid var(--line);border-radius:16px;background:rgba(10,26,36,.45)}
@@ -1186,8 +1197,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<div id="wake" aria-hidden="true"></div>
-<div id="topsig" aria-hidden="true"></div>
 
 <header class="site-header">
   <div class="wrap">
@@ -1227,17 +1236,21 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              eyebrow on two lines the stage started at y=808 of an 812px
              viewport and the film never played on a phone. -->
         <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Edmonton-built, for the trades</span>
-        <!-- aria-label because hero.js splits these words into per-character
-             spans for the curtain reveal; without it a screen reader would
-             announce a letter stream instead of the sentence.
+        <!-- THE REAL TEXT IS THE ACCESSIBLE TEXT. This h1 carried an
+             aria-label and hid its own lines behind aria-hidden, because
+             hero.js used to shred the words into ~40 per-character spans and
+             a screen reader would otherwise have announced a letter stream.
+             Nothing is split any more, so the sentence in the markup is the
+             sentence everyone gets, sighted or assistive, JS or no JS, and it
+             is announced exactly once: there is no second labelling path left
+             to duplicate it.
 
-             TWO groups, always. assets/motion/hero.js animates exactly
-             h1 .w[data-w="1"] and [data-w="2"]; a third group would never
-             be revealed and would sit invisible on a page that has to read
-             with no JS at all. -->
-        <h1 aria-label="Find the revenue your business is losing.">
-          <span class="line" aria-hidden="true"><span class="w" data-w="1">Find&nbsp;the&nbsp;revenue</span></span>
-          <span class="line" aria-hidden="true"><span class="w g" data-w="2">your&nbsp;business&nbsp;is&nbsp;losing.</span><span class="hero-underline"></span></span>
+             The .line / .w / .g structure stays. It is the typographic
+             design (two phrases, the second in mint) and no longer a
+             mechanism: nothing animates it and nothing reads data-w. -->
+        <h1>
+          <span class="line"><span class="w" data-w="1">Find the revenue</span></span>
+          <span class="line"><span class="w g" data-w="2">your business is losing.</span><span class="hero-underline" aria-hidden="true"></span></span>
         </h1>
         <p class="lede">Missed calls become missed jobs. Slow follow-up kills leads you
           already paid for. NEVAMIS looks at how your business actually operates,
@@ -1324,24 +1337,42 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
               <stop offset=".72" stop-color="#04121C" stop-opacity="0"/>
             </radialGradient>
           </defs>
+          <!-- WHAT THIS SVG SHOWS WITH NO JAVASCRIPT AT ALL: the arch and the
+               dot. Nothing else. That is the official mark, and it is the frame
+               the owner requires to survive any failure of the animation, so
+               it is the frame the MARKUP paints, before a line of script runs
+               and whether or not any ever does.
+
+               Every element the film introduces therefore ships at opacity="0"
+               and is switched on by the timeline. It used to be the other way
+               round: #archFull (the real, single-stroke mark) was the hidden
+               one and the two construction halves, the waves, the four
+               overlapping story labels, the progress bar, the packet and three
+               loose tracer dots were all visible by default. With scripting off
+               that was the whole cast on stage at once, and the resting mark
+               was the one thing missing. -->
           <circle id="scrimC" cx="310" cy="285" r="255" fill="url(#scrim)" opacity="0"/>
           <g id="waves" fill="none" stroke="#9FF0CE" stroke-width="3" filter="url(#glowTight)">
-            <circle class="wave" cx="310" cy="352" r="140"/>
-            <circle class="wave" cx="310" cy="352" r="140"/>
+            <circle class="wave" cx="310" cy="352" r="140" opacity="0"/>
+            <circle class="wave" cx="310" cy="352" r="140" opacity="0"/>
           </g>
           <g id="markGroup">
-            <path id="archFull" d="M 180 300 A 130 130 0 0 1 440 300" fill="none" opacity="0"
+            <!-- The resting mark: ONE continuous stroke. The two halves below
+                 exist only to be drawn from both ends during the intro; their
+                 round linecaps overlap at the apex into a doubled hot spot, so
+                 they are never what the mark rests as. -->
+            <path id="archFull" d="M 180 300 A 130 130 0 0 1 440 300" fill="none" opacity="1"
                   stroke="url(#grad)" stroke-width="14" stroke-linecap="round"/>
             <g filter="url(#glow)">
-              <path id="archL" d="M 180 300 A 130 130 0 0 1 310 170" fill="none"
+              <path id="archL" d="M 180 300 A 130 130 0 0 1 310 170" fill="none" opacity="0"
                     stroke="url(#grad)" stroke-width="14" stroke-linecap="round"/>
-              <path id="archR" d="M 440 300 A 130 130 0 0 0 310 170" fill="none"
+              <path id="archR" d="M 440 300 A 130 130 0 0 0 310 170" fill="none" opacity="0"
                     stroke="url(#grad)" stroke-width="14" stroke-linecap="round"/>
             </g>
-            <circle id="dotPulse" cx="310" cy="352" r="24" fill="none" stroke="#9FF0CE" stroke-width="3" filter="url(#glowTight)"/>
+            <circle id="dotPulse" cx="310" cy="352" r="24" fill="none" stroke="#9FF0CE" stroke-width="3" filter="url(#glowTight)" opacity="0"/>
             <circle id="dot" cx="310" cy="352" r="24" fill="url(#dotg)" filter="url(#glow)"/>
           </g>
-          <g id="story">
+          <g id="story" opacity="0">
             <g class="step" data-i="0">
               <text class="step-label" x="310" y="452" text-anchor="middle">ANSWER</text>
               <text class="step-frag"  x="310" y="482" text-anchor="middle">caller intent</text>
@@ -1373,10 +1404,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
               </g>
             </g>
           </g>
-          <circle id="archTipL" r="7" fill="#EAFBF3" filter="url(#glowTight)"/>
-          <circle id="archTipR" r="7" fill="#EAFBF3" filter="url(#glowTight)"/>
-          <circle id="archHi" r="6" fill="#EAFBF3" filter="url(#glowTight)"/>
-          <circle id="packet" cx="310" cy="352" r="7" fill="#EAFBF3" filter="url(#glowTight)"/>
+          <!-- Tracers. With no cx/cy these rest at the SVG's origin, so left
+               visible they were three bright specks in the top-left corner of
+               a stage whose mark had not drawn. -->
+          <circle id="archTipL" r="7" fill="#EAFBF3" filter="url(#glowTight)" opacity="0"/>
+          <circle id="archTipR" r="7" fill="#EAFBF3" filter="url(#glowTight)" opacity="0"/>
+          <circle id="archHi" r="6" fill="#EAFBF3" filter="url(#glowTight)" opacity="0"/>
+          <circle id="packet" cx="310" cy="352" r="7" fill="#EAFBF3" filter="url(#glowTight)" opacity="0"/>
         </svg>
         <div class="status" id="status" aria-hidden="true">● <b>CALL ANSWERED</b> <span class="vb" data-voice></span></div>
         <button class="motion-toggle-btn" aria-pressed="false">pause motion</button>
@@ -2190,27 +2224,23 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
 <a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer · (587) 413-0035</a>
 
-<script>
-  // The .no-js class is removed by site.js, NOT here.
-  //
-  // It used to be dropped on this line, during parse, whether or not site.js
-  // ever arrived. .reveal is opacity:0 by default and html.no-js .reveal
-  // restores it, so one dropped site.js request (a job-site connection, a
-  // blocked script, a bad cache entry) left all 47 content blocks on this
-  // page invisible across 22,000px, with nothing to reveal them. Measured, by
-  // aborting exactly that one request.
-  //
-  // site.js removes it as its first statement and its catch puts it back, so
-  // the class already tracks "the script is working". This line only broke
-  // that contract.
-  //
-  // Safety net: if the motion system never boots, the wake overlay must not
-  // strand the page on a black screen.
-  setTimeout(function () {
-    var w = document.getElementById('wake');
-    if (w && !window.__heroTL) { w.style.opacity = '0'; w.style.visibility = 'hidden'; }
-  }, 2500);
-</script>
+<!-- The .no-js class is removed by site.js, NOT here.
+
+     It used to be dropped by an inline script on this line, during parse,
+     whether or not site.js ever arrived. .reveal is opacity:0 by default and
+     html.no-js .reveal restores it, so one dropped site.js request (a job-site
+     connection, a blocked script, a bad cache entry) left all 47 content
+     blocks on this page invisible across 22,000px, with nothing to reveal
+     them. Measured, by aborting exactly that one request.
+
+     site.js removes it as its first statement and its catch puts it back, so
+     the class already tracks "the script is working".
+
+     A second inline script sat here too, a 2.5s timer that force-hid the #wake
+     veil if the motion system never booted. It is gone with the veil: a safety
+     net for an element that no longer exists, guarding against a failure mode
+     that can no longer happen, because nothing outside #stage is hidden and
+     nothing has to be given back. -->
 <!-- The four industry photographs are CSS backgrounds on elements that sit
      ~1,600 lines down the page, and a CSS background has no loading="lazy":
      the browser fetched all four on first load, 112KB competing for Slow-4G
