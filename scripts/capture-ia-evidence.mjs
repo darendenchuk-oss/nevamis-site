@@ -57,8 +57,16 @@ async function settle(page) {
   });
 }
 
-const written = [];
+/* --only=a,b recaptures just the artifacts whose names contain one of those
+   substrings. A change that touches one band should not reshoot twenty-five
+   files and leave the reviewer diffing screenshots that did not change. */
+const only = (process.argv.find((a) => a.startsWith('--only=')) || '').slice(7)
+  .split(',').map((s) => s.trim()).filter(Boolean);
+const wanted = (name) => !only.length || only.some((f) => name.includes(f));
+
+const written = [], skipped = [];
 async function shoot(page, name, locator) {
+  if (!wanted(name)) { skipped.push(name); return; }
   const file = path.join(OUT, name + '.png');
   if (locator) await locator.screenshot({ path: file });
   else await page.screenshot({ path: file, fullPage: true });
@@ -88,6 +96,7 @@ for (const [label, viewport] of [['desktop', DESKTOP], ['mobile', MOBILE]]) {
 /* ---------- the two pages the homepage handed work to ---------- */
 for (const [file, name] of [['/roi.html', 'roi'], ['/demo.html', 'demo']]) {
   for (const [label, viewport] of [['desktop', DESKTOP], ['mobile', MOBILE]]) {
+    if (!wanted(`${name}-${label}-full`)) continue;
     const ctx = await browser.newContext({ viewport });
     const page = await ctx.newPage();
     await page.goto(BASE + file);
@@ -137,7 +146,7 @@ for (let i = 0; i < 70; i++) {
   if (!stop) break;
   stops.push(stop);
 }
-fs.writeFileSync(path.join(OUT, 'focus-order.md'),
+if (wanted('focus-order')) fs.writeFileSync(path.join(OUT, 'focus-order.md'),
   '# Keyboard focus order, homepage, 1280x800\n\n'
   + 'Tabbed from the top of the document. `on screen` is whether the focused\n'
   + 'element was inside the viewport when it took focus, which is the thing a\n'
@@ -145,9 +154,9 @@ fs.writeFileSync(path.join(OUT, 'focus-order.md'),
   + '| # | where | element | accessible text | on screen |\n|---|---|---|---|---|\n'
   + stops.map((s, i) => `| ${i + 1} | ${s.where} | ${s.tag} | ${s.label.replace(/\|/g, '\\|')} | ${s.onScreen ? 'yes' : 'NO'} |`).join('\n')
   + '\n');
-written.push('focus-order.md');
-console.log('wrote focus-order.md,', stops.length, 'stops');
+if (wanted('focus-order')) { written.push('focus-order.md'); console.log('wrote focus-order.md,', stops.length, 'stops'); }
 await ctx.close();
 
 await browser.close();
-console.log('\n' + written.length + ' artifact(s) in artifacts/site-ia/');
+console.log('\n' + written.length + ' artifact(s) written to artifacts/site-ia/'
+  + (skipped.length ? `, ${skipped.length} left as they were` : ''));

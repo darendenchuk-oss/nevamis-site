@@ -484,12 +484,27 @@ test('keyboard users reach every control with a visible focus ring', async ({ pa
   }
 
   const labels = reached.map((r) => r.text).join(' | ');
-  expect(labels, 'the primary CTA must be keyboard reachable').toContain('Hear it answer');
-  /* 'Book a 15-min call' until 2026-08-17, when the secondary slot went to
-     the live PULSE scanner — the headline promises to find lost revenue and
-     the page finally has the thing that does it. Booking stayed reachable in
-     the nav, which this same walk covers. */
-  expect(labels, 'the secondary CTA must be keyboard reachable').toContain('Scan my business');
+
+  /* DERIVED, NOT TYPED, and the reason is a defect this very run produced.
+     These were two pinned sentences: 'Hear it answer' for the primary and
+     'Scan my business' for the secondary. On 2026-08-28 the owner made the
+     scan the single primary, and the second assertion failed honestly while
+     the FIRST one kept passing for the wrong reason: the header still carries
+     a "Hear it answer" button, so an assertion named "the primary CTA" was
+     satisfied by the navigation. A test that names one element and is
+     answered by another has stopped guarding anything.
+
+     The rule was never about the words. It is that BOTH hero CTAs, whatever
+     they say, are reachable by keyboard and carry a visible ring. Reading the
+     labels off the page states exactly that, and the next copy edit cannot
+     quietly retire it. */
+  const heroCtas = await page.evaluate(() =>
+    [...document.querySelectorAll('.hero [data-cta]')]
+      .map((el) => (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 28)));
+  expect(heroCtas.length, 'the hero must offer a primary and a secondary CTA').toBe(2);
+  for (const label of heroCtas) {
+    expect(labels, `hero CTA "${label}" must be keyboard reachable`).toContain(label);
+  }
 
   for (const r of reached) {
     expect(r.focusIndicator, `no visible focus ring on "${r.text}"`).not.toBe('NONE');
