@@ -93,7 +93,7 @@ export const PAGES = {
         { t: 'Emergency triage', d: 'Sparks, heat, or burning smell escalate by your rules.' },
         { t: 'Quotes and upgrades', d: 'Panel upgrades and rewires captured as leads with the details you need.' },
         { t: 'Service-call pricing', d: 'Only the diagnostic or trip fee you approve, quoted the same way every time.' },
-        { t: 'Service area', d: 'Out-of-area callers are told honestly instead of being booked and cancelled.' },
+        { t: 'Service area', d: 'Out-of-area callers are told honestly instead of being taken on and cancelled later.' },
         { t: 'Permits and inspections', d: 'Common questions answered from your approved FAQ, not improvised.' },
       ],
     }),
@@ -101,7 +101,7 @@ export const PAGES = {
 
   'hvac.html': {
     h1: 'The 11 PM no-heat call, answered',
-    lede: `A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, books the visit, and sends you the summary.`,
+    lede: `A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, takes the job down, and sends you the summary.`,
     body: tradeBody({
       trade: 'heating and cooling',
       whenItRings: 'Your busiest calls arrive at the worst possible hour.',
@@ -115,7 +115,7 @@ export const PAGES = {
         your calendar actually has.`,
       jobs: [
         { t: 'No-heat and no-cool calls', d: 'Triaged by your emergency criteria, not a generic script.' },
-        { t: 'Seasonal tune-ups', d: 'Booked straight into open slots without interrupting anyone.' },
+        { t: 'Seasonal tune-ups', d: 'Taken down with the time they want, without interrupting anyone.' },
         { t: 'Maintenance plans', d: 'Existing plan holders recognised and handled by your rules.' },
         { t: 'Equipment questions', d: 'Answered from your approved FAQ, or taken as a message.' },
         { t: 'Diagnostic fee', d: 'Quoted exactly as you set it, every time.' },
@@ -215,7 +215,7 @@ export const PAGES = {
       <h2>Voicemail records the lost job. It does not save it.</h2>
       <p>By the time you play a message back the next morning, the caller has usually already
         reached somebody who picked up. An after-hours call that gets answered, qualified, and
-        booked is a job. The same call sent to voicemail is a note about a job you did not get.</p>
+        captured is a job you can still win. The same call sent to voicemail is a note about a job you did not get.</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-ghost" href="/vs-voicemail.html" data-evt="situation_compare_click">Compare it to voicemail</a>
@@ -266,7 +266,7 @@ export const PAGES = {
 
   'vs-voicemail.html': {
     h1: 'AI receptionist vs voicemail',
-    lede: `Voicemail is free and it is better than nothing. It also does not qualify anyone, book anything, or stop a caller reaching your competitor. Here is the honest comparison.`,
+    lede: `Voicemail is free and it is better than nothing. It also does not qualify anyone, take a job down, or stop a caller reaching your competitor. Here is the honest comparison.`,
     body: `
 <section class="tight">
   <div class="wrap">
@@ -277,7 +277,7 @@ export const PAGES = {
           <tr><th scope="row">Answers immediately</th><td class="no">No</td><td class="yes">Yes</td></tr>
           <tr><th scope="row">Asks your qualifying questions</th><td class="no">No</td><td class="yes">Yes</td></tr>
           <tr><th scope="row">Takes the job down in full</th><td class="no">No</td><td class="yes">Yes</td></tr>
-          <tr><th scope="row">Confirms the time with the caller</th><td class="no">No</td><td class="yes">Yes, out loud on the call</td></tr>
+          <tr><th scope="row">Repeats the details back to the caller</th><td class="no">No</td><td class="yes">Yes, and says you will confirm the time</td></tr>
           <tr><th scope="row">Escalates an emergency</th><td class="no">No</td><td class="yes">By your rules</td></tr>
           <tr><th scope="row">Gives you a useful summary</th><td class="part">A recording</td><td class="yes">Name, number, need, outcome</td></tr>
           <tr><th scope="row">Costs nothing</th><td class="yes">Yes</td><td class="part">Monthly plan</td></tr>

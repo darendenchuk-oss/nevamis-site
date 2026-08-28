@@ -16,7 +16,7 @@
     { "file": "hvac.html", "url": "/hvac.html", "priority": "0.7", "cluster": "trade", "nav": "HVAC",
       "title": "Answering Service for HVAC Companies",
       "query": "hvac answering service",
-      "blurb": "No-heat calls at 11 PM answered, triaged, and booked." },
+      "blurb": "No-heat calls at 11 PM answered, triaged, and taken down for you." },
     { "file": "plumbers.html", "url": "/plumbers.html", "priority": "0.7", "cluster": "trade", "nav": "Plumbers",
       "title": "Answering Service for Plumbers",
       "query": "plumber answering service",
