@@ -1,6 +1,8 @@
 # nevamis.ca
 
-Marketing site for Nevamis AI (Edmonton AI receptionist studio).
+Marketing site for NEVAMIS (Edmonton AI receptionist studio). The brand name
+never carries "AI" after it; the filed entity "Nevamis AI Inc." is a legal
+identifier and is untouched wherever it identifies the contracting party.
 Plain HTML/CSS/JS, no build step, hosted on **GitHub Pages** with the custom
 domain `nevamis.ca` (DNS at Porkbun).
 
