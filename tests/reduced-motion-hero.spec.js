@@ -65,15 +65,20 @@ test('the headline is not cut off', async ({ page }) => {
     return {
       overflowBy: Math.max(0, ...words.map((w) => Math.round(w.getBoundingClientRect().right - box.right))),
       rendered: words.map((w) => w.textContent.trim()).join(' '),
-      label: h1.getAttribute('aria-label'),
+      announced: h1.textContent.trim(),
     };
   });
 
   expect(r.overflowBy, `the headline runs ${r.overflowBy}px past its column and is clipped`).toBeLessThanOrEqual(2);
-  /* The rendered words must be the whole sentence the label promises. Compared
-     on words, because the wrap points differ between the two motion paths. */
+  /* The rendered phrases must add up to the whole sentence. This compared them
+     against the h1's aria-label until 2026-08-27, when the label was removed:
+     it existed only because the animated path shredded the words into
+     per-character spans, and keeping it beside unhidden real text would have
+     had a screen reader announce the headline twice. The sentence a visitor
+     reads and the sentence assistive tech is handed are now the same string by
+     construction, so this compares the phrases to it directly. */
   const norm = (s) => s.replace(/\s+/g, ' ').trim();
-  expect(norm(r.rendered)).toBe(norm(r.label));
+  expect(norm(r.rendered)).toBe(norm(r.announced));
 });
 
 /* The reason the branch exists. If this ever fails, something is animating for
