@@ -37,14 +37,21 @@ Key facts (kept accurate; the pricing page is authoritative):
     Performance Partnership: by invitation and approval only, never the
                              default and never self-serve. Launch &
                              Implementation from C$2,500 to start, then
-                             C$350 a month, inside a published band of
-                             C$250 to C$500, plus performance-based
+                             C$350 a month. That MONTHLY figure sits
+                             inside a published monthly band of C$250 to
+                             C$500; the band describes the monthly only,
+                             never the Launch & Implementation fee, which
+                             is a floor and not a fixed price. On top of
+                             the monthly there is performance-based
                              compensation tied to verified results. The
                              monthly, the share, the attribution window
                              and what counts as eligible revenue are all
                              set in the client's agreement before anything
-                             is charged. No rate is quoted here, and none
-                             is quoted on a call.
+                             is charged. The share IS published, as a
+                             percentage, on /pricing.html: cite it from
+                             there rather than from this file, and never
+                             present it as a figure quoted on a call,
+                             because it is not one.
     Enterprise:              quoted per client. Launch & Implementation
                              starting at C$5,000 or custom quoted;
                              recurring custom; performance optional. There
@@ -66,8 +73,10 @@ Key facts (kept accurate; the pricing page is authoritative):
 - The performance fee exists only on Performance Partnership. It is never
   a share of all revenue, and never profit-based. It applies only to collected
   revenue directly attributable to qualified NEVAMIS-generated opportunities,
-  as governed by the customer's agreement, which is also where the rate is
-  set. Do not state a percentage for it.
+  as governed by the customer's agreement, which is where the rate is set.
+  The percentage itself is published on /pricing.html: cite it from there
+  rather than from this file, and never present it as a figure quoted on a
+  call, because it is not one.
 - Pay As You Go ($49/mo) and annual prepay were retired on 2026-08-06 and
   are no longer offered. Do not quote them.
 - There is no pilot and no evaluation period, paid or unpaid.
