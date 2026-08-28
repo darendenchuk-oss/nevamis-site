@@ -419,9 +419,26 @@ test('footer, callbar and every section land without console errors', async ({ b
   watchErrors(page, errors);
   await page.goto(PLAIN);
 
-  // all major sections exist
-  for (const id of ['proof', 'simulator', 'how', 'solutions', 'industries', 'roi',
-    'process', 'compare', 'build-stack', 'day-one', 'pricing-preview', 'risk', 'beyond', 'faq']) {
+  /* WAS a hand-typed list of fourteen section ids, which is this
+     repository's standing defect class: it went stale the moment the
+     homepage was rebuilt as seven sections on 2026-08-27, and half the ids
+     on it named blocks that had legitimately moved to other pages.
+
+     Derived instead. The markup carries data-ia="1".."7", one per band of
+     the owner's specification, so the assertion is the SPECIFICATION rather
+     than a snapshot of whatever ids happened to exist: seven bands, in
+     order, none missing. A band that is deleted or renumbered fails here;
+     a band that is renamed does not, which is correct, because the name is
+     copy and the structure is the contract. */
+  const bands = await page.evaluate(() =>
+    [...new Set([...document.querySelectorAll('main [data-ia]')].map((el) => el.dataset.ia))]);
+  expect(bands, 'the homepage is seven sections, in the owner-specified order')
+    .toEqual(['1', '2', '3', '4', '5', '6', '7']);
+
+  /* And the anchors the shared chrome points at have to keep resolving:
+     the header nav and the footer both link /#how, and the FAQ is the one
+     in-page destination the search index offers. */
+  for (const id of ['how', 'faq']) {
     await expect(page.locator('#' + id)).toHaveCount(1);
   }
   // mobile call bar visible at phone width

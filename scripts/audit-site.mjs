@@ -10,7 +10,17 @@
 import { chromium } from '@playwright/test';
 import fs from 'node:fs';
 
-const BASE = 'http://127.0.0.1:3211';
+/* One machine holds several checkouts of this site, and 3211 is whichever one
+   started first. Hardcoded, this audit silently crawled a DIFFERENT worktree:
+   a page that exists only here came back as the homepage, because serve.js
+   answers an unknown path with index.html, and the audit dutifully reported
+   "duplicate title, same as /" and "orphan" about a page it had never seen.
+   A finding produced against the wrong tree is worse than no finding.
+
+   NV_PORT is the same variable playwright.config.js already uses to give a
+   worktree its own server, so a lane sets it once and both tools follow. */
+const PORT = Number(process.env.NV_PORT || 3211);
+const BASE = `http://127.0.0.1:${PORT}`;
 const MAP = JSON.parse(fs.readFileSync('content-map.json', 'utf8'));
 const PAGES = MAP.pages.filter((p) => p.url);
 const asJson = process.argv.includes('--json');

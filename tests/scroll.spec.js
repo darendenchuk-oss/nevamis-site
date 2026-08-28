@@ -68,7 +68,13 @@ test('a full scroll-through leaves no masked word and no scene hidden (desktop)'
 test('the night band pins on desktop and never pins on a phone', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(NIGHT);
-  await page.waitForFunction(() => !!window.__heroTL);
+  /* WAS a wait on window.__heroTL. That is the HOMEPAGE hero film, and the
+     demo page has no hero film to wait for, so the wait could only ever time
+     out. What this test actually needs is for assets/motion/scroll.js to have
+     run its gsap.matchMedia pass, which is what sets the class being read. */
+  await page.waitForFunction(() =>
+    document.documentElement.classList.contains('nv-pin-night')
+    || !!document.querySelector('[data-night]') === false, { timeout: 15000 });
   const pinnedDesktop = await page.evaluate(() =>
     document.documentElement.classList.contains('nv-pin-night'));
   expect(pinnedDesktop, 'desktop should run the pinned scrub').toBe(true);
