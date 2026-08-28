@@ -1114,7 +1114,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "name": "What happens when a caller has an unusual question?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "The agent only commits to what your rules allow. For anything outside them it takes a message, flags the summary, or transfers, depending on how we configure escalation with you."
+          "text": "The agent only commits to what your rules allow. For anything outside them it takes a message and flags the summary, in the way we configure escalation with you."
         }
       },
       {
@@ -1760,7 +1760,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <li>The caller explains what they need.</li>
           <li>It captures the facts: service, urgency, location, contact, timing.</li>
           <li>Your approved business rules are checked: service area, offerings, emergency criteria, calendar.</li>
-          <li>Routine requests are captured with the time they want. Emergencies transfer or get flagged urgent. Unknown questions take the safe fallback instead of a made-up answer.</li>
+          <li>Routine requests are captured with the time they want. Emergencies are flagged urgent and your team is alerted. Unknown questions take the safe fallback instead of a made-up answer.</li>
           <li>The caller is told what happens next, and that you will confirm the time. You get the summary.</li>
         </ol>
       </details>
@@ -1802,7 +1802,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <dl>
           <dt>When it answers</dt><dd>Evenings, weekends, holidays: whenever your office is closed.</dd>
           <dt>Where calls go</dt><dd>Your number forwards to Nevamis outside business hours. During the day nothing changes.</dd>
-          <dt>Urgent calls</dt><dd>Escalation rules are configured with you: transfer to an on-call number or flag the summary as urgent.</dd>
+          <dt>Urgent calls</dt><dd>Escalation rules are configured with you: NEVAMIS captures the urgent details and alerts your team, with the summary flagged urgent.</dd>
           <dt>Who gets the summary</dt><dd>You, by SMS or email, after every call.</dd>
         </dl>
       </div>
@@ -1810,7 +1810,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <dl>
           <dt>When it answers</dt><dd>Only when you can't: after 3 or 4 rings, or when the line is busy.</dd>
           <dt>Where calls go</dt><dd>Conditional forwarding on your existing number. You answer when you can, Nevamis catches the rest.</dd>
-          <dt>Urgent calls</dt><dd>Configured with you: transfer attempts to your cell, or an urgent-flagged summary.</dd>
+          <dt>Urgent calls</dt><dd>Configured with you: NEVAMIS captures the urgent details and alerts your cell, with the summary flagged urgent.</dd>
           <dt>Who gets the summary</dt><dd>You, immediately after each caught call.</dd>
         </dl>
       </div>
@@ -1992,7 +1992,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
                  in those words. -->
             <tr><th scope="row">Books straight into your calendar</th><td class="no">No</td><td class="part">Sometimes</td><td class="no">Not built: you confirm</td></tr>
             <tr><th scope="row">Tells the caller what happens next</th><td class="no">No</td><td class="part">Generic script</td><td class="yes">In your words</td></tr>
-            <tr><th scope="row">Transfers by approved rules</th><td class="no">No</td><td class="part">Not by default</td><td class="yes">Yes</td></tr>
+            <tr><th scope="row">Flags urgent calls by approved rules</th><td class="no">No</td><td class="part">Not by default</td><td class="yes">Yes</td></tr>
             <tr><th scope="row">Sends you a summary</th><td class="part">A recording</td><td class="part">A transcript</td><td class="yes">A useful summary</td></tr>
             <tr><th scope="row">Tested and tuned for you</th><td class="no">No</td><td class="no">You are support</td><td class="yes">Done for you</td></tr>
           </tbody>
@@ -2018,7 +2018,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <div class="layer"><strong>Business knowledge</strong><span>Your services, prices you approve, FAQs, service area, hours.</span></div>
         <div class="layer"><strong>Call flow</strong><span>How your calls actually run, from greeting to goodbye.</span></div>
         <div class="layer"><strong>Qualification questions</strong><span>The questions that separate a job from a tire-kicker.</span></div>
-        <div class="layer"><strong>Business rules</strong><span>What is captured, what transfers, what waits for you.</span></div>
+        <div class="layer"><strong>Business rules</strong><span>What is captured, what is flagged urgent, what waits for you.</span></div>
         <div class="layer"><strong>Booking rules</strong><span>Which jobs you take, and what the caller is told about timing.</span></div>
         <div class="layer"><strong>Handover</strong><span>The job in your pocket as a text, ready for you to confirm.</span></div>
         <div class="layer"><strong>Owner summaries</strong><span>Name, number, need, and outcome after every call.</span></div>
@@ -2150,7 +2150,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <details><summary>Can I keep my current phone number?</summary><p>Yes. Your number stays exactly as it is. Call forwarding sends calls to Nevamis always, after hours, or only when you miss the call. You can switch it off from your own phone at any time.</p></details>
       <details><summary>Can it answer only after hours or when we miss a call?</summary><p>Yes. That is exactly what conditional forwarding does: you answer when you can, Nevamis catches everything else instead of voicemail.</p></details>
       <details><summary>Can it book directly into my calendar?</summary><p>Not yet, and we will not pretend otherwise. The assistant takes the job, the address and the time the caller wants, then texts it to you so you can confirm the slot. Direct calendar booking is on the roadmap and is not live on any line today.</p></details>
-      <details><summary>What happens when a caller has an unusual question?</summary><p>The agent only commits to what your rules allow. For anything outside them it takes a message, flags the summary, or transfers, depending on how we configure escalation with you.</p></details>
+      <details><summary>What happens when a caller has an unusual question?</summary><p>The agent only commits to what your rules allow. For anything outside them it takes a message and flags the summary, in the way we configure escalation with you.</p></details>
       <details><summary>What happens on an urgent call?</summary><p>NEVAMIS captures the urgent details and alerts your team. We define together what counts as urgent for your business, and a call that meets it is flagged that way the moment it ends. Live transfer to a person is not part of the service.</p></details>
       <!-- The question read "Can it handle multiple locations or languages?"
            until 2026-08-09. build-schema.mjs lifts every summary element into

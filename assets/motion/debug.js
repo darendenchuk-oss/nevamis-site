@@ -105,7 +105,7 @@ export function initDebug(tl) {
 
   const hint = document.createElement('p');
   hint.className = 'hint';
-  hint.textContent = 'Dev only — never shown in the normal view. Drop ?motionDebug=1 to see the real page.';
+  hint.textContent = 'Dev only, never shown in the normal view. Drop ?motionDebug=1 to see the real page.';
   box.appendChild(hint);
 
   document.body.appendChild(box);

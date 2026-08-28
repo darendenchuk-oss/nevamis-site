@@ -28,6 +28,7 @@ import { applySelfCta } from "./lib/nav-cta.mjs";
    running every filesystem guard below as a side effect. See that file for the
    scope rule; see scripts/check-claims-classifier.mjs for the fixtures. */
 import { DENIAL, ADDITIVE, RETIRED_OFFERS, statesBanned, offendingClause } from "./lib/claims.mjs";
+import { stripHtmlComments, stripJsComments, jsStringLiterals, renderedProse, clauses } from "./lib/rendered-text.mjs";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
    had no shared chrome, and that exemption is exactly why its hand-copied nav
@@ -307,6 +308,111 @@ for (const p of contentPages) {
   }
 }
 
+/* 16. THE TRANSFER PROMISE, AND EM DASHES IN THE STRINGS JAVASCRIPT RENDERS.
+
+      llms.txt has said "there is no live transfer" since it was written. Ten
+      rendered surfaces sold one anyway, and the two facts lived side by side
+      for weeks because every guard in this file compares FIGURES. That is the
+      standing lesson here: a retired price gets caught, a retired PROMISE does
+      not, because nothing was watching the words. On 2026-08-27 a sweep
+      removed the last nine, including two FAQ entries that contradicted each
+      other inside the same FAQPage structured data. This is what stops the
+      eleventh.
+
+      WHAT THE AGENT ACTUALLY DOES on an urgent call: it captures the details
+      and alerts the business. It does not put a caller through to a person.
+      Emergency handling is the highest-stakes claim on this site, so the
+      wording is guarded rather than trusted.
+
+      SCOPE IS "WHAT A VISITOR READS", which is why it is not a file-wide
+      grep. HTML minus its comments, plus the string literals in the JS that
+      builds the DOM, minus THEIR comments (aurora.js embeds a shader and
+      cursor.js a stylesheet, both with comments of their own). Bare
+      identifier strings are skipped: motion.js legitimately carries
+      `outcome: "transfer"` as an internal key, and a guard that fails on its
+      own subject matter gets deleted. See scripts/lib/rendered-text.mjs.
+
+      A DENIAL IS ALLOWED, AND THE ALLOWLIST IS A CONSTRUCTION, NOT A FILE
+      LIST. The homepage FAQ has to be able to say "Live transfer to a person
+      is not part of the service" -- that sentence is the correction, and a
+      rule that fails it would fail the one place telling the truth. It is
+      excused because of how it is BUILT (a negation attached to the claim in
+      the same clause), so the next honest sentence somewhere else is excused
+      too, and no page is exempt by name. Same reasoning as guard 7d and
+      scripts/lib/claims.mjs.
+
+      Also here, sharing the same machinery: em dashes in rendered JS strings.
+      The per-page em-dash rule reads static HTML, so copy injected by
+      site.js was invisible to it, and site.js was shipping one. */
+{
+  const TRANSFER_PROMISE = [
+    /\btransfer(?:s|red|ring)?\b/i,
+    /\bpatch(?:es|ing)?\s+(?:you|them|the caller)\s+through\b/i,
+    /\bput(?:s|ting)?\s+(?:you|them|the caller)\s+through\b/i,
+    /\bconnect(?:s|ing)?\s+(?:you|them|the caller)\s+(?:to|with)\b/i,
+    /\b(?:stay|hold)\s+on\s+the\s+line\b/i,
+  ];
+  /* Constructions that WITHDRAW the claim in the clause that makes it. The
+     site's own correction is the first entry's job; the rest are the shapes
+     an honest sentence about this takes. Deliberately narrow: "not" alone
+     would excuse "we will not fail to transfer you". */
+  const TRANSFER_DENIAL = [
+    /\bis not part of the (?:service|product)\b/i,
+    /\bthere is no\b/i, /\bthere are no\b/i,
+    /\bnot built\b/i, /\bnot available\b/i, /\bnot offered\b/i,
+    /\bno live transfer\b/i,
+    /\b(?:does|do|will|can)\s+not\s+(?:transfer|connect|put|patch)\b/i,
+    /\bnever\s+(?:transfer|connect|put|patch)/i,
+    /\bwithout\s+(?:a\s+)?transfer\b/i,
+    /\bretired\b/i, /\bno longer\b/i,
+  ];
+  const promises = (c) => TRANSFER_PROMISE.some((r) => r.test(c));
+  const denies = (c) => TRANSFER_DENIAL.some((r) => r.test(c));
+
+  const jsSurfaces = ["site.js", "motion.js"];
+  for (const d of ["assets/motion"]) {
+    const abs = path.join(root, d);
+    if (fs.existsSync(abs)) for (const f of fs.readdirSync(abs)) if (f.endsWith(".js")) jsSurfaces.push(d + "/" + f);
+  }
+
+  /* One list of {label, clause} for both rules, so the JS side can never be
+     added to one and forgotten by the other. */
+  const rendered = [];
+  for (const p of contentPages) {
+    const html = stripHtmlComments(fs.readFileSync(path.join(root, p), "utf8"));
+    for (const c of clauses(html)) rendered.push({ label: p, clause: c, js: false });
+  }
+  for (const f of jsSurfaces) {
+    const abs = path.join(root, f);
+    if (!fs.existsSync(abs)) continue;
+    for (const lit of jsStringLiterals(stripJsComments(fs.readFileSync(abs, "utf8")))) {
+      const prose = renderedProse(lit);
+      if (!prose) continue;
+      for (const c of clauses(prose)) rendered.push({ label: f, clause: c, js: true });
+    }
+  }
+
+  const seen = new Set();
+  for (const { label, clause, js } of rendered) {
+    if (promises(clause) && !denies(clause)) {
+      const key = label + "::" + clause;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      err(label + ": promises to transfer or connect a caller to a person.\n      clause: \"" + clause.slice(0, 160) + "\"\n      "
+        + "The agent does not do this. On an urgent call it captures the details and alerts "
+        + "the business; llms.txt has said \"there is no live transfer\" since it was written. "
+        + "Say what happens instead. A clause that DENIES the transfer is allowed, which is how "
+        + "the homepage FAQ can carry \"Live transfer to a person is not part of the service\"; "
+        + "extend TRANSFER_DENIAL rather than exempting a file.");
+    }
+    if (js && clause.includes("\u2014")) {
+      err(label + ": a string this file renders into the page contains an em dash.\n      clause: \"" + clause.slice(0, 140) + "\"\n      "
+        + "The site bans em dashes. The per-page rule above reads static HTML, so copy injected "
+        + "by JavaScript is only covered here.");
+    }
+  }
+}
+
 /* 7h. THE ADD-ON CATALOG ON pricing.html IS A HAND-TYPED LIST.
 
       Guard 7 above validates the three PLANS against pricing-config.js and
@@ -365,9 +471,16 @@ for (const p of contentPages) {
               + 'expected "' + money(a.launch) + ' launch", page says "' + (launchOnPage ? launchOnPage[0] : "nothing") + '"');
           }
         } else {
-          if (monthlyOnPage) {
-            err('pricing.html #addOnList "' + a.name + '": states ' + monthlyOnPage[0] + ' while pricing-config.js marks it sellable: false. '
-              + "A price beside an unshipped module is an offer to sell it.");
+          /* A price is a price whatever unit follows it. The first version of
+             this branch only knew "C$x/month", so "C$2,000 per campaign" --
+             which is the exact shape reactivation is priced in inside
+             pricing-config.js -- would have walked straight through the guard
+             written to stop it. Any money figure beside a module that has not
+             shipped reads as an offer to sell it, so all of them are caught. */
+          const anyPrice = li.match(/C\$\s?[\d,]+(?:\.\d+)?\s*(?:\/\s*(?:month|mo|campaign|call|lead|job)\b|per\s+(?:month|campaign|call|lead|job|seat)\b|\bone[- ]time\b|\blaunch\b|\ba\s+month\b)?/i);
+          if (anyPrice) {
+            err('pricing.html #addOnList "' + a.name + '": states ' + anyPrice[0].trim() + ' while pricing-config.js marks it sellable: false. '
+              + "A price beside an unshipped module is an offer to sell it, whatever unit follows the figure.");
           }
           if (!/\bcoming\b|\bnot sellable\b|\bnot yet\b/i.test(li)) {
             err('pricing.html #addOnList "' + a.name + '": pricing-config.js marks it sellable: false and the page does not say so. '

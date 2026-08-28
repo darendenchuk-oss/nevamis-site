@@ -537,7 +537,7 @@
         btn.disabled = false;
         btn.textContent = "Start a voice call here";
         var fine = dlg.querySelector(".nv-dial-fine");
-        if (fine) fine.textContent = "That did not load — your network may be blocking it. Call the number below instead; it is the same assistant.";
+        if (fine) fine.textContent = "That did not load, and your network may be blocking it. Call the number below instead; it is the same assistant.";
       };
       document.head.appendChild(s);
     }

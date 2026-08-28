@@ -169,7 +169,7 @@
         { st: "extracting", who: null, say: null, chips: ["Service: furnace failure", "Urgency: emergency", "Occupants: infant"], rules: [] },
         { st: "checking_rules", chips: [], rules: [["Service offered", "pass"], ["Inside service area", "pass"], ["Emergency criteria met", "urgent"], ["On-call tech available", "urgent"]] },
         { st: "escalated", who: "Nevamis", say: "That qualifies as an emergency. I have your details and I am alerting the on-call technician now, flagged urgent.", outcome: "transfer" },
-        { st: "summarizing", outcome: "summary", sum: "URGENT · Furnace failure, -20°C, infant on site. Transferred to on-call at 11:44 PM. Caller: Dana R., 587-555-0119." },
+        { st: "summarizing", outcome: "summary", sum: "URGENT · Furnace failure, -20°C, infant on site. On-call tech alerted at 11:44 PM. Caller: Dana R., 587-555-0119." },
         { st: "complete" }
       ]
     },
