@@ -4,10 +4,10 @@
    Only the owner flips a service to "available". The Coming Soon page
    and homepage teaser render from this file. Companion internal docs:
    docs/nevamis-product-roadmap.md and docs/service-blueprints/.
-   Last reviewed: 2026-07-23
+   Last reviewed: 2026-08-27
    ============================================================ */
 window.NV_ROADMAP = {
-  lastUpdated: "2026-08-19",
+  lastUpdated: "2026-08-27",
   truthStatement: "Services marked AVAILABLE NOW are live today, described exactly as narrowly as they work. The rest are in development or planned, and their availability, features, integrations and pricing may change as we test them with real businesses.",
   highlights: ["instant-lead-follow-up", "automatic-lead-tracking", "quote-recovery"],
   pillars: [
@@ -29,10 +29,24 @@ window.NV_ROADMAP = {
        and the gate is part of the sentence, not a footnote: the client's
        named approver signs off on that specific bid, the prices are the
        client's, Nevamis is not a party to the contract that results and does
-       not do the work. Nothing here may promise a job is won. */
-    { slug: "lead-generation", name: "Lead Generation", pillar: "grow", status: "available", stage: "now",
-      desc: "Two things. It finds the customers who need what you do and ranks them with the reason each one ranked where it did, worked by a person, never by a robot dialling strangers. And it finds jobs and tenders you could win: we prepare the bid at your prices, submit nothing until the person you name signs off on that specific bid, and hand you the job if it lands. The contract is yours and you do the work.",
-      outcome: "A call list worth working, and bids going in on work you would not have seen.", cta: "/book.html" },
+       not do the work. Nothing here may promise a job is won.
+
+       NOT AVAILABLE, owner directive 2026-08-27. This entry said "available"
+       from 2026-08-19 and every derived surface repeated it: the homepage
+       loop, the trade pages, the solutions hub, revenue-engine.html and the
+       "lead generation works today" line on this page's own final call to
+       action. Nothing has run for a client, and the bid half still has no
+       code anywhere. The description below is written as what it WILL do,
+       and no surface may label it live until it is.
+
+       This deliberately UNDER-claims against canonical.ts, which still
+       carries availability "available" for lead_generation. That direction
+       is the safe one and the only one this file may take on its own: the
+       site may say less than canonical, never more. Raising it back is an
+       owner decision made in canonical first. */
+    { slug: "lead-generation", name: "Lead Generation", pillar: "grow", status: "planned", stage: "future",
+      desc: "Two things, and neither of them is running for a client yet. It is being built to find the customers who need what you do and rank them with the reason each one ranked where it did, worked by a person and never by a robot dialling strangers. And to find jobs and tenders you could win: we would prepare the bid at your prices, submit nothing until the person you name signs off on that specific bid, and hand you the job if it lands. The contract would be yours and you would do the work.",
+      outcome: "A call list worth working, and bids going in on work you would not have seen." },
     /* AVAILABLE 2026-08-19, and the claims shrank to the shipped truth
        (mirror of canonical.ts): one text per missed call, ever, with the
        business's name on it and a working opt-out — not a retry sequence,
@@ -62,9 +76,19 @@ window.NV_ROADMAP = {
     { slug: "daily-business-brief", name: "Your Daily Business Brief", pillar: "operate", status: "planned", stage: "future",
       desc: "Calls, bookings, open leads, follow-ups, and urgent issues condensed into one concise daily summary.",
       outcome: "Five minutes to know exactly where the business stands." },
-    { slug: "review-referral-engine", name: "Review and Referral Engine", pillar: "grow", status: "planned", stage: "future",
-      desc: "After a completed job, approved feedback requests route concerns privately and make it easy for happy customers to leave a review.",
-      outcome: "More legitimate reviews, faster complaint awareness." },
+    /* SELLABLE since 2026-08-24, on an exercised end-to-end drill rather than
+       assertion: pricing-config.js carries review_engine with sellable: true,
+       and canonical.ts carries lifecycle "available". This entry still said
+       "planned" while the pricing page sold it, which is a site arguing with
+       its own checkout. The claim is narrowed to what actually ships: one ask
+       per finished job, by text, released by a person. Routing complaints
+       privately is NOT built and is no longer described. The referral half
+       left the name with it: the referral offer is a commercial term in
+       pricing-config.js, not a product on this roadmap. Slug unchanged so the
+       analytics family and every inbound reference survive the rename. */
+    { slug: "review-referral-engine", name: "Review Engine", pillar: "grow", status: "available", stage: "now",
+      desc: "After a job is finished, one review request goes out by text with your own review link on it and your name on the message. One ask per job, ever, and a person releases every request before it sends.",
+      outcome: "More legitimate reviews, asked for once and never nagged.", cta: "/pricing.html" },
     { slug: "customer-reactivation", name: "Customer Reactivation", pillar: "convert", status: "researching", stage: "future",
       desc: "Reconnect with eligible past customers when maintenance, seasonal work, or renewals may genuinely help them.",
       outcome: "Repeat business from relationships you already earned." },
