@@ -5,6 +5,17 @@
 
 const DEMO = '(587)&nbsp;413-0035';
 
+/** The platform paragraph that sits under the hero CTAs on the four trade
+    pages. It lived only in the generated HTML until 2026-08-27, so any run of
+    build-content.mjs deleted it from all four at once. Trailing blank line is
+    part of the block: it is what the checked-in pages carry. */
+export const TRADE_HERO_PROOF = `      <p class="proof" style="margin-top:12px">The phone is where most start. Behind it sits the full Nevamis platform:
+        a free scan that reads your public footprint and puts a range on what is leaking,
+        lead generation in development that will find the customers worth calling and the jobs and tenders worth
+        bidding, and a portal that shows what every answered call actually produced.
+        <a href="https://app.nevamis.ca/scan" data-evt="trade_scan_click">Run the free scan</a>.</p>
+`;
+
 /** Shared closing block: the honest proof we actually have. */
 export const PROOF_BLOCK = `
 <section class="tight">
@@ -75,6 +86,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
 
 export const PAGES = {
   'electricians.html': {
+    heroProof: TRADE_HERO_PROOF,
     h1: 'Your line answered while the crew is on the tools',
     lede: `Panel upgrades, dead circuits, and emergency calls answered while your crew is on the tools. Nevamis picks up your existing line 24/7, qualifies the caller, takes the job details, and texts them to you.`,
     body: tradeBody({
@@ -85,9 +97,9 @@ export const PAGES = {
         service address, and when they can be home.`,
       urgency: 'A burning smell is not a next-Tuesday call.',
       afterHours: `Hazard questions run on every call. If a caller reports sparks, heat, or
-        a burning smell, that call is escalated the way you tell us to escalate it: a live
-        transfer to your on-call number, or an urgent-flagged summary sent straight to your
-        phone.`,
+        a burning smell, that call is escalated the way you tell us to escalate it.
+        NEVAMIS captures the urgent details and alerts your team, with the summary flagged
+        urgent and sent straight to your phone.`,
       jobs: [
         { t: 'Service and repair calls', d: 'Dead outlets, tripped circuits, flickering lights, panel faults.' },
         { t: 'Emergency triage', d: 'Sparks, heat, or burning smell escalate by your rules.' },
@@ -100,6 +112,7 @@ export const PAGES = {
   },
 
   'hvac.html': {
+    heroProof: TRADE_HERO_PROOF,
     h1: 'The 11 PM no-heat call, answered',
     lede: `A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, takes the job down, and sends you the summary.`,
     body: tradeBody({
@@ -111,8 +124,8 @@ export const PAGES = {
       urgency: 'No heat with a newborn in the house is a different call.',
       afterHours: `You define what an emergency means for your business: a temperature
         threshold, no heat at all, vulnerable occupants, or a commercial account. Calls that
-        meet it transfer to your on-call tech. Everything else is captured with the first slot
-        your calendar actually has.`,
+        meet it are handled as emergencies: NEVAMIS captures the urgent details and alerts
+        your team. Everything else is captured with the first slot your calendar actually has.`,
       jobs: [
         { t: 'No-heat and no-cool calls', d: 'Triaged by your emergency criteria, not a generic script.' },
         { t: 'Seasonal tune-ups', d: 'Taken down with the time they want, without interrupting anyone.' },
@@ -125,6 +138,7 @@ export const PAGES = {
   },
 
   'plumbers.html': {
+    heroProof: TRADE_HERO_PROOF,
     h1: 'Burst pipes and blocked drains, answered',
     lede: `Burst pipes, blocked drains, and no hot water. The calls that cannot wait are the ones you are least able to answer. Nevamis answers them, qualifies them, and gets the details to you.`,
     body: tradeBody({
@@ -149,6 +163,7 @@ export const PAGES = {
   },
 
   'restoration.html': {
+    heroProof: TRADE_HERO_PROOF,
     h1: 'The first hour of a loss, answered calmly',
     /* "books the assessment" until 2026-08-09. Nothing books: a tenant agent
        is provisioned with no booking tool and no calendar credential, so the
@@ -162,13 +177,13 @@ export const PAGES = {
         whether the source is stopped, whether insurance is involved, and who is on site.`,
       urgency: 'Active loss is escalated, not queued.',
       afterHours: `Restoration work is won in the first hour. Calls that meet your emergency
-        definition transfer straight to the person on call, with the incident details already
-        collected so they are not starting from nothing.`,
+        definition are handled as emergencies: NEVAMIS captures the urgent details and alerts
+        your team, with the incident details already collected so nobody starts from nothing.`,
       jobs: [
         { t: 'Water and flood loss', d: 'Source, spread, and timing captured while it matters.' },
         { t: 'Fire and smoke', d: 'Handled with a calm, approved script rather than improvisation.' },
         { t: 'Insurance questions', d: 'Answered only within what you approve, otherwise taken as a message.' },
-        { t: 'Emergency dispatch', d: 'Live transfer to the on-call crew by your rules.' },
+        { t: 'Emergency dispatch', d: 'NEVAMIS captures the urgent details and alerts your team, by your rules.' },
         { t: 'Assessment requests', d: 'The window they need captured and texted to you, so you confirm the slot.' },
         { t: 'Property managers and adjusters', d: 'Routed separately if they are a different path for you.' },
       ],
@@ -195,8 +210,8 @@ export const PAGES = {
         exactly as it is on every truck, card, and listing.</p></li>
       <li class="pstep"><h3>It answers in seconds</h3><p>In your business's tone, identifying
         itself naturally as an assistant.</p></li>
-      <li class="pstep"><h3>Urgent calls escalate</h3><p>Transfer to your on-call number, or
-        an urgent-flagged summary, exactly as you decide.</p></li>
+      <li class="pstep"><h3>Urgent calls escalate</h3><p>NEVAMIS captures the urgent details
+        and alerts your team, exactly as you decide.</p></li>
       <!-- "Routine calls get booked / into the slots your calendar genuinely
            has open" until 2026-08-09. No agent touches a calendar; the honest
            step is the structured lead and how fast it reaches you. -->
@@ -258,13 +273,14 @@ export const PAGES = {
       <div class="reveal"><h3>Already on a call</h3><p>A busy signal is a lost caller. Overflow
         answers the second line instead of dropping it.</p></div>
       <div class="reveal"><h3>Nobody in the office</h3><p>Full-time front line answers everything
-        and transfers the calls that genuinely need a person.</p></div>
+        and flags the calls that genuinely need a person.</p></div>
     </div>
   </div>
 </section>`,
   },
 
   'vs-voicemail.html': {
+    heroProof: `      <p class="proof" style="margin-top:12px">This comparison is about the phone. The phone is one capability of the Nevamis platform, which also scans your business for the leaks voicemail never sees and measures what each fix actually recovered.</p>`,
     h1: 'AI receptionist vs voicemail',
     lede: `Voicemail is free and it is better than nothing. It also does not qualify anyone, take a job down, or stop a caller reaching your competitor. Here is the honest comparison.`,
     body: `
@@ -304,6 +320,7 @@ export const PAGES = {
   },
 
   'vs-answering-service.html': {
+    heroProof: `      <p class="proof" style="margin-top:12px">Both options above answer the phone. Only one of them sits inside a platform that also finds where the rest of your revenue is leaking, scores the leads worth chasing, and shows you what every call produced.</p>`,
     h1: 'AI receptionist vs a live answering service',
     /* "rather than book the job" until 2026-08-09: a comparison whose only
        force came from implying Nevamis books, which nothing does. The real
@@ -335,7 +352,7 @@ export const PAGES = {
       <h2>Where a person still wins.</h2>
       <p>A trained human handles the unexpected better than any AI, and some businesses need
         that on every call. Nevamis is built to know its limits: for anything outside the rules
-        you approved, it takes a message or transfers rather than guessing. If most of your calls
+        you approved, it takes a message rather than guessing. If most of your calls
         are genuinely unpredictable, hire the person. If most are the same twenty questions and a
         job to take down, this does that part without a queue and without a per-call charge.</p>
     </div>

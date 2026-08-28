@@ -168,7 +168,7 @@
         { st: "listening", who: "Caller", say: "Our furnace just died and it's minus twenty out. We've got a newborn in the house.", rules: [], chips: [] },
         { st: "extracting", who: null, say: null, chips: ["Service: furnace failure", "Urgency: emergency", "Occupants: infant"], rules: [] },
         { st: "checking_rules", chips: [], rules: [["Service offered", "pass"], ["Inside service area", "pass"], ["Emergency criteria met", "urgent"], ["On-call tech available", "urgent"]] },
-        { st: "escalated", who: "Nevamis", say: "That qualifies as an emergency. I'm connecting you to our on-call technician right now. Stay on the line.", outcome: "transfer" },
+        { st: "escalated", who: "Nevamis", say: "That qualifies as an emergency. I have your details and I am alerting the on-call technician now, flagged urgent.", outcome: "transfer" },
         { st: "summarizing", outcome: "summary", sum: "URGENT · Furnace failure, -20°C, infant on site. Transferred to on-call at 11:44 PM. Caller: Dana R., 587-555-0119." },
         { st: "complete" }
       ]
@@ -206,7 +206,7 @@
     ringing: "Ringing", answered: "Answered", listening: "Listening", extracting: "Extracting details",
     checking_rules: "Checking your business rules", selecting_slot: "Offering available slots",
     booked: "Preferred time captured", confirming: "Caller told you will confirm", summarizing: "Owner summary sent",
-    complete: "Complete", escalated: "Urgent transfer", fallback: "Safe fallback"
+    complete: "Complete", escalated: "Urgent alert sent", fallback: "Safe fallback"
   };
   var STAGES = ["Answer", "Understand", "Check rules", "Take action", "Confirm", "Report"];
   var STATE_STAGE = {
@@ -282,7 +282,7 @@
     }
     el.outcome.innerHTML =
       '<div class="sim-out-card' + (out.booked ? " on" : "") + '"><span class="mono">CALENDAR</span>' + (out.booked ? "Tue 10:00 AM requested, yours to confirm" : "No time captured yet") + "</div>" +
-      '<div class="sim-out-card' + (out.transfer ? " on warm" : "") + '"><span class="mono">TRANSFER</span>' + (out.transfer ? "Live transfer to on-call tech" : "Not needed") + "</div>" +
+      '<div class="sim-out-card' + (out.transfer ? " on warm" : "") + '"><span class="mono">URGENT ALERT</span>' + (out.transfer ? "Urgent details captured, your team alerted" : "Not needed") + "</div>" +
       '<div class="sim-out-card' + (out.confirm || out.message ? " on" : "") + '"><span class="mono">CUSTOMER</span>' + (out.confirm ? "Told the business will confirm the time" : out.message ? "Callback promised" : "Waiting") + "</div>" +
       '<div class="sim-out-card' + (out.sum ? " on" : "") + '"><span class="mono">OWNER SUMMARY</span>' + (out.sum || "Arrives when the call completes") + "</div>";
     /* state, stage rail, progress, elapsed */
