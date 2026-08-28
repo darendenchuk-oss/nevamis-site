@@ -235,7 +235,10 @@ for (const vp of VIEWPORTS) {
     await page.evaluate(() => { window.__heroTL.progress(1).pause(); });
     await page.waitForTimeout(250);
 
-    const primary = page.locator('a.btn-primary').filter({ hasText: /Hear it answer/i }).first();
+    /* Was filtered on /Hear it answer/. The hero's primary became the scan
+       on 2026-08-28; matched by its role rather than its sentence now, so the
+       next copy edit does not silently drop this layout assertion. */
+    const primary = page.locator('a.btn-primary[data-cta]').first();
     // scope to the hero CTAs — the header also holds .btn-ghost, and on
     // mobile that one legitimately lives inside the closed menu
     const secondary = page.locator('a.btn-ghost[data-cta]').first();
@@ -641,7 +644,14 @@ const STILL_DESKTOP = {
   lede: '.hero .lede',
   'primary CTA': 'a.btn-primary[data-cta]',
   'secondary CTA': 'a.btn-ghost[data-cta]',
-  'phone number': '.cta-num',
+  /* WAS '.cta-num', the digits inside the hero's dial button. That button
+     was the primary until the scan replaced it, so the digits moved to the
+     line beneath, where they already were. The assertion is the same one and
+     is deliberately kept element-level rather than folded into 'proof': the
+     comment above says the number is listed in its own right, and it still is.
+     It also now works at BOTH widths, where .cta-num was display:none below
+     430px and mobile had no phone-number assertion at all. */
+  'phone number': '.hero .proof a.mono',
   'header nav link': '.main-nav a[data-nav]',
   proof: '.hero .proof',
 };
@@ -657,6 +667,7 @@ const STILL_MOBILE = {
   lede: '.hero .lede',
   'primary CTA': 'a.btn-primary[data-cta]',
   'secondary CTA': 'a.btn-ghost[data-cta]',
+  'phone number': '.hero .proof a.mono',
   proof: '.hero .proof',
 };
 

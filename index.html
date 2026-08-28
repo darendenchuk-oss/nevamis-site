@@ -1244,32 +1244,63 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           where we start. It is live today, answering on a real number you can dial
           right now.</p>
         <div class="cta">
-          <!-- The number is in the label because the sticky callbar already
-               does it ("Hear it answer · (587) 413-0035") and the hero did
-               not, and because a visible number is itself the proof that a
-               real line stands behind the claim. It is a separate span so the
-               button can drop it rather than wrap on a narrow phone, where
-               tapping dials anyway and reading the digits is unnecessary.
+          <!-- ONE PRIMARY, AND IT IS THE SCAN. Owner ruling, 2026-08-28:
+               "PULSE remains the main customer-acquisition entry because it
+               gives a prospect real evidence before asking for a sales
+               conversation." The headline promises to FIND lost revenue and
+               the scan is the thing that does it, so the promise and the
+               button now agree.
 
-               The label states the OUTCOME rather than naming the technology.
-               The disclosure has not moved: the line directly beneath still
-               says plainly what answers, which is where a visitor deciding
-               whether to dial actually reads it. -->
-          <span class="ctamask"><a class="btn btn-primary" href="tel:+15874130035" data-evt="hero_live_demo_call_click" data-cta>Hear it answer<span class="cta-num"> · (587)&nbsp;413-0035</span> <span class="arw" aria-hidden="true">›</span></a></span>
-          <!-- The headline promises to FIND lost revenue, and until 2026-08-17
-               nothing on this page could do it: the secondary CTA booked a
-               meeting. The PULSE scanner is live now, so the promise gets its
-               fulfillment path. Booking stays one click away in the nav, the
-               callbar, the ROI section and the footer; what it lost is this
-               slot, to the thing the headline is actually about. -->
-          <span class="ctamask"><a class="btn btn-ghost" href="https://app.nevamis.ca/scan" data-evt="hero_scan_click" data-cta>Scan my business</a></span>
+               WHAT LEFT THIS ROW: the dial button. It was the primary until
+               today, and it is not gone from the page, only from the slot
+               where it competed. The number is in the line directly beneath
+               this, in the sticky callbar a phone visitor sees at all times,
+               and in the header. A visitor who wants to hear it is one tap
+               away from three places; a visitor who does not is no longer
+               asked to choose between two front doors above the fold.
+
+               NOTHING WAS ADDED HERE. The hero stacks its copy above the
+               stage on a phone, the stage has to be about 2% in view at load
+               for hero.js to read it as visible, and the measured headroom at
+               375x812 was sixteen pixels before this change. Widening this
+               row past one line cost 63px and took that width to ZERO visible
+               pixels, measured; the commercial-terms paragraph below is what
+               was removed to pay for it. See scripts/measure-hero-fold.mjs,
+               which is why those are numbers and not assumptions. -->
+          <span class="ctamask"><a class="btn btn-primary" href="https://app.nevamis.ca/scan" data-evt="hero_scan_click" data-cta>Scan My Business <span class="arw" aria-hidden="true">›</span></a></span>
+          <!-- The secondary answers the question the primary provokes, and it
+               costs nothing: it is an in-page jump to section 3, the plain
+               explanation of the loop. Deliberately uninstrumented, for the
+               reason tests/analytics.spec.js states about navigation: an
+               event on an in-page scroll buys noise and a longer allowlist. -->
+          <span class="ctamask"><a class="btn btn-ghost" href="#how" data-cta>See How NEVAMIS Works</a></span>
         </div>
         <p class="proof">Live demo line: <a class="mono" href="tel:+15874130035">(587)&nbsp;413-0035</a> · answers in seconds. It is the AI, not a salesperson, and nothing is sold to you.</p>
-        <p class="proof pilot-promise">Then put it on your own line: <strong>a one-time Launch &amp; Implementation fee to start, then your plan's monthly price on a three-month start (six with add-ons), then month to month, cancelled from your own portal.</strong> If the phone is all you need, we will say so and recommend the smaller plan. <a href="/pricing.html">See the plans and prices</a></p>
-        <!-- Search sits below the CTAs on purpose: dialling the line is the thing
-             this page is for, and a box that competes with it in the eye would
-             be a worse page. This is for the visitor who arrived with a
-             specific question. Works as a plain form with no JS; the combobox
+        <!-- THE COMMERCIAL TERMS PARAGRAPH THAT STOOD HERE MOVED TO SECTION 6.
+
+             Two reasons, and the first is the owner's: pricing is navigation
+             and supporting content, not an equal hero action, and a hero
+             paragraph ending in "See the plans and prices" was pricing acting
+             as a third front door above the fold.
+
+             The second is measured. Making the scan the primary widened the
+             CTA row past one line on a phone, which cost 63px, and at 375x812
+             the stage had 21px of visible height to give. With this paragraph
+             still here the stage sat at y=854 of an 812px viewport: entirely
+             below the fold, at two of the three widths measured. Removing it
+             is what pays for the new hierarchy, and it pays for it twice over.
+
+             NOTHING WAS LOST. Every clause of it is said again, with the real
+             figures rather than in the abstract, in section 6: the launch fee
+             and both amounts, the three-month start, six with add-ons, month
+             to month afterwards, cancelled from the portal on 30 days notice.
+             The FAQ says it twice more. The one sentence that lived ONLY here,
+             about recommending the smaller plan, moved with it rather than
+             being dropped. -->
+        <!-- Search sits below the CTAs on purpose: the scan is the thing this
+             page is for, and a box that competes with it in the eye would be a
+             worse page. This is for the visitor who arrived with a specific
+             question. Works as a plain form with no JS; the combobox
              behaviour in assets/motion/search.js is an enhancement. -->
         <form class="hero-search" id="siteSearch" role="search" autocomplete="off">
           <label class="sr-only" for="siteSearchInput">Search this site</label>
@@ -1719,6 +1750,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <noscript><p>See <a href="/pricing.html">the pricing page</a> for current plans.</p></noscript>
       </div>
       <p class="mono" style="color:var(--muted);font-size:13px;margin-top:16px">Launch &amp; Implementation to start, then the plan's monthly price · Canadian dollars + GST/HST · three-month start, then month to month</p>
+      <!-- Moved out of the hero on 2026-08-28. It was the one sentence in that
+           paragraph said nowhere else on the site, and it belongs beside the
+           prices rather than above the fold: it is a promise not to upsell,
+           which only means something once a reader can see what there is to be
+           upsold to. -->
+      <p class="proof" style="margin-top:12px">If the phone is all you need, we will
+        say so and recommend the smaller plan.</p>
 
       <div class="section-head reveal" style="margin-top:64px">
         <h2>What you are committing to.</h2>
