@@ -52,7 +52,7 @@ window.NV_ROADMAP = {
        business's name on it and a working opt-out — not a retry sequence,
        not form responses. What ships is what is sold. */
     { slug: "instant-lead-follow-up", name: "Instant Lead Follow-Up", pillar: "convert", status: "available", stage: "now",
-      desc: "A caller you missed gets one text back while the job is still winnable — during business hours, on your say-so, with your business name on it.",
+      desc: "A caller you missed gets one text back while the job is still winnable: during business hours, on your say-so, with your business name on it.",
       problem: "Leads contact several companies. The fastest response usually wins the job.",
       functions: ["Missed-call text back", "One text per missed call, ever", "Your identification and a working opt-out on every message", "Hands over the moment they reply or call back"],
       outcome: "Missed callers hear back before they ring the next company.", cta: "/pricing.html" },

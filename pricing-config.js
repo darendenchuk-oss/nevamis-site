@@ -155,27 +155,27 @@
       {
         id: "missed_call_recovery", name: "Missed-Call Recovery",
         monthly: 350, launch: 500, sellable: true,
-        blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out — before they ring the next name on Google."
+        blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out, before they ring the next name on Google."
       },
       {
         id: "quote_chase", name: "Quote-Chase Engine",
         monthly: 500, launch: 750, sellable: true,
-        blurb: "Every estimate that goes quiet gets followed up — the day it stales, day four, day eleven — each touch approved by you, stopping the moment the customer replies."
+        blurb: "Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you, stopping the moment the customer replies."
       },
       {
         id: "get_paid", name: "Get-Paid Autopilot",
         monthly: 500, launch: 750, sellable: true,
-        blurb: "Overdue invoices get a gentle nudge, a firm one a week later — and at three weeks YOU get told instead, because past that point the judgment call belongs to a person."
+        blurb: "Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks YOU get told instead, because past that point the judgment call belongs to a person."
       },
       {
         id: "review_engine", name: "Review Engine",
         monthly: 300, launch: 500, sellable: true,
-        blurb: "Post-job review requests by text, policy-safe — one ask per finished job, with your own review link, and every request released by a person."
+        blurb: "Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person."
       },
       {
         id: "reactivation", name: "Customer Reactivation",
         perCampaign: 2000, sellable: false,
-        blurb: "A win-back campaign over your own past-customer list, inside the consent rules. Coming — not sellable until it ships end to end."
+        blurb: "A win-back campaign over your own past-customer list, inside the consent rules. Coming, and not sellable until it ships end to end."
       }
     ],
     /* The referral offer. Mirrors CANONICAL.referral in nevamis-engine, and the
@@ -236,9 +236,9 @@
         features: [
           "Everything in the AI Front Desk",
           "Missed-Call Recovery: one text back to every missed caller, with opt-out",
-          "Quote-Chase Engine: follow-up on every quiet estimate — day it stales, day 4, day 11 — each touch approved by you",
+          "Quote-Chase Engine: follow-up on every quiet estimate: day it stales, day 4, day 11, each touch approved by you",
           "Get-Paid Autopilot: overdue-invoice reminders, with the owner told at three weeks instead of a third email",
-          "Review requests and customer reactivation join The Works at no extra monthly when they ship — they are not sellable yet and nothing here sells them",
+          "Review requests and customer reactivation join The Works at no extra monthly when they ship, and they are not sellable yet and nothing here sells them",
           "One business phone line",
           "Two call reviews each month, and tuning from what the calls actually show",
           "Priority email support"
@@ -269,7 +269,7 @@
         monthly: 350, monthlyRange: [250, 500], launch: 2500, includedMinutes: 250,
         callRange: "80 to 125 typical calls", overage: 1.10,
         selfServe: false,
-        performanceNote: "Lower fixed cost, plus performance-based compensation tied to verified results. The monthly, the percentage, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged — nothing here is a rate on its own.",
+        performanceNote: "Lower fixed cost, plus performance-based compensation tied to verified results. The monthly, the percentage, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged. Nothing here is a rate on its own.",
         bestFor: "A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. Not suitable for every business, and never the default.",
         features: [
           "One business phone line",
