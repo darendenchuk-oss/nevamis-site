@@ -1381,12 +1381,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
               <text class="step-frag"  x="310" y="482" text-anchor="middle">service type</text>
             </g>
             <g class="step" data-i="2">
-              <text class="step-label" x="310" y="452" text-anchor="middle">BOOK</text>
+              <text class="step-label" x="310" y="452" text-anchor="middle">REQUEST</text>
               <text class="step-frag"  x="310" y="482" text-anchor="middle">preferred time</text>
             </g>
             <g class="step" data-i="3">
               <text class="step-label" x="310" y="452" text-anchor="middle">TEXT</text>
-              <text class="step-frag"  x="310" y="482" text-anchor="middle">booking confirmed</text>
+              <text class="step-frag"  x="310" y="482" text-anchor="middle">details sent</text>
             </g>
             <g id="progress">
               <g fill="rgba(159,240,206,.16)">
@@ -1485,7 +1485,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             <rect x="520" y="44" width="150" height="26" rx="13" class="loop-chip"/>
             <text x="595" y="61" text-anchor="middle">TEXT-BACK SENT</text>
             <rect x="520" y="104" width="150" height="26" rx="13" class="loop-chip loop-chip-win"/>
-            <text x="595" y="121" text-anchor="middle" class="loop-win-text">BOOKED</text>
+            <text x="595" y="121" text-anchor="middle" class="loop-win-text">JOB REQUESTED</text>
           </g>
           <!-- learn return -->
           <path class="loop-return" d="M 595 140 C 595 190 130 190 60 150"/>
@@ -1612,7 +1612,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           </div>
           <div class="line agent">
             <span class="who mono">Cedarview AI</span>
-            <p>Thanks. You're booked for tomorrow between eight and ten, and I have your number if anything changes.</p>
+            <p>Thanks. I have you down for tomorrow between eight and ten, and someone from the office will confirm that exact time with you. I have your number if anything changes.</p>
           </div>
           <div class="line caller" data-audio="assets/call-9.mp3">
             <span class="who mono">Caller</span>
@@ -1624,8 +1624,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           </div>
           <div class="call-tags" aria-label="What happened on this call">
             <span class="tagchip" data-callchip="qualified">QUALIFIED: no-hazard + job type</span>
-            <span class="tagchip warm" data-callchip="booked">BOOKED: tomorrow 8–10</span>
-            <span class="tagchip" data-callchip="confirm">CONFIRMATION SENT</span>
+            <span class="tagchip warm" data-callchip="booked">REQUESTED: tomorrow 8–10</span>
+            <span class="tagchip" data-callchip="confirm">DETAILS TEXTED TO YOU</span>
           </div>
           <p class="foot-note">Illustrative call, fictional company. Real AI voices.</p>
         </div>
@@ -1633,7 +1633,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <h3>What the business receives</h3>
           <div class="sms" role="img" aria-label="Example text message summary sent to the business owner">
             <span class="mono">NEVAMIS SUMMARY · 8:42 PM</span>
-            New booking: kitchen outlets dead after a breaker reset, with no sparks, heat, or burning smell reported. Booked tomorrow 8:00–10:00 AM, $95 service call quoted, applied to the repair on approved work. Address: 114 Cedar Lane. Time confirmed with the caller on the call.
+            New job request: kitchen outlets dead after a breaker reset, with no sparks, heat, or burning smell reported. Preferred time tomorrow 8:00–10:00 AM, $95 service call quoted, applied to the repair on approved work. Address: 114 Cedar Lane. The caller was told you will confirm the slot.
           </div>
           <p class="note">Example summary for the illustrative call above. Format and destination are configured for your business.</p>
           <div class="midcta">
@@ -1649,17 +1649,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
   <!-- ============ THE NIGHT BAND ============
        The one scroll-driven story on the page. On a desktop it pins and the
-       visitor scrubs a night call from ring to booked-and-texted; on phones,
+       visitor scrubs a night call from ring to captured-and-texted; on phones,
        with reduced motion, or with no JS it is three plain readable cards
        (the .reveal baseline). Copy makes no claim the site does not already
-       make elsewhere: answer, qualify, book, text, in the same words. -->
+       make elsewhere: answer, qualify, take the request, text, in the same
+       words. Nothing here says a slot is confirmed: the caller is told the
+       business will confirm the time, which is what the live agent does. -->
   <section class="night" id="night" aria-label="How an after-hours call plays out">
     <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">After hours, illustrated</p>
         <h2>Your crew goes home. Your line does not.</h2>
         <p>The recording above is the real thing. This is the shape of every night call,
-          in the product&#39;s own four words: answer, qualify, book, text.</p>
+          in the product&#39;s own four steps: answer, qualify, take the request, text.</p>
       </div>
       <div class="nb-stage" data-night>
         <div class="nb-rail" aria-hidden="true"><i></i></div>
@@ -1680,8 +1682,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <article class="nb-scene reveal">
           <p class="nb-time mono">9:42 PM</p>
           <h3>Taken down, and texted to you.</h3>
-          <p>The visit sits in your calendar and the summary sits on your phone.
-            You read it over coffee, not off voicemail.</p>
+          <p>The summary sits on your phone, and you put the visit in your calendar
+            when you confirm the time. You read it over coffee, not off voicemail.</p>
           <p class="nb-note">Every call answered. The details captured.</p>
         </article>
       </div>
@@ -1756,7 +1758,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <li>It captures the facts: service, urgency, location, contact, timing.</li>
           <li>Your approved business rules are checked: service area, offerings, emergency criteria, calendar.</li>
           <li>Routine requests are captured with the time they want. Emergencies transfer or get flagged urgent. Unknown questions take the safe fallback instead of a made-up answer.</li>
-          <li>The customer gets a confirmation. You get the summary.</li>
+          <li>The caller is told what happens next, and that you will confirm the time. You get the summary.</li>
         </ol>
       </details>
     </div>
@@ -1767,7 +1769,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">The signal path</p>
-        <h2>How a missed call becomes a booked job.</h2>
+        <h2>How a missed call becomes a job you can book.</h2>
         <p>Every call moves through the same precise sequence. You approve the rules once. Nevamis runs them on every ring.</p>
       </div>
       <ol class="path-steps" role="list" style="list-style:none;padding:0">
@@ -1846,13 +1848,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <div class="art" aria-hidden="true" data-bg="assets/industries/restoration.webp"></div>
           <span class="mono">RESTORATION</span>
           <h3>Restoration and property services</h3>
-          <p>Flood and damage calls arrive stressed and urgent. Gather incident details calmly, route priority calls, and book the assessment.</p>
+          <p>Flood and damage calls arrive stressed and urgent. Gather incident details calmly, route priority calls, and take down the assessment they need.</p>
         </div>
         <div class="ind-card reveal" data-tilt>
           <div class="art" aria-hidden="true" data-bg="assets/industries/automotive.webp"></div>
           <span class="mono">AUTOMOTIVE · APPOINTMENTS</span>
           <h3>Automotive and appointment businesses</h3>
-          <p>Answer the questions you answer forty times a week and book available slots, without pulling anyone off the floor.</p>
+          <p>Answer the questions you answer forty times a week and take down the times they want, without pulling anyone off the floor.</p>
         </div>
       </div>
     </div>

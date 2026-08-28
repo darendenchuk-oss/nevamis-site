@@ -61,7 +61,7 @@
            construction halves are swapped for the single
            continuous path
      2.75  CALL ANSWERED exhales into place (tracking settles)
-     3.40  the story routes: ANSWER → QUALIFY → BOOK → TEXT
+     3.40  the story routes: ANSWER → QUALIFY → REQUEST → TEXT
            (0.55s beats)
      5.70  the stage RECEDES (depth exit) and hands the frame
            back to the copy that has been there all along
@@ -93,8 +93,8 @@ import { MOTION, prefersReduced, isFinePointer, onVisibility } from './tokens.js
 const STEPS = [
   { label: 'ANSWER',  frag: 'caller intent',     x: 199 },
   { label: 'QUALIFY', frag: 'service type',      x: 273 },
-  { label: 'BOOK',    frag: 'preferred time',    x: 347 },
-  { label: 'TEXT',    frag: 'booking confirmed', x: 421 },
+  { label: 'REQUEST', frag: 'preferred time',    x: 347 },
+  { label: 'TEXT',    frag: 'details sent',      x: 421 },
 ];
 
 /* The routing rhythm. 0.42s per state left each label fully readable for
@@ -187,7 +187,7 @@ export function initHero() {
 
        So the reduced view is the story's LAST beat, in the position the
        artwork already gives it: the arc closed, the dot at rest, "CALL
-       ANSWERED", "TEXT / booking confirmed", and all four progress segments
+       ANSWERED", "TEXT / details sent", and all four progress segments
        filled. That is a completed call, which is exactly what the animation
        spends six seconds arriving at.
 
@@ -379,7 +379,7 @@ export function initHero() {
       tl.to(stepEls[i], { opacity: 0, x: -14, duration: LABEL_OUT, ease: 'power2.in' }, at + LABEL_OUT_AT);
     }
   });
-  // TEXT — "booking confirmed", the payoff state — holds a full beat.
+  // TEXT, the payoff state ("details sent"), holds a full beat.
   tl.to(packet, { opacity: 0, duration: 0.2 }, 5.5);
 
   // --- 5.7–6.0 · clear the stage and hand the frame back ------------

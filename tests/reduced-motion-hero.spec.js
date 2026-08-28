@@ -50,7 +50,7 @@ test('the hero says what it is, instead of looking like a spinner', async ({ pag
   /* Exactly one: the four step groups are drawn on top of each other at one
      baseline, so more than one visible means they are overlapping. */
   expect(seen.labelled, `visible step labels: ${JSON.stringify(seen.labelled)}`).toHaveLength(1);
-  expect(seen.labelled[0]).toMatch(/booking confirmed/i);
+  expect(seen.labelled[0]).toMatch(/details sent/i);
   expect(seen.segments, 'a finished call shows a finished progress track').toBe(4);
 });
 
