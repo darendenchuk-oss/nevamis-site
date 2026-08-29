@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="google-site-verification" content="vr6MDC3FTU0lnUvYzz7101_yCm6X10oStXyrIo66Arw">
-<title>Nevamis | Find the Revenue Your Business Is Losing</title>
+<title>Nevamis | Find the revenue your business is losing</title>
 <!-- 182 chars. The repositioning rewrote this to 262 and tests/seo.spec.js has
      been failing on it since: Google truncates past ~185, so the sentence that
      was carefully rewritten to lead with found revenue was being cut mid-clause
@@ -296,6 +296,9 @@ html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
   background:var(--mint);transform:scaleX(0);transform-origin:left;
   transition:transform .28s var(--e-out);box-shadow:0 0 6px var(--mint)}
 .main-nav a:not(.btn):hover{color:var(--ink)}
+.main-nav a.nav-utility{font-size:13.5px;opacity:.72;margin-left:6px;
+  padding-left:18px;border-left:1px solid var(--line)}
+.main-nav a.nav-utility:hover{opacity:1}
 .main-nav a:not(.btn):hover::after,.main-nav a.active-section::after{transform:scaleX(1)}
 .main-nav a.active-section{color:var(--ink)}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
@@ -309,7 +312,9 @@ html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
     gap:0;padding:8px 20px 18px;background:rgba(7,15,22,.98);border-bottom:1px solid var(--line);
     display:none}
   .main-nav.open{display:flex}
-  .main-nav a:not(.btn){padding:12px 4px;font-size:16px;border-bottom:1px solid rgba(159,240,206,.07)}
+  .main-nav a:not(.btn){display:block;padding:13px 4px;font-size:16px;
+    border-bottom:1px solid rgba(159,240,206,.07)}
+  .main-nav a.nav-utility{border-left:none;padding-left:4px;margin-left:0;opacity:1;font-size:16px}
   .main-nav a.nav-min{display:block}
   .main-nav .btn{margin-top:12px;justify-content:center}
 }
@@ -330,6 +335,7 @@ html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 main section,main .dark{position:relative}
 section{padding:96px 0;overflow:hidden}
+section[id]{scroll-margin-top:84px}
 #roi{overflow:visible}
 section.tight{padding-top:0}
 .section-head{max-width:660px;margin-bottom:44px}
@@ -835,7 +841,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
   .ctamask{overflow:hidden;border-radius:999px;padding:2px;margin:-2px}
   .proof{margin-top:18px;color:var(--muted);font-size:14px}
-  .proof a{color:var(--mint);text-decoration:underline;text-underline-offset:3px}
+  /* 24px is the WCAG 2.5.8 minimum target size. The phone link measured 16px
+     and the hero section links 22px, both under it, and both are things a
+     visitor on a phone actually reaches for. inline-flex with a min-height
+     gives the anchor a real box without moving the text baseline. */
+  .proof a{color:var(--mint);text-decoration:underline;text-underline-offset:3px;
+    display:inline-flex;align-items:center;min-height:24px}
   .pilot-promise{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
   .pilot-promise strong{color:var(--ink)}
 
@@ -920,7 +931,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     .stage .status{font-size:10.5px;top:2%}
     .hero-links{display:flex;flex-wrap:wrap;gap:18px 20px;margin-top:24px;padding-top:18px;
       border-top:1px solid var(--line);font-size:14.5px}
-    .hero-links a{color:var(--muted)}
+    .hero-links a{color:var(--muted);display:inline-flex;align-items:center;min-height:24px}
     .hero-links a:hover{color:var(--ink)}
   }
 
@@ -983,6 +994,29 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
    verdicts, so the first column stops being narrow. */
 #demoMap tbody th{width:26%;vertical-align:top}
 #demoMap td{vertical-align:top}
+
+/* ---------- short phones: clear the call bar ----------
+   .callbar is position:fixed at the bottom and owns the last 54px of the
+   viewport at every scroll position. At 360x640 the hero's secondary CTA sat
+   at 571-619 with the bar starting at 586, so 33px of a 48px button, 67% of
+   it, could not be tapped at first paint. Absent at 375 and 390, which is why
+   one spot check would have missed it and why the matrix in
+   scripts/measure-mobile-obstruction.mjs now sweeps six widths.
+
+   max-height:700px is the whole fix and it is deliberately narrow: 640 is
+   caught, 812 and 844 are not, so the phones that have room keep their
+   spacing. Nothing is hidden and no words are removed. The hero's own rhythm
+   tightens by 44px on the one class of device that cannot afford it, which is
+   more than the 33px owed. Ordered after the max-width:900px block above so
+   it wins on equal specificity. */
+@media(max-width:900px) and (max-height:700px){
+  .hero .wrap{padding-top:76px;padding-bottom:16px}
+  .hero h1{margin-top:12px}
+  .lede{margin-top:12px}
+  .lede-sub{margin-top:6px}
+  .cta{margin-top:18px}
+  .proof{margin-top:12px}
+}
 
 </style>
 <!-- generated:schema -->
@@ -1188,13 +1222,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a href="/#how" data-nav>How it works</a></span>
       <span class="navitem"><a href="/solutions.html" data-nav>Solutions</a></span>
       <span class="navitem"><a href="/pricing.html" data-nav>Pricing</a></span>
-      <span class="navitem"><a href="/pilot.html" data-nav>How you start</a></span>
       <span class="navitem"><a href="/demo.html" data-nav>Demo</a></span>
-      <span class="navitem"><a class="nav-min" href="/coming-soon.html" data-nav>Roadmap</a></span>
-      <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
-      <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
-      <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
-      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
+      <span class="navitem"><a class="nav-utility" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
+      <span class="navitem"><a class="btn btn-primary" href="https://app.nevamis.ca/scan" data-nav>Scan my business <span class="arw" aria-hidden="true">›</span></a></span>
     </nav>
   </div>
 </header>
@@ -1303,25 +1333,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              The FAQ says it twice more. The one sentence that lived ONLY here,
              about recommending the smaller plan, moved with it rather than
              being dropped. -->
-        <!-- Search sits below the CTAs on purpose: the scan is the thing this
-             page is for, and a box that competes with it in the eye would be a
-             worse page. This is for the visitor who arrived with a specific
-             question. Works as a plain form with no JS; the combobox
-             behaviour in assets/motion/search.js is an enhancement. -->
-        <form class="hero-search" id="siteSearch" role="search" autocomplete="off">
-          <label class="sr-only" for="siteSearchInput">Search this site</label>
-          <span class="hs-wrap">
-            <svg class="hs-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-              <circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/>
-              <path d="M13.5 13.5 18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            <input id="siteSearchInput" type="search" name="q" placeholder="Search: pricing, how you start, does it book jobs…"
-              role="combobox" aria-expanded="false" aria-controls="searchResults" aria-autocomplete="list">
-            <kbd class="hs-key" aria-hidden="true">/</kbd>
-          </span>
-          <div id="searchResults" class="hs-results" hidden></div>
-        </form>
-
+        <!-- THE SITE SEARCH USED TO SIT HERE, at every width from 1440 down to
+             360, 46px tall. Removed 2026-08-28: the directive forbids it in
+             the hero outright, and at 360x640 it was 46px of the copy block
+             standing between the primary action and the fold. Search is not
+             lost, only moved off the one screen whose job is a single action.
+             assets/motion/search.js no-ops when #siteSearch is absent. -->
         <nav class="hero-links" aria-label="Sections">
           <a href="#how">How it works</a>
           <a href="/pricing.html">Pricing</a>
@@ -1443,8 +1460,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap">
       <ul>
         <li>Keep your existing phone number</li>
-        <li>The full cost published before you commit</li>
-        <li>A three-month start, then month to month you control</li>
         <li>Switch it off from your own phone</li>
         <li>Built and tuned for you, not a template</li>
         <li>Canadian dollars, GST/HST registered</li>
@@ -1872,7 +1887,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       </div>
       <div>
         <h2 class="foot-h">Site</h2>
-        <a href="/#how">How It Works</a>
+        <a href="/#how">How it works</a>
         <!-- WAS /#industries until the homepage was rebuilt as seven sections
              on 2026-08-27. There is no industries band on the homepage any
              more, and a footer link that scrolls nowhere costs exactly the
@@ -1881,12 +1896,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              the page instead of to a heading that used to be above it. -->
         <a href="/solutions.html">Solutions</a>
         <a href="/pricing.html">Pricing</a>
-        <a href="/roi.html">Missed-Call Calculator</a>
-        <a href="/pilot.html">How You Start</a>
-        <a href="/demo.html">Live Demo</a>
-        <a href="/coming-soon.html">Coming Soon</a>
+        <a href="/roi.html">Missed-call calculator</a>
+        <a href="/pilot.html">How you start</a>
+        <a href="/demo.html">Live demo</a>
+        <a href="/coming-soon.html">Coming soon</a>
         <a href="/about.html">About</a>
-        <a href="/book.html">Book a Call</a>
+        <a href="/book.html">Book a call</a>
         <a href="https://app.nevamis.ca/login" data-evt="client_login_click">Client login</a>
       </div>
       <div>

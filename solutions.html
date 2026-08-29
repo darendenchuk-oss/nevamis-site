@@ -237,6 +237,9 @@ html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
   background:var(--mint);transform:scaleX(0);transform-origin:left;
   transition:transform .28s var(--e-out);box-shadow:0 0 6px var(--mint)}
 .main-nav a:not(.btn):hover{color:var(--ink)}
+.main-nav a.nav-utility{font-size:13.5px;opacity:.72;margin-left:6px;
+  padding-left:18px;border-left:1px solid var(--line)}
+.main-nav a.nav-utility:hover{opacity:1}
 .main-nav a:not(.btn):hover::after,.main-nav a.active-section::after{transform:scaleX(1)}
 .main-nav a.active-section{color:var(--ink)}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
@@ -250,7 +253,9 @@ html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
     gap:0;padding:8px 20px 18px;background:rgba(7,15,22,.98);border-bottom:1px solid var(--line);
     display:none}
   .main-nav.open{display:flex}
-  .main-nav a:not(.btn){padding:12px 4px;font-size:16px;border-bottom:1px solid rgba(159,240,206,.07)}
+  .main-nav a:not(.btn){display:block;padding:13px 4px;font-size:16px;
+    border-bottom:1px solid rgba(159,240,206,.07)}
+  .main-nav a.nav-utility{border-left:none;padding-left:4px;margin-left:0;opacity:1;font-size:16px}
   .main-nav a.nav-min{display:block}
   .main-nav .btn{margin-top:12px;justify-content:center}
 }
@@ -271,6 +276,7 @@ html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 main section,main .dark{position:relative}
 section{padding:96px 0;overflow:hidden}
+section[id]{scroll-margin-top:84px}
 #roi{overflow:visible}
 section.tight{padding-top:0}
 .section-head{max-width:660px;margin-bottom:44px}
@@ -735,13 +741,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a href="/#how" data-nav>How it works</a></span>
       <span class="navitem"><a href="/solutions.html" aria-current="page" data-nav>Solutions</a></span>
       <span class="navitem"><a href="/pricing.html" data-nav>Pricing</a></span>
-      <span class="navitem"><a href="/pilot.html" data-nav>How you start</a></span>
       <span class="navitem"><a href="/demo.html" data-nav>Demo</a></span>
-      <span class="navitem"><a class="nav-min" href="/coming-soon.html" data-nav>Roadmap</a></span>
-      <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
-      <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
-      <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
-      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
+      <span class="navitem"><a class="nav-utility" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
+      <span class="navitem"><a class="btn btn-primary" href="https://app.nevamis.ca/scan" data-nav>Scan my business <span class="arw" aria-hidden="true">›</span></a></span>
     </nav>
   </div>
 </header>
@@ -851,7 +853,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       </div>
       <div>
         <h2 class="foot-h">Site</h2>
-        <a href="/#how">How It Works</a>
+        <a href="/#how">How it works</a>
         <!-- WAS /#industries until the homepage was rebuilt as seven sections
              on 2026-08-27. There is no industries band on the homepage any
              more, and a footer link that scrolls nowhere costs exactly the
@@ -860,12 +862,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              the page instead of to a heading that used to be above it. -->
         <a href="/solutions.html">Solutions</a>
         <a href="/pricing.html">Pricing</a>
-        <a href="/roi.html">Missed-Call Calculator</a>
-        <a href="/pilot.html">How You Start</a>
-        <a href="/demo.html">Live Demo</a>
-        <a href="/coming-soon.html">Coming Soon</a>
+        <a href="/roi.html">Missed-call calculator</a>
+        <a href="/pilot.html">How you start</a>
+        <a href="/demo.html">Live demo</a>
+        <a href="/coming-soon.html">Coming soon</a>
         <a href="/about.html">About</a>
-        <a href="/book.html">Book a Call</a>
+        <a href="/book.html">Book a call</a>
         <a href="https://app.nevamis.ca/login" data-evt="client_login_click">Client login</a>
       </div>
       <div>
