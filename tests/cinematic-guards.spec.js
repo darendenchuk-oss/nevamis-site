@@ -37,7 +37,7 @@ import { frameIndexForProgress } from '../assets/cinematic/manifest.js';
 import {
   SUBJECT_URL, HOMEPAGE_URL, openSubject, installProbe, assertBoundToShippedEngine,
   assertSubjectMirrorsHomepage, recordRequests, scrollToProgress, settle,
-  drawsPerAnimationFrame, probeState, hitTest, horizontalOverflow,
+  drawsPerAnimationFrame, rafRunsPerAnimationFrame, probeState, hitTest, horizontalOverflow,
   readCanonicalPricing, readCanonicalRoadmap, canonicalAmountStrings,
   readinessSurfaces, servicesNamedInDevelopment, availabilityWordFor,
   AVAILABILITY_CLAIM_PATTERNS, walkFiles, localFile, isFrameRequest, isMobileFrame,
@@ -343,6 +343,24 @@ test('6. no duplicate render loops survive repeated visibility changes', async (
     const id = SEQUENCES[0];
     await scrollToProgress(page, stageSel(id), 0.1);
 
+    /* THE BASELINE, taken before any visibility change. One rAF loop per live
+       stage is legitimate and the number is not this guard's business; what is
+       this guard's business is whether hiding and showing the tab makes it
+       grow. Comparing against a typed-in expectation would be a guard that
+       copies the fact it guards, and it would need editing the day a fourth
+       sequence is added. */
+    const baseMark = (await probeState(page)).frame;
+    await page.evaluate(async () => {
+      for (let i = 0; i < 40; i += 1) {
+        window.scrollBy(0, 24);
+        await new Promise((r) => requestAnimationFrame(r));
+      }
+    });
+    await settle(page);
+    const baseline = await rafRunsPerAnimationFrame(page, baseMark);
+    expect(baseline.frames, 'the baseline scroll produced no animation frames to measure').toBeGreaterThan(10);
+    expect(baseline.worst, 'the baseline scroll ran no page rAF callbacks at all, so there is no loop to count').toBeGreaterThan(0);
+
     for (let i = 0; i < 4; i += 1) {
       await page.evaluate(() => window.__setHidden(true));
       await page.waitForTimeout(120);
@@ -366,9 +384,20 @@ test('6. no duplicate render loops survive repeated visibility changes', async (
     expect(
       dup.worst,
       `a cinematic canvas was painted ${dup.worst} times inside one animation frame (${dup.worstKey}). `
-      + 'After a visibility change exactly one rAF loop may be alive.',
+      + 'After a visibility change exactly one rAF loop per stage may be alive.',
     ).toBeLessThanOrEqual(1);
     expect(dup.groups, 'no painted animation frames were recorded').toBeGreaterThan(5);
+
+    /* The second signal, and the one that catches a loop which ticks without
+       painting: the same scroll must not now run more rAF callbacks per frame
+       than it did before the tab was hidden and shown four times. */
+    const census = await rafRunsPerAnimationFrame(page, mark);
+    expect(census.frames, 'the post-visibility scroll produced no animation frames to measure').toBeGreaterThan(10);
+    expect(
+      census.worst,
+      `before the visibility changes the page ran at most ${baseline.worst} animation-frame callbacks per frame; `
+      + `after four hide and show cycles it runs ${census.worst}. Resuming started a loop and left the old one running.`,
+    ).toBeLessThanOrEqual(baseline.worst);
   } finally { await context.close(); }
 });
 

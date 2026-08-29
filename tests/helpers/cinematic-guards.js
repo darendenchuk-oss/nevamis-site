@@ -224,16 +224,30 @@ export function assertSubjectMirrorsHomepage() {
 export async function installProbe(page) {
   await page.addInitScript(() => {
     const W = window;
-    const probe = { frame: 0, draws: [], drawCount: 0, hiddenDraws: 0 };
+    const probe = { frame: 0, draws: [], drawCount: 0, hiddenDraws: 0, rafRuns: [] };
     W.__cineProbe = probe;
 
-    /* Our own animation-frame counter. It is registered before any page script
-       runs, so its callback is first in every frame's queue and every draw that
-       happens later in the same frame carries the same frame number. That is
-       what makes "two paints in one animation frame" detectable without asking
-       the engine how many loops it is running. */
-    const bump = () => { probe.frame += 1; W.requestAnimationFrame(bump); };
-    W.requestAnimationFrame(bump);
+    /* Our own animation-frame counter, registered with the UNWRAPPED rAF before
+       any page script runs. Being first in every frame's queue is what makes
+       the frame number correct for everything that happens later in that same
+       frame, and going through the raw function is what keeps the probe out of
+       its own loop census. */
+    const rawRaf = W.requestAnimationFrame.bind(W);
+    const bump = () => { probe.frame += 1; rawRaf(bump); };
+    rawRaf(bump);
+
+    /* THE LOOP CENSUS. Counting paints is not enough on its own: a second loop
+       that ticks without painting (because the index has not changed) burns a
+       frame's budget and is invisible to a draw counter. So every rAF callback
+       the PAGE schedules is stamped with the frame it ran in. One loop per live
+       stage is legitimate; what is not legitimate is that number growing after
+       a visibility change, which is the comparison guard 6 makes. */
+    W.requestAnimationFrame = function requestAnimationFrameCounted(callback) {
+      return rawRaf((ts) => {
+        try { probe.rafRuns.push(probe.frame); if (probe.rafRuns.length > 6000) probe.rafRuns.splice(0, 2000); } catch { /* never break the page */ }
+        return callback(ts);
+      });
+    };
 
     /* Fetches in flight, counted from outside the loader. settle() needs this:
        a stage that is waiting for bytes paints nothing, so "no draws for 250ms"
@@ -314,6 +328,22 @@ export const probeState = (page) => page.evaluate(() => ({
   fetchStarted: window.__cineProbe.fetchStarted,
   fetchInFlight: window.__cineProbe.fetchInFlight,
 }));
+
+/** The most rAF callbacks the page ran inside one animation frame, since a
+    given frame number. One per live stage is normal; growth after a visibility
+    change is a loop that was started and never stopped. */
+export async function rafRunsPerAnimationFrame(page, sinceFrame = 0) {
+  return page.evaluate((from) => {
+    const counts = new Map();
+    for (const f of window.__cineProbe.rafRuns) {
+      if (f < from) continue;
+      counts.set(f, (counts.get(f) || 0) + 1);
+    }
+    let worst = 0;
+    for (const n of counts.values()) if (n > worst) worst = n;
+    return { worst, frames: counts.size };
+  }, sinceFrame);
+}
 
 /** Draws grouped by (stage, animation frame). More than one is a second loop. */
 export async function drawsPerAnimationFrame(page, sinceFrame = 0) {
