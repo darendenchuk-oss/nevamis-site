@@ -28,7 +28,14 @@ import { applySelfCta } from "./lib/nav-cta.mjs";
    running every filesystem guard below as a side effect. See that file for the
    scope rule; see scripts/check-claims-classifier.mjs for the fixtures. */
 import { DENIAL, ADDITIVE, RETIRED_OFFERS, statesBanned, offendingClause } from "./lib/claims.mjs";
-import { stripHtmlComments, stripJsComments, jsStringLiterals, renderedProse, clauses } from "./lib/rendered-text.mjs";
+import { stripHtmlComments, stripJsComments, jsStringLiterals, renderedProse, clauses, displayUnits, decodeEntities } from "./lib/rendered-text.mjs";
+/* Guard 7k rebuilds the homepage breadth block from the same model the builder
+   renders it from, reads the source through the builder's own loader, and
+   looks for the builder's own markers. Importing all three rather than
+   restating any of them is the point: a checker carrying its own copy of the
+   answer drifts alongside the page and stays green while doing it (7h). */
+import { breadthModel, AVAILABILITY_WORDS } from "./lib/breadth.mjs";
+import { loadBreadthSource, OPEN as BREADTH_OPEN, CLOSE as BREADTH_CLOSE } from "./build-breadth.mjs";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
    had no shared chrome, and that exemption is exactly why its hand-copied nav
@@ -433,6 +440,650 @@ for (const p of contentPages) {
       err(label + ": a string this file renders into the page contains an em dash.\n      clause: \"" + clause.slice(0, 140) + "\"\n      "
         + "The site bans em dashes. The per-page rule above reads static HTML, so copy injected "
         + "by JavaScript is only covered here.");
+    }
+  }
+}
+
+/* 7i. THE HOMEPAGE CAPABILITY LISTS ARE DERIVED, OR THEY ARE NOTHING.
+
+      Section 4 of the rebuilt homepage answers one question a buyer is
+      entitled to a straight answer on: what can I actually buy today. It is
+      the highest-consequence list on the public site, and the shape it takes
+      is exactly the shape 7h describes as this repository's standing defect:
+      names and sentences typed into HTML with nothing comparing them to the
+      record the checkout bills from.
+
+      So it is checked instead of trusted, in BOTH directions:
+
+        every sellable thing in pricing-config.js appears in #capAvailable,
+        with the config's own sentence, in the config's own order;
+        nothing appears in #capAvailable that the config does not mark
+        sellable; and every add-on the config marks NOT sellable appears in
+        #capDevelopment instead, so a module cannot be promoted by silence.
+
+      PRE-RENDERED, NOT BUILT AT RUNTIME, which is why this guard is worth
+      having at all. The pricing preview two sections below is drawn by
+      JavaScript from the same config and cannot drift by construction, at
+      the cost of being invisible to a visitor with scripts blocked and to
+      every answer engine. For a decorative price card that trade is fine.
+      For the sentence "this is what is for sale" it is not, so the markup
+      carries the real text and this rule carries the guarantee. Same
+      reasoning as 7a, applied to capabilities rather than prices. */
+{
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const cfg = w.NV_PRICING;
+  const plans = cfg && Array.isArray(cfg.plans) ? cfg.plans : [];
+  const addOns = cfg && Array.isArray(cfg.addOns) ? cfg.addOns : [];
+  const planBy = (id) => plans.find((p) => p.id === id);
+
+  /* <li><strong>NAME</strong><span>SENTENCE</span></li>, flattened. Simple on
+     purpose: an entry that needs nested markup is an entry that has stopped
+     being a name and a sentence. */
+  const listItems = (html, id) => {
+    const m = html.match(new RegExp('<ul[^>]*\\bid="' + id + '"[^>]*>([\\s\\S]*?)</ul>', "i"));
+    if (!m) return null;
+    return [...m[1].matchAll(/<li[^>]*>\s*<strong>([\s\S]*?)<\/strong>\s*<span>([\s\S]*?)<\/span>\s*<\/li>/g)]
+      .map((x) => [x[1], x[2]].map((s) => s.replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim()));
+  };
+
+  const front = planBy("pro"), works = planBy("growth");
+  if (!front || !works) err("pricing-config.js: plans `pro` and `growth` are what the homepage capability list is built from, and one is missing");
+  else {
+    const expected = [
+      [front.name, String(front.bestFor)],
+      ...addOns.filter((a) => a.sellable === true).map((a) => [a.name, String(a.blurb)]),
+      [works.name, String(works.bestFor)],
+    ].map(([n, t]) => [n, t.replace(/\s+/g, " ").trim()]);
+
+    for (const page of ["home.html", "index.html"]) {
+      const p = path.join(root, page);
+      if (!fs.existsSync(p)) continue;
+      const html = fs.readFileSync(p, "utf8");
+      const got = listItems(html, "capAvailable");
+      if (!got) { err(`${page}: <ul id="capAvailable"> is gone. The homepage's "what you can actually buy" list is the one block on the public site that must be derived from pricing-config.js, and deleting it is how it stops being derived.`); continue; }
+      if (got.length !== expected.length || got.some((g, i) => g[0] !== expected[i][0] || g[1] !== expected[i][1])) {
+        err(`${page}: #capAvailable drifted from pricing-config.js\n      page:   `
+          + got.map((g) => g[0] + " :: " + g[1].slice(0, 60)).join("\n              ")
+          + `\n      config: ` + expected.map((g) => g[0] + " :: " + g[1].slice(0, 60)).join("\n              ")
+          + `\n      Every entry is name + the config's own sentence: pro.bestFor, then each sellable`
+          + ` add-on's blurb in config order, then growth.bestFor. Edit pricing-config.js and follow it here.`);
+      }
+
+      /* And the other half: a module the config refuses to sell must be on the
+         "in development" list, by name. Silence is how a prototype gets sold. */
+      const soon = listItems(html, "capDevelopment");
+      if (!soon) { err(`${page}: <ul id="capDevelopment"> is gone, so nothing states which capabilities are NOT for sale.`); continue; }
+      const soonNames = soon.map((s) => s[0]);
+      for (const a of addOns.filter((x) => x.sellable === false)) {
+        if (!soonNames.includes(a.name)) {
+          err(`${page}: pricing-config.js marks "${a.name}" not sellable, but it is not named in #capDevelopment. `
+            + `A capability that is neither sold nor declared unsold reads as available to anyone skimming.`);
+        }
+      }
+      for (const a of addOns.filter((x) => x.sellable === false)) {
+        if (got.some((g) => g[0] === a.name)) err(`${page}: "${a.name}" is listed as available but pricing-config.js marks it not sellable`);
+      }
+    }
+  }
+}
+
+/* 7k. THE HOMEPAGE BREADTH BLOCK IS THE ROADMAP, OR IT IS TWELVE CLAIMS.
+
+      7i above guards the list that answers "what can I buy". This guards the
+      block beside it that answers a different question, and until 2026-08-28
+      the homepage had no answer to it at all: what work do you take off my
+      plate. roadmap-config.js declares sixteen services across four pillars
+      and exactly one page rendered them, /coming-soon.html, so the homepage
+      described a front desk and five add-ons while the declared product was
+      four times that.
+
+      THAT IS THE SAME DEFECT AS A HAND-TYPED LIST, RUNNING BACKWARDS. The
+      familiar shape is markup that keeps claiming something the config has
+      retired. This was markup that never learned about eleven things the
+      config had added, and it survived because nothing was comparing the two
+      in that direction either. A guard that only fails on over-claiming lets a
+      product disappear from its own homepage one service at a time.
+
+      NOTHING IS COMPARED AGAINST A COPY OF THE ANSWER. The expectation is
+      rebuilt by breadthModel() in scripts/lib/breadth.mjs, which is the same
+      function scripts/build-breadth.mjs renders the page from. Writing the
+      pillar names, the twelve sentences or the four counts into this file
+      would only move the hand-maintained list into the checker, and then the
+      checker and the page would drift together and both look green. That is
+      7h's lesson and it is the reason this rule reads as thin as it does: all
+      of the knowledge is in the model, and this only asks whether the page
+      still agrees with it.
+
+      WHAT IS CHECKED, in both directions:
+
+        every pillar the model produces is present in the markup, by id, in
+        order, with the config's `name` and `line`;
+        each pillar's tasks are the model's tasks: the service's own `name`,
+        its readiness word from the fixed vocabulary, and `desc` VERBATIM;
+        each pillar's one availability summary and its "+N more" count are the
+        model's, so a service cannot leave the page without the count moving;
+        nothing appears that the model did not produce;
+        and no readiness word outside the fixed vocabulary appears anywhere in
+        the block.
+
+      A PILLAR MAY NOT VANISH IN SILENCE. A demotion is allowed and is supposed
+      to be visible: flip a service to a status that reads "In development" and
+      this rule will happily follow it onto the page, because saying less than
+      canonical is the safe direction and the direction this repo is permitted
+      to move on its own. What is not allowed is a whole pillar disappearing
+      from the markup while the config still carries public-safe services under
+      it. That is "promoted by silence" inverted, it is how a company quietly
+      stops mentioning a quarter of what it does, and it is the one thing a
+      reader of the page could never detect.
+
+      "Live" IS NOT IN THE VOCABULARY AND MUST NOT BE. Owner directive
+      2026-08-28: the word is reserved for a canonical Live gate that has not
+      passed, so a marketing surface using it spends a claim the product has
+      not earned. The six permitted strings are declared in
+      scripts/lib/breadth.mjs and this rule refuses anything else.
+
+      PRE-RENDERED, for 7i's reason exactly. The block is the site's answer to
+      "what does this company do", which is the question an answer engine is
+      most likely to ask and the one a visitor with scripts blocked is least
+      able to wait for. coming-soon.html builds its cards at runtime from the
+      same data and is checked by nothing, which is acceptable for a page a
+      visitor has chosen to browse and is not acceptable for the homepage.
+
+      WHAT THIS RULE DELIBERATELY DOES NOT DO is decide what may be called
+      available. roadmap-config.js decides that, the owner decides
+      roadmap-config.js, and the comment above its lead-generation entry sets
+      the direction this site may move on its own: it may say LESS than
+      canonical, never more. Flip a status here and this rule will follow it
+      onto the homepage; the cross-repo readiness guard is what stops that, and
+      it is a different guard on purpose. */
+{
+  const model = breadthModel(loadBreadthSource());
+  for (const p of model.problems) {
+    err("roadmap-config.js: " + p + "\n      The homepage breadth block is rendered from this file, so a source that does "
+      + "not describe itself becomes twelve unguarded sentences on the busiest page on the site.");
+  }
+
+  if (!model.problems.length) {
+    if (!model.pillars.length) {
+      err("roadmap-config.js produced no pillars at all, so section 4's breadth block would be empty. "
+        + "That is not a modest homepage, it is a homepage that has stopped describing the product.");
+    }
+
+    const norm = (s) => String(s).replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+    const region = (html) => {
+      const a = html.indexOf(BREADTH_OPEN);
+      const b = html.indexOf(BREADTH_CLOSE);
+      return a === -1 || b === -1 || b < a ? null : html.slice(a + BREADTH_OPEN.length, b);
+    };
+    /* Parsed by class rather than by position, so reordering the two spans in
+       the template is caught rather than silently swapping a readiness word
+       into the sentence slot. */
+    const tasksOf = (block) => [...block.matchAll(
+      /<li[^>]*>\s*<strong>([\s\S]*?)<\/strong>\s*<span class="task-flag[^"]*\b(avail|pilot|dev)\b[^"]*">([\s\S]*?)<\/span>\s*<span class="task-what">([\s\S]*?)<\/span>\s*<\/li>/g)]
+      .map((m) => ({ name: norm(m[1]), state: m[2], availability: norm(m[3]), what: norm(m[4]) }));
+    const one = (block, re) => { const m = block.match(re); return m ? norm(m[1]) : null; };
+
+    for (const page of ["home.html", "index.html"]) {
+      const p = path.join(root, page);
+      if (!fs.existsSync(p)) continue;
+      const html = fs.readFileSync(p, "utf8");
+      const body = region(html);
+      if (body === null) {
+        err(`${page}: the ${BREADTH_OPEN} ... ${BREADTH_CLOSE} region is gone. It is the homepage's only answer to `
+          + '"what do you take off my plate", and deleting it is how the site goes back to describing a fraction of '
+          + "the product with nothing noticing. Run: node scripts/build-breadth.mjs");
+        continue;
+      }
+
+      const blocks = [...body.matchAll(/<div class="pillar" data-pillar="([a-z0-9-]+)">([\s\S]*?)\n\s*<\/div>\s*(?=<div class="pillar"|$)/g)]
+        .map((m) => ({ id: m[1], html: m[2] }));
+      const onPage = blocks.map((b) => b.id);
+      const expectIds = model.pillars.map((p2) => p2.id);
+
+      /* The vanished-pillar limb, and the reason it is separate from the
+         ordered comparison below: a missing pillar and a reordered one deserve
+         different sentences. This one names the services that would disappear
+         with it, because the count is what makes the omission feel like what
+         it is. */
+      for (const want of model.pillars) {
+        if (!onPage.includes(want.id)) {
+          err(`${page}: pillar "${want.name}" is not on the page, and roadmap-config.js still carries ${want.total} `
+            + `public-safe service(s) under it (${want.availableCount} available today). A public availability DEMOTION is `
+            + "allowed and is meant to be visible; a whole pillar leaving the homepage while its services still exist is "
+            + "not a demotion, it is the product quietly getting smaller where nobody can see it happen. "
+            + "Run: node scripts/build-breadth.mjs");
+        }
+      }
+      for (const id of onPage) {
+        if (!expectIds.includes(id)) {
+          err(`${page}: the block renders a pillar "${id}" that roadmap-config.js does not declare, so its heading and `
+            + "every task under it are unsourced prose.");
+        }
+      }
+      if (onPage.join(",") !== expectIds.join(",")) {
+        err(`${page}: the pillars are ${onPage.join(", ") || "(none)"} and the config's order is ${expectIds.join(", ")}. `
+          + "Order is the config's, not a layout preference: run node scripts/build-breadth.mjs.");
+        continue;
+      }
+
+      for (const want of model.pillars) {
+        const got = blocks.find((b) => b.id === want.id);
+        const where = `${page} pillar "${want.id}"`;
+
+        const name = one(got.html, /<h4 class="pillar-name">([\s\S]*?)<\/h4>/);
+        const line = one(got.html, /<p class="pillar-line">([\s\S]*?)<\/p>/);
+        if (name !== norm(want.name)) err(`${where}: heading is "${name}", the config says "${want.name}"`);
+        if (line !== norm(want.line)) err(`${where}: strapline is "${line}", the config says "${want.line}"`);
+        if (!/<span class="pillar-ico"[^>]*>\s*<svg/.test(got.html)) {
+          err(`${where}: no icon. Every pillar carries one, and the four labels are how this block is read at a glance.`);
+        }
+
+        const gotTasks = tasksOf(got.html);
+        const wantTasks = want.tasks.map((t) => ({ name: norm(t.name), state: t.state, availability: t.availability, what: norm(t.what) }));
+        const fmt = (t) => `${t.name} [${t.availability}] :: ${t.what.slice(0, 52)}`;
+        if (gotTasks.length !== wantTasks.length
+          || gotTasks.some((g, i) => g.name !== wantTasks[i].name || g.availability !== wantTasks[i].availability
+            || g.state !== wantTasks[i].state || g.what !== wantTasks[i].what)) {
+          err(`${where}: the tasks drifted from roadmap-config.js\n      page:   `
+            + (gotTasks.length ? gotTasks.map(fmt).join("\n              ") : "(none)")
+            + "\n      config: " + (wantTasks.length ? wantTasks.map(fmt).join("\n              ") : "(none)")
+            + "\n      Each task is the service's own name, its readiness word from the fixed vocabulary, and `desc`"
+            + " VERBATIM. Nothing may be reworded on the way onto the page: edit roadmap-config.js and re-run"
+            + " node scripts/build-breadth.mjs.");
+        }
+
+        const sum = one(got.html, /<p class="pillar-sum">([\s\S]*?)<\/p>/);
+        if (sum !== want.summary) {
+          err(`${where}: availability summary is "${sum}", the model says "${want.summary}". `
+            + "The count is what stops a pillar showing three running services out of nine and reading as nine.");
+        }
+        const more = one(got.html, /<p class="pillar-more">([\s\S]*?)<\/p>/);
+        if ((want.moreLabel || null) !== more) {
+          err(`${where}: the count of unshown services is ${more === null ? "absent" : `"${more}"`} and the model says `
+            + `${want.moreLabel === null ? "it should be absent" : `"${want.moreLabel}"`}. `
+            + "A service that leaves the shown three must still be counted, or it leaves the site entirely.");
+        }
+      }
+
+      /* No word outside the fixed vocabulary may describe readiness here, and
+         "Live" is the one to actually worry about: it is the natural word a
+         copy edit reaches for, it is reserved for a canonical gate that has
+         not passed, and it would read to a buyer as a running product. */
+      for (const m of body.matchAll(/<span class="task-flag[^"]*">([\s\S]*?)<\/span>/g)) {
+        const word = norm(m[1]);
+        if (!AVAILABILITY_WORDS.includes(word)) {
+          err(`${page}: "${word}" is used as a readiness label and is not in the fixed public availability vocabulary `
+            + `(${AVAILABILITY_WORDS.join(" / ")}). "Live" in particular is reserved for a canonical gate that has not `
+            + "passed. Add the word to scripts/lib/breadth.mjs deliberately, or use one that already exists.");
+        }
+      }
+
+      /* CROSS-CONFIG, and the one contradiction on this page that would be
+         genuinely embarrassing: the roadmap calling something available in one
+         block while the checkout refuses to sell it three screens up. Matched
+         on the exact name, which means it stays silent when the two configs
+         call the same capability different things (they already do: "Front
+         Desk" here, "AI Front Desk" in the plan record). That is a naming gap
+         for the owner to close in the configs, not something a guard should
+         paper over by inventing a mapping between two sources of truth. */
+      const pw = {};
+      vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: pw }, { timeout: 1000 });
+      const unsellable = ((pw.NV_PRICING && pw.NV_PRICING.addOns) || []).filter((a) => a.sellable === false);
+      const runningNames = model.pillars.flatMap((p2) => p2.tasks)
+        .filter((t) => t.availability === "Available today").map((t) => norm(t.name));
+      for (const a of unsellable) {
+        if (runningNames.includes(a.name)) {
+          err(`${page}: "${a.name}" reads "Available today" in the breadth block, and pricing-config.js marks the add-on `
+            + "of the same name not sellable. One page cannot say a capability is running and unsellable at once. "
+            + "Reconcile the two configs; do not adjust the markup.");
+        }
+      }
+    }
+  }
+}
+
+/* 7l. NO PUBLIC SURFACE MAY DEPICT NEVAMIS BOOKING OR CONFIRMING AN
+       APPOINTMENT.
+
+      THIS HAS ALREADY HAPPENED ONCE. Commit 53b17b7, "Booking language:
+      nothing on this site depicts a slot as confirmed", swept it out of
+      twelve files on 2026-08-27: the example agent said "You're booked", two
+      call chips read BOOKED and CONFIRMATION SENT, the owner SMS mock said
+      "Time confirmed with the caller on the call", the hero stage stepped
+      through BOOK / preferred time into TEXT / booking confirmed, the
+      simulator reported a slot "locked in", and six vertical pages sold
+      "books the visit" and "answered, triaged, and booked". The honest
+      sentence was already on the site the whole time, further down the same
+      page. Every illustration on the way to it contradicted it, and the
+      illustration is the part that sells.
+
+      That sweep was done by hand and left nothing behind. This is what stops
+      the thirteenth file.
+
+      WHERE THE LINE IS, because the next person writing copy here needs it
+      spelled out. The front desk TAKES THE TIME THE CALLER WANTS AND PASSES
+      IT TO THE BUSINESS, WHICH CONFIRMS. So:
+
+        allowed    capturing, noting, requesting or passing on a preferred
+                   time; "REQUEST / preferred time"; "the time the caller
+                   wants"; "held for you to confirm"; the client wiring up
+                   their own booking link; a visitor booking a call with us
+                   ("Book a call" is a real scheduler and stays);
+        refused    anything that shows the slot as settled -- an outcome
+                   label reading BOOKED or CONFIRMED, a step whose verb takes
+                   an appointment as its object, or Nevamis as the subject of
+                   "confirms".
+
+      THE UNIT IS WHAT ONE RENDER SHOWS, NOT WHAT THE FILE SAYS. Counting how
+      often a phrase is written answers the wrong question: the hero timeline
+      is four <g class="step"> groups stacked at one coordinate, so the file
+      reads as a list and the screen shows a single label at a time. Judged as
+      a file, "BOOK" is one word among the other three steps' text; judged as
+      a frame it is the whole claim, with its subject supplied by the stage it
+      is standing on. scripts/lib/rendered-text.mjs `displayUnits` returns
+      every element's flattened text, so both the leaf (BOOK) and the group
+      that encloses it (BOOK preferred time) are judged, and moving the claim
+      between them changes nothing.
+
+      THE REFUSAL IS NOT RESTATED HERE, IT IS READ. nevamis-engine records it
+      in src/domain/entitlement-claims.ts under key "calendar.booking", with
+      the evidence (a tenant agent is provisioned with builtInToolsJson
+      ["end_call"], no booking tool, and no schema column holds a per-tenant
+      calendar credential) and twelve patterns hardened against two years of
+      near misses. Those patterns are lifted and applied here, so sharpening
+      the refusal in the engine sharpens this rule, and lifting the refusal
+      retires it -- rather than this file holding a second, quietly diverging
+      copy of a fact it does not own.
+
+      READ FROM origin/master, NOT THE WORKING TREE. check-all.mjs already
+      refuses to run the agent checks when that sibling checkout is on another
+      branch, because on 2026-08-18 it sat on a superseded model and reported
+      a correct live agent as drifted. A judge reading whatever a neighbouring
+      checkout happens to have on disk is confidently wrong in the direction
+      of action, so this asks git for master.
+
+      AND IT PROVES ITSELF BEFORE IT JUDGES ANYTHING. The registry entry
+      carries its own statement of the refused claim -- "The agent books an
+      appointment into the client's calendar." -- and both layers below are
+      run against that sentence first. A guard that extracted no patterns, or
+      whose vocabulary drifted past the thing it exists to catch, would
+      otherwise report a clean site while seeing nothing, which is this
+      repository's most expensive failure and has its own note in the header
+      of check-all.mjs.
+
+      WHY THERE IS A SECOND LAYER AT ALL. The engine's patterns are a PROSE
+      classifier: they need a subject and an object in one sentence, which is
+      the right shape for engine docs and portal copy and cannot express a
+      two-word SVG label. "BOOK" beside "preferred time" walks through all
+      twelve. So the rules below add the shapes a rendered LABEL takes -- an
+      outcome word standing alone, an outcome word leading a time, a bookable
+      thing followed by a participle, a live verb taking a bookable thing as
+      its object -- and the engine keeps everything it can already judge.
+
+      A DENIAL IS ALLOWED, AND IT IS A CONSTRUCTION, NOT A FILE LIST. The
+      homepage has to be able to carry "Direct calendar booking -- Not built"
+      and "It does not book into your calendar", and the FAQ has to be able to
+      ask "Can it book directly into my calendar?". Those pass because of how
+      they are BUILT, so the next honest sentence somewhere else passes too.
+      Same reasoning as guards 7d and 16. If a failure here names a sentence
+      that is genuinely refusing the claim, extend BOOKING_DENIAL; never
+      exempt a page. */
+{
+  /* The vocabulary, split by the grammatical job each word does, because the
+     discrimination that has to survive is WHO IS DOING THE BOOKING -- the
+     same one the engine's own note records as having killed a looser rule
+     within the hour it was written.
+
+     ACTIVE is the live-verb form that can take an object: "books the
+     appointment". It deliberately excludes "booked", so the ROI calculator's
+     "how many booked jobs cover the plan" -- the CLIENT'S jobs, the reason to
+     buy -- is not read as a claim about us.
+     OUTCOME is the participle-or-noun form that asserts a settled state.
+     THING is what would have been booked.
+     FILLER is what else an outcome label is allowed to be made of. It holds
+     no THING and no "call": "Book a call" is a visitor booking time with us
+     through a real scheduler, and it appears in the header of every page. */
+  const ACTIVE = "(?:books?|booking|schedules?|scheduling|reserves?|reserving)";
+  const OUTCOME = "(?:booked|booking|bookings|confirmed|confirming|confirmation|scheduled|reserved|locked)";
+  const THING = "(?:appointments?|appts?|jobs?|visits?|slots?|times?|bookings?)";
+  const FILLER = "(?:in|sent|and|is|are|now|already|it|the|your|our|a|an)";
+
+  const SITE_RULES = [
+    /* A live verb taking a bookable thing as its direct object. This is the
+       shape of the canonical claim itself, and the shape a step label takes
+       when it stops being honest: BOOK preferred time. */
+    { id: "an appointment as the object of a booking verb",
+      re: new RegExp("\\b" + ACTIVE + "\\s+(?:the|a|an|your|their|its|his|her|preferred|next|first|that)?\\s*" + THING + "\\b", "i") },
+    /* Nevamis as the SUBJECT of "confirms". Anchored on the subject rather
+       than the verb, because the true sentence -- the time is held for the
+       BUSINESS to confirm -- uses the same verb and must pass. */
+    { id: "Nevamis as the subject of \"confirms\"",
+      re: /\b(?:nevamis|the (?:assistant|agent|front desk|receptionist)|it)\s+(?:automatically\s+|then\s+|already\s+)?confirms?\b/i },
+    /* A bookable thing followed by the participle: "slot booked", "time
+       confirmed". Order matters and is the whole discrimination -- "booked
+       jobs" is attributive and describes the client's week. */
+    { id: "a slot depicted as settled",
+      re: new RegExp("\\b" + THING + "\\s+(?:is\\s+|are\\s+|now\\s+|already\\s+){0,2}(?:booked|confirmed|scheduled|reserved|locked in)\\b", "i") },
+  ];
+  /* These two read a LABEL rather than a sentence: a label has no subject in
+     it, and the subject a visitor supplies is the business whose stage it is
+     standing on. There is no honest label on this site whose whole content is
+     an outcome word. */
+  const LABEL_RULES = [
+    { id: "an outcome label with nothing in it but the outcome",
+      test: (u) => new RegExp("\\b(?:" + OUTCOME + "|" + ACTIVE + ")\\b", "i").test(u)
+                && new RegExp("^(?:\\W|" + OUTCOME + "|" + ACTIVE + "|" + FILLER + ")+$", "i").test(u) },
+    { id: "an outcome label leading a time",
+      test: (u) => new RegExp("^\\W*(?:" + OUTCOME + "|" + ACTIVE + ")\\b\\s*[:\\-\\u2013\\u2014]", "i").test(u) },
+  ];
+  /* Constructions that WITHDRAW the claim in the unit that makes it. The
+     site's own corrections are the first three entries' job. Narrow on
+     purpose: a bare "not" would excuse "we never fail to book your slot". */
+  const BOOKING_DENIAL = [
+    /\b(?:does|do|will|can|could|would|is|are|was|were)\s*n[o']?t\b/i,
+    /\bcannot\b/i, /\bnever\b/i, /\bwithout\b/i,
+    /\bno\s+(?:direct\s+|calendar\s+|automatic\s+)?bookings?\b/i,
+    /\bnot\s+(?:built|available|sold|offered|live|yet|for sale|part of)\b/i,
+    /\bthere (?:is|are) no\b/i,
+    /\bin development\b/i, /\bbeing built\b/i, /\brefused\b/i, /\bretired\b/i,
+  ];
+  const denies = (u) => BOOKING_DENIAL.some((r) => r.test(u));
+
+  /* ---- the canonical layer ---- */
+  const engineDir = path.join(root, "..", "nevamis-engine");
+  const ENTITLEMENTS = "src/domain/entitlement-claims.ts";
+  const canonical = (() => {
+    if (!fs.existsSync(engineDir)) return null;
+    const r = spawnSync("git", ["-C", engineDir, "show", "origin/master:" + ENTITLEMENTS],
+      { encoding: "utf8", maxBuffer: 8e6 });
+    if (r.status !== 0) return null;
+    const src = r.stdout;
+    const key = src.indexOf('key: "calendar.booking"');
+    if (key < 0) return { pats: [], claim: null };
+    const claimM = /claim:\s*"((?:[^"\\]|\\.)*)"/.exec(src.slice(key));
+    const start = src.indexOf("patterns: [", key);
+    if (start < 0) return { pats: [], claim: claimM ? claimM[1].replace(/\\(.)/g, "$1") : null };
+    /* Walked rather than regexed out. The entry's patterns are interleaved
+       with long block comments that themselves contain slashes and quoted
+       regex fragments, so anything that does not know which construct it is
+       inside picks up half a comment as a pattern. */
+    let i = start + "patterns: [".length, depth = 1;
+    const pats = [];
+    while (i < src.length && depth > 0) {
+      const c = src[i], d = src[i + 1];
+      if (c === "/" && d === "*") { i = src.indexOf("*/", i + 2) + 2; continue; }
+      if (c === "/" && d === "/") { i = src.indexOf("\n", i) + 1; continue; }
+      if (c === "[") { depth++; i++; continue; }
+      if (c === "]") { depth--; i++; continue; }
+      if (c === "/") {
+        let j = i + 1, inClass = false;
+        for (; j < src.length; j++) {
+          const ch = src[j];
+          if (ch === "\\") { j++; continue; }
+          if (ch === "[") inClass = true;
+          else if (ch === "]") inClass = false;
+          else if (ch === "/" && !inClass) break;
+        }
+        let k = j + 1; while (/[a-z]/.test(src[k] || "")) k++;
+        try { pats.push(new RegExp(src.slice(i + 1, j), src.slice(j + 1, k))); } catch { /* not a regex */ }
+        i = k; continue;
+      }
+      i++;
+    }
+    return { pats, claim: claimM ? claimM[1].replace(/\\(.)/g, "$1") : null };
+  })();
+
+  const judge = (unit, isLabel) => {
+    if (denies(unit)) return null;
+    for (const r of SITE_RULES) if (r.re.test(unit)) return r.id;
+    if (isLabel) for (const r of LABEL_RULES) if (r.test(unit)) return r.id;
+    if (canonical) for (const r of canonical.pats) if (r.test(unit)) return "the engine's refused-entitlement pattern " + r;
+    return null;
+  };
+
+  /* ---- prove the judge before using it ---- */
+  const SPECIMEN = canonical && canonical.claim;
+  if (!canonical) {
+    console.error("NOTE: guard 7l could not read " + ENTITLEMENTS + " from nevamis-engine's origin/master, "
+      + "so it is judging on its own patterns only and not on the engine's twelve. That is a smaller guard "
+      + "than the one that is supposed to be running. Fix: clone nevamis-engine beside this repo and "
+      + "git -C ../nevamis-engine fetch origin.");
+  } else if (!SPECIMEN) {
+    err("guard 7l: nevamis-engine's " + ENTITLEMENTS + " no longer has a `calendar.booking` entry with a `claim`. "
+      + "Either calendar booking stopped being a refused entitlement -- in which case retire this rule "
+      + "deliberately -- or the registry changed shape and this guard is now judging on less than it should. "
+      + "Do not leave it in this state: a guard that reads nothing reports a clean site.");
+  } else {
+    if (!canonical.pats.some((r) => r.test(SPECIMEN))) {
+      err("guard 7l: the patterns read out of nevamis-engine's `calendar.booking` entry do not match that same "
+        + `entry's own statement of the claim ("${SPECIMEN}"). The extraction is broken or the entry changed shape, `
+        + "and either way this rule is now scanning the site with patterns that catch nothing.");
+    }
+    if (!judge(SPECIMEN, false)) {
+      err("guard 7l: this file's own rules do not catch the canonical refused claim "
+        + `("${SPECIMEN}"). They have drifted past the thing they exist to catch. Fix the rules, not the specimen.`);
+    }
+  }
+
+  /* ---- the surfaces ---- */
+  /* Same derivation as guard 16: every published page, plus the JavaScript
+     that writes copy into them. The hero timeline's labels live in BOTH
+     home.html and assets/motion/hero.js, and 53b17b7 had to correct both. */
+  const jsSurfaces = ["site.js", "motion.js", "pricing-config.js", "roadmap-config.js"];
+  {
+    const abs = path.join(root, "assets/motion");
+    if (fs.existsSync(abs)) for (const f of fs.readdirSync(abs)) if (f.endsWith(".js")) jsSurfaces.push("assets/motion/" + f);
+  }
+  /* A label is short and carries no sentence punctuation. Longer than this,
+     or ending in a full stop, and it is prose with a subject of its own,
+     which the SITE_RULES and the engine's patterns already read. */
+  const looksLikeLabel = (t) => t.length > 0 && t.length <= 60 && !/[.!?]/.test(t);
+  const readablePage = (s) => s
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<script\b(?![^>]*application\/ld\+json)[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ");
+
+  const units = [];
+  for (const p of [...contentPages, "llms.txt"]) {
+    const abs = path.join(root, p);
+    if (!fs.existsSync(abs)) continue;
+    const raw = fs.readFileSync(abs, "utf8");
+    if (p.endsWith(".html")) {
+      for (const u of displayUnits(raw)) if (looksLikeLabel(u)) units.push({ label: p, unit: u, isLabel: true });
+    }
+    for (const c of clauses(decodeEntities(readablePage(raw)))) units.push({ label: p, unit: c, isLabel: false });
+  }
+  for (const f of jsSurfaces) {
+    const abs = path.join(root, f);
+    if (!fs.existsSync(abs)) continue;
+    for (const lit of jsStringLiterals(stripJsComments(fs.readFileSync(abs, "utf8")))) {
+      /* `renderedProse` drops a literal with no whitespace, because most of
+         them are identifiers. That is right for a rule reading sentences and
+         wrong for one reading labels: hero.js carries the stage's step labels
+         as `label: 'REQUEST'`, one word each, and dropping them would leave
+         the exact string 53b17b7 had to correct invisible here. A one-word
+         literal is therefore kept when it is not identifier-shaped -- which
+         is what separates the rendered 'BOOK' from motion.js's internal
+         `outcome: "transfer"` and `data-callchip="booked"` keys, both of
+         which are deliberately lower case and stay that way. */
+      if (/\s/.test(lit) ? looksLikeLabel(lit) : !/^[a-z0-9_$.\/#\-[\]:]+$/.test(lit)) {
+        units.push({ label: f, unit: lit, isLabel: true });
+      }
+      const prose = renderedProse(lit);
+      if (prose) for (const c of clauses(prose)) units.push({ label: f, unit: c, isLabel: false });
+    }
+  }
+
+  const reported = new Set();
+  for (const { label, unit, isLabel } of units) {
+    const why = judge(unit, isLabel);
+    if (!why) continue;
+    const key = label + "::" + unit;
+    if (reported.has(key)) continue;
+    reported.add(key);
+    err(`${label}: depicts Nevamis booking or confirming an appointment (${why}).\n      ${isLabel ? "label" : "clause"}: `
+      + `"${unit.slice(0, 160)}"\n      There is no booking tool on a provisioned agent: it is created with `
+      + `builtInToolsJson ["end_call"], and no per-tenant calendar credential exists to book against `
+      + `(nevamis-engine ${ENTITLEMENTS}, key "calendar.booking"). What the front desk does is take the job and `
+      + `the time the caller WANTS, tell the caller the business will confirm it, and text the business the `
+      + `details. Say that instead -- "REQUEST / preferred time", "captured and held for you to confirm". `
+      + `A unit that DENIES the claim is allowed, which is how "Direct calendar booking -- Not built" and `
+      + `"It does not book into your calendar" stay on the homepage; extend BOOKING_DENIAL rather than `
+      + `exempting a page. Swept by hand once already in 53b17b7, across twelve files.`);
+  }
+}
+
+/* 7j. THE PUBLIC DEMONSTRATION SPEAKS THE CLIENT MAP'S CONTRACT.
+
+      Section 5 of the homepage shows three flows. They are not the site's
+      words: publicDemoMap() in nevamis-engine's
+      src/domain/intelligence/client-map.ts is the single author, exported by
+      nv-shared-contract/scripts/export-public-map.mts into
+      config/public-demo-map.json and pre-rendered into the table here.
+
+      Two repositories describing the same demonstration in their own words
+      diverge inside a month. The whole point of the shared contract is that
+      the public demo and the map a paying client opens in their portal are
+      the same object seen from two places, so the site is allowed to lay it
+      out and forbidden to reword it. Re-export the JSON and follow it here
+      when the engine changes.
+
+      config/ is excluded from the Jekyll build, so the JSON is a source file
+      rather than something the page fetches: no request, no CLS, and the
+      table reads with scripting off. */
+{
+  const dataPath = path.join(root, "config", "public-demo-map.json");
+  if (!fs.existsSync(dataPath)) {
+    err("config/public-demo-map.json is missing. The homepage demonstration renders it, and without it the table on the page is unsourced prose.");
+  } else {
+    let flows = null;
+    try { flows = JSON.parse(fs.readFileSync(dataPath, "utf8")); }
+    catch (e) { err("config/public-demo-map.json does not parse: " + String(e.message).slice(0, 90)); }
+    if (Array.isArray(flows)) {
+      const cells = (html) => {
+        const t = html.match(/<table[^>]*\bid="demoMap"[^>]*>([\s\S]*?)<\/table>/i);
+        if (!t) return null;
+        const body = (t[1].match(/<tbody>([\s\S]*?)<\/tbody>/i) || [null, ""])[1];
+        return [...body.matchAll(/<tr>([\s\S]*?)<\/tr>/g)].map((r) =>
+          [...r[1].matchAll(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/g)]
+            .map((c) => c[1].replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim()));
+      };
+      for (const page of ["home.html", "index.html"]) {
+        const p = path.join(root, page);
+        if (!fs.existsSync(p)) continue;
+        const rows = cells(fs.readFileSync(p, "utf8"));
+        if (!rows) { err(`${page}: <table id="demoMap"> is gone. Section 5 is the one demonstration on the homepage and it has to be the exported map, not a retelling of it.`); continue; }
+        const expected = flows.map((f) => [String(f.when), String(f.understands), String(f.acts), String(f.verified && f.verified.label)]);
+        if (rows.length !== expected.length || rows.some((r, i) => r.join("|") !== expected[i].join("|"))) {
+          err(`${page}: #demoMap drifted from config/public-demo-map.json\n      page:   `
+            + rows.map((r) => r.join(" | ")).join("\n              ")
+            + `\n      export: ` + expected.map((r) => r.join(" | ")).join("\n              ")
+            + `\n      Re-run: npx tsx scripts/export-public-map.mts (in nv-shared-contract) > config/public-demo-map.json,`
+            + ` then follow it in the markup. The site lays this out; the engine writes it.`);
+        }
+      }
     }
   }
 }
@@ -1359,33 +2010,42 @@ for (const p of contentPages) {
    reading another, on the page whose entire job is proof. Nothing else notices,
    because both files are valid HTML and every audio path resolves.
 
-   index.html is the reference because it is the homepage. Any other page using
-   the same files must carry the same turns in the same order. */
+   index.html WAS the reference, because it was the homepage and the homepage
+   played the call. On 2026-08-27 the seven-section rebuild moved the player to
+   demo.html, and a reference file that no longer carries any turns turns this
+   whole rule into a silent no-op: reference.length would be 0, the loop would
+   never run, and the guard would report success while checking nothing. That
+   is the exact failure mode the rest of this file exists to prevent, so the
+   reference is now DISCOVERED rather than named. Whichever pages play the
+   audio are compared against each other, with demo.html preferred as the
+   reference because it is the page whose entire job is proof; if no page plays
+   it at all, there is genuinely nothing to compare and the rule stands down. */
 {
   const turnsOf = (html) => [...html.matchAll(/data-audio="([^"]+)"[\s\S]*?<p>([\s\S]*?)<\/p>/g)]
     .map((m) => [m[1], m[2].replace(/\s+/g, " ").trim()]);
 
-  const referenceFile = path.join(root, "index.html");
-  if (fs.existsSync(referenceFile)) {
-    const reference = turnsOf(fs.readFileSync(referenceFile, "utf8"));
+  const players = contentPages.filter((p) =>
+    /data-audio="assets\/call-/.test(fs.readFileSync(path.join(root, p), "utf8")));
+  const referencePage = players.includes("demo.html") ? "demo.html" : players[0];
+  if (referencePage) {
+    const reference = turnsOf(fs.readFileSync(path.join(root, referencePage), "utf8"));
     if (reference.length > 0) {
-      for (const page of contentPages) {
-        if (page === "index.html") continue;
+      for (const page of players) {
+        if (page === referencePage) continue;
         const html = fs.readFileSync(path.join(root, page), "utf8");
-        if (!/data-audio="assets\/call-/.test(html)) continue;
         const turns = turnsOf(html);
         if (turns.length !== reference.length) {
-          err(`${page}: plays the example call but shows ${turns.length} turns where index.html has ${reference.length} `
+          err(`${page}: plays the example call but shows ${turns.length} turns where ${referencePage} has ${reference.length} `
             + `(the audio is one recording; a page showing fewer turns cuts the call off mid-conversation)`);
           continue;
         }
         for (let i = 0; i < turns.length; i++) {
           if (turns[i][0] !== reference[i][0]) {
-            err(`${page}: turn ${i + 1} plays ${turns[i][0]} where index.html plays ${reference[i][0]}`);
+            err(`${page}: turn ${i + 1} plays ${turns[i][0]} where ${referencePage} plays ${reference[i][0]}`);
           } else if (turns[i][1] !== reference[i][1]) {
-            err(`${page}: turn ${i + 1} (${turns[i][0]}) shows different words than index.html — the transcript does not match the audio\n`
+            err(`${page}: turn ${i + 1} (${turns[i][0]}) shows different words than ${referencePage}: the transcript does not match the audio\n`
               + `       ${page}: ${turns[i][1].slice(0, 80)}\n`
-              + `       index.html: ${reference[i][1].slice(0, 80)}`);
+              + `       ${referencePage}: ${reference[i][1].slice(0, 80)}`);
           }
         }
       }

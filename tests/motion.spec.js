@@ -235,7 +235,10 @@ for (const vp of VIEWPORTS) {
     await page.evaluate(() => { window.__heroTL.progress(1).pause(); });
     await page.waitForTimeout(250);
 
-    const primary = page.locator('a.btn-primary').filter({ hasText: /Hear it answer/i }).first();
+    /* Was filtered on /Hear it answer/. The hero's primary became the scan
+       on 2026-08-28; matched by its role rather than its sentence now, so the
+       next copy edit does not silently drop this layout assertion. */
+    const primary = page.locator('a.btn-primary[data-cta]').first();
     // scope to the hero CTAs — the header also holds .btn-ghost, and on
     // mobile that one legitimately lives inside the closed menu
     const secondary = page.locator('a.btn-ghost[data-cta]').first();
@@ -481,12 +484,27 @@ test('keyboard users reach every control with a visible focus ring', async ({ pa
   }
 
   const labels = reached.map((r) => r.text).join(' | ');
-  expect(labels, 'the primary CTA must be keyboard reachable').toContain('Hear it answer');
-  /* 'Book a 15-min call' until 2026-08-17, when the secondary slot went to
-     the live PULSE scanner — the headline promises to find lost revenue and
-     the page finally has the thing that does it. Booking stayed reachable in
-     the nav, which this same walk covers. */
-  expect(labels, 'the secondary CTA must be keyboard reachable').toContain('Scan my business');
+
+  /* DERIVED, NOT TYPED, and the reason is a defect this very run produced.
+     These were two pinned sentences: 'Hear it answer' for the primary and
+     'Scan my business' for the secondary. On 2026-08-28 the owner made the
+     scan the single primary, and the second assertion failed honestly while
+     the FIRST one kept passing for the wrong reason: the header still carries
+     a "Hear it answer" button, so an assertion named "the primary CTA" was
+     satisfied by the navigation. A test that names one element and is
+     answered by another has stopped guarding anything.
+
+     The rule was never about the words. It is that BOTH hero CTAs, whatever
+     they say, are reachable by keyboard and carry a visible ring. Reading the
+     labels off the page states exactly that, and the next copy edit cannot
+     quietly retire it. */
+  const heroCtas = await page.evaluate(() =>
+    [...document.querySelectorAll('.hero [data-cta]')]
+      .map((el) => (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 28)));
+  expect(heroCtas.length, 'the hero must offer a primary and a secondary CTA').toBe(2);
+  for (const label of heroCtas) {
+    expect(labels, `hero CTA "${label}" must be keyboard reachable`).toContain(label);
+  }
 
   for (const r of reached) {
     expect(r.focusIndicator, `no visible focus ring on "${r.text}"`).not.toBe('NONE');
@@ -641,7 +659,14 @@ const STILL_DESKTOP = {
   lede: '.hero .lede',
   'primary CTA': 'a.btn-primary[data-cta]',
   'secondary CTA': 'a.btn-ghost[data-cta]',
-  'phone number': '.cta-num',
+  /* WAS '.cta-num', the digits inside the hero's dial button. That button
+     was the primary until the scan replaced it, so the digits moved to the
+     line beneath, where they already were. The assertion is the same one and
+     is deliberately kept element-level rather than folded into 'proof': the
+     comment above says the number is listed in its own right, and it still is.
+     It also now works at BOTH widths, where .cta-num was display:none below
+     430px and mobile had no phone-number assertion at all. */
+  'phone number': '.hero .proof a.mono',
   'header nav link': '.main-nav a[data-nav]',
   proof: '.hero .proof',
 };
@@ -657,6 +682,7 @@ const STILL_MOBILE = {
   lede: '.hero .lede',
   'primary CTA': 'a.btn-primary[data-cta]',
   'secondary CTA': 'a.btn-ghost[data-cta]',
+  'phone number': '.hero .proof a.mono',
   proof: '.hero .proof',
 };
 

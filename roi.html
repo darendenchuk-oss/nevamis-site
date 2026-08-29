@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Answering Service for HVAC Companies | The AI Front Desk by Nevamis</title>
-<meta name="description" content="A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, takes the job down, and se">
+<title>Missed-Call Calculator | What Missed Calls Cost You | Nevamis</title>
+<meta name="description" content="Put your own numbers in: missed calls a week, what a job is worth, your close rate. See the monthly opportunity reaching voicemail and what covers a plan.">
+<link rel="canonical" href="https://nevamis.ca/roi.html">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://nevamis.ca/hvac.html">
-<meta property="og:title" content="Answering Service for HVAC Companies | Nevamis">
-<meta property="og:description" content="A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, takes the job down, and se">
+<meta property="og:title" content="What are missed calls costing you?">
+<meta property="og:description" content="Use your own numbers. The math is shown, the assumptions are yours to change.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://nevamis.ca/hvac.html">
+<meta property="og:url" content="https://nevamis.ca/roi.html">
 <meta property="og:site_name" content="Nevamis">
 <meta property="og:locale" content="en_CA">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
@@ -18,8 +18,6 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nevamis.ca/assets/og-default.png">
-<meta name="geo.region" content="CA-AB">
-<meta name="geo.placename" content="Edmonton, Alberta">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -37,7 +35,7 @@
        both, always          2,916       0.0011         164         0.0000
        both, >=900px         2,028       0.0013         152         0.0000
 
-     On a phone nothing arrives before first paint, so swap fires whatever
+     On a phone nothing arrives before first paint, so `swap` fires whatever
      we do. Mobile CLS is ~0.001 with no preload at all, because the
      metric-matched fallbacks in fonts.css hold the layout. There the preload
      buys nothing and costs 34 KB of a 400 kbps pipe shared with the
@@ -706,24 +704,67 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 }
 </style>
 <!-- /generated:css -->
+
 <style>
-  .page-hero{position:relative;padding:150px 0 60px;overflow:hidden}
-  .page-hero h1{font-size:clamp(34px,5vw,58px);font-weight:700;letter-spacing:-.03em;
-    line-height:1.04;margin:18px 0 0;max-width:19ch}
-  .page-hero .lede{color:var(--muted);font-size:clamp(16px,1.6vw,19px);margin-top:18px;
-    max-width:56ch;line-height:1.55}
-  .page-hero .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
-  .crumb{font-size:13px;color:var(--muted);margin-bottom:6px}
-  .crumb a{color:var(--muted)}
-  .crumb a:hover{color:var(--mint)}
-  .related{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-  @media(max-width:860px){.related{grid-template-columns:1fr}}
-  .related a{display:block;padding:18px 20px;border:1px solid var(--line);border-radius:14px;
-    background:linear-gradient(180deg,var(--navy-2),#0C1A25);transition:border-color .25s,transform .25s}
-  .related a:hover{border-color:rgba(159,240,206,.32);transform:translateY(-2px)}
-  .related strong{display:block;font-family:"Bricolage Grotesque",sans-serif;margin-bottom:5px}
-  .related span{color:var(--muted);font-size:13.5px}
+  /* page-specific: the calculator page hero (everything else lives in
+     assets/motion/site.css, inlined above by scripts/build-pages.mjs). */
+  .hero{padding:150px 0 46px}
+  .hero .wrap{max-width:820px}
+  .hero h1{font-weight:700;letter-spacing:-.03em;line-height:1.06;margin:16px 0 0;
+    font-size:clamp(36px,5.4vw,64px)}
+  .lede{color:var(--muted);font-size:clamp(16px,1.5vw,19px);margin:18px 0 0;line-height:1.55;max-width:56ch}
+  .cta-row{margin-top:26px}
+  .proof{margin-top:18px;color:var(--muted);font-size:14px}
+  .crumb{color:var(--muted);font-size:13px;margin-bottom:14px}
+  .crumb a{color:var(--emerald)}
+  /* The calculator section keeps id="roi" so the sticky compact estimate,
+     which the generated stylesheet pins with #roi{overflow:visible}, behaves
+     exactly as it did on the homepage. */
 </style>
+<!-- generated:schema -->
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://nevamis.ca/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Missed-Call Calculator",
+        "item": "https://nevamis.ca/roi.html"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://nevamis.ca/roi.html",
+    "url": "https://nevamis.ca/roi.html",
+    "name": "Missed-Call Calculator | What Missed Calls Cost You | Nevamis",
+    "description": "Put your own numbers in: missed calls a week, what a job is worth, your close rate. See the monthly opportunity reaching voicemail and what covers a plan.",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Nevamis",
+      "url": "https://nevamis.ca/"
+    },
+    "about": {
+      "@id": "https://nevamis.ca/#service"
+    },
+    "publisher": {
+      "@id": "https://nevamis.ca/#organization"
+    },
+    "inLanguage": "en-CA"
+  }
+]
+</script>
+<!-- /generated:schema -->
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -749,114 +790,145 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </header>
 
 <main id="main">
-  <section class="page-hero">
+  <section class="hero">
     <div class="grid-lines" aria-hidden="true"></div>
+    <div class="glow" style="width:600px;height:380px;right:-140px;top:-80px" aria-hidden="true"></div>
     <div class="wrap">
-      <p class="crumb"><a href="/">Home</a> / <a href="/solutions.html">Solutions</a> / HVAC</p>
-      <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Built for your trade</span>
-      <h1>The 11 PM no-heat call, answered</h1>
-      <p class="lede">A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, takes the job down, and sends you the summary.</p>
-      <div class="cta">
-        <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer &nbsp;›</a>
-        <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-min call</a>
+      <p class="crumb"><a href="/">Home</a> / Missed-call calculator</p>
+      <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Missed-call math</span>
+      <h1>What are missed calls costing you?</h1>
+      <p class="lede">Use your own numbers. The math is shown, the assumptions are yours
+        to change, and nothing here is a guarantee. It moved off the homepage on purpose:
+        a calculator is worth a page of its own, and worth reading properly.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary btn-lg" href="#roi">Go to the calculator</a>
+        <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer &middot; (587)&nbsp;413-0035</a>
       </div>
-      <p class="proof" style="margin-top:12px">The phone is where most start. Behind it sits the full Nevamis platform:
-        a free scan that reads your public footprint and puts a range on what is leaking,
-        lead generation in development that will find the customers worth calling and the jobs and tenders worth
-        bidding, and a portal that shows what every answered call actually produced.
-        <a href="https://app.nevamis.ca/scan" data-evt="trade_scan_click">Run the free scan</a>.</p>
+      <p class="proof">Prefer a real number to an estimate? The free scan reads what is
+        public about your business and puts a range on what is actually leaking, with a
+        confidence level beside each one.</p>
+    </div>
+  </section>
+
+  <section class="roi" id="roi">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">The calculator</p>
+        <h2>Your numbers, your assumptions.</h2>
+        <p>Change any field and the estimate below updates as you type.</p>
+      </div>
+      <div class="roi-grid">
+        <!-- Narrow screens only. The grid collapses to one column below 900px,
+             which puts the estimate BELOW the form, so on a phone the number
+             moved while nobody could see it: measured on production, the result
+             panel is off-screen through all five edits at 390px and 768px, and
+             four of five at 320px. Desktop is unaffected, where .roi-out is
+             sticky beside a two-column grid.
+             Pinning the real panel is not an option - it is 541px of an 844px
+             viewport, 64%, and would leave no room for the form. This carries
+             the headline figure only, at about 50px, and sits under the fixed
+             header rather than the bottom, where .callbar already lives.
+             aria-hidden because #roiLive already announces every change
+             politely; a visible mirror must not make a screen reader say it
+             twice. -->
+        <div class="roi-mini" aria-hidden="true">
+          <span class="roi-mini-lbl mono">REACHING VOICEMAIL / MONTH</span>
+          <span class="roi-mini-val" id="roiMini">$0</span>
+        </div>
+        <form id="roiForm" novalidate class="reveal">
+          <div>
+            <label for="roiMissed">Missed calls per week</label>
+            <input type="number" id="roiMissed" inputmode="numeric" min="0" max="500" value="10">
+          </div>
+          <div>
+            <label for="roiReal">Share that are real opportunities (%)</label>
+            <input type="number" id="roiReal" inputmode="numeric" min="0" max="100" value="60">
+            <p class="hint">Not every call is a job. Set this to what you see in your own calls.</p>
+          </div>
+          <div>
+            <label for="roiValue">Average job or customer value ($)</label>
+            <input type="number" id="roiValue" inputmode="numeric" min="0" value="400">
+          </div>
+          <div>
+            <label for="roiClose">Your close rate on real inquiries (%)</label>
+            <input type="number" id="roiClose" inputmode="numeric" min="0" max="100" value="50">
+          </div>
+          <div>
+            <label for="roiQuote">Plan you are comparing against ($/month)</label>
+            <!-- value= and the plan name below are the NO-JS FALLBACK ONLY.
+                 site.js overwrites both from window.NV_PRICING on load, so the
+                 live field cannot drift from pricing-config.js. It did: this
+                 shipped value="449", a price retired 2026-08-06, to
+                 production, labelled "the Growth plan", past every gate,
+                 because nothing that reads pricing-config.js was looking at
+                 an input attribute. Keep these two literals equal to the
+                 recommended plan; check-consistency.js guard 7f now enforces
+                 it. -->
+            <input type="number" id="roiQuote" inputmode="numeric" min="0" value="1000">
+            <p class="hint" id="roiQuoteHint">Prefilled with the <span id="roiQuotePlan">AI Front Desk</span> plan. Change it to any plan, or to a
+              quote you were given, to see how many booked jobs cover it.</p>
+          </div>
+        </form>
+        <div class="roi-out reveal" aria-label="Calculator results">
+          <h3>Your estimate</h3>
+          <div class="row">
+            <div class="lbl mono">OPPORTUNITY REACHING VOICEMAIL / MONTH</div>
+            <div class="big" id="roiOpp">$0</div>
+          </div>
+          <div class="row">
+            <div class="lbl mono">CONSERVATIVE RECOVERED BOOKINGS (HALF)</div>
+            <div class="big" id="roiRec">$0</div>
+          </div>
+          <div class="row" id="roiBeRow" hidden>
+            <div class="lbl mono">BREAK-EVEN AT YOUR QUOTE</div>
+            <div class="big" id="roiBe" style="font-size:clamp(20px,2.2vw,26px)">–</div>
+          </div>
+          <div class="midcta" style="margin-top:18px">
+            <a class="btn btn-primary" href="/book.html" data-evt="roi_book_click">Check these against your real call log</a>
+          </div>
+          <p class="disclaimer">Estimate only, not a guarantee. Formula: missed calls × 4.33 weeks × opportunity share × job value × close rate. Recovery assumes half of voicemail-bound calls are captured.</p>
+          <p aria-live="polite" class="visually-hidden" id="roiLive"></p>
+        </div>
+      </div>
 
     </div>
   </section>
 
-<section class="tight">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow mono">The problem</p>
-      <h2>Your busiest calls arrive at the worst possible hour.</h2>
-      <p>You cannot answer a phone with your hands full. So the call goes to voicemail,
-        and the person on the other end simply calls the next name on their list. The job
-        is not lost because of price or quality. It is lost because nobody picked up.</p>
+  <section class="tight">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">How the math works</p>
+        <h2>Nothing hidden in the formula.</h2>
+        <p>Five inputs, one multiplication, and one deliberately conservative halving.
+          If a number here looks wrong for your business, it probably is: change it.</p>
+      </div>
+      <div class="proc">
+        <div class="reveal"><h3>Opportunity reaching voicemail</h3><p>Missed calls per week &times; 4.33 weeks &times; the share that are real opportunities &times; your average job value &times; your close rate. That is the money that rang and went to voicemail in a month.</p></div>
+        <div class="reveal"><h3>Conservative recovered bookings</h3><p>Half of the figure above. Not every voicemail-bound caller would have booked even with a perfect answer, so the recovery estimate assumes half of them.</p></div>
+        <div class="reveal"><h3>Break-even at your quote</h3><p>How many booked jobs a month it would take to cover the plan you are comparing against. Prefilled with the recommended plan, and you can type any quote you were given.</p></div>
+      </div>
+      <p class="proof" style="margin-top:20px">Estimate only, not a guarantee. Nevamis
+        does not publish client numbers or success rates, because we are not going to
+        invent them. What the portal shows you later is measured, and it is labelled
+        measured or modelled so you can tell which is which.</p>
     </div>
-    <div class="proc">
-      <div class="reveal"><h3>Answered in seconds</h3><p>Nevamis picks up in your
-        business's tone, day or night, while you stay on the tools.</p></div>
-      <div class="reveal"><h3>Qualified the way you would</h3><p>It asks whether there is heat at all, what the thermostat reads, the age
-        and type of the system, whether anyone vulnerable is in the home, the address, and
-        what times actually work for them.</p></div>
-      <div class="reveal"><h3>Written down, not lost</h3><p>It takes the job and the time
-        they want, and tells them plainly that you will confirm it.</p></div>
-    </div>
-  </div>
-</section>
+  </section>
 
-<section class="tight">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow mono">Built around heating and cooling</p>
-      <h2>It answers with your rules, not a generic script.</h2>
-      <p>Before it takes a single call we agree on what it is allowed to say. Your service
-        area, your hours, your job types, the prices you approve, and what counts as an
-        emergency for your business.</p>
+  <section class="tight">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow mono">What to do with the number</p>
+        <h2>An estimate is a reason to look at the real thing.</h2>
+        <p>The figure above is built from what you believe about your own calls. The two
+          things below replace belief with evidence.</p>
+      </div>
+      <div class="proc">
+        <div class="reveal"><h3>Run the free scan</h3><p>PULSE reads what is public about your business and puts a range and a confidence level on each leak it finds. Free, no email required, about a minute. <a href="https://app.nevamis.ca/scan" data-evt="platform_scan_click">Scan my business</a></p></div>
+        <div class="reveal"><h3>Hear it take a call</h3><p>A recorded example call, a transcript, and a real number you can dial yourself at any hour. <a href="/demo.html" data-evt="compare_demo_click">Go to the demo page</a></p></div>
+        <div class="reveal"><h3>See what it costs</h3><p>Two published numbers and one rule joining them, with the start length published before you buy. <a href="/pricing.html" data-evt="pricing_view_click">See the plans and prices</a></p></div>
+      </div>
     </div>
-    <div class="stack" aria-label="What we configure for heating and cooling">
-      <div class="layer"><strong>No-heat and no-cool calls</strong><span>Triaged by your emergency criteria, not a generic script.</span></div>
-      <div class="layer"><strong>Seasonal tune-ups</strong><span>Taken down with the time they want, without interrupting anyone.</span></div>
-      <div class="layer"><strong>Maintenance plans</strong><span>Existing plan holders recognised and handled by your rules.</span></div>
-      <div class="layer"><strong>Equipment questions</strong><span>Answered from your approved FAQ, or taken as a message.</span></div>
-      <div class="layer"><strong>Diagnostic fee</strong><span>Quoted exactly as you set it, every time.</span></div>
-      <div class="layer"><strong>Commercial vs residential</strong><span>Routed differently if that is how you run the business.</span></div>
-    </div>
-  </div>
-</section>
-
-<section class="tight">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow mono">Urgency handled properly</p>
-      <h2>No heat with a newborn in the house is a different call.</h2>
-      <p>You define what an emergency means for your business: a temperature
-        threshold, no heat at all, vulnerable occupants, or a commercial account. Calls that
-        meet it are handled as emergencies: NEVAMIS captures the urgent details and alerts
-        your team. Everything else is captured with the first slot your calendar actually has. For anything outside the rules you approved, it takes a message and
-        flags the summary rather than inventing an answer. You decide what gets escalated,
-        what gets captured, and what waits until morning.</p>
-    </div>
-    <div class="midcta reveal">
-      <a class="btn btn-ghost" href="/pilot.html" data-evt="trade_start_click">See how you start</a>
-      <a class="btn btn-ghost" href="/pricing.html" data-evt="trade_pricing_click">Compare plans</a>
-    </div>
-  </div>
-</section>
-
-<section class="tight">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow mono">Judge it yourself</p>
-      <h2>Do not take our word for it. Call it.</h2>
-      <p>The fastest way to know whether this is good enough for your customers is to
-        be a customer. The demo line runs the same agent your business would get.</p>
-    </div>
-    <div class="midcta reveal">
-      <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer (587)&nbsp;413-0035</a>
-      <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-min call</a>
-    </div>
-  </div>
-</section>
-
-<section class="tight">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow mono">Keep reading</p>
-      <h2>Related pages</h2>
-    </div>
-    <div class="related reveal">
-      <a href="/electricians.html"><strong>Answering Service for Electricians</strong><span>Service calls answered while the crew is on the tools.</span></a>
-      <a href="/plumbers.html"><strong>Answering Service for Plumbers</strong><span>Burst pipes and blocked drains captured before the next call.</span></a>
-      <a href="/restoration.html"><strong>Answering Service for Restoration Companies</strong><span>Stressed emergency callers handled calmly and routed by priority.</span></a>
-    </div>
-  </div>
-</section>
+  </section>
 </main>
 
 <footer class="site-footer">
@@ -901,8 +973,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
 <a class="callbar" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer · (587) 413-0035</a>
 
-<script>document.documentElement.classList.remove('no-js');</script>
+<!-- The calculator prefills its comparison field and its plan label from
+     window.NV_PRICING, which is how the figure and the name beside it cannot
+     drift from pricing-config.js. Loaded before site.js reads it. -->
+<script src="pricing-config.js"></script>
 <script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/vendor/ScrollTrigger.min.js"></script>
 <script src="assets/vendor/MotionPathPlugin.min.js"></script>
 <script src="site.js" defer></script>
 <script src="motion.js" defer></script>

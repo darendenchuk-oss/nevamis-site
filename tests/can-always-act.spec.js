@@ -17,6 +17,12 @@
 import { test, expect } from '@playwright/test';
 
 const PHONE = 'tel:+15874130035';
+/* The homepage's single primary action since the owner's 2026-08-28 ruling.
+   PHONE is still here and still asserted: it moved off the hero button and
+   onto the sticky call bar, which is the surface a phone visitor actually
+   taps, and which the second test in this file proves is visible at first
+   paint without any animation. */
+const SCAN = 'https://app.nevamis.ca/scan';
 
 test.describe('a visitor can act before the intro finishes', () => {
   for (const vp of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'phone', width: 375, height: 812 }]) {
@@ -50,7 +56,14 @@ test.describe('a visitor can act before the intro finishes', () => {
       const primary = page.locator('a.btn-primary[data-cta]');
       await expect(primary).toBeVisible();
       const href = await primary.getAttribute('href');
-      expect(href).toBe(PHONE);
+      /* WAS PHONE. The owner ruled on 2026-08-28 that the scan is the
+         homepage's single primary action, because it gives a prospect real
+         evidence before asking for a sales conversation. What this test is
+         about is unchanged: whatever the primary IS, it must be visible and
+         genuinely tappable before the intro film finishes. The phone has not
+         left the page and is still proven reachable at first paint by the
+         sibling test below, which asserts the sticky call bar. */
+      expect(href).toBe(SCAN);
     });
   }
 

@@ -17,6 +17,13 @@
  *  pressed "Book a call" was scrolled backwards, away from the thing they were
  *  about to use. Fixing the self-link stopped the page reloading itself; it did
  *  not make the button arrive anywhere useful. */
+/* CURRENTLY INERT, and deliberately kept. Booking left the header on
+ *  2026-08-28 and the header's one button is now an external scan URL, so no
+ *  page on this site can be the page that button points at and there is
+ *  nothing for this map to rewrite. The machinery stays because the rule it
+ *  encodes is general: the day a header button points at a page again, this
+ *  is where that page says where to go instead. An empty map would be the
+ *  same code with the reasoning deleted. */
 export const SELF_CTA_TARGET = { 'book.html': '#pick-a-time' };
 
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

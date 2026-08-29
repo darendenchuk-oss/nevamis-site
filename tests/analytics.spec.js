@@ -17,10 +17,16 @@ const PLAIN = '/home.html';
    which counts captured leads rather than clicks, and a data-evt beside it
    would double count and fire on failed validation. */
 const REQUIRED = [
-  { page: '/home.html', sel: '#simWatch', evt: 'sim_watch_click' },
-  { page: '/home.html', sel: '#simStepMode', evt: 'sim_step_click' },
+  /* The simulator moved to /demo.html with the seven-section homepage
+     rebuild: the homepage demonstration is now one static system map, and a
+     thing that imitates live activity belongs on the page a visitor opened
+     to be shown one. Same names, same buttons, new address. */
+  { page: '/demo.html', sel: '#simWatch', evt: 'sim_watch_click' },
+  { page: '/demo.html', sel: '#simStepMode', evt: 'sim_step_click' },
   { page: '/home.html', sel: 'a[href="/demo.html"][data-evt]', evt: 'compare_demo_click' },
-  { page: '/home.html', sel: 'a[href="#roi"][data-evt]', evt: 'dayone_roi_click' },
+  /* Was a[href="#roi"]: the calculator left the homepage for /roi.html. The
+     event name is deliberately unchanged, so the funnel keeps reading. */
+  { page: '/home.html', sel: 'a[href="/roi.html"][data-evt]', evt: 'dayone_roi_click' },
   { page: '/pricing.html', sel: 'a[href="/book.html"][data-evt="pricing_book_call_click"]', evt: 'pricing_book_call_click' },
   { page: '/pricing.html', sel: 'a[data-evt="pricing_demo_call_click"]', evt: 'pricing_demo_call_click' },
   { page: '/electricians.html', sel: 'a[data-evt="trade_pricing_click"]', evt: 'trade_pricing_click' },
@@ -90,7 +96,7 @@ test('a dead analytics endpoint never costs a visitor their click', async ({ pag
 
 test('a tracked click records the event locally before navigating away', async ({ page }) => {
   await page.route('**/api/events', (r) => r.abort());
-  await page.goto(PLAIN);
+  await page.goto('/demo.html');
   await page.locator('#simWatch').scrollIntoViewIfNeeded();
   await page.locator('#simWatch').click();
   const names = await page.evaluate(() => (window.nvEvents || []).map((e) => e.event));
