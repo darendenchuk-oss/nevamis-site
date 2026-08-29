@@ -97,14 +97,36 @@ test('1. copy paints without JavaScript', async ({ browser }) => {
     for (const url of [HOMEPAGE_URL, SUBJECT_URL]) {
       await page.goto(url);
       const seen = await page.evaluate(() => {
+        /* MEASURED THROUGH THE ANCESTOR CHAIN, not on the element alone.
+           The realistic way to hide copy until a script runs is a rule on a
+           WRAPPER: .hero .copy{opacity:0} leaves the h1's own computed opacity
+           at 1, so an element-only check reports the headline as visible while
+           a reader sees nothing. Effective opacity is the product up the tree,
+           and checkVisibility() is the browser's own answer to the same
+           question including content-visibility and visibility inheritance. */
         const box = (el) => {
           const cs = getComputedStyle(el);
           const r = el.getBoundingClientRect();
+          let effective = 1;
+          let hiddenBy = null;
+          for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
+            const ncs = getComputedStyle(n);
+            const o = Number(ncs.opacity);
+            if (Number.isFinite(o)) effective *= o;
+            if (hiddenBy === null && (o < 0.99 || ncs.visibility === 'hidden' || ncs.display === 'none' || ncs.contentVisibility === 'hidden')) {
+              hiddenBy = `${n.tagName.toLowerCase()}${n.className ? `.${String(n.className).split(/\s+/)[0]}` : ''} (opacity ${ncs.opacity}, visibility ${ncs.visibility}, display ${ncs.display})`;
+            }
+          }
           return {
             text: (el.textContent || '').replace(/\s+/g, ' ').trim(),
             display: cs.display,
             visibility: cs.visibility,
-            opacity: Number(cs.opacity),
+            opacity: effective,
+            ownOpacity: Number(cs.opacity),
+            hiddenBy,
+            browserSaysVisible: typeof el.checkVisibility === 'function'
+              ? el.checkVisibility({ opacityProperty: true, visibilityProperty: true, contentVisibilityAuto: true })
+              : null,
             width: Math.round(r.width),
             height: Math.round(r.height),
             transform: cs.transform,
@@ -144,7 +166,16 @@ test('1. copy paints without JavaScript', async ({ browser }) => {
         expect(s.heading.text.length, `${url} section ${s.ia} heading is empty`).toBeGreaterThan(3);
         expect(s.heading.display, `${url} section ${s.ia} heading is display:${s.heading.display} with scripts off`).not.toBe('none');
         expect(s.heading.visibility, `${url} section ${s.ia} heading is visibility:${s.heading.visibility} with scripts off`).toBe('visible');
-        expect(s.heading.opacity, `${url} section ${s.ia} heading is opacity ${s.heading.opacity} with scripts off: the copy is waiting for a script that will never run`).toBeGreaterThan(0.99);
+        expect(
+          s.heading.opacity,
+          `${url} section ${s.ia} heading renders at effective opacity ${s.heading.opacity} with scripts off`
+          + `${s.heading.hiddenBy ? `, hidden by ${s.heading.hiddenBy}` : ''}: the copy is waiting for a script that will never run`,
+        ).toBeGreaterThan(0.99);
+        expect(
+          s.heading.browserSaysVisible,
+          `${url} section ${s.ia} heading: the browser's own checkVisibility() says it is not visible with scripts off`
+          + `${s.heading.hiddenBy ? ` (${s.heading.hiddenBy})` : ''}`,
+        ).not.toBe(false);
         expect(s.heading.width * s.heading.height, `${url} section ${s.ia} heading has no painted box`).toBeGreaterThan(0);
         expect(s.words, `${url} section ${s.ia} carries ${s.words} words with scripts off`).toBeGreaterThan(10);
       }
