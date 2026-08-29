@@ -40,7 +40,7 @@ import {
   drawsPerAnimationFrame, rafRunsPerAnimationFrame, probeState, hitTest, horizontalOverflow,
   readCanonicalPricing, readCanonicalRoadmap, canonicalAmountStrings,
   readinessSurfaces, servicesNamedInDevelopment, availabilityWordFor,
-  AVAILABILITY_CLAIM_PATTERNS, walkFiles, localFile, isFrameRequest, isMobileFrame,
+  AVAILABILITY_CLAIM_PATTERNS, walkFiles, localFile, isFrameRequest, isMobileFrame, MUTANT_KEYS,
 } from './helpers/cinematic-guards.js';
 
 const DESKTOP = { width: 1440, height: 900 };
@@ -80,6 +80,26 @@ test('0. the guards are bound to the shipped engine and to the homepage IA', asy
       .map((el) => ({ id: el.dataset.cineStage, state: el.getAttribute('data-cine-state') })));
     expect(live.map((s) => s.id).sort()).toEqual([...SEQUENCES].sort());
     for (const s of live) expect(['poster', 'scrubbing'], `${s.id} is ${s.state} before anything was asked of it`).toContain(s.state);
+  } finally { await context.close(); }
+});
+
+/* The mutation hook is the one thing in this suite that can make every other
+   guard describe code that nothing ships, so the fence around it is itself
+   guarded. Pointing the subject at a mutant module without announcing a
+   mutation run in the environment must be REFUSED, not measured. */
+test('0b. a mutant module cannot be measured unless the run announces itself', async ({ browser }) => {
+  const { context, page } = await open(browser);
+  try {
+    await assertServingThisWorktree(page);
+    await openSubject(page, { url: '/tests/fixtures/cine-guard-subject.html?stage=/artifacts/cine-mutants/scroll-stage.js' });
+    const thrown = await assertBoundToShippedEngine(page).then(() => null, (e) => e);
+    if (MUTANT_KEYS.length) {
+      /* Inside a declared mutation run the fence is open on purpose. */
+      expect(thrown, 'NV_CINE_MUTANT is set, so an override is legitimate and must not be refused').toBeNull();
+      return;
+    }
+    expect(thrown, 'the subject loaded a mutant module and the guards accepted it. Every other assertion in this run would describe a copy of the engine that nothing ships.').not.toBeNull();
+    expect(String(thrown.message)).toMatch(/NV_CINE_MUTANT is not set/);
   } finally { await context.close(); }
 });
 
@@ -752,11 +772,20 @@ for (const js of [true, false]) {
         const found = await page.evaluate(() => {
           /* EVERY section is examined, not one chosen by id or by the first
              mention of the word: a nav link reading "Demo" in section 1 must not
-             be able to answer for section 5, and a renamed id must not silently
-             turn this guard off. The page passes when SOME section is both
-             labelled a demonstration and says its content is an example. */
+             answer for section 5, and a renamed id must not silently turn this
+             guard off.
+
+             THE LABEL HAS TO COME BEFORE THE THING IT LABELS. That is not
+             pedantry, it is the whole requirement: a reader who meets a table of
+             flows and only learns it was a demonstration in a paragraph
+             underneath has already read it as evidence. Removing the section's
+             "Demo" eyebrow from home.html left the trailing "Demonstration only."
+             paragraph standing, and a position-blind version of this guard
+             passed that mutation. */
+          const ARTEFACT = 'table, dl, figure, iframe, video, .demo-panel, [data-demo-panel]';
           const out = [];
           for (const sec of document.querySelectorAll('[data-ia]')) {
+            const artefact = sec.querySelector(ARTEFACT);
             const labels = [];
             for (const el of sec.querySelectorAll('p,span,caption,h2,h3,figcaption,[data-demo-label]')) {
               const t = (el.textContent || '').trim();
@@ -765,6 +794,9 @@ for (const js of [true, false]) {
               if (el.closest('nav')) continue;                 /* a nav link is navigation, not a label */
               const cs = getComputedStyle(el);
               const r = el.getBoundingClientRect();
+              const precedes = artefact
+                ? !!(el.compareDocumentPosition(artefact) & Node.DOCUMENT_POSITION_FOLLOWING)
+                : true;
               labels.push({
                 text: t.slice(0, 60),
                 display: cs.display,
@@ -774,10 +806,13 @@ for (const js of [true, false]) {
                    for a screen reader and it is not a label a sighted reader
                    can see, so it may not answer this on its own. */
                 area: Math.round(r.width * r.height),
+                precedesArtefact: precedes,
               });
             }
             out.push({
               ia: sec.getAttribute('data-ia'),
+              hasArtefact: !!artefact,
+              artefactTag: artefact ? artefact.tagName.toLowerCase() : null,
               labels,
               disclaimer: /(example data|demonstration only|sanitized|sanitised|nothing live|not live|example wording)/i.test(sec.textContent || ''),
             });
@@ -787,15 +822,21 @@ for (const js of [true, false]) {
 
         const isVisible = (l) => l.display !== 'none' && l.visibility === 'visible' && l.opacity > 0.99 && l.area > 100;
         const labelled = found.filter((s) => s.labels.some(isVisible));
-        const complete = labelled.filter((s) => s.disclaimer);
+        const leading = found.filter((s) => s.labels.some((l) => isVisible(l) && l.precedesArtefact));
+        const complete = leading.filter((s) => s.disclaimer);
         expect(
           labelled.length,
           `${url} carries no visible label beginning with "Demo" in any section. `
           + `Labels seen: ${JSON.stringify(found.flatMap((s) => s.labels))}`,
         ).toBeGreaterThan(0);
         expect(
+          leading.length,
+          `${url} labels a demonstration only AFTER the thing being demonstrated. `
+          + `Sections with a demonstration artefact: ${JSON.stringify(found.filter((s) => s.hasArtefact).map((s) => ({ ia: s.ia, artefact: s.artefactTag, labels: s.labels })))}`,
+        ).toBeGreaterThan(0);
+        expect(
           complete.length,
-          `${url} has a section labelled as a demonstration (${labelled.map((s) => s.ia)}) but none of them also says the content is an example`,
+          `${url} labels a demonstration (sections ${leading.map((s) => s.ia)}) but none of them also says the content is an example`,
         ).toBeGreaterThan(0);
       }
     } finally { await context.close(); }

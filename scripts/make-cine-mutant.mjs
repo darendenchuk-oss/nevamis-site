@@ -69,10 +69,9 @@ fs.mkdirSync(OUT_DIR, { recursive: true });
 const outPath = path.join(OUT_DIR, `${name}.js`);
 fs.writeFileSync(outPath, mutated);
 
-const url = `/artifacts/cine-mutants/${name}.js`;
 const key = name === 'sequence-loader' ? 'loader' : name === 'scroll-stage' ? 'stage' : name;
 process.stdout.write(
   `wrote ${path.relative(root, outPath)} (${mutated.length} bytes, 1 edit)\n`
   + `run the guards against it with:\n`
-  + `  NV_PORT=3291 NV_CINE_MUTANT="${key}=${url}" npx playwright test tests/cinematic-guards.spec.js\n`,
+  + `  NV_PORT=3291 NV_CINE_MUTANT=${key} npx playwright test tests/cinematic-guards.spec.js\n`,
 );

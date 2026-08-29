@@ -36,13 +36,23 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
  * collaborator at a byte copy of the shipped module under
  * /artifacts/cine-mutants/, e.g.
  *
- *   NV_CINE_MUTANT="stage=/artifacts/cine-mutants/scroll-stage.js"
+ *   NV_CINE_MUTANT=stage      (or fallback, loader, index; comma separated)
+ *
+ * It names the MODULE, not a url, deliberately: a url with a leading slash is
+ * rewritten by MSYS into a Windows path before Node ever sees it, which
+ * produced 'refusing module override C:/Program Files/Git/artifacts/...' and
+ * twenty seconds of a mount that never started.
  *
  * so the shipped file is never written to while other sessions are editing it.
  * assertBoundToShippedEngine() refuses any run that loaded an override unless
  * this variable is set, so a normal run cannot pass while measuring a mutant.
  */
-export const MUTANT_QUERY = process.env.NV_CINE_MUTANT || '';
+const MUTANT_FILES = { loader: 'sequence-loader', stage: 'scroll-stage', fallback: 'fallback', index: 'index' };
+export const MUTANT_KEYS = (process.env.NV_CINE_MUTANT || '').split(',').map((k) => k.trim()).filter(Boolean);
+for (const key of MUTANT_KEYS) {
+  if (!MUTANT_FILES[key]) throw new Error(`NV_CINE_MUTANT names '${key}'; it takes one or more of: ${Object.keys(MUTANT_FILES).join(', ')}`);
+}
+export const MUTANT_QUERY = MUTANT_KEYS.map((k) => `${k}=/artifacts/cine-mutants/${MUTANT_FILES[k]}.js`).join('&');
 export const SUBJECT_URL = `/tests/fixtures/cine-guard-subject.html${MUTANT_QUERY ? `?${MUTANT_QUERY}` : ''}`;
 export const HOMEPAGE_URL = '/home.html';
 export const PLACEHOLDER_MANIFEST_URL = '/artifacts/cinematic-placeholders/manifest.json';
@@ -365,16 +375,53 @@ export async function drawsPerAnimationFrame(page, sinceFrame = 0) {
  * Opening the subject
  * ------------------------------------------------------------------ */
 export async function openSubject(page, { url = SUBJECT_URL, waitForMount = true } = {}) {
-  await installProbe(page);
-  await page.goto(url);
-  if (waitForMount) {
-    await page.waitForFunction(() => window.__cine && window.__cine.ready, null, { timeout: 20_000 });
+  /* A mount that never reports ready must SAY WHY. "Timeout 20000ms exceeded"
+     names the line that waited, not the thing that failed, and the difference
+     between "the module 404ed" and "the engine threw" is the whole diagnosis. */
+  const consoleErrors = [];
+  const onConsole = (m) => { if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 200)); };
+  const onPageError = (e) => consoleErrors.push(`pageerror: ${String(e.message).slice(0, 200)}`);
+  const onFailed = (r) => consoleErrors.push(`request failed: ${r.url()} (${(r.failure() || {}).errorText})`);
+  page.on('console', onConsole);
+  page.on('pageerror', onPageError);
+  page.on('requestfailed', onFailed);
+  try {
+    await installProbe(page);
+    await page.goto(url);
+    if (waitForMount) {
+      try {
+        await page.waitForFunction(() => window.__cine && window.__cine.ready, null, { timeout: 20_000 });
+      } catch (timeout) {
+        const state = await page.evaluate(() => ({
+          present: !!window.__cine,
+          ready: window.__cine ? window.__cine.ready : null,
+          error: window.__cine ? window.__cine.error : null,
+          engineSource: window.__cine ? window.__cine.engineSource : null,
+          sources: window.__cine ? window.__cine.sources : null,
+          overrides: window.__cine ? window.__cine.overrides : null,
+          diagnostics: window.__cine ? window.__cine.diagnostics.slice(-8) : null,
+        })).catch((e) => ({ evaluateFailed: String(e.message).slice(0, 200) }));
+        throw new Error(
+          `the cinematic engine never finished mounting at ${page.url()}
+`
+          + `  window.__cine: ${JSON.stringify(state)}
+`
+          + `  console: ${consoleErrors.length ? consoleErrors.join(' | ') : '(nothing)'}
+`
+          + `  original: ${timeout.message}`,
+        );
+      }
+    }
+    return await page.evaluate(() => ({
+      engineSource: window.__cine.engineSource,
+      sources: window.__cine.sources,
+      error: window.__cine.error,
+    }));
+  } finally {
+    page.off('console', onConsole);
+    page.off('pageerror', onPageError);
+    page.off('requestfailed', onFailed);
   }
-  return page.evaluate(() => ({
-    engineSource: window.__cine.engineSource,
-    sources: window.__cine.sources,
-    error: window.__cine.error,
-  }));
 }
 
 /**
