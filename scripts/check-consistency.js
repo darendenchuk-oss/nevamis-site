@@ -29,6 +29,13 @@ import { applySelfCta } from "./lib/nav-cta.mjs";
    scope rule; see scripts/check-claims-classifier.mjs for the fixtures. */
 import { DENIAL, ADDITIVE, RETIRED_OFFERS, statesBanned, offendingClause } from "./lib/claims.mjs";
 import { stripHtmlComments, stripJsComments, jsStringLiterals, renderedProse, clauses } from "./lib/rendered-text.mjs";
+/* Guard 7k rebuilds the homepage breadth block from the same model the builder
+   renders it from, reads the source through the builder's own loader, and
+   looks for the builder's own markers. Importing all three rather than
+   restating any of them is the point: a checker carrying its own copy of the
+   answer drifts alongside the page and stays green while doing it (7h). */
+import { breadthModel, AVAILABILITY_WORDS } from "./lib/breadth.mjs";
+import { loadBreadthSource, OPEN as BREADTH_OPEN, CLOSE as BREADTH_CLOSE } from "./build-breadth.mjs";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
    had no shared chrome, and that exemption is exactly why its hand-copied nav
@@ -516,6 +523,221 @@ for (const p of contentPages) {
       }
       for (const a of addOns.filter((x) => x.sellable === false)) {
         if (got.some((g) => g[0] === a.name)) err(`${page}: "${a.name}" is listed as available but pricing-config.js marks it not sellable`);
+      }
+    }
+  }
+}
+
+/* 7k. THE HOMEPAGE BREADTH BLOCK IS THE ROADMAP, OR IT IS TWELVE CLAIMS.
+
+      7i above guards the list that answers "what can I buy". This guards the
+      block beside it that answers a different question, and until 2026-08-28
+      the homepage had no answer to it at all: what work do you take off my
+      plate. roadmap-config.js declares sixteen services across four pillars
+      and exactly one page rendered them, /coming-soon.html, so the homepage
+      described a front desk and five add-ons while the declared product was
+      four times that.
+
+      THAT IS THE SAME DEFECT AS A HAND-TYPED LIST, RUNNING BACKWARDS. The
+      familiar shape is markup that keeps claiming something the config has
+      retired. This was markup that never learned about eleven things the
+      config had added, and it survived because nothing was comparing the two
+      in that direction either. A guard that only fails on over-claiming lets a
+      product disappear from its own homepage one service at a time.
+
+      NOTHING IS COMPARED AGAINST A COPY OF THE ANSWER. The expectation is
+      rebuilt by breadthModel() in scripts/lib/breadth.mjs, which is the same
+      function scripts/build-breadth.mjs renders the page from. Writing the
+      pillar names, the twelve sentences or the four counts into this file
+      would only move the hand-maintained list into the checker, and then the
+      checker and the page would drift together and both look green. That is
+      7h's lesson and it is the reason this rule reads as thin as it does: all
+      of the knowledge is in the model, and this only asks whether the page
+      still agrees with it.
+
+      WHAT IS CHECKED, in both directions:
+
+        every pillar the model produces is present in the markup, by id, in
+        order, with the config's `name` and `line`;
+        each pillar's tasks are the model's tasks: the service's own `name`,
+        its readiness word from the fixed vocabulary, and `desc` VERBATIM;
+        each pillar's one availability summary and its "+N more" count are the
+        model's, so a service cannot leave the page without the count moving;
+        nothing appears that the model did not produce;
+        and no readiness word outside the fixed vocabulary appears anywhere in
+        the block.
+
+      A PILLAR MAY NOT VANISH IN SILENCE. A demotion is allowed and is supposed
+      to be visible: flip a service to a status that reads "In development" and
+      this rule will happily follow it onto the page, because saying less than
+      canonical is the safe direction and the direction this repo is permitted
+      to move on its own. What is not allowed is a whole pillar disappearing
+      from the markup while the config still carries public-safe services under
+      it. That is "promoted by silence" inverted, it is how a company quietly
+      stops mentioning a quarter of what it does, and it is the one thing a
+      reader of the page could never detect.
+
+      "Live" IS NOT IN THE VOCABULARY AND MUST NOT BE. Owner directive
+      2026-08-28: the word is reserved for a canonical Live gate that has not
+      passed, so a marketing surface using it spends a claim the product has
+      not earned. The six permitted strings are declared in
+      scripts/lib/breadth.mjs and this rule refuses anything else.
+
+      PRE-RENDERED, for 7i's reason exactly. The block is the site's answer to
+      "what does this company do", which is the question an answer engine is
+      most likely to ask and the one a visitor with scripts blocked is least
+      able to wait for. coming-soon.html builds its cards at runtime from the
+      same data and is checked by nothing, which is acceptable for a page a
+      visitor has chosen to browse and is not acceptable for the homepage.
+
+      WHAT THIS RULE DELIBERATELY DOES NOT DO is decide what may be called
+      available. roadmap-config.js decides that, the owner decides
+      roadmap-config.js, and the comment above its lead-generation entry sets
+      the direction this site may move on its own: it may say LESS than
+      canonical, never more. Flip a status here and this rule will follow it
+      onto the homepage; the cross-repo readiness guard is what stops that, and
+      it is a different guard on purpose. */
+{
+  const model = breadthModel(loadBreadthSource());
+  for (const p of model.problems) {
+    err("roadmap-config.js: " + p + "\n      The homepage breadth block is rendered from this file, so a source that does "
+      + "not describe itself becomes twelve unguarded sentences on the busiest page on the site.");
+  }
+
+  if (!model.problems.length) {
+    if (!model.pillars.length) {
+      err("roadmap-config.js produced no pillars at all, so section 4's breadth block would be empty. "
+        + "That is not a modest homepage, it is a homepage that has stopped describing the product.");
+    }
+
+    const norm = (s) => String(s).replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+    const region = (html) => {
+      const a = html.indexOf(BREADTH_OPEN);
+      const b = html.indexOf(BREADTH_CLOSE);
+      return a === -1 || b === -1 || b < a ? null : html.slice(a + BREADTH_OPEN.length, b);
+    };
+    /* Parsed by class rather than by position, so reordering the two spans in
+       the template is caught rather than silently swapping a readiness word
+       into the sentence slot. */
+    const tasksOf = (block) => [...block.matchAll(
+      /<li[^>]*>\s*<strong>([\s\S]*?)<\/strong>\s*<span class="task-flag[^"]*\b(avail|pilot|dev)\b[^"]*">([\s\S]*?)<\/span>\s*<span class="task-what">([\s\S]*?)<\/span>\s*<\/li>/g)]
+      .map((m) => ({ name: norm(m[1]), state: m[2], availability: norm(m[3]), what: norm(m[4]) }));
+    const one = (block, re) => { const m = block.match(re); return m ? norm(m[1]) : null; };
+
+    for (const page of ["home.html", "index.html"]) {
+      const p = path.join(root, page);
+      if (!fs.existsSync(p)) continue;
+      const html = fs.readFileSync(p, "utf8");
+      const body = region(html);
+      if (body === null) {
+        err(`${page}: the ${BREADTH_OPEN} ... ${BREADTH_CLOSE} region is gone. It is the homepage's only answer to `
+          + '"what do you take off my plate", and deleting it is how the site goes back to describing a fraction of '
+          + "the product with nothing noticing. Run: node scripts/build-breadth.mjs");
+        continue;
+      }
+
+      const blocks = [...body.matchAll(/<div class="pillar" data-pillar="([a-z0-9-]+)">([\s\S]*?)\n\s*<\/div>\s*(?=<div class="pillar"|$)/g)]
+        .map((m) => ({ id: m[1], html: m[2] }));
+      const onPage = blocks.map((b) => b.id);
+      const expectIds = model.pillars.map((p2) => p2.id);
+
+      /* The vanished-pillar limb, and the reason it is separate from the
+         ordered comparison below: a missing pillar and a reordered one deserve
+         different sentences. This one names the services that would disappear
+         with it, because the count is what makes the omission feel like what
+         it is. */
+      for (const want of model.pillars) {
+        if (!onPage.includes(want.id)) {
+          err(`${page}: pillar "${want.name}" is not on the page, and roadmap-config.js still carries ${want.total} `
+            + `public-safe service(s) under it (${want.availableCount} available today). A public availability DEMOTION is `
+            + "allowed and is meant to be visible; a whole pillar leaving the homepage while its services still exist is "
+            + "not a demotion, it is the product quietly getting smaller where nobody can see it happen. "
+            + "Run: node scripts/build-breadth.mjs");
+        }
+      }
+      for (const id of onPage) {
+        if (!expectIds.includes(id)) {
+          err(`${page}: the block renders a pillar "${id}" that roadmap-config.js does not declare, so its heading and `
+            + "every task under it are unsourced prose.");
+        }
+      }
+      if (onPage.join(",") !== expectIds.join(",")) {
+        err(`${page}: the pillars are ${onPage.join(", ") || "(none)"} and the config's order is ${expectIds.join(", ")}. `
+          + "Order is the config's, not a layout preference: run node scripts/build-breadth.mjs.");
+        continue;
+      }
+
+      for (const want of model.pillars) {
+        const got = blocks.find((b) => b.id === want.id);
+        const where = `${page} pillar "${want.id}"`;
+
+        const name = one(got.html, /<h4 class="pillar-name">([\s\S]*?)<\/h4>/);
+        const line = one(got.html, /<p class="pillar-line">([\s\S]*?)<\/p>/);
+        if (name !== norm(want.name)) err(`${where}: heading is "${name}", the config says "${want.name}"`);
+        if (line !== norm(want.line)) err(`${where}: strapline is "${line}", the config says "${want.line}"`);
+        if (!/<span class="pillar-ico"[^>]*>\s*<svg/.test(got.html)) {
+          err(`${where}: no icon. Every pillar carries one, and the four labels are how this block is read at a glance.`);
+        }
+
+        const gotTasks = tasksOf(got.html);
+        const wantTasks = want.tasks.map((t) => ({ name: norm(t.name), state: t.state, availability: t.availability, what: norm(t.what) }));
+        const fmt = (t) => `${t.name} [${t.availability}] :: ${t.what.slice(0, 52)}`;
+        if (gotTasks.length !== wantTasks.length
+          || gotTasks.some((g, i) => g.name !== wantTasks[i].name || g.availability !== wantTasks[i].availability
+            || g.state !== wantTasks[i].state || g.what !== wantTasks[i].what)) {
+          err(`${where}: the tasks drifted from roadmap-config.js\n      page:   `
+            + (gotTasks.length ? gotTasks.map(fmt).join("\n              ") : "(none)")
+            + "\n      config: " + (wantTasks.length ? wantTasks.map(fmt).join("\n              ") : "(none)")
+            + "\n      Each task is the service's own name, its readiness word from the fixed vocabulary, and `desc`"
+            + " VERBATIM. Nothing may be reworded on the way onto the page: edit roadmap-config.js and re-run"
+            + " node scripts/build-breadth.mjs.");
+        }
+
+        const sum = one(got.html, /<p class="pillar-sum">([\s\S]*?)<\/p>/);
+        if (sum !== want.summary) {
+          err(`${where}: availability summary is "${sum}", the model says "${want.summary}". `
+            + "The count is what stops a pillar showing three running services out of nine and reading as nine.");
+        }
+        const more = one(got.html, /<p class="pillar-more">([\s\S]*?)<\/p>/);
+        if ((want.moreLabel || null) !== more) {
+          err(`${where}: the count of unshown services is ${more === null ? "absent" : `"${more}"`} and the model says `
+            + `${want.moreLabel === null ? "it should be absent" : `"${want.moreLabel}"`}. `
+            + "A service that leaves the shown three must still be counted, or it leaves the site entirely.");
+        }
+      }
+
+      /* No word outside the fixed vocabulary may describe readiness here, and
+         "Live" is the one to actually worry about: it is the natural word a
+         copy edit reaches for, it is reserved for a canonical gate that has
+         not passed, and it would read to a buyer as a running product. */
+      for (const m of body.matchAll(/<span class="task-flag[^"]*">([\s\S]*?)<\/span>/g)) {
+        const word = norm(m[1]);
+        if (!AVAILABILITY_WORDS.includes(word)) {
+          err(`${page}: "${word}" is used as a readiness label and is not in the fixed public availability vocabulary `
+            + `(${AVAILABILITY_WORDS.join(" / ")}). "Live" in particular is reserved for a canonical gate that has not `
+            + "passed. Add the word to scripts/lib/breadth.mjs deliberately, or use one that already exists.");
+        }
+      }
+
+      /* CROSS-CONFIG, and the one contradiction on this page that would be
+         genuinely embarrassing: the roadmap calling something available in one
+         block while the checkout refuses to sell it three screens up. Matched
+         on the exact name, which means it stays silent when the two configs
+         call the same capability different things (they already do: "Front
+         Desk" here, "AI Front Desk" in the plan record). That is a naming gap
+         for the owner to close in the configs, not something a guard should
+         paper over by inventing a mapping between two sources of truth. */
+      const pw = {};
+      vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: pw }, { timeout: 1000 });
+      const unsellable = ((pw.NV_PRICING && pw.NV_PRICING.addOns) || []).filter((a) => a.sellable === false);
+      const runningNames = model.pillars.flatMap((p2) => p2.tasks)
+        .filter((t) => t.availability === "Available today").map((t) => norm(t.name));
+      for (const a of unsellable) {
+        if (runningNames.includes(a.name)) {
+          err(`${page}: "${a.name}" reads "Available today" in the breadth block, and pricing-config.js marks the add-on `
+            + "of the same name not sellable. One page cannot say a capability is running and unsellable at once. "
+            + "Reconcile the two configs; do not adjust the markup.");
+        }
       }
     }
   }

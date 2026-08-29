@@ -982,6 +982,54 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   color:var(--muted);font-family:"Spline Sans Mono",ui-monospace,monospace;font-weight:400}
 @media(max-width:900px){.caplist{grid-template-columns:1fr}}
 
+/* ---------- the breadth block (section 4, generated from roadmap-config.js) ----------
+   TWO columns of pillars and not four. Four would put each pillar in a column
+   roughly 22 characters wide at this container width, which turns every task
+   sentence into a ladder; the pillars are a 2x2 so the sentences stay
+   readable, and the four labels are still visible together above the fold of
+   the block. align-items:start lets Grow sit at its own height beside Operate:
+   the config's Lead Generation sentence is 488 characters because that is what
+   it took to stay honest about what has and has not been built, and stretching
+   its neighbour to match would be a layout apology for a true sentence.
+
+   No opacity:0 resting state anywhere in here, the same rule .caplist follows
+   and for the same reason. .reveal on the wrapper is the enhancement; if
+   assets/motion/scroll.js never loads, the whole capability answer still
+   reads. */
+.plate-lead{color:var(--muted);font-size:15px;max-width:68ch;margin:0 0 18px}
+.pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-items:start}
+.pillar{background:linear-gradient(180deg,var(--navy-2),#0C1A25);
+  border:1px solid var(--line);border-radius:16px;padding:20px}
+.pillar-head{display:grid;grid-template-columns:auto 1fr;gap:0 10px;align-items:center;
+  margin-bottom:14px}
+.pillar-ico{display:flex;color:var(--emerald)}
+.pillar-name{margin:0;font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  font-size:17px;letter-spacing:-.01em;font-weight:600}
+.pillar-line{grid-column:2;margin:2px 0 0;color:var(--muted);font-size:13px}
+.tasks{list-style:none;padding:0;margin:0;display:grid;gap:14px}
+.tasks li{border-top:1px solid var(--line);padding-top:12px}
+.tasks li:first-child{border-top:0;padding-top:0}
+.tasks strong{display:block;font-size:15px;letter-spacing:-.005em;margin-bottom:7px}
+.tasks .task-what{display:block;color:var(--muted);font-size:13.5px;margin-top:7px}
+/* The readiness word is the load-bearing part of this block, so it is a chip
+   and not a suffix on the sentence. A chip survives skimming, survives the
+   one-column phone layout, and cannot be misread as part of the claim, which a
+   trailing "(in development)" inside the paragraph absolutely can be.
+   Three states are styled because three are reachable from the statuses that
+   exist. .pilot is unreached today and is defined anyway: the day a service
+   goes to a limited pilot, the wrong thing to discover is that the chip
+   inherits the colour of the things that are running. */
+.task-flag{display:inline-block;font-size:10.5px;line-height:1;letter-spacing:.09em;
+  border:1px solid var(--line);border-radius:999px;padding:5px 9px;color:var(--muted)}
+.task-flag.avail{color:var(--emerald);border-color:rgba(47,191,143,.32)}
+.task-flag.pilot{color:var(--mint);border-color:rgba(159,240,206,.30);border-style:dashed}
+.task-flag.dev{color:var(--muted);border-style:dashed}
+.pillar-sum{margin:16px 0 0;padding-top:12px;border-top:1px solid var(--line);
+  font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:12px;color:var(--ink)}
+.pillar-more{margin:4px 0 0;font-family:"Spline Sans Mono",ui-monospace,monospace;
+  font-size:12px;color:var(--muted)}
+@media(max-width:900px){.pillars{grid-template-columns:1fr}}
+
 /* The coverage tabs used to be their own <section class="modes tight">, so the
    tablist and the panel were siblings inside .wrap and the section padding did
    the spacing. Inside section 4 they are a block, and the block has to carry
@@ -1661,9 +1709,133 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         Multi-location and multi-department routing is not something we can provision,
         so we do not sell it. Live transfer to a person is not part of the service:
         NEVAMIS captures the urgent details and alerts your team.</p>
+
+      <!-- ================= THE BREADTH BLOCK =================
+           TWO BLOCKS ON ONE PAGE ANSWERING TWO DIFFERENT QUESTIONS.
+
+           #capAvailable above answers a commercial question: what can I hand
+           over money for today. It is locked to pricing-config.js by guard 7i
+           and nothing may be added to it, because the moment that list grows a
+           row the checkout cannot bill, the page is selling vapour.
+
+           This one answers the question the owner of a business actually asks
+           first, and which the page had no answer to at all: what do you take
+           off my plate. Sixteen services were sitting in roadmap-config.js
+           being rendered by exactly one page, /coming-soon.html, so the
+           homepage described a front desk and five add-ons while the declared
+           product was four times that. That is not a modesty problem, it is
+           the same staleness defect as a hand-typed list, pointing the other
+           way: the site said LESS than the source of truth and nothing noticed
+           because nothing was comparing them.
+
+           FOUR PILLARS, NOT SIXTEEN CARDS, per the owner's structure. The
+           pillars are roadmap-config.js's own `pillars`, each service is under
+           the pillar the config assigns it, and each pillar shows the first
+           three of its services with the running ones first, then counts the
+           rest. Sixteen cards of equal weight would communicate a catalogue;
+           the block has to communicate breadth in about five seconds.
+
+           GENERATED, NOT WRITTEN. Everything between the markers below is
+           printed by scripts/build-breadth.mjs from scripts/lib/breadth.mjs,
+           and rule 7k rebuilds the same model and fails if this markup
+           disagrees with it in either direction, including a pillar that has
+           quietly vanished while the config still carries services under it.
+           Do not hand-edit inside the markers. Change roadmap-config.js, run
+           the builder, run promote.mjs.
+
+           THE READINESS WORDS ARE A FIXED VOCABULARY, owner directive
+           2026-08-28: Available today, Limited pilot, In development, Requires
+           setup, Requires a supported connection, Not supported. Never "Live",
+           which belongs to a canonical gate that has not passed. The list and
+           the status mapping live in scripts/lib/breadth.mjs.
+
+           THE SENTENCES ARE `desc` VERBATIM, deliberately. They were narrowed
+           by hand in earlier truth passes and every one is already published
+           word for word on /coming-soon.html, so this block adds reach and
+           adds no claim. Reword one here and it stops matching the config and
+           7k fails, which is the correct outcome: the place to change what
+           Nevamis says it does is the source of truth, not the homepage.
+
+           LEAD GENERATION READS "In development", under Grow, and that is the
+           point rather than an omission. Canonical says coming_soon, the
+           roadmap says planned, nothing has run for a client and the bid half
+           has no code anywhere. Showing it is the breadth that was asked for;
+           labelling it running would be the lie. Read the comment above that
+           entry in roadmap-config.js before touching its status: this site may
+           say LESS than canonical, never more. -->
+      <h3 class="cap-sub">Everything we take off your plate</h3>
+      <p class="plate-lead">That list is what you can buy. This is the work itself, in four
+        parts: answering the people who get in touch, following up so nothing goes cold,
+        keeping the office admin off your desk, and knowing what actually makes money.
+        Each part shows what is running now and what is not.</p>
+      <!-- generated:breadth -->
+      <div class="pillars reveal" id="breadthPillars">
+        <div class="pillar" data-pillar="capture">
+          <div class="pillar-head"><span class="pillar-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 5h16v11H8l-4 4z"/></svg></span><h4 class="pillar-name">Capture</h4>
+            <p class="pillar-line">Every opportunity answered</p></div>
+          <ul class="tasks">
+            <li><strong>Front Desk</strong><span class="task-flag mono avail">Available today</span><span class="task-what">Answers your line 24/7, qualifies the caller, takes the job and the time they want, and sends you the details. You confirm the slot.</span></li>
+            <li><strong>Web and Messaging Concierge</strong><span class="task-flag mono dev">In development</span><span class="task-what">Website visitors and texters get the same fast, knowledgeable path to answers and booking that callers receive.</span></li>
+            <li><strong>Smarter Job Intake</strong><span class="task-flag mono dev">In development</span><span class="task-what">Qualified requests become structured job records with the right people alerted, using rules the business approves.</span></li>
+          </ul>
+          <p class="pillar-sum">Available today: 1 of 3</p>
+        </div>
+        <div class="pillar" data-pillar="convert">
+          <div class="pillar-head"><span class="pillar-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 17 L10 11 L14 15 L20 7"/><path d="M15 7h5v5"/></svg></span><h4 class="pillar-name">Convert</h4>
+            <p class="pillar-line">Follow-up that never forgets</p></div>
+          <ul class="tasks">
+            <li><strong>Instant Lead Follow-Up</strong><span class="task-flag mono avail">Available today</span><span class="task-what">A caller you missed gets one text back while the job is still winnable: during business hours, on your say-so, with your business name on it.</span></li>
+            <li><strong>Quote Recovery</strong><span class="task-flag mono avail">Available today</span><span class="task-what">Quotes that go quiet past your threshold get spotted and followed up once, with your name on the email and your approval before it goes.</span></li>
+            <li><strong>Schedule Protection</strong><span class="task-flag mono dev">In development</span><span class="task-what">Reminders, approved rescheduling, and cancellation recovery that keep valuable appointment slots from going unused.</span></li>
+          </ul>
+          <p class="pillar-sum">Available today: 2 of 4</p>
+          <p class="pillar-more">+1 more in Convert</p>
+        </div>
+        <div class="pillar" data-pillar="operate">
+          <div class="pillar-head"><span class="pillar-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span><h4 class="pillar-name">Operate</h4>
+            <p class="pillar-line">Less office admin</p></div>
+          <ul class="tasks">
+            <li><strong>Automatic Lead Tracking</strong><span class="task-flag mono avail">Available today</span><span class="task-what">Calls, messages, forms, appointments, and follow-ups become organized customer records, so owners can see which opportunities need attention.</span></li>
+            <li><strong>Your Daily Business Brief</strong><span class="task-flag mono dev">In development</span><span class="task-what">Calls, bookings, open leads, follow-ups, and urgent issues condensed into one concise daily summary.</span></li>
+            <li><strong>Inbox Assistant</strong><span class="task-flag mono dev">In development</span><span class="task-what">Shared business email gets organized: urgent messages flagged, replies drafted for approval, tasks extracted, a clear digest produced.</span></li>
+          </ul>
+          <p class="pillar-sum">Available today: 1 of 4</p>
+          <p class="pillar-more">+1 more in Operate</p>
+        </div>
+        <div class="pillar" data-pillar="grow">
+          <div class="pillar-head"><span class="pillar-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 20V12M10 20V7M16 20V14M22 20H2"/></svg></span><h4 class="pillar-name">Grow</h4>
+            <p class="pillar-line">Know what makes money</p></div>
+          <ul class="tasks">
+            <li><strong>PULSE Business Scan</strong><span class="task-flag mono avail">Available today</span><span class="task-what">Looks at your business from the outside and tells you where the money is leaking, with what it is basing that on. Every figure is a range with a confidence level, and feeding it your real numbers sharpens all of them.</span></li>
+            <li><strong>Lead Generation</strong><span class="task-flag mono dev">In development</span><span class="task-what">Two things, and neither of them is running for a client yet. It is being built to find the customers who need what you do and rank them with the reason each one ranked where it did, worked by a person and never by a robot dialling strangers. And to find jobs and tenders you could win: we would prepare the bid at your prices, submit nothing until the person you name signs off on that specific bid, and hand you the job if it lands. The contract would be yours and you would do the work.</span></li>
+            <li><strong>Review and Referral Engine</strong><span class="task-flag mono dev">In development</span><span class="task-what">After a completed job, approved feedback requests route concerns privately and make it easy for happy customers to leave a review.</span></li>
+          </ul>
+          <p class="pillar-sum">Available today: 1 of 5</p>
+          <p class="pillar-more">+2 more in Grow</p>
+        </div>
+      </div>
+      <!-- /generated:breadth -->
+
+      <!-- ONE action for this section, and it is the catalog rather than the
+           scan. Section 4 used to close on "Scan my business", which was the
+           right closer while the section was a price list. It now ends on
+           sixteen services of which twelve are named, so the question a reader
+           is actually holding is "what are the other four", and answering it
+           with a checkout is a non-sequitur. The scan is still the homepage's
+           overall primary action: it is the header's single button on every
+           page (guarded by tests/cta-routing.spec.js), a hero CTA, and the
+           closing call to action in section 7.
+
+           Deliberately carries no data-evt. The engine silently drops event
+           names its allowlist has never heard of, so a new name here would
+           report nothing while looking instrumented, and reusing
+           platform_scan_click would both mislabel the click and trip the
+           "no new event name collapses two placements" guard in
+           tests/analytics.spec.js. Instrumenting it properly is a two-repo
+           change and is listed as such rather than faked here. -->
       <div class="midcta reveal" style="margin-top:22px">
-        <a class="btn btn-primary" href="https://app.nevamis.ca/scan" data-evt="platform_scan_click">Scan my business</a>
-        <span class="mono">The scan says which of these you actually need.</span>
+        <a class="btn btn-primary" href="/coming-soon.html">See everything NEVAMIS can take off your plate</a>
+        <span class="mono">Every service, with what it does and where it stands.</span>
       </div>
     </div>
   </section>
