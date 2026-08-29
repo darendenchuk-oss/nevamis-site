@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cinematic scroll stage harness</title>
+<link rel="stylesheet" href="/assets/cinematic/cine-stage.css">
+<!--
+  A REAL PAGE FOR THE ENGINE, not a mock of one. The markup below is the DOM
+  contract from docs/cinematic/API-CONTRACT.md section 6 verbatim: a sticky
+  stage with a canvas and a poster, and the real sections layered over it with
+  their own headings, their own copy and one primary action each. Nothing the
+  visitor reads is inside the canvas.
+
+  What the harness adds on top is instrumentation the engine cannot see:
+    - every addEventListener call is recorded, so a test can prove there is no
+      wheel handler and that the scroll listener is passive
+    - every preventDefault and every programmatic scroll write is recorded, so
+      a test can prove the visitor's scroll was never touched
+    - requestAnimationFrame is counted, so "no animation work while idle" is a
+      measurement rather than a claim
+    - a second stage is driven by a MANUAL animation clock, so the number of
+      outstanding animation callbacks can be asserted exactly instead of raced
+    - a MutationObserver over the whole stage subtree records every DOM write,
+      so "the engine touches nothing but the canvas" is proved by observation
+      rather than by reading the source
+
+  The loader here is a stand-in: sequence-loader.js belongs to another branch,
+  and the stage takes the loader as a parameter precisely so this seam exists.
+
+  tests/ is excluded from the Pages build, so this is never published.
+-->
+<style>
+  html { background: #02080D; }
+  body { margin: 0; background: #02080D; color: #EAF3EE;
+         font: 16px/1.5 system-ui, sans-serif; }
+  .spacer { height: 120vh; display: grid; place-items: center; color: #9FF0CE; }
+  .cine-stage__content section { min-height: 100vh; padding: 8vh 6vw; box-sizing: border-box; }
+  .cine-stage__content h2 { font-size: clamp(28px, 4vw, 48px); margin: 0 0 12px; }
+  .cine-stage__content p { max-width: 46ch; margin: 0 0 24px; }
+  .cta { display: inline-block; padding: 14px 22px; border-radius: 8px;
+         background: #2FBF8F; color: #02080D; text-decoration: none; font-weight: 600; }
+  #readout { position: fixed; right: 8px; bottom: 8px; z-index: 9; background: #10222E;
+             padding: 6px 10px; font: 12px/1.3 ui-monospace, monospace;
+             font-variant-numeric: tabular-nums; }
+  /* The display:none case is driven from a class on <html>, deliberately
+     OUTSIDE the observed stage subtree, so hiding the canvas does not itself
+     register as a DOM write inside the stage. */
+  html.cine-hide-canvas #stage-a canvas[data-cine-canvas] { display: none; }
+  /* ?nocss=1 also drops the fixture's own section heights, so the stage
+     collapses to its content the way an unstyled stage really would. Without
+     this the sections alone would still make it taller than the viewport and
+     the missing stylesheet would not be visible from inside the engine. */
+  html.cine-nocss .cine-stage__content section { min-height: 0; padding: 8px; }
+</style>
+<script>
+  /* Runs before the module, so ?hidecanvas=1 makes the canvas display:none for
+     the engine's very FIRST measurement. That is the exact shape of the defect
+     this project already shipped: a canvas sized while display:none keeps the
+     300x150 default backing store and the page draws at a ninth of its
+     resolution with nothing in the console. */
+  if (new URLSearchParams(location.search).get('hidecanvas') === '1') {
+    document.documentElement.classList.add('cine-hide-canvas');
+  }
+  /* ?nocss=1 drops the stage stylesheet entirely, which is what "the CSS did
+     not load" looks like: no sticky, no scroll region, and a mapping that would
+     otherwise compress the whole sequence into nothing without a word. */
+  if (new URLSearchParams(location.search).get('nocss') === '1') {
+    const link = document.querySelector('link[href$="cine-stage.css"]');
+    if (link) link.remove();
+    document.documentElement.classList.add('cine-nocss');
+  }
+</script>
+</head>
+<body>
+
+<div class="spacer">scroll region above the stage</div>
+
+<!-- ── stage A: real animation clock, real placeholder frames ─────────────── -->
+<div class="cine-stage"
+     id="stage-a"
+     data-cine-stage="signal-to-system"
+     data-cine-sections="1 2"
+     data-cine-state="poster"
+     style="--cine-scroll-vh: 240">
+  <div class="cine-stage__sticky" aria-hidden="true">
+    <canvas data-cine-canvas role="presentation" aria-hidden="true"></canvas>
+    <img data-cine-poster
+         src="/artifacts/cinematic-placeholders/signal-to-system/desktop/poster.png"
+         alt="" decoding="async" fetchpriority="high">
+  </div>
+  <div class="cine-stage__content">
+    <section data-ia="1">
+      <h2>A call comes in while the crew is on a roof</h2>
+      <p>Nobody is at the desk. The phone rings out, and the job goes to whoever picked up first.</p>
+      <a class="cta" id="cta-1" href="/start/">Book the walkthrough</a>
+    </section>
+    <section data-ia="2">
+      <h2>The call that went unanswered was the quote</h2>
+      <p>Every missed call is a quote that was never given. NEVAMIS answers it, takes the details, and books the visit.</p>
+      <a class="cta" id="cta-2" href="/pricing/">See what it costs</a>
+    </section>
+  </div>
+</div>
+
+<!-- ── stage B: manual animation clock, started only on request ───────────── -->
+<div class="cine-stage"
+     id="stage-b"
+     data-cine-stage="system-to-decision"
+     data-cine-sections="6 7"
+     data-cine-state="poster"
+     style="--cine-scroll-vh: 220">
+  <div class="cine-stage__sticky" aria-hidden="true">
+    <canvas data-cine-canvas role="presentation" aria-hidden="true"></canvas>
+    <img data-cine-poster
+         src="/artifacts/cinematic-placeholders/system-to-decision/desktop/poster.png"
+         alt="" decoding="async" fetchpriority="high">
+  </div>
+  <div class="cine-stage__content">
+    <section data-ia="6">
+      <h2>What it costs and how it starts</h2>
+      <p>One recurring price, quoted after a scan of the business.</p>
+      <a class="cta" id="cta-6" href="/pricing/">See the price</a>
+    </section>
+    <section data-ia="7">
+      <h2>Book the walkthrough</h2>
+      <p>Twenty minutes, and you hear it answer your own line.</p>
+      <a class="cta" id="cta-7" href="/start/">Book the walkthrough</a>
+    </section>
+  </div>
+</div>
+
+<div class="spacer">scroll region below the stages</div>
+<p id="readout">booting</p>
+
+<script type="module">
+import { loadManifest, selectVariant, frameUrl } from '/assets/cinematic/manifest.js';
+import { createScrollStage } from '/assets/cinematic/scroll-stage.js';
+
+/* ── instrumentation, installed before any stage exists ──────────────────── */
+
+const listeners = [];
+const prevented = [];
+const scrollWrites = [];
+
+const rawAddEventListener = EventTarget.prototype.addEventListener;
+const rawPreventDefault = Event.prototype.preventDefault;
+const rawScrollTo = window.scrollTo.bind(window);
+const rawRequestAnimationFrame = window.requestAnimationFrame.bind(window);
+
+function describeTarget(t) {
+  if (t === window) return 'window';
+  if (t === document) return 'document';
+  if (window.visualViewport && t === window.visualViewport) return 'visualViewport';
+  if (t && t.tagName) return t.id ? `${t.tagName.toLowerCase()}#${t.id}` : t.tagName.toLowerCase();
+  return String(t && t.constructor && t.constructor.name);
+}
+
+EventTarget.prototype.addEventListener = function record(type, fn, opts) {
+  listeners.push({
+    type,
+    target: describeTarget(this),
+    /* An options OBJECT with passive:true is the only form that is provably
+       passive. `true`/`false`/undefined mean capture, and leave passiveness to
+       the browser's default, which differs by event type and by browser. */
+    optionsKind: opts === undefined ? 'none' : typeof opts,
+    passive: !!(opts && typeof opts === 'object' && opts.passive === true),
+  });
+  return rawAddEventListener.call(this, type, fn, opts);
+};
+
+Event.prototype.preventDefault = function record() {
+  prevented.push({ type: this.type, cancelable: this.cancelable });
+  return rawPreventDefault.call(this);
+};
+
+for (const name of ['scrollTo', 'scrollBy']) {
+  const original = window[name].bind(window);
+  window[name] = function record(...args) {
+    scrollWrites.push({ fn: `window.${name}`, args: args.map(String) });
+    return original(...args);
+  };
+}
+const rawScrollIntoView = Element.prototype.scrollIntoView;
+Element.prototype.scrollIntoView = function record(...args) {
+  scrollWrites.push({ fn: 'Element.scrollIntoView', target: describeTarget(this) });
+  return rawScrollIntoView.apply(this, args);
+};
+
+/* document.hidden is a getter on Document.prototype; an own property on the
+   instance shadows it, so the visibility path can be driven deterministically
+   instead of depending on whether the runner really backgrounds a tab. */
+let forcedHidden = null;
+Object.defineProperty(document, 'hidden', {
+  configurable: true,
+  get() { return forcedHidden === null ? document.visibilityState === 'hidden' : forcedHidden; },
+});
+
+/* ── a stand-in SequenceLoader ───────────────────────────────────────────────
+   Implements only the surface the stage is contractually allowed to use:
+   get / setFocus / pause / resume. get() is synchronous and never throws. */
+function createFakeLoader(variant, name) {
+  const images = new Map();
+  const held = new Set();
+  const state = {
+    name, focus: null, focusCalls: 0, pauseCalls: 0, resumeCalls: 0,
+    paused: false, getCalls: 0, missing: 0,
+  };
+  return {
+    state,
+    held,
+    async preload(indices) {
+      const list = indices || Array.from({ length: variant.frameCount }, (_, i) => i);
+      const queue = list.slice();
+      const workers = Array.from({ length: 8 }, async () => {
+        while (queue.length) {
+          const i = queue.shift();
+          if (images.has(i)) continue;
+          const img = new Image();
+          img.src = frameUrl(variant, i);
+          await img.decode();
+          images.set(i, img);
+        }
+      });
+      await Promise.all(workers);
+      return images.size;
+    },
+    get(index) {
+      state.getCalls += 1;
+      if (state.paused) return null;
+      if (held.has(index)) { state.missing += 1; return null; }
+      const img = images.get(index);
+      if (!img) { state.missing += 1; return null; }
+      return img;
+    },
+    setFocus(index) { state.focusCalls += 1; state.focus = index; },
+    pause() { state.pauseCalls += 1; state.paused = true; },
+    resume() { state.resumeCalls += 1; state.paused = false; },
+  };
+}
+
+/* ── a manual animation clock, so callback counts are exact ───────────────── */
+const manual = {
+  queue: [],
+  nextHandle: 1,
+  requests: 0,
+  cancels: 0,
+  requestFrame(cb) {
+    manual.requests += 1;
+    const handle = manual.nextHandle;
+    manual.nextHandle += 1;
+    manual.queue.push({ handle, cb });
+    return handle;
+  },
+  cancelFrame(handle) {
+    manual.cancels += 1;
+    const at = manual.queue.findIndex((e) => e.handle === handle);
+    if (at >= 0) manual.queue.splice(at, 1);
+  },
+  /** Run exactly one generation of callbacks. Anything they request lands in
+   *  the next generation, so a self-rescheduling loop shows up as a queue that
+   *  refills instead of as a hang. */
+  flush() {
+    const generation = manual.queue.splice(0, manual.queue.length);
+    for (const e of generation) e.cb(performance.now());
+    return generation.length;
+  },
+  pending() { return manual.queue.length; },
+};
+
+/* ── harness state ───────────────────────────────────────────────────────── */
+const harness = {
+  ready: false,
+  error: null,
+  drift: [],
+  rafCalls: 0,
+  diagnostics: [],
+  mutations: [],
+  listeners,
+  prevented,
+  scrollWrites,
+  manual,
+  fatal: null,
+  fatalCalls: 0,
+};
+window.__cine = harness;
+
+const readout = document.getElementById('readout');
+const record = (event) => {
+  harness.diagnostics.push({
+    ...event,
+    error: event.error ? String(event.error.message || event.error) : undefined,
+  });
+};
+const countOf = (type) => harness.diagnostics.filter((d) => d.type === type).length;
+harness.countOf = countOf;
+harness.lastOf = (type) => harness.diagnostics.filter((d) => d.type === type).slice(-1)[0] || null;
+
+/* Test-side helpers that bypass the recorders, so the test's own scrolling is
+   never mistaken for the engine hijacking the page. */
+harness.rawScrollTo = (x, y) => rawScrollTo(x, y);
+harness.rawRaf = (cb) => rawRequestAnimationFrame(cb);
+
+/* Synthetic scroll events at an unchanged scroll position. Lets a test prove
+   that N notifications collapse into ONE animation callback without having to
+   race a real scroll. */
+harness.fireScroll = (n) => {
+  for (let i = 0; i < n; i += 1) window.dispatchEvent(new Event('scroll'));
+  return n;
+};
+
+harness.setHidden = (hidden) => {
+  forcedHidden = hidden;
+  document.dispatchEvent(new Event('visibilitychange'));
+  return document.hidden;
+};
+
+harness.hold = (indices) => {
+  for (const i of indices) harness.loaderA.held.add(i);
+  return harness.loaderA.held.size;
+};
+harness.release = () => { harness.loaderA.held.clear(); return 0; };
+
+harness.hideCanvas = () => {
+  document.documentElement.classList.add('cine-hide-canvas');
+  return getComputedStyle(document.querySelector('#stage-a canvas[data-cine-canvas]')).display;
+};
+harness.showCanvas = () => {
+  document.documentElement.classList.remove('cine-hide-canvas');
+  return getComputedStyle(document.querySelector('#stage-a canvas[data-cine-canvas]')).display;
+};
+harness.canvasBacking = () => {
+  const c = document.querySelector('#stage-a canvas[data-cine-canvas]');
+  const r = c.getBoundingClientRect();
+  return { width: c.width, height: c.height, cssWidth: r.width, cssHeight: r.height };
+};
+
+/* Every DOM write anywhere in stage A's subtree. The engine is allowed to set
+   the canvas element's own width/height attributes and nothing else at all. */
+function watchMutations(el) {
+  const mo = new MutationObserver((records) => {
+    for (const r of records) {
+      harness.mutations.push({
+        kind: r.type,
+        attribute: r.attributeName || null,
+        target: describeTarget(r.target),
+        isTheCanvas: r.target === document.querySelector('#stage-a canvas[data-cine-canvas]'),
+        added: r.addedNodes.length,
+        removed: r.removedNodes.length,
+      });
+    }
+  });
+  mo.observe(el, { attributes: true, childList: true, subtree: true, characterData: true });
+}
+
+/* ── boot ────────────────────────────────────────────────────────────────── */
+(async () => {
+  try {
+    const params = new URLSearchParams(location.search);
+    const manifestUrl = params.get('manifest') || '/artifacts/cinematic-placeholders/manifest.json';
+    const manifest = await loadManifest(manifestUrl);
+    harness.manifestGeneratedAt = manifest.generatedAt;
+
+    const seqA = manifest.sequences.find((s) => s.id === 'signal-to-system');
+    const seqB = manifest.sequences.find((s) => s.id === 'system-to-decision');
+    const pickA = selectVariant(seqA);
+    const pickB = selectVariant(seqB);
+    harness.variantName = pickA.name;
+    harness.variantA = pickA.variant;
+    harness.variantB = pickB.variant;
+    harness.frameCountA = pickA.variant.frameCount;
+    harness.frameCountB = pickB.variant.frameCount;
+
+    /* The two values this fixture's HTML states literally, both of which are
+       really manifest data. If the markup and the manifest ever disagree the
+       harness says so rather than testing a page that lies about itself. */
+    for (const [id, seq, variant] of [['stage-a', seqA, pickA.variant], ['stage-b', seqB, pickB.variant]]) {
+      const el = document.getElementById(id);
+      const declared = Number(el.style.getPropertyValue('--cine-scroll-vh'));
+      if (declared !== seq.stage.scrollLengthVh) {
+        harness.drift.push(`${id} markup declares --cine-scroll-vh ${declared}, manifest says ${seq.stage.scrollLengthVh}`);
+      }
+      const poster = el.querySelector('img[data-cine-poster]').getAttribute('src');
+      if (poster !== variant.poster.src) {
+        harness.drift.push(`${id} poster src ${poster} is not the manifest's ${variant.poster.src}`);
+      }
+    }
+
+    const loaderA = createFakeLoader(pickA.variant, 'A');
+    harness.loaderA = loaderA;
+    await loaderA.preload();
+
+    /* ?starthidden=1 boots the page as a background tab: the engine's very
+       first start() happens with document.hidden true. */
+    if (params.get('starthidden') === '1') forcedHidden = true;
+
+    const stageEl = document.getElementById('stage-a');
+    /* ?stripAria=1 serves the canvas WITHOUT its presentational marking, before
+       the observer is attached so the strip is not mistaken for an engine
+       write. The engine must notice and say so, not paint on quietly. */
+    if (params.get('stripAria') === '1') {
+      const c = stageEl.querySelector('canvas[data-cine-canvas]');
+      c.removeAttribute('role');
+      c.removeAttribute('aria-hidden');
+    }
+    watchMutations(stageEl);
+    harness.listenersBefore = listeners.length;
+
+    harness.stageA = createScrollStage(stageEl, seqA, pickA.variant, loaderA, {
+      requestFrame: (cb) => { harness.rafCalls += 1; return rawRequestAnimationFrame(cb); },
+      cancelFrame: (h) => window.cancelAnimationFrame(h),
+      onDiagnostic: record,
+      onFatal: (err) => { harness.fatalCalls += 1; harness.fatal = String(err && err.message); },
+    });
+    harness.stageA.start();
+    harness.stageListeners = listeners.slice(harness.listenersBefore);
+
+    /* Stage B stays cold until a test asks for it, so its listeners and its
+       animation callbacks never contaminate stage A's measurements. */
+    harness.startManual = async () => {
+      if (harness.stageB) return harness.frameCountB;
+      const loaderB = createFakeLoader(pickB.variant, 'B');
+      harness.loaderB = loaderB;
+      await loaderB.preload();
+      harness.stageB = createScrollStage(document.getElementById('stage-b'), seqB, pickB.variant, loaderB, {
+        requestFrame: manual.requestFrame,
+        cancelFrame: manual.cancelFrame,
+        onDiagnostic: (e) => harness.diagnostics.push({ ...e, stage: 'B' }),
+        onFatal: (err) => { harness.fatalCalls += 1; harness.fatal = `B: ${err && err.message}`; },
+      });
+      harness.stageB.start();
+      return harness.frameCountB;
+    };
+
+    harness.state = () => ({
+      progress: harness.stageA.progress,
+      frameIndex: harness.stageA.frameIndex,
+      paintedIndex: harness.stageA.paintedIndex,
+      running: harness.stageA.running,
+      rafCalls: harness.rafCalls,
+      painted: countOf('painted'),
+      skipped: countOf('skipped'),
+      sized: countOf('sized'),
+      focusCalls: loaderA.state.focusCalls,
+      focus: loaderA.state.focus,
+    });
+
+    harness.ready = true;
+    readout.textContent = `ready: ${pickA.name}, ${pickA.variant.frameCount} frames`;
+    setInterval(() => {
+      if (!harness.ready) return;
+      const s = harness.state();
+      readout.textContent = `p ${s.progress.toFixed(3)} idx ${s.frameIndex} painted ${s.paintedIndex} raf ${s.rafCalls}`;
+    }, 250);
+  } catch (err) {
+    harness.error = String(err && err.message ? err.message : err);
+    readout.textContent = `FAILED: ${harness.error}`;
+  }
+})();
+</script>
+</body>
+</html>

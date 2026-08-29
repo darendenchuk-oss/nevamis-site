@@ -96,16 +96,25 @@ export async function assertBoundToShippedEngine(page) {
     overrides: window.__cine && window.__cine.overrides,
     error: window.__cine && window.__cine.error,
   }));
-  if (bus.error) throw new Error(`the subject page failed to mount a cinematic engine: ${bus.error}`);
+  /* THE MUTANT FENCE, CHECKED FIRST. An override is only ever legitimate
+     inside a mutation run, and a mutation run announces itself in the
+     environment. Without this a mislaid query string would let the whole suite
+     pass while measuring a copy of the engine that nothing ships.
 
-  /* THE MUTANT FENCE. An override is only ever legitimate inside a mutation
-     run, and a mutation run announces itself in the environment. Without this
-     a mislaid query string would let the whole suite pass while measuring a
-     copy of the engine that nothing ships. */
+     ORDERING, 2026-08-28. This used to sit AFTER the mount-error check, which
+     was fine only while the mount swallowed a bad override: the reference
+     engine's preferModule() caught a failed import and quietly used the
+     shipped module instead. assets/cinematic/index.js does not swallow it, and
+     correctly so, and the fence was then never reached: the run failed with
+     "Failed to fetch dynamically imported module" rather than with the reason
+     it was actually refused. An un-announced override must be refused whether
+     or not the page managed to mount, and it must be refused by name. */
   const overrides = bus.overrides && Object.keys(bus.overrides).length ? bus.overrides : null;
   if (overrides && !MUTANT_QUERY) {
     throw new Error(`the subject page loaded module overrides ${JSON.stringify(overrides)} but NV_CINE_MUTANT is not set. Nothing measured in this run describes the modules that ship.`);
   }
+
+  if (bus.error) throw new Error(`the subject page failed to mount a cinematic engine: ${bus.error}`);
   if (overrides) {
     return { engineSource: bus.engineSource, sources: bus.sources, overrides, shipped: shippedModules() };
   }
@@ -113,8 +122,15 @@ export async function assertBoundToShippedEngine(page) {
   const shipped = shippedModules();
   const mounted = { ...(bus.sources || {}) };
   if (bus.engineSource === CINE_MODULE_PATHS.index || bus.engineSource === `/${CINE_MODULE_PATHS.index}`) {
-    /* The shipped index owns its own wiring; every collaborator is shipped. */
-    for (const key of Object.keys(CINE_MODULE_PATHS)) mounted[key] = shipped[key];
+    /* The shipped index owns its own wiring. It REPORTS which collaborator it
+       resolved for each seam (handle.sources), and a reported value always
+       wins: only the seams it said nothing about fall back to the assumption
+       that they are the shipped ones. Filling gaps rather than overwriting is
+       what keeps this an assertion about the engine instead of a statement of
+       faith in it. */
+    for (const key of Object.keys(CINE_MODULE_PATHS)) {
+      if (mounted[key] == null) mounted[key] = shipped[key];
+    }
   }
   const missed = [];
   for (const [name, rel] of Object.entries(CINE_MODULE_PATHS)) {

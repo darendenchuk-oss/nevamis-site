@@ -16,6 +16,7 @@ they drop in as data and nothing has to be rewritten.
 | `frame-manifest.schema.json` | the manifest format, as a schema |
 | `frame-manifest.example.json` | a real, validating example with placeholder paths |
 | `FRAME-CODE.md` | how a guard reads the painted frame index off the canvas |
+| `LOADING.md` | the loading and decode layer: strides, the residency budget, abort policy |
 
 ## Commands
 
@@ -23,6 +24,7 @@ they drop in as data and nothing has to be rewritten.
 npm run cine:frames     # generate placeholder frames into artifacts/ (self testing)
 npm run cine:frames -- --clean
 npm run cine:check      # the contract guard
+npm run cine:loader     # the loading and decode layer guard
 npm run cine:serve      # serve.js on port 3291, this branch's port
 ```
 
@@ -41,6 +43,9 @@ from the Pages build. It is scaffolding: regenerate it, never commit it.
 | `scripts/lib/png.mjs` | dependency free PNG encode and decode |
 | `scripts/gen-placeholder-frames.mjs` | the placeholder generator, with its own self test |
 | `scripts/check-cinematic-contract.mjs` | the contract guard |
+| `assets/cinematic/sequence-loader.js` | the loading and decode layer |
+| `scripts/check-cinematic-loader.mjs` | its Node guard, fetch and decoder injected |
+| `tests/cinematic-loader.spec.js` | its browser guard: real bytes, real ImageBitmaps, real variant selection |
 | `tests/helpers/cinematic.js` | Playwright side helpers every cinematic spec must use |
 
 ## Two hazards, both of which have already bitten this repository

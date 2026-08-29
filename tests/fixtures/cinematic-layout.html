@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cinematic layout and fallback reference</title>
+<!--
+  THE INTEGRATION REFERENCE for the cinematic stages, and the surface every
+  fallback and layout guard measures. tests/ is excluded from the Pages build
+  (_config.yml) so this is never published.
+
+  Why this exists as a fixture rather than as an edit to home.html: three
+  branches are open on this site at once and another session owns home.html
+  right now. This file is the exact markup home.html adopts, carrying the real
+  DOM contract from docs/cinematic/API-CONTRACT.md section 6, the real
+  stylesheet under test (/assets/cinematic/cine-stage.css), the real
+  fallback module (/assets/cinematic/fallback.js) and the real placeholder
+  manifest. Nothing here is a mock except the surrounding page chrome, which is
+  reduced to the two things the guards need from it: a fixed header with a
+  mobile navigation control, and section copy that is genuinely readable.
+
+  EVERY price on this page carries data-nv-price naming its path in
+  pricing-config.js, and scripts/check-cinematic-fallback.mjs re-derives each
+  one from that file. No number here is typed on its own authority.
+
+  Query parameters:
+    ?mount=0        do not mount the fallback layer (proves the CSS alone)
+    ?prime=hang     arm the watchdog with a promise that never settles
+    ?prime=fail     arm the watchdog with a prime that resolves {ok:false}
+    ?timeout=NNN    primeTimeoutMs
+    ?sequence=id    which stage the size/paint probe uses
+-->
+<link rel="stylesheet" href="/assets/cinematic/cine-stage.css">
+<style>
+  /* ---- page chrome only. Nothing here is part of the stage system. ---- */
+  :root{
+    --navy:#0B1620; --navy-0:#02080D; --navy-3:#10222E;
+    --emerald:#2FBF8F; --mint:#9FF0CE; --warm:#F0B462;
+    --ink:#EAF3EE; --muted:#A9BDB4; --line:rgba(159,240,206,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--navy); color:var(--ink);
+    font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  .site-header{
+    position:fixed; z-index:50; top:0; left:0; right:0;
+    background:rgba(9,18,26,.92); border-bottom:1px solid var(--line);
+  }
+  .site-header .wrap{display:flex;align-items:center;gap:18px;height:68px}
+  .brand{font-weight:700;letter-spacing:.06em}
+  .main-nav{margin-left:auto;display:flex;gap:16px;align-items:center}
+  .main-nav a{color:var(--ink);text-decoration:none;font-size:14px}
+  .nav-toggle{
+    margin-left:auto;background:none;color:var(--ink);
+    border:1px solid var(--line); border-radius:8px; width:44px;height:36px;
+    font-size:18px; cursor:pointer;
+  }
+  @media (min-width:769px){ .nav-toggle{display:none} }
+  @media (max-width:768px){ .main-nav{display:none} }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  main{padding-top:68px}
+  section{padding:64px 0}
+  section > .wrap{position:relative;z-index:2}
+  h1{font-size:clamp(30px,5vw,52px);line-height:1.08;margin:.2em 0 .3em}
+  h2{font-size:clamp(23px,3.2vw,34px);line-height:1.15;margin:.2em 0 .4em}
+  .eyebrow{
+    font:600 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--mint);margin:0 0 10px;
+  }
+  p{max-width:64ch;color:var(--muted)}
+  p strong{color:var(--ink)}
+  .btn{
+    display:inline-block;padding:12px 20px;border-radius:10px;
+    text-decoration:none;font-weight:600;border:1px solid var(--line);
+  }
+  .btn-primary{background:var(--emerald);color:#04120C;border-color:var(--emerald)}
+  .btn-ghost{color:var(--ink)}
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:26px}
+  .plan-card{
+    background:rgba(16,34,46,.86); border:1px solid var(--line);
+    border-radius:16px; padding:22px;
+  }
+  .plan-card h3{margin:0 0 6px;font-size:19px}
+  .price{font-size:28px;font-weight:700;color:var(--ink);margin:6px 0 2px}
+  .price-note{font-size:13.5px;margin:0 0 14px}
+  .caplist{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:10px}
+  .caplist li{
+    border:1px solid var(--line);border-radius:12px;padding:12px 16px;
+    background:rgba(16,34,46,.5);
+  }
+  details{border-top:1px solid var(--line);padding:12px 0}
+  summary{cursor:pointer;font-weight:600}
+  .demo-panel{
+    border:1px solid var(--line);border-radius:16px;padding:20px;
+    background:rgba(2,8,13,.6);margin-top:22px;
+  }
+  .demo-panel dt{font-weight:600;margin-top:10px}
+  .demo-panel dd{margin:2px 0 0;color:var(--muted)}
+  #probe-readout{
+    position:fixed;left:0;bottom:0;z-index:80;margin:0;padding:4px 8px;
+    font:11px/1.3 ui-monospace,monospace;background:rgba(2,8,13,.9);color:var(--mint);
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/">NEVAMIS</a>
+    <nav class="main-nav" id="mainNav" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#capabilities">Capabilities</a>
+      <a href="#process">Pricing</a>
+      <a class="btn btn-primary" href="/book.html" data-header-cta>Book a call</a>
+    </nav>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="mainNav" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ══════════ SEQUENCE 1: signal to system, sections 1 and 2 ══════════ -->
+<div class="cine-stage"
+     data-cine-stage="signal-to-system"
+     data-cine-sections="1 2"
+     data-cine-state="poster"
+     style="--cine-scroll-vh:240">
+  <div class="cine-stage__sticky" aria-hidden="true">
+    <canvas data-cine-canvas role="presentation" aria-hidden="true"></canvas>
+    <picture>
+      <source media="(max-width: 767.98px)" srcset="/artifacts/cinematic-placeholders/signal-to-system/mobile/poster.png">
+      <img data-cine-poster src="/artifacts/cinematic-placeholders/signal-to-system/desktop/poster.png"
+           alt="" decoding="async" fetchpriority="high" width="960" height="540">
+    </picture>
+  </div>
+
+  <section data-ia="1" id="top">
+    <div class="wrap">
+      <p class="eyebrow">Answered, every time</p>
+      <h1>The call you miss is the job you lose.</h1>
+      <p><strong>NEVAMIS answers your phone in your business's name</strong>, takes the
+        job, the address and the time the caller wants, and texts it to you before the
+        caller has put their phone down. Your number stays exactly as it is.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/book.html" data-primary-cta>Book a strategy call</a>
+        <a class="btn btn-ghost" href="tel:+15874130035">Hear it answer, (587) 413-0035</a>
+      </div>
+      <div class="cine-chapter-art" data-cine-chapter="signal"></div>
+    </div>
+  </section>
+
+  <section data-ia="2" id="leaks">
+    <div class="wrap">
+      <p class="eyebrow">What we look for</p>
+      <h2>The places revenue escapes.</h2>
+      <p>Twenty-two checks look for the places revenue escapes: missed-call exposure,
+        booking friction, response-time clarity, lead capture, follow-up, trust proof
+        and service coverage. You get the list, the size of each gap, and what it would
+        take to close it.</p>
+      <p class="reveal">A caller who reaches voicemail rings the next name on the list.
+        That is the whole mechanism, and it is why the first fix is always the phone.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/roi.html" data-primary-cta>See what a missed call costs</a>
+      </div>
+      <div class="cine-chapter-art" data-cine-chapter="loss"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════ SEQUENCE 2: system to outcomes, sections 3, 4 and 5 ══════ -->
+<div class="cine-stage"
+     data-cine-stage="system-to-outcomes"
+     data-cine-sections="3 4 5"
+     data-cine-state="poster"
+     style="--cine-scroll-vh:320">
+  <div class="cine-stage__sticky" aria-hidden="true">
+    <canvas data-cine-canvas role="presentation" aria-hidden="true"></canvas>
+    <picture>
+      <source media="(max-width: 767.98px)" srcset="/artifacts/cinematic-placeholders/system-to-outcomes/mobile/poster.png">
+      <img data-cine-poster src="/artifacts/cinematic-placeholders/system-to-outcomes/desktop/poster.png"
+           alt="" decoding="async" width="960" height="540">
+    </picture>
+  </div>
+
+  <section data-ia="3" id="how">
+    <div class="wrap">
+      <p class="eyebrow">How it works</p>
+      <h2>One loop runs the whole thing.</h2>
+      <p>NEVAMIS is not a stack of disconnected tools. It is one loop: observe the
+        business, understand it, find what is costing money, act inside rules you
+        approve, measure what changed, and learn from the result. The phone is one
+        capability inside that loop, not the whole product.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/solutions.html" data-primary-cta>See the loop</a>
+      </div>
+      <div class="cine-chapter-art" data-cine-chapter="mechanism"></div>
+    </div>
+  </section>
+
+  <section data-ia="4" id="capabilities">
+    <div class="wrap">
+      <p class="eyebrow">Available today</p>
+      <h2>What you can actually buy.</h2>
+      <p>If something is not on this list, it is not for sale. Each automation is its
+        own product with its own price, sold on its own evidence, and joins the front
+        desk one at a time.</p>
+      <ul class="caplist">
+        <li><strong>AI Front Desk.</strong> Every call answered, the job captured, the
+          details texted to you.</li>
+        <li><strong>Missed-Call Recovery.</strong> A missed call gets a text back inside
+          seconds, before the caller reaches the next name.</li>
+        <li><strong>Quote-Chase Engine.</strong> Sent quotes are followed up on a
+          schedule until the customer answers either way.</li>
+        <li><strong>Review Engine.</strong> A finished job asks for the review, at the
+          moment the customer is happiest.</li>
+      </ul>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/solutions.html" data-primary-cta>Compare the automations</a>
+      </div>
+      <div class="cine-chapter-art" data-cine-chapter="breadth"></div>
+    </div>
+  </section>
+
+  <section data-ia="5" id="demo">
+    <div class="wrap">
+      <p class="eyebrow">Demo</p>
+      <h2>Three flows, as the system reads them.</h2>
+      <p>A sanitized copy of the map a client sees in their own portal. Example data,
+        example wording, nothing live. This is the shape of the thing, not a feed.</p>
+      <div class="demo-panel">
+        <dl>
+          <dt>Call at 07:12, no answer on the mobile</dt>
+          <dd>Answered in the business name. Job captured: blocked drain, Bowness,
+            this morning if possible. Texted to the owner at 07:13.</dd>
+          <dt>Quote sent Tuesday, silent since</dt>
+          <dd>Followed up Thursday and the following Monday. Customer replied on the
+            second touch and booked.</dd>
+          <dt>Job marked complete</dt>
+          <dd>Review request sent ninety minutes later. One reply, five stars.</dd>
+        </dl>
+      </div>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/demo.html" data-primary-cta>Open the full demo</a>
+      </div>
+      <div class="cine-chapter-art" data-cine-chapter="proof"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════ SEQUENCE 3: system to decision, sections 6 and 7 ══════ -->
+<div class="cine-stage"
+     data-cine-stage="system-to-decision"
+     data-cine-sections="6 7"
+     data-cine-state="poster"
+     style="--cine-scroll-vh:220">
+  <div class="cine-stage__sticky" aria-hidden="true">
+    <canvas data-cine-canvas role="presentation" aria-hidden="true"></canvas>
+    <picture>
+      <source media="(max-width: 767.98px)" srcset="/artifacts/cinematic-placeholders/system-to-decision/mobile/poster.png">
+      <img data-cine-poster src="/artifacts/cinematic-placeholders/system-to-decision/desktop/poster.png"
+           alt="" decoding="async" width="960" height="540">
+    </picture>
+  </div>
+
+  <section data-ia="6" id="process">
+    <div class="wrap">
+      <p class="eyebrow">Process, pricing and trust</p>
+      <h2>How you start.</h2>
+      <p>A standard single-line build is answering your phone the same day we talk.
+        Multi-line setups and custom booking flows genuinely take longer, and you get an
+        honest schedule for those on the call rather than a promise we walk back later.</p>
+
+      <div class="cards">
+        <div class="plan-card" data-pricing-card>
+          <h3>AI Front Desk</h3>
+          <p class="price"><span data-nv-price="plan:pro.monthly">C$1,000</span> a month</p>
+          <p class="price-note"><span data-nv-price="plan:pro.launch">C$1,500</span>
+            Launch &amp; Implementation to start. No performance fee.</p>
+          <a class="btn btn-primary" href="/pricing.html#pro" data-plan-cta>Start with the front desk</a>
+        </div>
+        <div class="plan-card" data-pricing-card>
+          <h3>The Works</h3>
+          <p class="price"><span data-nv-price="plan:growth.monthly">C$2,100</span> a month</p>
+          <p class="price-note"><span data-nv-price="plan:growth.launch">C$3,000</span>
+            Launch &amp; Implementation to start. Every sellable automation included.</p>
+          <a class="btn btn-ghost" href="/pricing.html#growth" data-plan-cta>See what is included</a>
+        </div>
+        <div class="plan-card" data-pricing-card>
+          <h3>Add an automation</h3>
+          <p class="price"><span data-nv-price="addOn:missed_call_recovery.monthly">C$350</span> a month</p>
+          <p class="price-note">Missed-Call Recovery, plus
+            <span data-nv-price="addOn:missed_call_recovery.launch">C$500</span>
+            Launch &amp; Implementation. Each add-on is its own sale.</p>
+          <a class="btn btn-ghost" href="/pricing.html#addons" data-plan-cta>See every add-on</a>
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/pricing.html" data-primary-cta>See the full pricing</a>
+      </div>
+      <div class="cine-chapter-art" data-cine-chapter="commitment"></div>
+    </div>
+  </section>
+
+  <section data-ia="7" id="next">
+    <div class="wrap">
+      <p class="eyebrow">Straight answers</p>
+      <h2>Questions owners actually ask.</h2>
+      <details><summary>Will callers know they are talking to a machine?</summary>
+        <p>The moment anyone asks, yes, plainly and without hedging. It does not open the
+          call by announcing itself, any more than a receptionist opens by explaining who
+          employs them.</p></details>
+      <details><summary>Can I keep my current phone number?</summary>
+        <p>Yes. Your number stays exactly as it is, and you can switch the forwarding off
+          from your own phone at any time.</p></details>
+      <details><summary>How long until it is live?</summary>
+        <p>The build takes days. A standard single-line setup is answering inside the
+          first week.</p></details>
+      <p>Next step: a short strategy call covering your call patterns, what NEVAMIS
+        would handle, and a quote scoped to your volume.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/book.html" data-primary-cta>Book a strategy call</a>
+      </div>
+      <div class="cine-chapter-art" data-cine-chapter="resolution"></div>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap"><p>NEVAMIS. Calgary, Alberta.</p></div>
+</footer>
+
+<p id="probe-readout">no script</p>
+
+<script type="module">
+/* The harness. NOT the engine: scroll-stage.js and sequence-loader.js belong to
+   other branches and are not imported here. This wires the real fallback layer
+   to the real markup, and provides one canvas sizing probe so the layout guards
+   can prove the stylesheet hands the canvas a real box rather than a zero one.
+   Everything above this script works with the script deleted. */
+import { loadManifest, selectVariant } from '/assets/cinematic/manifest.js';
+import { createFallbackLayer } from '/assets/cinematic/fallback.js';
+
+document.documentElement.classList.remove('no-js');
+
+const params = new URLSearchParams(location.search);
+const probe = {
+  ready: false, error: null, diagnostics: [], layers: {}, variants: {},
+  mounted: false,
+};
+window.__cine = probe;
+const readout = document.getElementById('probe-readout');
+const say = (t) => { readout.textContent = t; };
+
+const MAX_DPR = 2;
+/* The same sizing rule scroll-stage.js is required to use, reproduced here for
+   one reason only: to prove the STYLESHEET gives the canvas a non-zero CSS box.
+   A zero box is reported, never silently accepted, which is the defect that
+   already shipped in this project. */
+probe.sizeCanvas = function sizeCanvas(sequenceId) {
+  const canvas = document.querySelector(`[data-cine-stage="${sequenceId}"] canvas[data-cine-canvas]`);
+  if (!canvas) return { sized: false, reason: 'no-canvas' };
+  const r = canvas.getBoundingClientRect();
+  if (r.width < 1 || r.height < 1) {
+    return { sized: false, reason: 'zero-box', cssWidth: r.width, cssHeight: r.height };
+  }
+  const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
+  canvas.width = Math.round(r.width * dpr);
+  canvas.height = Math.round(r.height * dpr);
+  return {
+    sized: true, cssWidth: r.width, cssHeight: r.height, dpr,
+    backingWidth: canvas.width, backingHeight: canvas.height,
+  };
+};
+
+/* Paint one placeholder frame with the centred cover fit the contract mandates,
+   so readCanvasFrame() can read the index back off the pixels and prove the
+   canvas the stylesheet produced is genuinely usable. */
+probe.paint = async function paint(sequenceId, index) {
+  const info = probe.sizeCanvas(sequenceId);
+  if (!info.sized) throw new Error(`canvas for ${sequenceId}: ${info.reason}`);
+  const v = probe.variants[sequenceId];
+  const canvas = document.querySelector(`[data-cine-stage="${sequenceId}"] canvas[data-cine-canvas]`);
+  const img = new Image();
+  img.src = v.frames[index];
+  await img.decode();
+  const ctx = canvas.getContext('2d');
+  const scale = Math.max(canvas.width / v.width, canvas.height / v.height);
+  const dw = v.width * scale;
+  const dh = v.height * scale;
+  ctx.drawImage(img, (canvas.width - dw) / 2, (canvas.height - dh) / 2, dw, dh);
+  return { ...info, index };
+};
+
+(async () => {
+  try {
+    const manifest = await loadManifest(params.get('manifest') || '/artifacts/cinematic-placeholders/manifest.json');
+    probe.manifestGeneratedAt = manifest.generatedAt;
+
+    for (const stageEl of document.querySelectorAll('[data-cine-stage]')) {
+      const id = stageEl.getAttribute('data-cine-stage');
+      const sequence = manifest.sequences.find((s) => s.id === id);
+      if (!sequence) throw new Error(`the manifest has no sequence '${id}'`);
+      const picked = selectVariant(sequence);
+      probe.variants[id] = picked.variant;
+      probe.variantName = picked.name;
+
+      if (params.get('mount') === '0') continue;
+
+      const layer = createFallbackLayer(stageEl, sequence, picked.variant, {
+        primeTimeoutMs: Number(params.get('timeout') || 6000),
+        onDiagnostic: (d) => { probe.diagnostics.push(d); },
+        loader: { destroy() { probe.diagnostics.push({ type: 'test-loader-destroyed', stage: id }); } },
+      });
+      probe.layers[id] = layer;
+      layer.showPoster();
+
+      if (layer.prefersReducedMotion()) {
+        layer.applyReducedMotion();
+      } else {
+        const mode = params.get('prime');
+        if (mode === 'hang') layer.armWatchdog(new Promise(() => {}));
+        else if (mode === 'fail') layer.armWatchdog(Promise.resolve({ ok: false, resident: 0, requested: 96, failed: 96 }));
+        else if (mode === 'reject') layer.armWatchdog(Promise.reject(new Error('synthetic prime failure')));
+        else if (mode === 'notapromise') layer.armWatchdog(undefined);
+      }
+      probe.mounted = true;
+    }
+    probe.ready = true;
+    say(`ready: ${probe.variantName}, ${Object.keys(probe.layers).length} layer(s)`);
+  } catch (err) {
+    probe.error = String(err && err.message ? err.message : err);
+    say(`FAILED: ${probe.error}`);
+  }
+})();
+</script>
+</body>
+</html>

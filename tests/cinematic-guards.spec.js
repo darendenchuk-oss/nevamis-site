@@ -114,6 +114,7 @@ test('1. copy paints without JavaScript', async ({ browser }) => {
   const { context, page } = await open(browser, { javaScriptEnabled: false });
   try {
     await assertServingThisWorktree(page);
+    const subjectsSeen = [];
     for (const url of [HOMEPAGE_URL, SUBJECT_URL]) {
       await page.goto(url);
       const seen = await page.evaluate(() => {
@@ -165,7 +166,17 @@ test('1. copy paints without JavaScript', async ({ browser }) => {
         const stages = Array.from(document.querySelectorAll('[data-cine-stage]')).map((st) => ({
           id: st.getAttribute('data-cine-stage'),
           state: st.getAttribute('data-cine-state'),
+          artwork: st.getAttribute('data-cine-artwork') || 'released',
           poster: !!st.querySelector('img[data-cine-poster][src]'),
+          canvas: !!st.querySelector('canvas[data-cine-canvas]'),
+          sticky: !!st.querySelector('.cine-stage__sticky'),
+          /* Height the wrapper adds beyond the sections it contains. A stage
+             with no artwork must add nothing; measured, not assumed. */
+          extraHeight: (() => {
+            const own = st.getBoundingClientRect().height;
+            const kids = Array.from(st.children).reduce((n, c) => n + c.getBoundingClientRect().height, 0);
+            return Math.round(own - kids);
+          })(),
           canvasHasText: !!(st.querySelector('canvas') || {}).textContent,
         }));
         return {
@@ -200,11 +211,37 @@ test('1. copy paints without JavaScript', async ({ browser }) => {
         expect(s.words, `${url} section ${s.ia} carries ${s.words} words with scripts off`).toBeGreaterThan(10);
       }
 
+      /* THE RELEASE GATE, ADDED 2026-08-28 WHEN THE STAGES WERE WIRED INTO
+         home.html. A released stage owes the no-JavaScript visitor a poster in
+         the served HTML. A stage whose sequence has not been approved and
+         generated owes them the opposite: no poster, because a src pointing at
+         artwork that does not exist is a broken image, and no backdrop, because
+         an empty pinned viewport is dead layout. Both halves are asserted, so
+         this cannot be used to excuse a released stage from carrying a poster,
+         and the non-vacuity check below stops the whole block being skipped by
+         marking everything pending. */
       for (const st of seen.stages) {
         expect(st.state, `${url} stage ${st.id} starts at data-cine-state="${st.state}"; a no-JS visitor must get the poster`).toBe('poster');
-        expect(st.poster, `${url} stage ${st.id} has no poster image in the served HTML`).toBe(true);
+        expect(['pending', 'released'], `${url} stage ${st.id} declares data-cine-artwork="${st.artwork}"`).toContain(st.artwork);
+        if (st.artwork === 'released') {
+          expect(st.poster, `${url} stage ${st.id} is released and has no poster image in the served HTML`).toBe(true);
+          expect(st.canvas, `${url} stage ${st.id} is released and has no canvas to paint into`).toBe(true);
+        } else {
+          expect(st.poster, `${url} stage ${st.id} is awaiting artwork but ships a poster <img>, whose src can only resolve to nothing`).toBe(false);
+          expect(st.sticky, `${url} stage ${st.id} is awaiting artwork but ships a sticky backdrop, which costs a viewport of layout for artwork that does not exist`).toBe(false);
+          expect(Math.abs(st.extraHeight), `${url} stage ${st.id} is awaiting artwork yet its wrapper adds ${st.extraHeight}px beyond the sections inside it`).toBeLessThanOrEqual(2);
+        }
       }
+      subjectsSeen.push(...seen.stages);
     }
+
+    /* Non-vacuity: at least one released stage must have been examined across
+       the two subjects, or the poster half of the rule above is proving
+       nothing at all. */
+    expect(
+      subjectsSeen.filter((s) => s.artwork === 'released').length,
+      'no released stage was measured, so the "a released stage carries a poster" half of this guard asserted nothing',
+    ).toBeGreaterThan(0);
 
     /* Pricing must stay reachable with no script: the homepage renders its
        cards from canonical at runtime, so the fallback is the contract. */

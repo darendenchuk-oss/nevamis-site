@@ -239,6 +239,13 @@ export function createSequenceLoader(variant, options = {}) {
     }
     if (best >= 0) return best;
 
+    /* Coarse to fine is a hard boundary, not a preference: no refinement frame
+       is requested until the whole skeleton has settled. Without this, the last
+       anchor is still in flight while freed slots start fetching frames nobody
+       can see yet, and "a usable scrubber for a handful of frames" stops being
+       measurable, because the skeleton pass no longer has a cost of its own. */
+    if (!anchorPassEmitted) return -1;
+
     for (let si = 1; si < strides.length; si += 1) {
       const s = strides[si];
       best = -1;

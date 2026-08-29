@@ -300,6 +300,53 @@ Order, which is the whole of the LCP rule:
 5. Any stage that throws degrades on its own. One broken stage never takes the
    other two down.
 
+### Reconciled 2026-08-28, when the four parts were integrated
+
+The four modules were written in parallel against the text above. Three places
+where it could not be followed literally, and what ships instead. The code is
+`assets/cinematic/index.js`; the guards are `scripts/check-cinematic-home.mjs`
+and `tests/cinematic-home.spec.js`.
+
+**Steps 3 and 4 contradict each other.** Step 4 orders `createSequenceLoader`
+before `createFallbackLayer`. Step 3 forbids creating a loader at all under
+reduced motion, and the reduced-motion decision has to come from the fallback
+layer rather than from a fourth copy of the rule. Both cannot hold. Step 3
+wins, because a fetched frame is observable and a construction order is not:
+the layer is built first and is handed `{ loader: () => entry.loader }`, a
+resolver read at the moment of use. `fallback.js#degrade()` therefore stays the
+single owner of loader teardown, which is the property step 4's ordering
+existed to protect.
+
+**Priming is lazy.** `armWatchdog(loader.prime())` during mount primes all
+three sequences at page load and defeats the loader's offscreen silence
+(`docs/cinematic/LOADING.md` section 1). `prime()` is called from an
+IntersectionObserver on the stage, `rootMargin: '400px 0px'`, and the watchdog
+is armed at that same moment, which is the only moment a wait exists.
+
+**Degrading also stops the stage.** `fallback.js` hides the canvas and destroys
+the loader; it does not know a scroll stage exists. `index.js` watches its own
+diagnostic stream for `{type:'degraded'}` and stops that stage, because it is
+the only place holding both objects.
+
+### The artwork release gate
+
+A stage whose sequence has not been approved and generated is **not** a
+degraded stage. It is a stage that does not exist yet, and reporting it as a
+failure it never attempted would be this codebase's signature defect.
+
+`config/cinematic-sequences.json` declares `"artwork": "pending" | "released"`
+per sequence, and the served HTML carries `data-cine-artwork` to match.
+
+| | pending | released |
+|---|---|---|
+| served markup | wrapper, sections and chapter slots only | plus `.cine-stage__sticky`, canvas and poster |
+| `cine-stage.css` | `min-height: 0`; the wrapper costs nothing | floored at `--cine-scroll-vh` |
+| `index.js` | emits `awaiting-artwork`, mounts nothing | full step 1 to 5 |
+| the manifest | not requested at all when every stage is pending | requested once |
+
+`scripts/check-cinematic-home.mjs` fails if the page and the config disagree in
+either direction, and names both halves of the change.
+
 ---
 
 ## 6. DOM contract

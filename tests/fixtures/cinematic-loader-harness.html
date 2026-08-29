@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cinematic loader harness</title>
+<!--
+  Exercises assets/cinematic/sequence-loader.js against REAL bytes, real
+  createImageBitmap decoding and real viewport driven variant selection. The
+  Node guard (scripts/check-cinematic-loader.mjs) proves the policy with fetch
+  injected; this proves the same module against a browser.
+
+  It also demonstrates the activation wiring the mount step has to adopt: a
+  loader is constructed for every stage, but prime() is only called when that
+  stage's sentinel approaches the viewport. Until prime() the loader cannot
+  fetch, so an offscreen sequence is silent by construction and a test can watch
+  the network and see nothing.
+
+  tests/ is excluded from the Pages build, so this is never published.
+-->
+<style>
+  html,body{margin:0;background:#0B1620;color:#EAF3EE;font:14px/1.5 system-ui,sans-serif}
+  .spacer{height:2400px}
+  .stage{height:900px;margin:0;padding:16px;border-top:1px solid #10222E}
+  #status{position:fixed;top:0;left:0;padding:6px 10px;background:#02080D;font-variant-numeric:tabular-nums;z-index:2}
+</style>
+</head>
+<body>
+<p id="status">booting</p>
+
+<section class="stage" id="stage-signal-to-system" data-seq="signal-to-system">
+  <h2>Signal to system</h2>
+</section>
+
+<div class="spacer"></div>
+
+<section class="stage" id="stage-system-to-outcomes" data-seq="system-to-outcomes">
+  <h2>System to outcomes</h2>
+</section>
+
+<div class="spacer"></div>
+
+<script type="module">
+import { loadManifest, selectVariant } from '/assets/cinematic/manifest.js';
+import { createSequenceLoader } from '/assets/cinematic/sequence-loader.js';
+
+const MANIFEST = '/artifacts/cinematic-placeholders/manifest.json';
+const status = document.getElementById('status');
+
+const api = {
+  ready: false,
+  error: null,
+  manifestGeneratedAt: null,
+  stages: {},        // id -> { variantName, variant, loader, activated, primeResult, events }
+};
+window.__cine = api;
+
+function record(id) { return api.stages[id]; }
+
+api.info = (id) => {
+  const s = record(id);
+  if (!s) return null;
+  return {
+    variantName: s.variantName,
+    width: s.variant.width,
+    height: s.variant.height,
+    orientation: s.variant.orientation,
+    frameCount: s.variant.frameCount,
+    media: s.variant.media,
+    firstFrameUrl: s.variant.frames[0],
+    activated: s.activated,
+    primeResult: s.primeResult,
+    stats: s.loader.stats,
+  };
+};
+
+api.diagnostics = (id) => record(id).events.slice();
+/** What stride pass 1 had cost at the instant it completed. */
+api.skeletonPass = (id) => record(id).skeletonPassRef.skeletonPass;
+api.stats = (id) => record(id).loader.stats;
+
+/** Wait until nothing is in flight and the counters stop moving. */
+api.quiesce = async (id, budgetMs = 4000) => {
+  const loader = record(id).loader;
+  const deadline = performance.now() + budgetMs;
+  let last = '';
+  let quiet = 0;
+  while (performance.now() < deadline) {
+    await new Promise((r) => setTimeout(r, 16));
+    const s = loader.stats;
+    const fp = `${s.requested}:${s.resident}:${s.failed}`;
+    if (s.inFlight === 0 && fp === last) { quiet += 1; if (quiet >= 3) return true; } else { quiet = 0; }
+    last = fp;
+  }
+  return false;
+};
+
+/** Drive the focus across the whole sequence the way a scrub would, and report
+    the highest number of decoded frames that were resident at any moment. */
+api.scrub = async (id, step = 3) => {
+  const s = record(id);
+  let peak = 0;
+  for (let i = 0; i < s.variant.frameCount; i += step) {
+    s.loader.setFocus(i);
+    await api.quiesce(id, 1500);
+    peak = Math.max(peak, s.loader.stats.resident);
+  }
+  return { peak, stats: s.loader.stats };
+};
+
+/** How far the nearest decoded frame is from each index: the number that says
+    whether the scrubber is usable yet. */
+api.worstGap = (id) => {
+  const s = record(id);
+  let worst = 0;
+  for (let i = 0; i < s.variant.frameCount; i += 1) {
+    const n = s.loader.nearest(i);
+    if (!n) return Infinity;
+    worst = Math.max(worst, Math.abs(n.index - i));
+  }
+  return worst;
+};
+
+api.hasDecodedFrame = (id, index) => record(id).loader.get(index) !== null;
+api.setFocus = (id, index) => record(id).loader.setFocus(index);
+api.nearest = (id, index) => { const n = record(id).loader.nearest(index); return n ? n.index : null; };
+
+/* ACTIVATION. The loader exists from the start; it is primed only when its
+   stage is within 400px of the viewport. Nothing here fetches a frame before
+   that, because prime() is the only thing that can. */
+function activate(id) {
+  const s = record(id);
+  if (s.activated) return;
+  s.activated = true;
+  s.primePromise = s.loader.prime().then((r) => { s.primeResult = r; return r; });
+}
+api.activateNow = (id) => { activate(id); return record(id).primePromise; };
+
+/* Wait for the IntersectionObserver to have activated this stage, THEN for its
+   prime to settle. Returning primePromise directly raced the observer callback:
+   before it fired there was no promise, the await resolved instantly, and a test
+   that then counted network requests counted zero and passed while measuring
+   nothing. That is the defect class this whole phase is guarding against, so it
+   reports 'never-activated' rather than resolving quietly. */
+api.awaitPrime = async (id, budgetMs = 5000) => {
+  const s = record(id);
+  const deadline = performance.now() + budgetMs;
+  while (!s.primePromise && performance.now() < deadline) {
+    await new Promise((r) => setTimeout(r, 16));
+  }
+  if (!s.primePromise) return { ok: false, reason: 'never-activated', requested: 0 };
+  return s.primePromise;
+};
+
+(async () => {
+  try {
+    const manifest = await loadManifest(MANIFEST);
+    api.manifestGeneratedAt = manifest.generatedAt;
+    for (const sequence of manifest.sequences) {
+      const el = document.getElementById(`stage-${sequence.id}`);
+      if (!el) continue;
+      const picked = selectVariant(sequence);
+      const events = [];
+      const rec = { skeletonPass: null };
+      /* Snapshot the cost of stride pass 1 AT the moment it completes. Read a
+         microtask later, after `await prime()`, the counters already include
+         refinement requests and the number stops meaning anything. */
+      const loader = createSequenceLoader(picked.variant, {
+        onDiagnostic: (e) => {
+          events.push(e);
+          if (e.type === 'pass-complete' && e.stride === picked.variant.strides[0] && !rec.skeletonPass) {
+            const st = loader.stats;
+            rec.skeletonPass = { requested: st.requested, bytes: st.bytes, resident: e.resident, total: e.total };
+          }
+        },
+      });
+      api.stages[sequence.id] = {
+        skeletonPassRef: rec,
+        variantName: picked.name,
+        variant: picked.variant,
+        loader,
+        events,
+        activated: false,
+        primeResult: null,
+        primePromise: null,
+      };
+      const io = new IntersectionObserver((entries) => {
+        for (const entry of entries) if (entry.isIntersecting) { activate(sequence.id); io.disconnect(); }
+      }, { rootMargin: '400px 0px' });
+      io.observe(el);
+    }
+    api.ready = true;
+    status.textContent = `ready: ${Object.keys(api.stages).join(', ')}`;
+  } catch (err) {
+    api.error = String((err && err.message) || err);
+    status.textContent = `FAILED: ${api.error}`;
+  }
+})();
+</script>
+</body>
+</html>

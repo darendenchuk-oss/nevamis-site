@@ -18,7 +18,9 @@
     "cine:serve": "node serve.js 3291",
     "cine:fallback": "node scripts/check-cinematic-fallback.mjs",
     "cine:guards": "playwright test tests/cinematic-guards.spec.js",
-    "cine:mutant": "node scripts/make-cine-mutant.mjs"
+    "cine:mutant": "node scripts/make-cine-mutant.mjs",
+    "cine:home": "node scripts/check-cinematic-home.mjs",
+    "cine:all": "node scripts/check-cinematic-contract.mjs && node scripts/check-cinematic-loader.mjs && node scripts/check-cinematic-fallback.mjs && node scripts/check-cinematic-home.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0"

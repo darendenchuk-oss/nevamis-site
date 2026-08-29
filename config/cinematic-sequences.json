@@ -1,6 +1,7 @@
 {
   "$comment": "Identity of the three cinematic scroll sequences. ONE source of truth. The placeholder generator reads it, the manifest is validated against it, and the contract guard fails if a manifest names a sequence, chapter or section span that is not here. Nothing about a sequence is retyped anywhere else. Copy rules apply to every label below: sentence case, NEVAMIS in caps, no em dashes.",
   "schemaVersion": 1,
+  "$artwork": "THE RELEASE GATE. Each sequence declares artwork pending or released. Pending means no approved frames exist for it: home.html authors data-cine-artwork=pending on that stage, carries no backdrop, canvas or poster for it, and assets/cinematic/index.js mounts nothing and requests nothing for it. scripts/check-cinematic-home.mjs fails if the page and this file disagree in either direction. Flipping a sequence to released is a two step change and the guard names both steps: set it here, and add the backdrop subtree plus data-cine-artwork=released to that stage in home.html.",
   "variants": {
     "desktop": {
       "media": "(min-width: 768px)",
@@ -19,6 +20,7 @@
     {
       "id": "signal-to-system",
       "ordinal": 0,
+      "artwork": "pending",
       "title": "Signal to system",
       "sections": [1, 2],
       "stage": { "scrollLengthVh": 240, "fit": "cover" },
@@ -31,6 +33,7 @@
     {
       "id": "system-to-outcomes",
       "ordinal": 1,
+      "artwork": "pending",
       "title": "System to outcomes",
       "sections": [3, 4, 5],
       "stage": { "scrollLengthVh": 320, "fit": "cover" },
@@ -44,6 +47,7 @@
     {
       "id": "system-to-decision",
       "ordinal": 2,
+      "artwork": "pending",
       "title": "System to decision",
       "sections": [6, 7],
       "stage": { "scrollLengthVh": 220, "fit": "cover" },

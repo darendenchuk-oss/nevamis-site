@@ -765,6 +765,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </style>
 <!-- /generated:css -->
 
+<!-- The cinematic scroll stage layout and its no-JavaScript fallback.
+     The one linked stylesheet on this page. It is NOT inlined with the
+     rest, deliberately: rule 7z inlines site.css and fonts.css because
+     they are on the critical path for every page, and this file is not on
+     the critical path for anything. It styles a decorative backdrop that
+     no word, price or button depends on. -->
+<link rel="stylesheet" href="/assets/cinematic/cine-stage.css">
+
 <style>
   /* ---------- hero-specific (everything else lives in assets/motion/site.css) ---------- */
   /* #wake (a fixed, opaque, full-viewport veil the timeline faded off) and
@@ -1289,6 +1297,29 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        stage is about 2% in view at load, and at 812px it already starts at
        y=808: one more line of copy anywhere above it and the film never runs
        on a phone. Nothing was added here, and nothing may be. -->
+  <!-- ================= CINEMATIC STAGE: SIGNAL TO SYSTEM ================= -->
+  <!-- Sections 1 and 2 of the seven, wrapped in one scroll stage.
+       WHERE THIS BINDING LIVES: config/cinematic-sequences.json. The span,
+       the scroll length and the chapter list below are copies of that file
+       and scripts/check-cinematic-home.mjs fails if any of them drifts from
+       it. To rebind a section to a different sequence, edit the sections
+       array there and move this wrapper boundary; the guard names both
+       halves of the change and refuses a page that did only one.
+
+       The sections keep their own headings, their own copy and their one
+       primary action each. A sequence spans them visually and never merges
+       them: nothing here is a heading, a price, a label or a button.
+
+       ARTWORK: pending. No approved sequence exists yet, so this stage carries
+       no backdrop, no canvas and no poster, index.js mounts nothing for it
+       and requests nothing, and cine-stage.css gives it no scroll length.
+       It costs this page exactly nothing today. -->
+  <div class="cine-stage"
+       data-cine-stage="signal-to-system"
+       data-cine-sections="1 2"
+       data-cine-state="poster"
+       data-cine-artwork="pending"
+       style="--cine-scroll-vh:240">
   <section class="hero" data-ia="1">
     <div class="grid-lines" aria-hidden="true"></div>
     <div class="wrap">
@@ -1504,6 +1535,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <button class="motion-toggle-btn" aria-pressed="false">pause motion</button>
       </div>
     </div>
+
+    <!-- Reduced motion artwork slot for chapter "signal" of the
+         signal-to-system sequence. Empty and display:none until
+         fallback.js fills it from the manifest, which only happens when
+         the sequence is released AND the visitor has reduced motion on.
+         Never a container for readable text. -->
+    <div class="cine-chapter-art" data-cine-chapter="signal"></div>
   </section>
 
   <!-- ================= CAPABILITY RAIL ================= -->
@@ -1558,7 +1596,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <span class="mono">Free, no email required, about a minute.</span>
       </div>
     </div>
+
+    <!-- Reduced motion artwork slot for chapter "loss" of the
+         signal-to-system sequence. Empty and display:none until
+         fallback.js fills it from the manifest, which only happens when
+         the sequence is released AND the visitor has reduced motion on.
+         Never a container for readable text. -->
+    <div class="cine-chapter-art" data-cine-chapter="loss"></div>
   </section>
+  </div><!-- /cine-stage signal-to-system -->
 
   <!-- ================= 3. THE SYSTEM ================= -->
   <!-- SECTION 3: the simple explanation. Keeps id="how" because the header
@@ -1566,6 +1612,29 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        honest destination for "How it works". The loop figure and the four
        steps are moved verbatim from the retired "What Nevamis is" and
        "The platform" sections. -->
+  <!-- ================= CINEMATIC STAGE: SYSTEM TO OUTCOMES ================= -->
+  <!-- Sections 3 and 4 and 5 of the seven, wrapped in one scroll stage.
+       WHERE THIS BINDING LIVES: config/cinematic-sequences.json. The span,
+       the scroll length and the chapter list below are copies of that file
+       and scripts/check-cinematic-home.mjs fails if any of them drifts from
+       it. To rebind a section to a different sequence, edit the sections
+       array there and move this wrapper boundary; the guard names both
+       halves of the change and refuses a page that did only one.
+
+       The sections keep their own headings, their own copy and their one
+       primary action each. A sequence spans them visually and never merges
+       them: nothing here is a heading, a price, a label or a button.
+
+       ARTWORK: pending. No approved sequence exists yet, so this stage carries
+       no backdrop, no canvas and no poster, index.js mounts nothing for it
+       and requests nothing, and cine-stage.css gives it no scroll length.
+       It costs this page exactly nothing today. -->
+  <div class="cine-stage"
+       data-cine-stage="system-to-outcomes"
+       data-cine-sections="3 4 5"
+       data-cine-state="poster"
+       data-cine-artwork="pending"
+       style="--cine-scroll-vh:320">
   <section class="tight" id="how" data-ia="3">
     <div class="wrap">
       <div class="section-head reveal">
@@ -1630,6 +1699,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <li class="pstep"><h3>Learn</h3><p>Every result is measured against what it cost, labelled by how sure we are, so what works is kept and what does not is dropped.</p></li>
       </ol>
     </div>
+
+    <!-- Reduced motion artwork slot for chapter "mechanism" of the
+         system-to-outcomes sequence. Empty and display:none until
+         fallback.js fills it from the manifest, which only happens when
+         the sequence is released AND the visitor has reduced motion on.
+         Never a container for readable text. -->
+    <div class="cine-chapter-art" data-cine-chapter="mechanism"></div>
   </section>
 
   <!-- ================= 4. WHAT IS AVAILABLE ================= -->
@@ -1842,6 +1918,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <span class="mono">Every service, with what it does and where it stands.</span>
       </div>
     </div>
+
+    <!-- Reduced motion artwork slot for chapter "breadth" of the
+         system-to-outcomes sequence. Empty and display:none until
+         fallback.js fills it from the manifest, which only happens when
+         the sequence is released AND the visitor has reduced motion on.
+         Never a container for readable text. -->
+    <div class="cine-chapter-art" data-cine-chapter="breadth"></div>
   </section>
 
   <!-- ================= 5. THE DEMONSTRATION ================= -->
@@ -1915,7 +1998,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <a class="btn btn-ghost" href="https://app.nevamis.ca/brain" data-evt="platform_brain_click">Walk through these flows</a>
       </div>
     </div>
+
+    <!-- Reduced motion artwork slot for chapter "proof" of the
+         system-to-outcomes sequence. Empty and display:none until
+         fallback.js fills it from the manifest, which only happens when
+         the sequence is released AND the visitor has reduced motion on.
+         Never a container for readable text. -->
+    <div class="cine-chapter-art" data-cine-chapter="proof"></div>
   </section>
+  </div><!-- /cine-stage system-to-outcomes -->
 
   <!-- ================= 6. PROCESS, PRICING, TRUST ================= -->
   <!-- SECTION 6: one band, four things a buyer needs before they decide.
@@ -1923,6 +2014,29 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        block, the price cards from the pricing preview, the commitments from
        the risk block, the limits from the honesty block. ONE action for the
        whole band, on purpose. -->
+  <!-- ================= CINEMATIC STAGE: SYSTEM TO DECISION ================= -->
+  <!-- Sections 6 and 7 of the seven, wrapped in one scroll stage.
+       WHERE THIS BINDING LIVES: config/cinematic-sequences.json. The span,
+       the scroll length and the chapter list below are copies of that file
+       and scripts/check-cinematic-home.mjs fails if any of them drifts from
+       it. To rebind a section to a different sequence, edit the sections
+       array there and move this wrapper boundary; the guard names both
+       halves of the change and refuses a page that did only one.
+
+       The sections keep their own headings, their own copy and their one
+       primary action each. A sequence spans them visually and never merges
+       them: nothing here is a heading, a price, a label or a button.
+
+       ARTWORK: pending. No approved sequence exists yet, so this stage carries
+       no backdrop, no canvas and no poster, index.js mounts nothing for it
+       and requests nothing, and cine-stage.css gives it no scroll length.
+       It costs this page exactly nothing today. -->
+  <div class="cine-stage"
+       data-cine-stage="system-to-decision"
+       data-cine-sections="6 7"
+       data-cine-state="poster"
+       data-cine-artwork="pending"
+       style="--cine-scroll-vh:220">
   <section class="tight" id="process" data-ia="6">
     <div class="wrap">
       <div class="section-head reveal">
@@ -1997,6 +2111,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <a class="btn btn-primary" href="/pricing.html" data-evt="pricing_view_click">Compare plans in detail</a>
       </div>
     </div>
+
+    <!-- Reduced motion artwork slot for chapter "commitment" of the
+         system-to-decision sequence. Empty and display:none until
+         fallback.js fills it from the manifest, which only happens when
+         the sequence is released AND the visitor has reduced motion on.
+         Never a container for readable text. -->
+    <div class="cine-chapter-art" data-cine-chapter="commitment"></div>
   </section>
 
   <!-- ================= 7. FAQ AND THE LAST ACTION ================= -->
@@ -2048,7 +2169,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         </div>
       </div>
     </div>
+
+    <!-- Reduced motion artwork slot for chapter "resolution" of the
+         system-to-decision sequence. Empty and display:none until
+         fallback.js fills it from the manifest, which only happens when
+         the sequence is released AND the visitor has reduced motion on.
+         Never a container for readable text. -->
+    <div class="cine-chapter-art" data-cine-chapter="resolution"></div>
   </section>
+  </div><!-- /cine-stage system-to-decision -->
 
 </main>
 
@@ -2189,6 +2318,27 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 })();
 </script>
 <script type="module" src="assets/motion/main.js"></script>
+
+<!-- CINEMATIC SCROLL STAGES.
+
+     The engine is not fetched unless a stage is actually released. With
+     every sequence still awaiting approved artwork this condition is false,
+     the five modules behind assets/cinematic/index.js are never requested,
+     and this page costs exactly what it cost before the stages were bound.
+     The selector is the same rule index.js applies: a stage is live unless
+     it says data-cine-artwork="pending".
+
+     mountCinematic() resolves rather than rejects on every failure it is
+     specified for, so the catch is for the ones it is not: a module that
+     404s, or a browser that cannot parse it. Either way the served HTML is
+     already the finished page. -->
+<script type="module">
+  if (document.querySelector('[data-cine-stage]:not([data-cine-artwork="pending"])')) {
+    import('/assets/cinematic/index.js')
+      .then((m) => m.mountCinematic())
+      .catch((err) => { console.warn('cinematic stages unavailable:', err && err.message); });
+  }
+</script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   var P = window.NV_PRICING, wrap = document.getElementById("pricePreview");

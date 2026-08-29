@@ -216,7 +216,10 @@ if (!fs.existsSync(placeholderPath)) {
    thing that says so, before three branches try to merge. */
 const MODULES = {
   'assets/cinematic/manifest.js': ['SEQUENCE_IDS', 'VARIANT_NAMES', 'FIT', 'ManifestError', 'frameIndexForProgress', 'frameUrl', 'selectVariant', 'keyframeForChapter', 'validateManifest', 'loadManifest'],
-  'assets/cinematic/sequence-loader.js': ['createSequenceLoader'],
+  // residencyBudget / anchorIndices / DEFAULT_MAX_CONCURRENT are the loading
+  // policy's arithmetic, exported so scripts/check-cinematic-loader.mjs can
+  // assert the caps directly rather than infer them from behaviour.
+  'assets/cinematic/sequence-loader.js': ['createSequenceLoader', 'residencyBudget', 'anchorIndices', 'DEFAULT_MAX_CONCURRENT'],
   'assets/cinematic/scroll-stage.js': ['createScrollStage'],
   'assets/cinematic/fallback.js': ['createFallbackLayer'],
   'assets/cinematic/index.js': ['mountCinematic'],

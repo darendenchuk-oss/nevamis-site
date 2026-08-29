@@ -1,0 +1,376 @@
+/* Cinematic scroll stage: layout, stacking, hit area, and the static paths.
+   Contract: docs/cinematic/API-CONTRACT.md section 6.
+   Guard:    scripts/check-cinematic-fallback.mjs  (npm run cine:fallback)
+             tests/cinematic-fallback.spec.js
+
+   THIS FILE IS THE FALLBACK. Everything below works with the sequence absent,
+   refused or broken, and with no JavaScript at all. The engine only ever adds
+   pixels to a <canvas> that is already sized, already positioned, already
+   behind every word on the page, and already outside the hit area.
+
+   THREE THINGS THIS FILE IS BUILT TO MAKE IMPOSSIBLE
+   1. A reduced motion rule that cannot match. That defect already shipped in
+      this project: the block was scoped to a class that is absent precisely
+      when reduced motion is on. So the reduced payload is written ONCE, as
+      custom properties, and switched by three INDEPENDENT selectors, each of
+      which is sufficient on its own. A guard asserts the three switch blocks
+      are declaration identical, and a browser test proves the media query
+      alone fires with no class and no attribute present.
+   2. Text under motion. No rule here applies transform, opacity, filter, mask,
+      clip-path or fragmentation to any element that can contain readable text.
+      The only such declarations in this file are inside the stage backdrop,
+      which contains no words, and in the .reveal neutraliser, which REMOVES
+      them. The guard parses this file and fails on any other occurrence.
+   3. A canvas over a price. .cine-stage__sticky is pointer-events:none and
+      paints at z-index 0 inside a stacking context the sections sit above.
+      A browser guard hit tests every pricing card and every call to action.
+
+   ONE THING THIS FILE MUST NOT DO, WRITTEN DOWN SO IT SURVIVES AN EDIT
+   .cine-stage must never be given overflow other than visible. An ancestor
+   with overflow hidden, clip, auto or scroll silently kills position:sticky:
+   the stage still lays out, the canvas still paints, and the art simply
+   scrolls away with the copy. There is nothing in the console. The browser
+   guard asserts the sticky element actually stays pinned across a scroll. */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   1. The motion payload, as custom properties.
+
+   These are the defaults: the full experience. Reduced motion changes nothing
+   but these values, in the three switch blocks in section 5.
+   ───────────────────────────────────────────────────────────────────────── */
+.cine-stage {
+  /* Scroll length in vh, from the manifest's stage.scrollLengthVh. Written on
+     the element in the served HTML as style="--cine-scroll-vh:240". The stage
+     MUST be taller than the viewport or it has no scroll range at all, and
+     expectedFrameIndex() in the guards refuses to measure it. */
+  --cine-scroll-vh: 240;
+
+  --cine-sticky-top: 0px;
+  --cine-sticky-height: 100vh;
+  --cine-sticky-pull: -100vh;
+  --cine-sticky-overflow: hidden;
+  --cine-canvas-display: block;
+  --cine-poster-position: absolute;
+  --cine-poster-height: 100%;
+  --cine-poster-max-height: none;
+  --cine-fade: 300ms;
+  --cine-keyframe-display: none;
+
+  position: relative;
+  /* isolation:isolate makes the stacking context deliberate rather than a side
+     effect of z-index. Everything inside the stage, the sticky backdrop
+     included, is capped below any fixed site chrome painted at a higher
+     z-index in the root context: the header and the mobile navigation stay on
+     top at every scroll position, and no future z-index inside a section can
+     escape and cover them. */
+  isolation: isolate;
+  z-index: 0;
+
+  min-height: calc(var(--cine-scroll-vh) * 1vh);
+
+  /* Deliberately NOT setting overflow. See the header comment. */
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   2. The backdrop.
+
+   The backdrop is a full viewport tall and must contribute ZERO height to the
+   stage, so the sections start at the top of the stage and scroll over it.
+
+   THE PULL IS ON THE FIRST SECTION, NOT ON THE BACKDROP, AND THAT IS LOAD
+   BEARING. The obvious way to write this is height:100vh with a matching
+   margin-bottom:-100vh on the sticky element itself. It looks identical and it
+   silently breaks the release: a sticky box is constrained so that its MARGIN
+   box stays inside its containing block, and a negative bottom margin enlarges
+   that allowance by exactly the amount it removes. Measured here before the
+   fix: the stage ended at y=2229 and the backdrop was still pinned with its
+   bottom at y=3128, one whole viewport past the end of its own stage and over
+   the section that follows. Pulling the next sibling up instead leaves the
+   sticky element's margins at zero, so it releases exactly at the stage's
+   bottom edge and the canvas can never overlap the content after the stage.
+   ───────────────────────────────────────────────────────────────────────── */
+.cine-stage__sticky {
+  position: sticky;
+  top: var(--cine-sticky-top);
+  height: var(--cine-sticky-height);
+  overflow: var(--cine-sticky-overflow);
+  z-index: 0;
+
+  /* THE HIT AREA RULE. The backdrop is decoration and must never receive a
+     click, a tap, a text selection drag or a focus ring. Pricing cards,
+     buttons and links sit above it and stay hittable. */
+  pointer-events: none;
+
+  background: var(--navy-0, #02080D);
+}
+
+/* Belt and braces: a descendant cannot opt back into the hit area. */
+.cine-stage__sticky * {
+  pointer-events: none;
+}
+
+/* The element immediately after the backdrop is pulled up over it, which is
+   what makes the backdrop cost nothing in the flow. Written as "the next
+   sibling", not as a section class name, so it cannot miss whatever the page
+   puts first. Under reduced motion the pull is 0 and the backdrop simply
+   becomes the first block on the page. */
+.cine-stage__sticky + * {
+  margin-top: var(--cine-sticky-pull);
+}
+
+/* The poster is authored as a <picture> so the phone gets the portrait
+   composition rather than a crop of the landscape one. <picture> is an inline
+   wrapper with no box of its own by default, which would give the in flow
+   reduced motion poster an inline containing block and a collapsed width. */
+.cine-stage picture {
+  display: block;
+}
+
+.cine-stage img[data-cine-poster] {
+  position: var(--cine-poster-position);
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: var(--cine-poster-height);
+  max-height: var(--cine-poster-max-height);
+  margin-inline: auto;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* The canvas sits ON the poster, both always present in the motion path.
+   Nothing waits for a state flip to become visible: an untouched canvas is
+   fully transparent, so the poster shows through it until real pixels land.
+   That is why there is never a blank canvas flash and never a loader: the
+   first paint is the served poster, and the sequence replaces it in place. */
+.cine-stage canvas[data-cine-canvas]:not([hidden]) {
+  position: absolute;
+  inset: 0;
+  display: var(--cine-canvas-display);
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* fallback.js sets hidden on the canvas when it degrades, and an author
+   display declaration beats the user agent's [hidden] rule. Two independent
+   mechanisms stop that: the :not([hidden]) above means the declaration is not
+   applied at all once the attribute is set, and this rule wins outright if
+   somebody ever widens that selector. Measured: removing only this rule keeps
+   the behaviour correct; removing BOTH leaves the canvas on screen while every
+   diagnostic reports it hidden, and the degrade test says so. */
+.cine-stage canvas[data-cine-canvas][hidden] {
+  display: none !important;
+}
+
+/* Once the sequence is actually painting, the poster underneath is dead
+   weight. Fading it is optional: if data-cine-state is never advanced past
+   "poster" the page is still correct, because the canvas is opaque where it
+   has drawn. No visibility depends on a state flip arriving. */
+.cine-stage[data-cine-state="scrubbing"] img[data-cine-poster] {
+  opacity: 0;
+  transition: opacity var(--cine-fade) linear;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   3. The content above the backdrop.
+
+   Every child of the stage that is not the backdrop is lifted above it. Not a
+   list of section class names: a rule that cannot miss a section somebody
+   adds later.
+   ───────────────────────────────────────────────────────────────────────── */
+.cine-stage > :not(.cine-stage__sticky) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Text over the stage stays exactly as selectable and zoomable as text
+   anywhere else on the page. Stated as a rule rather than left to chance,
+   because a stray user-select:none on a wrapper is invisible until somebody
+   tries to copy a phone number off the page. */
+.cine-stage,
+.cine-stage > :not(.cine-stage__sticky) {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* THE OWNER RULE, ENFORCED AGAINST THE REST OF THE SITE.
+   site.js reveals content by animating opacity and transform on .reveal. Over
+   a cinematic stage that is a transform and an opacity on a container full of
+   readable text, which is forbidden outright. Inside a stage, reveals are
+   neutralised: the text is simply there. !important is required because the
+   site's own .reveal rules live in a later stylesheet at equal specificity. */
+.cine-stage .reveal {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  clip-path: none !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   4. The reduced motion artwork slots.
+
+   One slot per chapter, in the served HTML, inside the chapter's own section.
+   Empty and display:none in the motion path, so they cost nothing. fallback.js
+   fills them with the manifest's reducedMotionKeyframes and only then sets
+   data-cine-keyframes="placed".
+   ───────────────────────────────────────────────────────────────────────── */
+.cine-chapter-art {
+  display: var(--cine-keyframe-display);
+  margin: 22px 0 0;
+}
+
+.cine-chapter-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 56vh;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+/* The static poster band is the reduced motion artwork until the per chapter
+   keyframes actually exist in the DOM. Hiding it is conditioned on the
+   attribute fallback.js sets ONLY when it placed one image for every chapter,
+   so a partial placement leaves the poster on screen instead of leaving a
+   hole. Silence is never the outcome. */
+.cine-stage[data-cine-keyframes="placed"] .cine-stage__sticky {
+  display: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   5. THE THREE SWITCHES.
+
+   Each block below is sufficient on its own and none depends on the others.
+
+   (a) the operating system preference, with no JavaScript of any kind,
+   (b) the site's own motion toggle, which site.js expresses as .motion-off on
+       the root element (it sets it for a stored nv-motion=off too),
+   (c) the state fallback.js writes once it has decided.
+
+   The block that already failed in this project was (a) written with (b)'s
+   class in its selector, so it could never match. These three MUST stay
+   declaration identical: scripts/check-cinematic-fallback.mjs normalises and
+   compares them, and fails if they drift or if one disappears.
+
+   PAYLOAD, once: the backdrop stops sticking and stops covering a viewport,
+   the canvas is gone, the poster becomes an ordinary in flow image, the
+   chapter keyframes appear, and every transition duration collapses to zero.
+   No dolly, no parallax, no large spatial transform, nothing scrubs. Every
+   word, price, capability, Demo block and call to action is untouched: none
+   of it was ever in the canvas.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* (a) SWITCH: operating system preference. No class, no attribute, no script. */
+@media (prefers-reduced-motion: reduce) {
+  .cine-stage {
+    --cine-sticky-top: auto;
+    --cine-sticky-height: auto;
+    --cine-sticky-pull: 0px;
+    --cine-sticky-overflow: visible;
+    --cine-canvas-display: none;
+    --cine-poster-position: static;
+    --cine-poster-height: auto;
+    --cine-poster-max-height: 56vh;
+    --cine-fade: 0ms;
+    --cine-keyframe-display: block;
+  }
+}
+
+/* (b) SWITCH: the site's motion toggle. */
+.motion-off .cine-stage {
+  --cine-sticky-top: auto;
+  --cine-sticky-height: auto;
+  --cine-sticky-pull: 0px;
+  --cine-sticky-overflow: visible;
+  --cine-canvas-display: none;
+  --cine-poster-position: static;
+  --cine-poster-height: auto;
+  --cine-poster-max-height: 56vh;
+  --cine-fade: 0ms;
+  --cine-keyframe-display: block;
+}
+
+/* (c) SWITCH: fallback.js decided. */
+.cine-stage[data-cine-state="reduced"] {
+  --cine-sticky-top: auto;
+  --cine-sticky-height: auto;
+  --cine-sticky-pull: 0px;
+  --cine-sticky-overflow: visible;
+  --cine-canvas-display: none;
+  --cine-poster-position: static;
+  --cine-poster-height: auto;
+  --cine-poster-max-height: 56vh;
+  --cine-fade: 0ms;
+  --cine-keyframe-display: block;
+}
+
+/* A stage with no scroll range left has no business claiming one. Under the
+   reduced payload the backdrop is in flow, so the artificial min-height would
+   only add empty space below the last section. Same three switches, same
+   reason, same guard. */
+@media (prefers-reduced-motion: reduce) {
+  .cine-stage { min-height: 0; }
+}
+.motion-off .cine-stage { min-height: 0; }
+.cine-stage[data-cine-state="reduced"] { min-height: 0; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   5b. AWAITING ARTWORK.
+
+   A stage whose sequence has not been approved and generated yet. This is NOT
+   the degraded state: nothing failed, nothing was attempted, and nothing may
+   be reported as broken. index.js skips such a stage entirely (no layer, no
+   loader, no manifest request) and the served HTML carries no backdrop for it,
+   so the only thing left to cancel is the artificial scroll length.
+
+   THAT CANCELLATION IS LOAD BEARING AND WAS MEASURED. home.html's sections 1
+   and 2 together are 163vh at 1440x900, against the 240vh this stage declares.
+   Without this rule the released-height floor would apply to a stage with no
+   artwork and pad the homepage with 77vh, roughly 693px, of empty ground below
+   the second section. A stage with nothing to show must cost nothing.
+
+   The chapter slots are emptied by the same reasoning: under reduced motion
+   they become display:block, and a released stage fills them from the manifest
+   while a pending one has nothing to fill them with, so they would contribute
+   only their own margins.
+   ───────────────────────────────────────────────────────────────────────── */
+.cine-stage[data-cine-artwork="pending"] {
+  min-height: 0;
+}
+
+.cine-stage[data-cine-artwork="pending"] .cine-chapter-art {
+  display: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   6. Degraded.
+
+   The sequence was unavailable, refused, or timed out. fallback.js has set
+   hidden and aria-hidden on the canvas and destroyed the loader. The poster
+   stays exactly where it was and the page reads as it always did. There is no
+   spinner to leave running, because there was never a spinner: the served
+   HTML's first paint is the finished page.
+   ───────────────────────────────────────────────────────────────────────── */
+.cine-stage[data-cine-state="degraded"] img[data-cine-poster] {
+  opacity: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   7. Print. A pinned viewport sized backdrop is meaningless on paper.
+   ───────────────────────────────────────────────────────────────────────── */
+@media print {
+  .cine-stage {
+    --cine-sticky-top: auto;
+    --cine-sticky-height: auto;
+    --cine-sticky-pull: 0px;
+    --cine-sticky-overflow: visible;
+    --cine-canvas-display: none;
+    --cine-poster-position: static;
+    --cine-poster-height: auto;
+    --cine-poster-max-height: none;
+    --cine-fade: 0ms;
+    --cine-keyframe-display: block;
+    min-height: 0;
+  }
+}
