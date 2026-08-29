@@ -28,7 +28,7 @@ import { applySelfCta } from "./lib/nav-cta.mjs";
    running every filesystem guard below as a side effect. See that file for the
    scope rule; see scripts/check-claims-classifier.mjs for the fixtures. */
 import { DENIAL, ADDITIVE, RETIRED_OFFERS, statesBanned, offendingClause } from "./lib/claims.mjs";
-import { stripHtmlComments, stripJsComments, jsStringLiterals, renderedProse, clauses } from "./lib/rendered-text.mjs";
+import { stripHtmlComments, stripJsComments, jsStringLiterals, renderedProse, clauses, displayUnits, decodeEntities } from "./lib/rendered-text.mjs";
 /* Guard 7k rebuilds the homepage breadth block from the same model the builder
    renders it from, reads the source through the builder's own loader, and
    looks for the builder's own markers. Importing all three rather than
@@ -740,6 +740,298 @@ for (const p of contentPages) {
         }
       }
     }
+  }
+}
+
+/* 7l. NO PUBLIC SURFACE MAY DEPICT NEVAMIS BOOKING OR CONFIRMING AN
+       APPOINTMENT.
+
+      THIS HAS ALREADY HAPPENED ONCE. Commit 53b17b7, "Booking language:
+      nothing on this site depicts a slot as confirmed", swept it out of
+      twelve files on 2026-08-27: the example agent said "You're booked", two
+      call chips read BOOKED and CONFIRMATION SENT, the owner SMS mock said
+      "Time confirmed with the caller on the call", the hero stage stepped
+      through BOOK / preferred time into TEXT / booking confirmed, the
+      simulator reported a slot "locked in", and six vertical pages sold
+      "books the visit" and "answered, triaged, and booked". The honest
+      sentence was already on the site the whole time, further down the same
+      page. Every illustration on the way to it contradicted it, and the
+      illustration is the part that sells.
+
+      That sweep was done by hand and left nothing behind. This is what stops
+      the thirteenth file.
+
+      WHERE THE LINE IS, because the next person writing copy here needs it
+      spelled out. The front desk TAKES THE TIME THE CALLER WANTS AND PASSES
+      IT TO THE BUSINESS, WHICH CONFIRMS. So:
+
+        allowed    capturing, noting, requesting or passing on a preferred
+                   time; "REQUEST / preferred time"; "the time the caller
+                   wants"; "held for you to confirm"; the client wiring up
+                   their own booking link; a visitor booking a call with us
+                   ("Book a call" is a real scheduler and stays);
+        refused    anything that shows the slot as settled -- an outcome
+                   label reading BOOKED or CONFIRMED, a step whose verb takes
+                   an appointment as its object, or Nevamis as the subject of
+                   "confirms".
+
+      THE UNIT IS WHAT ONE RENDER SHOWS, NOT WHAT THE FILE SAYS. Counting how
+      often a phrase is written answers the wrong question: the hero timeline
+      is four <g class="step"> groups stacked at one coordinate, so the file
+      reads as a list and the screen shows a single label at a time. Judged as
+      a file, "BOOK" is one word among the other three steps' text; judged as
+      a frame it is the whole claim, with its subject supplied by the stage it
+      is standing on. scripts/lib/rendered-text.mjs `displayUnits` returns
+      every element's flattened text, so both the leaf (BOOK) and the group
+      that encloses it (BOOK preferred time) are judged, and moving the claim
+      between them changes nothing.
+
+      THE REFUSAL IS NOT RESTATED HERE, IT IS READ. nevamis-engine records it
+      in src/domain/entitlement-claims.ts under key "calendar.booking", with
+      the evidence (a tenant agent is provisioned with builtInToolsJson
+      ["end_call"], no booking tool, and no schema column holds a per-tenant
+      calendar credential) and twelve patterns hardened against two years of
+      near misses. Those patterns are lifted and applied here, so sharpening
+      the refusal in the engine sharpens this rule, and lifting the refusal
+      retires it -- rather than this file holding a second, quietly diverging
+      copy of a fact it does not own.
+
+      READ FROM origin/master, NOT THE WORKING TREE. check-all.mjs already
+      refuses to run the agent checks when that sibling checkout is on another
+      branch, because on 2026-08-18 it sat on a superseded model and reported
+      a correct live agent as drifted. A judge reading whatever a neighbouring
+      checkout happens to have on disk is confidently wrong in the direction
+      of action, so this asks git for master.
+
+      AND IT PROVES ITSELF BEFORE IT JUDGES ANYTHING. The registry entry
+      carries its own statement of the refused claim -- "The agent books an
+      appointment into the client's calendar." -- and both layers below are
+      run against that sentence first. A guard that extracted no patterns, or
+      whose vocabulary drifted past the thing it exists to catch, would
+      otherwise report a clean site while seeing nothing, which is this
+      repository's most expensive failure and has its own note in the header
+      of check-all.mjs.
+
+      WHY THERE IS A SECOND LAYER AT ALL. The engine's patterns are a PROSE
+      classifier: they need a subject and an object in one sentence, which is
+      the right shape for engine docs and portal copy and cannot express a
+      two-word SVG label. "BOOK" beside "preferred time" walks through all
+      twelve. So the rules below add the shapes a rendered LABEL takes -- an
+      outcome word standing alone, an outcome word leading a time, a bookable
+      thing followed by a participle, a live verb taking a bookable thing as
+      its object -- and the engine keeps everything it can already judge.
+
+      A DENIAL IS ALLOWED, AND IT IS A CONSTRUCTION, NOT A FILE LIST. The
+      homepage has to be able to carry "Direct calendar booking -- Not built"
+      and "It does not book into your calendar", and the FAQ has to be able to
+      ask "Can it book directly into my calendar?". Those pass because of how
+      they are BUILT, so the next honest sentence somewhere else passes too.
+      Same reasoning as guards 7d and 16. If a failure here names a sentence
+      that is genuinely refusing the claim, extend BOOKING_DENIAL; never
+      exempt a page. */
+{
+  /* The vocabulary, split by the grammatical job each word does, because the
+     discrimination that has to survive is WHO IS DOING THE BOOKING -- the
+     same one the engine's own note records as having killed a looser rule
+     within the hour it was written.
+
+     ACTIVE is the live-verb form that can take an object: "books the
+     appointment". It deliberately excludes "booked", so the ROI calculator's
+     "how many booked jobs cover the plan" -- the CLIENT'S jobs, the reason to
+     buy -- is not read as a claim about us.
+     OUTCOME is the participle-or-noun form that asserts a settled state.
+     THING is what would have been booked.
+     FILLER is what else an outcome label is allowed to be made of. It holds
+     no THING and no "call": "Book a call" is a visitor booking time with us
+     through a real scheduler, and it appears in the header of every page. */
+  const ACTIVE = "(?:books?|booking|schedules?|scheduling|reserves?|reserving)";
+  const OUTCOME = "(?:booked|booking|bookings|confirmed|confirming|confirmation|scheduled|reserved|locked)";
+  const THING = "(?:appointments?|appts?|jobs?|visits?|slots?|times?|bookings?)";
+  const FILLER = "(?:in|sent|and|is|are|now|already|it|the|your|our|a|an)";
+
+  const SITE_RULES = [
+    /* A live verb taking a bookable thing as its direct object. This is the
+       shape of the canonical claim itself, and the shape a step label takes
+       when it stops being honest: BOOK preferred time. */
+    { id: "an appointment as the object of a booking verb",
+      re: new RegExp("\\b" + ACTIVE + "\\s+(?:the|a|an|your|their|its|his|her|preferred|next|first|that)?\\s*" + THING + "\\b", "i") },
+    /* Nevamis as the SUBJECT of "confirms". Anchored on the subject rather
+       than the verb, because the true sentence -- the time is held for the
+       BUSINESS to confirm -- uses the same verb and must pass. */
+    { id: "Nevamis as the subject of \"confirms\"",
+      re: /\b(?:nevamis|the (?:assistant|agent|front desk|receptionist)|it)\s+(?:automatically\s+|then\s+|already\s+)?confirms?\b/i },
+    /* A bookable thing followed by the participle: "slot booked", "time
+       confirmed". Order matters and is the whole discrimination -- "booked
+       jobs" is attributive and describes the client's week. */
+    { id: "a slot depicted as settled",
+      re: new RegExp("\\b" + THING + "\\s+(?:is\\s+|are\\s+|now\\s+|already\\s+){0,2}(?:booked|confirmed|scheduled|reserved|locked in)\\b", "i") },
+  ];
+  /* These two read a LABEL rather than a sentence: a label has no subject in
+     it, and the subject a visitor supplies is the business whose stage it is
+     standing on. There is no honest label on this site whose whole content is
+     an outcome word. */
+  const LABEL_RULES = [
+    { id: "an outcome label with nothing in it but the outcome",
+      test: (u) => new RegExp("\\b(?:" + OUTCOME + "|" + ACTIVE + ")\\b", "i").test(u)
+                && new RegExp("^(?:\\W|" + OUTCOME + "|" + ACTIVE + "|" + FILLER + ")+$", "i").test(u) },
+    { id: "an outcome label leading a time",
+      test: (u) => new RegExp("^\\W*(?:" + OUTCOME + "|" + ACTIVE + ")\\b\\s*[:\\-\\u2013\\u2014]", "i").test(u) },
+  ];
+  /* Constructions that WITHDRAW the claim in the unit that makes it. The
+     site's own corrections are the first three entries' job. Narrow on
+     purpose: a bare "not" would excuse "we never fail to book your slot". */
+  const BOOKING_DENIAL = [
+    /\b(?:does|do|will|can|could|would|is|are|was|were)\s*n[o']?t\b/i,
+    /\bcannot\b/i, /\bnever\b/i, /\bwithout\b/i,
+    /\bno\s+(?:direct\s+|calendar\s+|automatic\s+)?bookings?\b/i,
+    /\bnot\s+(?:built|available|sold|offered|live|yet|for sale|part of)\b/i,
+    /\bthere (?:is|are) no\b/i,
+    /\bin development\b/i, /\bbeing built\b/i, /\brefused\b/i, /\bretired\b/i,
+  ];
+  const denies = (u) => BOOKING_DENIAL.some((r) => r.test(u));
+
+  /* ---- the canonical layer ---- */
+  const engineDir = path.join(root, "..", "nevamis-engine");
+  const ENTITLEMENTS = "src/domain/entitlement-claims.ts";
+  const canonical = (() => {
+    if (!fs.existsSync(engineDir)) return null;
+    const r = spawnSync("git", ["-C", engineDir, "show", "origin/master:" + ENTITLEMENTS],
+      { encoding: "utf8", maxBuffer: 8e6 });
+    if (r.status !== 0) return null;
+    const src = r.stdout;
+    const key = src.indexOf('key: "calendar.booking"');
+    if (key < 0) return { pats: [], claim: null };
+    const claimM = /claim:\s*"((?:[^"\\]|\\.)*)"/.exec(src.slice(key));
+    const start = src.indexOf("patterns: [", key);
+    if (start < 0) return { pats: [], claim: claimM ? claimM[1].replace(/\\(.)/g, "$1") : null };
+    /* Walked rather than regexed out. The entry's patterns are interleaved
+       with long block comments that themselves contain slashes and quoted
+       regex fragments, so anything that does not know which construct it is
+       inside picks up half a comment as a pattern. */
+    let i = start + "patterns: [".length, depth = 1;
+    const pats = [];
+    while (i < src.length && depth > 0) {
+      const c = src[i], d = src[i + 1];
+      if (c === "/" && d === "*") { i = src.indexOf("*/", i + 2) + 2; continue; }
+      if (c === "/" && d === "/") { i = src.indexOf("\n", i) + 1; continue; }
+      if (c === "[") { depth++; i++; continue; }
+      if (c === "]") { depth--; i++; continue; }
+      if (c === "/") {
+        let j = i + 1, inClass = false;
+        for (; j < src.length; j++) {
+          const ch = src[j];
+          if (ch === "\\") { j++; continue; }
+          if (ch === "[") inClass = true;
+          else if (ch === "]") inClass = false;
+          else if (ch === "/" && !inClass) break;
+        }
+        let k = j + 1; while (/[a-z]/.test(src[k] || "")) k++;
+        try { pats.push(new RegExp(src.slice(i + 1, j), src.slice(j + 1, k))); } catch { /* not a regex */ }
+        i = k; continue;
+      }
+      i++;
+    }
+    return { pats, claim: claimM ? claimM[1].replace(/\\(.)/g, "$1") : null };
+  })();
+
+  const judge = (unit, isLabel) => {
+    if (denies(unit)) return null;
+    for (const r of SITE_RULES) if (r.re.test(unit)) return r.id;
+    if (isLabel) for (const r of LABEL_RULES) if (r.test(unit)) return r.id;
+    if (canonical) for (const r of canonical.pats) if (r.test(unit)) return "the engine's refused-entitlement pattern " + r;
+    return null;
+  };
+
+  /* ---- prove the judge before using it ---- */
+  const SPECIMEN = canonical && canonical.claim;
+  if (!canonical) {
+    console.error("NOTE: guard 7l could not read " + ENTITLEMENTS + " from nevamis-engine's origin/master, "
+      + "so it is judging on its own patterns only and not on the engine's twelve. That is a smaller guard "
+      + "than the one that is supposed to be running. Fix: clone nevamis-engine beside this repo and "
+      + "git -C ../nevamis-engine fetch origin.");
+  } else if (!SPECIMEN) {
+    err("guard 7l: nevamis-engine's " + ENTITLEMENTS + " no longer has a `calendar.booking` entry with a `claim`. "
+      + "Either calendar booking stopped being a refused entitlement -- in which case retire this rule "
+      + "deliberately -- or the registry changed shape and this guard is now judging on less than it should. "
+      + "Do not leave it in this state: a guard that reads nothing reports a clean site.");
+  } else {
+    if (!canonical.pats.some((r) => r.test(SPECIMEN))) {
+      err("guard 7l: the patterns read out of nevamis-engine's `calendar.booking` entry do not match that same "
+        + `entry's own statement of the claim ("${SPECIMEN}"). The extraction is broken or the entry changed shape, `
+        + "and either way this rule is now scanning the site with patterns that catch nothing.");
+    }
+    if (!judge(SPECIMEN, false)) {
+      err("guard 7l: this file's own rules do not catch the canonical refused claim "
+        + `("${SPECIMEN}"). They have drifted past the thing they exist to catch. Fix the rules, not the specimen.`);
+    }
+  }
+
+  /* ---- the surfaces ---- */
+  /* Same derivation as guard 16: every published page, plus the JavaScript
+     that writes copy into them. The hero timeline's labels live in BOTH
+     home.html and assets/motion/hero.js, and 53b17b7 had to correct both. */
+  const jsSurfaces = ["site.js", "motion.js", "pricing-config.js", "roadmap-config.js"];
+  {
+    const abs = path.join(root, "assets/motion");
+    if (fs.existsSync(abs)) for (const f of fs.readdirSync(abs)) if (f.endsWith(".js")) jsSurfaces.push("assets/motion/" + f);
+  }
+  /* A label is short and carries no sentence punctuation. Longer than this,
+     or ending in a full stop, and it is prose with a subject of its own,
+     which the SITE_RULES and the engine's patterns already read. */
+  const looksLikeLabel = (t) => t.length > 0 && t.length <= 60 && !/[.!?]/.test(t);
+  const readablePage = (s) => s
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<script\b(?![^>]*application\/ld\+json)[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ");
+
+  const units = [];
+  for (const p of [...contentPages, "llms.txt"]) {
+    const abs = path.join(root, p);
+    if (!fs.existsSync(abs)) continue;
+    const raw = fs.readFileSync(abs, "utf8");
+    if (p.endsWith(".html")) {
+      for (const u of displayUnits(raw)) if (looksLikeLabel(u)) units.push({ label: p, unit: u, isLabel: true });
+    }
+    for (const c of clauses(decodeEntities(readablePage(raw)))) units.push({ label: p, unit: c, isLabel: false });
+  }
+  for (const f of jsSurfaces) {
+    const abs = path.join(root, f);
+    if (!fs.existsSync(abs)) continue;
+    for (const lit of jsStringLiterals(stripJsComments(fs.readFileSync(abs, "utf8")))) {
+      /* `renderedProse` drops a literal with no whitespace, because most of
+         them are identifiers. That is right for a rule reading sentences and
+         wrong for one reading labels: hero.js carries the stage's step labels
+         as `label: 'REQUEST'`, one word each, and dropping them would leave
+         the exact string 53b17b7 had to correct invisible here. A one-word
+         literal is therefore kept when it is not identifier-shaped -- which
+         is what separates the rendered 'BOOK' from motion.js's internal
+         `outcome: "transfer"` and `data-callchip="booked"` keys, both of
+         which are deliberately lower case and stay that way. */
+      if (/\s/.test(lit) ? looksLikeLabel(lit) : !/^[a-z0-9_$.\/#\-[\]:]+$/.test(lit)) {
+        units.push({ label: f, unit: lit, isLabel: true });
+      }
+      const prose = renderedProse(lit);
+      if (prose) for (const c of clauses(prose)) units.push({ label: f, unit: c, isLabel: false });
+    }
+  }
+
+  const reported = new Set();
+  for (const { label, unit, isLabel } of units) {
+    const why = judge(unit, isLabel);
+    if (!why) continue;
+    const key = label + "::" + unit;
+    if (reported.has(key)) continue;
+    reported.add(key);
+    err(`${label}: depicts Nevamis booking or confirming an appointment (${why}).\n      ${isLabel ? "label" : "clause"}: `
+      + `"${unit.slice(0, 160)}"\n      There is no booking tool on a provisioned agent: it is created with `
+      + `builtInToolsJson ["end_call"], and no per-tenant calendar credential exists to book against `
+      + `(nevamis-engine ${ENTITLEMENTS}, key "calendar.booking"). What the front desk does is take the job and `
+      + `the time the caller WANTS, tell the caller the business will confirm it, and text the business the `
+      + `details. Say that instead -- "REQUEST / preferred time", "captured and held for you to confirm". `
+      + `A unit that DENIES the claim is allowed, which is how "Direct calendar booking -- Not built" and `
+      + `"It does not book into your calendar" stay on the homepage; extend BOOKING_DENIAL rather than `
+      + `exempting a page. Swept by hand once already in 53b17b7, across twelve files.`);
   }
 }
 

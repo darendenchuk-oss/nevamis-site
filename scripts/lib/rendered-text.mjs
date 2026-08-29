@@ -108,6 +108,74 @@ export function renderedProse(literal) {
   return s.trim();
 }
 
+/** Every run of text an element encloses, one entry per element.
+ *
+ *  WHY THIS EXISTS ALONGSIDE `clauses`. `clauses` splits on tags, so it
+ *  answers "what sentences are in this file". That is the right unit for body
+ *  copy and the wrong one for an animated stage, where the file reads as a
+ *  list and the SCREEN shows one frame at a time. The hero timeline is four
+ *  <g class="step"> groups stacked at the same coordinates, each holding a
+ *  label and a fragment; a visitor never reads the list, they read
+ *  "<label> <fragment>" four times. Split on tags, that group is two
+ *  unrelated strings and the pair is invisible.
+ *
+ *  So this returns the flattened text of EVERY element, which means both the
+ *  leaf (`BOOK`) and the group that encloses it (`BOOK preferred time`) are
+ *  offered to a rule, and a rule can judge whichever one carries the claim.
+ *  Display-bearing attributes -- alt, title, aria-label, placeholder, and
+ *  <meta content> -- are returned too: a screen reader renders them, so they
+ *  are copy.
+ *
+ *  NOT AN HTML PARSER, and it does not need to be. The only question asked of
+ *  it is "which runs of text sit inside the same box", and a tag scanner with
+ *  a stack answers that for hand-written static markup. Mis-nesting degrades
+ *  it into returning slightly too much text per element, which costs a rule
+ *  precision and never coverage. */
+export function displayUnits(html) {
+  const VOID = /^(?:area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr|path|circle|rect|line|polygon|polyline|ellipse|use|stop|animate|animatetransform|fegaussianblur|femergenode|femerge|filter)$/i;
+  const src = html
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    /* JSON-LD is deliberately kept: an answer engine reads it, so a claim
+       inside one reaches a buyer exactly like body copy does. Same call as
+       guard 7d's `readable`. */
+    .replace(/<script\b(?![^>]*application\/ld\+json)[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[\s\S]*?<\/style>/gi, " ");
+  const out = [];
+  const stack = [];
+  const re = /<(\/?)([a-zA-Z][\w:-]*)([^>]*?)(\/?)>/g;
+  let last = 0, m;
+  /* Text is appended to every open frame at once, so closing one needs no
+     bubbling: its parent already holds the same characters. */
+  const add = (t) => { if (t) for (const f of stack) f.text += t; };
+  while ((m = re.exec(src)) !== null) {
+    add(src.slice(last, m.index));
+    last = re.lastIndex;
+    const closing = m[1] === "/", tag = m[2].toLowerCase(), self = m[4] === "/";
+    for (const a of m[3].matchAll(/\b(?:alt|title|aria-label|placeholder|content)\s*=\s*"([^"]*)"/gi)) out.push(a[1]);
+    if (!closing && !self && !VOID.test(tag)) stack.push({ tag, text: "" });
+    else if (closing) {
+      /* An unclosed inner tag would otherwise strand every frame above it.
+         Popping to the LAST matching tag closes the stragglers with it. */
+      const i = stack.map((f) => f.tag).lastIndexOf(tag);
+      if (i >= 0) out.push(...stack.splice(i).map((f) => f.text));
+    }
+    add(" ");   // a tag boundary is a word boundary
+  }
+  add(src.slice(last));
+  out.push(...stack.map((f) => f.text));
+  return [...new Set(out.map((t) => decodeEntities(t).replace(/\s+/g, " ").trim()).filter(Boolean))];
+}
+
+const ENTITIES = {
+  "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'",
+  "&rsquo;": "'", "&lsquo;": "'", "&nbsp;": " ", "&mdash;": "—",
+  "&ndash;": "–", "&hellip;": "...",
+};
+/** The handful of entities this site's copy actually uses, resolved so a rule
+ *  matching on words is not defeated by `&rsquo;` in the middle of one. */
+export const decodeEntities = (s) =>
+  s.replace(/&(?:amp|lt|gt|quot|#39|rsquo|lsquo|nbsp|mdash|ndash|hellip);/g, (e) => ENTITIES[e] ?? " ");
+
 /** Rendered text cut into clauses, so a rule can judge one assertion at a
  *  time. Same reasoning as scripts/lib/claims.mjs: a denial governs its own
  *  clause, and judging whole paragraphs lets one honest sentence excuse a
