@@ -14,7 +14,11 @@
     "suite": "node scripts/check-suite.mjs",
     "cine:frames": "node scripts/gen-placeholder-frames.mjs",
     "cine:check": "node scripts/check-cinematic-contract.mjs",
-    "cine:serve": "node serve.js 3291"
+    "cine:loader": "node scripts/check-cinematic-loader.mjs",
+    "cine:serve": "node serve.js 3291",
+    "cine:fallback": "node scripts/check-cinematic-fallback.mjs",
+    "cine:guards": "playwright test tests/cinematic-guards.spec.js",
+    "cine:mutant": "node scripts/make-cine-mutant.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0"

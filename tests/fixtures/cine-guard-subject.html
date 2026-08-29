@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cinematic guard subject</title>
+<!--
+  THE FULLY MOUNTED SUBJECT. Not a page, not published: tests/ is excluded from
+  the Pages build and from the site's own git rules.
+
+  WHAT IS DIFFERENT ABOUT THIS ONE. tests/fixtures/cinematic-layout.html is the
+  integration reference for the STYLESHEET and the FALLBACK LAYER, and it says
+  so: it deliberately does not import scroll-stage.js or sequence-loader.js.
+  Eight of the seventeen guards need all three running together, because what
+  they measure is the behaviour of the whole: the integer painted on the canvas
+  at a given scroll position, the loader going quiet when the tab hides, a
+  price staying clickable while the sequence is scrubbing underneath it. So
+  this page mounts the real loader, the real stage and the real fallback layer
+  over the same DOM contract and the same stylesheet, and it will mount
+  assets/cinematic/index.js the moment that module exists.
+
+  EVERYTHING STRUCTURAL HERE IS THE SHIPPED THING, NOT A COPY OF IT:
+    /assets/cinematic/cine-stage.css   the stylesheet under test
+    .cine-stage__sticky + <picture>    the served poster, first paint, no script
+    .cine-chapter-art[data-cine-chapter]  the reduced-motion slots fallback.js fills
+    style="--cine-scroll-vh:N"         the manifest's stage.scrollLengthVh
+
+  WHY IT CANNOT QUIETLY BECOME A STRAWMAN. Two mechanisms, both enforced in
+  tests/cinematic-guards.spec.js:
+    1. assertSubjectMirrorsHomepage() compares the ordered data-ia signature
+       and the per-section primary-action ceiling against home.html, and the
+       stage spans and chapter slots against cinematic-layout.html, which is
+       the markup home.html adopts.
+    2. assertBoundToShippedEngine() fails the run if a module exists in
+       assets/cinematic and this page mounted a reference implementation
+       instead. A test double that outlives the real thing is this
+       repository's signature defect wearing a different hat.
+
+  EVERY NUMBER IS DERIVED. Prices come from /pricing-config.js and readiness
+  words from /roadmap-config.js at runtime, the way home.html does it, so guard
+  9 measures a real relationship and guard 10 has a stage layer that must stay
+  free of figures.
+
+  COPY RULES: sentence case, NEVAMIS in caps in brand contexts, no em dashes,
+  and the product is never described as an AI attached to the NEVAMIS name.
+-->
+<link rel="stylesheet" href="/assets/cinematic/cine-stage.css">
+<style>
+  /* Page chrome only. Nothing here belongs to the stage system: that is all in
+     the stylesheet linked above, which is the file under test. */
+  :root{
+    --navy:#0B1620; --navy-0:#02080D; --navy-2:#0E1D28; --navy-3:#10222E;
+    --ink:#EAF3EE; --muted:#A9BDB4;
+    --emerald:#2FBF8F; --mint:#9FF0CE; --line:rgba(159,240,206,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--navy);color:var(--ink);
+       font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+       overflow-x:hidden}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  section{padding:72px 0;min-height:66vh}
+  h1{font-size:clamp(28px,5vw,52px);line-height:1.1;margin:0 0 16px}
+  h2{font-size:clamp(22px,3.4vw,34px);line-height:1.15;margin:0 0 12px}
+  h3{font-size:18px;margin:0 0 6px}
+  p{margin:0 0 14px;max-width:62ch}
+  .eyebrow{font:600 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+           letter-spacing:.14em;text-transform:uppercase;color:var(--mint);margin:0 0 10px}
+  .btn{display:inline-block;padding:12px 20px;border-radius:8px;text-decoration:none;
+       font-weight:600;border:1px solid var(--line);color:var(--ink)}
+  .btn-primary{background:var(--emerald);color:#04120C;border-color:var(--emerald)}
+  .cards{display:flex;flex-wrap:wrap;gap:16px;margin:20px 0}
+  .price-card,.cap-card{flex:1 1 240px;min-width:240px;padding:18px;
+       border:1px solid var(--line);border-radius:12px;background:var(--navy-2)}
+  .price-card .amount{font-size:26px;font-weight:700;margin:6px 0}
+  .price-card .meta,.cap-card .meta{font-size:13px;color:var(--muted)}
+  table{border-collapse:collapse;width:100%;max-width:860px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;font-size:14px}
+  footer{padding:40px 0;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<a class="btn" href="#how" id="skipLink">Skip to how it works</a>
+<main>
+
+<!-- ============ SEQUENCE 1: signal to system, sections 1 and 2 ============ -->
+<div class="cine-stage" data-cine-stage="signal-to-system" data-cine-sections="1 2"
+     data-cine-state="poster" style="--cine-scroll-vh:240">
+  <div class="cine-stage__sticky" aria-hidden="true">
+    <canvas data-cine-canvas role="presentation" aria-hidden="true"></canvas>
+    <picture>
+      <source media="(max-width: 767.98px)" srcset="/artifacts/cinematic-placeholders/signal-to-system/mobile/poster.png">
+      <img data-cine-poster src="/artifacts/cinematic-placeholders/signal-to-system/desktop/poster.png"
+           alt="" decoding="async" fetchpriority="high" width="960" height="540">
+    </picture>
+  </div>
+
+  <section data-ia="1" id="top">
+    <div class="wrap">
+      <p class="eyebrow">Edmonton built, for the trades</p>
+      <h1>Find the revenue your business is losing.</h1>
+      <p>Missed calls become missed jobs. NEVAMIS looks at how your business actually
+         operates, finds where revenue leaks out, and builds the system that closes it.</p>
+      <p><a class="btn btn-primary" href="https://app.nevamis.ca/scan" data-cta data-primary>Scan my business</a></p>
+      <p>Live demo line: <a href="tel:+15874130035" data-cta>(587) 413-0035</a>. It answers in seconds.</p>
+      <div class="cine-chapter-art" data-cine-chapter="signal"></div>
+    </div>
+  </section>
+
+  <section data-ia="2" id="leaks">
+    <div class="wrap">
+      <p class="eyebrow">The leaks</p>
+      <h2>The places revenue escapes.</h2>
+      <p>A caller who reaches voicemail rings the next company on the list. A quote that
+         goes quiet stays quiet. Both are recoverable, and both stay invisible until
+         something counts them.</p>
+      <p><a class="btn" href="#how" data-cta>See where yours are</a></p>
+      <div class="cine-chapter-art" data-cine-chapter="loss"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ======= SEQUENCE 2: system to outcomes, sections 3, 4 and 5 ======= -->
+<div class="cine-stage" data-cine-stage="system-to-outcomes" data-cine-sections="3 4 5"
+     data-cine-state="poster" style="--cine-scroll-vh:320">
+  <div class="cine-stage__sticky" aria-hidden="true">
+    <canvas data-cine-canvas role="presentation" aria-hidden="true"></canvas>
+    <picture>
+      <source media="(max-width: 767.98px)" srcset="/artifacts/cinematic-placeholders/system-to-outcomes/mobile/poster.png">
+      <img data-cine-poster src="/artifacts/cinematic-placeholders/system-to-outcomes/desktop/poster.png"
+           alt="" decoding="async" width="960" height="540">
+    </picture>
+  </div>
+
+  <section data-ia="3" id="how">
+    <div class="wrap">
+      <p class="eyebrow">How it works</p>
+      <h2>One loop runs the whole thing.</h2>
+      <p>The phone is answered in your name, the job is understood, the details are
+         written down, and the summary reaches you. The caller says when they want the
+         work done, that time is sent straight to you, and you confirm the slot.</p>
+      <p><a class="btn btn-primary" href="/pilot.html" data-cta data-primary>How you start</a></p>
+      <div class="cine-chapter-art" data-cine-chapter="mechanism"></div>
+    </div>
+  </section>
+
+  <section data-ia="4" id="capabilities">
+    <div class="wrap">
+      <p class="eyebrow">Breadth</p>
+      <h2>What it can handle.</h2>
+      <p>Rendered from the service roadmap rather than typed here, so nothing on this
+         page can claim a readiness the roadmap has not given it.</p>
+      <div class="cards" id="breadth"></div>
+      <noscript><p><a href="/coming-soon.html">See the full service roadmap</a>.</p></noscript>
+      <p><a class="btn" href="/solutions.html" data-cta>Read the whole list</a></p>
+      <div class="cine-chapter-art" data-cine-chapter="breadth"></div>
+    </div>
+  </section>
+
+  <section data-ia="5" id="demo">
+    <div class="wrap">
+      <p class="eyebrow" data-demo-label>Demo</p>
+      <h2>Three flows, as the system reads them.</h2>
+      <p>A sanitized copy of the map a client sees in their own portal. Example data,
+         example wording, nothing live: this is the shape of the thing, not a feed.</p>
+      <table>
+        <caption class="eyebrow" data-demo-label>Demonstration only: two example flows</caption>
+        <thead><tr><th scope="col">When this happens</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Missed call received</th><td>The owner is notified with the job details</td></tr>
+          <tr><th scope="row">A quote has gone quiet</th><td>One approved follow-up goes out</td></tr>
+        </tbody>
+      </table>
+      <p><a class="btn btn-primary" href="/demo.html" data-cta data-primary>Hear a real call</a></p>
+      <div class="cine-chapter-art" data-cine-chapter="proof"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ======= SEQUENCE 3: system to decision, sections 6 and 7 ======= -->
+<div class="cine-stage" data-cine-stage="system-to-decision" data-cine-sections="6 7"
+     data-cine-state="poster" style="--cine-scroll-vh:220">
+  <div class="cine-stage__sticky" aria-hidden="true">
+    <canvas data-cine-canvas role="presentation" aria-hidden="true"></canvas>
+    <picture>
+      <source media="(max-width: 767.98px)" srcset="/artifacts/cinematic-placeholders/system-to-decision/mobile/poster.png">
+      <img data-cine-poster src="/artifacts/cinematic-placeholders/system-to-decision/desktop/poster.png"
+           alt="" decoding="async" width="960" height="540">
+    </picture>
+  </div>
+
+  <section data-ia="6" id="process">
+    <div class="wrap">
+      <p class="eyebrow">Process, pricing and trust</p>
+      <h2>How you start.</h2>
+      <!-- EVERY FIGURE IS RENDERED FROM /pricing-config.js. The served markup
+           for this container carries no digits at all, which is what guard 9
+           checks: a number that is not in the markup cannot be hand typed into
+           it later, and a number that came from canonical cannot silently
+           disagree with canonical. -->
+      <div class="cards" id="pricePreview">
+        <noscript><p>See <a href="/pricing.html">the pricing page</a> for current plans.</p></noscript>
+      </div>
+      <p id="priceFootnote"></p>
+      <h3>What is live, and what is not</h3>
+      <p id="honesty">The front desk works today: it answers, qualifies, takes the job
+         down, and sends you the summary. Direct calendar booking, lead generation,
+         win-back campaigns and the wider Revenue Engine are in development and labelled
+         that way everywhere on this site.</p>
+      <p><a class="btn btn-primary" href="/pricing.html" data-cta data-primary>Compare plans in detail</a></p>
+      <div class="cine-chapter-art" data-cine-chapter="commitment"></div>
+    </div>
+  </section>
+
+  <section data-ia="7" id="next">
+    <div class="wrap">
+      <p class="eyebrow">Next step</p>
+      <h2>Find out what your missed calls are costing.</h2>
+      <details><summary>Can it book directly into my calendar?</summary>
+        <p>Not yet, and we will not pretend otherwise. The assistant takes the job, the
+           address and the time the caller wants, then texts it to you so you can confirm
+           the slot. Direct calendar booking is on the roadmap and is not live on any
+           line today.</p></details>
+      <details><summary>What does it cost?</summary>
+        <p id="faqPrice"></p></details>
+      <p>A short strategy call covers your call patterns, what NEVAMIS would handle, and
+         a quote scoped to your volume.</p>
+      <p><a class="btn btn-primary" href="/book.html" data-cta data-primary>Book a strategy call</a></p>
+      <div class="cine-chapter-art" data-cine-chapter="resolution"></div>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p id="footerTruth">NEVAMIS finds where revenue is leaking, puts a range on what each
+       leak is worth, and runs the fixes inside rules you approve. Revenue recovery and a
+       round-the-clock front desk are how it acts today. Lead generation is in development.</p>
+  </div>
+</footer>
+
+<script src="/pricing-config.js"></script>
+<script src="/roadmap-config.js"></script>
+<script>
+/* Rendered, never typed. Deliberately the same shape home.html uses, so guard 9
+   measures the real relationship between canonical and what a reader sees. */
+(function () {
+  var P = window.NV_PRICING;
+  var wrap = document.getElementById("pricePreview");
+  if (P && P.approved && wrap) {
+    P.plans.forEach(function (pl) {
+      var card = document.createElement("div");
+      card.className = "price-card";
+      var h3 = document.createElement("h3");
+      h3.textContent = pl.name;
+      var amount = document.createElement("p");
+      amount.className = "amount";
+      amount.textContent = (pl.startingAt ? "from " : "") + "C$" + Number(pl.monthly).toLocaleString("en-CA") + "/month";
+      var meta = document.createElement("p");
+      meta.className = "meta";
+      meta.textContent = "C$" + Number(pl.launch).toLocaleString("en-CA")
+        + " Launch & Implementation to start · "
+        + Number(pl.includedMinutes).toLocaleString("en-CA") + " AI minutes included";
+      card.appendChild(h3);
+      card.appendChild(amount);
+      card.appendChild(meta);
+      wrap.appendChild(card);
+    });
+    var rec = P.plans.filter(function (p) { return p.recommended; })[0] || P.plans[0];
+    document.getElementById("faqPrice").textContent =
+      "The " + rec.name + " is C$" + Number(rec.launch).toLocaleString("en-CA")
+      + " Launch & Implementation to start, then C$" + Number(rec.monthly).toLocaleString("en-CA")
+      + " a month. Canadian dollars plus GST/HST.";
+    document.getElementById("priceFootnote").textContent =
+      "Launch & Implementation to start, then the monthly price for your plan. Canadian dollars plus GST/HST.";
+  }
+
+  /* Readiness words are derived from the canonical status. The map below is
+     this fixture's copy of the site's vocabulary, and guard 12 compares every
+     rendered word against availabilityWordFor() in scripts/lib/breadth.mjs, so
+     a fixture that drifts from the site's own words fails rather than quietly
+     disagreeing with it. */
+  var WORD = {
+    available: "Available today",
+    private_pilot: "Limited pilot",
+    planned: "In development",
+    researching: "In development"
+  };
+  var R = window.NV_ROADMAP;
+  var breadth = document.getElementById("breadth");
+  if (R && breadth) {
+    R.services.slice(0, 8).forEach(function (svc) {
+      var word = WORD[svc.status];
+      if (!word) return; /* paused is deliberately unpublishable */
+      var card = document.createElement("div");
+      card.className = "cap-card";
+      card.setAttribute("data-service", svc.slug);
+      var h3 = document.createElement("h3");
+      h3.textContent = svc.name;
+      var st = document.createElement("p");
+      st.className = "meta";
+      st.setAttribute("data-readiness", "");
+      st.textContent = word;
+      card.appendChild(h3);
+      card.appendChild(st);
+      breadth.appendChild(card);
+    });
+  }
+})();
+</script>
+
+<script type="module">
+/* MOUNTING. The shipped index.js is always preferred; the reference mount in
+   tests/fixtures is the second choice and announces itself, and
+   assertBoundToShippedEngine() fails the run if a shipped module existed and
+   was not the one measured. */
+const bus = { diagnostics: [], engineSource: null, sources: null, handle: null, error: null, ready: false };
+window.__cine = bus;
+const onDiagnostic = (d) => { bus.diagnostics.push(d); };
+
+const params = new URLSearchParams(location.search);
+const manifestUrl = params.get('manifest') || '/artifacts/cinematic-placeholders/manifest.json';
+
+/* MUTANT MODULE OVERRIDES, and the fence around them.
+   Mutation testing has to prove each guard can fail against the code that
+   actually ships. Editing assets/cinematic/*.js to do that is unsafe here:
+   three sessions share this worktree and two of them were writing those files
+   while this suite ran. So a mutation is a BYTE COPY of the shipped module with
+   one line changed, served from /artifacts/cine-mutants/, and the shipped file
+   is never touched.
+
+   THE FENCE: only that one directory is accepted, so this cannot be pointed at
+   an arbitrary stub, and assertBoundToShippedEngine() REFUSES a run that loaded
+   any override unless NV_CINE_MUTANT is set in the environment. A normal run
+   therefore cannot pass while measuring a mutant, which is the whole hazard an
+   override like this introduces. */
+const MUTANT_DIR = /^\/artifacts\/cine-mutants\/[a-z0-9-]+\.js$/;
+const overrides = {};
+for (const key of ['loader', 'stage', 'fallback', 'index']) {
+  const value = params.get(key);
+  if (!value) continue;
+  if (!MUTANT_DIR.test(value)) throw new Error(`refusing module override '${value}': only /artifacts/cine-mutants/*.js is accepted`);
+  overrides[key] = value;
+}
+bus.overrides = overrides;
+
+async function resolveMount() {
+  if (overrides.index) {
+    const mutant = await import(overrides.index);
+    if (typeof mutant.mountCinematic === 'function') return { mount: mutant.mountCinematic, source: overrides.index };
+  }
+  try {
+    const shipped = await import('/assets/cinematic/index.js');
+    if (typeof shipped.mountCinematic === 'function') {
+      return { mount: shipped.mountCinematic, source: '/assets/cinematic/index.js' };
+    }
+  } catch { /* not written yet: serve.js answers a missing module with index.html */ }
+  const ref = await import('/tests/fixtures/cine-reference-engine.js');
+  return { mount: ref.mountCinematic, source: '/tests/fixtures/cine-reference-engine.js' };
+}
+
+(async () => {
+  try {
+    const { mount, source } = await resolveMount();
+    bus.engineSource = source;
+    bus.handle = await mount({ manifestUrl, onDiagnostic, moduleOverrides: overrides });
+    bus.sources = bus.handle && bus.handle.sources ? bus.handle.sources : null;
+    bus.ready = true;
+  } catch (err) {
+    bus.error = String(err && err.message ? err.message : err);
+    bus.ready = true;
+  }
+})();
+</script>
+</body>
+</html>
