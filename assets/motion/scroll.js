@@ -55,6 +55,18 @@ export function initScroll() {
   const fold = window.innerHeight || 0;
   const heads = gsap.utils.toArray('main h2, section h2').filter((h) => {
     if (h.closest('.hero') || h.dataset.masked || h.children.length !== 0 || !h.textContent.trim()) return false;
+    /* THE CINEMATIC OWNER RULE, AT ITS SOURCE.
+       "Never apply transform, opacity, filter, mask, clip or fragmentation to
+       any container holding readable text." The curtain is all four at once: it
+       splits a heading into one <span> per word, clips each with
+       overflow:hidden and slides it in under a transform. Inside a released
+       cinematic stage that is motion on copy layered over a scrubbing canvas,
+       and assets/cinematic/cine-stage.css can only un-clip and un-transform the
+       spans after the fact. It cannot un-split them, so the split is refused
+       here. A stage still awaiting artwork runs no sequence and is left alone;
+       the attribute is in the served HTML, so this needs no cinematic module to
+       have loaded. */
+    if (h.closest('.cine-stage:not([data-cine-artwork="pending"])')) return false;
     return h.getBoundingClientRect().top >= fold;
   });
 

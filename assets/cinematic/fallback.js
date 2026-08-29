@@ -31,7 +31,25 @@
 
 import { keyframeForChapter } from './manifest.js';
 
+/** WHERE THIS FILE ACTUALLY CAME FROM. Not a written down path: a value
+ *  only the module system can produce, so it cannot agree with a stale
+ *  literal. assets/cinematic/index.js reports these as handle.sources and
+ *  tests/helpers/cinematic-guards.js#assertBoundToShippedEngine() refuses a
+ *  run whose collaborators are not the shipped files. Before this existed
+ *  index.js built sources from hardcoded strings, so changing a static
+ *  import to any other file left all seventeen guards green while they
+ *  measured a module nothing ships. */
+export const MODULE_URL = import.meta.url;
+
 const REDUCED_QUERY = '(prefers-reduced-motion: reduce)';
+/* The contract's four (API-CONTRACT.md line 243), so a served attribute is
+   validated against the contract rather than against what this engine happens
+   to write. NOTE, 2026-08-28: 'scrubbing' has NO writer in the shipped engine.
+   Nothing calls setState('scrubbing'); only tests/fixtures/cine-reference-engine.js
+   does. It stays legal because the contract and the served markup may use it,
+   and the CSS rule that was scoped to it has been deleted rather than left as a
+   rule that can never match. Do not add a writer without also restoring a fade
+   that cannot expose a cleared canvas. */
 const STATES = ['poster', 'scrubbing', 'reduced', 'degraded'];
 
 /* site.js stores the visitor's own motion choice here and mirrors it onto the
@@ -377,6 +395,30 @@ export function createFallbackLayer(stageEl, sequence, variant, options = {}) {
     return primePromise.then(
       (result) => {
         clearWatchdog();
+        /* DEFERRED IS NOT FAILED, AND IT IS READ FIRST.
+           MEASURED 2026-08-28: sequence-loader.pause() settles a prime that is
+           still in flight, and it used to settle with ok:false whenever no
+           anchor had landed yet. Read as a failure that degraded the stage
+           permanently, so a single tab switch during the first seconds of a
+           sequence killed it and coming back restored nothing. The loader now
+           says deferred:true for exactly that case and re opens the wait on
+           resume(); index.js arms this watchdog again with the new promise.
+           This branch must stay ABOVE the ok check: the deferred result also
+           carries ok:false, deliberately, so a consumer that reads only ok is
+           conservative rather than optimistic. */
+        if (result && result.deferred === true) {
+          watchdogArmed = false;
+          emit({ type: 'prime-deferred', reason: result.reason, result, stage: idOf() });
+          return 'prime-deferred';
+        }
+        /* Torn down, not failed. destroy() settles a live prime so nothing is
+           left waiting; degrading a stage that is being disposed of would write
+           a failure into a page that is going away. */
+        if (result && result.reason === 'destroyed') {
+          watchdogArmed = false;
+          emit({ type: 'prime-abandoned', result, stage: idOf() });
+          return 'prime-abandoned';
+        }
         if (result && result.ok === false) {
           emit({ type: 'prime-failed', result, stage: idOf() });
           degrade('prime-failed');

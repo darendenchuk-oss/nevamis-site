@@ -99,6 +99,24 @@ run('consistency', process.execPath, ['scripts/check-consistency.js']);
   results.push({ label: 'site audit', ok });
 }
 
+/* 2b. THE CINEMATIC STATIC GUARDS.
+
+      CI-INVISIBLE UNTIL 2026-08-28. `grep -c cinematic scripts/check-all.mjs
+      scripts/check-suite.mjs` returned 0 and 0: all four were reachable only by
+      hand through `npm run cine:all`. So an edit to assets/cinematic/*.js or to
+      home.html that broke the contract, the loading budget, the fallback
+      stylesheet or the config-to-home binding passed `npm run check` cleanly,
+      and the one guard that looks at the product page's cinematic wiring ran
+      only when somebody remembered. This repository has been burned by
+      CI-invisible guards before; it is written down in the memory file.
+
+      They are fast, they are pure file reads and Node imports, and they go
+      before Playwright because a contract failure explains a browser failure. */
+run('cinematic contract', process.execPath, ['scripts/check-cinematic-contract.mjs']);
+run('cinematic loader', process.execPath, ['scripts/check-cinematic-loader.mjs']);
+run('cinematic fallback', process.execPath, ['scripts/check-cinematic-fallback.mjs']);
+run('cinematic home', process.execPath, ['scripts/check-cinematic-home.mjs']);
+
 /* 3. Is the suite about to run the WHOLE suite? Immediately before playwright,
       so a failure prints next to the test count it invalidates. This checkout
       once sat four commits behind origin/main: three spec files did not exist,
@@ -112,8 +130,16 @@ run('suite collection', process.execPath, ['scripts/check-suite.mjs']);
     + 'The tests below may be a smaller suite than you think. Run: git fetch && git status';
 }
 
-// 4. Playwright: the slowest, so it goes last.
-run('playwright', 'npx', ['playwright', 'test']);
+/* 4. Playwright: the slowest, so it goes last.
+
+      THE PORT. playwright.config.js defaults to 3211 with reuseExistingServer,
+      so a bare `npx playwright test` attaches to whichever checkout on this
+      machine already owns that port and measures a different application while
+      reporting a pass. This command is the one people run before pushing, so it
+      gets a port of its own that nothing else defaults to, and it is passed
+      through the environment exactly the way the config reads it. */
+const CHECK_PORT = process.env.NV_PORT || '3271';
+run('playwright', 'npx', ['playwright', 'test'], { env: { ...process.env, NV_PORT: CHECK_PORT } });
 
 // 5. Agent sync + spoken-price drift, in the engine repo when it is present.
 {

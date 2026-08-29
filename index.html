@@ -767,12 +767,199 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 <!-- /generated:css -->
 
 <!-- The cinematic scroll stage layout and its no-JavaScript fallback.
-     The one linked stylesheet on this page. It is NOT inlined with the
-     rest, deliberately: rule 7z inlines site.css and fonts.css because
-     they are on the critical path for every page, and this file is not on
-     the critical path for anything. It styles a decorative backdrop that
-     no word, price or button depends on. -->
-<link rel="stylesheet" href="/assets/cinematic/cine-stage.css">
+     INLINED, not linked. It WAS a <link>, under a comment claiming this file
+     was "not on the critical path for anything". It was: a linked stylesheet
+     blocks rendering of the whole document, this was the only linked one left
+     on the page, and delaying that single request by 2s moved first paint and
+     LCP from 128ms to 2128ms. scripts/lib/inline-cine-css.mjs carries the
+     measurement and why a non-blocking <link> was not the fix. -->
+<!-- generated:cine-css -->
+<!-- GENERATED. Do not edit: run `node scripts/build-cine-css.mjs`.
+     Source of truth is assets/cinematic/cine-stage.css, which is still the file
+     you edit. This block is that file with its comments stripped.
+
+     It was a <link> until 2026-08-28. Measured then: delaying that one request
+     by 2s moved this page's first paint and its Largest Contentful Paint from
+     128ms to 2128ms, because a linked stylesheet blocks rendering of the whole
+     document and it was the only linked stylesheet left here. The directive for
+     these stages says "paint copy and poster immediately, never block LCP on
+     the sequence", so it cannot be a request. -->
+<style>
+.cine-stage {
+  --cine-scroll-vh: 240;
+  --cine-sticky-top: 0px;
+  --cine-sticky-height: 100vh;
+  --cine-sticky-pull: -100vh;
+  --cine-sticky-overflow: hidden;
+  --cine-canvas-display: block;
+  --cine-poster-position: absolute;
+  --cine-poster-height: 100%;
+  --cine-poster-max-height: none;
+  --cine-fade: 300ms;
+  --cine-keyframe-display: none;
+  position: relative;
+  isolation: isolate;
+  z-index: 0;
+  min-height: calc(var(--cine-scroll-vh) * 1vh);
+}
+.cine-stage__sticky {
+  position: sticky;
+  top: var(--cine-sticky-top);
+  height: var(--cine-sticky-height);
+  overflow: var(--cine-sticky-overflow);
+  z-index: 0;
+  pointer-events: none;
+  background: var(--navy-0, #02080D);
+}
+.cine-stage__sticky * {
+  pointer-events: none;
+}
+.cine-stage__sticky + * {
+  margin-top: var(--cine-sticky-pull);
+}
+.cine-stage picture {
+  display: block;
+}
+.cine-stage img[data-cine-poster] {
+  position: var(--cine-poster-position);
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: var(--cine-poster-height);
+  max-height: var(--cine-poster-max-height);
+  margin-inline: auto;
+  object-fit: cover;
+  z-index: 0;
+}
+.cine-stage canvas[data-cine-canvas]:not([hidden]) {
+  position: absolute;
+  inset: 0;
+  display: var(--cine-canvas-display);
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+.cine-stage canvas[data-cine-canvas][hidden] {
+  display: none !important;
+}
+.cine-stage > :not(.cine-stage__sticky) {
+  position: relative;
+  z-index: 1;
+}
+.cine-stage,
+.cine-stage > :not(.cine-stage__sticky) {
+  -webkit-user-select: text;
+  user-select: text;
+}
+.cine-stage:not([data-cine-artwork="pending"]) .reveal,
+.cine-stage:not([data-cine-artwork="pending"]) .summary-arrive,
+.cine-stage:not([data-cine-artwork="pending"]) .stack .layer,
+.cine-stage:not([data-cine-artwork="pending"]) .pstep,
+.cine-stage:not([data-cine-artwork="pending"]) .status,
+.cine-stage:not([data-cine-artwork="pending"]) .mwi,
+.cine-stage:not([data-cine-artwork="pending"]) .rail-track,
+.cine-stage:not([data-cine-artwork="pending"]) .nb-scene,
+.cine-stage:not([data-cine-artwork="pending"]) .nb-chip,
+.cine-stage:not([data-cine-artwork="pending"]) .spine i {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  clip-path: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+.cine-stage:not([data-cine-artwork="pending"]) .mw {
+  overflow: visible !important;
+}
+.cine-stage:not([data-cine-artwork="pending"]) .faq details p {
+  animation: none !important;
+}
+.cine-chapter-art {
+  display: var(--cine-keyframe-display);
+  margin: 22px 0 0;
+}
+.cine-chapter-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 56vh;
+  object-fit: cover;
+  border-radius: 14px;
+}
+.cine-stage[data-cine-keyframes="placed"] .cine-stage__sticky {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cine-stage {
+    --cine-sticky-top: auto;
+    --cine-sticky-height: auto;
+    --cine-sticky-pull: 0px;
+    --cine-sticky-overflow: visible;
+    --cine-canvas-display: none;
+    --cine-poster-position: static;
+    --cine-poster-height: auto;
+    --cine-poster-max-height: 56vh;
+    --cine-fade: 0ms;
+    --cine-keyframe-display: block;
+  }
+}
+.motion-off .cine-stage {
+  --cine-sticky-top: auto;
+  --cine-sticky-height: auto;
+  --cine-sticky-pull: 0px;
+  --cine-sticky-overflow: visible;
+  --cine-canvas-display: none;
+  --cine-poster-position: static;
+  --cine-poster-height: auto;
+  --cine-poster-max-height: 56vh;
+  --cine-fade: 0ms;
+  --cine-keyframe-display: block;
+}
+.cine-stage[data-cine-state="reduced"] {
+  --cine-sticky-top: auto;
+  --cine-sticky-height: auto;
+  --cine-sticky-pull: 0px;
+  --cine-sticky-overflow: visible;
+  --cine-canvas-display: none;
+  --cine-poster-position: static;
+  --cine-poster-height: auto;
+  --cine-poster-max-height: 56vh;
+  --cine-fade: 0ms;
+  --cine-keyframe-display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cine-stage { min-height: 0; }
+}
+.motion-off .cine-stage { min-height: 0; }
+.cine-stage[data-cine-state="reduced"] { min-height: 0; }
+.cine-stage[data-cine-artwork="pending"] {
+  min-height: 0;
+}
+.cine-stage[data-cine-artwork="pending"] .cine-chapter-art {
+  display: none;
+}
+.cine-stage[data-cine-state="degraded"] img[data-cine-poster] {
+  opacity: 1;
+}
+@media print {
+  .cine-stage {
+    --cine-sticky-top: auto;
+    --cine-sticky-height: auto;
+    --cine-sticky-pull: 0px;
+    --cine-sticky-overflow: visible;
+    --cine-canvas-display: none;
+    --cine-poster-position: static;
+    --cine-poster-height: auto;
+    --cine-poster-max-height: none;
+    --cine-fade: 0ms;
+    --cine-keyframe-display: block;
+    min-height: 0;
+  }
+}
+</style>
+<!-- /generated:cine-css -->
 
 <style>
   /* ---------- hero-specific (everything else lives in assets/motion/site.css) ---------- */

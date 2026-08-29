@@ -120,22 +120,43 @@ export async function assertBoundToShippedEngine(page) {
   }
 
   const shipped = shippedModules();
-  const mounted = { ...(bus.sources || {}) };
-  if (bus.engineSource === CINE_MODULE_PATHS.index || bus.engineSource === `/${CINE_MODULE_PATHS.index}`) {
-    /* The shipped index owns its own wiring. It REPORTS which collaborator it
-       resolved for each seam (handle.sources), and a reported value always
-       wins: only the seams it said nothing about fall back to the assumption
-       that they are the shipped ones. Filling gaps rather than overwriting is
-       what keeps this an assertion about the engine instead of a statement of
-       faith in it. */
+  /* Every reported source is that module's OWN import.meta.url (see the
+     MODULE_URL export on each of the five files), so it arrives as an absolute
+     URL and has to be reduced to a site path before it can be compared with
+     what is on disk. It is evidence rather than a claim: before MODULE_URL
+     existed, index.js built handle.sources out of hardcoded strings, so
+     changing a static import to any other file left this function finding no
+     mismatch and all seventeen guards green while they measured a module
+     nothing ships. */
+  const asPath = (v) => {
+    if (typeof v !== 'string' || !v) return v;
+    try { return new URL(v).pathname; } catch { return v.startsWith('/') ? v : `/${v}`; }
+  };
+  const mounted = {};
+  for (const [k, v] of Object.entries(bus.sources || {})) mounted[k] = asPath(v);
+  const engineSource = asPath(bus.engineSource);
+  if (engineSource === `/${CINE_MODULE_PATHS.index}`) {
+    /* The shipped index owns its own wiring and REPORTS which collaborator
+       answered each seam. Only the seams it said nothing about fall back to the
+       assumption that they are the shipped ones; a reported value is never
+       overwritten, because that would turn evidence back into faith. */
     for (const key of Object.keys(CINE_MODULE_PATHS)) {
       if (mounted[key] == null) mounted[key] = shipped[key];
+    }
+    /* And a shipped index that reports NOTHING is itself a failure: the whole
+       point of handle.sources is that this function does not have to guess. */
+    const silent = Object.keys(CINE_MODULE_PATHS).filter((k) => k !== 'index' && !(bus.sources || {})[k]);
+    if (silent.length) {
+      throw new Error(
+        `the shipped assets/cinematic/index.js mounted without reporting handle.sources for ${silent.join(', ')}. `
+        + 'Nothing in this run can say which module answered those seams.',
+      );
     }
   }
   const missed = [];
   for (const [name, rel] of Object.entries(CINE_MODULE_PATHS)) {
     if (name === 'index') {
-      if (shipped.index && bus.engineSource !== shipped.index) missed.push(`index (shipped at ${shipped.index}, mounted ${bus.engineSource})`);
+      if (shipped.index && engineSource !== shipped.index) missed.push(`index (shipped at ${shipped.index}, mounted ${engineSource})`);
       continue;
     }
     if (shipped[name] && mounted[name] !== shipped[name]) {
@@ -148,7 +169,7 @@ export async function assertBoundToShippedEngine(page) {
       + `  Every assertion in this run would describe tests/fixtures/cine-reference-engine.js rather than the module that ships.`,
     );
   }
-  return { engineSource: bus.engineSource, sources: bus.sources, shipped };
+  return { engineSource, sources: mounted, shipped };
 }
 
 /* ------------------------------------------------------------------ *
@@ -302,7 +323,13 @@ export async function installProbe(page) {
       };
     }
 
-    let hidden = false;
+    /* window.__cineStartHidden is set by an earlier addInitScript when a guard
+       needs the page to be hidden from before the first byte of page script:
+       middle click, open in a new tab, session restore and prerender all mount
+       that way, and a stage that mounts hidden takes a completely different
+       path through scroll-stage.start(). Setting it after load cannot reproduce
+       that, because start() has already run. */
+    let hidden = !!W.__cineStartHidden;
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => hidden });
     Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => (hidden ? 'hidden' : 'visible') });
     W.__setHidden = (value) => {

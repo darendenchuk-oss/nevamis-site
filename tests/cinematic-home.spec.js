@@ -139,10 +139,17 @@ test('a stage awaiting artwork adds no height, no request and no canvas', async 
     }
 
     if (pending.length === CONFIG.sequences.length) {
+      /* EMPTY, and the assertion now agrees with its own sentence. It used to
+         read toEqual(['/assets/cinematic/cine-stage.css']) under the message
+         "nothing should have been requested", which enshrined the one request
+         the page still made: a render-blocking <link> in <head>, the only
+         linked stylesheet left on the page. Delaying it by 2s moved first paint
+         and LCP from 128ms to 2128ms. It is inlined now (home.html's
+         generated:cine-css region), so the correct number really is zero. */
       expect(
         cineRequests,
         `every sequence is pending, so nothing under /assets/cinematic/ should have been requested. The page asked for: ${cineRequests.join(', ')}`,
-      ).toEqual(['/assets/cinematic/cine-stage.css']);
+      ).toEqual([]);
     }
   } finally { await context.close(); }
 });
@@ -170,6 +177,7 @@ test('a released stage is never longer than the sections it spans', async ({ bro
   try {
     await assertServingThisWorktree(page);
     const notes = [];
+    let asserted = 0;
     for (const vp of WIDTHS) {
       await page.setViewportSize(vp);
       await page.goto(HOMEPAGE_URL, { waitUntil: 'networkidle' });
@@ -189,6 +197,7 @@ test('a released stage is never longer than the sections it spans', async ({ bro
         const declared = seq.stage.scrollLengthVh;
         notes.push(`${vp.width}px ${s.id}: ${s.naturalVh}vh natural vs ${declared}vh declared (${s.artwork})`);
         if (s.artwork !== 'released') continue;
+        asserted += 1;
         expect(
           s.naturalVh,
           `${s.id} is released and declares ${declared}vh of scroll, but sections [${seq.sections}] are only ${s.naturalVh}vh tall at ${vp.width}x${vp.height}. `
@@ -197,7 +206,24 @@ test('a released stage is never longer than the sections it spans', async ({ bro
       }
     }
     test.info().annotations.push({ type: 'stage spans', description: notes.join('\n') });
-    expect(notes.length, 'nothing was measured, so this guard asserted nothing').toBe(WIDTHS.length * CONFIG.sequences.length);
+    expect(notes.length, 'nothing was measured, so this guard measured nothing').toBe(WIDTHS.length * CONFIG.sequences.length);
+    /* TWO DIFFERENT NUMBERS, deliberately. `notes` proves the page was
+       MEASURED; `asserted` proves the assertion above actually RAN. They used
+       to be the same counter, and it was the wrong one: notes is pushed before
+       the `continue` that skips a pending stage, so with all three pending it
+       read 18 and reported the guard as non-vacuous while the only expect() in
+       the loop had never executed. Today every sequence is pending, so this is
+       a declared tripwire rather than a passing assertion, and it says so in
+       the run instead of looking like proof. */
+    const releasedCount = CONFIG.sequences.filter((x) => x.artwork === 'released').length;
+    expect(asserted, `${releasedCount} sequence(s) are released but the length assertion ran ${asserted} time(s)`)
+      .toBe(releasedCount * WIDTHS.length);
+    if (releasedCount === 0) {
+      test.info().annotations.push({
+        type: 'tripwire',
+        description: 'every sequence is pending, so the released-length assertion did not run. This test measured the page and asserted nothing about scroll length. It arms itself the moment a sequence is released.',
+      });
+    }
   } finally { await context.close(); }
 });
 
@@ -275,17 +301,36 @@ for (const vp of WIDTHS) {
       });
       expect(strays, `a stage contains a sticky or fixed element that is not the declared backdrop: ${JSON.stringify(strays)}`).toEqual([]);
 
+
       /* The header stays on top and stays clickable at every depth, and so
          does the mobile navigation toggle where the layout shows one. Five
          points per element, from the shared hit tester, so an element covered
          only at a corner is still caught. */
+      let hitPoints = 0;
       for (const at of [0, 0.5, 0.99]) {
         await page.evaluate((f) => window.scrollTo(0, Math.round(document.documentElement.scrollHeight * f)), at);
         await page.waitForTimeout(90);
-        for (const sel of ['.site-header .brand', '.site-header .nav-toggle', '.site-header .main-nav a.btn-primary']) {
+        /* '.site-header .brand' was one of these three until 2026-08-28 and
+           matched NOTHING on this page: the brand link is .wordmark. The
+           non-vacuity assertion below is what found it, on the first run. The
+           integration report claimed "header brand / nav-toggle / nav CTA
+           uncovered at 5 points each at three depths"; a third of that was
+           never measured. */
+        for (const sel of ['.site-header .wordmark', '.site-header .nav-toggle', '.site-header .main-nav a.btn-primary']) {
           const results = await hitTest(page, sel);
+          /* NON-VACUITY, PER SELECTOR AND PER POINT.
+             hitTest() returns [] when a selector matches nothing, the loop body
+             then never runs, and this block reported a pass having asserted
+             nothing. PROVEN 2026-08-28 by renaming .site-header to
+             .site-headerZZ in these three strings: 1 passed, exit 0. The site
+             is mid platform-identity remap, so a class rename is not a
+             hypothetical. Guard 17 in cinematic-guards.spec.js solved exactly
+             this with an overlappedAt counter; the same discipline belongs
+             here. */
+          expect(results.length, `${vp.width}px: the selector ${sel} matched no element at all, so this hit test asserted nothing. If the class was renamed, rename it here too.`).toBeGreaterThan(0);
           for (const r of results) {
             if (r.offscreen) continue;                 // the toggle is display:none on desktop
+            hitPoints += r.points.length;
             const blocked = r.points.filter((p) => !p.outsideViewport && p.hit !== null && !p.reachesTarget);
             expect(
               blocked,
@@ -294,9 +339,223 @@ for (const vp of WIDTHS) {
           }
         }
       }
+      expect(hitPoints, `${vp.width}px: the header and navigation hit tests examined ${hitPoints} points across three scroll depths. Zero means the whole block was skipped.`).toBeGreaterThan(10);
     } finally { await context.close(); }
   });
 }
+
+/* ==================================================================== *
+ * 3b. THE OWNER RULE, ABSOLUTE, ON A STAGE THAT IS ACTUALLY RELEASED
+ *
+ *     "Never apply transform, opacity, filter, mask, clip or fragmentation
+ *     to any container holding readable text. Motion lives in the stage
+ *     only."
+ *
+ *     Test 4 below asks a DIFFERENT question on purpose: did WRAPPING the
+ *     sections in a stage ADD any motion. That is a differential, and it was
+ *     the only question asked here until 2026-08-28. It is blind to motion
+ *     the site already had, and measuring the real page found five
+ *     mechanisms alive inside stages that it could never report: span.mw
+ *     (overflow:hidden) around span.mwi (transform) on every h2 word,
+ *     li.pstep (opacity .45 + translateY), div.status (opacity 0 +
+ *     translateX) and div.rail-track (translateX). All of it passed, in a
+ *     test literally named "no text container inside a stage carries
+ *     motion".
+ *
+ *     WHY THE PAGE IS SERVED WITH A STAGE RELEASED.
+ *     cine-stage.css scopes the owner rule to a stage that is not pending,
+ *     because a stage awaiting artwork runs no sequence and must cost the
+ *     page nothing (assets/cinematic/index.js: "a stage with no approved
+ *     artwork is not a degraded stage. It is a stage that does not exist
+ *     yet"). Every sequence is pending today, so asserting the rule against
+ *     the page as served would assert nothing. The attribute is therefore
+ *     flipped DURING PARSE, before assets/motion/scroll.js runs, which is
+ *     the only way to measure the fragmentation half: CSS can un-clip and
+ *     un-transform a word span, it cannot un-split a heading.
+ *
+ *     WHAT COUNTS AS MOTION, and why it is not "the property is present".
+ *     A static opacity is a colour decision (p.lede is deliberately .85) and
+ *     clip-path:inset(50%) on a .sr-only caption is how a screen reader only
+ *     caption is hidden. Neither moves. What is measured is whether the
+ *     property is ANIMATED: a declared transition or animation covering it,
+ *     or a computed value that is different 400ms later, or a non identity
+ *     transform. Every one of the five defects above is caught by that;
+ *     none of the three static values is.
+ * ==================================================================== */
+const RELEASE_DURING_PARSE = () => {
+  /* document_start: there is no <body> yet, so the stages are flipped as the
+     parser produces them. Doing it after load would be too late for
+     assets/motion/scroll.js, which has already split the headings by then. */
+  const release = (el) => { if (el.getAttribute('data-cine-artwork') === 'pending') el.setAttribute('data-cine-artwork', 'released'); };
+  const sweep = () => { for (const el of document.querySelectorAll('[data-cine-stage]')) release(el); };
+  /* OBSERVE `document`, not document.documentElement: at document_start the
+     <html> element does not exist yet, observe(null) throws, and the whole init
+     script dies silently taking the flip with it. Found by this test reporting
+     "no stage ended up released". DOMContentLoaded is a backstop only: deferred
+     module scripts, which is how assets/motion/scroll.js loads, run BEFORE it. */
+  new MutationObserver(sweep).observe(document, { childList: true, subtree: true });
+  document.addEventListener('DOMContentLoaded', sweep);
+  document.addEventListener('readystatechange', sweep);
+  window.__cineReleasedByTest = true;
+};
+
+/* THE EXEMPTIONS ARE READ OUT OF THE STYLESHEET, not typed here.
+   assets/cinematic/cine-stage.css carries the owner rule and, beside it, the
+   `cine-owner-exempt: <selector> -- <reason>` lines that say which selectors
+   hold no readable text or are not laid out inside a stage.
+   scripts/check-cinematic-fallback.mjs already refuses an exemption without a
+   real argument. One list, in the file the rule lives in, consumed by both the
+   static guard and this browser guard: a second copy here is the shape that
+   lets the two disagree while both stay green. */
+const CINE_CSS_SOURCE = fs.readFileSync(path.join(root, 'assets', 'cinematic', 'cine-stage.css'), 'utf8');
+const OWNER_EXEMPT = [...CINE_CSS_SOURCE.matchAll(new RegExp('cine-owner-exempt:\\s*([^\\r\\n]+?)\\s+--\\s+([^\\r\\n]+)', 'g'))]
+  .map((m) => m[1].trim())
+  .filter((sel) => !sel.startsWith('::'));            // pseudo elements: no element to match
+
+/** Every element inside a stage that carries its own text and still has a
+    non-neutral value of one of the owner rule's properties.
+
+    ABSOLUTE, NOT HEURISTIC. An earlier version of this asked whether the
+    property was "animated" (a declared transition, a running animation, a value
+    changing between two samples). It reported hundreds of elements, because
+    site.css declares `transition: all` widely and a declared transition on a
+    property that never changes is not motion. The honest question is the
+    rule's own: does a container holding readable text carry the property at a
+    non-neutral value. Everything that legitimately does is exempted BY NAME
+    with a written reason, in the stylesheet. */
+async function motionOnTextContainers(page, exemptions) {
+  return page.evaluate((exempt) => {
+    const found = [];
+    let examined = 0;
+    let withText = 0;
+    for (const st of document.querySelectorAll('[data-cine-stage]')) {
+      for (const el of st.querySelectorAll('*')) {
+        examined += 1;
+        if (el.closest('.cine-stage__sticky')) continue;   // the backdrop holds no words
+        if (el.closest('.cine-chapter-art')) continue;     // artwork, not copy
+        const cs = getComputedStyle(el);
+        if (cs.position === 'fixed') continue;             // not laid out inside any stage
+        /* Its OWN words. A wrapper that merely contains a paragraph is not the
+           container the rule is about; the element holding the text node is. */
+        const ownText = Array.from(el.childNodes)
+          .filter((n) => n.nodeType === 3)
+          .map((n) => n.textContent.trim())
+          .join('');
+        if (!ownText) continue;
+        withText += 1;
+        let exemptedBy = null;
+        for (const sel of exempt) {
+          try { if (el.matches(sel) || el.closest(sel)) { exemptedBy = sel; break; } } catch { /* not a selector matches() accepts */ }
+        }
+        if (exemptedBy) continue;
+        const say = (prop, value) => found.push({
+          stage: st.getAttribute('data-cine-stage'),
+          el: el.tagName.toLowerCase() + (el.className && typeof el.className === 'string' ? '.' + el.className.split(/\s+/)[0] : ''),
+          prop,
+          value,
+          text: ownText.slice(0, 40),
+        });
+        if (cs.transform !== 'none' && cs.transform !== 'matrix(1, 0, 0, 1, 0, 0)') say('transform', cs.transform);
+        if (cs.opacity !== '1') say('opacity', cs.opacity);
+        if (cs.filter !== 'none') say('filter', cs.filter);
+        if (cs.maskImage && cs.maskImage !== 'none') say('mask-image', cs.maskImage);
+        if (cs.clipPath !== 'none') say('clip-path', cs.clipPath);
+        if (cs.columnCount !== 'auto' && cs.columnCount !== '1') say('column-count', cs.columnCount);
+      }
+    }
+    return { found, examined, withText };
+  }, exemptions);
+}
+
+test('with a stage released, nothing holding readable text is in motion, and no heading is fragmented', async ({ browser }) => {
+  const { context, page } = await open(browser);
+  try {
+    await assertServingThisWorktree(page);
+    await page.addInitScript(RELEASE_DURING_PARSE);
+    await page.goto(HOMEPAGE_URL, { waitUntil: 'networkidle' });
+
+    const released = await page.evaluate(() => Array.from(document.querySelectorAll('[data-cine-stage]'))
+      .filter((st) => st.getAttribute('data-cine-artwork') === 'released')
+      .map((st) => st.getAttribute('data-cine-stage')));
+    expect(released.length, 'no stage ended up released, so everything below would assert nothing').toBe(CONFIG.sequences.length);
+
+    /* PROBED TWICE, AT TWO SCROLL POSITIONS, and both matter.
+
+       AT REST, BEFORE ANY SCROLLING is where the entrance animations live:
+       li.pstep sits at opacity .45 and translateY(10px) until site.js adds
+       .active, and .stack .layer at opacity 0 until the stack is in view. A
+       probe taken only after scrolling the whole page finds every one of them
+       already settled and reports a clean page. Verified: deleting .pstep from
+       the owner rule block is invisible to a post-scroll probe and caught here.
+
+       AFTER SCROLLING is where anything scroll-driven and anything that starts
+       moving late shows up. */
+    const atRest = await motionOnTextContainers(page, OWNER_EXEMPT);
+
+    for (const at of [0.15, 0.4, 0.7, 0.95]) {
+      await page.evaluate((f) => window.scrollTo(0, Math.round(document.documentElement.scrollHeight * f)), at);
+      await page.waitForTimeout(200);
+    }
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(200);
+
+    /* THE FRAGMENTATION HALF. assets/motion/scroll.js splits every below-fold
+       h2 into one span per word, each clipped by overflow:hidden and slid in
+       under a transform. No stylesheet can undo a split, so it is refused at
+       the source; this is the assertion that it was. */
+    const fragments = await page.evaluate(() => Array.from(document.querySelectorAll('[data-cine-stage] .mw, [data-cine-stage] .mwi'))
+      .slice(0, 10)
+      .map((el) => ({ cls: el.className, inside: el.closest('h1,h2,h3') ? el.closest('h1,h2,h3').tagName : '(not a heading)', text: (el.textContent || '').trim().slice(0, 30) })));
+    expect(
+      fragments,
+      `${fragments.length} word-mask span(s) were created inside a released stage. assets/motion/scroll.js must not fragment a heading there: `
+      + 'the spans carry overflow:hidden and a transform, which is clip plus fragmentation plus motion on a heading, all at once.',
+    ).toEqual([]);
+
+    /* THE MOTION HALF. */
+    const scrolled = await motionOnTextContainers(page, OWNER_EXEMPT);
+    const examined = Math.max(atRest.examined, scrolled.examined);
+    const withText = Math.max(atRest.withText, scrolled.withText);
+    const seen = new Set();
+    const found = [...atRest.found.map((f) => ({ ...f, when: 'at rest' })), ...scrolled.found.map((f) => ({ ...f, when: 'after scrolling' }))]
+      .filter((f) => { const k = `${f.stage}|${f.el}|${f.prop}|${f.text}`; if (seen.has(k)) return false; seen.add(k); return true; });
+    expect(examined, 'the probe walked no elements inside any stage').toBeGreaterThan(200);
+    expect(withText, 'the probe found no element carrying its own text inside a stage, so it asserted nothing').toBeGreaterThan(40);
+    expect(atRest.withText, 'the at-rest probe found no text container, so half of this guard measured nothing').toBeGreaterThan(40);
+    expect(
+      found,
+      `with the stages released, ${found.length} element(s) holding readable text carry motion:\n`
+      + `${JSON.stringify(found.slice(0, 8), null, 1)}\n`
+      + 'The owner rule is absolute. Neutralise the selector in the owner rule block of assets/cinematic/cine-stage.css '
+      + '(then run node scripts/build-cine-css.mjs), or, if it genuinely holds no readable text, add a reasoned '
+      + 'cine-owner-exempt line beside it.',
+    ).toEqual([]);
+  } finally { await context.close(); }
+});
+
+/* THE CONTROL. The same probe on the page exactly as it is served, with every
+   stage pending, must find motion. Without this the test above would pass
+   identically on a homepage that had no motion anywhere, which is the shape
+   this repository keeps shipping: a guard that would pass if the feature it
+   guards were deleted. */
+test('the owner-rule probe is not measuring an already still page', async ({ browser }) => {
+  const { context, page } = await open(browser);
+  try {
+    await assertServingThisWorktree(page);
+    await page.goto(HOMEPAGE_URL, { waitUntil: 'networkidle' });
+    for (const at of [0.2, 0.5, 0.8]) {
+      await page.evaluate((f) => window.scrollTo(0, Math.round(document.documentElement.scrollHeight * f)), at);
+      await page.waitForTimeout(150);
+    }
+    const { found } = await motionOnTextContainers(page, OWNER_EXEMPT);
+    expect(
+      found.length,
+      'with every stage pending the probe found no motion at all on readable text. Either the site stopped animating copy, in which case delete this control, or the probe measures nothing and the released assertion above is vacuous.',
+    ).toBeGreaterThan(0);
+    const fragments = await page.evaluate(() => document.querySelectorAll('[data-cine-stage] .mw').length);
+    expect(fragments, 'assets/motion/scroll.js fragmented no heading at all on the page as served, so the released half proves nothing about fragmentation').toBeGreaterThan(0);
+  } finally { await context.close(); }
+});
 
 /* ==================================================================== *
  * 4. NO MOTION ON A TEXT CONTAINER, AND NO SCROLL HIJACKING

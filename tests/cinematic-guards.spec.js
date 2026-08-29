@@ -47,6 +47,13 @@ const DESKTOP = { width: 1440, height: 900 };
 const MOBILE = { width: 375, height: 812 };
 const manifest = localPlaceholderManifest();
 const SEQUENCES = manifest.sequences.map((s) => s.id);
+/* The guard subject fixture is a stage harness, not the site: it runs no
+   aurora, no GSAP timeline and no site.js. Two callbacks of slack is for the
+   harness's own instrumentation and for a rAF the browser coalesces oddly under
+   load, not for a second engine loop. If this ever has to be raised to make a
+   run green, the thing to look at is the loop, not this number. */
+const PAGE_RAF_ALLOWANCE = 2;
+
 const stageSel = (id) => `[data-cine-stage="${id}"]`;
 const canvasSel = (id) => `[data-cine-stage="${id}"] canvas[data-cine-canvas]`;
 
@@ -486,6 +493,31 @@ test('6. no duplicate render loops survive repeated visibility changes', async (
       `before the visibility changes the page ran at most ${baseline.worst} animation-frame callbacks per frame; `
       + `after four hide and show cycles it runs ${census.worst}. Resuming started a loop and left the old one running.`,
     ).toBeLessThanOrEqual(baseline.worst);
+
+    /* AND AN ABSOLUTE CEILING, because the differential above cannot see a
+       loop that was doubled FROM MOUNT. An engine that ran two rAF chains per
+       stage from start() would set baseline.worst to the doubled number and
+       satisfy every comparison in this test; the paint half would not catch it
+       either, because tick() returns early when paintedIndex === frameIndex, so
+       the second chain ticks without painting. That is precisely the case the
+       census exists for.
+
+       DERIVED, NOT TYPED. The ceiling is one callback per LIVE stage plus a
+       small allowance for the page's own animation work (site.js, GSAP, the
+       aurora), measured on the same page in the same run rather than assumed:
+       `pageOnly` is what the page ran per frame during the baseline scroll
+       before any cinematic stage was primed. A fourth sequence changes the
+       ceiling by itself. */
+    const liveStages = await page.evaluate(() => Object.values(window.__cine.handle.state()).filter((s) => s.running).length);
+    expect(liveStages, 'no stage was running, so a per-stage loop ceiling would assert nothing').toBeGreaterThan(0);
+    const ceiling = liveStages + PAGE_RAF_ALLOWANCE;
+    expect(
+      census.worst,
+      `${census.worst} animation-frame callbacks ran inside one frame with ${liveStages} live stage(s). `
+      + `At most one rAF chain per stage may exist, plus ${PAGE_RAF_ALLOWANCE} for the page's own animation work. `
+      + 'A doubled loop that was doubled from mount is invisible to the before/after comparison above, and it '
+      + 'ticks without painting, so the paint counter cannot see it either.',
+    ).toBeLessThanOrEqual(ceiling);
   } finally { await context.close(); }
 });
 
@@ -662,6 +694,154 @@ test('8. a hidden tab fetches nothing and paints nothing, and resumes without a 
     const expectedNow = await expectedFrameIndex(page, stageSel(id), variant.frameCount);
     const read = await readCanvasFrame(page, canvasSel(id), variant);
     expect(read.frameIndex, `after resuming, the scroll position implies frame ${expectedNow.index} but the canvas shows ${read.frameIndex}`).toBe(expectedNow.index);
+  } finally { await context.close(); }
+});
+
+/* ==================================================================== *
+ * 8b. A TAB SWITCH DURING THE FIRST SECONDS OF A SEQUENCE, AND A PAGE
+ *     OPENED IN A BACKGROUND TAB.
+ *
+ *     GUARD 8 ABOVE CANNOT REACH EITHER. It scrolls to progress 0.15 and
+ *     asserts beforeFrames > 0 before it hides the tab, by which point the
+ *     anchor pass has already settled and pause() is a no-op on the prime
+ *     promise. Both of the failures below live entirely inside the window it
+ *     skips over.
+ *
+ *     WHAT WAS MEASURED, 2026-08-28, on this fixture with the shipped
+ *     engine:
+ *       (a) frame bytes delayed, hide at 400ms, show at 800ms. The stage the
+ *           visitor was actually looking at came back state="degraded",
+ *           canvas [hidden], running false. Diagnostics read
+ *           prime-failed -> degraded:prime-failed -> stage-stopped, with
+ *           loader stats failed:0. Nothing on the wire had failed. The other
+ *           two stages, which had not primed yet, were untouched.
+ *       (b) document.hidden forced true from before load. scroll-stage
+ *           correctly treats mounting hidden as PAUSED and pauses the loader;
+ *           index.js primed anyway, pump() returned at once because paused,
+ *           nothing was ever in flight, nothing could settle the promise, and
+ *           the 6000ms watchdog degraded a stage that had failed at nothing.
+ *
+ *     degrade() is terminal by design, so in both cases returning to the tab
+ *     restored nothing. "All loading and rendering work pauses while the page
+ *     is hidden, and resumes without jumping" was satisfied by the sequence
+ *     being dead.
+ * ==================================================================== */
+test('8b. hiding the tab mid-load, and mounting in a background tab, do not kill a sequence', async ({ browser }) => {
+  const { context, page } = await open(browser);
+  try {
+    await assertServingThisWorktree(page);
+
+    /* Slow enough that the anchor pass is still in flight when the tab hides,
+       and route-level rather than CDP throttling so the delay is on the frame
+       bytes and nothing else. */
+    await page.route('**/f*.png', async (route) => {
+      await new Promise((r) => setTimeout(r, 1500));
+      await route.continue();
+    });
+
+    await openSubject(page);
+
+    const id = SEQUENCES[0];
+    /* NOT scrollToProgress(): that helper settles the page, and settle() waits
+       for fetchInFlight to reach zero, which is precisely the window this guard
+       is about. The first stage is on screen at load, so index.js has already
+       primed it by the time openSubject() returns. */
+    /* fetchStarted counts the manifest too, so it is not the signal: the
+       question is whether FRAME bytes are still on the wire at the instant the
+       tab hides. Read and hidden inside ONE evaluate, so nothing can settle
+       between the measurement and the thing it justifies. */
+    await page.waitForFunction(() => window.__cineProbe.fetchInFlight > 0, null, { timeout: 15_000 });
+    const inFlight = await page.evaluate(() => {
+      const n = window.__cineProbe.fetchInFlight;
+      window.__setHidden(true);
+      return n;
+    });
+    expect(inFlight, 'nothing was in flight when the tab hid, so this guard measured the window guard 8 already covers').toBeGreaterThan(0);
+
+    await page.waitForTimeout(1200);
+    await page.evaluate(() => window.__setHidden(false));
+    await page.waitForTimeout(2500);
+    await assertBoundToShippedEngine(page);
+
+    const state = await page.evaluate(() => window.__cine.handle.state());
+    const diagnostics = await page.evaluate(() => window.__cine.diagnostics.map((d) => `${d.type}${d.reason ? ':' + d.reason : ''}${d.stage ? '@' + d.stage : ''}`));
+    expect(
+      state[id].state,
+      `hiding and showing the tab while the anchor pass was in flight left '${id}' at state="${state[id].state}". `
+      + 'A pause is not a load failure, and degraded is terminal: the visitor gets a poster forever and returning to '
+      + `the tab restores nothing. Diagnostics: ${JSON.stringify(diagnostics.slice(-14))}`,
+    ).not.toBe('degraded');
+    expect(
+      diagnostics.filter((d) => d.startsWith('degraded')),
+      `a degrade fired with nothing having failed on the wire. Diagnostics: ${JSON.stringify(diagnostics.slice(-14))}`,
+    ).toEqual([]);
+    expect(state[id].running, `'${id}' stopped running after a tab switch`).toBe(true);
+    /* And it must actually have RESUMED, not merely survived: the wait was
+       re-opened and the anchor pass finished. */
+    expect(
+      diagnostics.some((d) => d.startsWith('prime-deferred')),
+      `nothing reported the prime as deferred, so the pause was not the thing this guard measured. Diagnostics: ${JSON.stringify(diagnostics.slice(-14))}`,
+    ).toBe(true);
+    expect(
+      diagnostics.some((d) => d.startsWith('prime-rearmed')),
+      `the deferred prime was never re-armed after the tab became visible again, so the sequence came back with nothing watching its load. Diagnostics: ${JSON.stringify(diagnostics.slice(-14))}`,
+    ).toBe(true);
+    /* And it finishes. Waited for rather than assumed: the frames are
+       deliberately throttled here, so the re-opened anchor pass takes seconds. */
+    await page.waitForFunction(
+      () => window.__cine.diagnostics.some((d) => d.type === 'prime-settled'),
+      null,
+      { timeout: 30_000 },
+    );
+    const settledWith = await page.evaluate(() => (window.__cine.diagnostics.find((d) => d.type === 'prime-settled') || {}).result);
+    expect(settledWith && settledWith.ok, `the re-opened prime settled ${JSON.stringify(settledWith)}; after a resume it must be a real completion`).toBe(true);
+    expect(settledWith.deferred, 'the re-opened prime deferred again on a visible tab').toBe(false);
+  } finally { await context.close(); }
+});
+
+test('8b(ii). a page opened in a background tab still runs when the visitor looks at it', async ({ browser }) => {
+  const { context, page } = await open(browser);
+  try {
+    await assertServingThisWorktree(page);
+
+    /* Hidden from before the first byte of script: middle click, open in new
+       tab, session restore and prerender all land here. installProbe defines
+       document.hidden as a getter over its own flag, so this has to be set
+       through the probe rather than by an emulation call. */
+    await page.addInitScript(() => {
+      window.__cineStartHidden = true;
+    });
+    await openSubject(page, { waitForMount: false });
+    await page.evaluate(() => window.__setHidden(true));
+    await page.waitForFunction(() => window.__cine && window.__cine.ready, null, { timeout: 20_000 });
+
+    const id = SEQUENCES[0];
+    await scrollToProgress(page, stageSel(id), 0.12);
+    /* Longer than fallback.js's 6000ms primeTimeoutMs, which is what used to
+       fire here and degrade a stage that had made no request at all. */
+    await page.waitForTimeout(7000);
+
+    const whileHidden = await page.evaluate(() => window.__cine.handle.state());
+    expect(
+      whileHidden[id].state,
+      `'${id}' degraded while the tab was hidden, before the visitor had ever looked at the page. `
+      + 'It made no request and nothing failed; the watchdog fired on a wait that only existed because the loader was paused.',
+    ).not.toBe('degraded');
+
+    await page.evaluate(() => window.__setHidden(false));
+    await page.waitForTimeout(3000);
+
+    const visible = await page.evaluate(() => window.__cine.handle.state());
+    const diagnostics = await page.evaluate(() => window.__cine.diagnostics.map((d) => `${d.type}${d.reason ? ':' + d.reason : ''}`));
+    expect(
+      visible[id].state,
+      `after becoming visible '${id}' is at state="${visible[id].state}". Diagnostics: ${JSON.stringify(diagnostics.slice(-14))}`,
+    ).not.toBe('degraded');
+    expect(visible[id].running, `'${id}' is not running after the visitor brought the tab forward`).toBe(true);
+    expect(
+      await page.evaluate(() => window.__cineProbe.fetchStarted),
+      'no frame was ever requested, so the sequence did not actually resume; it merely failed to degrade',
+    ).toBeGreaterThan(0);
   } finally { await context.close(); }
 });
 
@@ -858,22 +1038,55 @@ for (const js of [true, false]) {
         });
 
         const isVisible = (l) => l.display !== 'none' && l.visibility === 'visible' && l.opacity > 0.99 && l.area > 100;
+
+        /* UNIVERSAL OVER DEMONSTRATIONS, NOT EXISTENTIAL OVER SECTIONS.
+           This block used to assert only that SOME section was labelled, some
+           section labelled before its artefact, and some labelled section
+           carried the disclaimer. One section satisfied all three, and it was
+           the same one. Worse, `precedesArtefact` defaults to true when a
+           section has no artefact at all, so a section with a paragraph
+           beginning "Demo" and the words "example data" and no demonstration in
+           it could carry the whole assertion on its own. Measured on the live
+           page: sections 3 (a <figure>) and 4 (a <dl>) both match the ARTEFACT
+           selector and neither carries a label; only section 5 did, and it
+           alone satisfied all three.
+
+           WHAT A DEMONSTRATION IS, stated so the rule can be universal without
+           demanding a label on every <dl> and <figure> on the site: a section
+           that carries a structural artefact AND says its content is an
+           example. A diagram is not a demonstration; a table of example call
+           records is. Move the demo table into section 3 and section 3 becomes
+           a demonstration by this definition and must carry its own label. */
+        const demonstrations = found.filter((s) => s.hasArtefact && s.disclaimer);
+        expect(
+          demonstrations.length,
+          `${url} contains no section that both carries a demonstration artefact and says its content is an example, `
+          + 'so every assertion below would be vacuous. Sections seen: '
+          + `${JSON.stringify(found.map((s) => ({ ia: s.ia, artefact: s.artefactTag, disclaimer: s.disclaimer })))}`,
+        ).toBeGreaterThan(0);
+
+        const unlabelled = demonstrations.filter((s) => !s.labels.some(isVisible));
+        expect(
+          unlabelled.map((s) => `section ${s.ia} (${s.artefactTag})`),
+          `${url}: every section that demonstrates the product must carry a visible label beginning with "Demo". `
+          + `Labels seen across the page: ${JSON.stringify(found.flatMap((s) => s.labels.map((l) => l.text)))}`,
+        ).toEqual([]);
+
+        const trailing = demonstrations.filter((s) => !s.labels.some((l) => isVisible(l) && l.precedesArtefact));
+        expect(
+          trailing.map((s) => `section ${s.ia} (${s.artefactTag})`),
+          `${url} labels a demonstration only AFTER the thing being demonstrated. A reader who has already `
+          + 'read the numbers as real is not helped by a caption underneath them. '
+          + `Sections: ${JSON.stringify(demonstrations.map((s) => ({ ia: s.ia, artefact: s.artefactTag, labels: s.labels })))}`,
+        ).toEqual([]);
+
+        /* And the existential half is kept, because "no section demonstrates
+           anything" must not read as a pass either. */
         const labelled = found.filter((s) => s.labels.some(isVisible));
-        const leading = found.filter((s) => s.labels.some((l) => isVisible(l) && l.precedesArtefact));
-        const complete = leading.filter((s) => s.disclaimer);
         expect(
           labelled.length,
           `${url} carries no visible label beginning with "Demo" in any section. `
           + `Labels seen: ${JSON.stringify(found.flatMap((s) => s.labels))}`,
-        ).toBeGreaterThan(0);
-        expect(
-          leading.length,
-          `${url} labels a demonstration only AFTER the thing being demonstrated. `
-          + `Sections with a demonstration artefact: ${JSON.stringify(found.filter((s) => s.hasArtefact).map((s) => ({ ia: s.ia, artefact: s.artefactTag, labels: s.labels })))}`,
-        ).toBeGreaterThan(0);
-        expect(
-          complete.length,
-          `${url} labels a demonstration (sections ${leading.map((s) => s.ia)}) but none of them also says the content is an example`,
         ).toBeGreaterThan(0);
       }
     } finally { await context.close(); }

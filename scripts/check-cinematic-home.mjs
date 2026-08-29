@@ -23,8 +23,10 @@
    half that is missing. */
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { SEQUENCE_IDS } from '../assets/cinematic/manifest.js';
+import { cineCssBlock, readCineCssRegion, LINK_CINE } from './lib/inline-cine-css.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
@@ -156,21 +158,100 @@ function auditPage(rel) {
     }
   }
 
-  /* The mount, and the gate in front of it. Read as source, because whether
-     the engine is REQUESTED at all is the thing being asserted, and that is a
-     property of the served bytes. */
-  check(html.includes('<link rel="stylesheet" href="/assets/cinematic/cine-stage.css">'),
-    `${rel} does not link /assets/cinematic/cine-stage.css. Every fallback, the hit area rule and the three reduced motion switches live in that file; without it the stages have no layout and no reduced motion path at all.`);
+  /* ── the stage stylesheet, which must NOT be a request ─────────────────
+     It was a <link> in <head> until 2026-08-28, under a comment saying it was
+     not on the critical path. Measured: delaying that one file by 2s moved this
+     page's first paint AND its Largest Contentful Paint from 128ms to 2128ms,
+     because it was the only linked stylesheet left and a linked stylesheet
+     blocks rendering of the whole document. The directive is explicit, "paint
+     copy and poster immediately, never block LCP on the sequence". */
+  check(!html.includes(LINK_CINE) && !/<link[^>]+cine-stage\.css/.test(html),
+    `${rel} links /assets/cinematic/cine-stage.css. A linked stylesheet blocks the first paint of the whole document, and this page's LCP is text. Run: node scripts/build-cine-css.mjs`);
+  const region = readCineCssRegion(html);
+  check(region !== null,
+    `${rel} has no generated:cine-css region, so the stages have no layout, no hit area rule and no reduced motion path at all. Run: node scripts/build-cine-css.mjs`);
+  if (region !== null) {
+    const want = cineCssBlock(read('assets/cinematic/cine-stage.css'));
+    const eol = (x) => x.replace(/\r\n/g, '\n');
+    check(eol(region) === eol(want),
+      `${rel}: the inlined generated:cine-css region no longer matches assets/cinematic/cine-stage.css. Run: node scripts/build-cine-css.mjs`);
+  }
 
-  const GATE = '[data-cine-stage]:not([data-cine-artwork="pending"])';
-  check(html.includes(GATE),
-    `${rel}: the mount is not gated on ${GATE}. Without that gate the five cinematic modules are fetched on every homepage load to discover there is nothing to run.`);
-  check(/import\('\/assets\/cinematic\/index\.js'\)/.test(html),
-    `${rel} never imports /assets/cinematic/index.js, so no stage is ever mounted.`);
-  const gateAt = html.indexOf(GATE);
-  const importAt = html.indexOf("import('/assets/cinematic/index.js')");
-  check(gateAt !== -1 && importAt !== -1 && gateAt < importAt,
-    `${rel}: the engine import is not behind the released-stage gate.`);
+  /* ── THE RELEASE GATE, EXECUTED RATHER THAN GREPPED ────────────────────
+     WHAT THIS REPLACED, and why. This used to assert three things about the
+     SOURCE TEXT: that the gate selector appears, that the import appears, and
+     that the selector's index is lower than the import's. All three survive the
+     gate being demoted to a comment. PROVEN 2026-08-28 by replacing the real
+     condition with `/* gate: ... *\/ if (true) {` and running this guard:
+     exit 0. Nothing in `npm run check` would have caught it either, because
+     the rendered guard that does catch it is Playwright-only.
+
+     So the mount script is now RUN, twice, against a document stub whose
+     querySelector answers "no released stage" and then "one released stage",
+     and what is asserted is whether the engine import was actually attempted.
+     `if (true)`, a commented gate, an inverted condition and a gate on the
+     wrong selector all fail this.
+
+     THE ONE TRANSFORM, stated because it is the only thing here that is not
+     the page's own bytes: `import(` is rewritten to `__cineImport(` so the
+     expression can be observed without a module loader. Nothing else in the
+     script is touched, and the rewrite is asserted to have found exactly one
+     call. */
+  const moduleScripts = [...html.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const mountScripts = moduleScripts.filter((src) => src.includes('/assets/cinematic/index.js'));
+  check(mountScripts.length === 1,
+    `${rel} carries ${mountScripts.length} inline module script(s) importing /assets/cinematic/index.js; expected exactly 1.`);
+
+  if (mountScripts.length === 1) {
+    const src = mountScripts[0];
+    const rewritten = src.replace(/\bimport\(/g, '__cineImport(');
+    check((src.match(/\bimport\(/g) || []).length === 1,
+      `${rel}: the mount script makes ${(src.match(/\bimport\(/g) || []).length} dynamic import calls; this guard is written for exactly one.`);
+
+    const runGate = (released) => {
+      const selectors = [];
+      const imported = [];
+      const stub = {
+        /* Exactly what a released stage looks like to querySelector, and null
+           otherwise. No other DOM is provided: if the mount script grows a
+           dependency on one, this throws rather than passing. */
+        querySelector(sel) {
+          selectors.push(sel);
+          return released ? { nodeName: 'DIV', getAttribute: () => null } : null;
+        },
+        querySelectorAll() { return released ? [{}] : []; },
+      };
+      const sandbox = {
+        document: stub,
+        console: { warn() {}, error() {}, log() {} },
+        __cineImport(spec) {
+          imported.push(spec);
+          return Promise.resolve({ mountCinematic: () => Promise.resolve({ stages: new Map() }) });
+        },
+      };
+      let threw = null;
+      try {
+        vm.runInNewContext(rewritten, sandbox, { timeout: 2000 });
+      } catch (err) { threw = err; }
+      return { selectors, imported, threw };
+    };
+
+    const closed = runGate(false);
+    const open = runGate(true);
+    check(closed.threw === null, `${rel}: the mount script threw with no released stage present: ${closed.threw && closed.threw.message}`);
+    check(open.threw === null, `${rel}: the mount script threw with a released stage present: ${open.threw && open.threw.message}`);
+    check(closed.imported.length === 0,
+      `${rel}: the mount script imported ${JSON.stringify(closed.imported)} even though no stage is released. The gate does not gate: the five cinematic modules would be fetched on every homepage load to discover there is nothing to run.`);
+    check(open.imported.length === 1 && open.imported[0] === '/assets/cinematic/index.js',
+      `${rel}: with a released stage present the mount script imported ${JSON.stringify(open.imported)}; it must import '/assets/cinematic/index.js' exactly once.`);
+
+    /* The selector it actually asked the document for, compared with the rule
+       index.js applies. Derived from the attribute name, not retyped. */
+    const GATE = '[data-cine-stage]:not([data-cine-artwork="pending"])';
+    check(closed.selectors.includes(GATE),
+      `${rel}: the mount script queried ${JSON.stringify(closed.selectors)}; the gate must be ${GATE}, which is the same rule assets/cinematic/index.js applies when it decides a stage is live.`);
+    ok(`${rel}: the release gate was executed both ways: closed imports nothing, open imports the engine once`);
+  }
 
   const anyReleased = CONFIG.sequences.some((s) => s.artwork === 'released');
   if (!anyReleased) {
@@ -200,7 +281,21 @@ const homeStages = auditPage('home.html');
    line ending artifact rather than evidence either way. Comparing the stage
    markup itself is evidence. */
 if (fs.existsSync(path.join(root, 'index.html'))) {
-  const liveStages = stagesIn(read('index.html'), 'index.html');
+  const live = read('index.html');
+  /* The promoted page has to carry the SAME inlined stylesheet and the same
+     absence of a <link>. A homepage inlined in staging and promoted before the
+     generator ran would link nothing and style nothing, and every stage would
+     be a viewport of unstyled ground. */
+  check(!live.includes(LINK_CINE) && !/<link[^>]+cine-stage\.css/.test(live),
+    'index.html links /assets/cinematic/cine-stage.css. Run: node scripts/build-cine-css.mjs');
+  const liveRegion = readCineCssRegion(live);
+  check(liveRegion !== null, 'index.html has no generated:cine-css region. Run: node scripts/build-cine-css.mjs');
+  if (liveRegion !== null) {
+    const eol = (x) => x.split('\r\n').join('\n');
+    check(eol(liveRegion) === eol(cineCssBlock(read('assets/cinematic/cine-stage.css'))),
+      'index.html carries a generated:cine-css region that no longer matches assets/cinematic/cine-stage.css. Run: node scripts/build-cine-css.mjs');
+  }
+  const liveStages = stagesIn(live, 'index.html');
   const sig = (list) => list.map((s) => `${s.id}:${s.sections.join(',')}:${s.artwork}:${s.scrollVh}:${s.chapters.join('+')}`).join(' | ');
   check(sig(liveStages) === sig(homeStages),
     `index.html's cinematic wiring does not match home.html's.\n      home.html:  ${sig(homeStages)}\n      index.html: ${sig(liveStages)}\n      Run: node scripts/promote.mjs`);

@@ -16,6 +16,7 @@ import {
   createSequenceLoader, residencyBudget, anchorIndices, DEFAULT_MAX_CONCURRENT,
 } from '../assets/cinematic/sequence-loader.js';
 import { VARIANT_NAMES } from '../assets/cinematic/manifest.js';
+import { createFallbackLayer } from '../assets/cinematic/fallback.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
@@ -416,18 +417,162 @@ async function drain(loader, maxTicks = 800) {
   loader.destroy();
 }
 
-// pause() and destroy() both settle a prime() that is still in flight, so the
-// fallback watchdog can never be the only thing that ends a hidden tab's wait.
+/* ── 7b. A PAUSE IS NOT A FAILURE ───────────────────────────────────────────
+   THE SEAM THIS SECTION EXISTS FOR, and what it used to miss.
+
+   The old version of this block primed, paused, raced the promise against a
+   50ms timer and asserted only `settled !== 'PENDING'`. That is a real
+   property and it is half the property. The value it settles WITH is what the
+   next module reads: fallback.js#armWatchdog treats result.ok === false as a
+   total load failure and calls degrade(), degrade is terminal, and index.js
+   then stops the stage. So the loader settled correctly, the layer degraded
+   correctly, and the seam between two correct modules permanently killed a
+   sequence on one tab switch. MEASURED 2026-08-28 in a browser: hide at 400ms,
+   show at 800ms, and the stage the visitor was looking at came back
+   data-cine-state="degraded" with the canvas hidden and zero network failures.
+
+   So this asserts the SHAPE, and then crosses the seam and asserts the shipped
+   fallback layer's actual reaction to that shape. A guard about pendingness
+   alone would pass on the defect it was written to prevent. */
+
+/** Release manual fetches until `promise` settles, or give up and report the
+    fact rather than hanging the guard. */
+async function settleUnder(f, loader, promise) {
+  let done = false;
+  const value = promise.then((v) => { done = true; return v; });
+  for (let i = 0; i < 400 && !done; i += 1) {
+    f.releaseAll();
+    await tick();
+  }
+  return done ? value : Promise.race([value, Promise.resolve('PENDING')]);
+}
+
+/** The smallest element the shipped fallback layer will accept. No document
+    and no window, deliberately: this is a Node process, and a layer that
+    needed a real DOM to answer "did you degrade" would be answering about a
+    different code path than the browser's. */
+function stubStage(id = 'seam-stage') {
+  const attrs = { 'data-cine-state': 'poster', 'data-cine-stage': id };
+  return {
+    ownerDocument: null,
+    getAttribute: (k) => (k in attrs ? attrs[k] : null),
+    setAttribute: (k, v) => { attrs[k] = String(v); },
+    hasAttribute: (k) => k in attrs,
+    querySelector: () => null,
+    attrs,
+  };
+}
+
 {
   const f = makeFetch({ mode: 'manual' });
   const loader = createSequenceLoader(makeVariant(), { fetchImpl: f.impl, decodeImage: makeDecoder().impl, AbortControllerImpl: FakeAbortController });
   const p = loader.prime();
   await tick();
+  check(loader.stats.inFlight > 0, 'prime() had nothing in flight, so pausing it proves nothing');
   loader.pause();
   const settled = await Promise.race([p, new Promise((r) => setTimeout(() => r('PENDING'), 50))]);
   check(settled !== 'PENDING', 'prime() was still pending 50ms after pause(); a hidden tab would leave the caller waiting on the watchdog');
+  check(settled !== 'PENDING' && settled.deferred === true,
+    `pause() settled prime() with ${JSON.stringify(settled)}. It must carry deferred:true. Without it the value is indistinguishable from a total network failure, and fallback.js degrades a stage that failed at nothing.`);
+  check(settled !== 'PENDING' && settled.reason === 'paused',
+    `pause() settled prime() with reason ${JSON.stringify(settled && settled.reason)}, expected 'paused'.`);
+  check(settled !== 'PENDING' && settled.failed === 0,
+    `pause() reported ${settled && settled.failed} failed frame(s); nothing on the wire had failed.`);
+
+  /* THE SEAM ITSELF. The shipped layer, the shipped settled value, and the
+     question the browser actually asks. */
+  const stage = stubStage();
+  const events = [];
+  const layer = createFallbackLayer(stage, { id: 'seam-stage' }, { chapters: [] }, {
+    onDiagnostic: (e) => events.push(e.type),
+    loader,
+  });
+  const verdict = await layer.armWatchdog(Promise.resolve(settled));
+  check(verdict === 'prime-deferred',
+    `the shipped fallback layer answered '${verdict}' for a paused prime; expected 'prime-deferred'.`);
+  check(layer.isDegraded() === false,
+    'the shipped fallback layer DEGRADED a stage because the loader was paused mid prime. degraded is terminal, so one tab switch during the first seconds of a sequence kills it permanently and returning to the tab restores nothing.');
+  check(stage.attrs['data-cine-state'] !== 'degraded',
+    `a paused prime left the stage at data-cine-state="${stage.attrs['data-cine-state']}".`);
+  check(events.includes('prime-deferred') && !events.includes('degraded'),
+    `a paused prime produced diagnostics ${JSON.stringify(events)}; expected prime-deferred and no degrade.`);
+  layer.destroy();
   loader.destroy();
 }
+
+/* resume() re-opens the deferred wait, hands the new promise to
+   onPrimeReopened, and finishes the anchor pass. "Resumes without jumping or
+   starting a duplicate loop" is the directive's wording; a resume that came
+   back with nothing watching its load would satisfy the letter of it. */
+{
+  const f = makeFetch({ mode: 'manual' });
+  const reopened = [];
+  const loader = createSequenceLoader(makeVariant(), {
+    fetchImpl: f.impl,
+    decodeImage: makeDecoder().impl,
+    AbortControllerImpl: FakeAbortController,
+    onPrimeReopened: (promise) => reopened.push(promise),
+  });
+  loader.prime();
+  await tick();
+  loader.pause();
+  const paused = await loader.prime();          // the deferred value, already settled
+  check(paused.deferred === true, 'prime() after pause() did not report deferred');
+  check(reopened.length === 0, 'onPrimeReopened fired before resume()');
+
+  loader.resume();
+  check(reopened.length === 1, `resume() re-opened ${reopened.length} prime waits, expected exactly 1. A stage coming back from a hidden tab with nothing watching its load is the failure this exists to stop.`);
+  check(loader.stats.primeReopenings === 1, `stats.primeReopenings is ${loader.stats.primeReopenings}, expected 1`);
+  const second = await settleUnder(f, loader, reopened[0]);
+  check(second.deferred === false && second.ok === true,
+    `the re-opened prime settled ${JSON.stringify(second)}; after a clean resume it must be a real completion, not another deferral.`);
+  check(f.overlaps.length === 0,
+    `pause/resume produced ${f.overlaps.length} overlapping fetch(es); the re-opened prime started a second scheduling loop.`);
+
+  /* And a second resume() must not open a third wait. */
+  loader.resume();
+  check(reopened.length === 1, 'a no-op resume() re-opened another prime wait');
+  loader.destroy();
+}
+
+/* Priming a loader that is ALREADY paused (a page opened in a background tab:
+   scroll-stage.start() pauses the loader before index.js primes it) settles
+   immediately as deferred. It used to stay pending forever, because pump()
+   returns at once while paused and nothing could ever settle it, and the
+   fallback watchdog degraded the stage 6000ms later. */
+{
+  const f = makeFetch({ mode: 'manual' });
+  const reopened = [];
+  const loader = createSequenceLoader(makeVariant(), {
+    fetchImpl: f.impl,
+    decodeImage: makeDecoder().impl,
+    AbortControllerImpl: FakeAbortController,
+    onPrimeReopened: (promise) => reopened.push(promise),
+  });
+  loader.pause();
+  const settled = await Promise.race([loader.prime(), new Promise((r) => setTimeout(() => r('PENDING'), 50))]);
+  check(settled !== 'PENDING',
+    'prime() on an already-paused loader never settled. A page opened in a background tab primes into a paused loader, nothing is ever in flight, and only the 6000ms watchdog ends the wait, by degrading a stage that failed at nothing.');
+  check(settled !== 'PENDING' && settled.deferred === true,
+    `prime() on a paused loader settled ${JSON.stringify(settled)}; expected deferred:true`);
+  check(f.count === 0, `prime() on a paused loader issued ${f.count} request(s)`);
+
+  const stage = stubStage('hidden-tab');
+  const layer = createFallbackLayer(stage, { id: 'hidden-tab' }, { chapters: [] }, { loader });
+  const verdict = await layer.armWatchdog(Promise.resolve(settled));
+  check(verdict === 'prime-deferred' && layer.isDegraded() === false,
+    'the shipped fallback layer degraded a stage that was primed in a background tab');
+  layer.destroy();
+
+  loader.resume();
+  check(reopened.length === 1, 'resuming a background tab did not re-open the prime wait');
+  const done = await settleUnder(f, loader, reopened[0]);
+  check(done.ok === true, `after becoming visible the re-opened prime settled ${JSON.stringify(done)}`);
+  loader.destroy();
+}
+
+/* destroy() settles a live prime too, and that value must NOT degrade either:
+   the stage is being disposed of, not failing. */
 {
   const f = makeFetch({ mode: 'manual' });
   const loader = createSequenceLoader(makeVariant(), { fetchImpl: f.impl, decodeImage: makeDecoder().impl, AbortControllerImpl: FakeAbortController });
@@ -436,6 +581,34 @@ async function drain(loader, maxTicks = 800) {
   loader.destroy();
   const settled = await Promise.race([p, new Promise((r) => setTimeout(() => r('PENDING'), 50))]);
   check(settled !== 'PENDING', 'prime() was still pending 50ms after destroy()');
+  check(settled !== 'PENDING' && settled.reason === 'destroyed',
+    `destroy() settled prime() with reason ${JSON.stringify(settled && settled.reason)}, expected 'destroyed'`);
+  const stage = stubStage('destroyed-stage');
+  const layer = createFallbackLayer(stage, { id: 'destroyed-stage' }, { chapters: [] }, {});
+  const verdict = await layer.armWatchdog(Promise.resolve(settled));
+  check(verdict === 'prime-abandoned' && layer.isDegraded() === false,
+    `tearing a loader down made the fallback layer answer '${verdict}' and degraded=${layer.isDegraded()}; a page being disposed of has not failed at anything`);
+  layer.destroy();
+}
+
+/* AND THE OTHER DIRECTION, so 'deferred' cannot become a blanket excuse: a
+   prime whose anchors genuinely all failed must STILL degrade. */
+{
+  const loader = createSequenceLoader(makeVariant(), {
+    fetchImpl: async () => ({ ok: false, status: 404 }),
+    decodeImage: makeDecoder().impl,
+    AbortControllerImpl: FakeAbortController,
+  });
+  const settled = await loader.prime();
+  check(settled.ok === false && settled.deferred === false,
+    `a prime whose every anchor 404ed settled ${JSON.stringify(settled)}; it is a real failure and must not be marked deferred`);
+  const stage = stubStage('all-failed');
+  const layer = createFallbackLayer(stage, { id: 'all-failed' }, { chapters: [] }, {});
+  const verdict = await layer.armWatchdog(Promise.resolve(settled));
+  check(verdict === 'prime-failed' && layer.isDegraded() === true,
+    'a sequence whose every anchor frame 404ed did NOT degrade. The deferred branch has swallowed the real failure case.');
+  layer.destroy();
+  loader.destroy();
 }
 
 // prime() twice returns the same promise and does not re-request the skeleton.

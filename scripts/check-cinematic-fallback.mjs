@@ -206,10 +206,120 @@ for (const r of rules) {
 }
 ok('no rule applies motion to a selector that can hold readable text');
 
-check(rules.some((r) => r.selector === '.cine-stage .reveal'
-  && r.declarations.some((d) => d.prop === 'transform' && /none/.test(d.value) && /!important/.test(d.value))
-  && r.declarations.some((d) => d.prop === 'opacity' && /^1/.test(d.value) && /!important/.test(d.value))),
-  `${CSS_REL}: the .reveal neutraliser inside a stage is missing or is not !important. site.js animates opacity and transform on .reveal, which over a stage is motion applied to a container full of readable text.`);
+/* ── 3b. THE OWNER RULE AGAINST THE REST OF THE SITE, DERIVED ───────────────
+   WHAT THIS REPLACED. There used to be one assertion here: that
+   `.cine-stage .reveal` exists and is !important. .reveal is ONE of the six
+   mechanisms the site animates readable text with, and measuring the real page
+   on 2026-08-28 found five others alive inside stages: .mw (overflow:hidden)
+   wrapping .mwi (transform) on every h2 word, li.pstep (opacity .45 +
+   translateY), div.status (opacity 0 + translateX), .rail-track (translateX)
+   and .stack .layer / .summary-arrive. The block titled "THE OWNER RULE,
+   ENFORCED AGAINST THE REST OF THE SITE" enforced one sixth of it.
+
+   THE LIST IS NOT TYPED HERE. It is read out of assets/motion/site.css: any
+   selector that file itself neutralises under `html.motion-off`, under
+   `html.no-js`, or inside its own @media (prefers-reduced-motion: reduce) block
+   IS by the site's own convention an entrance animation on content, and every
+   one of them must also be neutralised inside a released cinematic stage. Add a
+   new entrance animation to the site with its usual motion-off partner and this
+   guard demands the cinematic neutraliser in the same commit. A guard that
+   copied today's six would have expired green.
+
+   The rendered half, which catches a mechanism NOBODY enumerated, is
+   tests/cinematic-home.spec.js: it reads getComputedStyle on every element with
+   text inside a stage flipped to released and fails on any survivor. */
+const SITE_CSS_REL = 'assets/motion/site.css';
+const siteRules = parseRules(stripComments(read(SITE_CSS_REL)));
+
+/** The leaf selector a site neutraliser is about: `html.motion-off .pstep`
+    describes `.pstep`. Pseudo-classes and states are dropped, because the
+    cinematic neutraliser has to cover the element in every state. */
+function leafOf(sel) {
+  return sel
+    .replace(/^\s*html\.(motion-off|no-js)\s+/, '')
+    .replace(/^\s*\.(motion-off|no-js)\s+/, '')
+    .replace(/:(hover|focus|active|not\([^)]*\))/g, '')
+    .replace(/\.(in|active|done)\b/g, '')
+    .trim();
+}
+
+const siteNeutralised = new Set();
+for (const r of siteRules) {
+  const reduced = r.atRule && /prefers-reduced-motion\s*:\s*reduce/.test(r.atRule);
+  for (const part of r.selector.split(',')) {
+    const sel = part.trim();
+    if (!sel) continue;
+    const isMotionOff = /^html\.(motion-off|no-js)\b/.test(sel) || /^\.(motion-off|no-js)\b/.test(sel);
+    if (!isMotionOff && !reduced) continue;
+    const leaf = leafOf(sel);
+    if (!leaf || leaf.startsWith('html') || !leaf.startsWith('.')) continue;
+    siteNeutralised.add(leaf);
+  }
+}
+check(siteNeutralised.size >= 4,
+  `${SITE_CSS_REL}: only ${siteNeutralised.size} entrance animation(s) were derived from the site's own motion-off and reduced-motion rules. This guard cannot be measuring the site's motion system; do not relax it, find out why the parse changed.`);
+
+/* What cine-stage.css actually neutralises, and under which stage scope. The
+   scope matters: a neutraliser on `.cine-stage` unconditionally would cancel
+   the site's whole reveal system on a page with no sequences at all, and
+   index.js's own rule is that a stage awaiting artwork does not exist yet. */
+const CINE_SCOPE = '.cine-stage:not([data-cine-artwork="pending"])';
+const cineNeutralised = new Map();
+for (const r of rules) {
+  if (r.atRule) continue;
+  const removes = r.declarations.filter((d) => MOTION_PROPS.test(d.prop) || d.prop === 'overflow' || d.prop === 'animation');
+  if (!removes.length) continue;
+  for (const part of r.selector.split(',')) {
+    const sel = part.trim();
+    if (!sel.startsWith(CINE_SCOPE)) continue;
+    const leaf = sel.slice(CINE_SCOPE.length).trim();
+    const props = cineNeutralised.get(leaf) || new Set();
+    for (const d of removes) props.add(d.prop);
+    cineNeutralised.set(leaf, props);
+  }
+}
+
+/* The exemptions, read out of the stylesheet's own comments so a skip has to be
+   argued in the file the rule lives in rather than in this guard. */
+const EXEMPT_RE = new RegExp('cine-owner-exempt:\\s*([^\\r\\n]+?)\\s+--\\s+([^\\r\\n]+)', 'g');
+const exemptions = [...cssSource.matchAll(EXEMPT_RE)]
+  .map((m) => ({ selector: m[1].trim(), reason: m[2].trim() }));
+check(exemptions.length > 0,
+  `${CSS_REL}: no cine-owner-exempt entries at all. The owner rule's exemption list must live beside the rule; if it is genuinely empty, say so in a comment there.`);
+for (const e of exemptions) {
+  check(e.reason.length > 20,
+    `${CSS_REL}: cine-owner-exempt "${e.selector}" gives the reason "${e.reason}", which is not an argument that the selector holds no readable text.`);
+}
+const isExempt = (leaf) => exemptions.some((e) => leaf === e.selector || leaf.includes(e.selector));
+
+const uncovered = [...siteNeutralised].filter((leaf) => !cineNeutralised.has(leaf) && !isExempt(leaf));
+check(uncovered.length === 0,
+  `${CSS_REL}: assets/motion/site.css animates ${JSON.stringify(uncovered)} on readable content and neutralises it for reduced motion, but ${CSS_REL} does not neutralise it inside a released stage. "Never apply transform, opacity, filter, mask, clip or fragmentation to any container holding readable text" is absolute; add "${CINE_SCOPE} ${uncovered[0] || 'SELECTOR'}" to the owner rule block.`);
+
+/* Every neutraliser must actually neutralise, and must win. site.css lives in
+   a later stylesheet at equal specificity, and GSAP writes inline styles: only
+   !important beats both. */
+for (const [leaf, props] of cineNeutralised) {
+  for (const r of rules) {
+    if (r.atRule) continue;
+    if (!r.selector.split(',').some((x) => x.trim() === `${CINE_SCOPE} ${leaf}`)) continue;
+    for (const d of r.declarations) {
+      check(/!important/.test(d.value),
+        `${CSS_REL}: "${CINE_SCOPE} ${leaf}" declares ${d.raw} without !important. site.css declares the same property at equal specificity in a later stylesheet and GSAP writes it inline; without !important the neutraliser loses and nothing says so.`);
+    }
+  }
+  void props;
+}
+check(cineNeutralised.has('.reveal'),
+  `${CSS_REL}: the .reveal neutraliser inside a stage is missing. site.js animates opacity and transform on .reveal, which over a stage is motion applied to a container full of readable text.`);
+check(cineNeutralised.has('.mw') && [...cineNeutralised.get('.mw')].includes('overflow'),
+  `${CSS_REL}: .mw is not un-clipped inside a released stage. assets/motion/scroll.js wraps every heading word in a span with overflow:hidden, which is fragmentation and clip on a heading; a transform neutraliser alone leaves the clip.`);
+ok(`the owner rule accounts for all ${siteNeutralised.size} entrance animations assets/motion/site.css declares: ${cineNeutralised.size} neutralised inside a released stage, ${exemptions.length} exempted with a written reason`);
+
+/* And the fragmentation itself, which no stylesheet can undo. */
+const scrollJs = read('assets/motion/scroll.js');
+check(/\.cine-stage:not\(\[data-cine-artwork="pending"\]\)/.test(scrollJs),
+  'assets/motion/scroll.js still splits headings into per-word spans inside a released cinematic stage. CSS can un-clip and un-transform those spans; it cannot un-split them, so the split has to be refused at the source.');
 
 check(rules.some((r) => r.selector.includes('[hidden]') && r.selector.includes('data-cine-canvas')
   && r.declarations.some((d) => d.prop === 'display' && /none/.test(d.value) && /!important/.test(d.value))),
@@ -230,8 +340,14 @@ for (const [re, why] of BANNED) {
 
 const mod = await import(`file://${path.join(root, JS_REL).replace(/\\/g, '/')}`);
 const exported = Object.keys(mod).filter((k) => k !== 'default');
-check(exported.length === 1 && exported[0] === 'createFallbackLayer',
-  `${JS_REL} exports ${JSON.stringify(exported)}; the contract's module surface is exactly ['createFallbackLayer'].`);
+check(exported.sort().join(',') === 'MODULE_URL,createFallbackLayer',
+  `${JS_REL} exports ${JSON.stringify(exported)}; the contract's module surface is exactly ['createFallbackLayer','MODULE_URL'].`);
+/* MODULE_URL is import.meta.url, not a path anyone typed. index.js reports it
+   as handle.sources.fallback and the browser guards refuse a run whose
+   collaborators are not the shipped files; a literal there was an assertion
+   about a constant. */
+check(typeof mod.MODULE_URL === 'string' && mod.MODULE_URL.endsWith('/fallback.js'),
+  `${JS_REL}: MODULE_URL is ${JSON.stringify(mod.MODULE_URL)}; it must be this file's own import.meta.url.`);
 ok(`${JS_REL} imported in Node with no window or document at the top level`);
 
 /* A bad stage element must be refused with a real error rather than crashing on

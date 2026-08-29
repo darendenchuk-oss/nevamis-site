@@ -163,14 +163,21 @@
   display: none !important;
 }
 
-/* Once the sequence is actually painting, the poster underneath is dead
-   weight. Fading it is optional: if data-cine-state is never advanced past
-   "poster" the page is still correct, because the canvas is opaque where it
-   has drawn. No visibility depends on a state flip arriving. */
-.cine-stage[data-cine-state="scrubbing"] img[data-cine-poster] {
-  opacity: 0;
-  transition: opacity var(--cine-fade) linear;
-}
+/* THE "scrubbing" RULE THAT USED TO LIVE HERE IS GONE, 2026-08-28.
+   It faded the poster once the sequence was painting, and nothing in the
+   shipped engine has ever written data-cine-state="scrubbing": fallback.js
+   lists it as a legal state and no code path calls setState('scrubbing'). A
+   rule scoped to a state that never occurs is the exact defect this file's
+   header claims to have eliminated, and it was sitting eight rules below that
+   claim. Measured before removal: after 2.5s of live scrubbing the poster's
+   computed opacity read "1" and the attribute stayed "poster" throughout.
+
+   Removing it is also the safer half. canvas.width assignment clears the
+   bitmap and resets paintedIndex to null, so on a resize there is one frame
+   with nothing drawn; a poster faded to 0 underneath would show the flat
+   backdrop for that frame. The poster staying opaque is what stops it. If a
+   writer for this state is ever added, the fade has to come back WITH a
+   repaint-before-fade ordering, not on its own. */
 
 /* ─────────────────────────────────────────────────────────────────────────
    3. The content above the backdrop.
@@ -194,18 +201,112 @@
   user-select: text;
 }
 
-/* THE OWNER RULE, ENFORCED AGAINST THE REST OF THE SITE.
-   site.js reveals content by animating opacity and transform on .reveal. Over
-   a cinematic stage that is a transform and an opacity on a container full of
-   readable text, which is forbidden outright. Inside a stage, reveals are
-   neutralised: the text is simply there. !important is required because the
-   site's own .reveal rules live in a later stylesheet at equal specificity. */
-.cine-stage .reveal {
+/* ═════════════════════════════════════════════════════════════════════════
+   THE OWNER RULE, ENFORCED AGAINST THE REST OF THE SITE.
+
+   "Never apply transform, opacity, filter, mask, clip or fragmentation to any
+   container holding readable text. Motion lives in the stage only."
+
+   THIS BLOCK USED TO NEUTRALISE ONE MECHANISM OF SIX, AND SAID IT ENFORCED THE
+   RULE. Measured in Chromium at 1440x900 across the whole document depth on
+   2026-08-28, with only `.reveal` covered, these were live inside stages:
+
+     .mw       overflow:hidden           the word mask assets/motion/scroll.js
+     .mwi      transform translateY      wraps every h2 word in. Fragmentation
+                                         AND clip AND transform, on a heading.
+     li.pstep  opacity .45 + translateY  "Find PULSE reads what is public ..."
+     .status   opacity 0 + translateX    "CALL ANSWERED"
+     .rail-track  transform translateX   the capability rail's labels
+     .stack .layer / .summary-arrive     opacity 0 + translateY on copy
+
+   So the enumeration below is the enforcement, and it is checked two ways that
+   do not share an assumption and catch different things.
+
+     scripts/check-cinematic-fallback.mjs reads assets/motion/site.css, derives
+     every selector that file itself neutralises for reduced motion (which is
+     the site's own definition of "an entrance animation on content") and fails
+     if this block names neither it nor a reasoned exemption. That is the limb
+     that catches a selector being dropped from the list below. Proven: deleting
+     .pstep from this block fails that guard by name.
+
+     tests/cinematic-home.spec.js serves the page with a stage released, reads
+     getComputedStyle on every element inside it that holds its own text, and
+     fails on any non-neutral value that is not exempted. That is the limb that
+     catches a mechanism NOBODY enumerated, because it does not read this list
+     at all. It sees whatever is actually moving when it looks: proven on
+     div.status and on the .mw/.mwi word masks. It cannot see an entrance
+     animation that has already settled by the time it looks, which is exactly
+     why the first limb exists.
+
+   WHY IT IS SCOPED TO A RELEASED STAGE.
+   A stage awaiting artwork has no canvas, no sticky backdrop, no scroll length
+   and no sequence: assets/cinematic/index.js says it plainly, "a stage with no
+   approved artwork is not a degraded stage, it is a stage that does not exist
+   yet", and skips it entirely. There is no cinematic motion for site motion to
+   contradict, and home.html's own claim is that a pending stage costs the page
+   nothing. Cancelling the site's entire reveal system on a page with no
+   sequences would make the wrapper the most expensive thing on it. The moment
+   data-cine-artwork stops saying "pending" the whole block applies, with no
+   further edit and no JavaScript: the attribute is in the served HTML.
+
+   FRAGMENTATION CANNOT BE UNDONE FROM CSS. .mw/.mwi are elements scroll.js
+   creates; the rules below un-clip and un-transform them, and
+   assets/motion/scroll.js additionally refuses to fragment a heading inside a
+   released stage at all, so the words stay one text node.
+   ═════════════════════════════════════════════════════════════════════════ */
+.cine-stage:not([data-cine-artwork="pending"]) .reveal,
+.cine-stage:not([data-cine-artwork="pending"]) .summary-arrive,
+.cine-stage:not([data-cine-artwork="pending"]) .stack .layer,
+.cine-stage:not([data-cine-artwork="pending"]) .pstep,
+.cine-stage:not([data-cine-artwork="pending"]) .status,
+.cine-stage:not([data-cine-artwork="pending"]) .mwi,
+.cine-stage:not([data-cine-artwork="pending"]) .rail-track,
+.cine-stage:not([data-cine-artwork="pending"]) .nb-scene,
+.cine-stage:not([data-cine-artwork="pending"]) .nb-chip,
+.cine-stage:not([data-cine-artwork="pending"]) .spine i {
   opacity: 1 !important;
   transform: none !important;
   filter: none !important;
   clip-path: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  animation: none !important;
+  /* A transition IS the motion, and without cancelling it the neutralisation
+     is itself an animation: measured, a .reveal inside a stage flipped to
+     released was still reading opacity 0.99 and a translateY 200ms later,
+     easing toward the value this rule had just set. */
+  transition: none !important;
 }
+
+/* The clip half. .mw is overflow:hidden, which is fragmentation's other limb:
+   a word can be masked out of existence with no transform anywhere. */
+.cine-stage:not([data-cine-artwork="pending"]) .mw {
+  overflow: visible !important;
+}
+
+/* An accordion body that slides open is still an animation on a paragraph. */
+.cine-stage:not([data-cine-artwork="pending"]) .faq details p {
+  animation: none !important;
+}
+
+/* THE EXEMPTIONS, ENUMERATED AND REASONED.
+   scripts/check-cinematic-fallback.mjs derives the list of things
+   assets/motion/site.css animates on content (anything that file neutralises
+   under html.motion-off, html.no-js or its own reduced motion block) and fails
+   if this file neither neutralises nor exempts one. An exemption is a written
+   claim that the selector holds no readable text, or is not laid out inside the
+   stage at all. It is not a way to skip the rule; it is the way a skip has to
+   be argued in the file the rule lives in.
+
+   cine-owner-exempt: ::before -- a generated pseudo element. It cannot be a container holding readable text; its content is decoration.
+   cine-owner-exempt: ::after -- a generated pseudo element, same as ::before. It cannot be a container holding readable text.
+   cine-owner-exempt: .callback-bar -- position:fixed, so it is not laid out inside any stage and never sits over the canvas. Its transform is also its centring (left:50% + translate(-50%)), so a blanket transform:none would move it off centre rather than remove motion.
+   cine-owner-exempt: .vb i -- the voice waveform bars. Empty elements with no text node; voice.js writes scaleY on them and that IS the visualisation.
+   cine-owner-exempt: .spine i -- the signal spine's fill. An empty element, pointer-events:none, no text.
+   cine-owner-exempt: .lede-sub -- opacity .85 is a static de-emphasis, a colour decision written once in the hero. It carries no transition and no animation and never changes; the rule is about motion on copy, not about the shade of it.
+   cine-owner-exempt: .sr-only -- clip-path:inset(50%) IS the screen reader only technique. Removing it does not remove motion, it puts a caption written for a screen reader on the screen.
+   cine-owner-exempt: .loop-learn -- an SVG label inside the loop diagram at a fixed opacity .8, which is how that one arm of the diagram is drawn back. Static, no transition, no animation.
+*/
 
 /* ─────────────────────────────────────────────────────────────────────────
    4. The reduced motion artwork slots.

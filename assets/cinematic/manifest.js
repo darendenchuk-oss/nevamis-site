@@ -10,6 +10,16 @@
    Browser ES module. Also imported directly by Node (package.json sets
    "type": "module"), so the guards validate with the same code the page runs. */
 
+/** WHERE THIS FILE ACTUALLY CAME FROM. Not a written down path: a value
+ *  only the module system can produce, so it cannot agree with a stale
+ *  literal. assets/cinematic/index.js reports these as handle.sources and
+ *  tests/helpers/cinematic-guards.js#assertBoundToShippedEngine() refuses a
+ *  run whose collaborators are not the shipped files. Before this existed
+ *  index.js built sources from hardcoded strings, so changing a static
+ *  import to any other file left all seventeen guards green while they
+ *  measured a module nothing ships. */
+export const MODULE_URL = import.meta.url;
+
 /** Canonical sequence ids, in ordinal order. Nothing else may hardcode this list. */
 export const SEQUENCE_IDS = Object.freeze(['signal-to-system', 'system-to-outcomes', 'system-to-decision']);
 

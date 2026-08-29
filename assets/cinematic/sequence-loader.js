@@ -26,6 +26,16 @@
    the whole module unit tests in Node. */
 import { frameUrl } from './manifest.js';
 
+/** WHERE THIS FILE ACTUALLY CAME FROM. Not a written down path: a value
+ *  only the module system can produce, so it cannot agree with a stale
+ *  literal. assets/cinematic/index.js reports these as handle.sources and
+ *  tests/helpers/cinematic-guards.js#assertBoundToShippedEngine() refuses a
+ *  run whose collaborators are not the shipped files. Before this existed
+ *  index.js built sources from hardcoded strings, so changing a static
+ *  import to any other file left all seventeen guards green while they
+ *  measured a module nothing ships. */
+export const MODULE_URL = import.meta.url;
+
 /** Default request ceiling. Six matches a browser's per-origin HTTP/1.1 limit,
     so a seventh would queue in the socket pool where we can no longer abort it. */
 export const DEFAULT_MAX_CONCURRENT = 6;
@@ -162,6 +172,10 @@ export function createSequenceLoader(variant, options = {}) {
   }
   const decodeImage = options.decodeImage || defaultDecoder;
   const onDiagnostic = typeof options.onDiagnostic === 'function' ? options.onDiagnostic : null;
+  /* Called with the NEW prime promise when a deferred prime is re-opened by
+     resume(). See "A PAUSE IS NOT A FAILURE" below: without a consumer for
+     this, a stage paused mid-prime would never get a second wait armed. */
+  const onPrimeReopened = typeof options.onPrimeReopened === 'function' ? options.onPrimeReopened : null;
   const AbortCtor = options.AbortControllerImpl
     || (typeof AbortController === 'function' ? AbortController : null);
 
@@ -187,8 +201,10 @@ export function createSequenceLoader(variant, options = {}) {
   let destroyed = false;
   let primeActive = false;
   let primeSettled = false;
+  let primeDeferred = false;
   let primePromise = null;
   let resolvePrime = null;
+  let primeReopenings = 0;
   let anchorPassEmitted = false;
 
   let bytes = 0;
@@ -426,16 +442,107 @@ export function createSequenceLoader(variant, options = {}) {
     settlePrime();
   }
 
-  function settlePrime() {
+  /* ── A PAUSE IS NOT A FAILURE ────────────────────────────────────────────
+     WHAT THIS SHAPE EXISTS TO STOP, measured 2026-08-28 on the real engine.
+     pause() force settles a prime that is still in flight, which is right:
+     "never a loader forever" applies to the promise as much as to the spinner.
+     But it used to settle with `ok: primeStats.ready > 0`, and before the first
+     anchor lands that is false. fallback.js reads ok === false as a total load
+     failure and degrades, degraded is terminal, and index.js then stops the
+     stage. So ONE tab switch during the first seconds of a sequence killed it
+     permanently, and coming back restored nothing. A background tab was worse:
+     scroll-stage pauses the loader at start(), pump() returns immediately
+     because paused, nothing is ever in flight, nothing settles, and the 6000ms
+     watchdog degraded a stage that had not failed at anything.
+
+     The settled value now says WHICH of the two happened. `deferred: true`
+     means "stopped, not finished, and it will be re armed" and no consumer may
+     read it as a failure. `reason` names the cause for the diagnostic stream.
+     A deferred settle also releases primePromise, so resume() can open a fresh
+     wait and hand it to onPrimeReopened; that is the "resumes without jumping
+     or starting a duplicate loop" half, and there is still exactly one
+     scheduling entry point (pump) either way.
+
+     @param {string} [deferReason] 'paused' or 'destroyed'. Absent means the
+            anchor pass genuinely finished and ok reflects what it achieved. */
+  function settlePrime(deferReason) {
     if (!primeActive || primeSettled) return;
     primeSettled = true;
+    const deferred = deferReason === 'paused';
+    primeDeferred = deferred;
     const result = {
-      ok: primeStats.ready > 0,
+      /* ok stays false for a deferred settle so a consumer that only reads ok
+         is CONSERVATIVE rather than optimistic. Every consumer in this repo is
+         required to read `deferred` first; scripts/check-cinematic-loader.mjs
+         asserts that the shipped fallback layer actually does. */
+      ok: deferReason ? false : primeStats.ready > 0,
+      deferred,
+      reason: deferReason || (primeStats.ready > 0 ? 'anchors-ready' : 'anchors-failed'),
       resident: resident.size,
       requested: primeStats.requested,
       failed: primeStats.failed,
     };
+    if (deferred) primePromise = null;   // resume() may open a new wait
+    /* Named 'prime-resolved', not 'prime-settled': fallback.js emits
+       'prime-settled' with a different shape onto the SAME diagnostic stream
+       (index.js hands one emit to both), and two shapes under one type is how a
+       reader ends up debugging the wrong module. */
+    emit({ type: 'prime-resolved', ...result });
     resolvePrime(result);
+  }
+
+  /** prime(), pause() and resume() are named functions rather than object
+      literal methods because resume() has to call prime() and a literal cannot
+      reach its own sibling without `this`, which a destructured caller loses. */
+  function primeSelf() {
+    if (primePromise) return primePromise;
+    if (destroyed) {
+      return Promise.resolve({
+        ok: false, deferred: false, reason: 'destroyed', resident: 0, requested: 0, failed: 0,
+      });
+    }
+    const p = new Promise((resolve) => { resolvePrime = resolve; });
+    primePromise = p;
+    primeActive = true;
+    primeSettled = false;
+    primeDeferred = false;
+    if (paused) {
+      /* Priming a paused loader (a stage mounted in a background tab) must not
+         leave a wait that only a watchdog can end. It is deferred at once and
+         re opened by resume(). */
+      settlePrime('paused');
+      return p;
+    }
+    pump();
+    maybeSettlePrime();
+    return p;
+  }
+
+  function pauseSelf() {
+    if (destroyed || paused) return;
+    paused = true;
+    abortInFlight(() => true, 'pause');
+    emit({ type: 'paused' });
+    if (primeActive && !primeSettled) settlePrime('paused');
+  }
+
+  function resumeSelf() {
+    if (destroyed || !paused) return;
+    paused = false;
+    emit({ type: 'resumed' });
+    if (primeActive && primeDeferred && !primePromise) {
+      primeDeferred = false;
+      primeReopenings += 1;
+      const p = primeSelf();
+      emit({ type: 'prime-reopened', reopenings: primeReopenings });
+      if (onPrimeReopened) {
+        /* A consumer that throws must not be able to stop loading, and must not
+           do it invisibly either. */
+        try { onPrimeReopened(p); } catch { diagnosticErrors += 1; }
+      }
+      return;                            // primeSelf() already pumped
+    }
+    pump();
   }
 
   return {
@@ -483,36 +590,17 @@ export function createSequenceLoader(variant, options = {}) {
         Before this call the loader issues no network requests at all, which is
         what lets a caller keep an offscreen sequence silent. Idempotent: a
         second call returns the same promise. Always settles. */
-    prime() {
-      if (primePromise) return primePromise;
-      if (destroyed) return Promise.resolve({ ok: false, resident: 0, requested: 0, failed: 0 });
-      primePromise = new Promise((resolve) => { resolvePrime = resolve; });
-      primeActive = true;
-      pump();
-      maybeSettlePrime();
-      return primePromise;
-    },
+    prime: primeSelf,
 
     /** Stop all network and decode work. In flight requests are aborted and go
         back to fetchable. A prime() still in flight is settled here rather than
         left pending forever behind a hidden tab: "never a loader forever"
         applies to the promise as much as to the spinner. */
-    pause() {
-      if (destroyed || paused) return;
-      paused = true;
-      abortInFlight(() => true, 'pause');
-      emit({ type: 'paused' });
-      if (primeActive && !primeSettled) settlePrime();
-    },
+    pause: pauseSelf,
 
     /** Resume. The early return when not paused is what makes a second call a
         no op; there is no scheduling loop for it to duplicate either way. */
-    resume() {
-      if (destroyed || !paused) return;
-      paused = false;
-      emit({ type: 'resumed' });
-      pump();
-    },
+    resume: resumeSelf,
 
     destroy() {
       if (destroyed) return;
@@ -522,7 +610,7 @@ export function createSequenceLoader(variant, options = {}) {
       resident.clear();
       state.clear();
       evictions.clear();
-      if (primeActive && !primeSettled) settlePrime();
+      if (primeActive && !primeSettled) settlePrime('destroyed');
     },
 
     /* The contract's six fields, plus the counters a guard needs to prove the
@@ -543,6 +631,8 @@ export function createSequenceLoader(variant, options = {}) {
         diagnosticErrors,
         primed: primeActive,
         primeSettled,
+        primeDeferred,
+        primeReopenings,
         focus,
         frameCount,
         decodeWindow,

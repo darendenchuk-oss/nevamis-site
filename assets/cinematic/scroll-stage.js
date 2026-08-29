@@ -51,6 +51,16 @@
 
 import { frameIndexForProgress, FIT } from './manifest.js';
 
+/** WHERE THIS FILE ACTUALLY CAME FROM. Not a written down path: a value
+ *  only the module system can produce, so it cannot agree with a stale
+ *  literal. assets/cinematic/index.js reports these as handle.sources and
+ *  tests/helpers/cinematic-guards.js#assertBoundToShippedEngine() refuses a
+ *  run whose collaborators are not the shipped files. Before this existed
+ *  index.js built sources from hardcoded strings, so changing a static
+ *  import to any other file left all seventeen guards green while they
+ *  measured a module nothing ships. */
+export const MODULE_URL = import.meta.url;
+
 /** Backing store never exceeds this multiple of the CSS box, whatever the device claims. */
 const DEFAULT_MAX_DPR = 2;
 
@@ -142,6 +152,7 @@ export function createScrollStage(stageEl, sequence, variant, loader, options = 
   let hiddenPaused = false;
   let fatalSent = false;
   let zeroBoxReported = false;
+  let unstyledBoxReported = false;
   let noRangeReported = false;
   let shortStageReported = false;
   let waitingFor = null;
@@ -205,6 +216,35 @@ export function createScrollStage(stageEl, sequence, variant, loader, options = 
     const r = canvas.getBoundingClientRect();
     const cssWidth = r.width;
     const cssHeight = r.height;
+
+    /* THE 300x150 HOLE IS WIDER THAN "THE BACKING STORE IS 300x150".
+       A canvas whose stylesheet never arrived keeps its INTRINSIC 300x150 CSS
+       box. That box passes the >= 1 test below, the backing store becomes
+       600x300 at dpr 2, and the stage paints a whole sequence into a postage
+       stamp while every diagnostic reports success. The literal default is
+       therefore not the thing to test for: an unstyled canvas is one whose CSS
+       box is EXACTLY the intrinsic default while the stage around it is wider,
+       which is a state no layout in this stylesheet produces. */
+    if (Math.round(cssWidth) === 300 && Math.round(cssHeight) === 150 && !unstyledBoxReported) {
+      const host = stageEl.getBoundingClientRect();
+      if (host.width > 320) {
+        unstyledBoxReported = true;
+        emit({
+          type: 'canvas-unstyled',
+          sequenceId: sequence.id,
+          cssWidth,
+          cssHeight,
+          stageWidth: Math.round(host.width),
+          detail: 'the canvas is at its intrinsic 300x150 inside a stage that is far wider, which is what a missing assets/cinematic/cine-stage.css looks like from in here. The sequence would paint at a fraction of its resolution with nothing in the console.',
+        });
+        /* Reported, not fatal. tests/cinematic-stage.spec.js:345 serves the
+           harness with ?nocss=1 and requires the stage to keep measuring and
+           keep explaining itself; killing it here would replace one silence
+           with another. The homepage cannot reach this state at all now: its
+           stage stylesheet is inlined into the document (home.html's
+           generated:cine-css region), so there is no request left to fail. */
+      }
+    }
 
     if (!(cssWidth >= 1) || !(cssHeight >= 1)) {
       /* DO NOT touch canvas.width/height here. Assigning a size derived from a
@@ -334,6 +374,30 @@ export function createScrollStage(stageEl, sequence, variant, loader, options = 
         } else if (!waitReported) {
           waitReported = true;
           emit({ type: 'wait-timeout', sequenceId: sequence.id, index: frameIndex, ms: FRAME_WAIT_MS });
+          /* THE NEAREST FRAME, AND WHY ONLY HERE.
+             Until 2026-08-28 loader.nearest() was an exported seam with no
+             caller anywhere in the shipped engine, exercised only by unit
+             guards: three files were green about behaviour the product never
+             ran. It is called at exactly one moment, and the moment is the
+             point of it. On the hot path get() is right: the visitor is
+             scrolling, the exact frame is arriving, and painting a neighbour
+             would put a frame on screen that does not match the scroll
+             position. Once the bounded wait has EXPIRED, the alternative is not
+             the right frame, it is whatever was last painted, which may be a
+             hundred frames away. The nearest resident frame is closer by
+             definition, and the correct one still repaints the moment it lands
+             because paintedIndex no longer equals frameIndex. */
+          const fallbackFrame = typeof loader.nearest === 'function' ? loader.nearest(frameIndex) : null;
+          if (fallbackFrame && fallbackFrame.image && fallbackFrame.index !== paintedIndex) {
+            emit({
+              type: 'nearest-painted',
+              sequenceId: sequence.id,
+              wanted: frameIndex,
+              painted: fallbackFrame.index,
+              distance: Math.abs(fallbackFrame.index - frameIndex),
+            });
+            paint(fallbackFrame.image, fallbackFrame.index);
+          }
         }
         return;
       }
@@ -464,6 +528,19 @@ export function createScrollStage(stageEl, sequence, variant, loader, options = 
       running = false;
       cancelTick();
       detach();
+      /* hiddenPaused MUST be cleared here, and this is not hypothetical
+         tidiness. A stage stopped while the document was hidden left
+         hiddenPaused true with the loader paused; a later start() while visible
+         then took the `if (doc.hidden)` branch as false, called requestTick()
+         and ran, with the loader still paused, so loader.get() returned null
+         forever and the stage sat in its bounded FRAME_WAIT_MS loop emitting
+         'skipped'. Nothing distinguished that from "the frames have not arrived
+         yet". Announced rather than silently corrected, because a stop() while
+         hidden is also the only way to reach it. */
+      if (hiddenPaused) {
+        hiddenPaused = false;
+        emit({ type: 'stopped-while-hidden', sequenceId: sequence.id, detail: 'the loader stays paused until something resumes it; a later start() re-reads document.hidden rather than inheriting this one' });
+      }
     },
     destroy() {
       if (destroyed) return;

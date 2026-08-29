@@ -215,14 +215,14 @@ if (!fs.existsSync(placeholderPath)) {
 /* The contract, expressed as code. When an agent renames an export, this is the
    thing that says so, before three branches try to merge. */
 const MODULES = {
-  'assets/cinematic/manifest.js': ['SEQUENCE_IDS', 'VARIANT_NAMES', 'FIT', 'ManifestError', 'frameIndexForProgress', 'frameUrl', 'selectVariant', 'keyframeForChapter', 'validateManifest', 'loadManifest'],
+  'assets/cinematic/manifest.js': ['MODULE_URL', 'SEQUENCE_IDS', 'VARIANT_NAMES', 'FIT', 'ManifestError', 'frameIndexForProgress', 'frameUrl', 'selectVariant', 'keyframeForChapter', 'validateManifest', 'loadManifest'],
   // residencyBudget / anchorIndices / DEFAULT_MAX_CONCURRENT are the loading
   // policy's arithmetic, exported so scripts/check-cinematic-loader.mjs can
   // assert the caps directly rather than infer them from behaviour.
-  'assets/cinematic/sequence-loader.js': ['createSequenceLoader', 'residencyBudget', 'anchorIndices', 'DEFAULT_MAX_CONCURRENT'],
-  'assets/cinematic/scroll-stage.js': ['createScrollStage'],
-  'assets/cinematic/fallback.js': ['createFallbackLayer'],
-  'assets/cinematic/index.js': ['mountCinematic'],
+  'assets/cinematic/sequence-loader.js': ['MODULE_URL', 'createSequenceLoader', 'residencyBudget', 'anchorIndices', 'DEFAULT_MAX_CONCURRENT'],
+  'assets/cinematic/scroll-stage.js': ['MODULE_URL', 'createScrollStage'],
+  'assets/cinematic/fallback.js': ['MODULE_URL', 'createFallbackLayer'],
+  'assets/cinematic/index.js': ['MODULE_URL', 'mountCinematic'],
 };
 for (const [rel, expected] of Object.entries(MODULES)) {
   const abs = path.join(root, rel);
@@ -237,6 +237,16 @@ for (const [rel, expected] of Object.entries(MODULES)) {
   for (const name of expected) {
     check(typeof mod[name] !== 'undefined', `${rel} does not export '${name}'`);
   }
+  /* MODULE_URL is import.meta.url. It is not decoration: assets/cinematic/index.js
+     reports these values as handle.sources, and tests/helpers/cinematic-guards.js
+     refuses a browser run whose collaborators are not the shipped files. That
+     used to be an object literal of hardcoded paths, so changing a static import
+     to any other file left every guard green while it measured a module nothing
+     ships. A value the module system produced cannot agree with a stale literal,
+     which is the only reason this export exists. */
+  const own = `/${rel.split('/').pop()}`;
+  check(typeof mod.MODULE_URL === 'string' && mod.MODULE_URL.endsWith(own),
+    `${rel}: MODULE_URL is ${JSON.stringify(mod.MODULE_URL)}, which does not end in ${own}. It must be this file's own import.meta.url and nothing else.`);
   const extra = Object.keys(mod).filter((k) => !expected.includes(k) && k !== 'default');
   if (extra.length) pending.push(`${rel} exports beyond the contract: ${extra.join(', ')}. Add them to MODULES in this guard, or keep them private.`);
 }

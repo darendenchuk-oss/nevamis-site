@@ -51,10 +51,20 @@
       Reporting a pending stage as "degraded" would be this codebase's
       signature defect: a surface reporting a failure it never attempted. */
 
-import { loadManifest, selectVariant } from './manifest.js';
-import { createSequenceLoader } from './sequence-loader.js';
-import { createScrollStage } from './scroll-stage.js';
-import { createFallbackLayer } from './fallback.js';
+import { loadManifest, selectVariant, MODULE_URL as MANIFEST_SOURCE } from './manifest.js';
+import { createSequenceLoader, MODULE_URL as LOADER_SOURCE } from './sequence-loader.js';
+import { createScrollStage, MODULE_URL as STAGE_SOURCE } from './scroll-stage.js';
+import { createFallbackLayer, MODULE_URL as FALLBACK_SOURCE } from './fallback.js';
+
+/** WHERE THIS FILE ACTUALLY CAME FROM. Not a written down path: a value
+ *  only the module system can produce, so it cannot agree with a stale
+ *  literal. assets/cinematic/index.js reports these as handle.sources and
+ *  tests/helpers/cinematic-guards.js#assertBoundToShippedEngine() refuses a
+ *  run whose collaborators are not the shipped files. Before this existed
+ *  index.js built sources from hardcoded strings, so changing a static
+ *  import to any other file left all seventeen guards green while they
+ *  measured a module nothing ships. */
+export const MODULE_URL = import.meta.url;
 
 const DEFAULT_MANIFEST_URL = '/assets/cinematic/manifest.json';
 
@@ -69,13 +79,16 @@ const APPROACH_MARGIN = '400px 0px';
    side effects. Overrides only ever come from
    tests/fixtures/cine-guard-subject.html, which refuses any path outside
    /artifacts/cine-mutants/. */
-async function resolve(overridePath, exportName, shipped) {
-  if (!overridePath) return shipped;
+async function resolve(overridePath, exportName, shipped, shippedSource) {
+  if (!overridePath) return { fn: shipped, source: shippedSource };
   const mod = await import(overridePath);
   if (typeof mod[exportName] !== 'function') {
     throw new Error(`module override ${overridePath} does not export ${exportName}`);
   }
-  return mod[exportName];
+  /* The override's OWN import.meta.url when it publishes one, so a mutant is
+     identified by where it actually is rather than by the string that asked
+     for it. */
+  return { fn: mod[exportName], source: typeof mod.MODULE_URL === 'string' ? mod.MODULE_URL : overridePath };
 }
 
 /** 'pending' or 'released'. Absent means released: a stage carrying a canvas
@@ -148,31 +161,45 @@ export async function mountCinematic(options = {}) {
     if (d && d.type === 'degraded' && d.stage) {
       const entry = stages.get(d.stage);
       if (entry && entry.stage && entry.stage.running) {
-        entry.stage.stop();
+        /* WRAPPED, like every other cross module call in this file.
+           degrade() reaches here from inside fallback.js's watchdog .then, and
+           index.js discards armWatchdog's return value, so an unwrapped throw
+           from stop() became an unhandled rejection with the stage left half
+           degraded: canvas hidden and loader destroyed, but the rAF loop still
+           attached and still calling into a destroyed loader. stop() cannot
+           throw today; the day it acquires a detach that can, this is the
+           difference between a diagnostic and a zombie. */
+        let stopError = null;
+        try { entry.stage.stop(); } catch (err) { stopError = String(err && err.message ? err.message : err); }
         try {
-          report({ type: 'stage-stopped', stage: d.stage, reason: d.reason });
+          report({ type: 'stage-stopped', stage: d.stage, reason: d.reason, stopError });
         } catch { /* as above */ }
       }
     }
   };
 
   const overrides = options.moduleOverrides || {};
-  const createLoader = await resolve(overrides.loader, 'createSequenceLoader', createSequenceLoader);
-  const createStage = await resolve(overrides.stage, 'createScrollStage', createScrollStage);
-  const createFallback = await resolve(overrides.fallback, 'createFallbackLayer', createFallbackLayer);
+  const loaderSeam = await resolve(overrides.loader, 'createSequenceLoader', createSequenceLoader, LOADER_SOURCE);
+  const stageSeam = await resolve(overrides.stage, 'createScrollStage', createScrollStage, STAGE_SOURCE);
+  const fallbackSeam = await resolve(overrides.fallback, 'createFallbackLayer', createFallbackLayer, FALLBACK_SOURCE);
+  const createLoader = loaderSeam.fn;
+  const createStage = stageSeam.fn;
+  const createFallback = fallbackSeam.fn;
 
-  /* Which module actually answered each seam. Reported rather than assumed:
-     tests/helpers/cinematic-guards.js#assertBoundToShippedEngine() reads this
-     and fails a run whose collaborators are not the shipped ones. Without it
-     the guard has to take on faith that a mounted index.js used its own static
-     imports, which is precisely the kind of faith this project keeps paying
-     for. */
+  /* Which module actually answered each seam.
+     EVERY VALUE HERE IS THAT MODULE'S OWN import.meta.url, never a path typed
+     in this file. It used to be an object literal of hardcoded strings, which
+     made tests/helpers/cinematic-guards.js#assertBoundToShippedEngine() an
+     assertion about a constant: changing the static import above to any other
+     file left the reported source saying sequence-loader.js and all seventeen
+     guards green while they measured a module nothing ships. A value the
+     module system produced cannot agree with a stale literal. */
   const sources = {
-    manifest: '/assets/cinematic/manifest.js',
-    loader: overrides.loader || '/assets/cinematic/sequence-loader.js',
-    stage: overrides.stage || '/assets/cinematic/scroll-stage.js',
-    fallback: overrides.fallback || '/assets/cinematic/fallback.js',
-    index: '/assets/cinematic/index.js',
+    manifest: MANIFEST_SOURCE,
+    loader: loaderSeam.source,
+    stage: stageSeam.source,
+    fallback: fallbackSeam.source,
+    index: MODULE_URL,
   };
 
   const handle = {
@@ -305,6 +332,17 @@ export async function mountCinematic(options = {}) {
       });
       entry.fallback = fallback;
 
+      /* THE CONTRACT'S STEP 1, ASKED RATHER THAN ASSUMED.
+         The poster and every word are already painted from the served HTML, so
+         this creates nothing. It asks the layer to CONFIRM that what was served
+         actually holds, and the layer announces a released stage whose poster
+         has no src, or none at all. Until this call existed showPoster() was an
+         exported function with no caller in the shipped engine, and three
+         guards were green about behaviour the product never executed. */
+      if (typeof fallback.showPoster === 'function' && !fallback.showPoster()) {
+        emit({ type: 'poster-unconfirmed', stage: id, detail: 'the fallback layer could not confirm a poster in the served HTML' });
+      }
+
       /* STEP 3. Reduced motion, decided by the layer, not by a fourth copy of
          the rule. Nothing scrubs, no loader is created, no frame is fetched. */
       const decide = fallback.prefersReducedMotion;
@@ -317,7 +355,21 @@ export async function mountCinematic(options = {}) {
       }
 
       /* STEP 4. Loader, stage, and the approach that starts loading. */
-      const loader = createLoader(variant, { onDiagnostic: emit });
+      const loader = createLoader(variant, {
+        onDiagnostic: emit,
+        /* A PAUSE IS NOT A FAILURE, AND A RESUME NEEDS A NEW WAIT.
+           sequence-loader.pause() settles a prime that was still in flight with
+           deferred:true and releases its promise; resume() opens a fresh one
+           and hands it here. Without this the stage would come back from a
+           hidden tab with nothing watching its load at all. index.js is the one
+           place holding both the loader and the layer, which is why the re arm
+           lives here rather than in either of them. */
+        onPrimeReopened: (p) => {
+          if (destroyed || fallback.isDegraded()) return;
+          emit({ type: 'prime-rearmed', stage: id });
+          fallback.armWatchdog(p);
+        },
+      });
       entry.loader = loader;
 
       const stage = createStage(el, sequence, variant, loader, {

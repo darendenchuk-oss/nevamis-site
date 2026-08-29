@@ -349,12 +349,17 @@ bus.overrides = overrides;
 async function resolveMount() {
   if (overrides.index) {
     const mutant = await import(overrides.index);
-    if (typeof mutant.mountCinematic === 'function') return { mount: mutant.mountCinematic, source: overrides.index };
+    if (typeof mutant.mountCinematic === 'function') {
+      return { mount: mutant.mountCinematic, source: mutant.MODULE_URL || overrides.index };
+    }
   }
   try {
     const shipped = await import('/assets/cinematic/index.js');
     if (typeof shipped.mountCinematic === 'function') {
-      return { mount: shipped.mountCinematic, source: '/assets/cinematic/index.js' };
+      /* Its OWN import.meta.url when it publishes one. The literal is only a
+         last resort: a path typed here would report the module this fixture
+         asked for rather than the one it got. */
+      return { mount: shipped.mountCinematic, source: shipped.MODULE_URL || '/assets/cinematic/index.js' };
     }
   } catch { /* not written yet: serve.js answers a missing module with index.html */ }
   const ref = await import('/tests/fixtures/cine-reference-engine.js');

@@ -17,7 +17,9 @@
     "cine:loader": "node scripts/check-cinematic-loader.mjs",
     "cine:serve": "node serve.js 3291",
     "cine:fallback": "node scripts/check-cinematic-fallback.mjs",
-    "cine:guards": "playwright test tests/cinematic-guards.spec.js",
+    "cine:guards": "node scripts/cine-playwright.mjs tests/cinematic-guards.spec.js",
+    "cine:browser": "node scripts/cine-playwright.mjs tests/cinematic-guards.spec.js tests/cinematic-home.spec.js tests/cinematic-fallback.spec.js tests/cinematic-stage.spec.js tests/cinematic-loader.spec.js tests/cinematic-foundation.spec.js",
+    "cine:css": "node scripts/build-cine-css.mjs",
     "cine:mutant": "node scripts/make-cine-mutant.mjs",
     "cine:home": "node scripts/check-cinematic-home.mjs",
     "cine:all": "node scripts/check-cinematic-contract.mjs && node scripts/check-cinematic-loader.mjs && node scripts/check-cinematic-fallback.mjs && node scripts/check-cinematic-home.mjs"
