@@ -64,8 +64,14 @@ const keyIndex = (key, indent, from = 0, to = LINES.length) =>
   );
 
 /** Everything nested under the key at `at`: the following lines indented
-    deeper, stopping at the first line that is not. */
+    deeper, stopping at the first line that is not. A missing key (`at` is -1,
+    from keyIndex) yields nothing rather than throwing: the test that looks for
+    that key reports its absence with a sentence a person can act on, and a
+    TypeError raised here first would bury it under a stack trace from a helper.
+    Found by mutation-testing this file — renaming the `verify` job produced one
+    named failure and one "Cannot read properties of undefined". */
 const blockAt = (at) => {
+  if (at < 0 || at >= LINES.length) return [];
   const own = LINES[at].indent;
   const out = [];
   for (let i = at + 1; i < LINES.length && LINES[i].indent > own; i += 1) out.push(LINES[i]);
@@ -75,7 +81,7 @@ const blockAt = (at) => {
 /** Whatever follows the colon on the key's own line, for the inline forms
     (`pull_request: {branches: [main]}`), which nest nothing and would
     otherwise slip past a block walk entirely. */
-const inlineAt = (at) => LINES[at].text.replace(/^[^:]*:/, '').trim();
+const inlineAt = (at) => (at < 0 ? '' : LINES[at].text.replace(/^[^:]*:/, '').trim());
 
 const at = (l) => `${CI_PATH}:${l.no} ${l.text}`;
 
