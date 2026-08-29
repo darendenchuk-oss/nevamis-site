@@ -1019,7 +1019,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
    exist. .pilot is unreached today and is defined anyway: the day a service
    goes to a limited pilot, the wrong thing to discover is that the chip
    inherits the colour of the things that are running. */
-.task-flag{display:inline-block;font-size:10.5px;line-height:1;letter-spacing:.09em;
+/* 11px and not the 10.5px this first shipped at. The legibility floor in
+   tests/quality.spec.js caught all twelve chips, and it was right to: the
+   readiness word is the single most consequential string in this block and it
+   was the smallest thing on the page. */
+.task-flag{display:inline-block;font-size:11px;line-height:1;letter-spacing:.09em;
   border:1px solid var(--line);border-radius:999px;padding:5px 9px;color:var(--muted)}
 .task-flag.avail{color:var(--emerald);border-color:rgba(47,191,143,.32)}
 .task-flag.pilot{color:var(--mint);border-color:rgba(159,240,206,.30);border-style:dashed}
