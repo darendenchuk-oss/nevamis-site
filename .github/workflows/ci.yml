@@ -134,13 +134,34 @@ jobs:
             echo "::notice::STACKED pull request: base is '${{ github.base_ref }}', not main. This run exists because the pull_request trigger is unfiltered by base branch."
           fi
 
-      # fetch-depth: 0 because scripts/check-suite.mjs asks git whether this
-      # checkout is behind its own remote branch, using merge-base and
-      # rev-list. A depth-1 clone cannot answer that and the check degrades to
-      # "cannot tell", which is the house code for a guard that did not run.
+      # THE EXACT COMMIT THIS RESULT WILL BE ATTACHED TO, DETACHED ON PURPOSE.
+      #
+      # `ref: github.sha` is what checkout already does for a pull request (the
+      # merge commit), so this only changes push runs — and it changes them in
+      # the direction of honesty: a push run must verify the sha that was
+      # pushed, not whatever `main` happens to point at by the time the runner
+      # picks the job up.
+      #
+      # It also settles scripts/check-suite.mjs's second limb, which asks git
+      # whether this checkout is behind its own remote branch. That limb is a
+      # LAPTOP guard: it exists because a developer's tree once sat four
+      # commits behind origin/main, three spec files did not exist, and 15 of
+      # 18 were collected and reported as a pass. A runner clones the commit
+      # under test, so the condition it looks for cannot arise here. Left on a
+      # branch checkout it would do something worse than nothing: if a second
+      # merge lands while this run is queued, origin/main moves ahead of the
+      # commit being tested and the limb reports "behind" — a red main run
+      # that means nothing, which is exactly how a gate gets ignored. Detached,
+      # it reports "cannot tell" and says so. Its other two limbs, collection
+      # drift and generator drift, are unaffected and do fail the build.
+      #
+      # Default fetch depth. Nothing left in the chain reads history — the
+      # remaining git calls are `ls-files` and `checkout --`, both of which
+      # work against the index — and this repository carries 325 MiB of packed
+      # objects, which is not worth cloning on every run to no end.
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: ${{ github.sha }}
 
       - uses: actions/setup-node@v4
         with:
@@ -207,10 +228,11 @@ jobs:
       #     this repository. Real drift, reported loudly, not a reason to fail
       #     a build.
       #   * check-suite.mjs's staleness limb compares this checkout against
-      #     its own remote branch. On a pull_request run the checkout is a
-      #     detached merge commit, so that limb reports "cannot tell". Correct
-      #     here: CI checked out the exact commit under test. Its other limbs,
-      #     collection drift and generator drift, do run and do fail the build.
+      #     its own remote branch and reports "cannot tell" here, because the
+      #     checkout above is detached at the exact commit under test. That is
+      #     the right answer on a runner and the reasoning is at that step.
+      #     Its other limbs, collection drift and generator drift, do run and
+      #     do fail the build.
       # Read the table this step prints. A WAIT line is a question for a
       # person, not a pass.
       - name: The site's own guard chain (npm run check)
