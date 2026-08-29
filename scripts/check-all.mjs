@@ -13,12 +13,77 @@
    single run tells you everything that is wrong rather than only the first
    thing. */
 import { spawn, spawnSync } from 'node:child_process';
+import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const AUDIT_PORT = 3211;
 const results = [];
+
+/* ---------------------------------------------------------------
+   ONE PORT FOR THIS RUN, AND IT HAS TO BE THIS RUN'S OWN SERVER.
+
+   AUDIT_PORT used to be the literal 3211 and nothing downstream was told
+   about it: audit-site.mjs had its own copy of the number, and
+   playwright.config.js defaults to it with `reuseExistingServer: true`. On a
+   machine holding six checkouts of this site that is a measurement trap in
+   two places at once. If another worktree already owns 3211, the serve.js
+   started below dies on EADDRINUSE — silently, because its stdio is ignored —
+   waitForServer then gets a 200 from the STRANGER's server, and both the
+   audit and the Playwright suite go green against a tree this run never
+   touched. Nothing fails. Nothing says anything. It is the same shape as the
+   stale checkout that check-suite.mjs exists for: a green answer to a
+   question about the wrong files.
+
+   Three changes, and no more than three:
+     1. The port is CHOSEN, preferring the historic 3211 so a developer's
+        habits and any hand-started server keep working, and falling back to
+        an OS-assigned free port only in the case that is broken today.
+     2. It is HANDED DOWN — as an argv to serve.js, as `--port=` to
+        audit-site.mjs, and as NV_PORT in the environment every child
+        inherits, which is what playwright.config.js already reads. One
+        number, named once, instead of three copies agreeing by luck.
+     3. The server is PROVED to be ours. If the child exits at any point, the
+        thing answering on that port belongs to someone else and the audit is
+        abandoned rather than reported. That is the check that closes the
+        race, because a port free a moment ago can be taken a moment later.
+
+   On CI this hazard is absent (a fresh runner has nothing else listening), so
+   the point of all of it is that the SAME command is safe on the laptop where
+   the hazard is real.
+   --------------------------------------------------------------- */
+/** True when nothing is listening on `port` and we may bind it. */
+const portIsFree = (port) => new Promise((resolve) => {
+  const probe = net.createServer();
+  probe.once('error', () => resolve(false));
+  probe.once('listening', () => probe.close(() => resolve(true)));
+  probe.listen(port, '127.0.0.1');
+});
+
+/** A port the OS says is free right now. */
+const anyFreePort = () => new Promise((resolve, reject) => {
+  const probe = net.createServer();
+  probe.once('error', reject);
+  probe.listen(0, '127.0.0.1', () => {
+    const { port } = probe.address();
+    probe.close(() => resolve(port));
+  });
+});
+
+const AUDIT_PORT = await (async () => {
+  /* An explicit NV_PORT is the caller's decision and is obeyed as-is. */
+  if (process.env.NV_PORT) return Number(process.env.NV_PORT);
+  if (await portIsFree(3211)) return 3211;
+  const port = await anyFreePort();
+  console.log(`\nNOTE: port 3211 is already in use by something else on this machine, so this\n`
+    + `      run uses ${port} instead. Every check below is measuring THIS checkout.\n`
+    + `      (Before this was handled, the audit and the Playwright suite would have\n`
+    + `      quietly tested whichever checkout owned 3211.)`);
+  return port;
+})();
+/* Inherited by every child spawned below, including Playwright, whose config
+   reads NV_PORT and starts its own serve.js on it. */
+process.env.NV_PORT = String(AUDIT_PORT);
 
 /* shell:true ONLY for things that need PATH resolution (npx). Passing an
    absolute path through a Windows shell splits it on the space in
@@ -77,18 +142,27 @@ run('consistency', process.execPath, ['scripts/check-consistency.js']);
 
 // 2. Whole-site audit: needs a real browser against a real server.
 {
-  process.stdout.write(`\n── site audit ${'─'.repeat(48)}\n`);
-  const server = spawn(process.execPath, ['serve.js'], { cwd: root, stdio: 'ignore', detached: false });
+  process.stdout.write(`\n── site audit (port ${AUDIT_PORT}) ${'─'.repeat(Math.max(0, 43 - String(AUDIT_PORT).length))}\n`);
+  const server = spawn(process.execPath, ['serve.js', String(AUDIT_PORT)],
+    { cwd: root, stdio: 'ignore', detached: false });
+  /* The server's stdio is ignored, so its death is otherwise invisible. This
+     is the only thing standing between "something answered on that port" and
+     "our own checkout answered on that port". */
+  let serverExit = null;
+  server.on('exit', (code) => { serverExit = code === null ? 'signal' : code; });
   let ok = false;
   try {
     const up = await waitForServer(`http://127.0.0.1:${AUDIT_PORT}/`);
-    if (!up) {
+    if (serverExit !== null) {
+      console.error(`FAIL: the server this run started on ${AUDIT_PORT} exited (${serverExit}) before the`);
+      console.error(`      audit. Anything answering on that port belongs to another process, and`);
+      console.error(`      auditing it would report on a different checkout's files. Not audited.`);
+    } else if (!up) {
       console.error(`FAIL: the local server did not come up on ${AUDIT_PORT}`);
     } else {
-      const res = spawnSync(process.execPath, ['scripts/audit-site.mjs'], {
-        cwd: root, stdio: 'inherit',
-      });
-      ok = res.status === 0;
+      const res = spawnSync(process.execPath,
+        ['scripts/audit-site.mjs', `--port=${AUDIT_PORT}`], { cwd: root, stdio: 'inherit' });
+      ok = res.status === 0 && serverExit === null;
     }
   } finally {
     /* Always torn down, including when the audit throws. A leftover listener
