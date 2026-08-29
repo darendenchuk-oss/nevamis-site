@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cinematic foundation harness</title>
+<!--
+  NOT the scroll engine, and not a page. This is a fixture that exercises the
+  FOUNDATION only: assets/cinematic/manifest.js in a real browser, a centred
+  cover draw of a placeholder frame into a correctly sized canvas, and the two
+  negative cases the guards must catch (a canvas with a zero box, and a canvas
+  painted with no frame code).
+
+  It exists so tests/helpers/cinematic.js is PROVED against a browser before
+  three agents build the engine, the loader and the fallback layer on top of it.
+  tests/ is excluded from the Pages build, so this is never published.
+-->
+<style>
+  html,body{margin:0;background:#0B1620;color:#EAF3EE;font:14px/1.4 system-ui,sans-serif}
+  #wrap{width:70vw;height:45vh;margin:12px}
+  #stage,#plain{display:block;width:100%;height:100%}
+  #plainwrap{width:40vw;height:20vh;margin:12px}
+  #hidden{display:none}
+  #status{margin:12px;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="stage"></canvas></div>
+<div id="plainwrap"><canvas id="plain"></canvas></div>
+<canvas id="hidden"></canvas>
+<p id="status">booting</p>
+
+<script type="module">
+import { loadManifest, selectVariant, frameUrl } from '/assets/cinematic/manifest.js';
+
+const MAX_DPR = 2;
+const status = document.getElementById('status');
+const harness = { ready: false, error: null, painted: [], variantName: null, variant: null };
+window.__harness = harness;
+
+/* Size a canvas from its own CSS box. A zero box is NOT sized: leaving the
+   backing store at the 300x150 default while reporting success is the defect
+   this whole phase is guarding against, so it is reported instead. */
+function sizeCanvas(canvas) {
+  const r = canvas.getBoundingClientRect();
+  if (r.width < 1 || r.height < 1) return { sized: false, reason: 'zero-box', cssWidth: r.width, cssHeight: r.height };
+  const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
+  canvas.width = Math.round(r.width * dpr);
+  canvas.height = Math.round(r.height * dpr);
+  return { sized: true, cssWidth: r.width, cssHeight: r.height, dpr, backingWidth: canvas.width, backingHeight: canvas.height };
+}
+
+/* Centred cover. The one legal fit, and the one the guards assume. */
+function drawCover(ctx, img, sw, sh, cw, ch) {
+  const scale = Math.max(cw / sw, ch / sh);
+  const dw = sw * scale;
+  const dh = sh * scale;
+  ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+}
+
+const cache = new Map();
+async function frameImage(index) {
+  if (cache.has(index)) return cache.get(index);
+  const img = new Image();
+  img.src = frameUrl(harness.variant, index);
+  await img.decode();
+  cache.set(index, img);
+  return img;
+}
+
+harness.draw = async function draw(index) {
+  const canvas = document.getElementById('stage');
+  const info = sizeCanvas(canvas);
+  if (!info.sized) throw new Error(`stage canvas has a ${info.cssWidth}x${info.cssHeight} box`);
+  const img = await frameImage(index);
+  const ctx = canvas.getContext('2d');
+  drawCover(ctx, img, harness.variant.width, harness.variant.height, canvas.width, canvas.height);
+  harness.painted.push(index);
+  status.textContent = `painted ${index} of ${harness.variant.frameCount} into ${canvas.width}x${canvas.height}`;
+  return info;
+};
+
+/* The hidden canvas is never sized, so its backing store stays at the browser
+   default. canvasMetrics() must refuse to measure it. */
+harness.sizeHidden = () => sizeCanvas(document.getElementById('hidden'));
+
+/* A correctly sized canvas painted with flat navy and no frame code. The
+   decoder must answer 'no-code' rather than invent an index. */
+harness.paintPlain = function paintPlain() {
+  const canvas = document.getElementById('plain');
+  const info = sizeCanvas(canvas);
+  if (!info.sized) throw new Error('plain canvas has a zero box');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#0B1620';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  return info;
+};
+
+(async () => {
+  try {
+    const params = new URLSearchParams(location.search);
+    const manifestUrl = params.get('manifest') || '/artifacts/cinematic-placeholders/manifest.json';
+    const sequenceId = params.get('sequence') || 'signal-to-system';
+    const manifest = await loadManifest(manifestUrl);
+    const sequence = manifest.sequences.find((s) => s.id === sequenceId);
+    if (!sequence) throw new Error(`manifest has no sequence '${sequenceId}'`);
+    const picked = selectVariant(sequence);
+    harness.variantName = picked.name;
+    harness.variant = picked.variant;
+    harness.manifestGeneratedAt = manifest.generatedAt;
+    harness.ready = true;
+    status.textContent = `ready: ${sequenceId} / ${picked.name}, ${picked.variant.frameCount} frames`;
+  } catch (err) {
+    harness.error = String(err && err.message ? err.message : err);
+    status.textContent = `FAILED: ${harness.error}`;
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nevamis.ca/schema/cinematic-frame-manifest-1.json",
+  "title": "NEVAMIS cinematic frame manifest, version 1",
+  "description": "One manifest describes every scroll controlled sequence on the homepage. It is the loader's only source of truth: the loader is forbidden to construct a URL, so every frame, poster, keyframe and fallback is listed explicitly here. The runtime validator that actually enforces this document is validateManifest() in assets/cinematic/manifest.js; this file is the written form of the same rules and scripts/check-cinematic-contract.mjs asserts the two agree.",
+  "type": "object",
+  "required": ["schemaVersion", "kind", "sequences"],
+  "additionalProperties": true,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "kind": {
+      "enum": ["placeholder", "production"],
+      "description": "'placeholder' frames are procedurally generated scaffolding carrying an NVFC1 code strip. 'production' frames are approved media and carry no code strip, so index reading guards report 'no-code' against them by design."
+    },
+    "codeVersion": { "type": "string", "description": "Frame code carried by these frames, e.g. NVFC1. Absent or null on production manifests." },
+    "generatedBy": { "type": "string" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "note": { "type": "string" },
+    "sequences": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": { "$ref": "#/$defs/sequence" }
+    }
+  },
+  "$defs": {
+    "sequence": {
+      "type": "object",
+      "required": ["id", "ordinal", "title", "sections", "stage", "variants"],
+      "properties": {
+        "id": {
+          "enum": ["signal-to-system", "system-to-outcomes", "system-to-decision"],
+          "description": "Must equal SEQUENCE_IDS in assets/cinematic/manifest.js. The contract guard fails if this enum and that array diverge."
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Index of id within SEQUENCE_IDS. This is the number a placeholder frame's code strip carries, so a guard can prove it is reading the sequence it thinks it is."
+        },
+        "title": { "type": "string" },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "integer", "minimum": 1, "maximum": 7 },
+          "description": "data-ia values of the homepage sections this sequence spans visually. The seven sections keep their own headings and their own single primary action; a sequence never merges them."
+        },
+        "stage": {
+          "type": "object",
+          "required": ["scrollLengthVh", "fit"],
+          "properties": {
+            "scrollLengthVh": {
+              "type": "number",
+              "exclusiveMinimum": 100,
+              "description": "Height of the sticky stage in vh. Must exceed 100 or there is no scroll range to map onto frames."
+            },
+            "fit": {
+              "const": "cover",
+              "description": "Centred cover is the only implemented fit. The guards compute the code strip's canvas position from this assumption; a different fit makes them report 'no-code' rather than a wrong index."
+            }
+          }
+        },
+        "variants": {
+          "type": "object",
+          "required": ["desktop", "mobile"],
+          "description": "Both are mandatory and are separate purpose built compositions with their own dimensions and their own frame counts. Neither is a crop of the other.",
+          "properties": {
+            "desktop": { "$ref": "#/$defs/variant" },
+            "mobile": { "$ref": "#/$defs/variant" }
+          }
+        }
+      }
+    },
+    "variant": {
+      "type": "object",
+      "required": ["media", "width", "height", "frameCount", "frames", "poster", "fallback", "chapters", "reducedMotionKeyframes", "strides", "decodeWindow"],
+      "properties": {
+        "media": {
+          "type": "string",
+          "description": "The media query that selects this variant. Across a sequence the variants' queries must partition the viewport exactly: selectVariant() throws when zero or more than one matches, rather than silently defaulting."
+        },
+        "orientation": { "enum": ["landscape", "portrait"] },
+        "width": { "type": "integer", "minimum": 64 },
+        "height": { "type": "integer", "minimum": 64 },
+        "frameCount": { "type": "integer", "minimum": 2 },
+        "frames": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Every frame URL, in index order. Length must equal frameCount. Explicit rather than a pattern so the loader has no URL building code at all: a renamed output directory fails validation instead of 404ing every frame behind a poster."
+        },
+        "poster": {
+          "type": "object",
+          "required": ["src", "frame", "alt"],
+          "properties": {
+            "src": { "type": "string" },
+            "frame": { "type": "integer", "minimum": 0, "description": "Index within this variant that the poster depicts. Must be inside the sequence." },
+            "alt": { "type": "string" }
+          },
+          "description": "Painted immediately, before any sequence work. LCP never waits on the sequence and the canvas is never shown blank."
+        },
+        "fallback": {
+          "type": "object",
+          "required": ["src", "alt"],
+          "properties": { "src": { "type": "string" }, "alt": { "type": "string" } },
+          "description": "What a visitor sees with no JavaScript, or after the sequence fails. Required: a sequence with no fallback can only fail as a blank stage."
+        },
+        "chapters": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "section", "startFrame", "endFrame", "keyframe"],
+            "properties": {
+              "id": { "type": "string" },
+              "label": { "type": "string" },
+              "section": { "type": "integer", "description": "data-ia of the section this chapter sits against. Must be one the sequence spans." },
+              "startFrame": { "type": "integer", "minimum": 0 },
+              "endFrame": { "type": "integer", "minimum": 0 },
+              "keyframe": { "type": "integer", "minimum": 0, "description": "The static frame reduced motion shows for this chapter. Must lie inside startFrame..endFrame." }
+            }
+          }
+        },
+        "reducedMotionKeyframes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["chapter", "src", "frame", "alt"],
+            "properties": {
+              "chapter": { "type": "string" },
+              "section": { "type": "integer" },
+              "frame": { "type": "integer", "minimum": 0 },
+              "src": { "type": "string" },
+              "alt": { "type": "string" }
+            }
+          },
+          "description": "Exactly one entry per chapter. Under reduced motion nothing scrubs: each chapter shows its static keyframe and all copy, pricing, capability, demo and CTA content stays."
+        },
+        "strides": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "integer", "minimum": 1 },
+          "description": "Progressive loading passes, strictly decreasing, ending at 1. Pass one loads every strides[0]-th frame so any scroll position has something near it; later passes fill in. Ending anywhere but 1 means the sequence can never be complete."
+        },
+        "decodeWindow": {
+          "type": "integer",
+          "minimum": 2,
+          "description": "Maximum decoded frames resident at once. A rolling window, not the whole sequence."
+        },
+        "bytesTotal": { "type": "integer", "minimum": 0, "description": "Sum of the frame files, for budget reporting." }
+      }
+    }
+  }
+}

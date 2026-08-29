@@ -11,7 +11,10 @@
     "consistency": "node scripts/check-consistency.js",
     "classifier": "node scripts/check-claims-classifier.mjs",
     "audit": "node scripts/audit-site.mjs",
-    "suite": "node scripts/check-suite.mjs"
+    "suite": "node scripts/check-suite.mjs",
+    "cine:frames": "node scripts/gen-placeholder-frames.mjs",
+    "cine:check": "node scripts/check-cinematic-contract.mjs",
+    "cine:serve": "node serve.js 3291"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0"

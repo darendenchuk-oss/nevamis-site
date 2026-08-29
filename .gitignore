@@ -6,6 +6,12 @@ playwright-report/
 .playwright/
 
 # Motion proof artifacts are generated locally for review, not shipped.
+# This also covers artifacts/cinematic-placeholders/, roughly 4 MB of
+# procedurally generated stand-in frames for the three scroll sequences. They
+# are scaffolding for the machinery and its guards while paid generation is
+# gated: regenerate with `npm run cine:frames`, never commit them, and never
+# publish them. _config.yml excludes artifacts/ from the Pages build as well,
+# so this is belt and braces.
 artifacts/
 
 # Throwaway local scripts. One got swept into a commit by "git add -A".

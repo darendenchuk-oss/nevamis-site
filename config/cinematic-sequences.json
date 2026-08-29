@@ -1,0 +1,57 @@
+{
+  "$comment": "Identity of the three cinematic scroll sequences. ONE source of truth. The placeholder generator reads it, the manifest is validated against it, and the contract guard fails if a manifest names a sequence, chapter or section span that is not here. Nothing about a sequence is retyped anywhere else. Copy rules apply to every label below: sentence case, NEVAMIS in caps, no em dashes.",
+  "schemaVersion": 1,
+  "variants": {
+    "desktop": {
+      "media": "(min-width: 768px)",
+      "orientation": "landscape",
+      "production": { "width": 1600, "height": 900 },
+      "$comment": "Purpose built landscape composition. NOT a crop of anything."
+    },
+    "mobile": {
+      "media": "(max-width: 767.98px)",
+      "orientation": "portrait",
+      "production": { "width": 900, "height": 1600 },
+      "$comment": "Purpose built portrait composition, shot for the phone. NOT a crop of the desktop sequence."
+    }
+  },
+  "sequences": [
+    {
+      "id": "signal-to-system",
+      "ordinal": 0,
+      "title": "Signal to system",
+      "sections": [1, 2],
+      "stage": { "scrollLengthVh": 240, "fit": "cover" },
+      "chapters": [
+        { "id": "signal", "section": 1, "label": "A call arrives" },
+        { "id": "loss", "section": 2, "label": "The call goes unanswered" }
+      ],
+      "frameCountRange": { "desktop": [96, 144], "mobile": [64, 96] }
+    },
+    {
+      "id": "system-to-outcomes",
+      "ordinal": 1,
+      "title": "System to outcomes",
+      "sections": [3, 4, 5],
+      "stage": { "scrollLengthVh": 320, "fit": "cover" },
+      "chapters": [
+        { "id": "mechanism", "section": 3, "label": "How the system answers" },
+        { "id": "breadth", "section": 4, "label": "What it can handle" },
+        { "id": "proof", "section": 5, "label": "Hear it for yourself" }
+      ],
+      "frameCountRange": { "desktop": [120, 168], "mobile": [72, 108] }
+    },
+    {
+      "id": "system-to-decision",
+      "ordinal": 2,
+      "title": "System to decision",
+      "sections": [6, 7],
+      "stage": { "scrollLengthVh": 220, "fit": "cover" },
+      "chapters": [
+        { "id": "commitment", "section": 6, "label": "What it costs and how it starts" },
+        { "id": "resolution", "section": 7, "label": "Book the walkthrough" }
+      ],
+      "frameCountRange": { "desktop": [84, 120], "mobile": [56, 84] }
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "$comment": "Proof of WHICH checkout a browser measurement actually measured. This machine holds several worktrees of this site and Playwright's reuseExistingServer means whichever one already owns the port is the one that gets tested; that has already produced a run where a booking fix measured as absent and three pricing tests failed against a tree the runner never touched. Every cinematic guard fetches this file over HTTP first and compares the token. A stranger's server does not have this file (serve.js answers a missing path with index.html), so the parse fails and the guard fails loudly instead of reporting a pass about somebody else's application.",
+  "branch": "rebuild/cinematic-stage",
+  "createdFrom": "ebc869f3d3eaf0d1ae942c54f646e08f3ad0df16",
+  "port": 3291,
+  "token": "nv-cine-stage-7b41d2ae-2026-08-28"
+}
