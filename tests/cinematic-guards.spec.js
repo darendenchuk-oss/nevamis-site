@@ -1028,14 +1028,18 @@ test('13. every booking claim keeps the business in the loop', async ({ browser 
          realistic regression, and a rule that only bans bad sentences would let
          it through by removing sentences rather than adding one. */
       const mentionsAppointments = sentences.some((s) => /\b(appointments?|slots?|the time the caller wants|books?|booking)\b/i.test(s));
-      if (mentionsAppointments) {
-        const confirms = sentences.filter((s) => CONFIRM.test(s) && /\b(slot|appointment|time|job|booking)\b/i.test(s));
-        expect(
-          confirms.length,
-          `${url} describes taking appointment times but never says the business confirms them. `
-          + `Canonical's anchor for this is roadmap-config.js's ai-front-desk entry: "${anchorText.slice(0, 120)}"`,
-        ).toBeGreaterThan(0);
-      }
+      expect(
+        mentionsAppointments,
+        `${url} says nothing at all about appointments, slots or booking, so the rule above had nothing to hold. `
+        + 'A page that stops describing the appointment path has not satisfied this requirement, it has stepped outside it, '
+        + 'and that is a decision to make deliberately rather than to discover in a green run.',
+      ).toBe(true);
+      const confirms = sentences.filter((s) => CONFIRM.test(s) && /\b(slot|appointment|time|job|booking)\b/i.test(s));
+      expect(
+        confirms.length,
+        `${url} describes taking appointment times but never says the business confirms them. `
+        + `Canonical's anchor for this is roadmap-config.js's ai-front-desk entry: "${anchorText.slice(0, 120)}"`,
+      ).toBeGreaterThan(0);
 
       /* And the strongest form is banned outright while canonical says it is
          not live: a sentence that has the system putting the job in the
@@ -1234,6 +1238,12 @@ test('17. the canvas never takes a click meant for a price or a call to action',
            front of the thing being tested, so a pass cannot come from the
            canvas being somewhere else. */
     const decisionStage = SEQUENCES[SEQUENCES.length - 1];
+    /* NON-VACUITY. The hit tests below are skipped at a scroll position where
+       the canvas is not in front of the cards, because a pass there would only
+       say the canvas was somewhere else. That skip is also how this whole guard
+       could go quietly green, so the number of positions where the canvas
+       really was over a pricing card is counted and asserted. */
+    let overlappedAt = 0;
     for (const progress of [0.15, 0.5, 0.85]) {
       await scrollToProgress(page, stageSel(decisionStage), progress);
       const overlap = await page.evaluate((sel) => {
@@ -1246,6 +1256,7 @@ test('17. the canvas never takes a click meant for a price or a call to action',
         }).length;
       }, canvasSel(decisionStage));
       if (!overlap) continue;
+      overlappedAt += 1;
       for (const selector of ['#pricePreview .price-card', '[data-cta]']) {
         const results = await hitTest(page, selector);
         for (const r of results) {
@@ -1275,5 +1286,10 @@ test('17. the canvas never takes a click meant for a price or a call to action',
         await cta.click({ trial: true, timeout: 4000 });
       }
     }
+    expect(
+      overlappedAt,
+      'the canvas was never in front of a pricing card at any of the three scroll positions, so nothing was hit tested. '
+      + 'This guard would report a pass about a canvas that happened to be somewhere else.',
+    ).toBeGreaterThan(0);
   } finally { await context.close(); }
 });
