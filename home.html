@@ -1212,8 +1212,10 @@ body{
 #c{position:absolute;inset:0;width:100%;height:100%;display:block}
 #vignette{position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(ellipse 120% 90% at 50% 45%, transparent 55%, rgba(1,5,8,.55) 100%)}
-.copy{position:absolute;left:50%;transform:translateX(-50%);width:min(88vw,640px);
-  text-align:center;pointer-events:none;z-index:3;
+.chold{position:absolute;left:0;right:0;z-index:3;pointer-events:none}
+#close-hold{z-index:5} /* the ending CTA outranks the ghosted pane labels */
+.copy{position:sticky;position:-webkit-sticky;top:38vh;margin:0 auto;width:min(88vw,640px);
+  text-align:center;pointer-events:none;
   opacity:0;transition:opacity .6s ease;
 }
 .copy.on{opacity:1}
@@ -1259,6 +1261,7 @@ body{
 .nv-rm #scroll{height:auto !important}
 .nv-rm #stage{position:relative;height:56vh;height:56svh;min-height:340px}
 .nv-rm .copy{position:static;transform:none;margin:8vh auto;width:min(88vw,640px);transition:none;pointer-events:auto}
+.nv-rm .chold{position:static !important;height:auto !important}
 .nv-rm #close{padding-bottom:7vh}
 .nv-rm #hint{display:none}
 /* ---------- interaction layer: nav, labels, card, plain-DOM doc ---------- */
@@ -1392,6 +1395,8 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
 
 body{overflow-x:clip}
 html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;transition:opacity .35s ease}
+html:not(.nv-below) .callbar{display:none}
+@media(max-width:900px){#scroll .copy{display:block}}
 </style>
 </head>
 <body>
@@ -1757,7 +1762,8 @@ html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,html.nv-below #
 (function(){
   var sc = document.getElementById('scroll');
   function below(){
-    var lim = sc.offsetHeight - window.innerHeight * 0.65;
+    var on = document.documentElement.classList.contains('nv-below');
+    var lim = sc.offsetHeight - window.innerHeight * (on ? 1.05 : 0.65);
     document.documentElement.classList.toggle('nv-below', (window.scrollY || 0) > lim);
   }
   addEventListener('scroll', below, { passive: true });

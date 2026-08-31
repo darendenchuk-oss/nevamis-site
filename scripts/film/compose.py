@@ -35,7 +35,9 @@ film_style = film_style.replace('</style>',
     '\nbody{overflow-x:clip}\n'
     'html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,'
     'html.nv-below #nlabel{opacity:0 !important;pointer-events:none;'
-    'transition:opacity .35s ease}\n</style>')
+    'transition:opacity .35s ease}\n'
+    'html:not(.nv-below) .callbar{display:none}\n'
+    '@media(max-width:900px){#scroll .copy{display:block}}\n</style>')
 
 # --- film body inner ---
 b = film.find('<body>') + len('<body>')
@@ -112,7 +114,8 @@ tags.append("""<script>
 (function(){
   var sc = document.getElementById('scroll');
   function below(){
-    var lim = sc.offsetHeight - window.innerHeight * 0.65;
+    var on = document.documentElement.classList.contains('nv-below');
+    var lim = sc.offsetHeight - window.innerHeight * (on ? 1.05 : 0.65);
     document.documentElement.classList.toggle('nv-below', (window.scrollY || 0) > lim);
   }
   addEventListener('scroll', below, { passive: true });
