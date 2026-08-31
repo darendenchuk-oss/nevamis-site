@@ -394,7 +394,7 @@ for (const p of contentPages) {
      twice. Their COMMENTS are excluded like every other file's: the header of
      pricing-config.js is full of em dashes and is not copy. */
   const jsSurfaces = ["site.js", "motion.js", "pricing-config.js", "roadmap-config.js"];
-  for (const d of ["assets/motion"]) {
+  for (const d of ["assets/motion", "assets/film"]) {
     const abs = path.join(root, d);
     if (fs.existsSync(abs)) for (const f of fs.readdirSync(abs)) if (f.endsWith(".js")) jsSurfaces.push(d + "/" + f);
   }
