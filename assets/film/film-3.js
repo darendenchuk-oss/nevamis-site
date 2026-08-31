@@ -208,7 +208,7 @@ function updateLabels(){
     }
     if (L.o < 0.02) L.o = 0;
     L.el.style.opacity = L.o.toFixed(3);
-    L.el.style.pointerEvents = L.o > 0.05 ? 'auto' : 'none';
+    L.el.style.pointerEvents = L.o > 0.35 ? 'auto' : 'none' /* ghosted blocks are scenery, not targets */;
     if (L.o > 0) {
       L.el.style.transform = 'translate3d(' + (L.x - L.el._w * 0.5).toFixed(1) + 'px,' + L.y.toFixed(1) + 'px,0)';
     }

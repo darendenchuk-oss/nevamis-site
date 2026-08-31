@@ -11,6 +11,17 @@ var copyEls = [
   { el: document.getElementById('s3'), p0: 0.55, p1: 0.74, at: 0.63 },
   { el: document.getElementById('close'), p0: 0.90, p1: 1.01, at: 0.965 }
 ];
+/* owner note: story copy should HOLD mid-frame while its beat passes instead
+   of flying by. Each block rides position:sticky inside a hold that spans its
+   beat's scroll window (tops and heights set in layout()). */
+copyEls.forEach(function(c){
+  var hold = document.createElement('div');
+  hold.className = 'chold';
+  hold.id = c.el.id + '-hold';
+  c.el.parentNode.insertBefore(hold, c.el);
+  hold.appendChild(c.el);
+  c.hold = hold;
+});
 var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches || new URLSearchParams(location.search).get('rm') === '1';
 
 /* ---------- palette ---------- */
@@ -1478,7 +1489,7 @@ function govFrame(dtMs){
     }
   }
   /* apply only during motion, and never mid-ignition or mid-exit */
-  if (GOV.pending >= 0 && !IW.on && !EXIT.on &&
+  if (GOV.pending >= 0 && !IW.on && !EXIT.on && cur < 0.85 &&
       (Math.abs(target - cur) > 0.0004 || GIX.busy || LOOK.weight > 0.0005)) {
     applyTier(GOV.pending); GOV.pending = -1;
     /* the DPR/target resize just blanked the canvas backing store; govFrame runs
@@ -1503,9 +1514,19 @@ function layout(){
     scrollEl.style.height = spanH + 'px';
     copyEls.forEach(function(c){
       if (c.el.id === 'close') {
-        c.el.style.top = Math.round(spanH - vh + vh * (0.34 + 0.055 * PF)) + 'px'; /* inside the arch aperture: the calm zone (portrait: lower, clear of the crown) */
+        /* park through the finale: pinned from the approach to the film's
+           last pixel, seated inside the arch aperture (portrait: lower,
+           clear of the crown) */
+        var t0c = Math.round(0.88 * (spanH - vh));
+        c.hold.style.top = t0c + 'px';
+        c.hold.style.height = (spanH - t0c) + 'px';
+        c.el.style.top = (34 + 5.5 * PF) + 'vh';
       } else {
-        c.el.style.top = Math.round(c.at * (spanH - vh) + vh * 0.40) + 'px';
+        /* the hold spans the beat's whole window: the block dwells mid-frame
+           for its readable life instead of crossing the viewport once */
+        c.hold.style.top = Math.round(c.p0 * (spanH - vh)) + 'px';
+        c.hold.style.height = Math.round((c.p1 - c.p0) * (spanH - vh) + vh * 0.72) + 'px';
+        c.el.style.top = '38vh';
       }
     });
   }

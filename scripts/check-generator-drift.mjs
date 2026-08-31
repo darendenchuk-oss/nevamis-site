@@ -54,7 +54,16 @@ const git = (args) =>
    root-level .html a builder never touches simply never differs. */
 const generatedFiles = () => {
   const html = fs.readdirSync(root).filter((f) => f.endsWith(".html"));
-  return [...html, "search-index.json"].filter((f) => fs.existsSync(path.join(root, f)));
+  /* assets/film/*.js are written by scripts/film/compose.py, which splits the
+     film's inline scripts out of home.html. They are generated, so they belong
+     here: on 2026-08-31 a round of film fixes was committed as home.html only,
+     the regenerated film scripts stayed uncommitted, and the deploy shipped the
+     new CSS against the OLD JavaScript. Nothing failed. Listing them means an
+     uncommitted regeneration is reported as dirty instead of shipping half. */
+  const film = fs.existsSync(path.join(root, "assets/film"))
+    ? fs.readdirSync(path.join(root, "assets/film")).filter((f) => f.endsWith(".js")).map((f) => "assets/film/" + f)
+    : [];
+  return [...html, ...film, "search-index.json"].filter((f) => fs.existsSync(path.join(root, f)));
 };
 
 /* The documented chain, minus gen-sitemap. Order matters: build-content writes
