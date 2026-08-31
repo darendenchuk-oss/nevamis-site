@@ -1390,6 +1390,9 @@ html.nv-exit .copy,html.nv-exit #paneNav,html.nv-exit #labels,html.nv-exit #nlab
 html.nv-intro.nv-on #hint:not(.off){opacity:1;transition:opacity .9s ease .12s}
 html.nv-intro.nv-on #paneNav{opacity:1;transition:opacity .9s ease .18s}
 html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
+
+body{overflow-x:clip}
+html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;transition:opacity .35s ease}
 </style>
 </head>
 <body>
@@ -1751,6 +1754,18 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
 <script src="/assets/film/film-1.js"></script>
 <script src="/assets/film/film-2.js"></script>
 <script src="/assets/film/film-3.js"></script>
+<script>
+(function(){
+  var sc = document.getElementById('scroll');
+  function below(){
+    var lim = sc.offsetHeight - window.innerHeight * 0.65;
+    document.documentElement.classList.toggle('nv-below', (window.scrollY || 0) > lim);
+  }
+  addEventListener('scroll', below, { passive: true });
+  addEventListener('resize', below);
+  below();
+})();
+</script>
 <footer class="site-footer">
   <div class="wrap">
     <div class="cols">

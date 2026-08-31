@@ -25,6 +25,18 @@ film_style = film_style.replace(key,
     key + '\nhtml.nv-intro .site-header{opacity:0}\n'
     'html.nv-intro.nv-on .site-header{opacity:1;transition:opacity .9s ease .06s}')
 
+# site.css gives body overflow-x:hidden, which makes body a SCROLL CONTAINER and
+# silently unsticks the film's position:sticky stage (the canvas scrolled away
+# with the page and the world went black past the first viewport). clip clips
+# the same horizontal overflow without creating a scroll container.
+# Also: once the visitor scrolls past the film span into the page sections, the
+# film's fixed chrome (labels, rail, hint) yields instead of floating over them.
+film_style = film_style.replace('</style>',
+    '\nbody{overflow-x:clip}\n'
+    'html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,'
+    'html.nv-below #nlabel{opacity:0 !important;pointer-events:none;'
+    'transition:opacity .35s ease}\n</style>')
+
 # --- film body inner ---
 b = film.find('<body>') + len('<body>')
 be = film.rfind('</body>')
@@ -96,6 +108,18 @@ for n, sc in enumerate(scripts, 1):
     open(fn, 'w', encoding='utf-8', newline='').write(sc)
     tags.append(f'<script src="/{fn}"></script>')
 film_body = re.sub(r'<script>.*?</script>', lambda m: '', film_body, flags=re.S)
+tags.append("""<script>
+(function(){
+  var sc = document.getElementById('scroll');
+  function below(){
+    var lim = sc.offsetHeight - window.innerHeight * 0.65;
+    document.documentElement.classList.toggle('nv-below', (window.scrollY || 0) > lim);
+  }
+  addEventListener('scroll', below, { passive: true });
+  addEventListener('resize', below);
+  below();
+})();
+</script>""")
 film_body = film_body.rstrip() + '\n' + '\n'.join(tags) + '\n'
 
 out = (html_open
