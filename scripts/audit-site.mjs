@@ -3,14 +3,37 @@
    and reports everything a visitor, a crawler, or a screen reader
    would trip over. Read-only: it never edits, it only reports.
 
-   Run:  node scripts/audit-site.mjs           (server must be up)
-         node scripts/audit-site.mjs --json    (machine output)
+   Run:  node scripts/audit-site.mjs                 (server must be up)
+         node scripts/audit-site.mjs --json          (machine output)
+         node scripts/audit-site.mjs --port=3299     (a specific server)
+         NV_PORT=3299 node scripts/audit-site.mjs    (same, via the env)
+
+   WHICH SERVER IS THIS AUDITING?
+
+   The port used to be the literal 3211, written once and unreachable from the
+   caller. One machine holds six checkouts of this site and 3211 is the default
+   for all of them, so whichever worktree started a server first owned the
+   number — and this audit would crawl THAT tree's pages, find them clean, and
+   exit 0 about bytes the caller never wrote. Same failure shape as the one
+   serve.js's own footer describes, and as playwright.config.js's NV_PORT
+   escape hatch exists for: a green result measured against somebody else's
+   files. The audit cannot tell the difference, so the port has to be an
+   argument rather than a constant.
+
+   The default is unchanged, so `node scripts/audit-site.mjs` against a
+   hand-started server still works exactly as before. `npm run check` now names
+   the port it started, which is the case that was silently wrong.
    ============================================================ */
 
 import { chromium } from '@playwright/test';
 import fs from 'node:fs';
 
-const BASE = 'http://127.0.0.1:3211';
+const PORT = Number(
+  process.argv.find((a) => /^--port=\d+$/.test(a))?.slice('--port='.length)
+  ?? process.env.NV_PORT
+  ?? 3211,
+);
+const BASE = `http://127.0.0.1:${PORT}`;
 const MAP = JSON.parse(fs.readFileSync('content-map.json', 'utf8'));
 const PAGES = MAP.pages.filter((p) => p.url);
 const asJson = process.argv.includes('--json');
