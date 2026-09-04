@@ -6084,8 +6084,16 @@ var ARCH_TGT = new T.Vector3(0, 25, 0);
    HalfFloatType is EffectComposer's own default and must stay - the bloom's
    threshold-zero trick depends on the HDR buffer. EffectComposer clones this for
    its second buffer, and setSize/setPixelRatio preserve `samples`. */
+/* Sample count is chosen ONCE, from the display's pixel density, and never
+   changes afterwards: reallocating a multisampled framebuffer mid-scroll is
+   exactly the kind of hitch the governor is not allowed to cause. A hi-DPI panel
+   already resolves thin lines across more pixels, so 2 samples there recovers
+   almost all of the coverage (measured 0.656 vs 0.679) at half the multisample
+   bandwidth - which on integrated graphics is what was pushing the governor into
+   stepping down at DPR 1.5. */
+var MSAA = (Math.min(window.devicePixelRatio || 1, 1.5) >= 1.25) ? 2 : 4;
 var composer = new NV3.EffectComposer(renderer,
-  new T.WebGLRenderTarget(1, 1, { type: T.HalfFloatType, samples: 4 }));
+  new T.WebGLRenderTarget(1, 1, { type: T.HalfFloatType, samples: MSAA }));
 var renderPass = new NV3.RenderPass(scene, camera);
 composer.addPass(renderPass);
 /* Active Theory model: threshold ZERO - the crushed near-black scene is the threshold,
