@@ -198,12 +198,18 @@ function updateLabels(){
       /* never sit on the section nav rail: shift right of it (the info must stay legible) */
       if (navRect && y0 < navRect.bottom + 8 && y1 > navRect.top - 8 &&
           x0 < navRect.right + 14 && x1 > navRect.left - 14) {
-        var nshift = (navRect.right + 14) - x0;
+        var nfy = Math.min(1, Math.min(navRect.bottom + 8 - y0, y1 - (navRect.top - 8)) / 40);
+        var nshift = ((navRect.right + 14) - x0) * nfy;
         L.x += nshift; x0 += nshift; x1 += nshift;
       }
       /* never sit on a story copy beat: exact rect test against the visible copy */
-      if (copyRect && x0 < copyRect.right + 12 && x1 > copyRect.left - 12 &&
-          y0 < copyRect.bottom + 12 && y1 > copyRect.top - 12) L.o *= (1 - 0.94 * copyA);
+      if (copyRect) {
+        /* Feather the overlap. A hard rect test snapped a label 16.7x in one frame
+           when its box drifted across the edge mid-beat (measured p=0.4525, p=0.9585). */
+        var ovx = sm01((Math.min(x1, copyRect.right + 12) - Math.max(x0, copyRect.left - 12)) / 24);
+        var ovy = sm01((Math.min(y1, copyRect.bottom + 12) - Math.max(y0, copyRect.top - 12)) / 24);
+        if (ovx > 0 && ovy > 0) L.o *= (1 - 0.94 * copyA * ovx * ovy);
+      }
       for (var j = 0; j < kept.length; j++) {
         var K = kept[j];
         if (x0 < K.x1 + 16 && x1 > K.x0 - 16 && y0 < K.y1 + 12 && y1 > K.y0 - 12) { L.o *= 0.05; break; }

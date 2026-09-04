@@ -1624,9 +1624,13 @@ var v3a = new T.Vector3(), v3b = new T.Vector3(), v3c = new T.Vector3();
 /* while a card is open the scene is a backdrop: it eases toward quiet so the card
    and the wordmark stay legible; frames run continuously then (the card holds) */
 var QUIET = 0;
+var FRAME_DT = 0.0167; /* the loop's own dt, published for the eases inside apply() */
 function apply(p){
   var qT = document.body.classList.contains('card-open') ? 1 : 0;
-  QUIET += (qT - QUIET) * 0.08;
+  /* the one ease in the film that was not framerate independent: a flat 0.08 per
+     FRAME ran at half speed on a 30Hz frame and double on a 120Hz panel. dt*5
+     reproduces the current 60fps feel (0.08 per 16.7ms is ~4.8 per second). */
+  QUIET += (qT - QUIET) * Math.min(1, FRAME_DT * 5);
   if (Math.abs(qT - QUIET) < 0.01) QUIET = qT;
   /* pulse radius: beat 2 */
   var pulseR = smooth(0.10, 0.335, p) * 195;
@@ -1961,7 +1965,13 @@ function finishIntro(instant){
 }
 function stepIntro(dt){
   if (!IW.on) return;
-  IW.e += (dt / INTRO_SECS) * IW.rate;
+  /* The scroll handler steps IW.rate to 3.2 the instant the visitor moves. Ease
+     the rate actually integrated toward it so the light front accelerates over
+     ~0.3s instead of snapping to 3.2x in one frame. Seeded from IW.rate, so
+     ?introhold=1 (rate 0) still freezes; the deficit costs the ignition ~70ms,
+     well inside the 1300ms nv-on window finishIntro(false) already allows. */
+  IW.rs = (IW.rs === undefined) ? IW.rate : IW.rs + (IW.rate - IW.rs) * Math.min(1, dt * 10);
+  IW.e += (dt / INTRO_SECS) * IW.rs;
   if (IW.e >= 1) { finishIntro(false); return; }
   IW.orb = smooth(0.0, 0.26, IW.e);  /* the orb ignites inside the first ~0.5s */
   IW.g = smooth(0.16, 1.0, IW.e);    /* then the light front leaves it */
@@ -2131,6 +2141,7 @@ function tick(t){
   grainPass.material.uniforms.uTime.value = 1.0 + (t % 100000) * 0.001;
   stepIntro(dt);
   stepGround(dt);
+  FRAME_DT = dt;
   apply(cur);
   var fhs = window.NV_SCENE.frameHooks;
   for (var fh = 0; fh < fhs.length; fh++) { try { fhs[fh](cur, camera, dt); } catch (e) {} }
