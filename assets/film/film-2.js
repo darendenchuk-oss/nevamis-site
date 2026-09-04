@@ -40,7 +40,7 @@ function rng(seed){ return function(){ seed = (seed * 1664525 + 1013904223) >>> 
 /* ---------- renderer ---------- */
 var renderer;
 try {
-  renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, powerPreference: 'high-performance' });
+  renderer = new T.WebGLRenderer({ canvas: canvas, antialias: false, powerPreference: 'high-performance' });
 } catch (e) {
   document.body.classList.add('no3d');
   copyEls.forEach(function(c){ c.el.classList.add('on'); });
@@ -49,6 +49,11 @@ try {
 renderer.toneMapping = T.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 renderer.outputColorSpace = T.SRGBColorSpace;
+/* The transmission pass renders only the OPAQUE list into its target, and this
+   scene is almost entirely additive: the buffer the glass refracts holds the
+   background and a couple of meshes. Full resolution costs two MSAA resolves and
+   two mipmap chains per frame to blur something nearly empty. */
+renderer.transmissionResolutionScale = 0.5;
 
 var scene = new T.Scene();
 scene.background = BG;
@@ -196,7 +201,8 @@ var edgeLines = new T.LineSegments(egeo, edgeMat);
 scene.add(edgeLines);
 
 /* nodes as instanced spheres, per-instance colour set each frame */
-var nodeGeo = new T.SphereGeometry(0.62, 16, 12);
+var nodeGeo = new T.SphereGeometry(0.62, 10, 8); /* 352 -> 176 tris each, and
+  these are opaque so the transmission pass draws all 117 a second time */
 var nodeMat = new T.MeshBasicMaterial({ color: 0xffffff });
 var nodeMesh = new T.InstancedMesh(nodeGeo, nodeMat, N);
 var m4 = new T.Matrix4();
@@ -348,7 +354,11 @@ function glassMat(){
     envMapIntensity: 0.85,
     attenuationColor: new T.Color(0xBFF5DE),
     attenuationDistance: 30,
-    side: T.DoubleSide
+    /* FrontSide, not DoubleSide: these are closed boxes seen from outside, and a
+       double-sided TRANSMISSIVE material costs a second draw, a second MSAA
+       resolve and a second mipmap-chain rebuild of the refraction target on
+       every frame the slab is in frustum. */
+    side: T.FrontSide
   });
 }
 
@@ -1053,7 +1063,9 @@ var spineMat = new T.ShaderMaterial({
 });
 spineMat.uniforms.uArchT.value = ARCH_T;
 spineMat.uniforms.uLen.value = spineCurve.getLength();
-var spineMesh = new T.Mesh(new T.TubeGeometry(spineCurve, 1280, 0.55, 96, false), spineMat);
+var spineMesh = new T.Mesh(new T.TubeGeometry(spineCurve, 640, 0.55, 24, false) /* was 1280x96 = 245,760
+  triangles, 58-64% of every frame, for a 0.55-unit-radius thread. 640 rings over
+  ~335 units is one every half unit, which the neck swell still resolves. */, spineMat);
 scene.add(spineMesh);
 /* Tail extension: the line continues off-frame past the opening camera, so the
    tube's open mouth (a dark circle at the bottom of the p=0 frame) is never
@@ -1069,7 +1081,8 @@ scene.add(spineMesh);
     spinePts[0].clone().addScaledVector(tdir, 36),
     spinePts[0].clone().addScaledVector(tdir, 80).add(new T.Vector3(0, -3, 0))
   ], false, 'centripetal', 0.5);
-  var tg = new T.TubeGeometry(tailCurve, 64, 0.55, 96, false);
+  /* same radial count as the spine or the silhouette steps at the junction */
+  var tg = new T.TubeGeometry(tailCurve, 24, 0.55, 24, false);
   var uv = tg.attributes.uv;
   for (var i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * 0.02);
   uv.needsUpdate = true;
@@ -1108,7 +1121,10 @@ var markMat = new T.ShaderMaterial({
     ' gl_FragColor = vec4(color * uDim, 1.0); }'
   ].join('\n')
 });
-var orb = new T.Mesh(new T.SphereGeometry(2.3, 96, 64), markMat);
+/* one geometry, shared with the rim shell below: same sphere, half the memory,
+   and the driver reuses the binding across the draws */
+var ORB_GEO = new T.SphereGeometry(2.3, 64, 48);
+var orb = new T.Mesh(ORB_GEO, markMat);
 orb.position.copy(orbPos);
 scene.add(orb);
 
@@ -1141,7 +1157,7 @@ function makeRimMat(){
     polygonOffsetUnits: -2
   });
 }
-var orbRim = new T.Mesh(new T.SphereGeometry(2.3, 96, 64), makeRimMat());
+var orbRim = new T.Mesh(ORB_GEO, makeRimMat());
 orbRim.scale.setScalar(1.07);
 orbRim.material.uniforms.uFade.value = 0.18;
 orb.add(orbRim);
@@ -1181,7 +1197,7 @@ function makePaneRimMat(lq){
       ' vec3 n = lqBend(normalize(vN), vLqT, vLqB, vLqQ, vLqW, uLqN); vec3 v = normalize(vV);',
       ' float f = getFresnel(n, v, 1.2);',
       ' vec3 rim = mintRamp(f * 3.0 + uCameraY * 0.02);',
-      ' float b = pow(f, 2.2) * (1.0 + uBoost * 1.4);',
+      ' float b = pow(f, 2.2) * (1.0 + uBoost * 0.7);',
       ' gl_FragColor = vec4(rim * b * 1.5 * uFade, 1.0); }'
     ].join('\n'),
     blending: T.AdditiveBlending,
@@ -1270,6 +1286,17 @@ panes.forEach(function(pn, gi){
   pn.geoHi = pn.mesh.geometry;
   var gd = PANE_DEFS[gi];
   pn.geoLo = new T.BoxGeometry(gd.w, gd.h, 0.9, 14, 10, 1); /* T4: tessellation halved */
+  /* raycast the low-poly twin, not the display slab: every pointer move walked
+     2,432 triangles per pane on the main thread. Same box, same per-face UVs, so
+     hits[0].uv (which places the ripple) is identical. */
+  pn.mesh.raycast = (function(proxy){
+    return function(raycaster, intersects){
+      var shown = this.geometry;
+      this.geometry = proxy;
+      T.Mesh.prototype.raycast.call(this, raycaster, intersects);
+      this.geometry = shown;
+    };
+  })(pn.geoLo);
 });
 /* warm-compile the fallback program now so the first T3 swap costs nothing */
 panes.forEach(function(pn){ pn.mesh.material = pn.matLut; });
@@ -1340,7 +1367,14 @@ var ARCH_TGT = new T.Vector3(0, 25, 0);
 
 /* ---------- composer ---------- */
 /* HalfFloat targets are the EffectComposer default in this three build (checked: rt type = HalfFloatType). */
-var composer = new NV3.EffectComposer(renderer);
+/* An explicit multisampled target: EffectComposer otherwise builds samples:0
+   buffers and the whole film renders with no antialiasing (the renderer's own
+   antialias flag only covers the final fullscreen quad, which has no edges).
+   HalfFloatType is EffectComposer's own default and must stay - the bloom's
+   threshold-zero trick depends on the HDR buffer. EffectComposer clones this for
+   its second buffer, and setSize/setPixelRatio preserve `samples`. */
+var composer = new NV3.EffectComposer(renderer,
+  new T.WebGLRenderTarget(1, 1, { type: T.HalfFloatType, samples: 4 }));
 var renderPass = new NV3.RenderPass(scene, camera);
 composer.addPass(renderPass);
 /* Active Theory model: threshold ZERO - the crushed near-black scene is the threshold,
@@ -1373,7 +1407,9 @@ var grainPass = (function(){
       ' vec4 c = texture2D(tDiffuse, vUv);',
       ' float g = getNoise(vUv, uTime);',
       ' vec3 o = vec3(blendOverlay(c.r, g), blendOverlay(c.g, g), blendOverlay(c.b, g));',
-      ' vec3 col = mix(c.rgb, o, 0.15);',
+      ' vec3 col = mix(c.rgb, o, 0.03);', /* was 0.15: a ~10x oversized dither that
+        re-randomised every pixel every frame, which on a still scene is 100% of
+        the visible churn. 0.03 still breaks up banding without the fizz. */
       /* exit wash: the composed frame grades toward the mint-white end of the
          LUT (the mintRamp core->ice stops), luminance-shaped so highlights
          wash first and the shadows follow: one smooth crescendo, no strobe */
@@ -1428,7 +1464,8 @@ composer.addPass(new NV3.OutputPass());
    composed frame; ?fps=1 gains a live tier field. */
 var GOV = {
   applied: 0, pending: -1, forced: false,
-  win: [], calmMs: 0, canUp: false, chain: false, hist: []
+  win: [], calmMs: 0, canUp: false, chain: false, hist: [],
+  base: 17.5 /* the display's refresh interval, learned from the fastest frame seen */
 };
 (function(){
   var m = /^([0-4])$/.exec(new URLSearchParams(location.search).get('tier') || '');
@@ -1476,15 +1513,33 @@ function govFrame(dtMs){
   if (GOV.chain && !EXIT.on && !document.hidden) {
     GOV.win.push(dtMs);
     if (GOV.win.length > 30) GOV.win.shift();
-    GOV.calmMs = dtMs <= 15 ? GOV.calmMs + dtMs : 0;
+    /* rAF is quantised to the display's refresh interval, so absolute millisecond
+   thresholds below it can never be met: on a 60Hz panel every healthy frame is
+   ~16.7ms and `dtMs <= 15` was never true. Learn the interval instead. */
+    if (dtMs > 6 && dtMs < GOV.base) GOV.base = dtMs;
+    var govUp = GOV.base * 1.12, govDown = GOV.base * 1.45;
+    GOV.calmMs = dtMs <= govUp ? GOV.calmMs + dtMs : 0;
     if (GOV.win.length >= 30) {
       var srt = GOV.win.slice().sort(function(a, b){ return a - b; });
       var p90 = srt[27];
-      var curT = GOV.pending >= 0 ? GOV.pending : GOV.applied;
-      if (p90 > 19 && curT < 4) {
-        GOV.pending = curT + 1; GOV.win.length = 0; GOV.calmMs = 0; GOV.canUp = true;
-      } else if (p90 < 13 && GOV.calmMs > 4000 && GOV.canUp && curT > 0) {
-        GOV.pending = curT - 1; GOV.canUp = false; GOV.win.length = 0; GOV.calmMs = 0;
+      /* A queued step must LAND before another is measured. This block used to
+         read GOV.pending as "the current tier", so while the apply gate was shut
+         it stacked: hovering a pane keeps the loop chaining (S.hold) but leaves
+         the gate closed (scroll still, ground ripple ended by the pane hover,
+         no card open), and each fresh window bumped pending again, 0->1->2->3->4
+         with GOV.applied still 0. The next gate opening then applied FOUR tiers
+         in a single frame against a stationary camera. Measured on an Arc 140V:
+         160 pointer moves inside one pane, then one click -> hist [{from:0,to:4}].
+         One step may be in flight at a time; the ladder still reaches T4, but
+         only ever one visible increment at a time. */
+      if (GOV.pending >= 0) { GOV.win.length = 0; GOV.calmMs = 0; }
+      else {
+        var curT = GOV.applied;
+        if (p90 > govDown && curT < 4) {
+          GOV.pending = curT + 1; GOV.win.length = 0; GOV.calmMs = 0; GOV.canUp = true;
+        } else if (p90 < govUp && GOV.calmMs > 4000 && GOV.canUp && curT > 0) {
+          GOV.pending = curT - 1; GOV.canUp = false; GOV.win.length = 0; GOV.calmMs = 0;
+        }
       }
     }
   }
@@ -1492,6 +1547,7 @@ function govFrame(dtMs){
   if (GOV.pending >= 0 && !IW.on && !EXIT.on && cur < 0.85 &&
       (Math.abs(target - cur) > 0.0004 || GIX.busy || LOOK.weight > 0.0005)) {
     applyTier(GOV.pending); GOV.pending = -1;
+    GOV.win.length = 0; GOV.calmMs = 0; /* the swap frame is not evidence about the next tier */
     /* the DPR/target resize just blanked the canvas backing store; govFrame runs
        AFTER the frame's present, so without this the blank canvas is what the
        visitor sees until the next rAF: one black flicker per tier step. Re-render
@@ -2039,7 +2095,7 @@ function stepExit(dt){
 if (DEBUG) window.__nv.exit = EXIT;
 function needMore(){
   return EXIT.on || IW.on || HOLDS > 0 || GIX.busy || Math.abs(target - cur) > 0.00004 ||
-         Math.abs(mx - smx) > 0.0015 || Math.abs(my - smy) > 0.0015;
+         Math.abs(mx - smx) > 0.004 || Math.abs(my - smy) > 0.004;
 }
 function tick(t){
   rafId = 0;
@@ -2057,6 +2113,11 @@ function tick(t){
   cur = clamp01(cur);
   smx += (mx - smx) * Math.min(1, dt * 4);
   smy += (my - smy) * Math.min(1, dt * 4);
+  /* an exponential never arrives, and needMore() keeps the entire film rendering
+     until it does. Snap at the threshold needMore() tests so the chase ends in a
+     frame instead of trailing the cursor for a second and a half. */
+  if (Math.abs(mx - smx) < 0.004) smx = mx;
+  if (Math.abs(my - smy) < 0.004) smy = my;
   markMat.uniforms.uTime.value = t * 0.001;
   spineMat.uniforms.uTime.value = t * 0.001; /* neck matcap continuity (sampled only while rendering: idle stays zero) */
   grainPass.material.uniforms.uTime.value = 1.0 + (t % 100000) * 0.001;
@@ -2104,6 +2165,10 @@ if (reduced) {
     requestRender();
   }, { passive: true });
   window.addEventListener('mousemove', function(e){
+    /* with a card open the camera is already under the look override and the
+       pointer is on the card, not the world: parallax there is invisible motion
+       that re-chains the render loop on every mouse event. */
+    if (document.body.classList.contains('card-open')) return;
     mx = (e.clientX / Math.max(1, window.innerWidth)) * 2 - 1;
     my = (e.clientY / Math.max(1, window.innerHeight)) * 2 - 1;
     requestRender();

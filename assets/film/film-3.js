@@ -137,9 +137,13 @@ window.addEventListener('resize', refreshNavRect);
 function updateLabels(){
   if (!navRect || !navRect.width) refreshNavRect();
   camera.getWorldDirection(vDir);
-  var copyRect = null;
+  /* Gate on the sentence's PAINTED opacity, not its class. The class flips in one
+   frame but the sentence cross-fades over 600ms, so a class-gated suppression
+   snapped every label ~16x in brightness at each beat boundary. */
+  var copyRect = null, copyA = 0;
   for (var i = 0; i < copyNodes.length; i++) {
-    if (copyNodes[i].classList.contains('on')) { copyRect = copyNodes[i].getBoundingClientRect(); break; }
+    var ca = parseFloat(getComputedStyle(copyNodes[i]).opacity) || 0;
+    if (ca > 0.01) { copyA = ca; copyRect = copyNodes[i].getBoundingClientRect(); break; }
   }
   var cardUp = document.body.classList.contains('card-open');
   /* the rail yields while a story beat passes under it (the portrait top row
@@ -199,7 +203,7 @@ function updateLabels(){
       }
       /* never sit on a story copy beat: exact rect test against the visible copy */
       if (copyRect && x0 < copyRect.right + 12 && x1 > copyRect.left - 12 &&
-          y0 < copyRect.bottom + 12 && y1 > copyRect.top - 12) L.o *= 0.06;
+          y0 < copyRect.bottom + 12 && y1 > copyRect.top - 12) L.o *= (1 - 0.94 * copyA);
       for (var j = 0; j < kept.length; j++) {
         var K = kept[j];
         if (x0 < K.x1 + 16 && x1 > K.x0 - 16 && y0 < K.y1 + 12 && y1 > K.y0 - 12) { L.o *= 0.05; break; }
@@ -259,8 +263,9 @@ S.frameHooks.push(function(p, cam, dt){
         e.wU += (e.wTU - e.wU) * kwA; e.wV += (e.wTV - e.wV) * kwA;
         e.wU2 += (e.wU - e.wU2) * kwB; e.wV2 += (e.wV - e.wV2) * kwB;
         e.wPh += dt * 10.0;
-        e.wAmp *= Math.exp(-dt * 2.4);
-        if (e.wAmp < 0.002) {
+        e.wAmp *= Math.exp(-dt * 3.6);
+        if (e.wAmp < 0.02) { /* 0.02*0.11 = 0.0022 of wake: visually zero, and it
+                                stops holding the render loop ~1.5s sooner */
           e.wAmp = 0;
           pn.lq.wake.value.z = 0; pn.lq.wake2.value.z = 0;
         } else {
@@ -290,7 +295,7 @@ S.frameHooks.push(function(p, cam, dt){
     vRight.setFromMatrixColumn(cam.matrix, 0);
     var lkShift = cam.position.distanceTo(openPane.anchor) *
                   Math.tan(cam.fov * Math.PI / 360) * cam.aspect *
-                  (card.offsetWidth / Math.max(1, window.innerWidth)) * 0.5;
+                  (cardW / Math.max(1, window.innerWidth)) * 0.5;
     vGoal.copy(openPane.anchor).addScaledVector(vRight, lkShift);
     lookVec.lerp(vGoal, k3);
     if (lookVec.distanceToSquared(vGoal) > 0.02) busy = true;
@@ -358,6 +363,11 @@ canvas.addEventListener('pointermove', function(e){
   } else if (S.groundRippleEnd) S.groundRippleEnd();
 }, { passive: true });
 canvas.addEventListener('pointerleave', function(){
+  /* hoverPane was missing here: the pointer leaving the canvas (onto the site
+     header, an open card, or out of the window) left the slab pinned at full
+     boost and tilt, re-slerping toward the camera every frame, forever. The
+     touch path already cleared both via touchRest(); this mirrors it. */
+  if (hoverPane) { hoverPane = null; ensureAnim(); }
   if (hoverBrain) { hoverBrain = null; ensureAnim(); }
   if (S.groundRippleEnd) S.groundRippleEnd();
 });
@@ -485,6 +495,9 @@ function updateNodeUi(){
 
 /* ---------- the card ---------- */
 var prevFocus = null, scrollYAtOpen = 0, progScroll = false;
+/* card.offsetWidth was read inside the per-frame hook, forcing a synchronous
+   layout on every frame a card was open. It changes only on resize. */
+var cardW = 0;
 function navBtn(id){ return nav.querySelector('button[data-pane="' + id + '"]'); }
 function openCard(pn){
   if (openPane === pn) return;
@@ -500,6 +513,7 @@ function openCard(pn){
   scrollYAtOpen = window.scrollY || 0;
   card.classList.add('on');
   document.body.classList.add('card-open');
+  cardW = card.offsetWidth || 0;
   var b = navBtn(pn.id); if (b) b.setAttribute('aria-expanded', 'true');
   ensureAnim();
   card.focus({ preventScroll: true });
@@ -516,6 +530,8 @@ function closeCard(){
   prevFocus = null;
 }
 cardClose.addEventListener('click', closeCard);
+/* the cached card width is layout, so it is only ever stale after a resize */
+window.addEventListener('resize', function(){ if (openPane) cardW = card.offsetWidth || 0; });
 document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
   if (openBrain) { closeNodeCard(); return; }
