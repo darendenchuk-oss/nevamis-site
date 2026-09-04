@@ -532,7 +532,7 @@ PANE_DEFS.forEach(function(d){
   );
   etch.position.set(0, 0, 0.95); /* clear of the liquid swell (face 0.45 + clamp 0.40) */
   mesh.add(etch);
-  panes.push({ id: d.id, title: d.title, t: t, mesh: mesh, rim: null, etch: etch, anchor: pos.clone(),
+  panes.push({ id: d.id, title: d.title, t: t, f: d.f, gate: !!d.pos, mesh: mesh, rim: null, etch: etch, anchor: pos.clone(),
     envBase: pMat.envMapIntensity, lq: lq });
 });
 
@@ -2124,7 +2124,11 @@ function tick(t){
   /* chase with lerp AND a hard per-frame ceiling.
      Their ScrollController.LERP = 0.1 per frame at 60Hz, made framerate-independent. */
   var d = (target - cur) * (1 - Math.pow(0.9, dt * 60));
-  var cap = dt * 0.34;
+  var cap = dt * 0.9; /* owner call 2026-09-04: track the hand. The lerp above is
+                         the authored feel and is untouched; this ceiling only
+                         stops a violent flick teleporting, and at 0.34 it also
+                         flattened every ordinary scroll into constant-rate
+                         travel that ran on for seconds after the fingers stopped. */
   if (d > cap) d = cap; else if (d < -cap) d = -cap;
   cur += d;
   if (Math.abs(target - cur) <= 0.00004) cur = target;

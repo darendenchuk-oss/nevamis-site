@@ -73,7 +73,7 @@ if (S.camCurve) {
   var narrow = camera.aspect < 0.75;
   var cosH = Math.cos(Math.min(Math.PI / 2, Math.atan(Math.tan(camera.fov * Math.PI / 360) * camera.aspect) * 0.92));
   panes.forEach(function(pn){
-    var best = -1, bs = 1e9;
+    var best = -1, bs = 1e9, rBest = -1, rBs = 1e9;
     for (var i = 8; i <= 232; i++) {
       var p = i / 240;
       if (p <= lastP) continue;
@@ -86,6 +86,12 @@ if (S.camCurve) {
       vA.multiplyScalar(1 / d);
       var dot = vA.dot(vD);
       if (dot < 0.45) continue;
+      var score = d * (2 - dot);
+      /* the ungated best: same distance and facing tests, without the narrow
+         horizontal gate. A station that never enters a portrait frustum should
+         still get a REAL position rather than an arbitrary offset from its
+         neighbour, which is what stranded GROW and PLANS mid-film on a phone. */
+      if (score < rBs) { rBs = score; rBest = p; }
       if (narrow) {
         /* test against the REAL gaze base (apply() looks 0.11 ahead), horizontally */
         var lp2 = S.camCurve.getPoint(Math.min(1, p + 0.11));
@@ -93,13 +99,37 @@ if (S.camCurve) {
         var fl = Math.hypot(fx, fz), al = Math.hypot(vA.x, vA.z);
         if (fl > 1e-4 && al > 1e-4 && (fx * vA.x + fz * vA.z) / (fl * al) < cosH) continue;
       }
-      var score = d * (2 - dot);
       if (score < bs) { bs = score; best = p; }
     }
+    if (best < 0) best = rBest; /* never in a narrow frustum: use the ungated pick */
     if (best >= 0) pn.viewP = Math.min(0.94, Math.max(0.02, best - 0.02));
-    else pn.viewP = Math.min(0.94, lastP + 0.05);
+    else pn.viewP = Math.min(0.94, Math.max(lastP + 0.03, pn.f != null ? pn.f : lastP + 0.05));
+    /* The endgame gateposts are ARRIVED AT, not flown past, so they are never
+       better seen early: a portrait camera stops short of them entirely (it ends
+       at z=120 while they sit at z=42 and z=12), and the scan then settles for a
+       distant side-on pick around mid-film. Never place them before the station
+       the author gave them. Corridor panes keep the scan verbatim.
+       This MUST sit after the if/else above, not between them: as a second `if`
+       in the chain it stole the `else`, and every corridor pane (gate false) fell
+       through to the fallback and lost its scanned position. */
+    if (pn.gate && pn.f != null && pn.viewP < pn.f) pn.viewP = Math.min(0.94, pn.f);
     lastP = pn.viewP;
   });
+  /* The rail promises six distinct stations in travel order. Guarantee it:
+     forward pass opens a minimum gap, and if that runs the last station past the
+     ceiling, a backward pass pushes the whole run down off it. Both passes
+     together give strictly increasing, at least VP_GAP apart, none above VP_CAP. */
+  var VP_GAP = 0.03, VP_CAP = 0.94, k;
+  for (k = 1; k < panes.length; k++) {
+    if (panes[k].viewP < panes[k - 1].viewP + VP_GAP) panes[k].viewP = panes[k - 1].viewP + VP_GAP;
+  }
+  if (panes[panes.length - 1].viewP > VP_CAP) {
+    panes[panes.length - 1].viewP = VP_CAP;
+    for (k = panes.length - 2; k >= 0; k--) {
+      if (panes[k].viewP > panes[k + 1].viewP - VP_GAP) panes[k].viewP = panes[k + 1].viewP - VP_GAP;
+    }
+  }
+  for (k = 0; k < panes.length; k++) panes[k].viewP = Math.max(0.02, Math.min(VP_CAP, panes[k].viewP));
 }
 }
 computeViewPs();
