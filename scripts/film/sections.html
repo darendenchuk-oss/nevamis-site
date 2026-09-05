@@ -1,0 +1,281 @@
+<!-- ============================================================
+     The homepage BELOW the film. Composed into home.html by
+     scripts/film/compose.py; never hand-edit home.html or index.html.
+
+     Order: the Quote Recovery wedge, then the six stations (the film's own
+     #doc truth copy, spliced in at the DOC marker below and no longer
+     hidden), then industries, the calculator, plans, how you start, the FAQ
+     and the close. compose.py splits this file on that marker, so it must
+     appear exactly once and nowhere else, including in prose.
+
+     Every claim here traces to a canonical source: canonical.ts, the service
+     agreement, roadmap-config.js, pricing-config.js or the film's #doc. No
+     price literal appears anywhere: the plans strip and #qrPrice are rendered
+     at runtime from window.NV_PRICING by site.js. No em dashes. Availability
+     chips are exactly "Available today" / "In development" / "RECOMMENDED".
+     ============================================================ -->
+
+<section id="recover">
+  <div class="wrap">
+    <div class="centre reveal">
+      <p class="k"><i>03</i> CONVERT <span class="chip av">Available today</span></p>
+      <h1>The quotes you sent and never heard back about, followed up for you.</h1>
+      <p class="lede">Answering the phone catches the new call. Quote Recovery goes after the money you already quoted.</p>
+    </div>
+
+    <div class="card card-featured recover-card reveal">
+      <div class="recover-copy">
+        <p>Quotes are sent and forgotten. Interested customers drift away. Quotes that go quiet past your threshold get spotted and followed up once, with your name on the email and your approval before it goes. Then it tells you which quotes came back to life and what they were worth.</p>
+        <p class="outcome">Recovered revenue that was already almost won.</p>
+      </div>
+      <ul class="node-list recover-list">
+        <li>Quiet-quote detection on your threshold <span class="tag mono">CONVERT</span></li>
+        <li>One approved follow-up email per quote <span class="tag mono">CONVERT</span></li>
+        <li>Your identification on every message <span class="tag mono">CONVERT</span></li>
+        <li>Recovered value reported against the quotes that came back <span class="tag mono">CONVERT</span></li>
+      </ul>
+    </div>
+
+    <div class="twin reveal">
+      <div class="svc">
+        <h4>What it needs from you</h4>
+        <p>Your written go-ahead to email your own customers, and recording your quotes as jobs so we can see them go quiet.</p>
+      </div>
+      <div class="svc">
+        <h4>What it does not do</h4>
+        <p>It does not answer the customer's reply, negotiate, change your price or offer a discount. It does not connect to a CRM, an ads account or an automation tool. No outbound marketing campaigns are offered. Nothing goes out without your approval.</p>
+      </div>
+    </div>
+
+    <p class="fine2 reveal">Quote Recovery is sold as the Quote-Chase Engine add-on on top of the AI Front Desk, or included in The Works. Six-month start when any add-on is included. <span id="qrPrice">See the pricing page for the current figures.</span></p>
+
+    <div class="ctarow reveal">
+      <a class="btn btn-primary btn-lg" href="https://app.nevamis.ca/scan" data-evt="hero_scan_click">Scan my business</a>
+      <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
+    </div>
+    <p class="centre fine2 reveal"><a class="more" href="#roi" data-evt="dayone_roi_click">+ What missed calls are costing you</a></p>
+  </div>
+</section>
+
+<!--DOC-->
+
+<section id="industries">
+  <div class="glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="k">BUILT FOR THE TRADES FIRST</p>
+      <h2>Your quotes followed up. Your calls answered.</h2>
+      <p class="lede">Nevamis is built for appointment-based local businesses where a missed call is a lost job. Quotes are sent and forgotten there too, and interested customers drift away. Pick your trade to see what gets captured, followed up and reported.</p>
+    </div>
+    <div class="ind-grid">
+      <a class="card ind-card reveal" href="/electricians.html">
+        <p class="k">ELECTRICAL</p>
+        <h3>Electricians</h3>
+        <p>Panel upgrades and rewires captured as leads with the details you need. Record the quote as a job and, once it goes quiet past your threshold, it gets one approved follow-up with your name on it. Emergency and service calls answered while the crew is on the tools.</p>
+        <p class="cardfoot"><span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
+      </a>
+      <a class="card ind-card reveal" href="/hvac.html">
+        <p class="k">HVAC</p>
+        <h3>HVAC</h3>
+        <p>A furnace out at 11 PM in January does not wait for opening hours. Capture urgent after-hours demand, and the quote that goes quiet after the visit gets followed up, on your approval, with your name on the email.</p>
+        <p class="cardfoot"><span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
+      </a>
+      <a class="card ind-card reveal" href="/plumbers.html">
+        <p class="k">PLUMBING</p>
+        <h3>Plumbers</h3>
+        <p>Renovation quotes captured as leads rather than lost to voicemail, then spotted when they go quiet and followed up once, with your approval before it goes.</p>
+        <p class="cardfoot"><span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
+      </a>
+      <a class="card ind-card reveal" href="/restoration.html">
+        <p class="k">RESTORATION</p>
+        <h3>Restoration and property services</h3>
+        <p>Gather incident details calmly, route priority calls, and take down the assessment they need. The estimate that follows is recorded as a job, so it can be chased before it goes cold.</p>
+        <p class="cardfoot"><span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
+      </a>
+    </div>
+    <p class="ctarow reveal"><a class="btn btn-ghost" href="/solutions.html">See every solution</a></p>
+  </div>
+</section>
+
+<section class="roi" id="roi">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="k">MISSED-CALL MATH</p>
+        <h2>What are missed calls costing you?</h2>
+        <p class="lede">Your numbers, the formula shown, and an estimate rather than a promise. Missed calls are the loudest leak; the calculator puts your own figures on it, prefilled with the plan you would compare against.</p>
+      </div>
+      <div class="roi-grid">
+        <!-- Narrow screens only. The grid collapses to one column below 900px,
+             which puts the estimate BELOW the form, so on a phone the number
+             moved while nobody could see it: measured on production, the result
+             panel is off-screen through all five edits at 390px and 768px, and
+             four of five at 320px. Desktop is unaffected, where .roi-out is
+             sticky beside a two-column grid.
+             Pinning the real panel is not an option - it is 541px of an 844px
+             viewport, 64%, and would leave no room for the form. This carries
+             the headline figure only, at about 50px, and sits under the fixed
+             header rather than the bottom, where .callbar already lives.
+             aria-hidden because #roiLive already announces every change
+             politely; a visible mirror must not make a screen reader say it
+             twice. -->
+        <div class="roi-mini" aria-hidden="true">
+          <span class="roi-mini-lbl mono">REACHING VOICEMAIL / MONTH</span>
+          <span class="roi-mini-val" id="roiMini">$0</span>
+        </div>
+        <form id="roiForm" novalidate class="reveal">
+          <div>
+            <label for="roiMissed">Missed calls per week</label>
+            <input type="number" id="roiMissed" inputmode="numeric" min="0" max="500" value="10">
+          </div>
+          <div>
+            <label for="roiReal">Share that are real opportunities (%)</label>
+            <input type="number" id="roiReal" inputmode="numeric" min="0" max="100" value="60">
+            <p class="hint">Not every call is a job. Set this to what you see in your own calls.</p>
+          </div>
+          <div>
+            <label for="roiValue">Average job or customer value ($)</label>
+            <input type="number" id="roiValue" inputmode="numeric" min="0" value="400">
+          </div>
+          <div>
+            <label for="roiClose">Your close rate on real inquiries (%)</label>
+            <input type="number" id="roiClose" inputmode="numeric" min="0" max="100" value="50">
+          </div>
+          <div>
+            <label for="roiQuote">Plan you are comparing against ($/month)</label>
+            <!-- value= and the plan name below are the NO-JS FALLBACK ONLY.
+                 site.js overwrites both from window.NV_PRICING on load, so the
+                 live field cannot drift from pricing-config.js. It did: this
+                 shipped value="449", a price retired 2026-08-06, to
+                 production, labelled "the Growth plan", past every gate,
+                 because nothing that reads pricing-config.js was looking at
+                 an input attribute. Keep these two literals equal to the
+                 recommended plan; check-consistency.js guard 7f now enforces
+                 it. -->
+            <input type="number" id="roiQuote" inputmode="numeric" min="0" value="1000">
+            <p class="hint" id="roiQuoteHint">Prefilled with the <span id="roiQuotePlan">AI Front Desk</span> plan. Change it to any plan, or to a
+              quote you were given, to see how many won jobs cover it.</p>
+          </div>
+        </form>
+        <div class="roi-out reveal" aria-label="Calculator results">
+          <h3>Your estimate</h3>
+          <div class="row">
+            <div class="lbl mono">OPPORTUNITY REACHING VOICEMAIL / MONTH</div>
+            <div class="big" id="roiOpp">$0</div>
+          </div>
+          <div class="row">
+            <div class="lbl mono">CONSERVATIVE RECOVERED JOBS (HALF)</div>
+            <div class="big" id="roiRec">$0</div>
+          </div>
+          <div class="row" id="roiBeRow" hidden>
+            <div class="lbl mono">BREAK-EVEN AT YOUR QUOTE</div>
+            <div class="big" id="roiBe" style="font-size:clamp(20px,2.2vw,26px)">–</div>
+          </div>
+          <div class="midcta" style="margin-top:18px">
+            <a class="btn btn-primary" href="/book.html" data-evt="roi_book_click">Check these against your real call log</a>
+          </div>
+          <p class="disclaimer">Estimate only, not a guarantee. Formula: missed calls × 4.33 weeks × opportunity share × job value × close rate. Recovery assumes half of voicemail-bound calls are captured.</p>
+          <p aria-live="polite" class="visually-hidden" id="roiLive"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<section id="plans">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="k"><i>06</i> PLANS <span class="chip av">Published prices</span></p>
+      <h2>One fee to start, then a monthly.</h2>
+      <p class="lede">Every plan is a Launch &amp; Implementation fee to start, then a monthly. Prices in Canadian dollars, plus applicable GST/HST. Add-ons join the AI Front Desk one at a time, each on its own evidence, and all of them are already included in The Works. The Performance Partnership is offered by invitation and is never the default. Enterprise is quoted per client from what a scan of the business finds.</p>
+    </div>
+    <div id="plansStrip" class="reveal"></div>
+    <p class="fine2" id="plansFallbackHome">The Works · AI Front Desk (RECOMMENDED) · Performance Partnership, by invitation · Enterprise, quoted per client. Figures are on the pricing page.</p>
+    <p class="ctarow reveal">
+      <a class="btn btn-ghost" href="/pricing.html" data-evt="pricing_view_click">See the full ladder</a>
+      <a class="btn btn-primary" href="https://app.nevamis.ca/scan" data-evt="platform_scan_click">Scan my business</a>
+    </p>
+  </div>
+</section>
+
+<section id="start">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="k">HOW YOU START</p>
+      <h2>Your line is answered inside the first week.</h2>
+      <p class="lede">Days, not months. There is no trial, paid or free, and the seven-day paid pilot Nevamis used to sell is retired. What replaces a promise is a start with the length published in advance and a first week you can read for yourself.</p>
+    </div>
+    <div class="steps">
+      <div class="card reveal">
+        <p class="k"><i>01</i> SCAN</p>
+        <p>Every engagement starts with the PULSE Business Scan. Takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
+      </div>
+      <div class="card reveal">
+        <p class="k"><i>02</i> TALK</p>
+        <p>After the scan, a short strategy call confirms your exact fit. The term is published before you buy rather than discovered in the agreement: three months on the AI Front Desk, six months when any add-on or The Works is included.</p>
+      </div>
+      <div class="card reveal">
+        <p class="k"><i>03</i> BUILD</p>
+        <p>Discovery, build, written call scenarios run at the agent before a number is pointed at it, then your forwarding proven with a real call. The build takes days, not weeks.</p>
+      </div>
+      <div class="card reveal">
+        <p class="k"><i>04</i> READ</p>
+        <p>By the end of the first week you are not judging a promise, you are reading what actually happened on your own line. Every call recorded and playable in your portal, with CSV export of the lead record. Quote Recovery reports recovered value against the quotes that came back.</p>
+      </div>
+    </div>
+    <div class="card reveal deny">
+      <ul class="node-list">
+        <li>Scripted test callers run against your agent before a phone number is ever pointed at it <span class="tag mono">WEEK ONE</span></li>
+        <li>Call forwarding proven by placing a real call to your line, not assumed <span class="tag mono">WEEK ONE</span></li>
+        <li>Results that label every number as measured or modelled <span class="tag mono">WEEK ONE</span></li>
+        <li>Direct calendar booking is on the roadmap and is not live on any line today. The assistant takes the time the caller wants and you confirm the slot. <span class="tag mono">CALENDAR</span></li>
+        <li>Live transfer to a person is not part of the service. On an urgent call Nevamis captures the urgent details and alerts your team. <span class="tag mono">URGENT CALLS</span></li>
+        <li>Quote Recovery does not answer the customer's reply, negotiate, quote prices or offer discounts. Your approval comes before anything goes. <span class="tag mono">REPLIES</span></li>
+        <li>Nevamis publishes no client counts, success percentages or availability statistics, so none appear on this page. Do not take our word for it. Call it: +1 (587) 413-0035 answers, any hour. <span class="tag mono">PROOF</span></li>
+      </ul>
+    </div>
+    <p class="ctarow reveal">
+      <a class="btn btn-ghost" href="/pilot.html">How you start, in full</a>
+      <a class="more" href="tel:+15874130035" data-evt="honesty_call_click">+ Hear it answer</a>
+      <a class="more" href="/demo.html" data-evt="compare_demo_click">+ Hear it on the demo line</a>
+    </p>
+  </div>
+</section>
+
+<section class="faq tight" id="faq">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="k">STRAIGHT ANSWERS</p>
+      <h2>Questions owners actually ask.</h2>
+      <p class="lede">Each answer is written to stand on its own. If it is not built, it says so.</p>
+    </div>
+    <details class="reveal"><summary>What counts as a quiet quote?</summary><p>A quote you sent that has gone past a threshold you set without an answer. You choose the threshold. When a quote you have recorded as a job crosses it, Nevamis spots it and prepares a follow-up for your approval.</p></details>
+    <details class="reveal"><summary>Who sends the Quote Recovery follow-up, and can it go out without me?</summary><p>It goes with your name on the email, and only after your approval. Nothing is sent to your customers without your written go-ahead to email them, every message carries your business identity, and opt-outs are honoured. No outbound marketing campaigns are offered: Quote Recovery only follows up quotes you already wrote.</p></details>
+    <details class="reveal"><summary>Does Quote Recovery need my CRM or quoting software?</summary><p>No, and it does not connect to one. Nevamis does not connect to a CRM, an ads account or an automation tool. You record your quotes as jobs in your Nevamis portal so we can see them go quiet, and the follow-up and the reporting run from there.</p></details>
+    <details class="reveal"><summary>Is Quote Recovery the same thing as the Quote-Chase Engine?</summary><p>Yes. Quote Recovery is the capability; the Quote-Chase Engine is the add-on that sells it, on top of the AI Front Desk, with its own Launch &amp; Implementation fee to start and then a monthly. It is already included in The Works. Its figures are rendered on the pricing page from the published price list, and there is a six-month start when any add-on is included.</p></details>
+    <details class="reveal"><summary>Will Quote Recovery quote prices, negotiate or offer discounts?</summary><p>No. It follows up a quote you already wrote. It does not answer customer questions, negotiate, change your prices or offer discounts, and it does not book or schedule anything. What you get back is which quotes came back to life and what they were worth.</p></details>
+    <details class="reveal"><summary>Will callers know they are talking to an AI?</summary><p>The moment anyone asks, yes, plainly and without hedging. It does not open the call by announcing itself, any more than a receptionist opens by explaining who employs them: it greets the caller in your business's name and gets on with the job. Dial the demo line and ask it directly.</p></details>
+    <details class="reveal"><summary>Can it book directly into my calendar?</summary><p>Not yet, and we will not pretend otherwise. The assistant takes the job, the address and the time the caller wants, then texts it to you so you can confirm the slot. Direct calendar booking is on the roadmap and is not live on any line today.</p></details>
+    <details class="reveal"><summary>What happens on an urgent call?</summary><p>Nevamis captures the urgent details and alerts your team. We define together what counts as urgent for your business, and a call that meets it is flagged that way the moment it ends. Live transfer to a person is not part of the service.</p></details>
+    <details class="reveal"><summary>Can I keep my current phone number?</summary><p>Yes. Your number stays exactly as it is. Call forwarding sends calls to Nevamis always, after hours, or only when you miss the call. You can switch it off from your own phone at any time.</p></details>
+    <details class="reveal"><summary>How long does setup take?</summary><p>Days, not months. Discovery, build, written call scenarios run at the agent before a number is pointed at it, then your forwarding proven with a real call.</p></details>
+    <details class="reveal"><summary>What does it cost?</summary><p>Every plan is a Launch &amp; Implementation fee to start, then a monthly, in Canadian dollars plus GST/HST, with no performance fee on the AI Front Desk or The Works. Add-ons join the AI Front Desk one at a time, each with its own Launch &amp; Implementation fee and monthly, and all of them are included in The Works. The figures are published on the pricing page from one source. There is a three-month start on the AI Front Desk, six months when any add-on or The Works is included; after the minimum it is month to month, 30 days notice, cancelled from your own portal, and your price is locked for 12 months from signing.</p></details>
+    <details class="reveal"><summary>What does the Launch &amp; Implementation fee cover?</summary><p>The build, priced in the open instead of hidden in the monthly. Before you go live your agent is configured around your hours, services, prices, service area and rules, your automations are enabled, a baseline of your business is taken, and the system is run against written call scenarios before a phone number is pointed at it. That is real work, it happens once, and the one-time fee is charged once, at the start, never again.</p></details>
+    <details class="reveal"><summary>Can I try it before I commit?</summary><p>There is no trial, paid or free, and the seven-day paid pilot Nevamis used to sell is retired. What replaced it is a start with the length published in advance: three months on the AI Front Desk, six months when any add-on or The Works is included. After that it continues month to month on 30 days notice and you cancel it yourself from the portal. The build takes days, so by the end of the first week you are judging your own call recordings rather than a promise.</p></details>
+    <details class="reveal"><summary>How is customer information handled?</summary><p>Call details are used to run your service: the lead record, your summaries, and the recording in your portal. Quote Recovery emails go only to your own customers, on your written go-ahead, with your name on them. See the privacy page for what this website itself collects. Businesses remain responsible for notices appropriate to their own jurisdiction and call-recording requirements.</p></details>
+    <details class="reveal"><summary>What if it is not a fit?</summary><p>Past your minimum term you cancel it yourself from the portal, on 30 days notice, and service runs to the end of the period you already paid for. There is no cancellation fee and nobody to talk into letting you go. The term is published before you buy rather than discovered in the agreement: three months on the AI Front Desk, six months when any add-on or The Works is included.</p></details>
+  </div>
+</section>
+
+<section id="next">
+  <div class="wrap">
+    <div class="centre reveal">
+      <p class="k">ONE SCAN</p>
+      <h2>See where yours is leaking.</h2>
+      <p class="lede">One scan. Every leak, found and handled. Every figure is a range with a confidence level, and you see the leaks before you pay to fix any of them.</p>
+      <p class="ctarow">
+        <a class="btn btn-primary btn-lg" href="https://app.nevamis.ca/scan" data-evt="hero_scan_click">Scan my business</a>
+        <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
+      </p>
+      <p class="fine2">Takes about two minutes. No call required.</p>
+    </div>
+  </div>
+</section>

@@ -74,7 +74,7 @@ window.NV_ROADMAP = {
       desc: "Reminders, approved rescheduling, and cancellation recovery that keep valuable appointment slots from going unused.",
       outcome: "Fewer no-shows, better utilization." },
     { slug: "daily-business-brief", name: "Your Daily Business Brief", pillar: "operate", status: "planned", stage: "future",
-      desc: "Calls, bookings, open leads, follow-ups, and urgent issues condensed into one concise daily summary.",
+      desc: "Is being built to condense calls, open leads, follow-ups, and urgent issues into one concise daily summary.",
       outcome: "Five minutes to know exactly where the business stands." },
     /* NOT flipped to available, deliberately. pricing-config.js carries
        review_engine with sellable: true and the pricing page sells it, so this
@@ -89,7 +89,7 @@ window.NV_ROADMAP = {
       desc: "Reconnect with eligible past customers when maintenance, seasonal work, or renewals may genuinely help them.",
       outcome: "Repeat business from relationships you already earned." },
     { slug: "web-messaging-concierge", name: "Web and Messaging Concierge", pillar: "capture", status: "researching", stage: "future",
-      desc: "Website visitors and texters get the same fast, knowledgeable path to answers and booking that callers receive.",
+      desc: "Is being built to give website visitors and texters the same fast, knowledgeable path to answers that callers receive.",
       outcome: "More captured leads from people who never call." },
     { slug: "ai-inbox-assistant", name: "Inbox Assistant", pillar: "operate", status: "researching", stage: "future",
       desc: "Shared business email gets organized: urgent messages flagged, replies drafted for approval, tasks extracted, a clear digest produced.",

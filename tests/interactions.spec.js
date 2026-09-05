@@ -218,7 +218,7 @@ test('the ROI calculator computes and shows break-even with a quote', async ({ p
 
   await page.locator('#roiQuote').fill('675');
   await expect(page.locator('#roiBeRow')).toBeVisible();
-  await expect(page.locator('#roiBe')).toContainText('booked jobs per month');
+  await expect(page.locator('#roiBe')).toContainText('won jobs per month');
 });
 
 test('FAQ items open, close, and stay keyboard operable', async ({ page }) => {

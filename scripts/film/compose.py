@@ -31,8 +31,10 @@ film_style = film_style.replace(key,
 # the same horizontal overflow without creating a scroll container.
 # Also: once the visitor scrolls past the film span into the page sections, the
 # film's fixed chrome (labels, rail, hint) yields instead of floating over them.
+SECTIONS_CSS = open('scripts/film/sections.css', encoding='utf-8').read()
 film_style = film_style.replace('</style>',
-    '\nbody{overflow-x:clip}\n'
+    '\n' + SECTIONS_CSS + '\n'
+    'body{overflow-x:clip}\n'
     'html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,'
     'html.nv-below .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;'
     'transition:opacity .35s ease}\n'
@@ -52,28 +54,23 @@ film_body = film_body[:mbrand.start()] + film_body[mbrand.end():]
 # wrap the plain-DOM section as <main id="main"> so the skip link keeps working
 assert film_body.count('<section id="doc"') == 1
 film_body = film_body.replace('<section id="doc"', '<main id="main"><div id="how"></div><section id="doc"', 1)
+# the six stations are a grid, so the run of .pane-doc articles needs one parent
+_a = film_body.find('<article class="pane-doc"')
+_z = film_body.rfind('</article>') + len('</article>')
+assert 0 < _a < _z, 'pane-doc articles not found'
+film_body = film_body[:_a] + '<div class="stations">' + film_body[_a:_z] + '</div>' + film_body[_z:]
 close = re.search(r'</section>\s*(?=<script)', film_body)
 assert close, 'doc close not found before scripts'
-# the old industries section rides along verbatim (other pages link /#industries;
-# its classes are styled by the inlined site.css we keep, and site.js reveals it)
-io_ = old.find('id="industries"')
-ij = old.rfind('<section', 0, io_)
-ik = old.find('</section>', io_) + len('</section>')
-industries = old[ij:ik]
-# ...and the ROI calculator section (missed-calls.html links /#roi; the logic
-# lives in site.js, which this page includes)
-ro_ = old.find('id="roi"')
-rj = old.rfind('<section', 0, ro_)
-rk = old.find('</section>', ro_) + len('</section>')
-roi = old[rj:rk]
-# ...and the FAQ section: build-schema.mjs derives the homepage FAQPage schema
-# from the page's real <details> entries and refuses a page without them
-fa_ = old.find('id="faq"')
-fj = old.rfind('<section', 0, fa_)
-fk = old.find('</section>', old.rfind('</details>')) + len('</section>')
-faq = old[fj:fk]
-assert faq.count('<details') >= 5, 'faq extraction lost entries'
-film_body = (film_body[:close.end()] + industries + '\n' + roi + '\n' + faq
+# The page below the film is authored in scripts/film/sections.html. It carries
+# one <!--DOC--> marker: everything before it precedes the film's own #doc (which
+# IS the six-station section, no longer hidden), everything after follows it.
+SECTIONS = open('scripts/film/sections.html', encoding='utf-8').read()
+assert SECTIONS.count('<!--DOC-->') == 1, 'sections.html needs exactly one <!--DOC--> marker'
+sec_top, sec_bottom = SECTIONS.split('<!--DOC-->')
+assert sec_bottom.count('<details') == 15, 'the FAQ must carry 15 entries'
+assert 'id="roiForm"' in sec_bottom and 'id="roiQuotePlan"' in sec_bottom, 'the calculator hooks must survive'
+film_body = film_body.replace('<main id="main">', '<main id="main">' + sec_top, 1)
+film_body = (film_body[:close.end()] + '\n' + sec_bottom
              + '\n</main>\n' + film_body[close.end():])
 
 # --- site chrome from the old page ---
@@ -144,6 +141,12 @@ assert out.count('<footer class="site-footer">') == 1
 assert '/privacy.html' in out and '/terms.html' in out
 assert 'id="paneNav"' in out and 'id="doc"' in out
 assert 'id="how"' in out and 'id="industries"' in out
+assert out.count('<h1') == 1, 'the page needs exactly one h1'
+assert out.count('<details') == 15, 'the FAQ must publish 15 entries'
+assert 'id="plansStrip"' in out and 'id="qrPrice"' in out, 'runtime price targets missing'
+for _e in ['compare_demo_click', 'dayone_roi_click', 'roi_book_click', 'hero_scan_click']:
+    assert _e in out, 'conversion surface missing: ' + _e
+assert '—' not in out[out.find('<body'):], 'em dash in page copy'
 assert 'app.nevamis.ca/scan' in out
 
 open('home.html', 'w', encoding='utf-8', newline='').write(out)

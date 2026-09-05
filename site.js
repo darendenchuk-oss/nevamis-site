@@ -623,7 +623,7 @@
         if (quote > 0) {
           out.beRow.hidden = false;
           var jobs = value * close > 0 ? Math.ceil(quote / (value * close)) : 0;
-          out.be.textContent = jobs + (jobs === 1 ? " booked job" : " booked jobs") + " per month";
+          out.be.textContent = jobs + (jobs === 1 ? " won job" : " won jobs") + " per month";
         } else out.beRow.hidden = true;
       }
       if (announced) announced.textContent = "Estimated opportunity " + money(oppValue) + " per month, conservative recovery " + money(recovered) + ".";
@@ -656,6 +656,82 @@
     roiForm.addEventListener("input", calc);
     roiForm.addEventListener("submit", function (e) { e.preventDefault(); calc(); });
     calc();
+  }
+
+  /* ---------- the homepage plans strip ----------
+     Every figure here is rendered from window.NV_PRICING at runtime. No price
+     is ever typed into the homepage HTML: a retired figure once shipped to
+     production inside an input attribute because nothing that read
+     pricing-config.js was looking at the markup. The sentence shape and the
+     grouping helper are copied from pricing.html so the two pages cannot say
+     the same number differently. A plan with selfServe:false shows no monthly
+     and no percentage: it is offered by invitation, never as a price.
+     Add-on rows are derived from the stations actually on the page, so an
+     add-on the page does not describe can never be priced here. */
+  var PS = document.getElementById("plansStrip");
+  var NVP2 = window.NV_PRICING;
+  if (PS && NVP2 && NVP2.approved && Array.isArray(NVP2.plans)) {
+    var grp = function (n) { return Number(n).toLocaleString("en-CA"); };
+    var sentence = function (x) {
+      return "C$" + grp(x.launch) + " Launch & Implementation to start, then C$" + grp(x.monthly) + " a month";
+    };
+    var esc = function (s) {
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    };
+    var html = '<div class="plan-row">';
+    NVP2.plans.forEach(function (pl) {
+      html += '<div class="card' + (pl.recommended ? " card-featured" : "") + '">';
+      html += "<h3>" + esc(pl.name)
+        + (pl.recommended && NVP2.recommendedLabel ? ' <span class="chip rec">' + esc(NVP2.recommendedLabel) + "</span>" : "")
+        + "</h3>";
+      if (pl.selfServe === false) {
+        html += '<p class="price">By invitation.</p>';
+        if (pl.performanceNote) html += "<p>" + esc(pl.performanceNote) + "</p>";
+      } else {
+        html += '<p class="price">' + esc(sentence(pl)) + ".</p>";
+        if (pl.bestFor) html += "<p>" + esc(pl.bestFor) + "</p>";
+        if (pl.performanceNote == null) html += "<p>No performance fee.</p>";
+      }
+      html += "</div>";
+    });
+    html += "</div>";
+    if (NVP2.enterprise) {
+      html += '<div class="card"><h3>' + esc(NVP2.enterprise.name) + "</h3>";
+      if (NVP2.enterprise.launchFrom) {
+        html += '<p class="price">Launch &amp; Implementation starting at C$'
+          + grp(NVP2.enterprise.launchFrom) + ".</p>";
+      }
+      if (NVP2.enterprise.note) html += "<p>" + esc(NVP2.enterprise.note) + "</p>";
+      html += "</div>";
+    }
+    var onPage = [].slice.call(document.querySelectorAll("#doc .svc[data-addon]"))
+      .map(function (el) { return el.getAttribute("data-addon"); });
+    var rows = (NVP2.addOns || []).filter(function (a) {
+      return a.sellable && a.monthly && onPage.indexOf(a.id) >= 0;
+    }).sort(function (a, b) {
+      return (a.id === "quote_chase" ? -1 : 0) - (b.id === "quote_chase" ? -1 : 0);
+    });
+    if (rows.length) {
+      html += '<div class="card"><ul class="node-list">';
+      rows.forEach(function (a) {
+        html += "<li>" + esc(a.name) + ": " + esc(sentence(a))
+          + '<span class="tag mono">ADD-ON</span></li>';
+      });
+      html += '</ul><p class="fine2">Every other add-on is on the '
+        + '<a class="more" href="/pricing.html">pricing page</a>.</p></div>';
+    }
+    if (NVP2.terms && NVP2.terms.note) {
+      html += '<p class="fine2">' + esc(NVP2.terms.note)
+        + (NVP2.taxNote ? " " + esc(NVP2.taxNote) : "") + "</p>";
+    }
+    PS.innerHTML = html;
+
+    /* the wedge's own price line, same record, same sentence */
+    var qr = document.getElementById("qrPrice");
+    var qa = (NVP2.addOns || []).filter(function (a) {
+      return a.id === "quote_chase" && a.sellable && a.monthly;
+    })[0];
+    if (qr && qa) qr.textContent = qa.name + ": " + sentence(qa) + ".";
   }
   } catch (err) {
     /* Fail open: restore the CSS safety state so all content is visible. */
