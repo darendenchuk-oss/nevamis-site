@@ -17,10 +17,15 @@ const PLAIN = '/home.html';
    which counts captured leads rather than clicks, and a data-evt beside it
    would double count and fire on failed validation. */
 const REQUIRED = [
-  { page: '/home.html', sel: '#simWatch', evt: 'sim_watch_click' },
-  { page: '/home.html', sel: '#simStepMode', evt: 'sim_step_click' },
+  /* The call simulator (#simWatch / #simStepMode, sim_watch_click /
+     sim_step_click) was the old homepage's hero. The homepage is now the scan
+     film, which has no simulator, so those two surfaces are gone rather than
+     unmeasured. Their names stay in the engine allowlist and are not reused.
+     The surfaces below are the ones the film homepage actually offers. */
   { page: '/home.html', sel: 'a[href="/demo.html"][data-evt]', evt: 'compare_demo_click' },
   { page: '/home.html', sel: 'a[href="#roi"][data-evt]', evt: 'dayone_roi_click' },
+  { page: '/home.html', sel: 'a[href="/book.html"][data-evt="roi_book_click"]', evt: 'roi_book_click' },
+  { page: '/home.html', sel: 'a[href="https://app.nevamis.ca/scan"][data-evt]', evt: 'hero_scan_click' },
   { page: '/pricing.html', sel: 'a[href="/book.html"][data-evt="pricing_book_call_click"]', evt: 'pricing_book_call_click' },
   { page: '/pricing.html', sel: 'a[data-evt="pricing_demo_call_click"]', evt: 'pricing_demo_call_click' },
   { page: '/electricians.html', sel: 'a[data-evt="trade_pricing_click"]', evt: 'trade_pricing_click' },
@@ -91,8 +96,10 @@ test('a dead analytics endpoint never costs a visitor their click', async ({ pag
 test('a tracked click records the event locally before navigating away', async ({ page }) => {
   await page.route('**/api/events', (r) => r.abort());
   await page.goto(PLAIN);
-  await page.locator('#simWatch').scrollIntoViewIfNeeded();
-  await page.locator('#simWatch').click();
+  /* an in-page anchor: it records and then navigates within the page, so the
+     assertion is about nvTrack recording locally, not about the destination. */
+  await page.locator('a[data-evt="dayone_roi_click"]').first().scrollIntoViewIfNeeded();
+  await page.locator('a[data-evt="dayone_roi_click"]').first().click();
   const names = await page.evaluate(() => (window.nvEvents || []).map((e) => e.event));
-  expect(names, 'nvTrack should have recorded the simulator click').toContain('sim_watch_click');
+  expect(names, 'nvTrack should have recorded the click').toContain('dayone_roi_click');
 });

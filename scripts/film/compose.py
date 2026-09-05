@@ -69,9 +69,14 @@ assert SECTIONS.count('<!--DOC-->') == 1, 'sections.html needs exactly one <!--D
 sec_top, sec_bottom = SECTIONS.split('<!--DOC-->')
 assert sec_bottom.count('<details') == 15, 'the FAQ must carry 15 entries'
 assert 'id="roiForm"' in sec_bottom and 'id="roiQuotePlan"' in sec_bottom, 'the calculator hooks must survive'
-film_body = film_body.replace('<main id="main">', '<main id="main">' + sec_top, 1)
+# ORDER MATTERS: close.end() is an offset into the CURRENT film_body, so the
+# offset splice has to happen before any insertion that shifts it. Doing the
+# sec_top replace first moved everything right by len(sec_top) and dropped
+# sec_bottom inside #doc, which parsed as the FAQ nested in the stations wrap
+# and still satisfied every count-based assert below.
 film_body = (film_body[:close.end()] + '\n' + sec_bottom
              + '\n</main>\n' + film_body[close.end():])
+film_body = film_body.replace('<main id="main">', '<main id="main">' + sec_top, 1)
 
 # --- site chrome from the old page ---
 def block(s, start_pat, end_pat):
@@ -147,6 +152,14 @@ assert 'id="plansStrip"' in out and 'id="qrPrice"' in out, 'runtime price target
 for _e in ['compare_demo_click', 'dayone_roi_click', 'roi_book_click', 'hero_scan_click']:
     assert _e in out, 'conversion surface missing: ' + _e
 assert '—' not in out[out.find('<body'):], 'em dash in page copy'
+# structural, not just present: every below-film section must follow #doc's close,
+# and </main> must follow the last of them. A count-only check passed happily while
+# the whole page below the film was nested inside #doc.
+_docend = out.find('</section>', out.find('id="doc-nodes"'))
+for _id in ['id="industries"', 'id="roi"', 'id="plans"', 'id="start"', 'id="faq"', 'id="next"']:
+    assert out.find(_id) > _docend, _id + ' is not a sibling of #doc'
+assert out.find('</main>') > out.find('id="next"'), '</main> closes before the last section'
+assert out.find('id="recover"') < out.find('<section id="doc"'), 'the wedge must lead'
 assert 'app.nevamis.ca/scan' in out
 
 open('home.html', 'w', encoding='utf-8', newline='').write(out)

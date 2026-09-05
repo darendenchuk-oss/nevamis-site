@@ -76,7 +76,12 @@ html.nv-live main .more:hover{color:var(--mint)}
 /* the six stations: the film's own #doc, no longer hidden */
 html.nv-live #doc{display:block;padding:88px 0;background:transparent}
 html.nv-live #doc .wrap{max-width:1180px}
-html.nv-live #doc .doc-h{font-size:clamp(28px,3.6vw,40px);letter-spacing:-.02em;margin-bottom:12px}
+html.nv-live #doc .doc-h{font-size:clamp(28px,3.6vw,40px);letter-spacing:-.02em;margin-bottom:12px;max-width:22ch}
+html.nv-live #doc .doc-k{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:11px;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--emerald);margin:0 0 14px;
+  display:flex;gap:9px;align-items:center}
+html.nv-live #doc .doc-k::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--emerald);
+  box-shadow:0 0 8px rgba(47,191,143,.8);flex:none}
 html.nv-live #doc .doc-sub{font-size:17px;color:#9dc7b4;max-width:52ch;margin-bottom:34px}
 html.nv-live #doc .stations{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
 html.nv-live #doc .pane-doc{margin:0;background:linear-gradient(160deg,rgba(6,26,19,.72),rgba(2,8,13,.86));
@@ -84,8 +89,10 @@ html.nv-live #doc .pane-doc{margin:0;background:linear-gradient(160deg,rgba(6,26
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 html.nv-live #doc .pane-doc::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(159,240,206,.55),transparent);opacity:.55}
-html.nv-live #doc #doc-convert{grid-column:span 2;border-color:rgba(159,240,206,.28);
-  box-shadow:0 0 60px -22px rgba(47,191,143,.35)}
+html.nv-live #doc #doc-convert{border-color:rgba(159,240,206,.28);
+  box-shadow:0 0 60px -22px rgba(47,191,143,.35);
+  background-image:radial-gradient(60% 50% at 70% 30%,rgba(191,245,222,.06),transparent 70%),
+    linear-gradient(160deg,rgba(6,26,19,.72),rgba(2,8,13,.86))}
 html.nv-live #doc #doc-nodes{display:none}
 html.nv-live #doc .pane-doc .kick{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:11px;
   letter-spacing:.3em;text-transform:uppercase;color:var(--emerald);margin:0 0 6px}
@@ -137,7 +144,6 @@ html.nv-live main .btn-primary:active{transform:scale(.97)}
 @media(max-width:1000px){
   html.nv-live main .ind-grid,html.nv-live main .steps{grid-template-columns:repeat(2,1fr)}
   html.nv-live #doc .stations{grid-template-columns:repeat(2,1fr)}
-  html.nv-live #doc #doc-convert{grid-column:span 2}
   html.nv-live main .plan-row{grid-template-columns:1fr}
 }
 @media(max-width:760px){
@@ -146,7 +152,6 @@ html.nv-live main .btn-primary:active{transform:scale(.97)}
   html.nv-live main .twin,html.nv-live main .ind-grid,html.nv-live main .steps{grid-template-columns:1fr}
   html.nv-live #doc{padding:64px 0}
   html.nv-live #doc .stations{grid-template-columns:1fr}
-  html.nv-live #doc #doc-convert{grid-column:span 1}
   html.nv-live main .ctarow .btn{width:100%;justify-content:center}
   html.nv-live main .node-list li{flex-wrap:wrap}
 }
