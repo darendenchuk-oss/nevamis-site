@@ -34,7 +34,7 @@ film_style = film_style.replace(key,
 film_style = film_style.replace('</style>',
     '\nbody{overflow-x:clip}\n'
     'html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,'
-    'html.nv-below #nlabel{opacity:0 !important;pointer-events:none;'
+    'html.nv-below .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;'
     'transition:opacity .35s ease}\n'
     'html:not(.nv-below) .callbar{display:none}\n'
     '@media(max-width:900px){#scroll .copy{display:block}}\n</style>')

@@ -1215,10 +1215,15 @@ body{
   background:radial-gradient(ellipse 120% 90% at 50% 45%, transparent 55%, rgba(1,5,8,.55) 100%)}
 .chold{position:absolute;left:0;right:0;z-index:3;pointer-events:none}
 #close-hold{z-index:5} /* the ending CTA outranks the ghosted pane labels */
-.copy{position:sticky;position:-webkit-sticky;top:38vh;margin:0 auto;width:min(88vw,640px);
+.copy{position:fixed;top:38vh;left:50%;transform:translateX(-50%);width:min(88vw,640px);
   text-align:center;pointer-events:none;
   opacity:0;transition:opacity .6s ease;
 }
+/* owner note 2026-09-04: the story copy fades in and out at the middle of the
+   frame and never travels. It used to ride a sticky hold that pinned it for its
+   beat and then scrolled it away; now the block is fixed at its resting line
+   and only its opacity (the p-window .on toggle above) changes. The holds stay
+   in the DOM as inert spacers so layout() needs no change. */
 .copy.on{opacity:1}
 .copy p{font-size:clamp(1.35rem,3.4vw,2.1rem);font-weight:700;line-height:1.3;
   color:var(--ink);text-shadow:0 2px 24px rgba(2,8,13,.9),0 0 60px rgba(2,8,13,.7)}
@@ -1395,7 +1400,7 @@ html.nv-intro.nv-on #paneNav{opacity:1;transition:opacity .9s ease .18s}
 html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
 
 body{overflow-x:clip}
-html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;transition:opacity .35s ease}
+html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,html.nv-below .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;transition:opacity .35s ease}
 html:not(.nv-below) .callbar{display:none}
 @media(max-width:900px){#scroll .copy{display:block}}
 </style>
