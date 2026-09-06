@@ -1345,7 +1345,7 @@ body.card-open #hint{opacity:0}
 .pane-doc .cta2:active{transform:translateY(0) scale(.97);filter:brightness(1.14);
   transition:transform .09s ease,filter .09s ease}
 #doc{position:relative;z-index:2;background:var(--bg1);padding:9vh 6vw 12vh}
-.nv-live #doc{display:none}
+/* #doc is the visible six-station section now, in every mode */
 #doc .wrap{max-width:680px;margin:0 auto}
 #doc .doc-h{font-size:1.9rem;color:var(--ink);margin-bottom:.6rem}
 #doc .doc-sub{color:#9dc7b4;margin-bottom:2.6rem}
@@ -1405,156 +1405,159 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
    <style> block, so it never touches assets/motion/site.css (which other
    pages share) and never needs a second stylesheet request.
 
-   Everything is scoped under html.nv-live so a no-WebGL or reduced-motion
-   visitor keeps the plain, already-accessible fallback styling.
+   These rules are NOT scoped to the live film. They were, and that left a
+   reduced-motion or no-WebGL visitor with the new markup and none of its
+   styling: the classes below exist only in this page's new sections. The
+   stylesheet is inlined into home.html alone, so unscoped selectors here
+   cannot reach any other page.
    ============================================================ */
 
-html.nv-live main section{padding:88px 0;border-top:1px solid rgba(159,240,206,.08);position:relative}
-html.nv-live main #recover,html.nv-live main #next{border-top:none}
-html.nv-live #how,html.nv-live #doc,html.nv-live #industries,html.nv-live #roi,
-html.nv-live #plans,html.nv-live #start,html.nv-live #faq{scroll-margin-top:68px}
+main section{padding:88px 0;border-top:1px solid rgba(159,240,206,.08);position:relative}
+main #recover,main #next{border-top:none}
+#how,#doc,#industries,#roi,
+#plans,#start,#faq{scroll-margin-top:68px}
 
 /* the seam: the page starts where the film's world ends */
-html.nv-live main #recover{padding-top:64px}
-html.nv-live main #recover::before{content:"";position:absolute;left:0;right:0;top:-60px;height:120px;
+main #recover{padding-top:64px}
+main #recover::before{content:"";position:absolute;left:0;right:0;top:-60px;height:120px;
   background:radial-gradient(50% 100% at 50% 0,rgba(47,191,143,.18),transparent);pointer-events:none}
-html.nv-live main #recover::after{content:"";position:absolute;left:20%;right:20%;top:0;height:1px;
+main #recover::after{content:"";position:absolute;left:20%;right:20%;top:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(159,240,206,.55),transparent)}
 
 /* kicker: the film's own mono idiom, numeral dimmed like #paneNav */
-html.nv-live main .k{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;
+main .k{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;
   font-size:11px;line-height:1.3;font-weight:400;letter-spacing:.3em;text-transform:uppercase;
   color:var(--emerald);display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
-html.nv-live main .k::before{content:"";width:5px;height:5px;border-radius:50%;
+main .k::before{content:"";width:5px;height:5px;border-radius:50%;
   background:var(--emerald);box-shadow:0 0 8px rgba(47,191,143,.8);flex:none}
-html.nv-live main .k i{font-style:normal;color:#3d6b58}
-html.nv-live main .centre .k{justify-content:center}
+main .k i{font-style:normal;color:#3d6b58}
+main .centre .k{justify-content:center}
 
-html.nv-live main h1,html.nv-live main h2{font-weight:700;letter-spacing:-.02em;line-height:1.1;
+main h1,main h2{font-weight:700;letter-spacing:-.02em;line-height:1.1;
   color:var(--ink);font-size:clamp(28px,3.6vw,40px);max-width:22ch;margin:0 0 14px}
-html.nv-live main .centre{max-width:min(88vw,640px);margin:0 auto;text-align:center}
-html.nv-live main .centre h1,html.nv-live main .centre h2{max-width:none;margin-left:auto;margin-right:auto}
-html.nv-live main p.lede{font-size:17px;line-height:1.5;color:#9dc7b4;max-width:52ch;margin:0}
-html.nv-live main .centre p.lede{margin-left:auto;margin-right:auto}
-html.nv-live main .section-head{margin-bottom:30px}
-html.nv-live main .fine2{font-size:12.5px;line-height:1.5;color:#6fa18c;margin:16px 0 0}
+main .centre{max-width:min(88vw,640px);margin:0 auto;text-align:center}
+main .centre h1,main .centre h2{max-width:none;margin-left:auto;margin-right:auto}
+main p.lede{font-size:17px;line-height:1.5;color:#9dc7b4;max-width:52ch;margin:0}
+main .centre p.lede{margin-left:auto;margin-right:auto}
+main .section-head{margin-bottom:30px}
+main .fine2{font-size:12.5px;line-height:1.5;color:#6fa18c;margin:16px 0 0}
 
 /* one card treatment, shared by every card-ish thing below the film */
-html.nv-live main .card,
-html.nv-live main .roi-grid form,
-html.nv-live main .roi-out,
-html.nv-live main .faq details{
+main .card,
+main .roi-grid form,
+main .roi-out,
+main .faq details{
   background:linear-gradient(160deg,rgba(6,26,19,.72),rgba(2,8,13,.86));
   border:1px solid rgba(159,240,206,.13);border-radius:12px;padding:20px 22px;
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   position:relative;box-shadow:none;transform:none;overflow:hidden}
-html.nv-live main .card::before,
-html.nv-live main .roi-out::before,
-html.nv-live main .faq details::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
+main .card::before,
+main .roi-out::before,
+main .faq details::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(159,240,206,.55),transparent);opacity:.55}
-html.nv-live main a.card:hover{border-color:rgba(159,240,206,.28);transform:none}
-html.nv-live main a.card:hover::before{opacity:.9}
-html.nv-live main .card-featured{border-color:rgba(159,240,206,.28);
+main a.card:hover{border-color:rgba(159,240,206,.28);transform:none}
+main a.card:hover::before{opacity:.9}
+main .card-featured{border-color:rgba(159,240,206,.28);
   box-shadow:0 0 60px -22px rgba(47,191,143,.35);
   background-image:radial-gradient(60% 50% at 70% 30%,rgba(191,245,222,.06),transparent 70%),
     linear-gradient(160deg,rgba(6,26,19,.72),rgba(2,8,13,.86))}
-html.nv-live main .card h3{font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--ink);margin:0 0 8px}
-html.nv-live main .card p{font-size:15px;line-height:1.55;color:#b9dccb;margin:0 0 8px}
-html.nv-live main .card p:last-child{margin-bottom:0}
+main .card h3{font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--ink);margin:0 0 8px}
+main .card p{font-size:15px;line-height:1.55;color:#b9dccb;margin:0 0 8px}
+main .card p:last-child{margin-bottom:0}
 
 /* the wedge */
-html.nv-live main .recover-card{display:grid;grid-template-columns:3fr 2fr;gap:26px;
+main .recover-card{display:grid;grid-template-columns:3fr 2fr;gap:26px;
   align-items:start;margin:34px 0 18px;padding:26px 28px}
-html.nv-live main .recover-copy p{font-size:16px}
-html.nv-live main .recover-copy .outcome{color:var(--mint);font-weight:700;margin-top:12px}
-html.nv-live main .twin{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-html.nv-live main .ctarow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:22px 0 0}
-html.nv-live main .centre .ctarow,html.nv-live main #industries .ctarow{justify-content:center}
-html.nv-live main .more{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:11px;
+main .recover-copy p{font-size:16px}
+main .recover-copy .outcome{color:var(--mint);font-weight:700;margin-top:12px}
+main .twin{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+main .ctarow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:22px 0 0}
+main .centre .ctarow,main #industries .ctarow{justify-content:center}
+main .more{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:11px;
   letter-spacing:.26em;text-transform:uppercase;color:var(--emerald);text-decoration:none}
-html.nv-live main .more:hover{color:var(--mint)}
+main .more:hover{color:var(--mint)}
 
 /* the six stations: the film's own #doc, no longer hidden */
-html.nv-live #doc{display:block;padding:88px 0;background:transparent}
-html.nv-live #doc .wrap{max-width:1180px}
-html.nv-live #doc .doc-h{font-size:clamp(28px,3.6vw,40px);letter-spacing:-.02em;margin-bottom:12px;max-width:22ch}
-html.nv-live #doc .doc-k{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:11px;
+#doc{display:block;padding:88px 0;background:transparent}
+#doc .wrap{max-width:1180px}
+#doc .doc-h{font-size:clamp(28px,3.6vw,40px);letter-spacing:-.02em;margin-bottom:12px;max-width:22ch}
+#doc .doc-k{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:11px;
   letter-spacing:.3em;text-transform:uppercase;color:var(--emerald);margin:0 0 14px;
   display:flex;gap:9px;align-items:center}
-html.nv-live #doc .doc-k::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--emerald);
+#doc .doc-k::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--emerald);
   box-shadow:0 0 8px rgba(47,191,143,.8);flex:none}
-html.nv-live #doc .doc-sub{font-size:17px;color:#9dc7b4;max-width:52ch;margin-bottom:34px}
-html.nv-live #doc .stations{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
-html.nv-live #doc .pane-doc{margin:0;background:linear-gradient(160deg,rgba(6,26,19,.72),rgba(2,8,13,.86));
+#doc .doc-sub{font-size:17px;color:#9dc7b4;max-width:52ch;margin-bottom:34px}
+#doc .stations{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
+#doc .pane-doc{margin:0;background:linear-gradient(160deg,rgba(6,26,19,.72),rgba(2,8,13,.86));
   border:1px solid rgba(159,240,206,.13);border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-html.nv-live #doc .pane-doc::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
+#doc .pane-doc::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(159,240,206,.55),transparent);opacity:.55}
-html.nv-live #doc #doc-convert{border-color:rgba(159,240,206,.28);
+#doc #doc-convert{border-color:rgba(159,240,206,.28);
   box-shadow:0 0 60px -22px rgba(47,191,143,.35);
   background-image:radial-gradient(60% 50% at 70% 30%,rgba(191,245,222,.06),transparent 70%),
     linear-gradient(160deg,rgba(6,26,19,.72),rgba(2,8,13,.86))}
-html.nv-live #doc #doc-nodes{display:none}
-html.nv-live #doc .pane-doc .kick{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:11px;
+#doc #doc-nodes{display:none}
+#doc .pane-doc .kick{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:11px;
   letter-spacing:.3em;text-transform:uppercase;color:var(--emerald);margin:0 0 6px}
-html.nv-live #doc .pane-doc h3{font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--ink);margin:0 0 12px}
-html.nv-live #doc .pane-doc .intro{font-size:15px;color:#b9dccb;margin:0 0 12px}
-html.nv-live #doc .svc{margin:0 0 12px}
-html.nv-live #doc .svc:last-child{margin-bottom:0}
-html.nv-live #doc .svc p{font-size:15px;line-height:1.55;color:#b9dccb}
-html.nv-live #doc .cta2{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:11px;
+#doc .pane-doc h3{font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--ink);margin:0 0 12px}
+#doc .pane-doc .intro{font-size:15px;color:#b9dccb;margin:0 0 12px}
+#doc .svc{margin:0 0 12px}
+#doc .svc:last-child{margin-bottom:0}
+#doc .svc p{font-size:15px;line-height:1.55;color:#b9dccb}
+#doc .cta2{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:11px;
   letter-spacing:.26em;text-transform:uppercase;color:var(--emerald);text-decoration:none}
-html.nv-live #doc .cta2:hover{color:var(--mint)}
+#doc .cta2:hover{color:var(--mint)}
 
 /* shared list idiom, mono tag on the right */
-html.nv-live main .node-list{list-style:none;margin:0;padding:0}
-html.nv-live main .node-list li{display:flex;gap:12px;align-items:baseline;justify-content:space-between;
+main .node-list{list-style:none;margin:0;padding:0}
+main .node-list li{display:flex;gap:12px;align-items:baseline;justify-content:space-between;
   font-size:15px;line-height:1.5;color:#b9dccb;padding:10px 0;border-bottom:1px solid rgba(159,240,206,.08)}
-html.nv-live main .node-list li:last-child{border-bottom:none}
-html.nv-live main .node-list li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--emerald);
+main .node-list li:last-child{border-bottom:none}
+main .node-list li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--emerald);
   flex:none;align-self:center;box-shadow:0 0 8px rgba(47,191,143,.6)}
-html.nv-live main .node-list .tag{font-size:10px;letter-spacing:.26em;color:#5f8f7c;flex:none;white-space:nowrap}
+main .node-list .tag{font-size:10px;letter-spacing:.26em;color:#5f8f7c;flex:none;white-space:nowrap}
 
 /* industries */
-html.nv-live main .ind-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-html.nv-live main .ind-card{text-decoration:none;display:block}
-html.nv-live main .ind-card .cardfoot{font-size:11px;color:#5f8f7c;margin-top:12px;display:flex;
+main .ind-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+main .ind-card{text-decoration:none;display:block}
+main .ind-card .cardfoot{font-size:11px;color:#5f8f7c;margin-top:12px;display:flex;
   gap:6px;flex-wrap:wrap;align-items:center}
 
 /* plans strip */
-html.nv-live main .plan-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
-html.nv-live main .price{color:var(--mint);font-weight:700;font-size:15px;margin:0 0 8px}
-html.nv-live main #plansStrip:not(:empty)+#plansFallbackHome{display:none}
+main .plan-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+main .price{color:var(--mint);font-weight:700;font-size:15px;margin:0 0 8px}
+main #plansStrip:not(:empty)+#plansFallbackHome{display:none}
 
 /* how you start */
-html.nv-live main .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
-html.nv-live main .deny .node-list li{color:#9dc7b4}
+main .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+main .deny .node-list li{color:#9dc7b4}
 
 /* faq */
-html.nv-live main .faq details{margin-bottom:10px;padding:0}
-html.nv-live main .faq summary{padding:16px 20px;font-size:16px}
-html.nv-live main .faq details p{font-size:15px;line-height:1.6;color:#b9dccb;padding:0 20px 18px;margin:0}
+main .faq details{margin-bottom:10px;padding:0}
+main .faq summary{padding:16px 20px;font-size:16px}
+main .faq details p{font-size:15px;line-height:1.6;color:#b9dccb;padding:0 20px 18px;margin:0}
 
 /* buttons: the film's mint pill, no shine sweep below the film */
-html.nv-live main .btn-primary{background:var(--mint);color:#06231A;border:none;
+main .btn-primary{background:var(--mint);color:#06231A;border:none;
   box-shadow:0 0 34px rgba(159,240,206,.35),0 0 90px rgba(47,191,143,.18)}
-html.nv-live main .btn-primary::before{display:none}
-html.nv-live main .btn-primary:hover{transform:translateY(-2px)}
-html.nv-live main .btn-primary:active{transform:scale(.97)}
+main .btn-primary::before{display:none}
+main .btn-primary:hover{transform:translateY(-2px)}
+main .btn-primary:active{transform:scale(.97)}
 
 @media(max-width:1000px){
-  html.nv-live main .ind-grid,html.nv-live main .steps{grid-template-columns:repeat(2,1fr)}
-  html.nv-live #doc .stations{grid-template-columns:repeat(2,1fr)}
-  html.nv-live main .plan-row{grid-template-columns:1fr}
+  main .ind-grid,main .steps{grid-template-columns:repeat(2,1fr)}
+  #doc .stations{grid-template-columns:repeat(2,1fr)}
+  main .plan-row{grid-template-columns:1fr}
 }
 @media(max-width:760px){
-  html.nv-live main section{padding:64px 0}
-  html.nv-live main .recover-card{grid-template-columns:1fr;gap:18px;padding:22px}
-  html.nv-live main .twin,html.nv-live main .ind-grid,html.nv-live main .steps{grid-template-columns:1fr}
-  html.nv-live #doc{padding:64px 0}
-  html.nv-live #doc .stations{grid-template-columns:1fr}
-  html.nv-live main .ctarow .btn{width:100%;justify-content:center}
-  html.nv-live main .node-list li{flex-wrap:wrap}
+  main section{padding:64px 0}
+  main .recover-card{grid-template-columns:1fr;gap:18px;padding:22px}
+  main .twin,main .ind-grid,main .steps{grid-template-columns:1fr}
+  #doc{padding:64px 0}
+  #doc .stations{grid-template-columns:1fr}
+  main .ctarow .btn{width:100%;justify-content:center}
+  main .node-list li{flex-wrap:wrap}
 }
 
 body{overflow-x:clip}
