@@ -1651,7 +1651,78 @@ for (const p of contentPages) {
   }
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no raw query string reaches telemetry, every documented proposal link names a real plan.");
+/* ============================================================
+   GUARD: a description may not sell a capability that is not ready.
+
+   THE SURFACES NOTHING WAS READING. Every visible sentence on the site was
+   moved to the in-development tense when Lead Generation went to "planned":
+   the footer on all fifteen pages, the Grow step, the Act tile,
+   solutions.html, coming-soon.html and llms.txt. Two fields on the homepage
+   were not, and they are the two a stranger and an answer engine actually
+   quote: <meta name="description">, which is the sentence under the search
+   result, and the Organization JSON-LD "description". Both listed lead
+   generation beside two live capabilities as what the product does today,
+   while roadmap-config.js said "planned" and llms.txt listed it under "never
+   to be described as currently available". The page contradicted its own
+   llms.txt and every guard was green, because the readiness rules derive from
+   roadmap-config's structured `status` and llms.txt's LIVE TODAY block, and
+   the copy walk checks pricing, entitlements and the trading name rather than
+   capability readiness prose.
+
+   THE RULE. roadmap-config.js is the single source of truth for what is
+   ready. Any capability whose status is not "available" may still be NAMED in
+   a description, because a company may say what it is building; it may not be
+   named without a word that says it is not here yet. Derived from the config's
+   own status rather than from a list of names kept here, so a capability
+   going live, or a new one arriving unready, moves this rule with it.
+   ============================================================ */
+{
+  const roadmap = fs.readFileSync(path.join(root, "roadmap-config.js"), "utf8");
+  /* Read rather than executed: an audit has no business running a file to
+     learn a fact from it. Every service declares slug, name and status on one
+     line, which is what makes the scan safe. */
+  const services = [...roadmap.matchAll(
+    /slug:\s*"([^"]+)"[^\n]*?name:\s*"([^"]+)"[^\n]*?status:\s*"([^"]+)"/g)];
+  if (services.length < 5) {
+    err("could not read the service statuses out of roadmap-config.js, so no page's "
+      + "readiness claims can be checked. Refusing to pass silently.");
+  }
+  const notReady = services.filter((m) => m[3] !== "available").map((m) => m[2]);
+  /* One word that says "not here yet" anywhere in the same description is
+     enough: these strings are one or two sentences long, so a qualifier in
+     them is a qualifier on the claim. */
+  const QUALIFIED = /in development|in progress|being built|we are building|coming soon|planned|not yet|researching|on the roadmap/i;
+
+  for (const page of contentPages) {
+    const html = fs.readFileSync(path.join(root, page), "utf8");
+    const descriptions = [];
+    const meta = html.match(/<meta\s+name="description"\s+content="([^"]*)"/i);
+    if (meta) descriptions.push({ where: 'meta name="description"', text: meta[1] });
+    for (const block of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+      let parsed;
+      try { parsed = JSON.parse(block[1]); } catch { continue; }  /* guard 15 reports the parse */
+      for (const node of (Array.isArray(parsed) ? parsed : [parsed])) {
+        const text = node?.description;
+        if (typeof text === "string") {
+          descriptions.push({ where: `JSON-LD ${[].concat(node["@type"] ?? "node").join("/")} description`, text });
+        }
+      }
+    }
+    for (const { where, text } of descriptions) {
+      if (QUALIFIED.test(text)) continue;
+      for (const name of notReady) {
+        if (!new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(text)) continue;
+        err(`${page}: ${where} names "${name}", which roadmap-config.js does not mark available, `
+          + `with no word saying it is in development.\n`
+          + `       This is the sentence a search result and an answer engine quote, so it is the\n`
+          + `       most binding claim on the site. Qualify it or drop the clause.\n`
+          + `       ${text.slice(0, 140)}`);
+      }
+    }
+  }
+}
+
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan.");
 /* 1 = something here is broken. 2 = nothing here is broken but the live
    phone agent needs a change only the owner can make. 0 = clean. */
 if (fail === 0 && waiting > 0) console.error(`
