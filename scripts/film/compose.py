@@ -152,6 +152,11 @@ assert 'id="plansStrip"' in out and 'id="qrPrice"' in out, 'runtime price target
 for _e in ['compare_demo_click', 'dayone_roi_click', 'roi_book_click', 'hero_scan_click']:
     assert _e in out, 'conversion surface missing: ' + _e
 assert '—' not in out[out.find('<body'):], 'em dash in page copy'
+# No money is typed into this page. Every figure renders from pricing-config.js
+# at runtime, so a retired price cannot survive here the way one did before.
+import re as _re
+_typed = _re.findall(r'C\$[\d,]+', out[out.find('<body'):])
+assert not _typed, 'typed price literal in the page body: ' + ', '.join(_typed[:4])
 # structural, not just present: every below-film section must follow #doc's close,
 # and </main> must follow the last of them. A count-only check passed happily while
 # the whole page below the film was nested inside #doc.

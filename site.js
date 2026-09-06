@@ -726,6 +726,27 @@
     }
     PS.innerHTML = html;
 
+    /* The film's own PLANS station carried these four figures as typed HTML.
+       They were invisible while .nv-live hid #doc, and went live the moment
+       that section became the page's six stations. They matched the config on
+       the day, which is exactly how a retired figure reached production once
+       before: nothing was keeping them in sync. They render from the same
+       record as the strip now, so there is one source and no drift. */
+    [].slice.call(document.querySelectorAll("[data-plan-price]")).forEach(function (el) {
+      var key = el.getAttribute("data-plan-price");
+      if (key === "enterprise") {
+        var ent = NVP2.enterprise;
+        if (ent && ent.launchFrom) {
+          el.textContent = "Launch & Implementation starting at C$" + grp(ent.launchFrom)
+            + " or custom quoted; the recurring amount and any performance component are quoted per client.";
+        }
+        return;
+      }
+      var pl = NVP2.plans.filter(function (p) { return p.id === key; })[0];
+      if (!pl) return;
+      el.textContent = (pl.selfServe === false) ? "By invitation." : sentence(pl) + ".";
+    });
+
     /* the wedge's own price line, same record, same sentence */
     var qr = document.getElementById("qrPrice");
     var qa = (NVP2.addOns || []).filter(function (a) {
