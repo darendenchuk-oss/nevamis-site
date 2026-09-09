@@ -12,7 +12,17 @@
      agreement, roadmap-config.js, pricing-config.js or the film's #doc. No
      price literal appears anywhere: the plans strip and #qrPrice are rendered
      at runtime from window.NV_PRICING by site.js. No em dashes. Availability
-     chips are exactly "Available today" / "In development" / "RECOMMENDED".
+     chips are exactly "Available today" (.chip.av) / "In development"
+     (.chip.dev) / "By invitation" (.chip.inv) / "RECOMMENDED" (.chip.rec),
+     plus the one section label that borrows the shape, "Published prices" on
+     the plans band.
+     "By invitation" joined the set on 2026-09-08, when lead-generation became
+     the first roadmap entry to carry status private_pilot: neither available
+     nor merely being built, so neither of the two chips that existed could
+     say what is true. The word "pilot" stays out of the chip and out of every
+     other client-facing string, here and everywhere: there is no pilot and no
+     trial of anything. Adding a fifth string means adding its .chip class in
+     scripts/film/source.html and extending this list in the same commit.
      ============================================================ -->
 
 <section id="recover">
