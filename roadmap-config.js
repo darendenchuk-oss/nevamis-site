@@ -4,11 +4,16 @@
    Only the owner flips a service to "available". The Coming Soon page
    and homepage teaser render from this file. Companion internal docs:
    docs/nevamis-product-roadmap.md and docs/service-blueprints/.
-   Last reviewed: 2026-08-27
+   Last reviewed: 2026-09-08
    ============================================================ */
 window.NV_ROADMAP = {
-  lastUpdated: "2026-08-27",
-  truthStatement: "Services marked AVAILABLE NOW are live today, described exactly as narrowly as they work. The rest are in development or planned, and their availability, features, integrations and pricing may change as we test them with real businesses.",
+  lastUpdated: "2026-09-08",
+  /* "The rest are in development or planned" stopped being the whole truth on
+     2026-09-08, when lead-generation became the first entry to carry
+     private_pilot. A truth statement that does not describe every shelf under
+     it is not one. Written against the LABEL and not against a count, so it
+     stays true whether that shelf holds one entry or none. */
+  truthStatement: "Services marked AVAILABLE NOW are live today, described exactly as narrowly as they work. Anything marked PRIVATE TESTING is offered by invitation only, to a few businesses under their own agreement. The rest are in development or planned, and their availability, features, integrations and pricing may change as we test them with real businesses.",
   highlights: ["instant-lead-follow-up", "automatic-lead-tracking", "quote-recovery"],
   pillars: [
     { id: "capture", name: "Capture", line: "Every opportunity answered" },
@@ -31,22 +36,36 @@ window.NV_ROADMAP = {
        client's, Nevamis is not a party to the contract that results and does
        not do the work. Nothing here may promise a job is won.
 
-       NOT AVAILABLE, owner directive 2026-08-27. This entry said "available"
-       from 2026-08-19 and every derived surface repeated it: the homepage
-       loop, the trade pages, the solutions hub, revenue-engine.html and the
-       "lead generation works today" line on this page's own final call to
-       action. Nothing has run for a client, and the bid half still has no
-       code anywhere. The description below is written as what it WILL do,
-       and no surface may label it live until it is.
+       BY INVITATION since 2026-09-08, and not a step further. It said
+       "available" from 2026-08-19 and every derived surface repeated it, which
+       is why the owner directive of 2026-08-27 dropped it to "planned" and
+       rewrote it as what it WILL do. Canonical moved on 2026-09-08: canonical.ts
+       now carries availability "private_pilot" for lead_generation, which
+       derives the public readiness "limited", so this entry follows it to
+       "private_pilot". The site's own word for that status is PRIVATE TESTING,
+       which coming-soon.html renders from the status key; in copy it is "by
+       invitation". The word "pilot" is not said to a client anywhere, because
+       there is no pilot and no trial of anything.
 
-       This deliberately UNDER-claims against canonical.ts, which still
-       carries availability "available" for lead_generation. That direction
-       is the safe one and the only one this file may take on its own: the
-       site may say less than canonical, never more. Raising it back is an
-       owner decision made in canonical first. */
-    { slug: "lead-generation", name: "Lead Generation", pillar: "grow", status: "planned", stage: "future",
-      desc: "Two things, and neither of them is running for a client yet. It is being built to find the customers who need what you do and rank them with the reason each one ranked where it did, worked by a person and never by a robot dialling strangers. And to find jobs and tenders you could win: we would prepare the bid at your prices, submit nothing until the person you name signs off on that specific bid, and hand you the job if it lands. The contract would be yours and you would do the work.",
-      outcome: "A call list worth working, and bids going in on work you would not have seen." },
+       WHAT "private_pilot" MEANS HERE, and the fence every surface repeats:
+       it is offered to a few businesses by invitation, under their own
+       agreement, and delivered by hand. A person here assembles the list by
+       reading public pages, and each row carries the page it came from. The
+       client decides every row. Nothing on a list is contacted by Nevamis.
+       Bids are prepared at the client's prices and submitted only after the
+       person the client names signs off on that specific bid; the contract is
+       the client's and the client does the work. The automated search is not
+       switched on. No number of leads, no win rate, no amount, no client and
+       no date may appear in this entry or in anything derived from it.
+
+       The direction of travel is still the only one this file may take on its
+       own: the site may say less than canonical, never more. Raising this
+       above canonical is not a change that starts here. Stage is "next" and
+       not "now": "now" is the shelf marked LIVE TODAY, and it is also the
+       engine guard's definition of a public claim to be ready now. */
+    { slug: "lead-generation", name: "Lead Generation", pillar: "grow", status: "private_pilot", stage: "next",
+      desc: "Offered by invitation to a few businesses, under their own agreement, and done by hand. Two things. A person here reads public pages and builds you a list of the customers who need what you do, with the page each row came from, and you decide which rows are worth anything. Nobody on that list is contacted by us. And we watch for jobs and tenders you could win, prepare the bid at your prices, and put nothing in until the person you name signs off on that specific bid. The contract is yours and you do the work.",
+      outcome: "A call list you approved yourself, and bids that go in only on your say-so." },
     /* AVAILABLE 2026-08-19, and the claims shrank to the shipped truth
        (mirror of canonical.ts): one text per missed call, ever, with the
        business's name on it and a working opt-out — not a retry sequence,

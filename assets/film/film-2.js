@@ -589,7 +589,13 @@ var brainOf = {};
       var br = {
         ni: best, pane: pid, pillar: pillar, name: name, desc: desc,
         avail: chip ? chip.textContent : '',
-        availDev: chip ? chip.className.indexOf('dev') >= 0 : false,
+        /* The chip's own modifier class, carried through rather than collapsed
+           to a dev/not-dev boolean. There are three states now (av, dev, inv)
+           and a boolean can only ever repaint the third as one of the other
+           two, which is how a "By invitation" chip would have rendered in the
+           node card wearing the filled mint of AVAILABLE TODAY. */
+        availClass: chip ? (String(chip.className).split(/\s+/)
+          .filter(function(c){ return c && c !== 'chip'; })[0] || 'dev') : '',
         pos: nodes[best].pos, wpos: nodes[best].pos.clone(), boost: 0
       };
       brainOf[best] = br;

@@ -234,7 +234,11 @@ const hubHtml =
        is finding and scoring, worked by a person, plus bids Nevamis prepares
        and the client signs off on before anything is submitted. Nothing here
        promises automated follow-up, because nothing performs it, and nothing
-       here promises a job is won. -->
+       here promises a job is won. Offered by invitation since 2026-09-08
+       (canonical availability private_pilot, roadmap-config.js private_pilot),
+       which is a narrower claim than available and must read as one: a few
+       businesses, their own agreement, the list built by hand from public
+       pages, and nobody on it contacted. Never the word "pilot". -->
   <section class="tight">
     <div class="wrap">
       <div class="section-head reveal">
@@ -242,7 +246,7 @@ const hubHtml =
         <h2>Start from what it does to your revenue.</h2>
       </div>
       <div class="related reveal">
-        <a href="/book.html" data-evt="solutions_leadgen_click"><strong>Lead Generation (in development)</strong><span>Being built to find the customers who need what you do and hand you a call list worth working, and to find jobs and tenders you could win, bid at your prices, with nothing submitted you have not signed off. Not running for a client yet.</span></a>
+        <a href="/book.html" data-evt="solutions_leadgen_click"><strong>Lead Generation (by invitation)</strong><span>Offered by invitation to a few businesses, under their own agreement. A person here reads public pages and builds you a list of the customers who need what you do, with the page each row came from. You decide every row, and nobody on it is contacted by us. Jobs and tenders are bid at your prices, with nothing put in until the person you name signs off on that bid.</span></a>
         <a href="/missed-calls.html" data-evt="solutions_recovery_click"><strong>Revenue Recovery</strong><span>Missed calls are the loudest leak: what one actually costs, and how the front desk catches it.</span></a>
         <a href="https://app.nevamis.ca/scan" data-evt="solutions_scan_click"><strong>Free Business Scan</strong><span>PULSE reads what is public about your business and prices what it finds. No email required, results in about a minute.</span></a>
       </div>

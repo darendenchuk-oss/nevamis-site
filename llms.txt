@@ -155,12 +155,25 @@ automotive and other trades. Trades first, Canada-wide, Edmonton-based.
   reminders, and post-job review requests (one ask per finished job, with
   the business's own review link, every request released by a person).
   The PULSE business scan is a live service.
+- BY INVITATION ONLY, and never to be described as generally available or
+  as something a business can buy: lead generation. It is offered to a few
+  businesses under their own agreement and delivered by hand. A person at
+  Nevamis reads public pages and assembles the list, and every row carries
+  the page it came from; the client decides every row; nobody on a list is
+  contacted by Nevamis. Jobs and tenders are bid at the client's prices,
+  and nothing is submitted until the person the client names signs off on
+  that specific bid; the resulting contract is the client's and the client
+  does the work. The automated search is not switched on. There is no
+  pilot and no trial: the words for this state are "by invitation" and
+  "private testing".
 - IN DEVELOPMENT OR PLANNED, and never to be described as currently
-  available: direct calendar booking, lead generation, any CRM or ads
-  integration, multi-location or multi-department routing, more than one
-  number per business, transcripts in the portal, win-back reactivation
-  campaigns, cold outbound calling or messaging of any kind, and the wider
-  "Revenue Engine" attribution product.
+  available: direct calendar booking, lead generation (which stays on this
+  list: the invitation-only note above narrows how it is offered, it does
+  not make it generally available or something a business can buy), any
+  CRM or ads integration, multi-location or multi-department routing, more
+  than one number per business, transcripts in the portal, win-back
+  reactivation campaigns, cold outbound calling or messaging of any kind,
+  and the wider "Revenue Engine" attribution product.
 
 ## Pages
 

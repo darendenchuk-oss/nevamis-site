@@ -1335,6 +1335,10 @@ body.card-open #hint{opacity:0}
   padding:.22rem .6rem;border-radius:999px;border:1px solid;white-space:nowrap}
 .chip.av{color:#06231A;background:var(--mint);border-color:var(--mint)}
 .chip.dev{color:#7fae99;background:none;border-color:rgba(127,174,153,.4)}
+/* "By invitation" is its own state and needs its own paint. Filled mint (av)
+   would read as available and hollow grey (dev) as not started, and it is
+   neither. Warm outline: present, distinct, not a promise of availability. */
+.chip.inv{color:var(--warm);background:none;border-color:rgba(240,180,98,.45)}
 .chip.rec{color:#06231A;background:var(--emerald);border-color:var(--emerald);letter-spacing:.14em}
 .pane-doc .fine2{font-size:.76rem;color:#6fa18c;margin-top:1rem;line-height:1.55}
 .pane-doc .cta2{display:inline-block;margin-top:1.1rem;padding:.7rem 1.6rem;border-radius:999px;
@@ -1646,7 +1650,17 @@ html:not(.nv-below) .callbar{display:none}
      agreement, roadmap-config.js, pricing-config.js or the film's #doc. No
      price literal appears anywhere: the plans strip and #qrPrice are rendered
      at runtime from window.NV_PRICING by site.js. No em dashes. Availability
-     chips are exactly "Available today" / "In development" / "RECOMMENDED".
+     chips are exactly "Available today" (.chip.av) / "In development"
+     (.chip.dev) / "By invitation" (.chip.inv) / "RECOMMENDED" (.chip.rec),
+     plus the one section label that borrows the shape, "Published prices" on
+     the plans band.
+     "By invitation" joined the set on 2026-09-08, when lead-generation became
+     the first roadmap entry to carry status private_pilot: neither available
+     nor merely being built, so neither of the two chips that existed could
+     say what is true. The word "pilot" stays out of the chip and out of every
+     other client-facing string, here and everywhere: there is no pilot and no
+     trial of anything. Adding a fifth string means adding its .chip class in
+     scripts/film/source.html and extending this list in the same commit.
      ============================================================ -->
 
 <section id="recover">
@@ -1772,8 +1786,8 @@ html:not(.nv-below) .callbar{display:none}
         <p>After a completed job, approved feedback requests route concerns privately and make it easy for happy customers to leave a review.</p>
       </div>
       <div class="svc">
-        <h4>Lead Generation <span class="chip dev">In development</span></h4>
-        <p>Two things, and neither of them is running for a client yet. It is being built to find the customers who need what you do and rank them with the reason each one ranked where it did, worked by a person and never by a robot dialling strangers. And to find jobs and tenders you could win: we would prepare the bid at your prices, submit nothing until the person you name signs off on that specific bid, and hand you the job if it lands. The contract would be yours and you would do the work.</p>
+        <h4>Lead Generation <span class="chip inv">By invitation</span></h4>
+        <p>Offered by invitation to a few businesses, under their own agreement, and done by hand. A person here reads public pages and builds you a list of the customers who need what you do, with the page each row came from, and you decide which rows are worth anything. Nobody on that list is contacted by us. We also watch for jobs and tenders you could win, prepare the bid at your prices, and put nothing in until the person you name signs off on that specific bid. The contract is yours and you do the work.</p>
       </div>
       <p class="fine2">The PULSE Business Scan also belongs to Grow; it leads the journey as the first station and is not repeated here.</p>
     </article>
@@ -2073,7 +2087,7 @@ html:not(.nv-below) .callbar{display:none}
     <div class="cols">
       <div>
         <h2 class="foot-h foot-brand">Nevamis</h2>
-        <p>Nevamis is the business intelligence platform for Canadian service businesses: it finds where revenue is leaking, puts a range on what each leak is worth, runs the fixes inside rules you approve, and measures what came back. Revenue recovery and a round-the-clock AI front desk are how it acts today. Lead generation is in development.</p>
+        <p>Nevamis is the business intelligence platform for Canadian service businesses: it finds where revenue is leaking, puts a range on what each leak is worth, runs the fixes inside rules you approve, and measures what came back. Revenue recovery and a round-the-clock AI front desk are how it acts today. Lead generation is offered by invitation.</p>
         <p style="margin-top:10px"><a href="tel:+15874130035" class="mono">(587) 413-0035</a><br><a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a><br>Edmonton, Alberta, Canada</p>
       </div>
       <div>

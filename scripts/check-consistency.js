@@ -1691,7 +1691,12 @@ for (const p of contentPages) {
   /* One word that says "not here yet" anywhere in the same description is
      enough: these strings are one or two sentences long, so a qualifier in
      them is a qualifier on the claim. */
-  const QUALIFIED = /in development|in progress|being built|we are building|coming soon|planned|not yet|researching|on the roadmap/i;
+  /* "by invitation" and "private testing" earn their place here for the same
+     reason as the rest: a capability offered to a few named businesses under
+     their own agreement is not available, and a description that names it has
+     said so. Both are the site's own words for status private_pilot, which
+     coming-soon.html renders as PRIVATE TESTING. */
+  const QUALIFIED = /in development|in progress|being built|we are building|coming soon|planned|not yet|researching|on the roadmap|by invitation|private testing/i;
 
   for (const page of contentPages) {
     const html = fs.readFileSync(path.join(root, page), "utf8");

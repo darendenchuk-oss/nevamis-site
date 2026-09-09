@@ -465,7 +465,7 @@ function openNodeCard(br){
   if (br.avail) {
     t4.appendChild(document.createTextNode(' '));
     var ch = document.createElement('span');
-    ch.className = 'chip ' + (br.availDev ? 'dev' : 'av');
+    ch.className = 'chip ' + (br.availClass || 'dev');
     ch.textContent = br.avail;
     t4.appendChild(ch);
   }

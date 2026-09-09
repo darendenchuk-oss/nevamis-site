@@ -11,8 +11,9 @@ const DEMO = '(587)&nbsp;413-0035';
     part of the block: it is what the checked-in pages carry. */
 export const TRADE_HERO_PROOF = `      <p class="proof" style="margin-top:12px">The phone is where most start. Behind it sits the full Nevamis platform:
         a free scan that reads your public footprint and puts a range on what is leaking,
-        lead generation in development that will find the customers worth calling and the jobs and tenders worth
-        bidding, and a portal that shows what every answered call actually produced.
+        lead generation offered by invitation, where a person here builds you a list of the customers worth
+        calling from public pages and you decide every row, and a portal that shows what every answered call
+        actually produced.
         <a href="https://app.nevamis.ca/scan" data-evt="trade_scan_click">Run the free scan</a>.</p>
 `;
 
