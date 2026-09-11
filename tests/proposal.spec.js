@@ -50,16 +50,23 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
      one document a buyer keeps that the commercial model had deliberately
      retired. What must be disclosed now is the fee itself. */
   await expect(terms).toContainText(/Launch & Implementation/i);
-  /* INVERTED 2026-08-22 (v4): a minimum term now EXISTS — three months on a
-     plan alone, six with add-ons or The Works — so "no minimum term" and
-     "Cancel any time" flipped from required disclosures to retired
-     sentences. What the buyer's kept document must disclose now is the term
-     itself, its month-to-month tail, and the price lock. */
-  await expect(terms).toContainText(/minimum/i);
+  /* INVERTED 2026-08-22 (v4): a minimum term existed, three months on a plan
+     alone and six with add-ons or The Works, so "no minimum term" flipped
+     from a required disclosure to a retired sentence.
+
+     INVERTED BACK 2026-09-08, on the owner directive that removed the minimum
+     term from every plan and every add-on. The assertions are written the way
+     round they are for a reason: this file has now been wrong in both
+     directions, and each time it was the NEGATIVE assertion that pinned the
+     page to a model the business had already left. So the negative here names
+     the retired LENGTHS ("three-month start", "agreed up front") rather than
+     the phrase "minimum", which the true sentence contains. */
+  await expect(terms).toContainText(/no minimum term/i);
   await expect(terms).toContainText(/month to month/i);
   await expect(terms).toContainText(/locked for 12 months/i);
-  await expect(terms).not.toContainText(/no minimum term/i);
-  await expect(terms).not.toContainText(/cancel any time/i);
+  await expect(terms).not.toContainText(/three-month/i);
+  await expect(terms).not.toContainText(/agreed up front/i);
+  await expect(terms).not.toContainText(/six months when any/i);
 
   /* Annual prepay is suspended in the config, so the proposal must NOT quote a
      yearly figure. This assertion used to demand "pay ten months, get twelve"

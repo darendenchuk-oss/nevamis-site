@@ -17,8 +17,8 @@
      Enterprise               starting at C$5,000       custom                  optional
        (quoted per client, from what a PULSE scan finds)
 
-     Add-ons (each its own sale on top of the AI Front Desk, each with its
-     own one-time Launch & Implementation fee since v5):
+     Add-ons (each its own sale, bought on its own or beside a plan, each
+     with its own one-time Launch & Implementation fee since v5):
        Missed-Call Recovery   C$500 L&I, C$350/month    sellable today
        Quote-Chase Engine     C$750 L&I, C$500/month    sellable today
        Get-Paid Autopilot     C$750 L&I, C$500/month    sellable today
@@ -46,12 +46,17 @@
    stored amount misreading. Performance pricing survives only on the
    invite-only Partnership.
 
-   A MINIMUM TERM EXISTS SINCE V4, UNCHANGED BY V5: three months on the AI
-   Front Desk alone, six months when any add-on or The Works is included,
-   then month to month with 30 days notice, price locked for 12 months from
-   signing. "No contract" and "cancel any time" are therefore RETIRED
-   VOCABULARY on every surface: the honest sentence is the results window:
-   the build takes days, and the wins show across the months after it.
+   THERE IS NO MINIMUM TERM (owner directive 2026-09-08). This REVERSES the
+   2026-08-22 v4 rule of a three-month start on the AI Front Desk and six
+   months with any add-on or The Works. Every plan and every add-on, alone or
+   added, is month to month from the first month, on 30 days notice, cancelled
+   by the client from the client's own portal, with the price locked for 12
+   months from signing. "Month to month" and "cancel any time from your
+   portal" are therefore TRUE again and no longer retired vocabulary; any
+   sentence stating a three-month or six-month start, a minimum term, or
+   months "agreed up front" is now FALSE and must not be written. The one-time
+   Launch & Implementation fee, charged once beside the first month, is the
+   only commitment, and its amounts are unchanged. Prices are unchanged.
 
    THE ONE-TIME FEE still has one name and one meaning. "Launch &
    Implementation" is charged once, at the start, BESIDE the first month —
@@ -97,7 +102,7 @@
     "Included minutes metered in the portal, with alerts at 50%, 75%, 90% and 100%, and your choice of overage, fallback answering or a hard cap",
     "A PULSE scan of your business, with every figure a range and a confidence level, recalibrated as you feed it real numbers",
     "A portal Pulse page that keeps your scans, and Results that label every number as measured or modelled",
-    "Invoices and plan changes you handle yourself in the portal, and self-serve cancellation once past your minimum term"
+    "Invoices and plan changes you handle yourself in the portal, and self-serve cancellation whenever you want it, on 30 days notice"
   ];
 
   window.NV_PRICING = {
@@ -117,17 +122,26 @@
        checkPricing enforces it across this repo. Flip both together or the
        cross-repo check fails, which is the point of it. */
     publishedPricing: true,
-    /* THE CONTRACT TERM, v4. Mirrors CANONICAL.pricing.terms in
-       nevamis-engine. Stated here because a term a buyer discovers at the
-       agreement is a term that was hidden; the pricing page says it in the
-       open, framed the way it is true: the build takes days, and the results
-       show across the months after it. */
+    /* THE CONTRACT TERM. Mirrors CANONICAL.pricing.terms in nevamis-engine.
+       Stated here because a term a buyer discovers at the agreement is a term
+       that was hidden, and the same is true of its absence: a buyer should be
+       able to read that nothing is locked before the button, not after it.
+
+       ONE FIELD, NOT TWO, matching CANONICAL.pricing.terms exactly since the
+       2026-09-08 owner directive. v4 carried `minimumMonthsCore` and
+       `minimumMonthsWithAddOns`, and the PAIR is what let a stale "6" sit in
+       a mirror after the "3" beside it had already been corrected: two
+       numbers for one decision means a surface can be half right and read as
+       whole. `minimumMonths` is zero, which is what makes "no minimum term"
+       derivable on every surface instead of typed on each one. Re-introducing
+       a term is deliberately a one-figure change here: set it above zero and
+       every sentence and guard follows. A shape that needs a SECOND number
+       again is a new field and a new decision, not an edit to this one. */
     terms: {
-      minimumMonthsCore: 3,
-      minimumMonthsWithAddOns: 6,
+      minimumMonths: 0,
       cancellationNoticeDays: 30,
       priceLockMonths: 12,
-      note: "Three-month start on the AI Front Desk; six months when any add-on or The Works is included. The build takes days, not weeks: your line is answered inside the first week. The term is for the results window, which runs across a season of quotes and invoices. After the minimum: month to month, 30 days notice, cancellation from your own portal, and your price is locked for 12 months from signing."
+      note: "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: 30 days notice, cancellation from your own portal, service running to the end of the period you already paid for, and your price locked for 12 months from signing. The one-time Launch & Implementation fee, charged once beside your first month, is the only commitment."
     },
     /* ENTERPRISE, deliberately NOT a plans[] entry: it has no universal
        monthly price, and a record shaped like a priced plan gets rendered as
@@ -144,37 +158,42 @@
        and the Front Desk is the start most businesses actually make — the
        checkout default reads the same record. */
     recommendedLabel: "RECOMMENDED",
-    /* THE ADD-ON CATALOG, v4: every automation is its own product, added to
-       the AI Front Desk one at a time, each on its own three-month start.
-       `sellable: false` marks a module whose machinery has not shipped
-       end-to-end yet — it may be described as coming, never sold, and no
+    /* THE ADD-ON CATALOG, v4, with the 2026-09-08 directives applied: every
+       automation is its own product and its own sale. `soldAlone: true` means
+       a client may buy that module by itself, with nothing else beside it; it
+       may also sit beside a plan, and every one of them is month to month from
+       the first month like everything else. Mirrors the `soldAlone` field on
+       CANONICAL.pricing.addOns in nevamis-engine, and `sellable` is still the
+       outer gate: a module that is not sellable is not sold in any
+       arrangement. `sellable: false` marks a module whose machinery has not
+       shipped end-to-end yet: it may be described as coming, never sold, and no
        surface may render it with a Buy control. C$450 and not C$500 for the
        two engines is deliberate: C$500 is a retired monthly and billing
        refuses retired amounts. */
     addOns: [
       {
         id: "missed_call_recovery", name: "Missed-Call Recovery",
-        monthly: 350, launch: 500, sellable: true,
+        monthly: 350, launch: 500, sellable: true, soldAlone: true,
         blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out, before they ring the next name on Google."
       },
       {
         id: "quote_chase", name: "Quote-Chase Engine",
-        monthly: 500, launch: 750, sellable: true,
+        monthly: 500, launch: 750, sellable: true, soldAlone: true,
         blurb: "Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you, stopping the moment the customer replies."
       },
       {
         id: "get_paid", name: "Get-Paid Autopilot",
-        monthly: 500, launch: 750, sellable: true,
+        monthly: 500, launch: 750, sellable: true, soldAlone: true,
         blurb: "Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks YOU get told instead, because past that point the judgment call belongs to a person."
       },
       {
         id: "review_engine", name: "Review Engine",
-        monthly: 300, launch: 500, sellable: true,
+        monthly: 300, launch: 500, sellable: true, soldAlone: true,
         blurb: "Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person."
       },
       {
         id: "reactivation", name: "Customer Reactivation",
-        perCampaign: 2000, sellable: false,
+        perCampaign: 2000, sellable: false, soldAlone: false,
         blurb: "A win-back campaign over your own past-customer list, inside the consent rules. Coming, and not sellable until it ships end to end."
       }
     ],
@@ -250,10 +269,10 @@
         callRange: "470 to 700 typical calls", overage: 0.75,
         selfServe: true,
         performanceNote: null,
-        bestFor: "The start most businesses make: the front desk answering every call, with automation add-ons joining one at a time, each on its own evidence.",
+        bestFor: "The start most businesses make: the front desk answering every call, with each automation its own sale you can add whenever it earns its place.",
         features: [
           "One business phone line",
-          "Automation add-ons available one at a time, each its own price, each on its own three-month start",
+          "Automation add-ons available one at a time, each its own price and its own sale, on their own or beside this plan",
           "Two call reviews each month, and tuning from what the calls actually show",
           "Priority email support",
           "Higher-volume usage priced with you before you commit to it"

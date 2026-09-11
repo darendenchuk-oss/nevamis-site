@@ -26,9 +26,10 @@ Key facts (kept accurate; the pricing page is authoritative):
                              under the sum of its parts.
     AI Front Desk (recommended): C$1,500 Launch & Implementation to
                              start, then C$1,000 a month. No performance
-                             fee. Automation add-ons join one at a
-                             time, each carrying its own one-time Launch &
-                             Implementation fee: Missed-Call Recovery
+                             fee. Automation add-ons are each their own
+                             sale, bought on their own or beside a plan,
+                             one at a time, each carrying its own one-time
+                             Launch & Implementation fee: Missed-Call Recovery
                              C$500 to start, then C$350 a month;
                              Quote-Chase Engine C$750 to start, then
                              C$500 a month; Get-Paid Autopilot C$750 to
@@ -57,11 +58,12 @@ Key facts (kept accurate; the pricing page is authoritative):
                              recurring custom; performance optional. There
                              is no universal Enterprise monthly price, so
                              never state one.
-  Service starts on a minimum term: three months on a plan alone, six
-  months when any add-on or The Works is included; after the minimum it
-  is month to month on thirty days notice, cancellable by the client
-  from their own portal, with the price locked for twelve months from
-  signing. Existing clients get at least 30 days written notice before a
+  There is no minimum term on anything. Every plan and every automation
+  add-on, bought on its own or added later, is month to month from the
+  first month, on thirty days notice, cancellable by the client from
+  their own portal, with the price locked for twelve months from
+  signing. A three-month or six-month start was the rule between
+  2026-08-22 and 2026-09-08 and is retired; never state one. Existing clients get at least 30 days written notice before a
   material price increase (see /terms.html).
 - State the two figures with the joins "to start" and "then", exactly as
   above. Never add them into one total, and never join them with "plus".
@@ -149,8 +151,9 @@ automotive and other trades. Trades first, Canada-wide, Edmonton-based.
 - LIVE TODAY: the AI Front Desk (answers, qualifies, captures the lead,
   sends the owner the summary, flags urgent calls by pre-agreed rules;
   recording playback, CSV export, metered minutes and usage alerts in
-  the portal), plus these automations, each consent-gated and sold as an
-  add-on: instant lead follow-up (one text back per missed call),
+  the portal), plus these automations, each consent-gated and each sold
+  on its own or beside a plan: instant lead follow-up (one text back per
+  missed call),
   automatic lead tracking, quote recovery follow-ups, overdue-invoice
   reminders, and post-job review requests (one ask per finished job, with
   the business's own review link, every request released by a person).
