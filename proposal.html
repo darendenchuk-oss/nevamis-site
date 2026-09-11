@@ -793,11 +793,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            shift, on the one document written to close a sale. -->
       <p class="plan-line" id="planIncludes">1400 included AI minutes per month, about 470 to 700 typical calls. Additional minutes C$0.75 each.</p>
       <p class="plan-line" id="planMonthly">C$1,000/month, charged the day you start and every month after.</p>
-      <p class="plan-line" id="planTerms">One-time C$1,500 Launch &amp; Implementation to start. Overage past your included minutes is the only other usage billing. Three-month minimum to start, six months when any automation add-on or The Works is included; the build takes days and you are live inside the first week, and the results show across the months after that. After the minimum: month to month, 30 days notice, cancellation from your portal, with service running to the end of the period you paid for. Your price is locked for 12 months.</p>
+      <p class="plan-line" id="planTerms">One-time C$1,500 Launch &amp; Implementation to start. Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, 30 days notice, cancellation from your portal, with service running to the end of the period you paid for. Your price is locked for 12 months.</p>
       <p class="plan-line" id="planAnnual"></p>
       <ul class="ticks" id="planFeatures">
         <li>One business phone line</li>
-        <li>Automation add-ons available one at a time, each its own price, each on its own three-month start</li>
+        <li>Automation add-ons available one at a time, each its own price and its own sale, on their own or beside this plan</li>
         <li>Two call reviews each month, and tuning from what the calls actually show</li>
         <li>Priority email support</li>
         <li>Higher-volume usage priced with you before you commit to it</li>
@@ -807,7 +807,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <li>Texts and emails you that summary within seconds of the call ending, and records honestly whether each one was delivered</li>
       </ul>
     </div>
-    <p class="meta">Canadian dollars, plus applicable GST/HST. Three-month start, then month to month from your portal.
+    <p class="meta">Canadian dollars, plus applicable GST/HST. No minimum term: month to month from the first month, cancelled from your portal.
       Full plan comparison at <a href="/pricing.html" style="color:var(--mint)">nevamis.ca/pricing</a>.</p>
     <!-- The decision happens here, at the price, not 1,300px further down.
          This document is sent to a named prospect after a call, and its only
@@ -838,7 +838,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <li><b>You review it.</b> You hear it, push on it, and approve it before it takes a single real call.</li>
       <li><b>Tested against scripted callers.</b> We run written call scenarios at the live agent before a phone number is attached to it, so the first real caller is not the first test.</li>
       <li><b>Forwarding proven.</b> We place a real call to your line and confirm it lands, rather than assuming the carrier did what it was told.</li>
-      <li><b>Live, and cancellable past the agreed term.</b> You are billed monthly from the day you start, on the minimum term set out above. After it, if the service is not earning its price, you cancel it yourself from the portal.</li>
+      <li><b>Live, and cancellable whenever you want.</b> You are billed monthly from the day you start, with no minimum term. If the service is not earning its price, you cancel it yourself from the portal on 30 days notice.</li>
     </ol>
     <div class="noprint-cta">
       <a class="btn btn-primary btn-lg" href="/book.html" data-evt="proposal_book_click">Book the next call</a>
@@ -962,18 +962,32 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         : (P.publishedPricing
           ? money(plan.monthly) + "/month, charged the day you start and every month after."
           : "Your monthly amount is quoted per client, then it is charged the day you start and every month after."));
-      /* The term sentence reads pricing-config.js (v4, 2026-08-22): a minimum
-         term exists, so "no minimum term" and "cancel any time" are retired
-         sentences this builder may never emit again. */
+      /* The term sentence reads pricing-config.js and states whichever term
+         is actually there. It said "no minimum term" until the v4 directive
+         of 2026-08-22 made that false; the owner reversed v4 on 2026-09-08
+         and `minimumMonths` is zero, so it says it again. The defaults below
+         are `== null` and not `||` on purpose: `(0 || 3)` is 3, and a `||`
+         default is how a zero term would have gone on printing "3-month
+         minimum to start" on the one document written to close a sale.
+
+         ONE figure, matching canonical. This read a pair of keys until
+         2026-09-08, and a pair is how a document states the absence of a term
+         in one clause and a length in the next from a config only half
+         corrected. There is one decision, so there is one number here. */
       var T = P.terms || {};
+      var mMin = T.minimumMonths == null ? 0 : T.minimumMonths;
+      var mNotice = T.cancellationNoticeDays == null ? 30 : T.cancellationNoticeDays;
+      var mLock = T.priceLockMonths == null ? 12 : T.priceLockMonths;
       set("planTerms", "One-time " + money(plan.launch) + " Launch & Implementation to start."
         + (plan.performanceNote ? " " + plan.performanceNote : "")
         + " Overage past your included minutes is the only other usage billing."
-        + " " + (T.minimumMonthsCore || 3) + "-month minimum to start, " + (T.minimumMonthsWithAddOns || 6)
-        + " months when any automation add-on or The Works is included; the build takes days and you are live inside the first week, and the results show across the months after that."
-        + " After the minimum: month to month, " + (T.cancellationNoticeDays || 30) + " days notice, cancellation from your portal,"
-        + " with service running to the end of the period you paid for."
-        + " Your price is locked for " + (T.priceLockMonths || 12) + " months."
+        + (mMin
+          ? " " + mMin + "-month minimum to start; the build takes days and you are live inside the first week, and the results show across the months after that."
+            + " After the minimum: month to month, " + mNotice + " days notice, cancellation from your portal,"
+            + " with service running to the end of the period you paid for."
+          : " There is no minimum term: month to month from the first month, " + mNotice
+            + " days notice, cancellation from your portal, with service running to the end of the period you paid for.")
+        + " Your price is locked for " + mLock + " months."
         + (plan.selfServe === false ? " This plan is offered by invitation and approval." : ""));
 
       if (P.annual && P.annual.active && plan.annual) {

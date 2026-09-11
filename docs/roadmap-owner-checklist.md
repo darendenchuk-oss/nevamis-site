@@ -9,7 +9,7 @@
 > The Works C$3,000 to start, then C$2,100/month (1,400 minutes, C$0.75/min overage);
 > AI Front Desk C$1,500 to start, then C$1,000/month (1,400 minutes, C$0.75/min overage);
 > Performance Partnership (invite-only) from C$2,500 to start, then C$350/month plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 minutes, C$1.10/min overage).
-> Sellable add-ons, each its own sale on its own three-month start:
+> Sellable add-ons, each its own sale, bought on its own or beside a plan:
 > Missed-Call Recovery C$350/month, Quote-Chase Engine C$500/month, Get-Paid Autopilot C$500/month,
 > Review Engine C$300/month — each with a one-time Launch & Implementation fee of its own
 > (C$500, C$750, C$750, C$500).

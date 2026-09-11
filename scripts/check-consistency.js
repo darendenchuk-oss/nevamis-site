@@ -644,10 +644,14 @@ for (const p of contentPages) {
        that anything is charged to start. "Setup fee" and "activation fee"
        remain retired names and are not used; the launch fee itself is never
        denied. REWRITTEN 2026-08-22 (v4): the figure is the AI Front Desk's
-       launch fee because it is the default plan the static proposal renders;
-       a minimum term exists, so "no minimum term" and "cancel any time" are
-       themselves retired sentences this pin must never bless again. */
-    const PLAN_TERMS = "One-time C$1,500 Launch & Implementation to start. Overage past your included minutes is the only other usage billing. Three-month minimum to start, six months when any automation add-on or The Works is included; the build takes days and you are live inside the first week, and the results show across the months after that. After the minimum: month to month, 30 days notice, cancellation from your portal, with service running to the end of the period you paid for. Your price is locked for 12 months.";
+       launch fee because it is the default plan the static proposal renders,
+       and a minimum term existed. REWRITTEN 2026-09-08: the owner reversed
+       that directive and there is no minimum term on anything, so the pinned
+       sentence states the absence rather than a length. "No minimum term",
+       "month to month" and "cancel any time from your portal" are TRUE again;
+       what this pin must never bless again is a three-month or six-month
+       start, or months "agreed up front". */
+    const PLAN_TERMS = "One-time C$1,500 Launch & Implementation to start. Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, 30 days notice, cancellation from your portal, with service running to the end of the period you paid for. Your price is locked for 12 months.";
     /* INVERTED TWICE with the model, most recently 2026-08-15 (evening):
        published pricing is back, so the static line a prospect reads with
        scripts blocked states the default plan's monthly. A real quote from

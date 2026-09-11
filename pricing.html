@@ -846,14 +846,18 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div id="termsBanner" style="background:var(--navy-2);border:1px solid rgba(47,191,143,.45);border-radius:14px;padding:20px 24px;margin-bottom:30px">
         <h2 style="font-size:19px;margin-bottom:6px;letter-spacing:-.01em">Launch &amp; Implementation to start. Then the monthly, every month.</h2>
         <p style="color:var(--muted);font-size:15px">Every plan starts with a one-time Launch &amp; Implementation fee: the audit, configuration, integrations, testing and go-live are real work and they are priced in the open, not hidden in the monthly. It is collected once, at the start, beside your first month. After that, your plan's monthly price is charged on the same day every month, and past the start the only recurring charges are that monthly and any overage past your included minutes. There is no trial to convert out of.</p>
-        <!-- Until 2026-08-25 this paragraph ended "We do not ask for a term,
-             and we do not need one." That was true of the model this page
-             was built for and false from the day the agreed start shipped:
-             the same page said "Three-month start" two sections lower, and
-             this was the sentence a buyer read on the way to the button. The
-             figures below match pricing-config.js terms; if that block moves,
-             this paragraph is stale and the guard in the engine says so. -->
-        <p style="color:var(--muted);font-size:13.5px;margin-top:8px">The billing is month to month, and the agreement locks in your first three months on the AI Front Desk, or six when any automation or The Works is included. The build takes days and your line is answered inside the first week, so the term is there for the results window, not for the build. After the minimum it stays month to month: 30 days notice, cancelled from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing.</p>
+        <!-- THE TERM, and its whole history is a warning. Until 2026-08-25
+             this paragraph ended "We do not ask for a term, and we do not
+             need one." The v4 directive of 2026-08-22 made that false, and
+             the sentence went on being read on the way to the button while
+             the same page said "Three-month start" two sections lower. On
+             2026-09-08 the owner reversed v4: there is no minimum term on
+             anything, so the agreed start is the sentence that is now false
+             and it is gone from every surface rather than softened on one.
+             The figures behind this paragraph are pricing-config.js terms,
+             both zero; if that block moves, this paragraph is stale and the
+             guard in the engine says so. -->
+        <p style="color:var(--muted);font-size:13.5px;margin-top:8px">There is no minimum term. Your plan, and every add-on whether you buy it on its own or add it later, is month to month from the first month: 30 days notice, cancelled by you from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch &amp; Implementation fee, charged once beside your first month, is the only commitment you make.</p>
         <p style="font-size:14.5px;margin-top:10px"><a href="/pilot.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">What happens before your line is answered</a> · <a href="/book.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Book a strategy call</a></p>
       </div>
       <!-- THE COVERAGE CHOOSER (2026-08-25). A price list asks a business to
@@ -867,7 +871,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            checkout charges the plan, and the chosen automations travel to
            the signup page as a recorded request that an operator sees. The
            result panel says exactly that, because a total shown next to a
-           button reads as a bill unless it is told otherwise. -->
+           button reads as a bill unless it is told otherwise.
+
+           2026-09-08: a visitor who ticks only automation leaks now gets
+           those automations on their own, priced on their own, and is sent
+           to signup with a coverage and no plan at all. Every add-on is its
+           own sale; the front desk is offered beside it, never required in
+           front of it. -->
       <div id="chooser" style="background:var(--navy-2);border:1px solid var(--line);border-radius:16px;padding:20px 24px;margin-bottom:30px" hidden>
         <h2 style="font-size:19px;margin-bottom:4px;letter-spacing:-.01em">Not sure what you need? Start with where the money leaks.</h2>
         <p style="color:var(--muted);font-size:14.5px;margin-bottom:14px">Tick what is happening in your business. We will put the coverage together and show you what it costs, with nothing hidden underneath it.</p>
@@ -901,7 +911,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
           <h3 style="font-size:18px">AI Front Desk &mdash; C$1,000/month (recommended)</h3>
-          <p style="color:var(--muted);font-size:14.5px">C$1,500 Launch &amp; Implementation to start, then C$1,000 a month. The start most businesses make: the front desk answering every call, with automation add-ons joining one at a time, each on its own evidence. No performance fee. 1,400 included AI minutes · C$0.75 per extra minute.</p>
+          <p style="color:var(--muted);font-size:14.5px">C$1,500 Launch &amp; Implementation to start, then C$1,000 a month. The start most businesses make: the front desk answering every call, with each automation its own sale you can add whenever it earns its place. No performance fee. 1,400 included AI minutes · C$0.75 per extra minute.</p>
           <p style="margin-top:10px"><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
         </div>
         <div style="border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:var(--navy-2)">
@@ -909,7 +919,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <p style="color:var(--muted);font-size:14.5px">Offered by invitation and approval, where NEVAMIS takes on substantially more of the acquisition risk; it is not the default and not self-serve. From C$2,500 Launch &amp; Implementation to start, then C$350 a month. Plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement. 250 included AI minutes · C$1.10 per extra minute.</p>
           <p style="margin-top:10px"><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
         </div>
-        <p style="color:var(--muted);font-size:14px">The AI Front Desk is the same core system on every plan. Plans differ by which automations are included and, on the Partnership, whether NEVAMIS shares in the revenue it helps create. A one-time Launch &amp; Implementation fee starts the build; after that, past the start, the only recurring charges are the monthly, any add-ons you chose, and any overage past your included minutes. Enterprise (multi-location, custom integrations, custom data pipelines) is quoted per client: Launch &amp; Implementation starting at C$5,000 or custom quoted, recurring custom. Prices in Canadian dollars, plus applicable GST/HST. Three-month start on the AI Front Desk, six months with add-ons or The Works, then month to month from your portal. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
+        <p style="color:var(--muted);font-size:14px">The AI Front Desk is the same core system on every plan. Plans differ by which automations are included and, on the Partnership, whether NEVAMIS shares in the revenue it helps create. A one-time Launch &amp; Implementation fee starts the build; after that, past the start, the only recurring charges are the monthly, any add-ons you chose, and any overage past your included minutes. Enterprise (multi-location, custom integrations, custom data pipelines) is quoted per client: Launch &amp; Implementation starting at C$5,000 or custom quoted, recurring custom. Prices in Canadian dollars, plus applicable GST/HST. No minimum term on anything: month to month from the first month, 30 days notice, cancelled from your own portal. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
       </div></div>
 
       <!-- ADD-ONS, v4 (2026-08-22): every automation is its own product,
@@ -920,7 +930,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            below states the same facts for a reader with scripts off. -->
       <div class="reveal" style="margin-top:26px;background:var(--navy-2);border:1px solid var(--line);border-radius:16px;padding:18px 22px">
         <h3 style="font-size:17px;margin-bottom:4px">Automation add-ons</h3>
-        <p style="font-size:14px;color:var(--muted);margin-bottom:10px">Each automation is its own product, added to the AI Front Desk one at a time, each on its own three-month start. All of them are already included in The Works.</p>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:10px">Each automation is its own product and its own sale: buy one on its own, or add it beside a plan, one at a time. All of them are already included in The Works.</p>
         <ul id="addOnList" style="font-size:14.5px;color:var(--muted);padding-left:20px">
           <li>Missed-Call Recovery &middot; C$350/month &middot; C$500 launch &middot; a caller you missed gets one text back, during business hours, with your name on it and a working opt-out.</li>
           <li>Quote-Chase Engine &middot; C$500/month &middot; C$750 launch &middot; every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.</li>
@@ -928,7 +938,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <li>Review Engine &middot; C$300/month &middot; C$500 launch &middot; one review request by text per finished job, with your own review link, every request released by a person.</li>
           <li>Customer Reactivation &middot; coming &middot; a win-back campaign over your own past-customer list. Not sellable until it ships end to end.</li>
         </ul>
-        <p id="termsNote" style="font-size:13px;color:var(--muted);margin-top:10px">Three-month start on the AI Front Desk; six months when any add-on or The Works is included. The build takes days, not weeks. After the minimum: month to month, 30 days notice, cancellation from your own portal, and your price is locked for 12 months from signing.</p>
+        <p id="termsNote" style="font-size:13px;color:var(--muted);margin-top:10px">There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: 30 days notice, cancellation from your own portal, service running to the end of the period you already paid for, and your price locked for 12 months from signing. The one-time Launch &amp; Implementation fee, charged once beside your first month, is the only commitment.</p>
       </div>
 
       <div class="reveal" style="margin-top:26px;background:var(--navy-2);border:1px solid var(--line);border-radius:16px;padding:18px 22px">
@@ -1040,6 +1050,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     document.getElementById("foundingOffer").textContent = "Founding clients: " + P.foundingClient.offer;
     document.getElementById("foundingNote").textContent = P.foundingClient.note;
   }
+  /* The add-on section's terms line, rendered from pricing-config.js rather
+     than left as a second hand-typed copy of it. The static HTML above says
+     the same thing so a reader with scripts off is not left termless, and
+     this overwrite is what keeps the two from parting company the next time
+     the term changes. It changed twice in eighteen days. */
+  var termsNoteEl = document.getElementById("termsNote");
+  if (termsNoteEl && P.terms && P.terms.note) termsNoteEl.textContent = P.terms.note;
   document.getElementById("minuteDef").textContent = P.usagePolicy.minuteDef;
   document.getElementById("taxNote").textContent = P.taxNote;
   var notes = document.getElementById("usageNotes");
@@ -1052,23 +1069,38 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      misread number costs a sale. The no-JS fallback already groups thousands;
      the rendered cards were the ones concatenating raw values. */
   function grp(n) { return Number(n).toLocaleString("en-CA"); }
-  /* The agreed start, per plan, in the words the call script uses: it is a
-     LOCK-IN on month-to-month billing, never a "setup period". A plan that
-     carries automations carries the longer one, which is why this asks the
-     plan what it includes rather than hard-coding a number per card. */
-  /* The short form, for under the Buy button, where a long sentence would
-     not be read. Same source as the long one. */
+  /* THE TERM, per plan, derived from pricing-config.js and never typed.
+     `minimumMonths` is zero since the 2026-09-08 directive, so the zero branch
+     is the one that renders, and it must therefore state the commitment that
+     IS true rather than fall back to a sentence about scoping: a card with no
+     term sentence above a Buy button is how "no minimum term" went unsaid for
+     a fortnight in the other direction.
+
+     ONE figure, asked once. These two functions used to read a different key
+     depending on whether the plan carried automations, which meant the page
+     could render "no minimum term" on one card and a length on the next from
+     a config that had been only half updated. There is one decision, so there
+     is one number, and `pl` no longer changes which number is read. */
+  /* The short form goes under the Buy button, where a long sentence would not
+     be read. Same source as the long one. */
+  function minMonths() {
+    var t = P.terms || {};
+    return t.minimumMonths == null ? 0 : t.minimumMonths;
+  }
   function startNote(pl) {
     var t = P.terms || {};
-    var months = pl.includesAutomations ? t.minimumMonthsWithAddOns : t.minimumMonthsCore;
-    if (!months) return "Fifteen minutes to scope it, then we build and test it before it answers anything.";
+    var months = minMonths();
+    if (!months) return "Month to month from the first month, on " + (t.cancellationNoticeDays || 30)
+      + " days notice, cancelled by you from your own portal.";
     return "Your first " + months + " months are agreed up front, then month to month with "
       + t.cancellationNoticeDays + " days notice.";
   }
   function termSentence(pl) {
     var t = P.terms || {};
-    var months = pl.includesAutomations ? t.minimumMonthsWithAddOns : t.minimumMonthsCore;
-    if (!months) return "";
+    var months = minMonths();
+    if (!months) return "There is no minimum term: month to month from the first month, "
+      + (t.cancellationNoticeDays || 30) + " days notice, cancelled from your own portal, and your price is locked for "
+      + (t.priceLockMonths || 12) + " months from signing.";
     return "The billing is month to month, and the agreement locks in your first "
       + months + " months. After that: month to month, " + t.cancellationNoticeDays
       + " days notice, cancelled from your own portal, and your price is locked for "
@@ -1103,15 +1135,18 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          card, directly under the price and directly above a Buy button, on a
          page whose own terms note said "Three-month start" two sections
          lower: the page contradicted itself, and the half attached to the
-         money was the wrong one. Read from P.terms so a change to the term
-         moves this line with it. */
+         money was the wrong one. On 2026-09-08 the owner removed the minimum
+         term entirely and this sentence is true again, which is exactly why
+         it is still read from P.terms and not typed back in: the page has now
+         been wrong in BOTH directions, and only the derivation was ever
+         right. */
       h += '<div class="setup">C$' + grp(pl.launch) + " Launch &amp; Implementation to start, then C$" + grp(pl.monthly) + " a month. " + termSentence(pl)
         + (pl.performanceNote ? " " + pl.performanceNote : "")
         + (pl.selfServe === false ? " Offered by invitation and approval; never the default." : "")
         + "</div>";
     } else {
       h += '<div class="price price-quoted">Quoted per client</div>';
-      h += '<div class="setup">Your price is quoted per client, then charged monthly, with the agreed start set in your quote.</div>';
+      h += '<div class="setup">Your price is quoted per client, then charged monthly, month to month with no minimum term, on ' + ((P.terms && P.terms.cancellationNoticeDays) || 30) + ' days notice.</div>';
     }
     h += '<div class="usage">' + grp(pl.includedMinutes) + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
     h += "<ul>" + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
@@ -1346,7 +1381,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   }
   /* Each leak is a sentence a business would say about itself, mapped to
      the one module that answers it. The first has no module because the
-     core plan IS the answer to it. */
+     core plan IS the answer to it, and since 2026-09-08 that is also what
+     TICKING it means: leave it unticked and the automations are quoted on
+     their own, with the front desk offered beside them rather than under
+     them. */
   var LEAKS = [
     { id: "calls",    say: "Calls go to voicemail",            mod: null },
     { id: "missed",   say: "People ring while I am on a job",  mod: "missed_call_recovery" },
@@ -1360,6 +1398,16 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   var out = document.getElementById("chooserResult");
 
   function grp(n) { return Number(n).toLocaleString("en-CA"); }
+  /* Redeclared here rather than shared with the plan-card block above, which
+     is a separate IIFE: `grp` is duplicated for the same reason. Both copies
+     read the SAME pricing-config.js field, so the duplication is of the
+     accessor and never of the figure. `== null` and not `||`, because
+     `(0 || 3)` is 3 and that is exactly how a zero term would print a
+     three-month minimum under a Buy button. */
+  function minMonths() {
+    var t = P.terms || {};
+    return t.minimumMonths == null ? 0 : t.minimumMonths;
+  }
 
   LEAKS.forEach(function (l) {
     var b = document.createElement("button");
@@ -1384,30 +1432,63 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var any = LEAKS.some(function (l) { return picked[l.id]; });
     if (!any) { out.innerHTML = ""; return; }
 
+    /* WHICH SHAPE THE ANSWER IS (2026-09-08). Ticking the phone leak asks for
+       the front desk. Ticking only automation leaks asks for those
+       automations and nothing else, which is a sale this business now makes:
+       every module marked soldAlone in pricing-config.js can be a client's
+       whole service. A module WITHOUT that flag cannot be the whole answer,
+       so the front desk goes back in front of it rather than being assumed
+       away, and the flag is read rather than the module names being listed
+       here a second time. */
+    var wantsDesk = LEAKS.some(function (l) { return picked[l.id] && !l.mod; });
+    var moduleOnly = !wantsDesk && mods.length > 0
+      && mods.every(function (a) { return a.soldAlone === true; });
+
     var addMonthly = mods.reduce(function (n, a) { return n + a.monthly; }, 0);
     var addLaunch = mods.reduce(function (n, a) { return n + (a.launch || 0); }, 0);
-    var pieces = { monthly: core.monthly + addMonthly, launch: core.launch + addLaunch };
+    var pieces = moduleOnly
+      ? { monthly: addMonthly, launch: addLaunch }
+      : { monthly: core.monthly + addMonthly, launch: core.launch + addLaunch };
+    /* Still arithmetic, not a funnel: the bundle is offered only where it
+       actually costs less than what was picked, module-only included. */
     var useBundle = mods.length > 0 && bundle.monthly <= pieces.monthly;
+    var alone = moduleOnly && !useBundle;
 
     var chosen = useBundle ? bundle : core;
     var monthly = useBundle ? bundle.monthly : pieces.monthly;
     var launch = useBundle ? bundle.launch : pieces.launch;
-    var months = (useBundle || mods.length)
-      ? P.terms.minimumMonthsWithAddOns : P.terms.minimumMonthsCore;
+    var t = P.terms || {};
+    /* The same one figure the plan cards read. This line used to pick between
+       two keys on whether automations were in the basket; there is one term
+       decision, so there is one number and nothing to pick between. */
+    var months = minMonths();
 
-    var lines = ["<strong style=\"color:var(--ink)\">" + chosen.name + "</strong>, C$"
-      + grp(chosen.monthly) + " a month"];
-    if (useBundle) {
-      lines.push("every automation included, which is why it beats the pieces");
-    } else {
-      mods.forEach(function (a) {
-        lines.push(a.name + ", C$" + grp(a.monthly) + " a month plus C$" + grp(a.launch) + " to build");
+    var lines;
+    if (alone) {
+      lines = mods.map(function (a) {
+        return "<strong style=\"color:var(--ink)\">" + a.name + "</strong> on its own, C$"
+          + grp(a.launch) + " Launch and Implementation to start, then C$" + grp(a.monthly) + " a month";
       });
+    } else {
+      lines = ["<strong style=\"color:var(--ink)\">" + chosen.name + "</strong>, C$"
+        + grp(chosen.monthly) + " a month"];
+      if (useBundle) {
+        lines.push("every automation included, which is why it beats the pieces");
+      } else {
+        mods.forEach(function (a) {
+          lines.push(a.name + ", C$" + grp(a.monthly) + " a month plus C$" + grp(a.launch) + " to build");
+        });
+      }
     }
 
-    var href = "https://app.nevamis.ca/signup?plan=" + encodeURIComponent(chosen.id)
-      + (useBundle || !mods.length ? "" : "&coverage="
-        + encodeURIComponent(mods.map(function (a) { return a.id; }).join(",")));
+    var coverageParam = encodeURIComponent(mods.map(function (a) { return a.id; }).join(","));
+    /* A module-only request carries no plan key at all, which is what the
+       signup page reads to render the module's own figures instead of a
+       phone plan the visitor did not ask for. */
+    var href = alone
+      ? "https://app.nevamis.ca/signup?coverage=" + coverageParam
+      : "https://app.nevamis.ca/signup?plan=" + encodeURIComponent(chosen.id)
+        + (useBundle || !mods.length ? "" : "&coverage=" + coverageParam);
 
     var h = '<div style="border-top:1px solid var(--line);padding-top:14px">';
     h += '<p style="font-size:14px;color:var(--muted);margin-bottom:6px">Your coverage</p>';
@@ -1415,12 +1496,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       + lines.join("</li><li>") + "</li></ul>";
     h += '<p style="font-size:16px;color:var(--ink);margin-bottom:6px">C$' + grp(launch)
       + " Launch and Implementation to start, then C$" + grp(monthly) + " a month, plus GST.</p>";
-    h += '<p style="font-size:13.5px;color:var(--muted);margin-bottom:12px">Your first ' + months
-      + " months are agreed up front, then month to month with " + P.terms.cancellationNoticeDays
-      + " days notice, cancelled from your own portal.";
+    h += '<p style="font-size:13.5px;color:var(--muted);margin-bottom:12px">'
+      + (months
+          ? "Your first " + months + " months are agreed up front, then month to month with "
+            + t.cancellationNoticeDays + " days notice, cancelled from your own portal."
+          : "There is no minimum term: month to month from the first month, "
+            + (t.cancellationNoticeDays || 30) + " days notice, cancelled by you from your own portal.");
     if (useBundle) {
       h += " Bought separately these would be C$" + grp(pieces.monthly) + " a month, so the bundle saves you C$"
         + grp(pieces.monthly - bundle.monthly) + " every month.";
+    } else if (alone) {
+      /* The honest half of a chooser that is not a cart, in the module-only
+         shape: there is no plan to charge, so nothing is charged at all. */
+      h += " Nothing is bought or charged on this page. Create your account and we set it up with you"
+        + " under your agreement. If you want the phone answered too, the "
+        + core.name + " is C$" + grp(core.launch) + " Launch and Implementation to start, then C$"
+        + grp(core.monthly) + " a month.";
     } else if (mods.length) {
       /* The honest half of a chooser that is not a cart. */
       h += " Checkout charges the " + chosen.name + " plan, C$" + grp(chosen.monthly)
