@@ -4,7 +4,8 @@
    SIMPLIFIED TO ONE RECURRING PRICE 2026-08-09,
    PRICED AFTER A SCAN (morning) AND THEN THE
    OPERATE / GROW / PERFORMANCE PARTNERSHIP MODEL (evening) 2026-08-15,
-   THE ADD-ON MODEL (v4) 2026-08-22, THE V5 REPRICE 2026-08-24.
+   THE ADD-ON MODEL (v4) 2026-08-22, THE V5 REPRICE 2026-08-24,
+   THE PARTNERSHIP GROWTH STACK (v6) 2026-09-12.
    Do not duplicate these values in HTML — render from here.
 
    THE COMMERCIAL MODEL, IN ONE TABLE (v5, owner directive 2026-08-24):
@@ -23,7 +24,58 @@
        Quote-Chase Engine     C$750 L&I, C$500/month    sellable today
        Get-Paid Autopilot     C$750 L&I, C$500/month    sellable today
        Review Engine          C$500 L&I, C$300/month    sellable since 2026-08-24 (end-to-end drill, docs/verification/REVIEW-ENGINE-E2E.md)
+       Lead Generation        no monthly, no launch fee  NOT sellable (offered by invitation)
+       Search Rankings        no price at all            NOT sellable (nothing is built for it)
        Customer Reactivation  C$2,000/campaign          NOT yet sellable (prototype)
+
+   WHAT V6 CHANGED AND WHY (2026-09-12, owner decision, mirrored from
+   nevamis-engine CANONICAL.pricing.addOns via PR #265 inside train #276).
+   The Performance Partnership is now the plan that carries a GROWTH STACK:
+   every item in it is still its own sale, and each one changes what the plan
+   costs. Two of them are paid out of the revenue they produce instead of out
+   of a monthly, which is the only genuinely new commercial shape here:
+
+     Quote-Chase Engine on the Partnership   no launch fee, no monthly, an
+                                             agreed share of collected revenue
+                                             directly attributable to a quote
+                                             Nevamis recovered
+     Lead Generation on the Partnership      no launch fee, no monthly, an
+                                             agreed share of collected revenue
+                                             directly attributable to a
+                                             business Nevamis found
+     Missed-Call Recovery, Get-Paid
+     Autopilot, Review Engine                their own pair, unchanged
+     Search Rankings                         listed as coming, never sold
+
+   THE SHARE IS NEVER WRITTEN AS A PERCENTAGE in anything a stranger reads.
+   `shareBps` exists here because the engine carries it and a mirror that
+   dropped it would be a mirror of a different model; it is a RATE THE
+   EXECUTED AGREEMENT CARRIES, not a number to render. The approved sentence,
+   and the only one any surface may use, is the one the engine's claim
+   registry generates: "<item> on the Performance Partnership is paid by an
+   agreed share of collected revenue directly attributable to <what>, subject
+   to your agreement." Nothing here may render `shareBps` into copy.
+
+   THE PARTNERSHIP BLOCK IS DERIVED, NOT RESTATED, for the three items whose
+   price does not change on the Partnership. `partnershipTerms(id)` below
+   returns a block for EVERY add-on, and an add-on that declares no
+   `partnership` of its own gets its own pair back with no share. That is an
+   exact mirror of the engine's partnershipTerms(), and it is deliberate: a
+   second copy of C$500/C$350 sitting under a `partnership` key is the stale
+   figure this file exists to make impossible.
+
+   LEAD GENERATION IS NOT SELLABLE HERE, and it is the found-customer product
+   only. The engine re-scoped it on 2026-09-12: what a client signs up for is
+   the list of businesses found for them. Bid and tender work is arranged by
+   hand under the service agreement's named-approver rule and is not part of
+   the sign-up, so it is not described as part of this item anywhere. Its
+   status stays private testing, offered by invitation, and `sellable: false`
+   keeps it off every Buy control until the engine's capability record says
+   ready.
+
+   SEARCH RANKINGS HAS NO PRICE because nothing is built for it. It is listed
+   so a reader can see what the stack will hold; it may be described as
+   coming, and it may never be sold or charged.
 
    WHAT V5 CHANGED AND WHY (2026-08-24). The Works and Performance
    Partnership repriced up (C$1,800->C$2,100/mo, C$250->C$350/mo default in
@@ -121,9 +173,9 @@
   window.NV_PRICING = {
     approved: true,
     currency: "CAD",
-    lastUpdated: "2026-08-24",
+    lastUpdated: "2026-09-12",
     taxNote: "Prices in Canadian dollars, plus applicable GST/HST.",
-    commercialModel: "V5-reprice",
+    commercialModel: "V6-growth-stack",
     /* Whether a visitor may complete a purchase without talking to anyone.
        TRUE since 2026-08-16, on the owner's explicit authorization. The
        engine's checkout gate opened the same day with the same authorization
@@ -197,9 +249,16 @@
         monthly: 350, launch: 500, sellable: true, soldAlone: true,
         blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out, before they ring the next name on Google."
       },
+      /* ON THE PARTNERSHIP this one is paid out of what it recovers rather
+         than out of a monthly (owner decision 2026-09-12). Its standalone
+         pair is untouched: bought on its own, or added to any other plan, it
+         is still C$750 to start, then C$500 a month. `shareBps` mirrors
+         CANONICAL.pricing.addOns[].partnership.shareBps in nevamis-engine and
+         is never rendered: see the header note on the approved sentence. */
       {
         id: "quote_chase", name: "Quote-Chase Engine",
         monthly: 500, launch: 750, sellable: true, soldAlone: true,
+        partnership: { launch: 0, monthly: 0, shareBps: 1000, attributableTo: "a quote Nevamis recovered" },
         blurb: "Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you, stopping the moment the customer replies."
       },
       {
@@ -212,12 +271,71 @@
         monthly: 300, launch: 500, sellable: true, soldAlone: true,
         blurb: "Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person."
       },
+      /* ---------- the v6 growth stack (owner decision 2026-09-12) ----------
+
+         LEAD GENERATION is a catalog item so the surfaces that offer it read a
+         record instead of a sentence somebody typed. It is paid the way the
+         owner described it: nothing monthly, an agreed share of what it
+         actually produced. There is no standalone pair, which is why `monthly`
+         and `launch` are zero and `soldAlone` is false: a module offered alone
+         at zero would be an arrangement this business does not have.
+
+         `sellable: false` FOLLOWS THE ENGINE'S CAPABILITY RECORD, which reads
+         private_pilot today (offered by invitation, live gate 3 of 7 evidenced
+         on the site's own record of it). The engine derives its lifecycle from
+         that record rather than typing it; this file cannot derive across
+         repositories, so it mirrors today's answer and carries this note. The
+         day the capability's own branch evidences the gate, this flips with it
+         and roadmap-config.js flips with it, and neither may lead the other:
+         the site may say less than the engine, never more.
+
+         THE FOUND-CUSTOMER PRODUCT ONLY. Bid and tender work left the sold
+         record on 2026-09-12; it is arranged by hand under the service
+         agreement's named-approver rule, and no copy derived from this entry
+         may schedule it as part of signing up. */
+      {
+        id: "lead_generation", name: "Lead Generation",
+        monthly: 0, launch: 0, sellable: false, soldAlone: false,
+        partnership: { launch: 0, monthly: 0, shareBps: 1000, attributableTo: "a business Nevamis found" },
+        blurb: "Businesses that fit what you do, found for you, with the page each one came from and what came of it. Offered by invitation, under your own agreement, and not yet sellable from a page."
+      },
+      /* SEARCH RANKINGS is listed because it is part of the stack the owner
+         named, and a stack item nobody can see is a stack item nobody asks
+         for. NOTHING IS BUILT FOR IT: no workflow, no capability record, no
+         provider. It is listed as coming, it carries no price, and it may not
+         be sold or charged. It gets a price the day something exists to charge
+         for. */
+      {
+        id: "seo_rankings", name: "Search Rankings",
+        monthly: 0, launch: 0, sellable: false, soldAlone: false,
+        blurb: "Better search rankings for the work you want more of. Coming, and not built yet."
+      },
       {
         id: "reactivation", name: "Customer Reactivation",
         perCampaign: 2000, sellable: false, soldAlone: false,
         blurb: "A win-back campaign over your own past-customer list, inside the consent rules. Coming, and not sellable until it ships end to end."
       }
     ],
+    /* WHAT AN ITEM COSTS ON THE PERFORMANCE PARTNERSHIP, derived exactly as
+       nevamis-engine's partnershipTerms() derives it. An add-on that declares
+       no `partnership` block of its own is charged its own pair there and
+       takes no share, so the three items whose price does not change carry no
+       second copy of their figures. Returns null for an id the catalog does
+       not have, so a renderer asking about a module that was removed gets
+       nothing rather than a plausible-looking zero.
+
+       `shareBps` comes back on the block because it is what the record holds.
+       It must never be rendered: the approved client-facing sentence carries
+       `attributableTo` and the words "an agreed share", never a number. */
+    partnershipTerms: function (id) {
+      var a = (this.addOns || []).filter(function (x) { return x.id === id; })[0];
+      if (!a) return null;
+      if (a.partnership) {
+        return { launch: a.partnership.launch, monthly: a.partnership.monthly,
+                 shareBps: a.partnership.shareBps, attributableTo: a.partnership.attributableTo };
+      }
+      return { launch: a.launch || 0, monthly: a.monthly || 0, shareBps: 0, attributableTo: null };
+    },
     /* The referral offer. Mirrors CANONICAL.referral in nevamis-engine, and the
        engine's consistency checker validates these values against it. The
        REFERRER's free month is earned on the referred business's first PAID
@@ -310,11 +428,17 @@
         callRange: "80 to 125 typical calls", overage: 1.10,
         selfServe: false,
         performanceNote: "Lower fixed cost, plus performance-based compensation tied to verified results. The monthly, the percentage, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged. Nothing here is a rate on its own.",
-        bestFor: "A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. Not suitable for every business, and never the default.",
+        /* NAMES THE GROWTH STACK, v6. The stack is what the Partnership is
+           now: a plan whose price is changed by the items chosen on it, two of
+           them paid out of the revenue they produce. No figure and no
+           percentage appears in this sentence, because the pairs live on the
+           add-ons above and the share lives in the executed agreement. */
+        bestFor: "A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: the Quote-Chase Engine, Lead Generation, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
         features: [
           "One business phone line",
           "A call review each month, and tuning from what the calls actually show",
-          "Email support"
+          "Email support",
+          "The growth stack: each item added on its own and priced on its own. The Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement. Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page. Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch and Implementation fee and their own monthly, at the prices listed for them. Search Rankings is coming and is not sold."
         ].concat(EVERY_PLAN)
       }
     ]
