@@ -168,10 +168,10 @@ automotive and other trades. Trades first, Canada-wide, Edmonton-based.
   businesses under their own agreement and delivered by hand. A person at
   Nevamis reads public pages and assembles the list, and every row carries
   the page it came from; the client decides every row; nobody on a list is
-  contacted by Nevamis. Jobs and tenders are bid at the client's prices,
-  and nothing is submitted until the person the client names signs off on
-  that specific bid; the resulting contract is the client's and the client
-  does the work. The automated search is not switched on. There is no
+  contacted by Nevamis. What a client signs up for is that found-customer
+  list and nothing else: bid and tender work is arranged separately by hand
+  under the service agreement's named-approver rule and is not part of this
+  service. The automated search is not switched on. There is no
   pilot and no trial: the words for this state are "by invitation" and
   "private testing".
 - IN DEVELOPMENT OR PLANNED, and never to be described as currently

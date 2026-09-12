@@ -4,10 +4,10 @@
    Only the owner flips a service to "available". The Coming Soon page
    and homepage teaser render from this file. Companion internal docs:
    docs/nevamis-product-roadmap.md and docs/service-blueprints/.
-   Last reviewed: 2026-09-08
+   Last reviewed: 2026-09-12
    ============================================================ */
 window.NV_ROADMAP = {
-  lastUpdated: "2026-09-08",
+  lastUpdated: "2026-09-12",
   /* "The rest are in development or planned" stopped being the whole truth on
      2026-09-08, when lead-generation became the first entry to carry
      private_pilot. A truth statement that does not describe every shelf under
@@ -28,13 +28,23 @@ window.NV_ROADMAP = {
     { slug: "pulse-scan", name: "PULSE Business Scan", pillar: "grow", status: "available", stage: "now",
       desc: "Looks at your business from the outside and tells you where the money is leaking, with what it is basing that on. Every figure is a range with a confidence level, and feeding it your real numbers sharpens all of them.",
       outcome: "You see the leaks before you pay to fix any of them.", cta: "https://app.nevamis.ca/scan" },
-    /* TWO PATHS since 2026-08-19, mirroring canonical.ts: finding the
-       client's own paying customers, AND finding jobs and tenders Nevamis
-       bids on. The bid half is gated by the service agreement (§1.1, §3)
-       and the gate is part of the sentence, not a footnote: the client's
-       named approver signs off on that specific bid, the prices are the
-       client's, Nevamis is not a party to the contract that results and does
-       not do the work. Nothing here may promise a job is won.
+    /* ONE PATH since 2026-09-12, mirroring canonical.ts: the businesses that
+       fit what the client does, found for them. TWO PATHS was the shape from
+       2026-08-19 until the owner re-scoped the product: bid and tender work is
+       a hand-arranged service under the service agreement (§1.1, §3), arranged
+       separately and NOT part of what a client signs up for, so it is not
+       described here or in anything derived from this entry. The engine made
+       that a rule rather than a comment (src/domain/bid-claims.ts, BID-4), and
+       this entry is the site's half of the same re-scope.
+
+       WHY THE BID SENTENCES ARE GONE RATHER THAN SOFTENED. They carried the
+       protections: the named approver signs off on that specific bid, the
+       prices are the client's, Nevamis is not a party to the contract and does
+       not do the work. Deleting the sentences is exactly the moment those
+       protections are most likely to be lost, which is why the engine moved
+       them into executable rules before the sentences came out. Nothing here
+       may promise a job is won, and nothing here may schedule bid work as part
+       of signing up.
 
        BY INVITATION since 2026-09-08, and not a step further. It said
        "available" from 2026-08-19 and every derived surface repeated it, which
@@ -52,11 +62,9 @@ window.NV_ROADMAP = {
        agreement, and delivered by hand. A person here assembles the list by
        reading public pages, and each row carries the page it came from. The
        client decides every row. Nothing on a list is contacted by Nevamis.
-       Bids are prepared at the client's prices and submitted only after the
-       person the client names signs off on that specific bid; the contract is
-       the client's and the client does the work. The automated search is not
-       switched on. No number of leads, no win rate, no amount, no client and
-       no date may appear in this entry or in anything derived from it.
+       The automated search is not switched on. No number of leads, no win
+       rate, no amount, no client and no date may appear in this entry or in
+       anything derived from it.
 
        The direction of travel is still the only one this file may take on its
        own: the site may say less than canonical, never more. Raising this
@@ -64,8 +72,8 @@ window.NV_ROADMAP = {
        not "now": "now" is the shelf marked LIVE TODAY, and it is also the
        engine guard's definition of a public claim to be ready now. */
     { slug: "lead-generation", name: "Lead Generation", pillar: "grow", status: "private_pilot", stage: "next",
-      desc: "Offered by invitation to a few businesses, under their own agreement, and done by hand. Two things. A person here reads public pages and builds you a list of the customers who need what you do, with the page each row came from, and you decide which rows are worth anything. Nobody on that list is contacted by us. And we watch for jobs and tenders you could win, prepare the bid at your prices, and put nothing in until the person you name signs off on that specific bid. The contract is yours and you do the work.",
-      outcome: "A call list you approved yourself, and bids that go in only on your say-so." },
+      desc: "Offered by invitation to a few businesses, under their own agreement, and done by hand. A person here reads public pages and builds you a list of the businesses that need what you do, with the page each row came from and the day it was read, so you can check any of it yourself. Each row is scored against what you told us you want, in words. You decide which rows are worth anything, nobody on the list is contacted by us, and what you tell us came of the ones you pursued is what your Results show.",
+      outcome: "A call list you approved yourself, on businesses that fit the work you want." },
     /* AVAILABLE 2026-08-19, and the claims shrank to the shipped truth
        (mirror of canonical.ts): one text per missed call, ever, with the
        business's name on it and a working opt-out — not a retry sequence,
