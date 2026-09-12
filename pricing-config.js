@@ -35,14 +35,14 @@
    costs. Two of them are paid out of the revenue they produce instead of out
    of a monthly, which is the only genuinely new commercial shape here:
 
-     Quote-Chase Engine on the Partnership   no launch fee, no monthly, an
-                                             agreed share of collected revenue
-                                             directly attributable to a quote
-                                             Nevamis recovered
      Lead Generation on the Partnership      no launch fee, no monthly, an
                                              agreed share of collected revenue
                                              directly attributable to a
                                              business Nevamis found
+     Quote-Chase Engine on the Partnership   no launch fee, no monthly, an
+                                             agreed share of collected revenue
+                                             directly attributable to a quote
+                                             Nevamis recovered
      Missed-Call Recovery, Get-Paid
      Autopilot, Review Engine                their own pair, unchanged
      Search Rankings                         listed as coming, never sold
@@ -376,9 +376,44 @@
        key. `performanceNote` is the approved customer wording for the
        performance component, or null where the plan has none. `selfServe:
        false` marks an invite/approval-based plan that no surface may present
-       as the default choice. Order: The Works first (the anchor), the AI
-       Front Desk second (the recommended start and checkout default). */
+       as the default choice.
+
+       ORDER IS DISPLAY ORDER, and it changed on 2026-09-12 on the owner's
+       instruction to lead every surface with Lead Generation. Lead Generation
+       has no plan of its own: it is an item on the Performance Partnership, so
+       the Partnership is the card that has to come first for the lead offer to
+       be the first thing a reader meets. The Works follows as the anchor a
+       reader prices the ladder against, then the AI Front Desk, which is still
+       `recommended: true` and still the checkout default. Nothing about what
+       is recommended moved; only what is read first. Every renderer walks this
+       array in order (pricing.html's cards, the homepage plans strip in
+       site.js, build-schema.mjs's Offer list), so this is the one place the
+       order is decided. */
     plans: [
+      {
+        /* INVITE / APPROVAL BASED. `selfServe: false` is what keeps a C$250
+           monthly from being read as "the cheap tier": NEVAMIS carries
+           acquisition risk here and chooses when to offer it. Described,
+           never presented as the default, and checkout refuses to sell it
+           without an approval. */
+        id: "starter", name: "Performance Partnership",
+        monthly: 350, monthlyRange: [250, 500], launch: 2500, includedMinutes: 250,
+        callRange: "80 to 125 typical calls", overage: 1.10,
+        selfServe: false,
+        performanceNote: "Lower fixed cost, plus performance-based compensation tied to verified results. The monthly, the percentage, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged. Nothing here is a rate on its own.",
+        /* NAMES THE GROWTH STACK, v6. The stack is what the Partnership is
+           now: a plan whose price is changed by the items chosen on it, two of
+           them paid out of the revenue they produce. No figure and no
+           percentage appears in this sentence, because the pairs live on the
+           add-ons above and the share lives in the executed agreement. */
+        bestFor: "A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
+        features: [
+          "One business phone line",
+          "A call review each month, and tuning from what the calls actually show",
+          "Email support",
+          "The growth stack: each item added on its own and priced on its own. Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page. The Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement. Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch and Implementation fee and their own monthly, at the prices listed for them. Search Rankings is coming and is not sold."
+        ].concat(EVERY_PLAN)
+      },
       {
         id: "growth", name: "The Works",
         /* The bundle carries automations, so it carries the LONGER agreed
@@ -415,30 +450,6 @@
           "Two call reviews each month, and tuning from what the calls actually show",
           "Priority email support",
           "Higher-volume usage priced with you before you commit to it"
-        ].concat(EVERY_PLAN)
-      },
-      {
-        /* INVITE / APPROVAL BASED. `selfServe: false` is what keeps a C$250
-           monthly from being read as "the cheap tier": NEVAMIS carries
-           acquisition risk here and chooses when to offer it. Described,
-           never presented as the default, and checkout refuses to sell it
-           without an approval. */
-        id: "starter", name: "Performance Partnership",
-        monthly: 350, monthlyRange: [250, 500], launch: 2500, includedMinutes: 250,
-        callRange: "80 to 125 typical calls", overage: 1.10,
-        selfServe: false,
-        performanceNote: "Lower fixed cost, plus performance-based compensation tied to verified results. The monthly, the percentage, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged. Nothing here is a rate on its own.",
-        /* NAMES THE GROWTH STACK, v6. The stack is what the Partnership is
-           now: a plan whose price is changed by the items chosen on it, two of
-           them paid out of the revenue they produce. No figure and no
-           percentage appears in this sentence, because the pairs live on the
-           add-ons above and the share lives in the executed agreement. */
-        bestFor: "A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: the Quote-Chase Engine, Lead Generation, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
-        features: [
-          "One business phone line",
-          "A call review each month, and tuning from what the calls actually show",
-          "Email support",
-          "The growth stack: each item added on its own and priced on its own. The Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement. Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page. Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch and Implementation fee and their own monthly, at the prices listed for them. Search Rankings is coming and is not sold."
         ].concat(EVERY_PLAN)
       }
     ]
