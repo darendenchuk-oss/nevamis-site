@@ -25,6 +25,40 @@ film_style = film_style.replace(key,
     key + '\nhtml.nv-intro .site-header{opacity:0}\n'
     'html.nv-intro.nv-on .site-header{opacity:1;transition:opacity .9s ease .06s}')
 
+# THE POSTER, AND WHY THE IGNITION NO LONGER BLINKS THE CHROME.
+#
+# The film's first composed frame is deferred to after the load event (see the
+# film's own startFilm(); measured, it was a single 1,963 ms task and 94% of it
+# was inside the GL driver). That leaves a gap this page never had, between the
+# document painting and the canvas having anything in it, and two states carry
+# the page across it:
+#
+#   nv-filmwait  Set on <html> in the markup, so it is in the very first paint,
+#                and removed by the film on its first composed frame. #stage is
+#                a plain var(--bg1) panel until then, so it borrows the radial
+#                ground that no-WebGL visitors already get (.no3d #stage, film
+#                source line ~72). Same box, same place: the canvas sits on top
+#                of it at inset:0 and covers it the moment the film draws, so
+#                there is no layout shift and nothing to un-shift. A visitor
+#                with no JavaScript at all keeps it, which is correct: there is
+#                no film for them either.
+#   nv-late      The film deferred its first frame. The ignition cold-open hides
+#                the chrome and fades it back in with the wake (nv-intro and
+#                nv-on below), which was invisible when the first frame and the
+#                first paint were the same moment, and would be a blink now that
+#                the header and the scroll hint are on screen a second earlier.
+#                Only those two are visible before the film draws: #brand is
+#                dropped by this composer, and #paneNav, #labels, #nlabel and
+#                #ncard are display:none until film-3 adds nv-live. So nv-late
+#                pins exactly those two opaque and leaves every other ignition
+#                rule, and every line of the film's own JavaScript (uiAwake()
+#                reads nv-intro), exactly as it was.
+FILM_START_CSS = (
+    'html.nv-filmwait #stage{background:radial-gradient(ellipse at 50% 40%,#0A2A1F 0%,var(--bg1) 70%)}\n'
+    'html.nv-late.nv-intro .site-header{opacity:1}\n'
+    'html.nv-late.nv-intro #hint:not(.off){opacity:1}\n'
+)
+
 # site.css gives body overflow-x:hidden, which makes body a SCROLL CONTAINER and
 # silently unsticks the film's position:sticky stage (the canvas scrolled away
 # with the page and the world went black past the first viewport). clip clips
@@ -39,7 +73,8 @@ film_style = film_style.replace('</style>',
     'html.nv-below .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;'
     'transition:opacity .35s ease}\n'
     'html:not(.nv-below) .callbar{display:none}\n'
-    '@media(max-width:900px){#scroll .copy{display:block}}\n</style>')
+    '@media(max-width:900px){#scroll .copy{display:block}}\n'
+    + FILM_START_CSS + '\n</style>')
 
 # --- film body inner ---
 b = film.find('<body>') + len('<body>')
@@ -94,7 +129,21 @@ i = old.find('<script src="pricing-config.js">')
 j = old.find('</script>', old.find('<script>', i)) + len('</script>')
 pricing_scripts = old[i:j]
 
-html_open = '<!doctype html>\n<html lang="en-CA" class="no-js">\n'
+# THE FILM SCRIPT TAGS BELOW DO NOT MOVE, AND THAT IS DELIBERATE.
+# The film is built by the parser exactly as before; only its first composed
+# frame waits (the film's startFilm()). Moving the BUILD off the parser changes
+# what the film RENDERS. Measured at a pinned governor tier with everything else
+# held equal: injecting the three scripts, or giving them defer, or giving them
+# async, all leave 20% of pixels differing by more than 8/255 and visibly drain
+# the pane glass of its environment lighting, because the PMREM environment map
+# built from RoomEnvironment comes out darker when it is generated after the
+# document has been laid out than when it is generated during parsing. Scene
+# graph, materials, envMapIntensity, camera, pixel ratio and PMREM inputs are
+# identical in both, and replacing the environment map in both makes the two
+# frames agree again. Deferring only the first FRAME leaves it identical (0.002%
+# of pixels over 8/255, which is film grain). Re-run that comparison before
+# moving these tags.
+html_open = '<!doctype html>\n<html lang="en-CA" class="no-js nv-filmwait">\n'
 assert old.startswith('<!doctype html>')
 head_rest = head_old[head_old.find('<head>'):]  # <head>...metas...styles...
 
