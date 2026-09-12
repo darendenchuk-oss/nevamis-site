@@ -793,7 +793,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            shift, on the one document written to close a sale. -->
       <p class="plan-line" id="planIncludes">1400 included AI minutes per month, about 470 to 700 typical calls. Additional minutes C$0.75 each.</p>
       <p class="plan-line" id="planMonthly">C$1,000/month, charged the day you start and every month after.</p>
-      <p class="plan-line" id="planTerms">One-time C$1,500 Launch &amp; Implementation to start. Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, 30 days notice, cancellation from your portal, with service running to the end of the period you paid for. Your price is locked for 12 months.</p>
+      <p class="plan-line" id="planTerms">One-time C$1,500 Launch &amp; Implementation to start. Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.</p>
       <p class="plan-line" id="planAnnual"></p>
       <ul class="ticks" id="planFeatures">
         <li>One business phone line</li>
@@ -838,7 +838,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <li><b>You review it.</b> You hear it, push on it, and approve it before it takes a single real call.</li>
       <li><b>Tested against scripted callers.</b> We run written call scenarios at the live agent before a phone number is attached to it, so the first real caller is not the first test.</li>
       <li><b>Forwarding proven.</b> We place a real call to your line and confirm it lands, rather than assuming the carrier did what it was told.</li>
-      <li><b>Live, and cancellable whenever you want.</b> You are billed monthly from the day you start, with no minimum term. If the service is not earning its price, you cancel it yourself from the portal on 30 days notice.</li>
+      <li><b>Live, and cancellable whenever you want.</b> You are billed monthly from the day you start, with no minimum term. If the service is not earning its price, you cancel it yourself from the portal at any time, and the month you already paid for runs out normally.</li>
     </ol>
     <div class="noprint-cta">
       <a class="btn btn-primary btn-lg" href="/book.html" data-evt="proposal_book_click">Book the next call</a>
@@ -976,17 +976,25 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          corrected. There is one decision, so there is one number here. */
       var T = P.terms || {};
       var mMin = T.minimumMonths == null ? 0 : T.minimumMonths;
-      var mNotice = T.cancellationNoticeDays == null ? 30 : T.cancellationNoticeDays;
+      /* ZERO, not 30, since the owner directive of 2026-09-12 removed the
+         notice period outright. The old default read a missing field as 30
+         days, which is the identical trap the comment above describes for
+         `minimumMonths`: the moment the real figure became 0, a `|| 30` or a
+         30-default would have gone on printing a retired condition on the one
+         document written to close a sale. The clause is derived from the
+         number rather than typed beside it. */
+      var mNotice = T.cancellationNoticeDays == null ? 0 : T.cancellationNoticeDays;
+      var mCancel = mNotice ? "on " + mNotice + " days notice" : "at any time";
       var mLock = T.priceLockMonths == null ? 12 : T.priceLockMonths;
       set("planTerms", "One-time " + money(plan.launch) + " Launch & Implementation to start."
         + (plan.performanceNote ? " " + plan.performanceNote : "")
         + " Overage past your included minutes is the only other usage billing."
         + (mMin
           ? " " + mMin + "-month minimum to start; the build takes days and you are live inside the first week, and the results show across the months after that."
-            + " After the minimum: month to month, " + mNotice + " days notice, cancellation from your portal,"
-            + " with service running to the end of the period you paid for."
-          : " There is no minimum term: month to month from the first month, " + mNotice
-            + " days notice, cancellation from your portal, with service running to the end of the period you paid for.")
+            + " After the minimum: month to month, cancelled " + mCancel + " from your own portal,"
+            + " with service running to the end of the month you already paid for."
+          : " There is no minimum term: month to month from the first month, cancel " + mCancel
+            + " from your own portal, with service running to the end of the month you already paid for.")
         + " Your price is locked for " + mLock + " months."
         + (plan.selfServe === false ? " This plan is offered by invitation and approval." : ""));
 

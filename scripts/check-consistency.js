@@ -650,8 +650,11 @@ for (const p of contentPages) {
        sentence states the absence rather than a length. "No minimum term",
        "month to month" and "cancel any time from your portal" are TRUE again;
        what this pin must never bless again is a three-month or six-month
-       start, or months "agreed up front". */
-    const PLAN_TERMS = "One-time C$1,500 Launch & Implementation to start. Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, 30 days notice, cancellation from your portal, with service running to the end of the period you paid for. Your price is locked for 12 months.";
+       start, or months "agreed up front". REWRITTEN 2026-09-12: the owner
+       removed the notice period as well, so the pin no longer carries "30
+       days notice" either. A notice period is now as false as a minimum
+       term, and "cancel any time" is literally true. */
+    const PLAN_TERMS = "One-time C$1,500 Launch & Implementation to start. Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.";
     /* INVERTED TWICE with the model, most recently 2026-08-15 (evening):
        published pricing is back, so the static line a prospect reads with
        scripts blocked states the default plan's monthly. A real quote from

@@ -49,14 +49,27 @@
    THERE IS NO MINIMUM TERM (owner directive 2026-09-08). This REVERSES the
    2026-08-22 v4 rule of a three-month start on the AI Front Desk and six
    months with any add-on or The Works. Every plan and every add-on, alone or
-   added, is month to month from the first month, on 30 days notice, cancelled
-   by the client from the client's own portal, with the price locked for 12
-   months from signing. "Month to month" and "cancel any time from your
-   portal" are therefore TRUE again and no longer retired vocabulary; any
-   sentence stating a three-month or six-month start, a minimum term, or
-   months "agreed up front" is now FALSE and must not be written. The one-time
-   Launch & Implementation fee, charged once beside the first month, is the
-   only commitment, and its amounts are unchanged. Prices are unchanged.
+   added, is month to month from the first month, cancelled by the client from
+   the client's own portal, with the price locked for 12 months from signing.
+   "Month to month" and "cancel any time from your portal" are therefore TRUE
+   again and no longer retired vocabulary; any sentence stating a three-month
+   or six-month start, a minimum term, or months "agreed up front" is now
+   FALSE and must not be written. The one-time Launch & Implementation fee,
+   charged once beside the first month, is the only commitment, and its
+   amounts are unchanged. Prices are unchanged.
+
+   AND THERE IS NO NOTICE PERIOD EITHER (owner directive 2026-09-12). Four
+   days after the minimum term came off every surface, the sign-up pages were
+   still reading "30 days notice" - the same defect in a smaller shape, a
+   commitment a buyer meets in the copy rather than in the decision.
+   `cancellationNoticeDays` is now 0: a client cancels at any time from their
+   own portal and keeps the month already paid for, and nothing renews after
+   that. Any sentence making "30 days notice", "thirty days' notice" or "on
+   notice" a condition of cancelling is FALSE and must not be written, and
+   "cancel any time" is now literally true rather than nearly true. The
+   twelve-month price lock, the one-time fee and every price are unchanged.
+   The price-increase notice in terms.html is a DIFFERENT promise - notice
+   Nevamis gives the client before raising a price - and it stays.
 
    THE ONE-TIME FEE still has one name and one meaning. "Launch &
    Implementation" is charged once, at the start, BESIDE the first month —
@@ -102,7 +115,7 @@
     "Included minutes metered in the portal, with alerts at 50%, 75%, 90% and 100%, and your choice of overage, fallback answering or a hard cap",
     "A PULSE scan of your business, with every figure a range and a confidence level, recalibrated as you feed it real numbers",
     "A portal Pulse page that keeps your scans, and Results that label every number as measured or modelled",
-    "Invoices and plan changes you handle yourself in the portal, and self-serve cancellation whenever you want it, on 30 days notice"
+    "Invoices and plan changes you handle yourself in the portal, and self-serve cancellation whenever you want it, with no notice period"
   ];
 
   window.NV_PRICING = {
@@ -139,9 +152,17 @@
        again is a new field and a new decision, not an edit to this one. */
     terms: {
       minimumMonths: 0,
-      cancellationNoticeDays: 30,
+      /* ZERO since the owner directive of 2026-09-12, mirroring
+         CANONICAL.pricing.terms.cancellationNoticeDays in the engine. The
+         field is KEPT rather than deleted so every surface still derives its
+         sentence from one number: re-introducing a notice period stays a
+         one-figure change here, where deleting the field would have scattered
+         "at any time" as typed copy across a dozen pages instead. Renderers
+         must branch on the value and never fall back to `|| 30`, because that
+         fallback is precisely what resurrects the retired notice at zero. */
+      cancellationNoticeDays: 0,
       priceLockMonths: 12,
-      note: "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: 30 days notice, cancellation from your own portal, service running to the end of the period you already paid for, and your price locked for 12 months from signing. The one-time Launch & Implementation fee, charged once beside your first month, is the only commitment."
+      note: "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch & Implementation fee, charged once beside your first month, is the only commitment."
     },
     /* ENTERPRISE, deliberately NOT a plans[] entry: it has no universal
        monthly price, and a record shaped like a priced plan gets rendered as

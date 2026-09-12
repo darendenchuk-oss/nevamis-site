@@ -16,8 +16,11 @@
 > Review Engine C$300/month — each with a one-time Launch & Implementation fee of its own
 > (C$500, C$750, C$750, C$500).
 > Terms: no minimum term on anything (owner directive 2026-09-08, replacing the
-> three-month and six-month starts): month to month from the first month, on
-> thirty days notice, with the price locked for twelve months.
+> three-month and six-month starts) and no notice period either (owner
+> directive 2026-09-12, replacing the thirty days it used to require): month to
+> month from the first month, cancelled at any time from the client's own
+> portal with the service running to the end of the month already paid for,
+> and the price locked for twelve months.
 > No pilot or trial at any price. `pricing-config.js` and the engine's
 > `src/domain/canonical.ts` are the source of truth.
 >
