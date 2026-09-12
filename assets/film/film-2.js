@@ -44,7 +44,7 @@ try {
 } catch (e) {
   document.body.classList.add('no3d');
   copyEls.forEach(function(c){ c.el.classList.add('on'); });
-  return;
+  return; /* nv-filmwait stays: the poster and .no3d are the same ground */
 }
 renderer.toneMapping = T.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
@@ -1969,15 +1969,25 @@ function finishIntro(instant){
     setTimeout(function(){ de.classList.remove('nv-intro'); de.classList.remove('nv-on'); }, 1300);
   }
 }
-function stepIntro(dt){
+function stepIntro(dt, raw){
   if (!IW.on) return;
+  /* THE IGNITION IS 1.9 SECONDS LONG, ON EVERY MACHINE.
+     It used to integrate the same dt the rest of the frame uses, and that one is
+     clamped to 50ms so a single slow frame can never throw the camera. On a
+     machine composing a frame every ~230ms that clamp made the intro advance at
+     a fifth of real time: 1.9 authored seconds became roughly seventeen, and
+     because IW.on holds needMore() true the whole way, seventeen seconds of
+     uninterrupted full-scene rendering on exactly the hardware least able to
+     afford it. The clamp is a physics guard, not a clock, so the ignition reads
+     the real elapsed time instead (with its own ceiling, for a tab restore). The
+     rate easing below stays on the clamped dt, where a big step would overshoot. */
   /* The scroll handler steps IW.rate to 3.2 the instant the visitor moves. Ease
      the rate actually integrated toward it so the light front accelerates over
      ~0.3s instead of snapping to 3.2x in one frame. Seeded from IW.rate, so
      ?introhold=1 (rate 0) still freezes; the deficit costs the ignition ~70ms,
      well inside the 1300ms nv-on window finishIntro(false) already allows. */
   IW.rs = (IW.rs === undefined) ? IW.rate : IW.rs + (IW.rate - IW.rs) * Math.min(1, dt * 10);
-  IW.e += (dt / INTRO_SECS) * IW.rs;
+  IW.e += (Math.min(0.5, raw === undefined ? dt : raw) / INTRO_SECS) * IW.rs;
   if (IW.e >= 1) { finishIntro(false); return; }
   IW.orb = smooth(0.0, 0.26, IW.e);  /* the orb ignites inside the first ~0.5s */
   IW.g = smooth(0.16, 1.0, IW.e);    /* then the light front leaves it */
@@ -2117,6 +2127,37 @@ function stepExit(dt){
   if (e >= 1) exitGo();
 }
 if (DEBUG) window.__nv.exit = EXIT;
+var SHOWN = false; /* the poster comes down on the first composed frame, not before */
+/* A FILM NOBODY CAN SEE STILL COST A FULL COMPOSE, ON EVERY SCROLL EVENT.
+   #stage is sticky inside a ten-viewport #scroll, so once the visitor reaches
+   the sections below it the canvas is off screen entirely. The scroll handler
+   kept calling requestRender() for every one of those events, so reading the
+   page below the film re-rendered the whole scene, bloom and grain included,
+   behind it. The hidden-tab rule already existed (visibilitychange below); this
+   is that same rule for the part of the page you have scrolled past. Coming back
+   snaps cur to the scroll position rather than lerping to it: the scroll
+   position moved while the film was not drawing, and a lerp would play a
+   catch-up sweep the visitor never asked for. */
+var ON_SCREEN = true;
+function watchStage(){
+  var stage = document.getElementById('stage');
+  if (reduced || !stage || !window.IntersectionObserver) return;
+  new IntersectionObserver(function(entries){
+    var vis = entries[entries.length - 1].isIntersecting;
+    if (vis === ON_SCREEN) return;
+    ON_SCREEN = vis;
+    if (!vis) {
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+      GOV.chain = false;
+      GOV.win.length = 0; GOV.calmMs = 0; /* frames either side of a gap are not one window */
+      return;
+    }
+    layout();
+    readScroll();
+    if (!EXIT.on) cur = target;
+    requestRender();
+  }, { rootMargin: '15% 0px' }).observe(stage);
+}
 function needMore(){
   return EXIT.on || IW.on || HOLDS > 0 || GIX.busy || Math.abs(target - cur) > 0.00004 ||
          Math.abs(mx - smx) > 0.004 || Math.abs(my - smy) > 0.004;
@@ -2124,7 +2165,8 @@ function needMore(){
 function tick(t){
   rafId = 0;
   var dt = Math.min(0.05, Math.max(0.001, (t - lastT) / 1000));
-  if (!(dt > 0)) dt = 0.016;
+  var rawDt = Math.max(0.001, (t - lastT) / 1000);
+  if (!(dt > 0)) { dt = 0.016; rawDt = 0.016; }
   lastT = t;
   if (LAGMS > 0) { var lagE = performance.now() + LAGMS; while (performance.now() < lagE) {} } /* ?lag=N QA throttle */
   /* chase with lerp AND a hard per-frame ceiling.
@@ -2149,7 +2191,7 @@ function tick(t){
   markMat.uniforms.uTime.value = t * 0.001;
   spineMat.uniforms.uTime.value = t * 0.001; /* neck matcap continuity (sampled only while rendering: idle stays zero) */
   grainPass.material.uniforms.uTime.value = 1.0 + (t % 100000) * 0.001;
-  stepIntro(dt);
+  stepIntro(dt, rawDt);
   stepGround(dt);
   FRAME_DT = dt;
   apply(cur);
@@ -2157,6 +2199,7 @@ function tick(t){
   for (var fh = 0; fh < fhs.length; fh++) { try { fhs[fh](cur, camera, dt); } catch (e) {} }
   stepExit(dt); /* exit overrides ride on top of the pure-p frame */
   composer.render();
+  if (!SHOWN) { SHOWN = true; document.documentElement.classList.remove('nv-filmwait'); }
   if (FPSU) FPSU(t, cur);
   if (DEBUG) {
     window.__nv.dbg = { cur: cur, target: target, dt: dt, spanH: spanH, cam: [camera.position.x, camera.position.y, camera.position.z], curveAt: (function(pp){var v=camCurve.getPoint(pp);return [v.x,v.y,v.z]})(clamp01(cur)) };
@@ -2165,25 +2208,91 @@ function tick(t){
     if (window.__nv.frames.length > 400) window.__nv.frames.splice(0, 100);
   }
   govFrame(dt * 1000);
-  if (needMore()) { GOV.chain = true; rafId = requestAnimationFrame(tick); }
+  if (needMore() && ON_SCREEN) { GOV.chain = true; rafId = requestAnimationFrame(tick); }
   else { GOV.chain = false; }
 }
 function requestRender(){
-  if (reduced || rafId || document.hidden) return;
+  if (reduced || rafId || document.hidden || !ON_SCREEN) return;
   lastT = performance.now();
   rafId = requestAnimationFrame(tick);
+}
+/* THE FIRST COMPOSED FRAME IS THE EXPENSIVE ONE, AND IT WAITS FOR THE PAGE.
+   three compiles a material's program the first time it draws that object, so
+   the film's whole shader set (terrain, panes, glass, marks, spine, field,
+   bloom) landed inside the first composer.render(). Measured on a 412x823
+   mobile profile at 4x CPU throttling that was one 1,963 ms task, 94% of it
+   inside the GL driver rather than in any script, and it sat in front of the
+   page's first contentful paint: 2,972 ms, against 800 ms for /pricing.html.
+   Nothing in that frame is needed to read or use the page, so it waits for two
+   things: the load event, and a first contentful paint the browser has actually
+   reported. Waiting on load alone is not enough and was measured to be wrong -
+   on a throttled machine load fired about 250 ms after the document finished
+   parsing, the browser had not painted yet, and the film's frame went in front
+   of the paint anyway: first contentful paint 2,964 ms, no better than before.
+   Only the paint entry proves the page reached the visitor. Then two frames,
+   then an idle callback with a timeout, so the work cannot land inside the
+   frame that presents the page either. Building the scene stays where it was,
+   on the parser, because moving THAT changes what the film renders; the
+   composer carries the measurement next to the script tags. The poster covers
+   the gap and comes down on the first composed frame itself. */
+function whenPageIsReady(fn){
+  var loaded = false, painted = false, fired = false;
+  function go(){ if (fired) return; fired = true; fn(); }
+  function queue(){
+    if (!loaded || !painted) return;
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        if (window.requestIdleCallback) window.requestIdleCallback(go, { timeout: 1200 });
+        else setTimeout(go, 120);
+      });
+    });
+  }
+  function onPaint(){ painted = true; queue(); }
+  try {
+    var po = new PerformanceObserver(function(list){
+      var es = list.getEntries();
+      for (var i = 0; i < es.length; i++) {
+        if (es[i].name === 'first-contentful-paint') { po.disconnect(); onPaint(); return; }
+      }
+    });
+    po.observe({ type: 'paint', buffered: true });
+  } catch (e) { painted = true; } /* no paint timing: fall back to the load gate */
+  /* a browser that reports no paint entry at all must still get its film */
+  setTimeout(onPaint, 3000);
+  if (document.readyState === 'complete') { loaded = true; queue(); }
+  else window.addEventListener('load', function(){ loaded = true; queue(); }, { once: true });
+}
+function startFilm(){
+  /* set while the parser is still running, so it is in the first paint: the
+     ignition must not hide chrome the visitor can already see */
+  document.documentElement.classList.add('nv-late');
+  whenPageIsReady(requestRender);
 }
 
 if (reduced) {
   /* the scroll region collapses: content starts immediately, no dead span */
   document.documentElement.classList.add('nv-rm');
-  /* one static composed frame at the hero pulse moment, no loop */
+  /* THE COPY IS CONTENT. IT DOES NOT WAIT FOR A PICTURE.
+     A visitor who has asked for reduced motion gets no loop at all and never
+     did, but the one still frame was composed synchronously while the parser
+     was still running, and it cost as much as any other first frame: measured
+     on a 412x823 mobile profile at 4x CPU throttling, a task of around 1.2 to
+     1.5 seconds sitting in front of the page's own first paint, for a picture.
+     The three copy blocks are revealed at once, and the still is composed on
+     the same gate the loop uses: after load, after a reported first contentful
+     paint, after an idle callback. The poster holds the frame until then, and
+     the composed still is identical - nothing about the picture changes, only
+     the moment it arrives, and it arrives after the words rather than before. */
+  copyEls.forEach(function(c){ c.el.classList.add('on'); });
   layout();
   readScroll();
   grainPass.material.uniforms.uTime.value = 7.3; /* intentional still film grain */
-  apply(0.26);
-  composer.render();
-  copyEls.forEach(function(c){ c.el.classList.add('on'); });
+  whenPageIsReady(function(){
+    layout(); /* the strip may have been laid out since: size to what is there now */
+    apply(0.26);
+    composer.render();
+    document.documentElement.classList.remove('nv-filmwait');
+  });
 } else {
   window.addEventListener('scroll', function(){
     readScroll();
@@ -2212,12 +2321,13 @@ if (reduced) {
   });
   readScroll();
   cur = target;
+  watchStage();
   if (target <= 0.02 && !(DEBUG && new URLSearchParams(location.search).get('nointro') === '1')) {
     IW.on = true; /* reload mid-journey (target beyond ~2%) never sees the intro */
     document.documentElement.classList.add('nv-intro');
     if (DEBUG && new URLSearchParams(location.search).get('introhold') === '1') IW.rate = 0; /* measurement: freeze the first composed frame */
   }
-  requestRender();
+  startFilm();
 }
 
 /* wire every "Scan my business" link: the ending CTA and the doc fallbacks
