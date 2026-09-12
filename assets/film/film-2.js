@@ -2235,9 +2235,9 @@ function requestRender(){
    on the parser, because moving THAT changes what the film renders; the
    composer carries the measurement next to the script tags. The poster covers
    the gap and comes down on the first composed frame itself. */
-function startFilm(){
+function whenPageIsReady(fn){
   var loaded = false, painted = false, fired = false;
-  function go(){ if (fired) return; fired = true; requestRender(); }
+  function go(){ if (fired) return; fired = true; fn(); }
   function queue(){
     if (!loaded || !painted) return;
     requestAnimationFrame(function(){
@@ -2248,9 +2248,6 @@ function startFilm(){
     });
   }
   function onPaint(){ painted = true; queue(); }
-  /* set while the parser is still running, so it is in the first paint: the
-     ignition must not hide chrome the visitor can already see */
-  document.documentElement.classList.add('nv-late');
   try {
     var po = new PerformanceObserver(function(list){
       var es = list.getEntries();
@@ -2265,18 +2262,37 @@ function startFilm(){
   if (document.readyState === 'complete') { loaded = true; queue(); }
   else window.addEventListener('load', function(){ loaded = true; queue(); }, { once: true });
 }
+function startFilm(){
+  /* set while the parser is still running, so it is in the first paint: the
+     ignition must not hide chrome the visitor can already see */
+  document.documentElement.classList.add('nv-late');
+  whenPageIsReady(requestRender);
+}
 
 if (reduced) {
   /* the scroll region collapses: content starts immediately, no dead span */
   document.documentElement.classList.add('nv-rm');
-  /* one static composed frame at the hero pulse moment, no loop */
+  /* THE COPY IS CONTENT. IT DOES NOT WAIT FOR A PICTURE.
+     A visitor who has asked for reduced motion gets no loop at all and never
+     did, but the one still frame was composed synchronously while the parser
+     was still running, and it cost as much as any other first frame: measured
+     on a 412x823 mobile profile at 4x CPU throttling, a task of around 1.2 to
+     1.5 seconds sitting in front of the page's own first paint, for a picture.
+     The three copy blocks are revealed at once, and the still is composed on
+     the same gate the loop uses: after load, after a reported first contentful
+     paint, after an idle callback. The poster holds the frame until then, and
+     the composed still is identical - nothing about the picture changes, only
+     the moment it arrives, and it arrives after the words rather than before. */
+  copyEls.forEach(function(c){ c.el.classList.add('on'); });
   layout();
   readScroll();
   grainPass.material.uniforms.uTime.value = 7.3; /* intentional still film grain */
-  apply(0.26);
-  composer.render();
-  document.documentElement.classList.remove('nv-filmwait');
-  copyEls.forEach(function(c){ c.el.classList.add('on'); });
+  whenPageIsReady(function(){
+    layout(); /* the strip may have been laid out since: size to what is there now */
+    apply(0.26);
+    composer.render();
+    document.documentElement.classList.remove('nv-filmwait');
+  });
 } else {
   window.addEventListener('scroll', function(){
     readScroll();
