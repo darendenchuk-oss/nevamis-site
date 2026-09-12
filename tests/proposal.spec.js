@@ -67,6 +67,14 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
   await expect(terms).not.toContainText(/three-month/i);
   await expect(terms).not.toContainText(/agreed up front/i);
   await expect(terms).not.toContainText(/six months when any/i);
+  /* 2026-09-12: the notice period is gone too, and it outlived the minimum
+     term by four days precisely because nothing asserted on it. The positive
+     names the promise a buyer is now being given; the negative names the
+     number, because "notice" alone is a word the page is still entitled to
+     use about price increases. */
+  await expect(terms).toContainText(/cancel any time/i);
+  await expect(terms).not.toContainText(/30 days notice/i);
+  await expect(terms).not.toContainText(/thirty days/i);
 
   /* Annual prepay is suspended in the config, so the proposal must NOT quote a
      yearly figure. This assertion used to demand "pay ten months, get twelve"

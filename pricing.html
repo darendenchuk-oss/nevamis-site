@@ -857,7 +857,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              The figures behind this paragraph are pricing-config.js terms,
              both zero; if that block moves, this paragraph is stale and the
              guard in the engine says so. -->
-        <p style="color:var(--muted);font-size:13.5px;margin-top:8px">There is no minimum term. Your plan, and every add-on whether you buy it on its own or add it later, is month to month from the first month: 30 days notice, cancelled by you from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch &amp; Implementation fee, charged once beside your first month, is the only commitment you make.</p>
+        <p style="color:var(--muted);font-size:13.5px;margin-top:8px">There is no minimum term. Your plan, and every add-on whether you buy it on its own or add it later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch &amp; Implementation fee, charged once beside your first month, is the only commitment you make.</p>
         <p style="font-size:14.5px;margin-top:10px"><a href="/pilot.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">What happens before your line is answered</a> · <a href="/book.html" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Book a strategy call</a></p>
       </div>
       <!-- THE COVERAGE CHOOSER (2026-08-25). A price list asks a business to
@@ -919,7 +919,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <p style="color:var(--muted);font-size:14.5px">Offered by invitation and approval, where NEVAMIS takes on substantially more of the acquisition risk; it is not the default and not self-serve. From C$2,500 Launch &amp; Implementation to start, then C$350 a month. Plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to your agreement. 250 included AI minutes · C$1.10 per extra minute.</p>
           <p style="margin-top:10px"><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
         </div>
-        <p style="color:var(--muted);font-size:14px">The AI Front Desk is the same core system on every plan. Plans differ by which automations are included and, on the Partnership, whether NEVAMIS shares in the revenue it helps create. A one-time Launch &amp; Implementation fee starts the build; after that, past the start, the only recurring charges are the monthly, any add-ons you chose, and any overage past your included minutes. Enterprise (multi-location, custom integrations, custom data pipelines) is quoted per client: Launch &amp; Implementation starting at C$5,000 or custom quoted, recurring custom. Prices in Canadian dollars, plus applicable GST/HST. No minimum term on anything: month to month from the first month, 30 days notice, cancelled from your own portal. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
+        <p style="color:var(--muted);font-size:14px">The AI Front Desk is the same core system on every plan. Plans differ by which automations are included and, on the Partnership, whether NEVAMIS shares in the revenue it helps create. A one-time Launch &amp; Implementation fee starts the build; after that, past the start, the only recurring charges are the monthly, any add-ons you chose, and any overage past your included minutes. Enterprise (multi-location, custom integrations, custom data pipelines) is quoted per client: Launch &amp; Implementation starting at C$5,000 or custom quoted, recurring custom. Prices in Canadian dollars, plus applicable GST/HST. No minimum term on anything: month to month from the first month, cancelled from your own portal at any time. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
       </div></div>
 
       <!-- ADD-ONS, v4 (2026-08-22): every automation is its own product,
@@ -938,7 +938,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <li>Review Engine &middot; C$300/month &middot; C$500 launch &middot; one review request by text per finished job, with your own review link, every request released by a person.</li>
           <li>Customer Reactivation &middot; coming &middot; a win-back campaign over your own past-customer list. Not sellable until it ships end to end.</li>
         </ul>
-        <p id="termsNote" style="font-size:13px;color:var(--muted);margin-top:10px">There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: 30 days notice, cancellation from your own portal, service running to the end of the period you already paid for, and your price locked for 12 months from signing. The one-time Launch &amp; Implementation fee, charged once beside your first month, is the only commitment.</p>
+        <p id="termsNote" style="font-size:13px;color:var(--muted);margin-top:10px">There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch &amp; Implementation fee, charged once beside your first month, is the only commitment.</p>
       </div>
 
       <div class="reveal" style="margin-top:26px;background:var(--navy-2);border:1px solid var(--line);border-radius:16px;padding:18px 22px">
@@ -1087,23 +1087,37 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var t = P.terms || {};
     return t.minimumMonths == null ? 0 : t.minimumMonths;
   }
-  function startNote(pl) {
+  /* THE CANCELLATION CLAUSE, derived from the one number rather than typed
+     beside it. `cancellationNoticeDays` went to 0 on 2026-09-12 and every
+     reader of it here used to end in "|| 30" - a fallback written for a
+     missing field that treats zero as missing, which would have rendered the
+     retired notice on the buy note the moment the owner removed it. Zero now
+     has its own sentence, and a notice period returning is one figure in
+     pricing-config.js, not an edit to three strings on this page. */
+  function noticeDays() {
     var t = P.terms || {};
+    return t.cancellationNoticeDays == null ? 0 : t.cancellationNoticeDays;
+  }
+  function cancelClause() {
+    var n = noticeDays();
+    return n ? "on " + n + " days notice" : "at any time";
+  }
+  function startNote(pl) {
     var months = minMonths();
-    if (!months) return "Month to month from the first month, on " + (t.cancellationNoticeDays || 30)
-      + " days notice, cancelled by you from your own portal.";
-    return "Your first " + months + " months are agreed up front, then month to month with "
-      + t.cancellationNoticeDays + " days notice.";
+    if (!months) return "Month to month from the first month, cancelled by you from your own portal "
+      + cancelClause() + ", with service running to the end of the month you already paid for.";
+    return "Your first " + months + " months are agreed up front, then month to month, cancelled "
+      + cancelClause() + ".";
   }
   function termSentence(pl) {
     var t = P.terms || {};
     var months = minMonths();
-    if (!months) return "There is no minimum term: month to month from the first month, "
-      + (t.cancellationNoticeDays || 30) + " days notice, cancelled from your own portal, and your price is locked for "
+    if (!months) return "There is no minimum term: month to month from the first month, cancel "
+      + cancelClause() + " from your own portal, service running to the end of the month you already paid for, and your price locked for "
       + (t.priceLockMonths || 12) + " months from signing.";
     return "The billing is month to month, and the agreement locks in your first "
-      + months + " months. After that: month to month, " + t.cancellationNoticeDays
-      + " days notice, cancelled from your own portal, and your price is locked for "
+      + months + " months. After that: month to month, cancelled " + cancelClause()
+      + " from your own portal, and your price is locked for "
       + t.priceLockMonths + " months from signing.";
   }
   P.plans.forEach(function (pl) {
@@ -1146,7 +1160,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         + "</div>";
     } else {
       h += '<div class="price price-quoted">Quoted per client</div>';
-      h += '<div class="setup">Your price is quoted per client, then charged monthly, month to month with no minimum term, on ' + ((P.terms && P.terms.cancellationNoticeDays) || 30) + ' days notice.</div>';
+      h += '<div class="setup">Your price is quoted per client, then charged monthly, month to month with no minimum term, cancelled ' + cancelClause() + '.</div>';
     }
     h += '<div class="usage">' + grp(pl.includedMinutes) + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
     h += "<ul>" + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
@@ -1408,6 +1422,16 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var t = P.terms || {};
     return t.minimumMonths == null ? 0 : t.minimumMonths;
   }
+  /* The same reasoning one field along, and the same trap: the notice figure
+     went to 0 on 2026-09-12, so a `|| 30` reader would have printed the
+     retired notice under a Buy button exactly as `(0 || 3)` would have
+     printed a three-month minimum. This block is its own IIFE, so it derives
+     the clause itself rather than borrowing the plan cards'. */
+  function cancelClause() {
+    var t = P.terms || {};
+    var n = t.cancellationNoticeDays == null ? 0 : t.cancellationNoticeDays;
+    return n ? "on " + n + " days notice" : "at any time";
+  }
 
   LEAKS.forEach(function (l) {
     var b = document.createElement("button");
@@ -1498,10 +1522,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       + " Launch and Implementation to start, then C$" + grp(monthly) + " a month, plus GST.</p>";
     h += '<p style="font-size:13.5px;color:var(--muted);margin-bottom:12px">'
       + (months
-          ? "Your first " + months + " months are agreed up front, then month to month with "
-            + t.cancellationNoticeDays + " days notice, cancelled from your own portal."
-          : "There is no minimum term: month to month from the first month, "
-            + (t.cancellationNoticeDays || 30) + " days notice, cancelled by you from your own portal.");
+          ? "Your first " + months + " months are agreed up front, then month to month, cancelled "
+            + cancelClause() + " from your own portal."
+          : "There is no minimum term: month to month from the first month, cancelled by you from your own portal "
+            + cancelClause() + ", with service running to the end of the month you already paid for.");
     if (useBundle) {
       h += " Bought separately these would be C$" + grp(pieces.monthly) + " a month, so the bundle saves you C$"
         + grp(pieces.monthly - bundle.monthly) + " every month.";

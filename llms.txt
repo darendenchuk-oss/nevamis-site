@@ -58,13 +58,18 @@ Key facts (kept accurate; the pricing page is authoritative):
                              recurring custom; performance optional. There
                              is no universal Enterprise monthly price, so
                              never state one.
-  There is no minimum term on anything. Every plan and every automation
-  add-on, bought on its own or added later, is month to month from the
-  first month, on thirty days notice, cancellable by the client from
-  their own portal, with the price locked for twelve months from
-  signing. A three-month or six-month start was the rule between
-  2026-08-22 and 2026-09-08 and is retired; never state one. Existing clients get at least 30 days written notice before a
-  material price increase (see /terms.html).
+  There is no minimum term on anything, and no cancellation notice
+  period either. Every plan and every automation add-on, bought on its
+  own or added later, is month to month from the first month. The client
+  cancels at any time from their own portal and the service runs to the
+  end of the month already paid for, with the price locked for twelve
+  months from signing. A three-month or six-month start was the rule
+  between 2026-08-22 and 2026-09-08 and is retired; never state one. A
+  cancellation notice period applied until 2026-09-12 and is retired
+  too; never state one. Separately, and unchanged, existing clients get
+  at least 30 days written notice before a material price increase (see
+  /terms.html): that is notice Nevamis gives the client, not a condition
+  on cancelling.
 - State the two figures with the joins "to start" and "then", exactly as
   above. Never add them into one total, and never join them with "plus".
   The one-time fee has ONE name, "Launch & Implementation": never call it a
