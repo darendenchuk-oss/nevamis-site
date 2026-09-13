@@ -3,19 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nevamis | The Quotes You Sent, Followed Up for You</title>
-<!-- 182 chars. The repositioning rewrote this to 262 and tests/seo.spec.js has
-     been failing on it since: Google truncates past ~185, so the sentence that
-     was carefully rewritten to lead with found revenue was being cut mid-clause
-     in the only place a stranger reads it. What went is the "estimates what
-     each leak is worth" clause and the words "call" and "service businesses";
-     what stayed is the promise, the three capabilities in economic order, the
-     city, and the phone number, which is the only CTA a search result has. -->
-<meta name="description" content="Quote Recovery, available today: quotes that go quiet get spotted and followed up, with your name on the email and your approval before it goes. Plus a 24/7 front desk and a free scan.">
+<title>Nevamis | More of the Customers You Want</title>
+<!-- Under 185 chars, because Google truncates past roughly that and
+     tests/seo.spec.js pins it: the sentence that gets cut is the only one a
+     stranger reads. It leads with Lead Generation since 2026-09-12 (owner
+     ranking: customers found first, quotes second, the phone third), and it
+     therefore HAS to carry "by invitation". check-consistency's readiness
+     guard reads this attribute and fails any description naming a capability
+     roadmap-config.js does not mark available with no word saying it is not
+     here yet; lead-generation is private_pilot, so the qualifier is not
+     decoration, it is the thing that makes the sentence true. -->
+<meta name="description" content="Lead Generation, by invitation: we read public pages and build you a list of the businesses you want as customers, and you decide every row. Quote Recovery and a 24/7 front desk too.">
 <meta name="robots" content="noindex, nofollow"><!-- staging: flip to index,follow at promotion -->
 <link rel="canonical" href="https://nevamis.ca/">
-<meta property="og:title" content="Nevamis | The quotes you sent, followed up for you.">
-<meta property="og:description" content="Quotes that go quiet past your threshold get spotted and followed up once, with your name on the email and your approval before it goes. Available today. Scan your business in about two minutes.">
+<meta property="og:title" content="Nevamis | More of the customers you want.">
+<meta property="og:description" content="You tell us the kind of business you want more of, and we read public pages and build you the list. Lead Generation is offered by invitation. Quote Recovery and a 24/7 front desk are available today.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nevamis.ca/">
 <meta property="og:site_name" content="Nevamis">
@@ -38,7 +40,7 @@
     "url": "https://nevamis.ca/",
     "logo": "https://nevamis.ca/icon-512.png",
     "image": "https://nevamis.ca/icon-512.png",
-    "description": "Nevamis finds where a business is losing revenue, estimates what each leak is worth, and builds the system that closes it: revenue recovery, 24/7 call answering, and a free business scan for Canadian trades and service businesses.",
+    "description": "Nevamis finds a Canadian trades or service business more of the customers it wants, recovers the quotes it already sent, and answers its phone around the clock. Lead Generation is offered by invitation; quote recovery, 24/7 call answering and the free business scan are available today.",
     "slogan": "Find the revenue your business is losing.",
     "email": "Sales@nevamis.ca",
     "telephone": "+1-587-413-0035",

@@ -102,7 +102,7 @@ assert close, 'doc close not found before scripts'
 SECTIONS = open('scripts/film/sections.html', encoding='utf-8').read()
 assert SECTIONS.count('<!--DOC-->') == 1, 'sections.html needs exactly one <!--DOC--> marker'
 sec_top, sec_bottom = SECTIONS.split('<!--DOC-->')
-assert sec_bottom.count('<details') == 15, 'the FAQ must carry 15 entries'
+assert sec_bottom.count('<details') == 16, 'the FAQ must carry 16 entries'
 assert 'id="roiForm"' in sec_bottom and 'id="roiQuotePlan"' in sec_bottom, 'the calculator hooks must survive'
 # ORDER MATTERS: close.end() is an offset into the CURRENT film_body, so the
 # offset splice has to happen before any insertion that shifts it. Doing the
@@ -196,7 +196,7 @@ assert '/privacy.html' in out and '/terms.html' in out
 assert 'id="paneNav"' in out and 'id="doc"' in out
 assert 'id="how"' in out and 'id="industries"' in out
 assert out.count('<h1') == 1, 'the page needs exactly one h1'
-assert out.count('<details') == 15, 'the FAQ must publish 15 entries'
+assert out.count('<details') == 16, 'the FAQ must publish 16 entries'
 assert 'id="plansStrip"' in out and 'id="qrPrice"' in out, 'runtime price targets missing'
 for _e in ['compare_demo_click', 'dayone_roi_click', 'roi_book_click', 'hero_scan_click']:
     assert _e in out, 'conversion surface missing: ' + _e
@@ -213,7 +213,15 @@ _docend = out.find('</section>', out.find('id="doc-nodes"'))
 for _id in ['id="industries"', 'id="roi"', 'id="plans"', 'id="start"', 'id="faq"', 'id="next"']:
     assert out.find(_id) > _docend, _id + ' is not a sibling of #doc'
 assert out.find('</main>') > out.find('id="next"'), '</main> closes before the last section'
-assert out.find('id="recover"') < out.find('<section id="doc"'), 'the wedge must lead'
+# THE OFFER ORDER, and it is the owner's ranking of 2026-09-12: Lead
+# Generation first, then Quote Recovery, then the AI Front Desk. Asserted
+# structurally rather than trusted to sections.html, because the three are
+# separate sections in one file and a reorder there is a silent change to
+# what the first offer on the page is.
+_found = out.find('id="found"')
+_recover = out.find('id="recover"')
+_answer = out.find('id="answer"')
+assert 0 < _found < _recover < _answer < out.find('<section id="doc"'),     'the offers must read Lead Generation, then Quote Recovery, then the front desk, all above #doc'
 assert 'app.nevamis.ca/scan' in out
 
 open('home.html', 'w', encoding='utf-8', newline='').write(out)

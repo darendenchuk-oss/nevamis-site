@@ -12,15 +12,15 @@
    ============================================================ */
 
 main section{padding:88px 0;border-top:1px solid rgba(159,240,206,.08);position:relative}
-main #recover,main #next{border-top:none}
-#how,#doc,#industries,#roi,
+main #found,main #next{border-top:none}
+#found,#recover,#answer,#how,#doc,#industries,#roi,
 #plans,#start,#faq{scroll-margin-top:68px}
 
 /* the seam: the page starts where the film's world ends */
-main #recover{padding-top:64px}
-main #recover::before{content:"";position:absolute;left:0;right:0;top:-60px;height:120px;
+main #found{padding-top:64px}
+main #found::before{content:"";position:absolute;left:0;right:0;top:-60px;height:120px;
   background:radial-gradient(50% 100% at 50% 0,rgba(47,191,143,.18),transparent);pointer-events:none}
-main #recover::after{content:"";position:absolute;left:20%;right:20%;top:0;height:1px;
+main #found::after{content:"";position:absolute;left:20%;right:20%;top:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(159,240,206,.55),transparent)}
 
 /* kicker: the film's own mono idiom, numeral dimmed like #paneNav */
@@ -64,11 +64,14 @@ main .card h3{font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--i
 main .card p{font-size:15px;line-height:1.55;color:#b9dccb;margin:0 0 8px}
 main .card p:last-child{margin-bottom:0}
 
-/* the wedge */
-main .recover-card{display:grid;grid-template-columns:3fr 2fr;gap:26px;
+/* the three offer blocks: Lead Generation, Quote Recovery, the front desk.
+   One shape for all three so the page reads as a ranked list of offers and
+   not as one wedge with two afterthoughts. Named .offer-* since 2026-09-12;
+   it was .recover-* when the Quote Recovery wedge was the only one. */
+main .offer-card{display:grid;grid-template-columns:3fr 2fr;gap:26px;
   align-items:start;margin:34px 0 18px;padding:26px 28px}
-main .recover-copy p{font-size:16px}
-main .recover-copy .outcome{color:var(--mint);font-weight:700;margin-top:12px}
+main .offer-copy p{font-size:16px}
+main .offer-copy .outcome{color:var(--mint);font-weight:700;margin-top:12px}
 main .twin{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 main .ctarow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:22px 0 0}
 main .centre .ctarow,main #industries .ctarow{justify-content:center}
@@ -92,7 +95,9 @@ main .more:hover{color:var(--mint)}
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 #doc .pane-doc::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(159,240,206,.55),transparent);opacity:.55}
-#doc #doc-convert{border-color:rgba(159,240,206,.28);
+/* The highlighted station follows the lead offer: Grow carries Lead
+   Generation, which the owner ranked first on 2026-09-12. It was Convert. */
+#doc #doc-grow{border-color:rgba(159,240,206,.28);
   box-shadow:0 0 60px -22px rgba(47,191,143,.35);
   background-image:radial-gradient(60% 50% at 70% 30%,rgba(191,245,222,.06),transparent 70%),
     linear-gradient(160deg,rgba(6,26,19,.72),rgba(2,8,13,.86))}
@@ -151,7 +156,7 @@ main .btn-primary:active{transform:scale(.97)}
 }
 @media(max-width:760px){
   main section{padding:64px 0}
-  main .recover-card{grid-template-columns:1fr;gap:18px;padding:22px}
+  main .offer-card{grid-template-columns:1fr;gap:18px;padding:22px}
   main .twin,main .ind-grid,main .steps{grid-template-columns:1fr}
   #doc{padding:64px 0}
   #doc .stations{grid-template-columns:1fr}

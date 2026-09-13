@@ -1,7 +1,12 @@
 # Nevamis
 
-> Round-the-clock call answering for Canadian trades and service businesses,
-> based in Edmonton, Alberta. Nevamis answers a business's missed or
+> Nevamis offers Canadian trades and service businesses three things, and
+> since 2026-09-12 it offers them in this order: lead generation, which is BY
+> INVITATION ONLY and must never be summarized as generally available or as
+> something a business can buy (see Product status below); quote recovery,
+> which follows up estimates the business already sent, on the owner's
+> approval; and round-the-clock call answering. It is based in Edmonton,
+> Alberta. Nevamis answers a business's missed or
 > after-hours calls with a voice agent configured from that business's own
 > hours, services, area and approved FAQ; it asks the qualifying questions
 > the owner approved, captures the caller's name, number, intent, service,
@@ -19,22 +24,6 @@ Key facts (kept accurate; the pricing page is authoritative):
   Implementation fee charged once, at the start, beside the first month,
   then a monthly price charged the day the business subscribes and on the
   same day every month after:
-    The Works:               C$3,000 Launch & Implementation to start,
-                             then C$2,100 a month. No performance fee.
-                             The whole engine: the AI Front Desk plus
-                             every sellable automation add-on, priced
-                             under the sum of its parts.
-    AI Front Desk (recommended): C$1,500 Launch & Implementation to
-                             start, then C$1,000 a month. No performance
-                             fee. Automation add-ons are each their own
-                             sale, bought on their own or beside a plan,
-                             one at a time, each carrying its own one-time
-                             Launch & Implementation fee: Missed-Call Recovery
-                             C$500 to start, then C$350 a month;
-                             Quote-Chase Engine C$750 to start, then
-                             C$500 a month; Get-Paid Autopilot C$750 to
-                             start, then C$500 a month; Review Engine
-                             C$500 to start, then C$300 a month.
     Performance Partnership: by invitation and approval only, never the
                              default and never self-serve. Launch &
                              Implementation from C$2,500 to start, then
@@ -52,7 +41,30 @@ Key facts (kept accurate; the pricing page is authoritative):
                              percentage, on /pricing.html: cite it from
                              there rather than from this file, and never
                              present it as a figure quoted on a call,
-                             because it is not one.
+                             because it is not one. This is the plan that
+                             carries lead generation, which is why it is
+                             listed first: on it, lead generation and quote
+                             recovery each carry no monthly of their own and
+                             are paid by an agreed share of collected revenue
+                             directly attributable to what Nevamis found or
+                             recovered. Lead generation is still by
+                             invitation and is not sold from a page.
+    The Works:               C$3,000 Launch & Implementation to start,
+                             then C$2,100 a month. No performance fee.
+                             The whole engine: the AI Front Desk plus
+                             every sellable automation add-on, priced
+                             under the sum of its parts.
+    AI Front Desk (recommended): C$1,500 Launch & Implementation to
+                             start, then C$1,000 a month. No performance
+                             fee. Automation add-ons are each their own
+                             sale, bought on their own or beside a plan,
+                             one at a time, each carrying its own one-time
+                             Launch & Implementation fee: Missed-Call Recovery
+                             C$500 to start, then C$350 a month;
+                             Quote-Chase Engine C$750 to start, then
+                             C$500 a month; Get-Paid Autopilot C$750 to
+                             start, then C$500 a month; Review Engine
+                             C$500 to start, then C$300 a month.
     Enterprise:              quoted per client. Launch & Implementation
                              starting at C$5,000 or custom quoted;
                              recurring custom; performance optional. There

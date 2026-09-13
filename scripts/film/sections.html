@@ -2,11 +2,25 @@
      The homepage BELOW the film. Composed into home.html by
      scripts/film/compose.py; never hand-edit home.html or index.html.
 
-     Order: the Quote Recovery wedge, then the six stations (the film's own
-     #doc truth copy, spliced in at the DOC marker below and no longer
-     hidden), then industries, the calculator, plans, how you start, the FAQ
-     and the close. compose.py splits this file on that marker, so it must
-     appear exactly once and nowhere else, including in prose.
+     Order: the three offers a visitor can buy, in the order the owner
+     ranked them on 2026-09-12 (Lead Generation, then Quote Recovery, then
+     the AI Front Desk), then the six stations (the film's own #doc truth
+     copy, spliced in at the DOC marker below and no longer hidden), then
+     industries, the calculator, plans, how you start, the FAQ and the
+     close. compose.py splits this file on that marker, so it must appear
+     exactly once and nowhere else, including in prose.
+
+     LEAD GENERATION LEADS, AND IT IS THE ONE OFFER THAT IS NOT FOR SALE
+     FROM A PAGE. Its canonical availability is private_pilot, which the
+     site renders as PRIVATE TESTING and says in copy as "by invitation".
+     Every sentence here that offers it carries that qualifier, including
+     the page's meta description in scripts/film/chrome-source.html, which
+     check-consistency's readiness guard reads. Leading with it is a
+     ranking of what the owner sells first, never a claim that it is
+     generally available, and no number of leads, win rate, amount, client
+     or date may ever appear beside it. The h1 moved here from the Quote
+     Recovery wedge in the same change: compose.py still asserts exactly
+     one h1 on the page, so the wedge and the front desk carry h2.
 
      Every claim here traces to a canonical source: canonical.ts, the service
      agreement, roadmap-config.js, pricing-config.js or the film's #doc. No
@@ -25,45 +39,87 @@
      scripts/film/source.html and extending this list in the same commit.
      ============================================================ -->
 
+<section id="found">
+  <div class="wrap">
+    <div class="centre reveal">
+      <p class="k"><i>05</i> GROW <span class="chip inv">By invitation</span></p>
+      <h1>More of the customers you want.</h1>
+      <p class="lede">You tell us the kind of business you want more of, and we read public pages and build you the list.</p>
+    </div>
+
+    <div class="card card-featured offer-card reveal">
+      <div class="offer-copy">
+        <p>You decide each row: worth pursuing, not now, or never. Nobody on the list is contacted by us.</p>
+        <p class="outcome">A call list you approved yourself.</p>
+      </div>
+      <ul class="node-list offer-list">
+        <li>Businesses only, never people at home <span class="tag mono">GROW</span></li>
+        <li>The page each one came from, and the day it was read <span class="tag mono">GROW</span></li>
+        <li>Scored against what you said you want, in words <span class="tag mono">GROW</span></li>
+        <li>What came of the ones you pursued, in your words <span class="tag mono">GROW</span></li>
+      </ul>
+    </div>
+
+    <p class="fine2 reveal">Lead Generation is offered by invitation, to a few businesses under their own agreement, and the list is put together by hand. On the Performance Partnership it is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement.</p>
+
+    <div class="ctarow reveal">
+      <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
+      <a class="btn btn-ghost btn-lg" href="https://app.nevamis.ca/scan" data-evt="hero_scan_click">Scan my business</a>
+    </div>
+  </div>
+</section>
+
 <section id="recover">
   <div class="wrap">
     <div class="centre reveal">
       <p class="k"><i>03</i> CONVERT <span class="chip av">Available today</span></p>
-      <h1>The quotes you sent and never heard back about, followed up for you.</h1>
-      <p class="lede">Answering the phone catches the new call. Quote Recovery goes after the money you already quoted.</p>
+      <h2>The quotes you already sent, followed up.</h2>
+      <p class="lede">A quote that goes quiet past your threshold gets spotted and followed up once, with your name on the email and your approval before it goes.</p>
     </div>
 
-    <div class="card card-featured recover-card reveal">
-      <div class="recover-copy">
-        <p>Quotes are sent and forgotten. Interested customers drift away. Quotes that go quiet past your threshold get spotted and followed up once, with your name on the email and your approval before it goes. Then it tells you which quotes came back to life and what they were worth.</p>
-        <p class="outcome">Recovered revenue that was already almost won.</p>
+    <div class="card card-featured offer-card reveal">
+      <div class="offer-copy">
+        <p>Then it tells you which quotes came back to life and what they were worth.</p>
+        <p class="outcome">Revenue that was already almost won.</p>
       </div>
-      <ul class="node-list recover-list">
+      <ul class="node-list offer-list">
         <li>Quiet-quote detection on your threshold <span class="tag mono">CONVERT</span></li>
         <li>One approved follow-up email per quote <span class="tag mono">CONVERT</span></li>
         <li>Your identification on every message <span class="tag mono">CONVERT</span></li>
         <li>Recovered value reported against the quotes that came back <span class="tag mono">CONVERT</span></li>
+        <li>It never negotiates, quotes a price or offers a discount <span class="tag mono">CONVERT</span></li>
       </ul>
     </div>
 
-    <div class="twin reveal">
-      <div class="svc">
-        <h4>What it needs from you</h4>
-        <p>Your written go-ahead to email your own customers, and recording your quotes as jobs so we can see them go quiet.</p>
-      </div>
-      <div class="svc">
-        <h4>What it does not do</h4>
-        <p>It does not answer the customer's reply, negotiate, change your price or offer a discount. It does not connect to a CRM, an ads account or an automation tool. No outbound marketing campaigns are offered. Nothing goes out without your approval.</p>
-      </div>
-    </div>
 
-    <p class="fine2 reveal">Quote Recovery is sold as the Quote-Chase Engine: on its own, beside the AI Front Desk, or included in The Works. No minimum term on any of them. <span id="qrPrice">See the pricing page for the current figures.</span></p>
+    <p class="fine2 reveal">It needs your written go-ahead to email your own customers, and your quotes recorded as jobs. Sold as the Quote-Chase Engine: on its own, beside the AI Front Desk, or included in The Works, with no minimum term on any of them. <span id="qrPrice">See the pricing page for the current figures.</span></p>
 
-    <div class="ctarow reveal">
-      <a class="btn btn-primary btn-lg" href="https://app.nevamis.ca/scan" data-evt="hero_scan_click">Scan my business</a>
-      <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
-    </div>
     <p class="centre fine2 reveal"><a class="more" href="#roi" data-evt="dayone_roi_click">+ What missed calls are costing you</a></p>
+  </div>
+</section>
+
+<section id="answer">
+  <div class="wrap">
+    <div class="centre reveal">
+      <p class="k"><i>02</i> CAPTURE <span class="chip av">Available today</span></p>
+      <h2>Your phone answered, any hour.</h2>
+      <p class="lede">Your line is answered around the clock, in your business's name, with the questions you approved.</p>
+    </div>
+
+    <div class="card card-featured offer-card reveal">
+      <div class="offer-copy">
+        <p>It takes the job, the address and the time the caller wants, then texts and emails you the details. You confirm the slot.</p>
+        <p class="outcome">No more jobs lost to voicemail.</p>
+      </div>
+      <ul class="node-list offer-list">
+        <li>Answers around the clock, in your business's name <span class="tag mono">CAPTURE</span></li>
+        <li>Asks the questions you approved, in your words <span class="tag mono">CAPTURE</span></li>
+        <li>Every call recorded and playable in your portal <span class="tag mono">CAPTURE</span></li>
+        <li>No calendar booking and no live transfer, and it says so <span class="tag mono">CAPTURE</span></li>
+      </ul>
+    </div>
+
+    <p class="fine2 reveal">Keep your own number. Forwarding sends calls to Nevamis always, after hours, or only when you miss one, and you can switch it off from your own phone. <a class="more" href="tel:+15874130035" data-evt="demo_phone_click">+ Hear it answer</a></p>
   </div>
 </section>
 
@@ -74,33 +130,33 @@
   <div class="wrap">
     <div class="section-head reveal">
       <p class="k">BUILT FOR THE TRADES FIRST</p>
-      <h2>Your quotes followed up. Your calls answered.</h2>
-      <p class="lede">Nevamis is built for appointment-based local businesses where a missed call is a lost job. Quotes are sent and forgotten there too, and interested customers drift away. Pick your trade to see what gets captured, followed up and reported.</p>
+      <h2>Customers found. Quotes followed up. Calls answered.</h2>
+      <p class="lede">Nevamis is built for appointment-based local businesses where a missed call is a lost job. Pick your trade to see what gets found, followed up and reported.</p>
     </div>
     <div class="ind-grid">
       <a class="card ind-card reveal" href="/electricians.html">
         <p class="k">ELECTRICAL</p>
         <h3>Electricians</h3>
-        <p>Panel upgrades and rewires captured as leads with the details you need. Record the quote as a job and, once it goes quiet past your threshold, it gets one approved follow-up with your name on it. Emergency and service calls answered while the crew is on the tools.</p>
-        <p class="cardfoot"><span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
+        <p>Panel upgrades and rewires captured with the details you need, quiet quotes followed up on your approval, and service calls answered while the crew is on the tools.</p>
+        <p class="cardfoot"><span class="chip inv">By invitation</span> Lead Generation <span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
       </a>
       <a class="card ind-card reveal" href="/hvac.html">
         <p class="k">HVAC</p>
         <h3>HVAC</h3>
-        <p>A furnace out at 11 PM in January does not wait for opening hours. Capture urgent after-hours demand, and the quote that goes quiet after the visit gets followed up, on your approval, with your name on the email.</p>
-        <p class="cardfoot"><span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
+        <p>A furnace out at 11 PM in January does not wait for opening hours. Urgent after-hours calls captured, and the quote that goes quiet afterwards followed up on your approval.</p>
+        <p class="cardfoot"><span class="chip inv">By invitation</span> Lead Generation <span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
       </a>
       <a class="card ind-card reveal" href="/plumbers.html">
         <p class="k">PLUMBING</p>
         <h3>Plumbers</h3>
-        <p>Renovation quotes captured as leads rather than lost to voicemail, then spotted when they go quiet and followed up once, with your approval before it goes.</p>
-        <p class="cardfoot"><span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
+        <p>Renovation quotes captured rather than lost to voicemail, then followed up once when they go quiet, with your approval before it goes.</p>
+        <p class="cardfoot"><span class="chip inv">By invitation</span> Lead Generation <span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
       </a>
       <a class="card ind-card reveal" href="/restoration.html">
         <p class="k">RESTORATION</p>
         <h3>Restoration and property services</h3>
-        <p>Gather incident details calmly, route priority calls, and take down the assessment they need. The estimate that follows is recorded as a job, so it can be chased before it goes cold.</p>
-        <p class="cardfoot"><span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
+        <p>Incident details gathered calmly and priority calls routed. The estimate that follows is recorded, so it can be chased before it goes cold.</p>
+        <p class="cardfoot"><span class="chip inv">By invitation</span> Lead Generation <span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
       </a>
     </div>
     <p class="ctarow reveal"><a class="btn btn-ghost" href="/solutions.html">See every solution</a></p>
@@ -112,7 +168,7 @@
       <div class="section-head reveal">
         <p class="k">MISSED-CALL MATH</p>
         <h2>What are missed calls costing you?</h2>
-        <p class="lede">Your numbers, the formula shown, and an estimate rather than a promise. Missed calls are the loudest leak; the calculator puts your own figures on it, prefilled with the plan you would compare against.</p>
+        <p class="lede">Your numbers, the formula shown, and an estimate rather than a promise. It is prefilled with the plan you would compare against.</p>
       </div>
       <div class="roi-grid">
         <!-- Narrow screens only. The grid collapses to one column below 900px,
@@ -195,10 +251,10 @@
     <div class="section-head reveal">
       <p class="k"><i>06</i> PLANS <span class="chip av">Published prices</span></p>
       <h2>One fee to start, then a monthly.</h2>
-      <p class="lede">Every plan is a Launch &amp; Implementation fee to start, then a monthly. Prices in Canadian dollars, plus applicable GST/HST. Each add-on is its own sale, bought on its own or beside a plan, one at a time and each on its own evidence, and all of them are already included in The Works. The Performance Partnership is offered by invitation and is never the default. Enterprise is quoted per client from what a scan of the business finds.</p>
+      <p class="lede">Every plan is a Launch &amp; Implementation fee to start, then a monthly, in Canadian dollars plus GST/HST. Lead Generation is offered by invitation and lives on the Performance Partnership, which is never the default. Every other add-on is its own sale, and all of them are in The Works. Enterprise is quoted per client.</p>
     </div>
     <div id="plansStrip" class="reveal"></div>
-    <p class="fine2" id="plansFallbackHome">The Works · AI Front Desk (RECOMMENDED) · Performance Partnership, by invitation · Enterprise, quoted per client. Figures are on the pricing page.</p>
+    <p class="fine2" id="plansFallbackHome">Performance Partnership, by invitation · The Works · AI Front Desk (RECOMMENDED) · Enterprise, quoted per client. Figures are on the pricing page.</p>
     <p class="ctarow reveal">
       <a class="btn btn-ghost" href="/pricing.html" data-evt="pricing_view_click">See the full ladder</a>
     </p>
@@ -210,7 +266,7 @@
     <div class="section-head reveal">
       <p class="k">HOW YOU START</p>
       <h2>Your line is answered inside the first week.</h2>
-      <p class="lede">Days, not months. There is no trial, paid or free, and the seven-day paid pilot Nevamis used to sell is retired. What replaces a promise is a start with the length published in advance and a first week you can read for yourself.</p>
+      <p class="lede">Days, not months. There is no trial, paid or free, and the seven-day paid pilot Nevamis used to sell is retired. What replaces a promise is a first week you can read for yourself.</p>
     </div>
     <div class="steps">
       <div class="card reveal">
@@ -223,11 +279,11 @@
       </div>
       <div class="card reveal">
         <p class="k"><i>03</i> BUILD</p>
-        <p>Discovery, build, written call scenarios run at the agent before a number is pointed at it, then your forwarding proven with a real call. The build takes days, not weeks.</p>
+        <p>Discovery, build, written call scenarios run at the agent before a number is pointed at it, then your forwarding proven with a real call.</p>
       </div>
       <div class="card reveal">
         <p class="k"><i>04</i> READ</p>
-        <p>By the end of the first week you are not judging a promise, you are reading what actually happened on your own line. Every call recorded and playable in your portal, with CSV export of the lead record. Quote Recovery reports recovered value against the quotes that came back.</p>
+        <p>By the end of the first week you are reading what actually happened on your own line. Every call recorded and playable in your portal, with CSV export of the lead record.</p>
       </div>
     </div>
     <div class="card reveal deny">
@@ -235,9 +291,6 @@
         <li>Scripted test callers run against your agent before a phone number is ever pointed at it <span class="tag mono">WEEK ONE</span></li>
         <li>Call forwarding proven by placing a real call to your line, not assumed <span class="tag mono">WEEK ONE</span></li>
         <li>Results that label every number as measured or modelled <span class="tag mono">WEEK ONE</span></li>
-        <li>Direct calendar booking is on the roadmap and is not live on any line today. The assistant takes the time the caller wants and you confirm the slot. <span class="tag mono">CALENDAR</span></li>
-        <li>Live transfer to a person is not part of the service. On an urgent call Nevamis captures the urgent details and alerts your team. <span class="tag mono">URGENT CALLS</span></li>
-        <li>Quote Recovery does not answer the customer's reply, negotiate, quote prices or offer discounts. Your approval comes before anything goes. <span class="tag mono">REPLIES</span></li>
         <li>Nevamis publishes no client counts, success percentages or availability statistics, so none appear on this page. Do not take our word for it. Call it: +1 (587) 413-0035 answers, any hour. <span class="tag mono">PROOF</span></li>
       </ul>
     </div>
@@ -256,6 +309,7 @@
       <h2>Questions owners actually ask.</h2>
       <p class="lede">Each answer is written to stand on its own. If it is not built, it says so.</p>
     </div>
+    <details class="reveal"><summary>How does Lead Generation work, and can I get it?</summary><p>It is offered by invitation, under your own agreement, and the list is put together by hand. You tell us the kinds of business you want more of and where you work, and a person here reads public pages and builds the list, with the page each row came from. You decide every row, and nobody on it is contacted by us. Businesses only: it never looks for people at home.</p></details>
     <details class="reveal"><summary>What counts as a quiet quote?</summary><p>A quote you sent that has gone past a threshold you set without an answer. You choose the threshold. When a quote you have recorded as a job crosses it, Nevamis spots it and prepares a follow-up for your approval.</p></details>
     <details class="reveal"><summary>Who sends the Quote Recovery follow-up, and can it go out without me?</summary><p>It goes with your name on the email, and only after your approval. Nothing is sent to your customers without your written go-ahead to email them, every message carries your business identity, and opt-outs are honoured. No outbound marketing campaigns are offered: Quote Recovery only follows up quotes you already wrote.</p></details>
     <details class="reveal"><summary>Does Quote Recovery need my CRM or quoting software?</summary><p>No, and it does not connect to one. Nevamis does not connect to a CRM, an ads account or an automation tool. You record your quotes as jobs in your Nevamis portal so we can see them go quiet, and the follow-up and the reporting run from there.</p></details>
@@ -279,7 +333,7 @@
     <div class="centre reveal">
       <p class="k">ONE SCAN</p>
       <h2>See where yours is leaking.</h2>
-      <p class="lede">One scan. Every leak, found and handled. Every figure is a range with a confidence level, and you see the leaks before you pay to fix any of them.</p>
+      <p class="lede">Every figure is a range with a confidence level, and you see the leaks before you pay to fix any of them.</p>
       <p class="ctarow">
         <a class="btn btn-primary btn-lg" href="https://app.nevamis.ca/scan" data-evt="platform_scan_click">Scan my business</a>
         <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
