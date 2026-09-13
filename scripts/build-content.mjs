@@ -230,7 +230,14 @@ const hubHtml =
   <!-- Ranked by what each is worth to the business, not by what was built
        first: creating revenue outranks recovering it, recovering outranks
        answering, and the free scan is the way in for anyone unsure which of
-       the three they need. Wording is bounded by canonical: lead generation
+       the three they need. The owner made that ranking explicit on
+       2026-09-12, so the three sold things are all named here in it: Lead
+       Generation, Quote Recovery, the AI Front Desk. The front-desk row
+       carries no data-evt on purpose. Event names are an allowlist shared
+       with the engine (src/app/api/events/route.ts) and a name that is not on
+       it is dropped in silence, so an untracked link is honest where an
+       invented name would be invisible and a reused one would collapse two
+       destinations into one funnel row. Wording is bounded by canonical: lead generation
        is finding and scoring the businesses that fit the client's work, done
        by a person. Bid and tender work left the sold record on 2026-09-12
        (owner re-scope, mirrored in roadmap-config.js and enforced engine-side
@@ -251,7 +258,8 @@ const hubHtml =
       </div>
       <div class="related reveal">
         <a href="/book.html" data-evt="solutions_leadgen_click"><strong>Lead Generation (by invitation)</strong><span>Offered by invitation, under your own agreement, and put together by hand. A person here reads public pages and builds you a list of the businesses that fit the work you want, with the page each row came from and the day it was read. You decide every row, and nobody on the list is contacted by us.</span></a>
-        <a href="/missed-calls.html" data-evt="solutions_recovery_click"><strong>Revenue Recovery</strong><span>Missed calls are the loudest leak: what one actually costs, and how the front desk catches it.</span></a>
+        <a href="/pricing.html" data-evt="solutions_recovery_click"><strong>Quote Recovery</strong><span>The quotes you already sent, followed up once when they go quiet, with your name on the email and your approval before it goes.</span></a>
+        <a href="/missed-calls.html"><strong>The AI Front Desk</strong><span>Missed calls are the loudest leak: what one actually costs, and how the front desk catches it.</span></a>
         <a href="https://app.nevamis.ca/scan" data-evt="solutions_scan_click"><strong>Free Business Scan</strong><span>PULSE reads what is public about your business and prices what it finds. No email required, results in about a minute.</span></a>
       </div>
     </div>
