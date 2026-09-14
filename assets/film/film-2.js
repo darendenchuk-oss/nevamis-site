@@ -642,105 +642,92 @@ function bez(A, C, B, t){
 }
 /* dispatch timing retired with the gold leak dots (owner call). */
 
-/* ---------- steady flow, beat 5: the inflow swirl ----------
-   Owner note (third take): random dots read as noise, named dots as clutter.
-   The traffic is now one soft galaxy of fine particles spiralling into the
-   orb: everything the business generates, drawn through the brain. Every
-   position lives in the vertex shader as a pure function of scroll progress,
-   so scrubbing replays exactly, idle costs nothing and the CPU never touches
-   a particle. */
-var FLOWN = 950;
+/* ---------- steady flow, beat 5: the inflow ----------
+   Owner note (third take): one soft galaxy of fine particles spiralling into
+   the orb, everything the business generates drawn through the brain.
+   Owner note 2026-09-13: that galaxy spun around the world origin, 16 units from
+   the orb and nearly edge-on to the camera, and was carved away from the two
+   nearest panes by distance fades that left a hard window in open air; its five
+   light streams read as hard white bars. Now the galaxy is centred ON the orb and
+   tipped toward the camera: three soft arms of dust and comets wind in along log
+   spirals and are absorbed at its surface. It stays within 8.2 units of the orb,
+   clear of the PLANS pane (8.6 away) and some 23 units behind GROW, so no pane cuts
+   through it; GROW simply stands in front of its left edge, as it stands in front
+   of the constellation. Every position lives in the vertex shader as a pure
+   function of scroll progress, so scrubbing replays exactly. */
+var FLOW_COMETS = 120, FLOW_TRAIL = 12, FLOW_MOTES = 2200;
+var FLOWN = FLOW_COMETS * FLOW_TRAIL + FLOW_MOTES;
 var flowGeo = new T.BufferGeometry();
 (function(){
   var pos = new Float32Array(FLOWN * 3); /* required attribute; real position is shader-made */
   var seed = new Float32Array(FLOWN * 4);
-  for (var i = 0; i < FLOWN; i++) {
-    seed[i * 4]     = rand();               /* phase along the spiral */
-    seed[i * 4 + 1] = (Math.floor(rand() * 3) / 3) * Math.PI * 2 + rand() * 0.9; /* one of three arms, jittered */
-    seed[i * 4 + 2] = 0.78 + rand() * 0.5;  /* radius scale (tight, keeps arms coherent) */
-    seed[i * 4 + 3] = rand();               /* personal jitter */
+  var kk = new Float32Array(FLOWN * 2);
+  var n = 0;
+  function put(s0, s1, s2, s3, trail, comet){
+    seed[n * 4] = s0; seed[n * 4 + 1] = s1; seed[n * 4 + 2] = s2; seed[n * 4 + 3] = s3;
+    kk[n * 2] = trail; kk[n * 2 + 1] = comet; n++;
   }
+  for (var c = 0; c < FLOW_COMETS; c++) {
+    var a = rand(), b = rand(), s = rand(), w = rand();
+    for (var q = 0; q < FLOW_TRAIL; q++) put(a, b, s, w, q / FLOW_TRAIL, 1);
+  }
+  for (var m = 0; m < FLOW_MOTES; m++) put(rand(), rand(), rand(), rand(), 0, 0);
   flowGeo.setAttribute('position', new T.BufferAttribute(pos, 3));
   flowGeo.setAttribute('aSeed', new T.BufferAttribute(seed, 4));
+  flowGeo.setAttribute('aK', new T.BufferAttribute(kk, 2));
 })();
 var flowMat = new T.ShaderMaterial({
   uniforms: {
-    uT: { value: 0 },    /* scroll-driven swirl clock */
-    uAmp: { value: 0 },  /* beat envelope */
-    uPx: { value: 900 }  /* drawing-buffer height, for point sizing */
+    uT: { value: 0 },                  /* scroll-driven inflow clock */
+    uAmp: { value: 0 },                /* beat envelope */
+    uPx: { value: 900 },               /* drawing-buffer height, for point sizing */
+    uC: { value: new T.Vector3() },    /* the orb's centre */
+    uR: { value: 2.3 }                 /* the orb's radius */
   },
   vertexShader: [
-    'attribute vec4 aSeed;',
-    'uniform float uT; uniform float uAmp; uniform float uPx;',
-    'varying float vA;',
+    'attribute vec4 aSeed; attribute vec2 aK;',
+    'uniform float uT; uniform float uAmp; uniform float uPx; uniform vec3 uC; uniform float uR;',
+    'varying float vA; varying float vHot;',
     'void main(){',
-    '  float u = fract(uT + aSeed.x);',
-    '  float e = u * u * (3.0 - 2.0 * u);',
-    '  float r = mix(34.0 * aSeed.z, 1.2, e);',
-    '  float an = aSeed.y + u * 5.6 + aSeed.w * 0.25;',
-    '  float y = 7.0 + sin(3.14159 * e) * (5.5 + aSeed.w * 4.5);',
-    '  vec3 wp = vec3(cos(an) * r, y, sin(an) * r);',
-    '  vA = smoothstep(0.0, 0.18, u) * (1.0 - smoothstep(0.82, 1.0, u));',
-    '  vA *= uAmp * (0.35 + 0.65 * aSeed.w) * (0.75 + 0.5 * e);',
-    '  vA *= smoothstep(10.5, 14.5, distance(wp, vec3(-12.0, 14.5, 42.0)))',
-    '      * smoothstep(11.5, 15.5, distance(wp, vec3(18.0, 13.0, 12.0)));',
+    /* a comet's trail samples lag its head by up to 3.5% of one journey */
+    '  float u = fract(uT * (0.8 + 0.4 * aSeed.z) + aSeed.x - aK.x * 0.035);',
+    /* quick across the rim, lingering as it nears the orb: density builds inward */
+    '  float g = 1.0 - pow(1.0 - u, 1.6);',
+    '  float r = mix(mix(3.8, 8.2, aSeed.z), uR * 1.05, g);',
+    /* three arms; a log spiral winds each tighter as it nears the orb */
+    '  float arm = floor(aSeed.y * 3.0) * 2.0944;',
+    '  float spread = (fract(aSeed.w * 13.37) - 0.5) * mix(0.7, 0.22, aK.y);',
+    '  float ph = arm + spread + 4.5 * log(8.2 / r);',
+    '  float lift = (fract(aSeed.w * 7.13) - 0.5) * 0.6 * (r / 8.2);',
+    /* the disc plane, tipped 62 degrees toward the camera about the x axis: near
+       face-on, so the arms read as arms. y spans 0.8..15.2, z only +-3.9 */
+    '  vec3 e2 = vec3(0.0, -0.883, 0.469); vec3 nz = vec3(0.0, 0.469, 0.883);',
+    '  vec3 wp = uC + vec3(r * cos(ph), 0.0, 0.0) + e2 * (r * sin(ph)) + nz * lift;',
+    '  float life = smoothstep(0.0, 0.25, u) * (1.0 - smoothstep(0.9, 1.0, u));',
+    '  vHot = smoothstep(0.45, 0.97, u);',
+    '  float tail = 1.0 - aK.x;',
+    '  vA = uAmp * life * mix(0.09 + 0.11 * aSeed.w, 0.45 * tail * tail, aK.y) * (0.6 + 1.0 * vHot);',
     '  vec4 mv = modelViewMatrix * vec4(wp, 1.0);',
-    '  gl_PointSize = (0.11 + 0.12 * aSeed.w + 0.10 * e) * uPx / max(1.0, -mv.z);',
+    '  float sz = mix(0.8 + 0.5 * aSeed.z, 0.6 * (1.0 - 0.5 * aK.x), aK.y);',
+    '  gl_PointSize = sz * uPx / max(1.0, -mv.z);',
     '  gl_Position = projectionMatrix * mv;',
     '}'
   ].join('\n'),
   fragmentShader: [
-    'varying float vA;',
+    'varying float vA; varying float vHot;',
     'void main(){',
-    '  float d = length(gl_PointCoord - 0.5);',
-    '  float a = smoothstep(0.5, 0.1, d) * vA;',
-    '  gl_FragColor = vec4(vec3(0.62, 0.94, 0.81) * a, a);',
+    /* a soft gaussian sprite, not a hard-edged disc: no glitter */
+    '  vec2 c = gl_PointCoord - 0.5;',
+    '  float d2 = dot(c, c) * 4.0;',
+    '  float a = exp(-d2 * 3.5) * (1.0 - smoothstep(0.7, 1.0, d2)) * vA;',
+    '  vec3 col = mix(vec3(0.55, 0.92, 0.78), vec3(0.85, 1.0, 0.95), vHot);',
+    '  gl_FragColor = vec4(col * a, a);',
     '}'
   ].join('\n'),
   transparent: true, depthWrite: false, blending: T.AdditiveBlending
 });
-var flowMesh = new T.Points(flowGeo, flowMat);
-flowMesh.frustumCulled = false;
-/* five spiral light streams: thin tubes (the spine's own language) curling
-   into the orb, each carrying a soft pulse of light travelling inward */
-var flowGroup = new T.Group();
-flowGroup.add(flowMesh);
-var flowStreamMats = [];
-(function(){
-  for (var k = 0; k < 5; k++) {
-    var a0 = (k / 5) * Math.PI * 2 + rand() * 0.7;
-    var lift = 3.2 + rand() * 3.4;
-    var turns = 6.0 + rand() * 2.5;
-    var pts = [];
-    for (var q = 0; q <= 9; q++) {
-      var t = q / 9;
-      var rr = 1.1 + 34 * Math.pow(1 - t, 1.18);
-      var an = a0 + t * turns;
-      pts.push(new T.Vector3(Math.cos(an) * rr, 7 + Math.sin(Math.PI * t) * lift, Math.sin(an) * rr));
-    }
-    var curve = new T.CatmullRomCurve3(pts, false, 'centripetal', 0.5);
-    var mat = new T.ShaderMaterial({
-      uniforms: { uT: { value: 0 }, uAmp: { value: 0 }, uPh: { value: k / 5 } },
-      vertexShader: 'varying vec2 vUv; varying vec3 vN; varying vec3 vV; varying float vPf; void main(){ vUv = uv; vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalMatrix * normal; vV = -mv.xyz; vPf = smoothstep(10.5, 14.5, distance(position, vec3(-12.0, 14.5, 42.0))) * smoothstep(11.5, 15.5, distance(position, vec3(18.0, 13.0, 12.0))); gl_Position = projectionMatrix * mv; }',
-      fragmentShader: [
-        'varying vec2 vUv; varying vec3 vN; varying vec3 vV; varying float vPf; uniform float uT; uniform float uAmp; uniform float uPh;',
-        'void main(){',
-        '  float endF = smoothstep(0.0, 0.10, vUv.x) * (1.0 - smoothstep(0.90, 1.0, vUv.x));',
-        '  float d = fract(vUv.x - uT - uPh);',
-        '  float comet = exp(-d * 16.0);',
-        
-        '  float soft = pow(max(0.0, dot(normalize(vN), normalize(vV))), 1.7);',
-        '  float a = uAmp * endF * soft * (0.025 + 1.5 * comet) * vPf;',
-        '  vec3 col = vec3(0.62, 0.94, 0.81) * (1.0 + 0.5 * exp(-d * 34.0));',
-        '  gl_FragColor = vec4(col * a, a);',
-        '}'
-      ].join('\n'),
-      transparent: true, depthWrite: false, blending: T.AdditiveBlending
-    });
-    flowStreamMats.push(mat);
-    flowGroup.add(new T.Mesh(new T.TubeGeometry(curve, 140, 0.30, 7, false), mat));
-  }
-})();
+var flowGroup = new T.Points(flowGeo, flowMat);
+flowGroup.frustumCulled = false; /* positions are made in the shader */
 flowGroup.visible = false;
 scene.add(flowGroup);
 
@@ -976,8 +963,45 @@ ringMat.uniforms.tGlow.value = (function(){
    shading blends into the orb's matcap LUT so the junction reads as one substance.
    From morph start (uTip -> 1) the head leaves the orb behind and the same zone
    becomes a finely tapered drawing tip that strokes the arch. */
+/* ---------- the orb/line junction ----------
+   Owner note 2026-09-13: the line must BLEND into the orb, never clip through it.
+   The old neck swelled the tube to 0.96R by arc length, fatter than the sphere's
+   own cross-section just behind its centre, so the tube left the orb as a collar;
+   and once the head ran past the orb (the morph) the line went straight through
+   it. Now the stretch of spine around the orb is drawn by a dedicated fine mesh
+   whose surface is the smooth union of the tube and the orb: each vertex marches
+   out from the curve until it leaves smin(sphere, tube). The line flares into the
+   orb tangentially, bridges it while the orb pulls away, and pinches off cleanly.
+   The spine itself stays a plain tube and skips that window. Curve samples live
+   in a float texture so the window slides with the orb at no CPU cost. */
+var CURVE_N = 2048;
+var curveTex = (function(){
+  var fr = spineCurve.computeFrenetFrames(CURVE_N - 1, false);
+  var d = new Float32Array(CURVE_N * 3 * 4), pt = new T.Vector3();
+  for (var i = 0; i < CURVE_N; i++) {
+    spineCurve.getPointAt(i / (CURVE_N - 1), pt);
+    var rows = [pt, fr.normals[i], fr.binormals[i]];
+    for (var r = 0; r < 3; r++) {
+      var o = (r * CURVE_N + i) * 4;
+      d[o] = rows[r].x; d[o + 1] = rows[r].y; d[o + 2] = rows[r].z; d[o + 3] = 1;
+    }
+  }
+  var tx = new T.DataTexture(d, CURVE_N, 3, T.RGBAFormat, T.FloatType);
+  tx.minFilter = T.NearestFilter; tx.magFilter = T.NearestFilter;
+  tx.generateMipmaps = false; tx.needsUpdate = true;
+  return tx;
+})();
+var NECK_W = 12.0; /* half-width of the junction window along the curve, world units */
 var spineMat = new T.ShaderMaterial({
   uniforms: {
+    tCurve: { value: curveTex },
+    uCurveN: { value: CURVE_N },
+    uNeckT: { value: 0.15 },
+    uNeckW: { value: NECK_W },
+    uOrbC: { value: new T.Vector3() },
+    uBlendK: { value: 1.2 },
+    uHighlight: { value: 0 }, /* both replaced by the orb's own uniform objects below */
+    uOrbDim: { value: 1 },
     uHead: { value: 0.06 },
     uP: { value: new T.Vector3(-1, -1, -1) },
     uPA: { value: new T.Vector3(0, 0, 0) },
@@ -996,21 +1020,17 @@ var spineMat = new T.ShaderMaterial({
     uWakeR: { value: 0 }
   },
   vertexShader: [
-    'uniform float uArchT; uniform float uHead; uniform float uOrbR; uniform float uLen; uniform float uTip;',
+    'uniform float uArchT; uniform float uHead; uniform float uLen; uniform float uTip;',
     'uniform float uWakeOn; uniform vec3 uWakeC; uniform float uWakeR;',
-    'varying float vT; varying vec3 vN; varying vec3 vV; varying float vFog; varying float vWake;',
-    'void main(){ vT = uv.x;',
+    'varying float vT; varying vec3 vN; varying vec3 vV; varying float vFog; varying float vWake; varying float vM;',
+    'void main(){ vT = uv.x; vM = 0.0;',
     ' float fat = smoothstep(uArchT - 0.012, uArchT, uv.x);',
     ' float baseR = 0.55 + fat * 0.855;',
     /* world-units distance behind the drawn head along the curve */
     ' float dW = max(0.0, uHead - uv.x) * uLen;',
-    /* comet neck: swell from ribbon radius up to just inside the sphere (0.96R) over
-       ~4.6R behind the head; nk*nk gives a tangential, facet-free flare */
-    ' float nk = 1.0 - smoothstep(0.0, uOrbR * 4.6, dW);',
-    ' float rNeck = mix(0.55, uOrbR * 0.96, nk * nk);',
-    /* morph drawing tip: the stroke tapers to a point over its last 3 world units */
-    ' float rTip = baseR * smoothstep(0.0, 3.0, dW);',
-    ' float r = mix(max(rNeck, baseR), rTip, uTip);',
+    /* morph drawing tip: the stroke tapers to a point over its last 3 world units.
+       No neck swell here any more: the junction is the neck mesh's job. */
+    ' float r = mix(baseR, baseR * smoothstep(0.0, 3.0, dW), uTip);',
     ' vec3 p2 = position + normal * (r - 0.55);',
     ' vec4 w = modelMatrix * vec4(p2, 1.0);',
     /* ignition: light-front factor, world distance from the orb */
@@ -1024,19 +1044,23 @@ var spineMat = new T.ShaderMaterial({
     'uniform float uHead; uniform vec3 uP; uniform vec3 uPA; uniform float uDim;',
     'uniform float uArchT; uniform float uArchGlow;',
     'uniform sampler2D tMatcap; uniform float uTime; uniform float uCameraY;',
-    'uniform float uOrbR; uniform float uLen; uniform float uTip; uniform float uPark;',
-    'varying float vT; varying vec3 vN; varying vec3 vV; varying float vFog; varying float vWake;',
+    'uniform float uLen; uniform float uTip; uniform float uPark; uniform vec3 uOrbC; uniform float uOrbR;',
+    'uniform float uNeckT; uniform float uNeckW; uniform float uHighlight; uniform float uOrbDim;',
+    'uniform float uRimFade; uniform vec3 uLineP; uniform vec3 uLineT; uniform float uLineAhead; uniform float uLineR;',
+    'varying float vT; varying vec3 vN; varying vec3 vV; varying float vFog; varying float vWake; varying float vM;',
     LUT_GLSL,
     'void main(){',
     ' if (vT > uHead) discard;',
+    '#ifndef NECK',
+    ' if (abs(vT - uNeckT) * uLen < uNeckW) discard; /* the neck mesh draws this stretch */',
+    '#endif',
     ' vec3 n = normalize(vN); vec3 v = normalize(vV);',
     ' float f = getFresnel(n, v, 1.4);',
     ' vec3 col = mintRamp(f * 2.2 + vT * 1.3);',
     ' float base = 0.10 + f * 0.35;',
-    /* material continuity: within the neck (pre-morph only) shading blends toward the
-       orb's exact matcap-LUT formula so there is no material boundary at the junction */
-    ' float dW = max(0.0, uHead - vT) * uLen;',
-    ' float m = (1.0 - smoothstep(0.0, uOrbR * 4.2, dW)) * (1.0 - uTip);',
+    /* material continuity: where the union surface IS the orb (vM 1) the shading is
+       the orb's exact matcap-LUT formula; it hands over to the line's across the fillet */
+    ' float m = vM;',
     ' float front = exp(-(uHead - vT) * 90.0) * 0.85 * (1.0 - 0.8 * m);',
     ' front *= 1.0 - uPark * 0.90; /* parked: the head stops glowing into the right foot */',
     ' float pulses = exp(-abs(vT - uP.x) * 46.0) * uPA.x',
@@ -1057,13 +1081,31 @@ var spineMat = new T.ShaderMaterial({
     ' vec2 muv = rotUV(matcapUV(n, v), uCameraY * 0.2 - 1.5 - uTime * 0.2);',
     ' vec3 oc = vec3(0.012, 0.035, 0.026) + getRGB(tMatcap, muv, 0.2, 0.002) * 0.5;',
     ' float fo = getFresnel(n, v, 1.5 + sin(uTime * 0.1) * 0.3);',
-    ' oc += mintRamp(fo * 3.0 + uCameraY * 0.02) * fo * 0.32;',
-    ' oc = pow(oc * 1.5, vec3(1.8));',
-    ' vec3 outc = mix(col * b * fogF, oc * uDim, m * m);',
-    /* halo continuity: the orb rim shell's exact glow formula, faded with the neck
+    /* the orb's own highlight ramp (markMat), so the hand-over holds through the morph */
+    ' oc += mintRamp(fo * 3.0 + uCameraY * 0.02) * fo * mix(0.8, 2.0, uHighlight) * 0.4;',
+    ' oc = pow(oc * mix(1.5, 2.5, uHighlight), vec3(1.8));',
+    /* the line's own glow ramps up over 2.5 radii from the orb's surface, so where
+       the tail points at the camera its bright core does not sit on the orb as a disc */
+    ' float aRo = length((cameraPosition - vV) - uOrbC) - uOrbR;',
+    ' vec3 outc = mix(col * b * fogF * smoothstep(0.0, uOrbR * 2.5, aRo), oc * uOrbDim, m);',
+    /* halo continuity: the orb rim shell's exact glow formula, faded with the
        blend, so the halo crosses the junction instead of stopping at the sphere */
-    ' outc += mintRamp(fo * 3.0 + uCameraY * 0.02) * pow(fo, 2.2) * 0.27 * m * uDim;',
-    ' gl_FragColor = vec4(outc * vWake, 1.0); }'
+    /* halo continuity, exactly complementary to the orb's rim shell: the shell clears
+       itself near the line (lineFade in makeRimMat) and the junction takes over the
+       same glow there, so the halo neither doubles nor drops across the seam */
+    ' vec3 lrel = (cameraPosition - vV) - uLineP; float lal = dot(lrel, uLineT);',
+    ' float lfade = mix(1.0, smoothstep(uLineR * 0.5, uLineR * 1.4, length(lrel - uLineT * lal)),',
+    '                   1.0 - smoothstep(uLineAhead - 0.5, uLineAhead + 0.5, lal));',
+    ' float fr = getFresnel(n, v, 1.2);',
+    ' outc += mintRamp(fr * 3.0 + uCameraY * 0.02) * pow(fr, 2.2) * 1.5 * uRimFade * (1.0 - lfade) * m;',
+    '#ifdef NECK',
+    /* opaque a little ahead of the colour hand-over, so the fillet hides the orb it
+       passes in front of rather than glowing through it */
+    ' gl_FragColor = vec4(outc * vWake, smoothstep(0.0, 0.6, m) * vWake);',
+    '#else',
+    ' gl_FragColor = vec4(outc * vWake, 1.0);',
+    '#endif',
+    '}'
   ].join('\n'),
   blending: T.AdditiveBlending, transparent: true, depthWrite: false
 });
@@ -1071,8 +1113,115 @@ spineMat.uniforms.uArchT.value = ARCH_T;
 spineMat.uniforms.uLen.value = spineCurve.getLength();
 var spineMesh = new T.Mesh(new T.TubeGeometry(spineCurve, 640, 0.55, 24, false) /* was 1280x96 = 245,760
   triangles, 58-64% of every frame, for a 0.55-unit-radius thread. 640 rings over
-  ~335 units is one every half unit, which the neck swell still resolves. */, spineMat);
+  ~335 units is one every half unit; the fine work at the orb is the neck mesh's. */, spineMat);
 scene.add(spineMesh);
+/* the junction mesh: 180 rings x 48 around over the 24-unit window (one ring every
+   0.13 units), positions made in the vertex shader from the curve texture */
+var NECK_RINGS = 180, NECK_SEG = 48;
+var neckGeo = (function(){
+  var pos = new Float32Array((NECK_RINGS + 1) * (NECK_SEG + 1) * 3), k = 0;
+  for (var j = 0; j <= NECK_RINGS; j++) for (var i = 0; i <= NECK_SEG; i++) {
+    pos[k++] = j / NECK_RINGS * 2 - 1; pos[k++] = i / NECK_SEG * Math.PI * 2; pos[k++] = 0;
+  }
+  var idx = [];
+  /* TubeGeometry's own index order, so the faces wind the same way */
+  for (var j2 = 1; j2 <= NECK_RINGS; j2++) for (var i2 = 1; i2 <= NECK_SEG; i2++) {
+    var a = (NECK_SEG + 1) * (j2 - 1) + (i2 - 1), b = (NECK_SEG + 1) * j2 + (i2 - 1);
+    var c = (NECK_SEG + 1) * j2 + i2, dd = (NECK_SEG + 1) * (j2 - 1) + i2;
+    idx.push(a, b, dd, b, c, dd);
+  }
+  var g = new T.BufferGeometry();
+  g.setIndex(idx);
+  g.setAttribute('position', new T.BufferAttribute(pos, 3));
+  return g;
+})();
+var NECK_VS = [
+  'uniform sampler2D tCurve; uniform float uCurveN;',
+  'uniform float uArchT; uniform float uHead; uniform float uLen; uniform float uTip;',
+  'uniform float uWakeOn; uniform vec3 uWakeC; uniform float uWakeR;',
+  'uniform float uNeckT; uniform float uNeckW; uniform vec3 uOrbC; uniform float uOrbR; uniform float uBlendK;',
+  'varying float vT; varying vec3 vN; varying vec3 vV; varying float vFog; varying float vWake; varying float vM;',
+  'vec3 crv(int row, float t){',
+  ' float x = clamp(t, 0.0, 1.0) * (uCurveN - 1.0);',
+  ' float i0 = min(floor(x), uCurveN - 2.0);',
+  ' vec3 a = texelFetch(tCurve, ivec2(int(i0), row), 0).xyz;',
+  ' vec3 b = texelFetch(tCurve, ivec2(int(i0) + 1, row), 0).xyz;',
+  ' return mix(a, b, x - i0);',
+  '}',
+  /* the smooth union of the orb and the tube, sampled along one outward ray */
+  'float uni(vec3 P, vec3 dir, float x, float rB, float Rb, float k){',
+  ' float a = length(P + dir * x - uOrbC) - Rb;',
+  ' float b = x - rB;',
+  ' float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);',
+  ' return mix(b, a, h) - k * h * (1.0 - h);',
+  '}',
+  'void main(){',
+  ' float t = uNeckT + position.x * uNeckW / uLen;',
+  ' vT = t;',
+  ' vec3 P = crv(0, t);',
+  ' vec3 N = crv(1, t); vec3 B = crv(2, t);',
+  ' vec3 Tg = normalize(cross(N, B));',
+  ' N = normalize(N - Tg * dot(N, Tg)); B = cross(Tg, N);',
+  ' vec3 dir = -cos(position.y) * N + sin(position.y) * B;',
+  /* the spine's own radius law: arch fatness and the morph drawing tip */
+  ' float fat = smoothstep(uArchT - 0.012, uArchT, t);',
+  ' float baseR = 0.55 + fat * 0.855;',
+  ' float dW = max(0.0, uHead - t) * uLen;',
+  ' float rB = mix(baseR, baseR * smoothstep(0.0, 3.0, dW), uTip);',
+  ' float k = uBlendK;',
+  /* the union's orb sits a hair inside the real one: where the surface IS the orb,
+     the opaque sphere wins the depth test instead of z-fighting it */
+  ' float Rb = uOrbR * 0.985 - 0.01;',
+  /* a ray that has not left the union by rB + 2k is deep inside the orb (the smin
+     bound guarantees it), so clamping there keeps every hidden vertex hidden */
+  ' float reach = rB + 2.0 * k;',
+  ' float wEnd = 1.0 - smoothstep(0.8, 1.0, abs(position.x));',
+  ' float rho = rB; float h = 0.0; vec3 nrm = dir;',
+  ' if (wEnd > 0.0 && length(P - uOrbC) < Rb + reach + 0.5) {',
+  /* sphere-trace outward from the axis. The smin of two exact distances is
+     1-Lipschitz, so inside the union |f| never exceeds the distance to its
+     boundary: every step lands on or short of the FIRST exit, and a thin gap
+     between tube and orb can never be jumped. Fixed-step marching jumped exactly
+     those gaps at the pinch-off and tore the mesh into shards. */
+  '  float x = 0.0;',
+  '  for (int i = 0; i < 48; i++) {',
+  '   float fx = uni(P, dir, x, rB, Rb, k);',
+  '   if (fx > -0.002 || x >= reach) break;',
+  '   x += max(-fx, 0.004);',
+  '  }',
+  '  rho = mix(rB, min(x, reach), wEnd);',
+  '  vec3 q = P + dir * rho;',
+  '  h = clamp(0.5 + 0.5 * ((rho - rB) - (length(q - uOrbC) - Rb)) / k, 0.0, 1.0) * wEnd;',
+  /* inside the blend the union's exact gradient is mix(tube normal, orb normal, h).
+     Within about 1.6 blends of the real orb the surface also takes the orb's
+     normal and material outright: that is where it crosses the opaque sphere in
+     the depth test, so both sides of that crossing must shade identically. On a
+     small orb the geometric h never reaches 1 and left a visible lens there. */
+  '  h = max(h, (1.0 - smoothstep(0.0, k * 1.6, length(q - uOrbC) - uOrbR)) * wEnd);',
+  '  nrm = normalize(mix(dir, normalize(q - uOrbC), h));',
+  ' }',
+  ' vec3 wp = P + dir * rho;',
+  ' vM = h * h * (3.0 - 2.0 * h);',
+  ' vWake = mix(1.0, 1.0 - smoothstep(uWakeR - 42.0, uWakeR, distance(wp, uWakeC)), uWakeOn);',
+  ' vN = nrm; vV = cameraPosition - wp;',
+  ' vec4 mv = viewMatrix * vec4(wp, 1.0); vFog = -mv.z;',
+  ' gl_Position = projectionMatrix * mv;',
+  '}'
+].join('\n');
+var neckMat = new T.ShaderMaterial({
+  uniforms: spineMat.uniforms, /* shared by reference: every spine uniform update drives both */
+  defines: { NECK: '' },
+  vertexShader: NECK_VS,
+  fragmentShader: spineMat.fragmentShader,
+  transparent: true, depthWrite: false,
+  /* premultiplied: pure additive where the surface is line (alpha 0), an exact
+     stand-in for the opaque orb where the surface is orb (alpha 1) */
+  blending: T.CustomBlending, blendEquation: T.AddEquation,
+  blendSrc: T.OneFactor, blendDst: T.OneMinusSrcAlphaFactor
+});
+var neckMesh = new T.Mesh(neckGeo, neckMat);
+neckMesh.frustumCulled = false; /* positions are made in the shader */
+scene.add(neckMesh);
 /* Tail extension: the line continues off-frame past the opening camera, so the
    tube's open mouth (a dark circle at the bottom of the p=0 frame) is never
    visible. Deliberately a SEPARATE mesh: extending spineCurve itself would
@@ -1141,11 +1290,17 @@ function makeRimMat(){
     uniforms: {
       uFade: { value: 1 },
       uBoost: { value: 0 },
-      uCameraY: { value: 0 }
+      uCameraY: { value: 0 },
+      uLineOn: { value: 0 },
+      uLineP: { value: new T.Vector3() },
+      uLineT: { value: new T.Vector3(0, 0, 1) },
+      uLineAhead: { value: 0 },
+      uLineR: { value: 1 }
     },
     vertexShader: DICHROIC_VS,
     fragmentShader: [
       'uniform float uFade; uniform float uBoost; uniform float uCameraY;',
+      'uniform float uLineOn; uniform vec3 uLineP; uniform vec3 uLineT; uniform float uLineAhead; uniform float uLineR;',
       'varying vec3 vN; varying vec3 vV;',
       LUT_GLSL,
       'void main(){',
@@ -1153,7 +1308,15 @@ function makeRimMat(){
       ' float f = getFresnel(n, v, 1.2);',
       ' vec3 rim = mintRamp(f * 3.0 + uCameraY * 0.02);',
       ' float b = pow(f, 2.2) * (1.0 + uBoost * 1.4);',
-      ' gl_FragColor = vec4(rim * b * 1.5 * uFade, 1.0); }'
+      /* the halo shell stands 7% proud of the orb, so where the line enters it the
+         shell's bright silhouette drew a ring across the fillet. Clear the shell
+         inside the fillet's radius of the line, and only where the line is drawn. */
+      ' vec3 rel = (cameraPosition - vV) - uLineP;',
+      ' float along = dot(rel, uLineT);',
+      ' float perp = length(rel - uLineT * along);',
+      ' float drawn = 1.0 - smoothstep(uLineAhead - 0.5, uLineAhead + 0.5, along);',
+      ' float lineFade = mix(1.0, smoothstep(uLineR * 0.5, uLineR * 1.4, perp), drawn * uLineOn);',
+      ' gl_FragColor = vec4(rim * b * 1.5 * uFade * lineFade, 1.0); }'
     ].join('\n'),
     blending: T.AdditiveBlending,
     transparent: true,
@@ -1166,7 +1329,15 @@ function makeRimMat(){
 var orbRim = new T.Mesh(ORB_GEO, makeRimMat());
 orbRim.scale.setScalar(1.07);
 orbRim.material.uniforms.uFade.value = 0.18;
+orbRim.material.uniforms.uLineOn.value = 1;
 orb.add(orbRim);
+/* the junction shades as the orb does, so it reads the orb's own highlight and dim
+   (the interaction layer and the exit flare scale that dim), by reference */
+spineMat.uniforms.uHighlight = markMat.uniforms.uHighlight;
+spineMat.uniforms.uOrbDim = markMat.uniforms.uDim;
+/* and the rim shell's fade and line frame, so its halo hand-over is exact */
+spineMat.uniforms.uRimFade = orbRim.material.uniforms.uFade;
+['uLineP', 'uLineT', 'uLineAhead', 'uLineR'].forEach(function(nm){ spineMat.uniforms[nm] = orbRim.material.uniforms[nm]; });
 function makePaneRimMat(lq){
   return new T.ShaderMaterial({
     uniforms: {
@@ -1734,25 +1905,39 @@ function apply(p){
 
   /* the orb rides the spine, then glides into the mark's dot position: continuous, never faded */
   v3a.copy(spineCurve.getPointAt(clamp01(orbT)));
-  orbPos.copy(v3a).lerp(DOT_POS, smooth(0.86, 0.965, p));
+  var glide = smooth(0.86, 0.965, p);
+  orbPos.copy(v3a).lerp(DOT_POS, glide);
+  /* the orb LIFTS off the line before it settles into the dot. Gliding straight
+     back, it receded behind the still-drawing stroke and the line cut across it. */
+  orbPos.y += Math.sin(Math.PI * glide) * 4.0;
   orb.position.copy(orbPos);
   var orbScale = (0.55 + 0.45 * smooth(0.05, 0.5, p)) * (1 + 1.087 * smooth(0.87, 0.975, p)); /* the orb becomes the DOT: r 2.3 -> 4.8 = (24/130)*R */
   orb.scale.setScalar(orbScale);
   spineMat.uniforms.uOrbR.value = 2.3 * orbScale;
   orb.rotation.y = p * 3.2;
+  /* the junction window rides the orb's curve point. orbT is constant from p 0.70,
+     so through the morph the window holds still while the orb pulls away from it */
+  spineMat.uniforms.uNeckT.value = orbT;
+  spineMat.uniforms.uOrbC.value.copy(orbPos);
+  /* as the orb lifts away the blend tightens, so the bridge between them pinches
+     off like a drop instead of stretching into a stalk */
+  spineMat.uniforms.uBlendK.value = (0.45 * 2.3 * orbScale + 0.6) * (1 - 0.6 * smooth(0.875, 0.905, p));
+  var rimU = orbRim.material.uniforms;
+  rimU.uLineP.value.copy(v3a); /* v3a still holds the curve point at orbT */
+  spineCurve.getTangentAt(clamp01(orbT), rimU.uLineT.value);
+  rimU.uLineAhead.value = (head - orbT) * spineMat.uniforms.uLen.value;
+  rimU.uLineR.value = 0.55 + spineMat.uniforms.uBlendK.value;
 
-  /* flow, beat 5 draw: the inflow swirl. Envelope and clock are the only
-     CPU work; everything else happens in the vertex shader. */
+  /* flow, beat 5 draw: the inflow into the orb. Envelope, clock and the orb's
+     centre are the only CPU work; everything else happens in the vertex shader. */
   var flowAmp = smooth(0.70, 0.76, p) * (1 - smooth(0.83, 0.89, p));
   flowGroup.visible = flowAmp > 0.01;
   if (flowGroup.visible) {
-    flowMat.uniforms.uT.value = p * 12.0;
-    flowMat.uniforms.uAmp.value = flowAmp * 0.7;
+    flowMat.uniforms.uT.value = p * 9.0;
+    flowMat.uniforms.uAmp.value = flowAmp;
     flowMat.uniforms.uPx.value = renderer.domElement.height;
-    for (var fsi = 0; fsi < flowStreamMats.length; fsi++) {
-      flowStreamMats[fsi].uniforms.uT.value = p * 7.0;
-      flowStreamMats[fsi].uniforms.uAmp.value = flowAmp;
-    }
+    flowMat.uniforms.uC.value.copy(orbPos);
+    flowMat.uniforms.uR.value = 2.3 * orbScale;
   }
 
   /* the mark resolves: highlight ramps while the spine head draws the arch */

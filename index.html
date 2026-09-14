@@ -1246,7 +1246,7 @@ body{
 #hint::after{content:"";display:block;width:1px;height:26px;margin:8px auto 0;
   background:linear-gradient(to bottom,var(--mint),transparent)}
 #hint.off{opacity:0}
-#close{pointer-events:none}
+#close{pointer-events:none;overflow:visible} /* site.css gives every section overflow:hidden, which cut the soft pool below into a hard rectangle */
 /* transit veil: scene-driven (see apply()); a soft local ink pool that protects the
    ending block only while it rides through the arch glow (p ~0.93-0.97). At its
    parked framing the veil is exactly 0 and this rule contributes nothing. */
