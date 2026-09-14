@@ -772,8 +772,16 @@ var LUT_GLSL = [
   ' c = mix(c, core, smoothstep(0.35, 0.7, t));',
   ' c = mix(c, ice,  smoothstep(0.7, 0.95, t));',
   ' return c; }',
+  /* owner note 2026-09-14: mintRamp's fract() jumps from ice straight back to teal at
+     every whole number. Fed a fresnel term, that jump drew the orb as nested hard
+     rings, a collar across the junction, dark strips along the line, shards at the
+     drawing tip and flat grey islands on the portrait panes. mintRampLoop is the same
+     palette mirrored (teal, ice, teal) so it never steps. */
+  'vec3 mintRampLoop(float t){ return mintRamp(0.999 - abs(0.999 - mod(t, 1.998))); }',
   'float getFresnel(vec3 n, vec3 v, float power){',
-  ' return 1.0 - pow(abs(dot(normalize(n), normalize(v))), power); }',
+  /* min(.., 1.0): a normalised dot can land a hair above 1; pow of the negative
+     fresnel that gives went NaN on D3D and blacked the frame out through the bloom */
+  ' return 1.0 - pow(min(abs(dot(normalize(n), normalize(v))), 1.0), power); }',
   'vec2 matcapUV(vec3 n, vec3 v){',
   ' vec3 x = normalize(vec3(v.z, 0.0, -v.x));',
   ' vec3 y = cross(v, x);',
@@ -1022,20 +1030,46 @@ var spineMat = new T.ShaderMaterial({
   vertexShader: [
     'uniform float uArchT; uniform float uHead; uniform float uLen; uniform float uTip;',
     'uniform float uWakeOn; uniform vec3 uWakeC; uniform float uWakeR;',
+    'uniform sampler2D tCurve; uniform float uCurveN;',
     'varying float vT; varying vec3 vN; varying vec3 vV; varying float vFog; varying float vWake; varying float vM;',
+    'vec3 crv(int row, float t){',
+    ' float x = clamp(t, 0.0, 1.0) * (uCurveN - 1.0);',
+    ' float i0 = min(floor(x), uCurveN - 2.0);',
+    ' vec3 a = texelFetch(tCurve, ivec2(int(i0), row), 0).xyz;',
+    ' vec3 b = texelFetch(tCurve, ivec2(int(i0) + 1, row), 0).xyz;',
+    ' return mix(a, b, x - i0);',
+    '}',
     'void main(){ vT = uv.x; vM = 0.0;',
     ' float fat = smoothstep(uArchT - 0.012, uArchT, uv.x);',
     ' float baseR = 0.55 + fat * 0.855;',
-    /* world-units distance behind the drawn head along the curve */
-    ' float dW = max(0.0, uHead - uv.x) * uLen;',
-    /* morph drawing tip: the stroke tapers to a point over its last 3 world units.
-       No neck swell here any more: the junction is the neck mesh's job. */
-    ' float r = mix(baseR, baseR * smoothstep(0.0, 3.0, dW), uTip);',
-    ' vec3 p2 = position + normal * (r - 0.55);',
+    /* morph drawing tip (owner note 2026-09-14). The tube's own rings used to taper to
+       a point over 3 units; with a ring every 0.53 units the point was re-sampled each
+       time a ring crossed the head, and the colour seams converged into shards. Now
+       the rings just ahead of the head are re-laid along the curve texture into a
+       streamlined nib (a half-ellipsoid 2.2 radii long ending exactly at uHead), so
+       the tip keeps its shape and slides. No neck swell here: that is the neck mesh. */
+    ' float capW = baseR * 2.2;',
+    ' float tA = uHead - capW / uLen;',
+    ' float tB = min(tA + 6.0 * capW / uLen, 1.0);',
+    ' float inCap = step(tA, uv.x) * uTip;',
+    ' float t2 = mix(uv.x, mix(tA, uHead, clamp((uv.x - tA) / max(tB - tA, 1e-5), 0.0, 1.0)), inCap);',
+    ' vT = t2;',
+    ' float xc = clamp((uHead - t2) * uLen / capW, 0.0, 1.0);',
+    ' float prof = sqrt(xc * (2.0 - xc));',
+    ' float r = mix(baseR, baseR * prof, uTip);',
+    ' vec3 cP = crv(0, t2); vec3 cN = crv(1, t2); vec3 cB = crv(2, t2);',
+    ' vec3 cT = normalize(cross(cN, cB));',
+    ' cN = normalize(cN - cT * dot(cN, cT)); cB = cross(cT, cN);',
+    ' float ang = uv.y * 6.28318530718;',
+    ' vec3 cD = -cos(ang) * cN + sin(ang) * cB;',
+    ' vec3 radD = normalize(mix(normal, cD, inCap));',
+    ' vec3 capNrm = normalize(cD * prof + cT * (1.0 - xc) * (baseR / capW));',
+    ' vec3 nrmX = normalize(mix(normal, capNrm, inCap));',
+    ' vec3 p2 = mix(position - normal * 0.55, cP, inCap) + radD * r;',
     ' vec4 w = modelMatrix * vec4(p2, 1.0);',
     /* ignition: light-front factor, world distance from the orb */
     ' vWake = mix(1.0, 1.0 - smoothstep(uWakeR - 42.0, uWakeR, distance(w.xyz, uWakeC)), uWakeOn);',
-    ' vN = normalize(mat3(modelMatrix) * normal);',
+    ' vN = normalize(mat3(modelMatrix) * nrmX);',
     ' vV = cameraPosition - w.xyz;',
     ' vec4 mv = viewMatrix * w; vFog = -mv.z;',
     ' gl_Position = projectionMatrix * mv; }'
@@ -1045,7 +1079,7 @@ var spineMat = new T.ShaderMaterial({
     'uniform float uArchT; uniform float uArchGlow;',
     'uniform sampler2D tMatcap; uniform float uTime; uniform float uCameraY;',
     'uniform float uLen; uniform float uTip; uniform float uPark; uniform vec3 uOrbC; uniform float uOrbR;',
-    'uniform float uNeckT; uniform float uNeckW; uniform float uHighlight; uniform float uOrbDim;',
+    'uniform float uNeckT; uniform float uNeckW; uniform float uHighlight; uniform float uOrbDim; uniform float uWrap;',
     'uniform float uRimFade; uniform vec3 uLineP; uniform vec3 uLineT; uniform float uLineAhead; uniform float uLineR;',
     'varying float vT; varying vec3 vN; varying vec3 vV; varying float vFog; varying float vWake; varying float vM;',
     LUT_GLSL,
@@ -1056,7 +1090,13 @@ var spineMat = new T.ShaderMaterial({
     '#endif',
     ' vec3 n = normalize(vN); vec3 v = normalize(vV);',
     ' float f = getFresnel(n, v, 1.4);',
-    ' vec3 col = mintRamp(f * 2.2 + vT * 1.3);',
+    /* the line's designed colour cycle, with only the wrap's hard jump softened over a
+       pixel-and-a-half band (fwidth), so it never draws a seam, a dark strip or tip
+       shards; within four orb radii of the attached orb it holds its pale first pass,
+       so the fillet meets the pearl */
+    ' float aRo = length((cameraPosition - vV) - uOrbC) - uOrbR;',
+    ' float tL = f * 2.2 + vT * 1.3;',
+    ' vec3 col = mix(mintRamp(min(tL, 0.999)), mix(mintRamp(0.999), mintRamp(fract(tL)), smoothstep(0.0, max(fwidth(tL) * 1.5, 0.12), fract(tL))), max(uWrap, smoothstep(uOrbR, uOrbR * 4.0, aRo)));',
     ' float base = 0.10 + f * 0.35;',
     /* material continuity: where the union surface IS the orb (vM 1) the shading is
        the orb's exact matcap-LUT formula; it hands over to the line's across the fillet */
@@ -1082,12 +1122,13 @@ var spineMat = new T.ShaderMaterial({
     ' vec3 oc = vec3(0.012, 0.035, 0.026) + getRGB(tMatcap, muv, 0.2, 0.002) * 0.5;',
     ' float fo = getFresnel(n, v, 1.5 + sin(uTime * 0.1) * 0.3);',
     /* the orb's own highlight ramp (markMat), so the hand-over holds through the morph */
-    ' oc += mintRamp(fo * 3.0 + uCameraY * 0.02) * fo * mix(0.8, 2.0, uHighlight) * 0.4;',
+    ' float tO = fo * 3.0 + uCameraY * 0.02;',
+    ' oc += mix(mintRamp(min(tO, 0.70)), mintRampLoop(tO), uWrap) * fo * mix(0.8, 2.0, uHighlight) * 0.4;',
     ' oc = pow(oc * mix(1.5, 2.5, uHighlight), vec3(1.8));',
-    /* the line's own glow ramps up over 2.5 radii from the orb's surface, so where
-       the tail points at the camera its bright core does not sit on the orb as a disc */
-    ' float aRo = length((cameraPosition - vV) - uOrbC) - uOrbR;',
-    ' vec3 outc = mix(col * b * fogF * smoothstep(0.0, uOrbR * 2.5, aRo), oc * uOrbDim, m);',
+    /* the line's own glow ramps in from half a radius to two radii off the orb's surface,
+       crossing over with the junction's orb material, so where the tail points at the
+       camera its bright core does not sit on the orb as a disc */
+    ' vec3 outc = mix(col * b * fogF * smoothstep(uOrbR * 0.5, uOrbR * 2.0, aRo), oc * uOrbDim, m);',
     /* halo continuity: the orb rim shell's exact glow formula, faded with the
        blend, so the halo crosses the junction instead of stopping at the sphere */
     /* halo continuity, exactly complementary to the orb's rim shell: the shell clears
@@ -1097,7 +1138,8 @@ var spineMat = new T.ShaderMaterial({
     ' float lfade = mix(1.0, smoothstep(uLineR * 0.5, uLineR * 1.4, length(lrel - uLineT * lal)),',
     '                   1.0 - smoothstep(uLineAhead - 0.5, uLineAhead + 0.5, lal));',
     ' float fr = getFresnel(n, v, 1.2);',
-    ' outc += mintRamp(fr * 3.0 + uCameraY * 0.02) * pow(fr, 2.2) * 1.5 * uRimFade * (1.0 - lfade) * m;',
+    ' float tH = fr * 3.0 + uCameraY * 0.02;',
+    ' outc += mix(mintRamp(min(tH, 0.70)), mintRampLoop(tH), uWrap) * pow(fr, 2.2) * smoothstep(0.0, 0.3, abs(dot(n, v))) * 1.5 * uRimFade * (1.0 - lfade) * m;',
     '#ifdef NECK',
     /* opaque a little ahead of the colour hand-over, so the fillet hides the orb it
        passes in front of rather than glowing through it */
@@ -1176,7 +1218,7 @@ var NECK_VS = [
      bound guarantees it), so clamping there keeps every hidden vertex hidden */
   ' float reach = rB + 2.0 * k;',
   ' float wEnd = 1.0 - smoothstep(0.8, 1.0, abs(position.x));',
-  ' float rho = rB; float h = 0.0; vec3 nrm = dir;',
+  ' float rho = rB; float h = 0.0; float hm = 0.0; vec3 nrm = dir;',
   ' if (wEnd > 0.0 && length(P - uOrbC) < Rb + reach + 0.5) {',
   /* sphere-trace outward from the axis. The smin of two exact distances is
      1-Lipschitz, so inside the union |f| never exceeds the distance to its
@@ -1193,15 +1235,18 @@ var NECK_VS = [
   '  vec3 q = P + dir * rho;',
   '  h = clamp(0.5 + 0.5 * ((rho - rB) - (length(q - uOrbC) - Rb)) / k, 0.0, 1.0) * wEnd;',
   /* inside the blend the union's exact gradient is mix(tube normal, orb normal, h).
-     Within about 1.6 blends of the real orb the surface also takes the orb's
+     Within about a third of a blend of the real orb the surface also takes the orb's
      normal and material outright: that is where it crosses the opaque sphere in
      the depth test, so both sides of that crossing must shade identically. On a
      small orb the geometric h never reaches 1 and left a visible lens there. */
-  '  h = max(h, (1.0 - smoothstep(0.0, k * 1.6, length(q - uOrbC) - uOrbR)) * wEnd);',
+  '  h = max(h, (1.0 - smoothstep(0.0, k * 0.35, length(q - uOrbC) - uOrbR)) * wEnd);',
+  /* material and opacity hold the orb's look much further along the neck than its
+     normal does, crossing over with the line's glow ramp in the fragment shader */
+  '  hm = max(h, (1.0 - smoothstep(0.0, k * 2.2, length(q - uOrbC) - uOrbR)) * wEnd);',
   '  nrm = normalize(mix(dir, normalize(q - uOrbC), h));',
   ' }',
   ' vec3 wp = P + dir * rho;',
-  ' vM = h * h * (3.0 - 2.0 * h);',
+  ' vM = hm * hm * (3.0 - 2.0 * hm);',
   ' vWake = mix(1.0, 1.0 - smoothstep(uWakeR - 42.0, uWakeR, distance(wp, uWakeC)), uWakeOn);',
   ' vN = nrm; vV = cameraPosition - wp;',
   ' vec4 mv = viewMatrix * vec4(wp, 1.0); vFog = -mv.z;',
@@ -1255,13 +1300,14 @@ var markMat = new T.ShaderMaterial({
     uCameraY: { value: 0 },
     uVisible: { value: 1 },
     uHighlight: { value: 0 },
-    uDim: { value: 1 }
+    uDim: { value: 1 },
+    uWrap: { value: 0 }
   },
   vertexShader: DICHROIC_VS,
   fragmentShader: [
     'uniform sampler2D tMatcap;',
     'uniform float uTime; uniform float uCameraY;',
-    'uniform float uVisible; uniform float uHighlight; uniform float uDim;',
+    'uniform float uVisible; uniform float uHighlight; uniform float uDim; uniform float uWrap;',
     'varying vec3 vN; varying vec3 vV;',
     LUT_GLSL,
     'void main(){',
@@ -1270,7 +1316,12 @@ var markMat = new T.ShaderMaterial({
     ' vec2 muv = rotUV(matcapUV(n, v), uCameraY * 0.2 - 1.5 - uTime * 0.2);',
     ' color += getRGB(tMatcap, muv, 0.2, 0.002) * 0.5;',
     ' float f = getFresnel(n, v, 1.5 + sin(uTime * 0.1) * 0.3);',
-    ' vec3 rim = mintRamp(f * 3.0 + uCameraY * 0.02);',
+    /* while the line is attached the orb is one smooth pearl (its ramp capped before
+       the first wrap), so the junction can hand over to it without a band; once the
+       orb has left the line and become the dot, uWrap brings back the cycling
+       dichroic colour, mirrored so it never steps */
+    ' float tr = f * 3.0 + uCameraY * 0.02;',
+    ' vec3 rim = mix(mintRamp(min(tr, 0.70)), mintRampLoop(tr), uWrap);',
     ' color += rim * f * mix(0.8, 2.0, uHighlight) * uVisible * 0.4;',
     ' color = pow(color * mix(1.5, 2.5, uHighlight), vec3(1.8));',
     ' gl_FragColor = vec4(color * uDim, 1.0); }'
@@ -1295,19 +1346,23 @@ function makeRimMat(){
       uLineP: { value: new T.Vector3() },
       uLineT: { value: new T.Vector3(0, 0, 1) },
       uLineAhead: { value: 0 },
-      uLineR: { value: 1 }
+      uLineR: { value: 1 },
+      uWrap: { value: 0 }
     },
     vertexShader: DICHROIC_VS,
     fragmentShader: [
       'uniform float uFade; uniform float uBoost; uniform float uCameraY;',
-      'uniform float uLineOn; uniform vec3 uLineP; uniform vec3 uLineT; uniform float uLineAhead; uniform float uLineR;',
+      'uniform float uLineOn; uniform vec3 uLineP; uniform vec3 uLineT; uniform float uLineAhead; uniform float uLineR; uniform float uWrap;',
       'varying vec3 vN; varying vec3 vV;',
       LUT_GLSL,
       'void main(){',
       ' vec3 n = normalize(vN); vec3 v = normalize(vV);',
       ' float f = getFresnel(n, v, 1.2);',
-      ' vec3 rim = mintRamp(f * 3.0 + uCameraY * 0.02);',
-      ' float b = pow(f, 2.2) * (1.0 + uBoost * 1.4);',
+      ' float tr = f * 3.0 + uCameraY * 0.02;',
+      ' vec3 rim = mix(mintRamp(min(tr, 0.70)), mintRampLoop(tr), uWrap);',
+      /* pow(f, 2.2) peaks at the shell's own silhouette, 7% outside the orb's: a hard
+         bright second outline. Fade it out over the last grazing sliver. */
+      ' float b = pow(f, 2.2) * (1.0 + uBoost * 1.4) * smoothstep(0.0, 0.3, abs(dot(n, v)));',
       /* the halo shell stands 7% proud of the orb, so where the line enters it the
          shell's bright silhouette drew a ring across the fillet. Clear the shell
          inside the fillet's radius of the line, and only where the line is drawn. */
@@ -1338,6 +1393,11 @@ spineMat.uniforms.uOrbDim = markMat.uniforms.uDim;
 /* and the rim shell's fade and line frame, so its halo hand-over is exact */
 spineMat.uniforms.uRimFade = orbRim.material.uniforms.uFade;
 ['uLineP', 'uLineT', 'uLineAhead', 'uLineR'].forEach(function(nm){ spineMat.uniforms[nm] = orbRim.material.uniforms[nm]; });
+/* one ring-return switch for the orb, its shell, the junction and the line */
+spineMat.uniforms.uWrap = markMat.uniforms.uWrap;
+orbRim.material.uniforms.uWrap = markMat.uniforms.uWrap;
+/* portrait factor for the pane ramps, shared by every pane rim and T3 pane material */
+var PANE_TRI = { value: 0 };
 function makePaneRimMat(lq){
   return new T.ShaderMaterial({
     uniforms: {
@@ -1347,7 +1407,8 @@ function makePaneRimMat(lq){
       uLqPhase: lq.phase, uLqAmp: lq.amp, uLqRip: lq.rip, uLqSize: lq.size,
       uLqWake: lq.wake, uLqWake2: lq.wake2,
       uLqZk: { value: 1 / 1.35 }, /* the shell's z scale re-amplifies: divide back out */
-      uLqN: { value: 0.09 }
+      uLqN: { value: 0.09 },
+      uTri: PANE_TRI
     },
     vertexShader: [
       LQ_GLSL,
@@ -1365,7 +1426,7 @@ function makePaneRimMat(lq){
       ' gl_Position = projectionMatrix * viewMatrix * w; }'
     ].join('\n'),
     fragmentShader: [
-      'uniform float uFade; uniform float uBoost; uniform float uCameraY; uniform float uLqN;',
+      'uniform float uFade; uniform float uBoost; uniform float uCameraY; uniform float uLqN; uniform float uTri;',
       'varying vec3 vN; varying vec3 vV; varying vec2 vLqQ; varying float vLqW;',
       'varying vec3 vLqT; varying vec3 vLqB;',
       LUT_GLSL,
@@ -1373,7 +1434,11 @@ function makePaneRimMat(lq){
       'void main(){',
       ' vec3 n = lqBend(normalize(vN), vLqT, vLqB, vLqQ, vLqW, uLqN); vec3 v = normalize(vV);',
       ' float f = getFresnel(n, v, 1.2);',
-      ' vec3 rim = mintRamp(f * 3.0 + uCameraY * 0.02);',
+      /* on portrait the near slabs sit at the frame edge under a 58 degree fov, where
+         the ramp's wrap drew flat, hard-edged grey islands across the glass. Mirrored
+         there (uTri = PF); landscape keeps its designed banding. */
+      ' float rt0 = f * 3.0 + uCameraY * 0.02;',
+      ' vec3 rim = mix(mintRamp(rt0), mintRampLoop(rt0), uTri);',
       ' float b = pow(f, 2.2) * (1.0 + uBoost * 0.7);',
       ' gl_FragColor = vec4(rim * b * 1.5 * uFade, 1.0); }'
     ].join('\n'),
@@ -1412,7 +1477,8 @@ function makeLutPaneMat(lq, envBase){
       uLqPhase: lq.phase, uLqAmp: lq.amp, uLqRip: lq.rip, uLqSize: lq.size,
       uLqWake: lq.wake, uLqWake2: lq.wake2,
       uLqZk: { value: 1 },
-      uLqN: lq.n
+      uLqN: lq.n,
+      uTri: PANE_TRI
     },
     vertexShader: [
       LQ_GLSL,
@@ -1430,7 +1496,7 @@ function makeLutPaneMat(lq, envBase){
       ' gl_Position = projectionMatrix * viewMatrix * w; }'
     ].join('\n'),
     fragmentShader: [
-      'uniform sampler2D tMatcap; uniform float uEnvI; uniform float uCameraY; uniform float uLqN;',
+      'uniform sampler2D tMatcap; uniform float uEnvI; uniform float uCameraY; uniform float uLqN; uniform float uTri;',
       'varying vec3 vN; varying vec3 vV; varying vec2 vLqQ; varying float vLqW;',
       'varying vec3 vLqT; varying vec3 vLqB;',
       LUT_GLSL,
@@ -1441,7 +1507,8 @@ function makeLutPaneMat(lq, envBase){
       ' vec2 muv = rotUV(matcapUV(n, v), uCameraY * 0.2 - 1.5);',
       ' vec3 col = vec3(0.010, 0.030, 0.024) + getRGB(tMatcap, muv, 0.2, 0.002) * 0.40 * uEnvI;',
       ' float f = getFresnel(n, v, 1.4);',
-      ' col += mintRamp(f * 2.6 + vLqQ.y * 0.25) * f * 0.30 * uEnvI;',
+      ' float lt = f * 2.6 + vLqQ.y * 0.25;',
+      ' col += mix(mintRamp(lt), mintRampLoop(lt), uTri) * f * 0.30 * uEnvI;',
       ' col = pow(col * 1.5, vec3(1.8));',
       /* head-on the slab stays see-through-ish, grazing goes solid: the glass read */
       ' float a = clamp(0.30 + f * 0.55, 0.0, 0.9);',
@@ -1503,12 +1570,20 @@ var camCurve = new T.CatmullRomCurve3(
    lateral offsets blended toward the corridor centre line by PF so every
    station stays meaningfully inside the narrow horizontal frustum. At PF = 0
    this reproduces the build-time landscape placement exactly. */
+/* portrait pulls the corridor panes in (lat), which put each slab's inner edge past
+   the spine: the glass crossed between camera and orb, slicing it, and the line,
+   junction and halo (transparent, depth-tested) vanished behind the slab. The glass
+   now keeps PANE_CLEAR units between its inner edge and the spine on portrait, while
+   pn.anchor, which places the pane's DOM tag and wake, stays at the station so the
+   tags stay framed. Landscape placement is unchanged (the push scales with PF). */
+var PANE_CLEAR = 4.0;
 function restationPanes(){
   var lat = mixN(1, 0.55, PF), gx = mixN(1, 0.90, PF);
   for (var ri = 0; ri < panes.length; ri++) {
-    var d = PANE_DEFS[ri], pn = panes[ri], pos;
+    var d = PANE_DEFS[ri], pn = panes[ri], pos, anc;
     if (d.pos) {
       pos = new T.Vector3(d.pos[0] * gx, d.pos[1], d.pos[2]);
+      anc = pos;
       pn.mesh.position.copy(pos);
       pn.mesh.lookAt(0, pos.y - 7, pos.z + 55);
     } else {
@@ -1518,6 +1593,11 @@ function restationPanes(){
       var sideSign = (sPos.x >= 0 ? 1 : -1) * (side.x >= 0 ? 1 : -1);
       pos = sPos.clone().addScaledVector(side, sideSign * (d.off || 14) * lat);
       pos.y += 6.0;
+      anc = pos.clone();
+      /* the slab is yawed atan(13/40) off the side axis */
+      var reach = ((d.w || 18) * 0.5 * Math.cos(Math.atan(13 / 40)) + PANE_CLEAR) * PF;
+      pos = sPos.clone().addScaledVector(side, sideSign * Math.max((d.off || 14) * lat, reach));
+      pos.y += 6.0;
       pn.mesh.position.copy(pos);
       pn.mesh.lookAt(
         pos.x - tan.x * 40 - side.x * sideSign * 13,
@@ -1525,7 +1605,7 @@ function restationPanes(){
         pos.z - tan.z * 40 - side.z * sideSign * 13
       );
     }
-    pn.anchor.copy(pos);
+    pn.anchor.copy(anc);
     if (pn.rim) {
       pn.rim.position.copy(pn.mesh.position);
       pn.rim.quaternion.copy(pn.mesh.quaternion);
@@ -1539,6 +1619,7 @@ function applyComposition(){
     camCurve.points[ci].set(mixN(qa[0], qb[0], PF), mixN(qa[1], qb[1], PF), mixN(qa[2], qb[2], PF));
   }
   restationPanes();
+  PANE_TRI.value = PF;
 }
 var ARCH_TGT = new T.Vector3(0, 25, 0);
 
@@ -1756,12 +1837,22 @@ function layout(){
     copyEls.forEach(function(c){
       if (c.el.id === 'close') {
         /* park through the finale: pinned from the approach to the film's
-           last pixel, seated inside the arch aperture (portrait: lower,
-           clear of the crown) */
+           last pixel. Seated by its BOTTOM edge (owner note 2026-09-14): on
+           landscape the whole block sits above the glowing top edges of panes
+           05/06, which project to ~59% of the height at any width (the fov is
+           vertical), so no edge threads the button; on portrait it parks above
+           the arch crown, so the orb reads as the mark's dot below it. The
+           height is measured (it includes site.css section padding), and the
+           block never parks under the fixed 68px site header. */
         var t0c = Math.round(0.88 * (spanH - vh));
         c.hold.style.top = t0c + 'px';
         c.hold.style.height = (spanH - t0c) + 'px';
-        c.el.style.top = (34 + 5.5 * PF) + 'vh';
+        var closeCS = getComputedStyle(c.el);
+        var closePad = parseFloat(closeCS.paddingTop) || 0;
+        /* the visible block ends at its content, not at its bottom padding */
+        var closeH = (c.el.offsetHeight || 386) - (parseFloat(closeCS.paddingBottom) || 0);
+        var closeTop = mixN(0.57, 0.29, Math.min(1, PF * 1.5)) * window.innerHeight - closeH;
+        c.el.style.top = Math.round(Math.max(76 - closePad, closeTop)) + 'px';
       } else {
         /* the hold spans the beat's whole window: the block dwells mid-frame
            for its readable life instead of crossing the viewport once */
@@ -1942,6 +2033,7 @@ function apply(p){
 
   /* the mark resolves: highlight ramps while the spine head draws the arch */
   markMat.uniforms.uHighlight.value = smooth(0.86, 0.98, p);
+  markMat.uniforms.uWrap.value = smooth(0.89, 0.93, p); /* the rings return only after the bridge has pinched off */
   markMat.uniforms.uCameraY.value = camera.position.y;
   spineMat.uniforms.uCameraY.value = camera.position.y; /* neck matcap continuity */
 

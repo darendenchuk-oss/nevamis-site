@@ -1246,17 +1246,48 @@ body{
 #hint::after{content:"";display:block;width:1px;height:26px;margin:8px auto 0;
   background:linear-gradient(to bottom,var(--mint),transparent)}
 #hint.off{opacity:0}
-#close{pointer-events:none;overflow:visible} /* site.css gives every section overflow:hidden, which cut the soft pool below into a hard rectangle */
+#close{pointer-events:none;overflow:visible}
+/* a landscape phone has no room above the pane edges for the full block: tighten it */
+@media (max-height:500px) and (orientation:landscape){
+  #close{padding-top:0;padding-bottom:0}
+  #close p:not(.sub):not(.fine){font-size:1.1rem}
+  /* only the headline, the button and the small print fit inside the arch here */
+  #close .sub{display:none}
+  #close a.cta{margin-top:.55rem;padding:.55rem 1.5rem;font-size:.95rem}
+  #close .fine{font-size:.68rem;margin-top:.45rem}
+} /* site.css gives every section overflow:hidden, which cut the soft pool below into a hard rectangle */
 /* transit veil: scene-driven (see apply()); a soft local ink pool that protects the
    ending block only while it rides through the arch glow (p ~0.93-0.97). At its
    parked framing the veil is exactly 0 and this rule contributes nothing. */
 /* width clamps to the viewport: an absolute box wider than the layout viewport makes
    a mobile browser zoom the layout viewport out (even at opacity 0), which would shift
    every projected label; min() keeps the pool inside the frame on narrow screens. */
-#close::before{content:"";position:absolute;left:50%;top:50%;width:min(150%,100vw);height:175%;
+#close::before{content:"";position:absolute;left:50%;top:50%;width:min(118%,100vw);height:135%;
   transform:translate(-50%,-50%);
-  background:radial-gradient(ellipse 55% 50% at 50% 48%,rgba(2,8,13,.68) 0%,rgba(2,8,13,.38) 52%,rgba(2,8,13,0) 76%);
+  background:radial-gradient(ellipse 50% 46% at 50% 52%,rgba(2,8,13,.58) 0%,rgba(2,8,13,.32) 48%,rgba(2,8,13,0) 72%);
   opacity:var(--nv-transit,0);pointer-events:none;z-index:-1}
+/* owner note 2026-09-14: seated inside the arch aperture, the block no longer rides
+   through the glow, and the wide pool was lying over the drawing arch itself, turning
+   its crown ashy grey (p 0.93-0.97). The pool is now held tight to the copy on
+   landscape, and dropped on portrait, where the copy parks above the arch. */
+@media (max-aspect-ratio:3/4){#close::before{display:none}}
+/* portrait: the copy parks between the fixed header and the arch crown, and the crown's
+   place scales with the screen's height, so the closing type does too */
+@media (max-aspect-ratio:3/4){
+  #close p:not(.sub):not(.fine){font-size:clamp(1.05rem,2.6vh,1.35rem)}
+  #close .sub{font-size:clamp(.78rem,1.85vh,.95rem);margin-top:clamp(.3rem,.8vh,.7rem)}
+  #close a.cta{margin-top:clamp(.6rem,1.6vh,1.4rem);padding:clamp(.5rem,1.15vh,.9rem) clamp(1.3rem,2.9vh,2.1rem);font-size:clamp(.85rem,1.95vh,1.05rem)}
+  #close .fine{margin-top:clamp(.45rem,1.1vh,1rem)}
+}
+/* the arch the block sits inside scales with the viewport's HEIGHT (vertical fov); a
+   fixed-size block outgrew the aperture on shorter laptops (1366x768) and the crown
+   crossed the headline. On landscape the closing type scales with height, matching
+   today's sizes at 900px tall. */
+@media (orientation:landscape) and (min-height:501px){
+  #close p:not(.sub):not(.fine){font-size:clamp(1.15rem,3.7vh,2.1rem)}
+  #close .sub{font-size:clamp(.85rem,2.05vh,1.1rem);margin-top:clamp(.35rem,.9vh,.7rem)}
+  #close a.cta{margin-top:clamp(.8rem,2.2vh,1.4rem);padding:clamp(.6rem,1.4vh,.9rem) clamp(1.5rem,3.3vh,2.1rem);font-size:clamp(.9rem,1.9vh,1.05rem)}
+}
 #close .cta{pointer-events:auto;display:inline-block;margin-top:1.4rem;
   padding:.9rem 2.1rem;border-radius:999px;background:var(--mint);color:#06231A;
   font-weight:700;font-size:1.05rem;text-decoration:none;
@@ -1301,6 +1332,9 @@ body.card-open .copy.on{opacity:0}
 body.card-open #hint{opacity:0}
 #labels{display:none;transition:opacity .35s ease}
 .nv-live #labels{display:block}
+/* phones, either way up: a fixed 232px tag cannot sit on a pane that small; it printed
+   over the nearer glass. The etched titles name every pane and #paneNav still opens cards. */
+@media (max-aspect-ratio:3/4) and (max-width:600px),(max-height:500px) and (orientation:landscape){html.nv-live #labels{display:none}}
 #labels .plabel{position:fixed;left:0;top:0;z-index:3;pointer-events:none;opacity:0;cursor:pointer;
   display:block;width:232px;text-align:left}
 #labels .plabel .lk{display:block;font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;
@@ -1578,6 +1612,10 @@ main .btn-primary:active{transform:scale(.97)}
   main .ctarow .btn{width:100%;justify-content:center}
   main .node-list li{flex-wrap:wrap}
 }
+
+/* portrait: the chapter rail drops below the site header (the standalone film parked it top right,
+   where the composed page puts the menu button) */
+@media (max-aspect-ratio:3/4){#paneNav{top:74px}}
 
 body{overflow-x:clip}
 html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,html.nv-below .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;transition:opacity .35s ease}

@@ -163,3 +163,7 @@ main .btn-primary:active{transform:scale(.97)}
   main .ctarow .btn{width:100%;justify-content:center}
   main .node-list li{flex-wrap:wrap}
 }
+
+/* portrait: the chapter rail drops below the site header (the standalone film parked it top right,
+   where the composed page puts the menu button) */
+@media (max-aspect-ratio:3/4){#paneNav{top:74px}}
