@@ -1,0 +1,5 @@
+Contact: mailto:sales@nevamis.ca
+Expires: 2027-09-01T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://nevamis.ca/.well-known/security.txt
+Policy: https://github.com/darendenchuk-oss/nevamis-site/blob/main/SECURITY.md

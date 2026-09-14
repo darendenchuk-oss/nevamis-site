@@ -2,6 +2,10 @@
 <html lang="en-CA" class="no-js">
 <head>
 <meta charset="utf-8">
+<!-- generated:csp -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-spTgeeG+vDOAkonlzD5wh1187GZ25nKUp1qusG+11NE=' 'sha256-kuojdLHL/2FQdInVFdSqaK42VrTGKYFp7L9IMxYmZAs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Your Nevamis proposal</title>
 <meta name="description" content="A short written summary of what was discussed: the plan, what is included, what it costs each month, and what happens before your line is answered.">
@@ -888,7 +892,23 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       if (el && text != null) el.textContent = text;
     };
 
-    var to = clean(q.get("to"));
+    /* A recipient's business name, and only that. Anyone can build a
+       nevamis.ca/proposal.html link, so without a limit this page would print
+       "Prepared for <any sentence, phone number or web address>" under the
+       Nevamis name, a ready-made lure for somebody else's message. Markup is
+       dropped whole (so a pasted tag cannot glue words together), then the
+       name must be letters, digits and ordinary business punctuation, at
+       most 60 characters, with no web address, no email and no long digit
+       run. Anything else renders the generic proposal. */
+    function recipient(v) {
+      var s = String(v || "").replace(/<[^>]*>?/g, " ").replace(/\s+/g, " ").trim();
+      if (!s || s.length > 60) return "";
+      if (!/^[A-Za-zÀ-ɏ0-9 .,'&()\-’]+$/.test(s)) return "";
+      if (/\d{4,}/.test(s)) return "";
+      if (/(www\.|\b[a-z0-9-]+\.(com|ca|net|org|io|co|app|xyz|info|biz|me|us|link|site|online|shop|top)\b)/i.test(s)) return "";
+      return s;
+    }
+    var to = recipient(q.get("to"));
     if (to) {
       set("preparedFor", "Prepared for " + to);
       set("headline", "A front desk for " + to);
@@ -929,7 +949,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          no quote the box states the plan's own monthly; the morning's
          "priced after a scan" fallback survives only for the unpublished
          state, as "quoted per client". */
-      var quoted = Number(new URLSearchParams(location.search).get("quote") || 0);
+      /* Only a figure inside the band of real prices is shown. Anyone can
+         build this link, and ?quote=1 used to print "C$1/month" as a Nevamis
+         proposal. An agreed per-client figure always sits between the lowest
+         and highest monthly in pricing-config.js; anything outside that band
+         is ignored and the plan's own price is stated instead. */
+      var quoted = Number(q.get("quote") || 0);
+      var band = (P.plans || []).reduce(function (b, p) {
+        [p.monthly].concat(p.monthlyRange || []).forEach(function (n) {
+          if (typeof n === "number" && n > 0) { b[0] = Math.min(b[0], n); b[1] = Math.max(b[1], n); }
+        });
+        return b;
+      }, [Infinity, 0]);
+      quoted = (isFinite(quoted) && quoted >= band[0] && quoted <= band[1]) ? Math.round(quoted * 100) / 100 : 0;
       var priceEl = document.getElementById("planPrice");
       if (quoted > 0) {
         priceEl.textContent = money(quoted);

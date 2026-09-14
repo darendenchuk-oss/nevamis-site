@@ -1,0 +1,56 @@
+name: verify
+
+# The site's guards, on every push to main and every pull request.
+#
+# GitHub Pages serves main directly, so a commit on main is already live. This
+# job does not stop that by itself; it produces a `verify` check that a branch
+# ruleset on main can require, so a change has to pass these guards before it
+# can reach the site.
+#
+# Guards only, deliberately. The full Playwright suite is not run here: in
+# September 2026 it fails 72 tests on an untouched main (tests written for the
+# pre-film homepage), so a required check built on it would block every merge
+# and get switched off. Each guard below exits 0 on a clean tree today.
+#
+# Security posture of the job itself:
+# - `pull_request`, never `pull_request_target`: a fork's pull request runs
+#   with no secrets and a read-only token.
+# - The token can only read contents, and checkout does not keep it.
+# - Actions are pinned to full commit SHAs, not tags a publisher can move.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+      - name: claims classifier
+        run: node scripts/check-claims-classifier.mjs
+      - name: consistency
+        run: node scripts/check-consistency.js
+      - name: content security policy is current on every page
+        run: node scripts/build-csp.mjs --check
+      - name: published surface
+        run: node scripts/check-published-surface.mjs
+      - name: critical surface (call routing, vendor code, outside hosts)
+        run: node scripts/check-critical-surface.mjs
+      - name: generated pages reproduce from their builders
+        run: node scripts/check-generator-drift.mjs

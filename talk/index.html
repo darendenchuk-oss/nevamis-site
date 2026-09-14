@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<!-- generated:csp -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' blob: https://cdn.jsdelivr.net/npm/@alexanderolsen/libsamplerate-js@2.1.2/dist/libsamplerate.worklet.js; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://storage.googleapis.com/eleven-public-cdn/; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: data:; connect-src 'self' https://app.nevamis.ca https://api.elevenlabs.io wss://api.elevenlabs.io wss://livekit.rtc.elevenlabs.io https://*.elevenlabs.io wss://*.elevenlabs.io; frame-src 'none'; worker-src 'self' blob:; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- /generated:csp -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Talk to the front desk | Nevamis</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 32px 20px;
+    background: #02080D; color: #EAF3EE;
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .talk { max-width: 460px; width: 100%; border: 1px solid rgba(159,240,206,.14); border-radius: 18px;
+    background: #0D1C27; padding: 30px 30px 26px; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7); }
+  .brand { display: inline-block; margin-bottom: 18px; color: #9FF0CE; text-decoration: none;
+    font-weight: 700; letter-spacing: .12em; font-size: 13px; }
+  h1 { margin: 0 0 8px; font-size: 24px; }
+  p { margin: 0 0 18px; color: #8AA5A0; font-size: 15px; }
+  .pri { font: inherit; font-weight: 600; cursor: pointer; border: 0; border-radius: 999px;
+    padding: 12px 22px; background: #2FBF8F; color: #04120C; }
+  .pri[disabled] { opacity: .6; cursor: default; }
+  .fine { margin: 14px 0 0; font-size: 13px; }
+  .or { display: block; margin: 22px 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #8AA5A0; }
+  .num { font: 24px ui-monospace, SFMono-Regular, Menlo, monospace; color: #9FF0CE; text-decoration: none; }
+</style>
+</head>
+<body>
+<main class="talk">
+  <a class="brand" href="/">NEVAMIS</a>
+  <h1>Talk to the front desk</h1>
+  <p>Speak to it right here in your browser. It is the same assistant as the phone line, so try to trip it up.</p>
+  <button type="button" class="pri" id="talkStart">Start the voice call</button>
+  <p class="fine" id="talkFine">Browser calls run through ElevenLabs, our voice provider, and load their software only when you press start. Your microphone is used only during the call, and the call is recorded, exactly like the phone line.</p>
+  <span class="or">or call from any phone</span>
+  <a class="num" href="tel:+15874130035">(587) 413-0035</a>
+</main>
+<script src="/talk/talk.js" defer></script>
+</body>
+</html>

@@ -2,6 +2,10 @@
 <html lang="en-CA" class="no-js">
 <head>
 <meta charset="utf-8">
+<!-- generated:csp -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-C06N3dBNy4CGtq6mTob9pA1MtgMHxiTcLKy3AGByIZY=' 'sha256-KIzMK1E7Az5FxOtRvLuSeFy5ppgKScEOWVr7J/FYCvg=' 'sha256-v7dBn9mMK4XYmVHBrv6DzaNRJ2eZBzcb/eGtKhuk/yc=' 'sha256-TVCFkv9+uuDM9CFPuRoFsPwAtVn7NVj4L/WIEX1bBrk=' 'sha256-7T2FsmQ451MLyq3GP4+8OjvDYEqlfJxD8qcDN+3Ccdw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Book a Strategy Call | Nevamis | Edmonton</title>
 <meta name="description" content="Book a short strategy call with Nevamis: your call patterns, what the front desk would handle for your business, and a quote scoped to your volume.">
@@ -954,7 +958,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <h2 class="cb-h">Not ready to pick a time?</h2>
           <p class="cb-sub">Leave your number instead. Daren rings you back himself. No calendar, no sequence, and nothing is sent to you unless you ask.</p>
 
-          <form id="cbForm" novalidate>
+          <form id="cbForm" method="post" novalidate>
             <div class="cb-grid">
               <label>Your name
                 <input id="cbName" name="name" autocomplete="name" enterkeyhint="next" required>
@@ -1221,7 +1225,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      and if it does we lose an analytics event rather than break the page. */
   try {
     window.addEventListener("message", function (ev) {
-      if (!/(^|\.)cal\.com$/.test(String(ev.origin).replace(/^https?:\/\//, "").split("/")[0])) return;
+      /* Exact origins only. The old test accepted any host ENDING in cal.com
+         over plain http as well, so http://anything.cal.com, or a page on a
+         look-alike subdomain, could post "bookingSuccessful" and record a
+         booking that never happened. */
+      if (ev.origin !== "https://cal.com" && ev.origin !== "https://app.cal.com") return;
       var raw;
       try { raw = typeof ev.data === "string" ? ev.data : JSON.stringify(ev.data); } catch (err) { return; }
       if (!raw || raw.indexOf("bookingSuccessful") === -1) return;

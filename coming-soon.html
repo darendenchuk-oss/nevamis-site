@@ -2,6 +2,10 @@
 <html lang="en-CA" class="no-js">
 <head>
 <meta charset="utf-8">
+<!-- generated:csp -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-9OOxjYWstxOdE1Qq7I926gmP6Wi+w30x/gnzIZWgYnY=' 'sha256-oiRHaVA6mpOJQJJJdaOAQDGldl0+uGlglgv0II2IZMs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Roadmap: what Nevamis is building next</title>
 <meta name="description" content="What Nevamis is building next: lead follow-up, lead tracking, quote recovery and reporting. Only the front desk is live today; everything else is labelled.">
@@ -1042,7 +1046,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2>Tell us what would help your business.</h2>
         <p>This is how we decide what to build next. No commitment, no spam.</p>
       </div>
-      <form class="interest-form reveal" id="interestForm" novalidate>
+      <form class="interest-form reveal" id="interestForm" method="post" novalidate>
         <div class="grid">
           <div><label for="ifName">Name</label><input id="ifName" enterkeyhint="next" name="name" autocomplete="name" required></div>
           <div><label for="ifBiz">Business name</label><input id="ifBiz" enterkeyhint="next" name="business" autocomplete="organization" required></div>
@@ -1230,8 +1234,18 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("interest").scrollIntoView({ behavior: "smooth" });
   });
   /* preselect via ?service= */
-  var qs = new URLSearchParams(location.search).get("service");
-  if (qs) { var pc = checks.querySelector('input[data-slug="' + qs + '"]'); if (pc) pc.checked = true; }
+  /* Compared as a value, never pasted into a selector: ?service=a"] threw a
+     SyntaxError here, and because it ran before the submit listener below was
+     attached, one crafted link left the form posting natively with every
+     field in the URL. */
+  try {
+    var qs = new URLSearchParams(location.search).get("service");
+    if (qs) {
+      Array.prototype.forEach.call(checks.querySelectorAll("input[data-slug]"), function (c) {
+        if (c.getAttribute("data-slug") === qs) c.checked = true;
+      });
+    }
+  } catch (err) { /* a bad link preselects nothing */ }
   /* journey toggles */
   document.querySelectorAll(".j-mod").forEach(function (m) {
     m.addEventListener("click", function () {

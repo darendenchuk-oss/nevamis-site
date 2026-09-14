@@ -75,6 +75,14 @@ run('consistency', process.execPath, ['scripts/check-consistency.js']);
     + 'then update the demo.md snapshot to match what you actually saved.';
 }
 
+/* Security surface: pure file reads, as fast as consistency. Each one fails
+   on a change that would otherwise reach nevamis.ca silently: an inline
+   script the page policy would block, a working file Jekyll would publish,
+   or a changed call route, vendor file or outside destination. */
+run('content security policy', process.execPath, ['scripts/build-csp.mjs', '--check']);
+run('published surface', process.execPath, ['scripts/check-published-surface.mjs']);
+run('critical surface', process.execPath, ['scripts/check-critical-surface.mjs']);
+
 // 2. Whole-site audit: needs a real browser against a real server.
 {
   process.stdout.write(`\n── site audit ${'─'.repeat(48)}\n`);

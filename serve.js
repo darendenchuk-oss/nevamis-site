@@ -26,6 +26,13 @@ http
   .createServer((req, res) => {
     const urlPath = decodeURIComponent(req.url.split("?")[0]);
     let file = path.normalize(path.join(root, urlPath === "/" ? "index.html" : urlPath));
+    /* A directory with an index.html is served the way GitHub Pages serves it
+       (nevamis.ca/talk/ is talk/index.html). Without this, /talk/ got the
+       homepage, whose relative script paths then 404'd into HTML. */
+    if (file.startsWith(root) && fs.existsSync(file) && fs.statSync(file).isDirectory()
+      && fs.existsSync(path.join(file, "index.html"))) {
+      file = path.join(file, "index.html");
+    }
     if (!file.startsWith(root) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
       file = path.join(root, "index.html");
     }

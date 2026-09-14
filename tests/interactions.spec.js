@@ -517,7 +517,7 @@ test('the callback form captures a lead, and never strands the visitor when it c
 
   await page.fill('#cbName', 'Ray Molina');
   await page.fill('#cbPhone', '(587) 555-0143');
-  await page.fill('#cbEmail', 'ray@raysheating.ca');
+  await page.fill('#cbEmail', 'ray@example.ca');
   await page.click('#cbSubmit');
 
   await expect(page.locator('#cbMsg.ok')).toBeVisible();

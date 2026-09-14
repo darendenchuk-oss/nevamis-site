@@ -27,14 +27,14 @@ test('the coming-soon form sends the phone number it asks for', async ({ page })
   const body = await captureInterestPost(page, async () => {
     await page.fill('#ifName', 'Marion Webb');
     await page.fill('#ifBiz', 'Real Plumbing');
-    await page.fill('#ifEmail', 'marion@realplumbing.ca');
+    await page.fill('#ifEmail', 'marion@example.ca');
     await page.fill('#ifPhone', '780-555-0142');
     await page.check('#ifConsent');
     await page.locator('form button[type=submit]').first().click();
   });
 
   expect(body.phone, 'the phone field must reach the API, not just the note').toBe('780-555-0142');
-  expect(body.email).toBe('marion@realplumbing.ca');
+  expect(body.email).toBe('marion@example.ca');
   expect(body.name).toBe('Marion Webb');
 });
 
@@ -50,7 +50,7 @@ test('the coming-soon form cannot be double-submitted while in flight', async ({
 
   await page.fill('#ifName', 'Marion Webb');
   await page.fill('#ifBiz', 'Real Plumbing');
-  await page.fill('#ifEmail', 'marion@realplumbing.ca');
+  await page.fill('#ifEmail', 'marion@example.ca');
   await page.check('#ifConsent');
   const submit = page.locator('form button[type=submit]').first();
   await submit.click();

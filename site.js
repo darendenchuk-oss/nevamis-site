@@ -13,6 +13,26 @@
   var motionOff = reduced || safeGet("nv-motion") === "off";
   if (motionOff) document.documentElement.classList.add("motion-off");
 
+  /* ---------- shown inside someone else's page ----------
+     The reliable fix is the frame-ancestors header, and GitHub Pages cannot
+     send headers (the directive is ignored in a meta policy). Without it any
+     site can load nevamis.ca in an invisible frame over a decoy and steer a
+     visitor's click onto a booking or a form. When this page is not the top
+     window it is covered by one plain link that opens nevamis.ca on its own,
+     so nothing underneath can be clicked. */
+  if (window.top !== window.self) {
+    var nvCover = function () {
+      var a = document.createElement("a");
+      a.href = location.pathname;
+      a.target = "_top";
+      a.textContent = "Open nevamis.ca";
+      a.setAttribute("style", "position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;"
+        + "justify-content:center;background:#02080D;color:#9FF0CE;font:600 18px system-ui,sans-serif");
+      document.body.appendChild(a);
+    };
+    if (document.body) nvCover(); else document.addEventListener("DOMContentLoaded", nvCover);
+  }
+
   /* ---------- the attribution boundary ----------
      THE one place that decides which URL parameters may leave this browser.
 
@@ -76,6 +96,17 @@
     return q ? "?" + q : "";
   };
 
+  /** The referring site's HOSTNAME, and nothing else.
+   *  nevamis.ca/privacy promises "the referring site's hostname". Both beacons
+   *  used to send document.referrer whole, which is a full URL: a referral from
+   *  a CRM, a webmail link or a search results page carries its path and query
+   *  string, and those can hold a record id, a mailbox or what someone searched
+   *  for. Same rule as the attribution boundary above: rebuild, never copy. */
+  function nvReferrerHost() {
+    try { return document.referrer ? new URL(document.referrer).hostname.slice(0, 120) : ""; }
+    catch (e) { return ""; }
+  }
+
   /* ---------- analytics event layer (first-party, owner-approved 2026-07-27) ----------
      Events go to the Nevamis engine only: anonymous counts (event name, page,
      referrer host, utm), no cookies, no IPs stored. Sent as text/plain so the
@@ -86,7 +117,7 @@
       var payload = JSON.stringify({
         name: name,
         page: location.pathname,
-        referrer: document.referrer || "",
+        referrer: nvReferrerHost(),
         source: nvAttributionQuery().slice(0, 200)
       });
       if (navigator.sendBeacon) { navigator.sendBeacon(NV_EVENTS_URL, payload); return; }
@@ -135,7 +166,7 @@
       var p = nvParams();
       p.name = name;
       p.page = location.pathname;
-      p.referrer = document.referrer || "";
+      p.referrer = nvReferrerHost();
       var payload = JSON.stringify(p);
       if (navigator.sendBeacon) { navigator.sendBeacon(NV_MKT_URL, payload); return; }
       if (typeof window.fetch === "function") {
@@ -479,7 +510,8 @@
         + ".nv-dial button[disabled]{opacity:.6;cursor:default}"
         + ".nv-dial button{font:inherit;cursor:pointer;border-radius:999px;padding:10px 18px;border:1px solid var(--line,rgba(159,240,206,.14));"
         + "background:transparent;color:var(--ink,#EAF3EE)}"
-        + ".nv-dial button.pri{background:var(--emerald,#2FBF8F);color:#04120C;border-color:transparent;font-weight:600}";
+        + ".nv-dial a.pri{display:inline-block;text-decoration:none;border-radius:999px;padding:10px 18px;"
+        + "background:var(--emerald,#2FBF8F);color:#04120C;font-weight:600}";
       document.head.appendChild(style);
 
       dlg = document.createElement("dialog");
@@ -487,9 +519,9 @@
       dlg.setAttribute("aria-label", "Talk to the Nevamis front desk");
       dlg.innerHTML =
         '<h2>Talk to the front desk</h2>'
-        + '<p>Speak to it right here in your browser, or dial it from a phone. Same assistant either way &mdash; try to trip it up.</p>'
-        + '<div class="nv-dial-row"><button type="button" class="pri" data-browser>Start a voice call here</button></div>'
-        + '<p class="nv-dial-fine">Browser calls run through ElevenLabs, our voice provider, and load their software only when you press start. '
+        + '<p>Speak to it in your browser, or dial it from a phone. Same assistant either way, so try to trip it up.</p>'
+        + '<div class="nv-dial-row"><a class="pri" href="/talk/" target="_blank" rel="noopener">Start a voice call in your browser</a></div>'
+        + '<p class="nv-dial-fine">Browser calls open on a page of their own and run through ElevenLabs, our voice provider. '
         + 'Your microphone is used only during the call, and the call is recorded, exactly like the phone line.</p>'
         + '<span class="nv-dial-or">or call from any phone</span>'
         + '<span class="nv-dial-num">(587) 413-0035</span>'
@@ -501,7 +533,8 @@
         var t = ev.target;
         if (!t.hasAttribute) return;
         if (t.hasAttribute("data-close")) { dlg.close(); return; }
-        if (t.hasAttribute("data-browser")) { startBrowserCall(t); return; }
+        /* The browser call opens in its own tab; this dialog has done its job. */
+        if (t.closest && t.closest("a.pri")) { dlg.close(); return; }
         if (t.hasAttribute("data-copy")) {
           var done = function () { t.textContent = "Copied"; setTimeout(function () { t.textContent = "Copy number"; }, 1800); };
           try {
@@ -511,36 +544,12 @@
       });
     }
 
-    /* Third-party voice widget, loaded ON DEMAND only. Visitors who never
-       ask for a browser call never fetch it, which keeps the page fast and
-       keeps ElevenLabs out of the picture unless someone opts in. */
-    var widgetLoading = false;
-    function startBrowserCall(btn) {
-      window.nvTrack && window.nvTrack("browser_call_start");
-      if (document.querySelector("elevenlabs-convai")) { dlg.close(); return; }
-      if (widgetLoading) return;
-      widgetLoading = true;
-      btn.textContent = "Connecting…";
-      btn.disabled = true;
-
-      var el = document.createElement("elevenlabs-convai");
-      el.setAttribute("agent-id", "agent_9101ky43tys1fswstde818j7j8wt");
-      el.setAttribute("default-expanded", "");
-      document.body.appendChild(el);
-
-      var s = document.createElement("script");
-      s.src = "https://unpkg.com/@elevenlabs/convai-widget-embed";
-      s.async = true;
-      s.onload = function () { setTimeout(function () { if (dlg.open) dlg.close(); }, 400); };
-      s.onerror = function () {
-        widgetLoading = false;
-        btn.disabled = false;
-        btn.textContent = "Start a voice call here";
-        var fine = dlg.querySelector(".nv-dial-fine");
-        if (fine) fine.textContent = "That did not load, and your network may be blocking it. Call the number below instead; it is the same assistant.";
-      };
-      document.head.appendChild(s);
-    }
+    /* The in-browser call lives on /talk/ now. It used to inject the
+       ElevenLabs widget into THIS page from the unpkg CDN with no version
+       and no integrity check, so whatever npm published as "latest" ran on
+       every nevamis.ca page with the booking and callback forms beside it.
+       /talk/ serves a pinned, verified copy under a policy of its own, and
+       every other page allows no third-party script at all. */
 
     document.addEventListener("click", function (e) {
       var a = e.target.closest && e.target.closest('a[href^="tel:"]');

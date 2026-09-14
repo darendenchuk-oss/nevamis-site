@@ -29,3 +29,40 @@ exclude:
   - package.json
   - package-lock.json
   - playwright.config.js
+  # Security policy for this repository; security.txt links to it on GitHub.
+  - SECURITY.md
+  # Film production working set: After Effects project, cost plan, checkpoint
+  # notes with local machine paths, build scripts, a vendored skills clone.
+  # Everything the live film needs is built into assets/film/. Until
+  # 2026-09-14 all 404 of these files were served at nevamis.ca/film-v2/.
+  - film-v2/
+  # Brand working files. The IMAGES in brand/ stay published because email
+  # signatures already sent load https://nevamis.ca/brand/signature/*.gif and
+  # the pages use the marks; the pages, notes and scripts that produced them
+  # do not. scripts/check-published-surface.mjs fails the build if a new
+  # non-image file appears here.
+  - brand/README.md
+  - brand/cover.html
+  - brand/founder-sheet.html
+  - brand/logo.html
+  - brand/logo-gif.html
+  - brand/mark.html
+  - brand/mark2.html
+  - brand/mark-final.html
+  - brand/photo-how.html
+  - brand/signature/README.md
+  - brand/signature/avatar.html
+  - brand/signature/build.mjs
+  - brand/signature/encode.py
+  - brand/signature/metrics.json
+  - brand/signature/preview.mjs
+  - brand/signature/render.mjs
+  - brand/signature/scene.html
+  - brand/signature/sheet.py
+  - brand/signature/signature.html
+  - brand/signature/signature.txt
+  - brand/signature/zoom.py
+
+# Jekyll skips dot-directories. security.txt must be served from here.
+include:
+  - .well-known

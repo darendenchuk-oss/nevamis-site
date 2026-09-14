@@ -68,13 +68,15 @@ const generatedFiles = () => {
 
 /* The documented chain, minus gen-sitemap. Order matters: build-content writes
    the pages, build-pages puts the chrome back into them, build-schema rewrites
-   their structured data, and promote copies the finished home.html to
-   index.html. Running them out of order proves nothing. */
+   their structured data, build-csp hashes the inline scripts they all left
+   behind, and promote copies the finished home.html to index.html. Running
+   them out of order proves nothing. */
 const BUILDERS = [
   "build-content.mjs",
   "build-pages.mjs",
   "build-schema.mjs",
   "build-search-index.mjs",
+  "build-csp.mjs",
   "promote.mjs",
 ];
 

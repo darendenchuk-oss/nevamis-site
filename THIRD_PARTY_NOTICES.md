@@ -28,3 +28,16 @@ it**. Applied here:
 the repository and internal production documentation. This determination should
 be confirmed by counsel before public release if the film is ever distributed
 commercially at scale — it is a reasoned reading, not legal advice.
+
+## ElevenLabs Conversational AI widget
+`assets/vendor/elevenlabs-convai-widget-embed-0.18.2.js` is an unmodified copy
+of the published npm package **@elevenlabs/convai-widget-embed** version
+**0.18.2** (file `dist/index.js`), loaded only by `talk/talk.js`.
+
+> Copyright (c) ElevenLabs
+> Licensed under the **MIT License**
+> https://www.npmjs.com/package/@elevenlabs/convai-widget-embed
+
+Verified against the npm registry's published integrity
+`sha512-4fxup88uLLQyeP8SxWXtdi6Gk/whbBoNIChcai0P9OsjEV3/qYesM7mrzWDTeAOx1YnH3m0rEWjTku3d8i5JBQ==`
+before it was committed. Its sha256 is pinned in `config/critical-surface.json`.
