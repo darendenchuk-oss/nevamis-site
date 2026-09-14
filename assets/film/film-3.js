@@ -187,6 +187,8 @@ function updateLabels(){
     nav.style.pointerEvents = nh ? 'none' : '';
   }
   lblOrder.length = 0;
+  /* the closing screen belongs to the closing copy: every pane tag fades out first */
+  var finaleFade = 1 - sm01((S.progress() - 0.915) / 0.03);
   for (var i = 0; i < panes.length; i++) {
     var pn = panes[i], el = labelEls[pn.id];
     if (!el) continue;
@@ -203,6 +205,7 @@ function updateLabels(){
       var far = 1 - sm01((dist - 88) / 38);
       o = edge * near * far * 0.95;
       if (cardUp) o *= 0.12;
+      o *= finaleFade;
     }
     lblOrder.push({ el: el, o: o, x: x, y: y, dist: dist });
   }
