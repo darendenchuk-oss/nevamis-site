@@ -138,7 +138,16 @@ computeViewPs();
    Refresh everything this layer derived from them: the tilt-easing base
    quaternions (only for panes at rest, so a mid-hover resize cannot bake a
    tilt in) and the per-pane best-view scroll positions the nav rail uses. */
+/* a phone's address bar showing or hiding fires resize with the same width and,
+   because the stage is 100svh, the same camera aspect: nothing computeViewPs
+   reads has changed, and it walks 225 camera-curve samples per pane (about
+   2,000 getPoint calls). Skip it then; a real change in width or aspect, or a
+   height change of 150px or more, recomputes as before. */
+var vpW = window.innerWidth, vpH = window.innerHeight, vpAspect = camera.aspect;
 window.addEventListener('resize', function(){
+  var nW = window.innerWidth, nH = window.innerHeight;
+  if (nW === vpW && camera.aspect === vpAspect && Math.abs(nH - vpH) < 150) return;
+  vpW = nW; vpH = nH; vpAspect = camera.aspect;
   for (var ei = 0; ei < eases.length; ei++) {
     var eq = eases[ei];
     if (!eq.moved && eq.tilt < 0.001) eq.baseQ.copy(eq.pn.mesh.quaternion);

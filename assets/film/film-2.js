@@ -1890,6 +1890,7 @@ function govFrame(dtMs){
 
 /* ---------- sizing / scroll span ---------- */
 var W = 0, H = 0, PRC = 0, spanH = 0;
+var stationW = -1, stationPF = -1, stationSpan = -1, stationIH = -1; /* what the copy stations were built from */
 /* ---------- a scroll span that holds still (owner note 2026-09-14) ----------
    "The velocity at which it scrolls seems to feel randomized." The span was
    10 x window.innerHeight and progress was scrollY / (span - innerHeight), and
@@ -1924,7 +1925,21 @@ function layout(){
   var vh = Math.max(spanVH(), 500);                /* floor the scroll span; toolbar-proof, see spanVH */
   SPAN_VH = vh;
   spanH = vh * 10;
-  if (!reduced) {
+  /* RE-STATION THE COPY ONLY WHEN SOMETHING IT DEPENDS ON CHANGED.
+     layout() runs on every resize, and a phone fires resize each time its
+     address bar hides or shows. The stations below read getComputedStyle and
+     offsetHeight and rewrite every hold, and #close's seat followed
+     innerHeight, so the ending block shifted by up to 0.57x the toolbar
+     height mid-gesture. They are now kept while the width, the portrait
+     composition and the span are unchanged and innerHeight has moved less
+     than 150px since they were set. Rotation, split screen and any desktop
+     window resize (the span follows the large viewport there) re-lay fully,
+     and a font load re-stations once, since it changes #close's height. */
+  var ihNow = window.innerHeight;
+  var stationsCurrent = w === stationW && PF === stationPF && spanH === stationSpan &&
+                        Math.abs(ihNow - stationIH) < 150;
+  if (!reduced && !stationsCurrent) {
+    stationW = w; stationPF = PF; stationSpan = spanH; stationIH = ihNow;
     scrollEl.style.height = spanH + 'px';
     copyEls.forEach(function(c){
       if (c.el.id === 'close') {
@@ -2722,6 +2737,10 @@ if (reduced) {
     requestRender();
   }, { passive: true });
   window.addEventListener('resize', function(){ layout(); readScroll(); requestRender(); });
+  /* #close is seated by its measured height, which the web font changes: once the
+     fonts are in, re-station (layout() keeps stations otherwise). No render here,
+     the first composed frame keeps its own gate. */
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ stationW = -1; layout(); });
   document.addEventListener('visibilitychange', function(){
     if (document.hidden) {
       if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
