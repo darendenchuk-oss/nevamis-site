@@ -19,7 +19,9 @@
    reviewer sees it. It is a tripwire for accidents and for a quietly swapped
    link; it is not a substitute for protecting the main branch.
 
-     node scripts/check-critical-surface.mjs            check
+     node scripts/check-critical-surface.mjs            check (exit 1 when the
+                                                        manifest is missing or unreadable;
+                                                        it is never recreated here)
      node scripts/check-critical-surface.mjs --update   rewrite the manifest
                                                         (only for a deliberate change)
    ============================================================ */
@@ -72,7 +74,7 @@ function hosts() {
 
 const current = { files: Object.fromEntries(PINNED.map((f) => [f, sha(f)])), hosts: [...hosts().keys()].sort() };
 
-if (UPDATE || !fs.existsSync(MANIFEST)) {
+if (UPDATE) {
   const out = {
     _comment: 'Pinned by scripts/check-critical-surface.mjs. Changing ring.xml, vendored code, or adding an outside host a published page points at must update this file in the same commit. Regenerate with: node scripts/check-critical-surface.mjs --update',
     ...current,
@@ -83,7 +85,19 @@ if (UPDATE || !fs.existsSync(MANIFEST)) {
   process.exit(0);
 }
 
-const want = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
+/* Check mode never creates or repairs the manifest. A deleted or broken
+   manifest used to be rewritten from the current tree and pass, which turned
+   the tripwire off for every later run. */
+function fatal(msg) {
+  console.error(`CRITICAL SURFACE CHECK CANNOT RUN: ${msg}\n  Restore config/critical-surface.json from git. Only for a deliberate re-pin, run node scripts/check-critical-surface.mjs --update and review the diff.`);
+  process.exit(1);
+}
+if (!fs.existsSync(MANIFEST)) fatal('config/critical-surface.json is missing.');
+let want;
+try { want = JSON.parse(fs.readFileSync(MANIFEST, 'utf8')); } catch (e) { fatal(`config/critical-surface.json is not valid JSON (${e.message}).`); }
+if (!want || typeof want !== 'object' || !want.files || typeof want.files !== 'object' || !Array.isArray(want.hosts)) {
+  fatal('config/critical-surface.json does not have the expected shape ({ files: {...}, hosts: [...] }).');
+}
 const errors = [];
 for (const f of PINNED) {
   if (!want.files[f]) errors.push(`${f}: not in the manifest`);
