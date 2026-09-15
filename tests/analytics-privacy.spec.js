@@ -195,6 +195,53 @@ test('no referrer sends an empty referrer, not a made-up one', async ({ page }) 
   for (const r of refs) expect(r).toBe('');
 });
 
+/* /talk/ does not load site.js. talk/talk.js sends its own browser_call_start
+   count with its own copy of the origin-only rule, and nothing above loads
+   /talk/, so a talk.js-only revert to the full document.referrer passed this
+   whole file. This drives the real click path without starting a call: every
+   ElevenLabs request, the pinned widget script served from this site
+   included, is aborted, so talk.js takes its "did not load" branch. Anything
+   bound for the engine is answered locally with a 204. */
+test('the /talk/ call beacon sends the referring origin only, and no call starts', async ({ page }) => {
+  const REF = 'https://www.google.com/search?q=plumber+answering+service&client=private-id#frag';
+  await page.addInitScript((ref) => {
+    Object.defineProperty(document, 'referrer', { get: () => ref, configurable: true });
+  }, REF);
+  const seen = [];
+  const elevenlabs = [];
+  await page.route('https://app.nevamis.ca/**', (route) => {
+    seen.push({ url: route.request().url(), body: route.request().postData() || '' });
+    return route.fulfill({ status: 204, body: '' });
+  });
+  await page.route(/elevenlabs/i, (route) => {
+    elevenlabs.push(route.request().url());
+    return route.abort();
+  });
+
+  await page.goto('/talk/?to=Test%20Person');
+  const start = page.locator('#talkStart');
+  await start.click();
+  /* The widget load was refused, so talk.js put the button back. */
+  await expect(start).toHaveText('Start the voice call');
+  await expect(start).toBeEnabled();
+  expect(elevenlabs.length, 'the click never tried to load the widget, so the call path did not run').toBeGreaterThan(0);
+  expect(await page.locator('elevenlabs-convai').count(), 'a widget element was left in the page').toBe(0);
+
+  await expect.poll(() => seen.length, { message: 'talk.js sent no beacon, so this test proved nothing' }).toBeGreaterThan(0);
+  const events = seen.map((s) => { try { return JSON.parse(s.body); } catch { return null; } }).filter(Boolean);
+  expect(events.map((e) => e.name)).toContain('browser_call_start');
+  for (const e of events) {
+    expect(e.referrer, 'the referrer must be the origin, with no path, query or fragment').toBe('https://www.google.com');
+    expect(new URL(e.referrer).hostname).toBe('www.google.com');
+    expect(e.page).toBe('/talk/');
+  }
+  for (const s of seen) {
+    for (const f of ['plumber', 'private-id', '/search', '#frag', 'Test Person', 'Test%20Person']) {
+      expect(s.body, `"${f}" reached ${s.url}`).not.toContain(f);
+    }
+  }
+});
+
 /* ---- the fix must not have broken analytics ---- */
 
 test('events still send, and their names are unchanged', async ({ page }) => {
