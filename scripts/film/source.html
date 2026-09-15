@@ -221,6 +221,16 @@ body.card-open #hint{opacity:0}
 .nv-live #ncard{display:block}
 #ncard.on{opacity:1;pointer-events:auto}
 #ncard:focus{outline:none}
+/* touch screens: the pane card (387x915 at 412px) and the node card drop their
+   backdrop blur. Over a canvas that re-renders every frame while the card slides,
+   the blur was a full-density compositor pass for a 4-7% contribution through an
+   already 93-96% opaque card. Alpha rises to .97/.98 with the first stop re-solved
+   against the #02080D ground, so the film shows through less and the text on the
+   card reads the same or better. Pointer-fine screens are unchanged. */
+@media (pointer:coarse){
+  #card,#ncard{backdrop-filter:none;-webkit-backdrop-filter:none;
+    background:linear-gradient(160deg,rgba(6,25,19,.97),rgba(2,8,13,.98))}
+}
 #ncardClose{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;
   background:none;border:1px solid rgba(159,240,206,.28);color:var(--mint);cursor:pointer;
   font-size:.8rem;line-height:1;font-family:inherit;
