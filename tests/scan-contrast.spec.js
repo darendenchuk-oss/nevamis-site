@@ -76,17 +76,28 @@ const MEASURE = async ({ a, b, clip, box, pad, bw, text }) => {
     }
   }
 
-  /* boundary: the most distinct pixel in the edge band against a pixel 2px
-     beyond it. Boxes sit on fractional pixels, and the browser snaps a 1px
-     border to either neighbour, so the band starts one pixel OUTSIDE the box
-     edge on every side. Starting it at the box edge silently skipped the
-     right and bottom borders (x1 - 1 floors to the pixel inside the border)
-     and compared interior against exterior. */
-  const band = Math.ceil(Math.max(bw, 1) * s) + Math.ceil(2 * s) + 1;
-  const out = Math.ceil(2 * s);
+  /* boundary: the most distinct pixel in the edge band against a pixel beyond
+     it. Boxes sit on fractional pixels, and the browser snaps a 1px border to
+     either neighbour, so the band starts one pixel OUTSIDE the box edge on
+     every side. Starting it at the box edge silently skipped the right and
+     bottom borders (x1 - 1 floors to the pixel inside the border) and compared
+     interior against exterior.
+
+     Measured twice, because a control may paint outside its own border:
+       near  against the pixel 2px out. On a control with a box-shadow ring
+             that pixel is the control's OWN paint, so this grades the border
+             against the plate the button brought with it.
+       far   against the pixel 8px out, past any ring, with the band widened to
+             start out there so the ring counts as part of the control. This is
+             the control's outermost paint against the page, which is what the
+             eye uses to find the button, and it is the number that falls if a
+             ring is removed or shrunk. */
   const step = Math.max(1, Math.round(s));
   const rad = Math.min(box.height / 2, box.width / 2) * s;   // pills: skip the rounded ends
-  const edge = [];
+  const out = Math.ceil(2 * s), outFar = Math.ceil(8 * s);
+  const band = Math.ceil(Math.max(bw, 1) * s) + out + 1;
+  const bandFar = Math.ceil(Math.max(bw, 1) * s) + outFar + 1;
+  const edge = [], far = [];
   // (e0 = first band pixel, one outside the edge; d = inward direction)
   const sample = (ex, ey, dx, dy) => {
     const o = at(A, ex - dx * out, ey - dy * out); if (o < 0) return;
@@ -94,12 +105,26 @@ const MEASURE = async ({ a, b, clip, box, pad, bw, text }) => {
     for (let k = 0; k < band; k++) { const i = at(A, ex + dx * k, ey + dy * k); if (i >= 0) best = Math.max(best, ratio(lum(A, i), lum(A, o))); }
     edge.push(best);
   };
+  const sampleFar = (ex, ey, dx, dy) => {
+    const o = at(A, ex - dx * outFar, ey - dy * outFar); if (o < 0) return;
+    let best = 1;
+    for (let k = -(outFar - 1); k < bandFar; k++) { const i = at(A, ex + dx * k, ey + dy * k); if (i >= 0) best = Math.max(best, ratio(lum(A, i), lum(A, o))); }
+    far.push(best);
+  };
   const top = Math.floor(y0) - 1, bottom = Math.ceil(y1), left = Math.floor(x0) - 1, right = Math.ceil(x1);
-  for (let x = x0 + rad; x <= x1 - rad; x += step) { sample(x, top, 0, 1); sample(x, bottom, 0, -1); }
+  for (let x = x0 + rad; x <= x1 - rad; x += step) {
+    sample(x, top, 0, 1); sample(x, bottom, 0, -1);
+    sampleFar(x, top, 0, 1); sampleFar(x, bottom, 0, -1);
+  }
   const cy = (y0 + y1) / 2;
-  for (let dy = -2 * step; dy <= 2 * step; dy += step) { sample(left, cy + dy, 1, 0); sample(right, cy + dy, -1, 0); }
+  for (let dy = -2 * step; dy <= 2 * step; dy += step) {
+    sample(left, cy + dy, 1, 0); sample(right, cy + dy, -1, 0);
+    sampleFar(left, cy + dy, 1, 0); sampleFar(right, cy + dy, -1, 0);
+  }
   edge.sort((m, n) => m - n);
-  return { text: +textMin.toFixed(2), edge: edge.length ? +edge[0].toFixed(2) : null, edgeSamples: edge.length };
+  far.sort((m, n) => m - n);
+  return { text: +textMin.toFixed(2), edge: edge.length ? +edge[0].toFixed(2) : null,
+    far: far.length ? +far[0].toFixed(2) : null, edgeSamples: edge.length, farSamples: far.length };
 };
 
 const readBox = (page, sel) => page.evaluate((sel) => {
@@ -177,6 +202,7 @@ async function check(page, decoder, sel, label, frames) {
     if (r.text < r.needText) bad.push(`${label} ${state}: label ${r.text}:1 (need ${r.needText}:1) [${r.desc}]`);
     if (r.edgeSamples === 0) bad.push(`${label} ${state}: no boundary samples [${r.desc}]`);
     else if (r.edge < 3) bad.push(`${label} ${state}: boundary ${r.edge}:1 against the pixels outside (need 3:1) [${r.desc}]`);
+    if (r.far !== null && r.far < 3) bad.push(`${label} ${state}: boundary ${r.far}:1 against the page 8px out, past any ring of its own (need 3:1) [${r.desc}]`);
   };
   for (let f = 0; f < frames; f++) { await run('rest f' + f); await page.waitForTimeout(350); }
   const c = await page.evaluate((sel) => { const r = document.querySelector(sel).getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; }, sel);
