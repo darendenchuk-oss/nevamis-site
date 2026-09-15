@@ -41,6 +41,11 @@
      decoded), as origin plus path for anything off nevamis.ca, which includes
      app.nevamis.ca's /api, /signup and /scan paths and Cal.com's account and
      event slug. Links within https://nevamis.ca are recorded as the origin.
+   - every <meta http-equiv="refresh"> target, of any kind, parsed the way
+     the HTML standard parses the content attribute: refresh:<origin and
+     path> (same-site targets included), refresh:<scheme> for anything that
+     is not http(s), and refresh:(reload) for a timer with no URL. A page
+     that sends visitors elsewhere without a click is a decision, not copy.
    A URL carrying a user name or password (https://cal.com@evil.example) or an
    IP-literal host is never pinnable: it fails even with --update.
 
@@ -131,9 +136,13 @@ const CONTACT = /(?<![A-Za-z0-9+.-])(tel|sms|mailto|callto|sips?|facetime-audio|
 /* A scheme with slashes (or backslashes) after it, or a bare "http:host.tld"
    (which a browser on an https page reads as an absolute http URL). */
 const NET = /(?<![A-Za-z0-9+.-])(https?|wss?|ftp):([\\/]*)([^\s"'`<>{}|^]+)/gi;
-/* Protocol-relative: two slashes right after a quote, "=", "(" or ",", then
-   something shaped like a host (dotted name, IPv6 literal, or userinfo@). */
-const PROTOCOL_RELATIVE = /(?<=["'`=(,]\s*)[\\/]{2}(?=(?:[^\s"'`<>\\/@]*@)?(?:(?:[A-Za-z0-9-]+\.)+[A-Za-z0-9-]+|\[[0-9A-Fa-f:.]+\]))([^\s"'`<>{}|^]+)/g;
+/* Protocol-relative: two slashes right after a quote, "=", "(", "," or ";"
+   (a meta refresh's "0; //host"), then something shaped like a host: a
+   dotted name in any characters a browser accepts (underscores and
+   non-ASCII included, since "//x_y.evil.example" and a host spelled with an
+   e-acute both navigate), an IPv6 literal, or userinfo@. */
+const HOST_LABEL = String.raw`[^\s"'${'`'}<>\\/@?#.;,()\[\]{}|^]+`;
+const PROTOCOL_RELATIVE = new RegExp(String.raw`(?<=["'${'`'}=(,;]\s*)[\\/]{2}(?=(?:[^\s"'${'`'}<>\\/@]*@)?(?:(?:${HOST_LABEL}\.)+${HOST_LABEL}|\[[0-9A-Fa-f:.]+\]))([^\s"'${'`'}<>{}|^]+)`, 'g');
 
 /* Displayed phone numbers (NANP): an optional +1, an area code with or
    without parentheses, then exchange and line, separated by a space, a dot,
@@ -194,6 +203,29 @@ function destinationsIn(text) {
   return { dests, errors };
 }
 
+/* <meta http-equiv="refresh" content="0; url=..."> navigates without a click.
+   Its target is read the way the HTML standard reads the content attribute
+   (time, optional ";" or ",", optional "url=", optional quotes), so
+   "0; //evil.example", "0;URL='x'" and reversed attribute order all count. */
+function refreshTargets(file, html) {
+  const out = [];
+  for (const m of html.matchAll(/<meta\b((?:[^>"']|"[^"]*"|'[^']*')*)>/gi)) {
+    const a = attrsOf(m[1]);
+    if ((a['http-equiv'] || '').toLowerCase() !== 'refresh') continue;
+    let s = (a.content || '').replace(/^[\s\d.]*/, '').replace(/^[;,]/, '').trimStart();
+    if (/^url/i.test(s)) { const rest = s.slice(3).trimStart(); if (rest.startsWith('=')) s = rest.slice(1).trimStart(); }
+    if (/^["']/.test(s)) { const e = s.indexOf(s[0], 1); s = e < 0 ? s.slice(1) : s.slice(1, e); }
+    s = s.trim();
+    if (!s) { out.push({ dest: 'refresh:(reload)' }); continue; }
+    let u;
+    try { u = new URL(s, `${SITE}/${file}`); } catch { out.push({ error: `meta refresh to an unparseable URL ${s.slice(0, 80)}` }); continue; }
+    if (u.username || u.password) out.push({ error: `meta refresh to a URL with a user name or password: ${s.slice(0, 80)}` });
+    else if (ipLiteral(u.hostname)) out.push({ error: `meta refresh to an IP-literal host: ${s.slice(0, 80)}` });
+    else out.push({ dest: `refresh:${/^https?:$/.test(u.protocol) ? `${u.protocol}//${u.host}${u.pathname}` : u.protocol}` });
+  }
+  return out;
+}
+
 function destinations() {
   const byFile = {};
   const errors = [];
@@ -203,6 +235,9 @@ function destinations() {
     if (/\.(html?|xhtml|xml|svg)$/i.test(f)) views.push(decodeRefs(raw));
     if (/\.json$/i.test(f)) { const s = jsonStrings(raw); if (s !== null) views.push(s); }
     const all = new Set();
+    if (/\.(html?|xhtml)$/i.test(f)) {
+      for (const r of refreshTargets(f, raw)) { if (r.error) errors.push(`${f}: ${r.error}`); else all.add(r.dest); }
+    }
     for (const v of views) {
       const { dests, errors: errs } = destinationsIn(v);
       dests.forEach((d) => all.add(d));
