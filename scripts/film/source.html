@@ -7285,8 +7285,28 @@ function watchStage(){
     requestRender();
   }, { rootMargin: '15% 0px' }).observe(stage);
 }
+/* ---------- touch follows the finger (owner decision 2026-09-15) ----------
+   On a touch screen the page already carries its own momentum, and the chase
+   below trailed it: ~0.16s time constant and a 0.00004 settle, so after a
+   504px scroll the film kept composing 55 more frames over ~0.9s while the
+   page itself had stopped. With a coarse primary pointer the chase now takes
+   45% of the gap per 60Hz frame (still normalised by real elapsed time), keeps
+   a ceiling of 1.5 progress per second so a flick cannot teleport, and ends
+   the chain at 0.0003 of progress (about 2.5px of scroll). A fine pointer
+   (mouse, trackpad) keeps every constant and code path exactly as it was.
+   The media query is re-read on change: a tablet docking a mouse switches. */
+var COARSE = false;
+var TOUCH_FOLLOW = 0.45, TOUCH_CAP = 1.5, TOUCH_SETTLE = 0.0003;
+(function(){
+  if (!window.matchMedia) return;
+  var mq = window.matchMedia('(pointer: coarse)');
+  COARSE = !!mq.matches;
+  var onPointerKind = function(){ COARSE = !!mq.matches; requestRender(); };
+  if (mq.addEventListener) mq.addEventListener('change', onPointerKind);
+  else if (mq.addListener) mq.addListener(onPointerKind);
+})();
 function needMore(){
-  return EXIT.on || IW.on || HOLDS > 0 || GIX.busy || Math.abs(target - cur) > 0.00004 ||
+  return EXIT.on || IW.on || HOLDS > 0 || GIX.busy || Math.abs(target - cur) > (COARSE ? TOUCH_SETTLE : 0.00004) ||
          Math.abs(mx - smx) > 0.004 || Math.abs(my - smy) > 0.004;
 }
 function tick(t){
@@ -7309,15 +7329,22 @@ function tick(t){
      travelled at different speeds. The intro already moved to rawDt for the same
      reason. 0.25s keeps a long stall from teleporting (cap 0.225 p in one step). */
   var cdt = Math.min(0.25, rawDt);
-  var d = (target - cur) * (1 - Math.pow(0.9, cdt * 60));
-  var cap = cdt * 0.9; /* owner call 2026-09-04: track the hand. The lerp above is
+  var d, cap;
+  if (COARSE) {
+    /* touch: follow the finger tightly (see TOUCH_FOLLOW above) */
+    d = (target - cur) * (1 - Math.pow(1 - TOUCH_FOLLOW, cdt * 60));
+    cap = cdt * TOUCH_CAP;
+  } else {
+  d = (target - cur) * (1 - Math.pow(0.9, cdt * 60));
+  cap = cdt * 0.9; /* owner call 2026-09-04: track the hand. The lerp above is
                          the authored feel and is untouched; this ceiling only
                          stops a violent flick teleporting, and at 0.34 it also
                          flattened every ordinary scroll into constant-rate
                          travel that ran on for seconds after the fingers stopped. */
+  }
   if (d > cap) d = cap; else if (d < -cap) d = -cap;
   cur += d;
-  if (Math.abs(target - cur) <= 0.00004) cur = target;
+  if (Math.abs(target - cur) <= (COARSE ? TOUCH_SETTLE : 0.00004)) cur = target;
   cur = clamp01(cur);
   smx += (mx - smx) * Math.min(1, dt * 4);
   smy += (my - smy) * Math.min(1, dt * 4);
