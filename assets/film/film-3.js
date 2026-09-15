@@ -591,7 +591,7 @@ nav.addEventListener('click', function(e){
   if (!pn) return;
   if (openPane === pn) { closeCard(); return; }
   var scrollDiv = document.getElementById('scroll');
-  var max = Math.max(1, scrollDiv.offsetHeight - window.innerHeight);
+  var max = Math.max(1, scrollDiv.offsetHeight - (S.viewH ? S.viewH() : window.innerHeight)); /* same steady height as the film's own mapping */
   progScroll = true;
   window.scrollTo(0, Math.round(pn.viewP * max));
   openCard(pn);

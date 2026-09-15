@@ -1836,13 +1836,39 @@ function govFrame(dtMs){
 
 /* ---------- sizing / scroll span ---------- */
 var W = 0, H = 0, PRC = 0, spanH = 0;
+/* ---------- a scroll span that holds still (owner note 2026-09-14) ----------
+   "The velocity at which it scrolls seems to feel randomized." The span was
+   10 x window.innerHeight and progress was scrollY / (span - innerHeight), and
+   phone browsers change innerHeight (and fire resize) whenever the address bar
+   hides or shows during a gesture. Each toggle rescaled the same scrollY into a
+   different progress: a 56px bar at p 0.85 threw the film back 0.057, about a
+   third of its late travel, while the finger kept pushing, and lurched it forward
+   on the way up, at moments set by the gesture itself. The span now uses the
+   LARGE viewport height, which toolbars do not change: 100lvh where supported,
+   otherwise 100vh, which mobile browsers already resolve to the large viewport.
+   A real change (rotation, split screen, a desktop window resize) still re-lays
+   the span. The nav rail reads the same value through S.viewH(). */
+var vhProbe = null;
+var SPAN_VH = Math.max(window.innerHeight, 500);
+function spanVH(){
+  if (!vhProbe && document.body) {
+    vhProbe = document.createElement('div');
+    vhProbe.setAttribute('aria-hidden', 'true');
+    vhProbe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:100vh;visibility:hidden;pointer-events:none';
+    vhProbe.style.height = '100lvh'; /* ignored where lvh is unsupported, leaving 100vh */
+    document.body.appendChild(vhProbe);
+  }
+  var h = vhProbe ? vhProbe.offsetHeight : 0;
+  return h > 0 ? h : window.innerHeight;
+}
 function layout(){
   var w = canvas.clientWidth || window.innerWidth;
   var h = canvas.clientHeight || window.innerHeight;
   if (document.hidden || w <= 0 || h <= 0) return; /* never size while hidden */
   var pfNow = portraitF(w / h);
   if (pfNow !== PF) { PF = pfNow; applyComposition(); } /* before copy stationing: #close depends on PF */
-  var vh = Math.max(window.innerHeight, 500);      /* floor the scroll span */
+  var vh = Math.max(spanVH(), 500);                /* floor the scroll span; toolbar-proof, see spanVH */
+  SPAN_VH = vh;
   spanH = vh * 10;
   if (!reduced) {
     scrollEl.style.height = spanH + 'px';
@@ -1893,7 +1919,7 @@ layout();
 var target = 0, cur = 0;
 var mx = 0, my = 0, smx = 0, smy = 0;
 function readScroll(){
-  var max = Math.max(1, spanH - window.innerHeight);
+  var max = Math.max(1, spanH - SPAN_VH); /* the same steady height the span was built from */
   target = clamp01((window.scrollY || 0) / max);
 }
 
@@ -2141,7 +2167,7 @@ function apply(p){
 var hintOff = false;
 
 /* ---------- render on demand ---------- */
-var rafId = 0, lastT = 0;
+var rafId = 0, lastT = 0, fromIdle = false;
 var DEBUG = new URLSearchParams(location.search).get('debug') === '1';
 if (DEBUG) window.__nv = { frames: [], renders: 0, panes: null };
 /* self-serve FPS probe, ?fps=1 only: a tiny mono corner readout of live fps,
@@ -2203,6 +2229,7 @@ window.NV_SCENE = {
   T: T,
   look: LOOK,
   progress: function(){ return cur; },
+  viewH: function(){ return SPAN_VH; },
   hold: function(){ HOLDS++; requestRender(); },
   release: function(){ if (HOLDS > 0) HOLDS--; },
   requestRender: requestRender,
@@ -2456,13 +2483,24 @@ function tick(t){
   rafId = 0;
   var dt = Math.min(0.05, Math.max(0.001, (t - lastT) / 1000));
   var rawDt = Math.max(0.001, (t - lastT) / 1000);
+  /* a chain that starts from idle has no previous frame: requestRender stamps lastT
+     with performance.now(), which is later than this frame's own timestamp, so the
+     first step integrated 0.001s and every gesture from rest lost a frame */
+  if (fromIdle) { dt = rawDt = 1 / 60; fromIdle = false; }
   if (!(dt > 0)) { dt = 0.016; rawDt = 0.016; }
   lastT = t;
   if (LAGMS > 0) { var lagE = performance.now() + LAGMS; while (performance.now() < lagE) {} } /* ?lag=N QA throttle */
   /* chase with lerp AND a hard per-frame ceiling.
      Their ScrollController.LERP = 0.1 per frame at 60Hz, made framerate-independent. */
-  var d = (target - cur) * (1 - Math.pow(0.9, dt * 60));
-  var cap = dt * 0.9; /* owner call 2026-09-04: track the hand. The lerp above is
+  /* the chase runs on real elapsed time. dt is clamped to 50ms for the eases that
+     would overshoot on a long step, and the chase used that clamp too: below 20fps a
+     phone's film fell behind the finger by however expensive that moment's frame
+     was (100ms frames halved it, 150ms cut it to a third), so identical flicks
+     travelled at different speeds. The intro already moved to rawDt for the same
+     reason. 0.25s keeps a long stall from teleporting (cap 0.225 p in one step). */
+  var cdt = Math.min(0.25, rawDt);
+  var d = (target - cur) * (1 - Math.pow(0.9, cdt * 60));
+  var cap = cdt * 0.9; /* owner call 2026-09-04: track the hand. The lerp above is
                          the authored feel and is untouched; this ceiling only
                          stops a violent flick teleporting, and at 0.34 it also
                          flattened every ordinary scroll into constant-rate
@@ -2492,7 +2530,7 @@ function tick(t){
   if (!SHOWN) { SHOWN = true; document.documentElement.classList.remove('nv-filmwait'); }
   if (FPSU) FPSU(t, cur);
   if (DEBUG) {
-    window.__nv.dbg = { cur: cur, target: target, dt: dt, spanH: spanH, cam: [camera.position.x, camera.position.y, camera.position.z], curveAt: (function(pp){var v=camCurve.getPoint(pp);return [v.x,v.y,v.z]})(clamp01(cur)) };
+    window.__nv.dbg = { cur: cur, target: target, dt: dt, spanH: spanH, vh: SPAN_VH, cam: [camera.position.x, camera.position.y, camera.position.z], curveAt: (function(pp){var v=camCurve.getPoint(pp);return [v.x,v.y,v.z]})(clamp01(cur)) };
     window.__nv.renders++;
     window.__nv.frames.push(t);
     if (window.__nv.frames.length > 400) window.__nv.frames.splice(0, 100);
@@ -2504,6 +2542,7 @@ function tick(t){
 function requestRender(){
   if (reduced || rafId || document.hidden || !ON_SCREEN) return;
   lastT = performance.now();
+  fromIdle = true;
   rafId = requestAnimationFrame(tick);
 }
 /* THE FIRST COMPOSED FRAME IS THE EXPENSIVE ONE, AND IT WAITS FOR THE PAGE.
