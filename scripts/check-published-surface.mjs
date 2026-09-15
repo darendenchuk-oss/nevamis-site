@@ -58,14 +58,15 @@ function assetOk(f) {
   if (why) unsafeSvg.push(`${f} contains ${why}`);
   return !why;
 }
-const MEDIA = /\.(png|gif|jpe?g|webp|svg|mp4|webm)$/i;
+/* Exactly the brand files something outside this repository loads. The email
+   signature already sent embeds this URL; nothing else in brand/ is loaded by
+   a page, the engine or a sent email. Adding one here is a deliberate choice. */
+const BRAND = new Set(['brand/signature/nevamis-signature.gif']);
 const DIRS = [
   { dir: 'assets/', ok: assetOk },
   { dir: 'talk/', ok: (f) => f === 'talk/index.html' || f === 'talk/talk.js' },
   { dir: '.well-known/', ok: (f) => f === '.well-known/security.txt' },
-  /* Only images: email signatures already sent embed
-     https://nevamis.ca/brand/signature/nevamis-signature.gif. */
-  { dir: 'brand/', ok: (f) => MEDIA.test(f) },
+  { dir: 'brand/', ok: (f) => BRAND.has(f) },
 ];
 /* Must stay reachable, or a phone line, the domain or the security contact breaks. */
 const REQUIRED = ['ring.xml', 'CNAME', 'assets/ringback-tone.wav', '.well-known/security.txt', 'talk/index.html'];

@@ -36,11 +36,31 @@ exclude:
   # Everything the live film needs is built into assets/film/. Until
   # 2026-09-14 all 404 of these files were served at nevamis.ca/film-v2/.
   - film-v2/
-  # Brand working files. The IMAGES in brand/ stay published because email
-  # signatures already sent load https://nevamis.ca/brand/signature/*.gif and
-  # the pages use the marks; the pages, notes and scripts that produced them
-  # do not. scripts/check-published-surface.mjs fails the build if a new
-  # non-image file appears here.
+  # Brand working files. ONE file in brand/ stays published:
+  # brand/signature/nevamis-signature.gif, which the email signature already
+  # sent loads from https://nevamis.ca/brand/signature/nevamis-signature.gif.
+  # No page, stylesheet or script on this site loads anything else from
+  # brand/, and nothing in nevamis-engine or ai-assistant links to it
+  # (searched 2026-09-14, working trees and git history). Everything else here
+  # is working material: founder photo candidates, option sheets, a stale
+  # homepage screenshot, cover art, render masters, and the pages, notes and
+  # scripts that produced them. scripts/check-published-surface.mjs allows
+  # exactly the one file, so publishing another is a deliberate change there.
+  - brand/founder/
+  - brand/founder-options.png
+  - brand/logo-options.png
+  - brand/nevamis-cover.png
+  - brand/nevamis-logo.png
+  - brand/nevamis-mark.png
+  - brand/nevamis-mark-128.gif
+  - brand/nevamis-mark-256.gif
+  - brand/nevamis-mark-256.png
+  - brand/photo-how.png
+  - brand/photo-website.png
+  - brand/signature/nevamis-avatar-1024.png
+  - brand/signature/nevamis-signature.png
+  - brand/signature/nevamis-signature-master.mp4
+  - brand/signature/nevamis-signature-master.webm
   - brand/README.md
   - brand/cover.html
   - brand/founder-sheet.html
