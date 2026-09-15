@@ -22,6 +22,12 @@ input, or customer data in properties.
 | roadmap_form_submitted | interest form submit | services (count only) | Roadmap lead volume |
 | roadmap_front_desk_cta_clicked | Coming-Soon → Front Desk CTAs | none | Does the roadmap feed the live product? |
 
+**Ordering, `callbar_book_click` (2026-09-15).** The engine allowlists event
+names and silently drops the ones it does not know, so the name has to exist
+there before the site that sends it goes live. This bar used to send
+`demo_phone_click`, so shipping the two out of order loses the new count and
+the old baseline at the same moment, with nothing failing anywhere.
+
 ## Funnel diagnostics (added 2026-07-27)
 
 Answers "where do people quit?" and "does the demo line convert?" with names

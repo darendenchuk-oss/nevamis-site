@@ -85,6 +85,28 @@ test.describe('a visitor can act before the intro finishes', () => {
     expect(style.visibility).toBe('visible');
   });
 
+  /* The homepage cannot prove first paint, so the test above moved to a content
+     page. This one holds the homepage's half of the same contract, which that
+     move would otherwise have dropped: the film owns the screen first and the
+     bar is hidden under it (compose.py), and the moment the visitor is past the
+     film it is the same booking bar as everywhere else. */
+  test('the homepage bar hides under the film and books below it', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+    const bar = page.locator('a.callbar');
+    await expect(bar, 'the homepage carries exactly one sticky bar').toHaveCount(1);
+    await expect(bar, 'hidden while the film owns the screen').toBeHidden();
+
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains('nv-below')),
+      { message: 'the page never reported itself past the film', timeout: 30_000 }).toBe(true);
+
+    await expect(bar, 'and present once the film is behind you').toBeVisible();
+    await expect(bar).toHaveAttribute('href', '/book.html#pick-a-time');
+    await expect(bar).toHaveAttribute('data-evt', 'callbar_book_click');
+  });
+
   test('a desktop visitor has working navigation within a second', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
