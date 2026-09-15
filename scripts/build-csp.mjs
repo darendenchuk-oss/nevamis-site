@@ -39,6 +39,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { publishedFiles } from './lib/published-files.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CHECK = process.argv.includes('--check');
@@ -87,6 +88,12 @@ const PAGES = [
   ...JSON.parse(fs.readFileSync(path.join(root, 'content-map.json'), 'utf8')).pages.map((p) => p.file),
   'talk/index.html',
 ];
+
+/* Every document GitHub Pages serves must be in PAGES, or it is served with
+   no policy at all while --check reports every page current. The published
+   set comes from the same rule check-published-surface.mjs uses. */
+const DOCUMENT = /\.(html?|xhtml)$/i;
+const uncovered = publishedFiles(root).filter((f) => DOCUMENT.test(f) && !PAGES.includes(f));
 
 /* The Cal.com scheduler. site.js turns any element carrying data-book-src into
    an iframe at runtime, so a page can need frame-src without a static iframe
@@ -165,6 +172,10 @@ function region(file, html) {
 }
 
 let changed = 0, stale = 0, failed = 0;
+for (const f of uncovered) {
+  console.error(`ERROR ${f}: published but has no Content-Security-Policy. Register the page in content-map.json (or add it to PAGES in scripts/build-csp.mjs) and rebuild, or exclude it in _config.yml.`);
+  failed++;
+}
 for (const file of PAGES) {
   const full = path.join(root, file);
   if (!fs.existsSync(full)) { console.error(`ERROR ${file}: listed but missing`); failed++; continue; }

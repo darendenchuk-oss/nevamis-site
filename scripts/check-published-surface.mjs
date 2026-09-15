@@ -35,9 +35,32 @@ const ROOT_FILES = new Set([
   /* Twilio fetches this for every Nevamis phone number. It must stay published. */
   'ring.xml',
 ]);
+/* assets/ holds what pages load: media, fonts, scripts, styles and data. No
+   documents. An HTML page (or an SVG carrying script) served from assets/ would
+   run on the nevamis.ca origin without the Content-Security-Policy every page
+   gets from scripts/build-csp.mjs, because that policy travels inside the page. */
+const ASSET_TYPES = /\.(png|gif|jpe?g|webp|avif|ico|mp4|webm|mp3|wav|ogg|m4a|woff2?|ttf|otf|js|css|json|svg)$/i;
+/* An SVG opened directly is a document. One with no script, no event handler
+   attribute, no foreignObject and no javascript: URL cannot run anything. */
+function svgProblem(f) {
+  const t = fs.readFileSync(path.join(root, f), 'utf8');
+  if (/<(?:[\w-]+:)?script\b/i.test(t)) return 'a <script>';
+  if (/\son[a-z]+\s*=/i.test(t)) return 'an event handler attribute';
+  if (/<(?:[\w-]+:)?foreignObject\b/i.test(t)) return 'a <foreignObject>';
+  if (/javascript\s*:/i.test(t)) return 'a javascript: URL';
+  return '';
+}
+const unsafeSvg = [];
+function assetOk(f) {
+  if (!ASSET_TYPES.test(f)) return false;
+  if (!/\.svg$/i.test(f)) return true;
+  const why = svgProblem(f);
+  if (why) unsafeSvg.push(`${f} contains ${why}`);
+  return !why;
+}
 const MEDIA = /\.(png|gif|jpe?g|webp|svg|mp4|webm)$/i;
 const DIRS = [
-  { dir: 'assets/', ok: () => true },
+  { dir: 'assets/', ok: assetOk },
   { dir: 'talk/', ok: (f) => f === 'talk/index.html' || f === 'talk/talk.js' },
   { dir: '.well-known/', ok: (f) => f === '.well-known/security.txt' },
   /* Only images: email signatures already sent embed
@@ -58,6 +81,7 @@ const unexpected = published.filter((f) => {
 const missing = REQUIRED.filter((f) => !set.has(f));
 
 if (missing.length) console.error('MUST BE PUBLISHED but is not (excluded, hidden or untracked):\n  ' + missing.join('\n  '));
+if (unsafeSvg.length) console.error('SVG THAT CAN RUN CODE on the nevamis.ca origin. Remove the script, handler, foreignObject or javascript: URL:\n  ' + unsafeSvg.join('\n  '));
 if (unexpected.length) {
   const byTop = {};
   for (const f of unexpected) { const t = f.split('/')[0]; (byTop[t] = byTop[t] || []).push(f); }
