@@ -8,7 +8,18 @@
      phone number the engine provisions. A changed <Redirect> or an added
      <Dial> reroutes real customers' callers.
    - the vendored third-party code (GSAP, the ElevenLabs widget) runs inside
-     the site.
+     the site. EVERY published file under assets/vendor/ is pinned by hash,
+     so a vendor file that is new, changed or gone fails until the manifest
+     says so.
+   - a same-origin script runs with the page's full authority, and the
+     Content-Security-Policy's script-src 'self' allows any of them. So every
+     script a published page or first-party script loads (<script src>,
+     <link rel=modulepreload>, import, or a ".js" path in script code) must
+     be a published first-party script: site.js, motion.js,
+     pricing-config.js, roadmap-config.js, assets/film/*.js,
+     assets/motion/*.js, talk/talk.js, or an assets/vendor/ file pinned in
+     the manifest. That list is FIRST_PARTY_SCRIPTS below; --update never
+     extends it.
    - every phone number, email address and absolute URL in a published file
      decides where visitors, their calls, their bookings and their lead
      details go.
@@ -49,14 +60,19 @@ const MANIFEST_REL = 'config/critical-surface.json';
 const UPDATE = process.argv.includes('--update');
 const SITE = 'https://nevamis.ca';
 
-const PINNED = [
-  'ring.xml',
-  'assets/ringback-tone.wav',
-  'assets/vendor/gsap.min.js',
-  'assets/vendor/ScrollTrigger.min.js',
-  'assets/vendor/MotionPathPlugin.min.js',
-  'assets/vendor/elevenlabs-convai-widget-embed-0.18.2.js',
+const PUBLISHED = publishedFiles(root);
+const PUBLISHED_SET = new Set(PUBLISHED);
+const VENDOR = 'assets/vendor/';
+/* The vendor part is the directory, not a hand-kept list: a list of four
+   names let a fifth vendor file ship unpinned and unscanned. */
+const PINNED = ['ring.xml', 'assets/ringback-tone.wav', ...PUBLISHED.filter((f) => f.startsWith(VENDOR)).sort()];
+const FIRST_PARTY_SCRIPTS = [
+  /^(site|motion|pricing-config|roadmap-config)\.js$/,
+  /^assets\/film\/[^/]+\.js$/,
+  /^assets\/motion\/[^/]+\.js$/,
+  /^talk\/talk\.js$/,
 ];
+const FIRST_PARTY_TEXT = 'site.js, motion.js, pricing-config.js, roadmap-config.js, assets/film/*.js, assets/motion/*.js, talk/talk.js';
 const TEXT = /\.(xml|js|mjs|html|json|txt|md|css)$/i;
 
 /* Hash what git stores (LF), not a Windows checkout's CRLF copy. */
@@ -73,7 +89,7 @@ function sha(file) {
    their internal URLs are the vendor's. */
 const SCANNED = /\.(html?|xhtml|js|mjs|json|txt|xml|css|md|svg|webmanifest)$/i;
 function scannedFiles() {
-  return publishedFiles(root).filter((f) => SCANNED.test(f) && !f.startsWith('assets/vendor/'));
+  return PUBLISHED.filter((f) => SCANNED.test(f) && !f.startsWith(VENDOR));
 }
 
 /* HTML attribute values are character-reference decoded by the browser, so
@@ -170,6 +186,98 @@ function destinations() {
   return { byFile, errors: [...new Set(errors)] };
 }
 
+/* ---------- same-origin scripts ----------
+   Which scripts do published pages and first-party scripts load from
+   nevamis.ca itself? Third-party script hosts are the CSP's and the
+   destination pins' business; this is about a new file on our own origin. */
+const BACKSLASH = String.fromCharCode(92);
+/* A JS string literal as the engine reads it: \xHH, \u escapes, and "\/". */
+function unescapeJs(s) {
+  if (!s.includes(BACKSLASH)) return s;
+  let out = '';
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] !== BACKSLASH) { out += s[i]; continue; }
+    const c = s[++i];
+    if (c === 'x' && /^[0-9a-f]{2}$/i.test(s.slice(i + 1, i + 3))) { out += String.fromCharCode(parseInt(s.slice(i + 1, i + 3), 16)); i += 2; }
+    else if (c === 'u' && s[i + 1] === '{') { const e = s.indexOf('}', i); out += String.fromCodePoint(parseInt(s.slice(i + 2, e), 16) || 0xfffd); i = e; }
+    else if (c === 'u' && /^[0-9a-f]{4}$/i.test(s.slice(i + 1, i + 5))) { out += String.fromCharCode(parseInt(s.slice(i + 1, i + 5), 16)); i += 4; }
+    else if (c !== undefined) out += c;
+  }
+  return out;
+}
+/* A static import or re-export at the start of a statement, or import(). A
+   browser only loads a specifier that is a URL or starts with "/", "./" or
+   "../"; anything else is skipped (and "from" in ordinary code is not one). */
+const IMPORT_SPEC = /(?:^|[;{}\n])\s*(?:import\s*(?:[\w$*{},\s]+?\s*from\s*)?|export\s*[\w$*{},\s]*?\s*from\s*)(['"])([^'"\n]+)\1|\bimport\s*\(\s*(['"`])([^'"`\n]+)\3/g;
+const LOADABLE_SPEC = /^(?:\.{0,2}\/|[a-z][a-z0-9+.-]*:)/i;
+const JS_PATH = /(['"`])([^'"`\s<>]*?\.m?js(?:[?#][^'"`\s<>]*)?)\1/gi;
+const ATTRS = /([^\s=/>"']+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>"']+)))?/g;
+const attrsOf = (s) => Object.fromEntries([...s.matchAll(ATTRS)].map((m) => [m[1].toLowerCase(), decodeRefs(m[2] ?? m[3] ?? m[4] ?? '').trim()]));
+
+/** Script references in one published file: { spec, bases, how }. */
+function scriptRefs(file, text) {
+  const refs = [];
+  const url = `${SITE}/${file}`;
+  const jsRefs = (code, fileBase, literalBases, how) => {
+    const imports = new Set();
+    for (const m of code.matchAll(IMPORT_SPEC)) {
+      const spec = unescapeJs(m[2] ?? m[4]);
+      if (spec.includes('${') || !LOADABLE_SPEC.test(spec)) continue;
+      imports.add(m[2] ?? m[4]);
+      refs.push({ spec, bases: [fileBase], how: `import in ${how}` });
+    }
+    for (const m of code.matchAll(JS_PATH)) {
+      if (imports.has(m[2]) || m[2].includes('${')) continue;
+      refs.push({ spec: unescapeJs(m[2]), bases: literalBases, how: `a ".js" string in ${how}` });
+    }
+  };
+  if (/\.(html?|xhtml)$/i.test(file)) {
+    for (const m of text.matchAll(/<script\b((?:[^>"']|"[^"]*"|'[^']*')*)>([\s\S]*?)<\/script\s*>/gi)) {
+      const a = attrsOf(m[1]);
+      if ('src' in a) refs.push({ spec: a.src, bases: [url], how: '<script src>' });
+      jsRefs(m[2], url, [url], 'an inline script');
+    }
+    for (const m of text.matchAll(/<link\b((?:[^>"']|"[^"]*"|'[^']*')*)>/gi)) {
+      const a = attrsOf(m[1]);
+      const rel = (a.rel || '').toLowerCase();
+      if (a.href && (/modulepreload/.test(rel) || /\.m?js(?:[?#]|$)/i.test(a.href) || (/preload|prefetch/.test(rel) && /^(script|worker)$/i.test(a.as || '')))) {
+        refs.push({ spec: a.href, bases: [url], how: `<link rel=${rel || '?'}>` });
+      }
+    }
+  } else if (/\.m?js$/i.test(file) && !file.startsWith(VENDOR)) {
+    /* A relative path in script code resolves against the page that runs it
+       (every page is at the root or /talk/), an import against the file. */
+    jsRefs(text, url, [url, `${SITE}/`, `${SITE}/talk/`], file);
+  }
+  return refs;
+}
+
+function scriptProblems(pinnedVendor) {
+  const problems = [];
+  let loads = 0;
+  const verdict = (u) => {
+    if (u.origin !== SITE) return null;
+    let p;
+    try { p = decodeURIComponent(u.pathname).replace(/^\/+/, ''); } catch { return { path: u.pathname, why: 'an undecodable path' }; }
+    if (p.includes(BACKSLASH) || p.split('/').some((seg) => seg === '..' || seg === '.')) return { path: p, why: 'a path with dot segments or backslashes' };
+    if (!PUBLISHED_SET.has(p)) return { path: p, why: 'not a published file' };
+    if (p.startsWith(VENDOR)) return pinnedVendor.has(p) ? { path: p, ok: true } : { path: p, why: 'a vendor file that is not pinned in the manifest' };
+    return FIRST_PARTY_SCRIPTS.some((r) => r.test(p)) ? { path: p, ok: true } : { path: p, why: 'not a first-party script path' };
+  };
+  for (const f of PUBLISHED) {
+    if (!/\.(html?|xhtml|m?js)$/i.test(f)) continue;
+    const text = fs.readFileSync(path.join(root, f), 'utf8');
+    for (const r of scriptRefs(f, text)) {
+      const vs = r.bases.map((b) => { try { return verdict(new URL(r.spec, b)); } catch { return null; } }).filter(Boolean);
+      if (!vs.length) continue;
+      loads++;
+      if (vs.some((v) => v.ok)) continue;
+      problems.push(`${f}: ${r.how} loads /${vs[0].path}, ${vs[0].why}`);
+    }
+  }
+  return { problems: [...new Set(problems)], loads };
+}
+
 /* ---------- run ---------- */
 const current = {
   files: Object.fromEntries(PINNED.map((f) => [f, sha(f)])),
@@ -178,15 +286,23 @@ const current = {
 const count = (byFile) => Object.values(byFile).reduce((n, l) => n + l.length, 0);
 const missingPinned = PINNED.filter((f) => current.files[f] === null);
 
+const SCRIPT_HELP = `A same-origin script runs with the page's full authority and script-src 'self' allows it. Allowed: ${FIRST_PARTY_TEXT}, and assets/vendor/ files pinned in ${MANIFEST_REL}. `
+  + 'Load it from one of those paths, or vendor it under assets/vendor/ and pin it with --update so its hash shows in the manifest diff:\n  ';
+
 if (UPDATE) {
-  if (current.unpinnable.length || missingPinned.length) {
+  const scripts = scriptProblems(new Set(PINNED.filter((f) => f.startsWith(VENDOR))));
+  if (current.unpinnable.length || missingPinned.length || scripts.problems.length) {
     console.error('Refusing to write the manifest. These cannot be pinned; fix them first:\n  '
-      + [...missingPinned.map((f) => `${f}: missing`), ...current.unpinnable].join('\n  '));
+      + [...missingPinned.map((f) => `${f}: missing`), ...current.unpinnable, ...scripts.problems.map((p) => `${p} (${FIRST_PARTY_TEXT} or assets/vendor/ only)`)].join('\n  '));
     process.exit(1);
   }
+  /* Keep the existing order so a re-pin diff shows only what changed. */
+  let order = [];
+  try { order = Object.keys(JSON.parse(fs.readFileSync(MANIFEST, 'utf8')).files || {}); } catch { order = []; }
+  order = [...order.filter((f) => PINNED.includes(f)), ...PINNED.filter((f) => !order.includes(f))];
   const out = {
-    _comment: 'Pinned by scripts/check-critical-surface.mjs. Changing ring.xml or vendored code, or adding, changing or removing a phone number, email address or URL in a published file, must update this file in the same commit. Regenerate with: node scripts/check-critical-surface.mjs --update, then review the diff.',
-    files: current.files,
+    _comment: 'Pinned by scripts/check-critical-surface.mjs. Changing ring.xml or any file under assets/vendor/, or adding, changing or removing a phone number, email address or URL in a published file, must update this file in the same commit. Regenerate with: node scripts/check-critical-surface.mjs --update, then review the diff.',
+    files: Object.fromEntries(order.map((f) => [f, current.files[f]])),
     destinations: current.destinations,
   };
   fs.mkdirSync(path.dirname(MANIFEST), { recursive: true });
@@ -214,9 +330,13 @@ if (!isMap(want) || !isMap(want.files) || !isMap(want.destinations)
 const errors = [];
 for (const f of PINNED) {
   if (current.files[f] === null) errors.push(`${f}: missing from the checkout`);
-  else if (!want.files[f]) errors.push(`${f}: not in the manifest`);
+  else if (!want.files[f]) errors.push(f.startsWith(VENDOR) ? `${f}: new vendor file, not pinned (every file under ${VENDOR} must be listed with its sha256)` : `${f}: not in the manifest`);
   else if (want.files[f] !== current.files[f]) errors.push(`${f}: content changed (pinned ${want.files[f].slice(0, 12)}, now ${current.files[f].slice(0, 12)})`);
 }
+for (const f of Object.keys(want.files)) {
+  if (!PINNED.includes(f)) errors.push(`${f}: pinned in the manifest but no longer published (deleted, renamed or excluded)`);
+}
+const scripts = scriptProblems(new Set(Object.keys(want.files).filter((f) => f.startsWith(VENDOR))));
 for (const e of current.unpinnable) errors.push(`${e} (never allowed; remove it)`);
 const files = new Set([...Object.keys(want.destinations), ...Object.keys(current.destinations)]);
 for (const f of [...files].sort()) {
@@ -231,6 +351,11 @@ if (errors.length) {
     + 'If every line below is deliberate, run node scripts/check-critical-surface.mjs --update and commit the manifest diff with the change:\n  '
     + errors.join('\n  '));
   process.exitCode = 1;
-} else {
-  console.log(`Critical surface OK: ${PINNED.length} pinned files unchanged, ${count(current.destinations)} destinations in ${Object.keys(current.destinations).length} files match the manifest.`);
+}
+if (scripts.problems.length) {
+  console.error('SAME-ORIGIN SCRIPT THAT IS NOT FIRST-PARTY. ' + SCRIPT_HELP + scripts.problems.join('\n  '));
+  process.exitCode = 1;
+}
+if (!errors.length && !scripts.problems.length) {
+  console.log(`Critical surface OK: ${PINNED.length} pinned files unchanged, ${count(current.destinations)} destinations in ${Object.keys(current.destinations).length} files match the manifest, ${scripts.loads} same-origin script loads all first-party.`);
 }
