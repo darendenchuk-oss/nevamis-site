@@ -48,3 +48,26 @@ export function applySelfCta(navHtml, file) {
     (m, a) => a);
   return out;
 }
+
+/**
+ * The same rewrite for the phone sticky bar (a.callbar, shared chrome from
+ * _partials/footer.html). It links to /book.html#pick-a-time, so on book.html
+ * it would reload the page a visitor is already booking on. There it becomes
+ * the in-page anchor, and its booking event is dropped for the reason above:
+ * a scroll by someone already at the scheduler is not booking intent.
+ *
+ * Idempotent: the rewritten bar no longer names the page, so a second build
+ * finds nothing to change (build-pages replaces the footer and bar first).
+ *
+ * @param {string} html the whole page
+ * @param {string} file e.g. 'book.html'
+ * @returns {string}
+ */
+export function applySelfCallbar(html, file) {
+  const anchor = SELF_CTA_TARGET[file];
+  if (!anchor) return html;
+  const self = file === 'index.html' ? '/' : '/' + file;
+  return html.replace(
+    new RegExp(`(<a class="callbar"[^>]*?) href="${esc(self)}(?:#[^"]*)?"([^>]*)>`, 'g'),
+    (m, a, rest) => `${a} href="${anchor}"${rest.replace(/\s*data-evt="[^"]*"/g, '')}>`);
+}

@@ -7,9 +7,10 @@ input, or customer data in properties.
 
 | Event | Trigger | Allowed props | Business question |
 |---|---|---|---|
-| demo_phone_click | any "Call the AI" / callbar / phone CTA | none | Does the live line drive interest? |
+| demo_phone_click | any "Call the AI" / phone CTA | none | Does the live line drive interest? |
 | hero_live_demo_call_click | hero phone CTA specifically | none | Hero vs nav CTA performance |
 | hero_book_call_click | any Book-a-Call CTA | none | Primary conversion intent |
+| callbar_book_click | mobile sticky bar (<=820px), "Book a 15-min call" to /book.html#pick-a-time; not on book.html, where the bar scrolls to the scheduler and sends nothing | none | Does a persistent booking bar start bookings on phones? |
 | booking_page_view | book.html load | none | Funnel reach |
 | booking_start | Cal.com link click | none | Booking starts |
 | demo_audio_play / demo_audio_complete | example-call player | none | Does the proof get consumed? |

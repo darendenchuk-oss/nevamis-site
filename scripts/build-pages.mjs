@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { headCssBlock, readCssSources, applyHeadCss } from './lib/inline-css.mjs';
-import { applySelfCta } from './lib/nav-cta.mjs';
+import { applySelfCta, applySelfCallbar } from './lib/nav-cta.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
@@ -127,6 +127,8 @@ for (const file of PAGES) {
   }
 
   html = currentMark(html, file);
+  /* the phone bar books; on the booking page itself it scrolls to the scheduler */
+  html = applySelfCallbar(html, file);
 
   if (html !== before) { fs.writeFileSync(full, html); changed++; console.log(`${file}: chrome synced`); }
   else console.log(`${file}: already current`);
