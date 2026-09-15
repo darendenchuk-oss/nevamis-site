@@ -239,20 +239,23 @@ html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
   box-shadow:0 10px 30px -12px rgba(47,191,143,.6);background-size:160% 100%;background-position:0 0;
   transition:background-position .45s var(--e-out),box-shadow .3s var(--e-out)}
 .btn-primary:hover{background-position:100% 0;box-shadow:0 16px 44px -14px rgba(47,191,143,.8)}
-/* Outline buttons. Most pages run the aurora canvas behind every section, so
-   an outline button's ground is whatever the shader paints that frame: the
-   transparent pill measured 1.9:1 on its border over bright frames, and a mint
-   hover tint let its label fall under 4.5:1. So the pill paints its own dark
-   ground and a 4px dark ring just outside the border, which is what the border
-   is seen against (never backdrop-filter: see the aurora note above). On the
-   plain navy ground both are close to invisible. Hover strengthens the border
-   to mint and darkens the fill; it used to drop the border to .42. The focus
-   rule restates the ring, because .btn:focus-visible also sets box-shadow. */
-.btn-ghost,.btn-light-ghost{border-color:var(--line-control-strong);color:var(--ink);
-  background:rgba(2,8,13,.55);box-shadow:0 0 0 4px rgba(2,8,13,.45);
+/* Outline buttons. The outline IS the button, so its boundary is
+   --line-control-strong (.72) rather than the .46 control hairline that inputs
+   and the nav toggle keep. The pill itself stays transparent: it shares the
+   navy ground with the nav and the body copy, and a tint over it buys nothing.
+   Hover strengthens the border to mint and paints nothing; it used to drop the
+   border to .42 and add a mint tint, which over the aurora canvas pulled
+   labels under 4.5:1.
+   Where the ground is the aurora shader rather than navy, a transparent pill
+   is at the mercy of the frame (1.9:1 on the border was measured over bright
+   ones). That is answered where it happens, on the page heroes that sit on the
+   brightest part of the canvas (scripts/build-content.mjs, .page-hero
+   .btn-ghost paints its own dark ground and ring), not by making every outline
+   button on the site carry a dark plate. Never backdrop-filter: see the aurora
+   note above. */
+.btn-ghost,.btn-light-ghost{border-color:var(--line-control-strong);color:var(--ink);background:transparent;
   transition:border-color .25s var(--e-out),background .25s var(--e-out)}
-.btn-ghost:hover,.btn-light-ghost:hover{border-color:var(--mint);background:rgba(2,8,13,.72)}
-.btn-ghost:focus-visible,.btn-light-ghost:focus-visible{box-shadow:inset 0 0 0 3px var(--ink),0 0 0 4px rgba(2,8,13,.45)}
+.btn-ghost:hover,.btn-light-ghost:hover{border-color:var(--mint)}
 .ring-once{animation:ringOnce 1s var(--e-out) 1}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 

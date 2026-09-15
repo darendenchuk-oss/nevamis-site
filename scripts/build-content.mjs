@@ -89,10 +89,23 @@ ${CSS_BLOCK}
   .page-hero .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
   /* The hero sits over the brightest part of the aurora canvas: measured at
      1440, the outline button's border fell to 1.94:1 and its label to 3.99:1.
-     site.css gives every outline button a painted dark fill and ring (never
-     backdrop-filter, see tests/hero-contrast.spec.js); here the border is also
-     solid mint rather than .72, because this is where the ground is brightest. */
+     So here, and only here, the outline button carries its own ground: a
+     painted dark fill and a dark ring outside the border, plus a solid mint
+     border instead of the .72 token. A painted fill, never backdrop-filter
+     (see the aurora note in site.css and tests/hero-contrast.spec.js), and
+     never site-wide: elsewhere the ground is navy and the pill stays
+     transparent. .btn:focus-visible sets box-shadow, so the focus rule has to
+     restate the ring or focusing the button would erase it.
+     The ring is .82, not the .45 it started at, because the ring is the
+     outermost thing the eye has to find. Against the brightest aurora pixel
+     measured 8px outside the button, rgb(25,145,87), a .45 ring composites to
+     2.25:1 and the mint border itself only reaches 3.03:1, so the silhouette
+     was riding on the border and the ring was decoration. .82 measures 3.65:1
+     against that same pixel, and on navy it is still invisible. */
   .page-hero .btn-ghost,.page-hero .btn-ghost:hover{border-color:var(--mint)}
+  .page-hero .btn-ghost{background:rgba(2,8,13,.55);box-shadow:0 0 0 4px rgba(2,8,13,.82)}
+  .page-hero .btn-ghost:hover{background:rgba(2,8,13,.72)}
+  .page-hero .btn-ghost:focus-visible{box-shadow:inset 0 0 0 3px var(--ink),0 0 0 4px rgba(2,8,13,.82)}
   .crumb{font-size:13px;color:var(--muted);margin-bottom:6px}
   .crumb a{color:var(--muted)}
   .crumb a:hover{color:var(--mint)}
