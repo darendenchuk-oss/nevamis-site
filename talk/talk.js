@@ -34,11 +34,17 @@
   }
 
   /* The same anonymous count site.js sends: event name, path, and only the
-     referring site's hostname. No identifier, nothing stored. */
+     referring site's origin (scheme and host, no path or query). The engine
+     parses it with new URL() and stores the hostname alone; a bare hostname
+     would not parse there and was stored as null. No identifier, nothing
+     stored. */
   function track(name) {
     try {
       var ref = "";
-      try { ref = document.referrer ? new URL(document.referrer).hostname : ""; } catch (e) { ref = ""; }
+      try {
+        var o = document.referrer ? new URL(document.referrer).origin : "";
+        ref = /^https?:\/\/[^\/?#]+$/.test(o) && o.length <= 260 ? o : "";
+      } catch (e) { ref = ""; }
       var payload = JSON.stringify({ name: name, page: location.pathname, referrer: ref, source: "" });
       if (navigator.sendBeacon) navigator.sendBeacon(EVENTS_URL, payload);
     } catch (e) { /* analytics must never break the call */ }
@@ -62,6 +68,11 @@
     s.async = true;
     s.onload = function () { btn.textContent = "Call panel is open"; };
     s.onerror = function () {
+      /* Take the element and the failed script back out. The guard above
+         returns while an <elevenlabs-convai> is in the page, so leaving it
+         behind turned the re-enabled button into one that did nothing. */
+      if (el.parentNode) el.parentNode.removeChild(el);
+      if (s.parentNode) s.parentNode.removeChild(s);
       loading = false;
       btn.disabled = false;
       btn.textContent = "Start the voice call";

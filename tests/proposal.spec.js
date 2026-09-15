@@ -198,6 +198,63 @@ test('personalises from the URL without ever executing it', async ({ page }) => 
   expect(html).not.toContain('<img');
 });
 
+/* The recipient filter exists so nobody can make a nevamis.ca proposal print a
+   phrase, phone number or web address of their choosing. Its first version
+   also refused real prospects: "24/7", "A/C" and "HVAC/R" failed on the slash,
+   and every "(1991) Ltd" failed a four-digit rule, so about 2% of the ranked
+   lead list silently got the generic proposal. Both directions are pinned. */
+test('personalises for real trade names: slashes, years of incorporation, accents', async ({ page }) => {
+  const names = [
+    '24/7 Plumbing',
+    'A/C Pros',
+    'HVAC/R Services',
+    'Smith & Sons (1991) Ltd',
+    'Côte-Saint-Luc Électrique',
+    'Londondale Heating & Air Conditioning (1991) Ltd',
+    'Acclaimed! Heating, Cooling & Furnace Cleaning',
+    'Legal Electric 1986 Ltd',
+    "Roy's Roofing #2",
+    'J.D. Irving Mechanical',
+  ];
+  for (const name of names) {
+    await page.goto('/proposal.html?plan=growth&to=' + encodeURIComponent(name));
+    await expect(page.locator('#preparedFor'), `"${name}" must be accepted`).toHaveText('Prepared for ' + name);
+    await expect(page.locator('#headline')).toContainText(name);
+    expect(await page.title()).toContain(name);
+  }
+});
+
+test('refuses a web address, an email, a phone number or markup in place of a name', async ({ page }) => {
+  await page.goto('/proposal.html?plan=growth');
+  const generic = {
+    preparedFor: await page.locator('#preparedFor').textContent(),
+    headline: await page.locator('#headline').textContent(),
+    title: await page.title(),
+  };
+  const refused = [
+    'Call us at www.evil.com',
+    'https://evil.example/pay',
+    'Pay at evil-site.net today',
+    'Acme Plumbing evil.example',
+    'sales@evil.example',
+    'Call 587-413-0035',
+    'Acme (587) 413 0035',
+    'Acme 5874130035',
+    'Acme 1 587 413 0035',
+    'Acme 24/7 587/413/0035',
+    'Acme Plumbing" onmouseover="alert(1)',
+    '<img src=x onerror=alert(1)>',
+    '<script>document.title="x"</script>',
+  ];
+  for (const bad of refused) {
+    await page.goto('/proposal.html?plan=growth&to=' + encodeURIComponent(bad));
+    await expect(page.locator('#preparedFor'), `"${bad}" must be refused`).toHaveText(generic.preparedFor);
+    await expect(page.locator('#headline')).toHaveText(generic.headline);
+    expect(await page.title()).toBe(generic.title);
+    expect(await page.locator('#preparedFor *, #headline img, #headline script').count()).toBe(0);
+  }
+});
+
 test('is a private sales artefact: noindex and out of the sitemap', async ({ page }) => {
   await page.goto('/proposal.html');
   const robots = await page.evaluate(() =>

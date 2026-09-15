@@ -39,6 +39,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { publishedFiles } from './lib/published-files.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CHECK = process.argv.includes('--check');
@@ -88,6 +89,28 @@ const PAGES = [
   'talk/index.html',
 ];
 
+/* Every document GitHub Pages serves must be in PAGES, or it is served with
+   no policy at all while --check reports every page current. The published
+   set comes from the same rule check-published-surface.mjs uses. */
+const DOCUMENT = /\.(html?|xhtml)$/i;
+const uncovered = publishedFiles(root).filter((f) => DOCUMENT.test(f) && !PAGES.includes(f));
+
+/* The Cal.com scheduler. site.js turns any element carrying data-book-src into
+   an iframe at runtime, so a page can need frame-src without a static iframe
+   in its HTML. Only Cal.com may be framed. */
+const CAL_PREFIX = 'https://cal.com/';
+function bookSources(html) {
+  return [...html.matchAll(/\bdata-book-src\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/gi)]
+    .map((m) => (m[1] ?? m[2] ?? m[3] ?? '').trim());
+}
+function isCal(src) {
+  if (!src.startsWith(CAL_PREFIX)) return false;
+  try {
+    const u = new URL(src);
+    return u.protocol === 'https:' && u.host === 'cal.com' && !u.username && !u.password;
+  } catch { return false; }
+}
+
 const START = '<!-- generated:csp -->';
 const END = '<!-- /generated:csp -->';
 const lf = (s) => s.replace(/\r\n/g, '\n');
@@ -122,13 +145,18 @@ function problems(html) {
   const handler = noScripts.match(/<[a-z][^>]*\son[a-z]+\s*=\s*["']/i);
   if (handler) found.push('inline event handler: ' + handler[0].slice(0, 80));
   if (/\b(?:href|src|action)\s*=\s*["']\s*javascript:/i.test(noScripts)) found.push('javascript: URL');
+  for (const src of bookSources(html)) {
+    if (!isCal(src)) found.push(`data-book-src must start with ${CAL_PREFIX}, found "${src.slice(0, 80)}"`);
+  }
   return found;
 }
 
 function policyFor(file, html) {
   const p = JSON.parse(JSON.stringify(BASE));
   if (file === 'talk/index.html') Object.assign(p, TALK);
-  if (/<iframe\b[^>]*\bsrc\s*=\s*["']https:\/\/cal\.com\//i.test(html)) p['frame-src'] = ['https://cal.com'];
+  if (/<iframe\b[^>]*\bsrc\s*=\s*["']https:\/\/cal\.com\//i.test(html) || bookSources(html).some(isCal)) {
+    p['frame-src'] = ['https://cal.com'];
+  }
   p['script-src'] = [...p['script-src'], ...inlineScriptHashes(html)];
   return Object.entries(p).map(([k, v]) => (v.length ? `${k} ${v.join(' ')}` : k)).join('; ');
 }
@@ -144,6 +172,10 @@ function region(file, html) {
 }
 
 let changed = 0, stale = 0, failed = 0;
+for (const f of uncovered) {
+  console.error(`ERROR ${f}: published but has no Content-Security-Policy. Register the page in content-map.json (or add it to PAGES in scripts/build-csp.mjs) and rebuild, or exclude it in _config.yml.`);
+  failed++;
+}
 for (const file of PAGES) {
   const full = path.join(root, file);
   if (!fs.existsSync(full)) { console.error(`ERROR ${file}: listed but missing`); failed++; continue; }

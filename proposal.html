@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-spTgeeG+vDOAkonlzD5wh1187GZ25nKUp1qusG+11NE=' 'sha256-kuojdLHL/2FQdInVFdSqaK42VrTGKYFp7L9IMxYmZAs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-7hOnRrSGqCvUzj15MFbugAks1a7sayt0ik8FqlHDEck=' 'sha256-N/3MrnmBUBin5DSiwnmOhrQ5P0cxlSEMWzo7YJZ/0wU='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -898,14 +898,23 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        Nevamis name, a ready-made lure for somebody else's message. Markup is
        dropped whole (so a pasted tag cannot glue words together), then the
        name must be letters, digits and ordinary business punctuation, at
-       most 60 characters, with no web address, no email and no long digit
-       run. Anything else renders the generic proposal. */
+       most 60 characters, with no web address, no email and nothing that
+       reads as a phone number. Anything else renders the generic proposal.
+
+       Real trade names use "/" (24/7, A/C, HVAC/R), "!" and "#", and many
+       Alberta companies carry their year of incorporation ("(1991) Ltd").
+       So the digit rule is aimed at phone numbers: 7 or more digits joined
+       only by phone separators (space . - ( ) +), or 10 or more digits in
+       the whole name. A web address is any www., "://" or word.word token
+       with at least two characters before the dot, which leaves initials
+       such as "J.D." alone. */
     function recipient(v) {
       var s = String(v || "").replace(/<[^>]*>?/g, " ").replace(/\s+/g, " ").trim();
       if (!s || s.length > 60) return "";
-      if (!/^[A-Za-zÀ-ɏ0-9 .,'&()\-’]+$/.test(s)) return "";
-      if (/\d{4,}/.test(s)) return "";
-      if (/(www\.|\b[a-z0-9-]+\.(com|ca|net|org|io|co|app|xyz|info|biz|me|us|link|site|online|shop|top)\b)/i.test(s)) return "";
+      if (!/^[A-Za-zÀ-ɏ0-9 .,'&()\-’\/!#–]+$/.test(s)) return "";
+      if (/\d(?:[ .()+\-–]*\d){6,}/.test(s)) return "";
+      if ((s.match(/\d/g) || []).length >= 10) return "";
+      if (/(www\.|:\/\/|(^|[^A-Za-z0-9.])[A-Za-z0-9-]{2,}\.[A-Za-z]{2,}\b)/i.test(s)) return "";
       return s;
     }
     var to = recipient(q.get("to"));

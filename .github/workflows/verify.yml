@@ -50,7 +50,7 @@ jobs:
         run: node scripts/build-csp.mjs --check
       - name: published surface
         run: node scripts/check-published-surface.mjs
-      - name: critical surface (call routing, vendor code, outside hosts)
+      - name: critical surface (call routing, vendor code, phone, email and link destinations)
         run: node scripts/check-critical-surface.mjs
       - name: generated pages reproduce from their builders
         run: node scripts/check-generator-drift.mjs

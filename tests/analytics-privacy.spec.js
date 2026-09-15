@@ -122,6 +122,126 @@ test('allowed tags survive alongside disallowed ones rather than all-or-nothing'
   }
 });
 
+/* ---- the referrer: the referring ORIGIN, never its path or query ----
+
+   The privacy page promises "the referring site's hostname". The site sends
+   the origin (scheme and host) because both engine routes run
+   new URL(referrer).hostname and store null when that throws: a bare
+   "www.google.com" does not parse, so for a day every event was stored with
+   no referrer at all. These tests assert both halves: nothing past the origin
+   leaves the browser, and what does leave parses to the hostname. */
+function referrers(seen) {
+  return seen.map((s) => { try { return JSON.parse(s.body); } catch { return null; } })
+    .filter((o) => o && Object.prototype.hasOwnProperty.call(o, 'referrer'))
+    .map((o) => o.referrer);
+}
+
+test('a referrer with a path, query and fragment is sent as its origin only', async ({ page }) => {
+  /* A search page's full URL, as a browser reports it when the referring site
+     sends one. Set on the document, since a local http server never receives
+     a cross-origin https referrer. */
+  const REF = 'https://www.google.com/search?q=plumber+answering+service&client=private-id#frag';
+  await page.addInitScript((ref) => {
+    Object.defineProperty(document, 'referrer', { get: () => ref, configurable: true });
+  }, REF);
+  const seen = await capture(page, '/pricing.html');
+  const refs = referrers(seen);
+  expect(refs.length, 'no beacon carried a referrer field, so this test proved nothing').toBeGreaterThan(0);
+  for (const r of refs) {
+    expect(r, 'the referrer must be the origin, with no path, query or fragment').toBe('https://www.google.com');
+    /* What both engine routes do with it before storing. */
+    expect(new URL(r).hostname).toBe('www.google.com');
+  }
+  for (const s of seen) {
+    expect(s.body).not.toContain('plumber');
+    expect(s.body).not.toContain('private-id');
+    expect(s.body).not.toContain('/search');
+  }
+});
+
+test('a same-site referrer carrying a name in its query is sent as the origin only', async ({ page, baseURL }) => {
+  const seen = [];
+  for (const pattern of TELEMETRY) {
+    await page.route(pattern, (route) => {
+      seen.push({ url: route.request().url(), body: route.request().postData() || '' });
+      route.abort();
+    });
+  }
+  await page.goto('/pricing.html?to=Test%20Person').catch(() => {});
+  await page.waitForTimeout(600);
+  seen.length = 0;
+  /* A real same-origin navigation: the browser's document.referrer on the next
+     page is the full previous URL, query included. */
+  await page.evaluate(() => { location.href = '/book.html'; });
+  await page.waitForURL('**/book.html');
+  const docRef = await page.evaluate(() => document.referrer);
+  expect(docRef, 'the browser must report the full previous URL, or this test proves nothing').toContain('?to=');
+  await page.waitForTimeout(1200);
+  const refs = referrers(seen);
+  expect(refs.length).toBeGreaterThan(0);
+  const origin = new URL(baseURL).origin;
+  for (const r of refs) expect(r).toBe(origin);
+  for (const s of seen) {
+    expect(s.body).not.toContain('Test Person');
+    expect(s.body).not.toContain('Test%20Person');
+    expect(s.body).not.toContain('pricing.html');
+  }
+});
+
+test('no referrer sends an empty referrer, not a made-up one', async ({ page }) => {
+  const seen = await capture(page, '/pricing.html');
+  const refs = referrers(seen);
+  expect(refs.length).toBeGreaterThan(0);
+  for (const r of refs) expect(r).toBe('');
+});
+
+/* /talk/ does not load site.js. talk/talk.js sends its own browser_call_start
+   count with its own copy of the origin-only rule, and nothing above loads
+   /talk/, so a talk.js-only revert to the full document.referrer passed this
+   whole file. This drives the real click path without starting a call: every
+   ElevenLabs request, the pinned widget script served from this site
+   included, is aborted, so talk.js takes its "did not load" branch. Anything
+   bound for the engine is answered locally with a 204. */
+test('the /talk/ call beacon sends the referring origin only, and no call starts', async ({ page }) => {
+  const REF = 'https://www.google.com/search?q=plumber+answering+service&client=private-id#frag';
+  await page.addInitScript((ref) => {
+    Object.defineProperty(document, 'referrer', { get: () => ref, configurable: true });
+  }, REF);
+  const seen = [];
+  const elevenlabs = [];
+  await page.route('https://app.nevamis.ca/**', (route) => {
+    seen.push({ url: route.request().url(), body: route.request().postData() || '' });
+    return route.fulfill({ status: 204, body: '' });
+  });
+  await page.route(/elevenlabs/i, (route) => {
+    elevenlabs.push(route.request().url());
+    return route.abort();
+  });
+
+  await page.goto('/talk/?to=Test%20Person');
+  const start = page.locator('#talkStart');
+  await start.click();
+  /* The widget load was refused, so talk.js put the button back. */
+  await expect(start).toHaveText('Start the voice call');
+  await expect(start).toBeEnabled();
+  expect(elevenlabs.length, 'the click never tried to load the widget, so the call path did not run').toBeGreaterThan(0);
+  expect(await page.locator('elevenlabs-convai').count(), 'a widget element was left in the page').toBe(0);
+
+  await expect.poll(() => seen.length, { message: 'talk.js sent no beacon, so this test proved nothing' }).toBeGreaterThan(0);
+  const events = seen.map((s) => { try { return JSON.parse(s.body); } catch { return null; } }).filter(Boolean);
+  expect(events.map((e) => e.name)).toContain('browser_call_start');
+  for (const e of events) {
+    expect(e.referrer, 'the referrer must be the origin, with no path, query or fragment').toBe('https://www.google.com');
+    expect(new URL(e.referrer).hostname).toBe('www.google.com');
+    expect(e.page).toBe('/talk/');
+  }
+  for (const s of seen) {
+    for (const f of ['plumber', 'private-id', '/search', '#frag', 'Test Person', 'Test%20Person']) {
+      expect(s.body, `"${f}" reached ${s.url}`).not.toContain(f);
+    }
+  }
+});
+
 /* ---- the fix must not have broken analytics ---- */
 
 test('events still send, and their names are unchanged', async ({ page }) => {
