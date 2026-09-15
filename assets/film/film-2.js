@@ -1792,10 +1792,11 @@ var GOV = {
   if (m) { GOV.forced = true; GOV.pending = +m[1]; }
 })();
 var LAGMS = (function(){ var m = /^(\d{1,3})$/.exec(new URLSearchParams(location.search).get('lag') || ''); return m ? +m[1] : 0; })();
-function govDprCap(w){
+function govDprCapAt(w, n){
   var base = (w < 800) ? 1.25 : 1.5;
-  return GOV.applied >= 4 ? 1.0 : GOV.applied >= 1 ? Math.min(base, 1.25) : base;
+  return n >= 4 ? 1.0 : n >= 1 ? Math.min(base, 1.25) : base;
 }
+function govDprCap(w){ return govDprCapAt(w, GOV.applied); }
 function applyTier(n){
   if (n === GOV.applied) return;
   GOV.hist.push({ t: Math.round(performance.now()), from: GOV.applied, to: n });
@@ -1856,7 +1857,18 @@ function govFrame(dtMs){
       else {
         var curT = GOV.applied;
         if (p90 > govDown && curT < 4) {
-          GOV.pending = curT + 1; GOV.win.length = 0; GOV.calmMs = 0; GOV.canUp = true;
+          var nextT = curT + 1;
+          /* tier 1 only lowers the DPR cap to 1.25, and a screen under 800px wide
+             already starts there. Stepping to it spent a whole window of the
+             worst frames changing nothing (measured at 4x CPU on a 412px phone:
+             0 to 1 and back to 0, never reaching a tier that saves work). Where
+             the caps are equal, the step goes straight to tier 2. Wider screens
+             keep every step. */
+          if (nextT === 1) {
+            var gvW = W || canvas.clientWidth || window.innerWidth;
+            if (govDprCapAt(gvW, 1) === govDprCapAt(gvW, 0)) nextT = 2;
+          }
+          GOV.pending = nextT; GOV.win.length = 0; GOV.calmMs = 0; GOV.canUp = true;
         } else if (p90 < govUp && GOV.calmMs > 4000 && GOV.canUp && curT > 0) {
           GOV.pending = curT - 1; GOV.canUp = false; GOV.win.length = 0; GOV.calmMs = 0;
         }
