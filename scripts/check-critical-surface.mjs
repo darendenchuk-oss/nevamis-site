@@ -28,6 +28,14 @@
    per published file, every DESTINATION it names:
    - tel:, sms:, mailto:, callto:, sip: and facetime: links, as the full value
      (tel:+15874130035, mailto:Sales@nevamis.ca);
+   - every North American phone number written out for people or for
+     structured data ("(587) 413-0035", "+1 (587) 413-0035",
+     "+1-587-413-0035", "587.413.0035", a JSON-LD "+15874130035"), as
+     phone:+15874130035, and every plain-text email address, as
+     email:sales@nevamis.ca (lower case). Pins are per file, not per copy: a
+     page that shows the number three times pins it once, so a new number
+     in any copy fails, and so does losing the last copy, but rewriting one
+     copy into a shape these patterns do not read ("587 4130035") does not;
    - every absolute or protocol-relative URL (any letter case in the scheme,
      backslashes where a browser reads slashes, HTML character references
      decoded), as origin plus path for anything off nevamis.ca, which includes
@@ -127,6 +135,19 @@ const NET = /(?<![A-Za-z0-9+.-])(https?|wss?|ftp):([\\/]*)([^\s"'`<>{}|^]+)/gi;
    something shaped like a host (dotted name, IPv6 literal, or userinfo@). */
 const PROTOCOL_RELATIVE = /(?<=["'`=(,]\s*)[\\/]{2}(?=(?:[^\s"'`<>\\/@]*@)?(?:(?:[A-Za-z0-9-]+\.)+[A-Za-z0-9-]+|\[[0-9A-Fa-f:.]+\]))([^\s"'`<>{}|^]+)/g;
 
+/* Displayed phone numbers (NANP): an optional +1, an area code with or
+   without parentheses, then exchange and line, separated by a space, a dot,
+   a hyphen, a non-breaking space (raw or &nbsp;) or a Unicode dash. Or the
+   E.164 form "+1NXXNXXXXXX" outside a tel: link, which the tel: pin already
+   records. Digits or dots on either side mean it is part of something
+   longer (a version, a decimal, an id). */
+const DASHES = String.fromCharCode(0xa0, 0x2010, 0x2011, 0x2012, 0x2013, 0x2014, 0x2015);
+const SEP = String.raw`(?:[ .${DASHES}-]|&nbsp;)`;
+const PHONE = new RegExp(String.raw`(?<![\w.+:/-])(?:(?:\+?1${SEP}?)?(?:\(\s*([2-9]\d{2})\s*\)${SEP}?|([2-9]\d{2})${SEP})([2-9]\d{2})${SEP}(\d{4})|\+1([2-9]\d{2})([2-9]\d{2})(\d{4}))(?![\w.-]?\d)`, 'g');
+/* Plain-text email addresses. "icon@2x.png" is a file name, not an address. */
+const EMAIL = /(?<![\w.%+-])[A-Za-z0-9](?:[A-Za-z0-9._%+-]*[A-Za-z0-9_%+-])?@(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)+([A-Za-z]{2,})(?![\w-])/g;
+const FILE_EXTENSION = /^(png|jpe?g|gif|webp|avif|svg|ico|js|mjs|css|json|mp3|mp4|webm|wav|woff2?|ttf|otf|html?)$/i;
+
 function ipLiteral(host) {
   return host.startsWith('[') || /^\d+(\.\d+){3}$/.test(host);
 }
@@ -154,6 +175,12 @@ function destinationsIn(text) {
     const isAddress = scheme === 'mailto' || scheme.startsWith('sip');
     if (isAddress ? !/@|^\?/.test(value) : !/\d/.test(value)) continue; /* "tel:" in a selector or regex */
     dests.add(`${scheme}:${value}`);
+  }
+  for (const m of text.matchAll(PHONE)) {
+    dests.add(`phone:+1${m[5] ? m[5] + m[6] + m[7] : (m[1] || m[2]) + m[3] + m[4]}`);
+  }
+  for (const m of text.matchAll(EMAIL)) {
+    if (!FILE_EXTENSION.test(m[1])) dests.add(`email:${m[0].toLowerCase()}`);
   }
   for (const m of text.matchAll(NET)) {
     const value = trimTail(m[3]);

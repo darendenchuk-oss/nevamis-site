@@ -1,5 +1,5 @@
 {
-  "_comment": "Pinned by scripts/check-critical-surface.mjs. Changing ring.xml or vendored code, or adding, changing or removing a phone number, email address or URL in a published file, must update this file in the same commit. Regenerate with: node scripts/check-critical-surface.mjs --update, then review the diff.",
+  "_comment": "Pinned by scripts/check-critical-surface.mjs. Changing ring.xml or any file under assets/vendor/, or adding, changing or removing a phone number, email address or URL in a published file, must update this file in the same commit. Regenerate with: node scripts/check-critical-surface.mjs --update, then review the diff.",
   "files": {
     "ring.xml": "82b139c614404e4b343f9c1bca0fdcfb4db93b5d25dc5651d68ecdc66d8dbbeb",
     "assets/ringback-tone.wav": "adca34b56966b7e5a5b102cd082ff2ea6e001699f042e645c0a8d34d0e412928",
@@ -10,15 +10,18 @@
   },
   "destinations": {
     ".well-known/security.txt": [
+      "email:sales@nevamis.ca",
       "https://github.com/darendenchuk-oss/nevamis-site/blob/main/SECURITY.md",
       "https://nevamis.ca",
       "mailto:sales@nevamis.ca"
     ],
     "404.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "THIRD_PARTY_NOTICES.md": [
@@ -27,19 +30,23 @@
       "https://www.npmjs.com/package/@elevenlabs/convai-widget-embed"
     ],
     "about.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/brain",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
       "https://schema.org/",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "after-hours-answering.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "assets/film/film-1.js": [
@@ -53,6 +60,7 @@
       "http://www.w3.org/2000/svg"
     ],
     "book.html": [
+      "email:sales@nevamis.ca",
       "http://anything.cal.com/",
       "https://app.cal.com/",
       "https://app.nevamis.ca/",
@@ -63,9 +71,11 @@
       "https://nevamis.ca",
       "https://schema.org/",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "coming-soon.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/api/interest",
       "https://app.nevamis.ca/login",
@@ -73,28 +83,35 @@
       "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "mailto:Sales@nevamis.ca?subject=",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "content-map.json": [
       "https://nevamis.ca"
     ],
     "demo.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
       "https://schema.org/",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
+      "phone:+17805550142",
       "tel:+15874130035"
     ],
     "electricians.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "home.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
@@ -104,17 +121,21 @@
       "https://schema.org/InStock",
       "https://schema.org/MobileWebPlatform",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "hvac.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "index.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
@@ -124,35 +145,50 @@
       "https://schema.org/InStock",
       "https://schema.org/MobileWebPlatform",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "llms.txt": [
-      "https://nevamis.ca"
+      "email:sales@nevamis.ca",
+      "https://nevamis.ca",
+      "phone:+15874130035"
     ],
     "missed-calls.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
+    "motion.js": [
+      "phone:+15875550119",
+      "phone:+17805550163",
+      "phone:+18255550147"
+    ],
     "pilot.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
       "https://schema.org/",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "plumbers.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "pricing.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/signup",
@@ -160,37 +196,46 @@
       "https://schema.org/",
       "https://schema.org/InStock",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "privacy.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
       "https://schema.org/",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "proposal.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://nevamis.ca",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "restoration.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "revenue-engine.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
       "https://schema.org/",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "ring.xml": [
@@ -203,20 +248,27 @@
     "robots.txt": [
       "https://nevamis.ca"
     ],
+    "search-index.json": [
+      "email:sales@nevamis.ca",
+      "phone:+15874130035"
+    ],
     "site.js": [
       "https://app.nevamis.ca/api/events",
-      "https://app.nevamis.ca/api/mkt/events"
+      "https://app.nevamis.ca/api/mkt/events",
+      "phone:+15874130035"
     ],
     "sitemap.xml": [
       "http://www.sitemaps.org/schemas/sitemap/0.9",
       "https://nevamis.ca"
     ],
     "solutions.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "talk/index.html": [
@@ -227,6 +279,7 @@
       "https://fonts.googleapis.com/",
       "https://fonts.gstatic.com/",
       "https://storage.googleapis.com/eleven-public-cdn/",
+      "phone:+15874130035",
       "tel:+15874130035",
       "wss://*.elevenlabs.io/",
       "wss://api.elevenlabs.io/",
@@ -236,25 +289,31 @@
       "https://app.nevamis.ca/api/events"
     ],
     "terms.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
       "https://schema.org/",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "vs-answering-service.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ],
     "vs-voicemail.html": [
+      "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
       "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
       "tel:+15874130035"
     ]
   }
