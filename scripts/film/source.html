@@ -4765,7 +4765,10 @@ var copyEls = [
   { el: document.getElementById('s1'), p0: 0.13, p1: 0.32, at: 0.20 },
   { el: document.getElementById('s2'), p0: 0.36, p1: 0.52, at: 0.43 },
   { el: document.getElementById('s3'), p0: 0.55, p1: 0.74, at: 0.63 },
-  { el: document.getElementById('close'), p0: 0.90, p1: 1.01, at: 0.965 }
+  /* the ending copy waits for the finished mark (owner note 2026-09-14): it used to
+     arrive at 0.90, while panes 05 and 06 were still coming into view and before
+     the arch had been drawn. The stroke parks at ~0.978. */
+  { el: document.getElementById('close'), p0: 0.975, p1: 1.01, at: 0.99 }
 ];
 /* owner note: story copy should HOLD mid-frame while its beat passes instead
    of flying by. Each block rides position:sticky inside a hold that spans its
@@ -5779,6 +5782,7 @@ var spineMat = new T.ShaderMaterial({
     uLen: { value: 335.0 },
     uTip: { value: 0 },
     uPark: { value: 0 },
+    uGone: { value: 0 },
     uWakeOn: { value: 0 },
     uWakeC: { value: new T.Vector3(0, 0, 0) },
     uWakeR: { value: 0 }
@@ -5834,7 +5838,7 @@ var spineMat = new T.ShaderMaterial({
     'uniform float uHead; uniform vec3 uP; uniform vec3 uPA; uniform float uDim;',
     'uniform float uArchT; uniform float uArchGlow;',
     'uniform sampler2D tMatcap; uniform float uTime; uniform float uCameraY;',
-    'uniform float uLen; uniform float uTip; uniform float uPark; uniform vec3 uOrbC; uniform float uOrbR;',
+    'uniform float uLen; uniform float uTip; uniform float uPark; uniform float uGone; uniform vec3 uOrbC; uniform float uOrbR;',
     'uniform float uNeckT; uniform float uNeckW; uniform float uHighlight; uniform float uOrbDim; uniform float uWrap;',
     'uniform float uRimFade; uniform vec3 uLineP; uniform vec3 uLineT; uniform float uLineAhead; uniform float uLineR;',
     'varying float vT; varying vec3 vN; varying vec3 vV; varying float vFog; varying float vWake; varying float vM;',
@@ -5896,12 +5900,20 @@ var spineMat = new T.ShaderMaterial({
     ' float fr = getFresnel(n, v, 1.2);',
     ' float tH = fr * 3.0 + uCameraY * 0.02;',
     ' outc += mix(mintRamp(min(tH, 0.70)), mintRampLoop(tH), uWrap) * pow(fr, 2.2) * smoothstep(0.0, 0.3, abs(dot(n, v))) * 1.5 * uRimFade * (1.0 - lfade) * m;',
+    /* finale (owner note 2026-09-14): once the mark is drawn, the rest of the line
+       fades back along its length, from the tail toward the arch, and finishes
+       behind pane 05 GROW. GROW hides the spine from about 0.67 to 0.73 of its
+       length in the parked frame (measured at 1440x900 and 390x844), so the soft
+       edge settles inside that stretch and only the arch and the dot remain.
+       uGone is 0 before the finale, where keep is 1 along the whole line. */
+    ' float cutE = mix(-0.2, uArchT - 0.02, uGone);',
+    ' float keep = smoothstep(cutE - mix(0.18, 0.065, uGone), cutE, vT);',
     '#ifdef NECK',
     /* opaque a little ahead of the colour hand-over, so the fillet hides the orb it
        passes in front of rather than glowing through it */
-    ' gl_FragColor = vec4(outc * vWake, smoothstep(0.0, 0.6, m) * vWake);',
+    ' gl_FragColor = vec4(outc * vWake * keep, smoothstep(0.0, 0.6, m) * vWake * keep);',
     '#else',
-    ' gl_FragColor = vec4(outc * vWake, 1.0);',
+    ' gl_FragColor = vec4(outc * vWake * keep, 1.0);',
     '#endif',
     '}'
   ].join('\n'),
@@ -6749,6 +6761,7 @@ function apply(p){
   spineMat.uniforms.uPA.value.set(Math.sin(pw1 * Math.PI), Math.sin(pw2 * Math.PI), Math.sin(pw3 * Math.PI));
   spineMat.uniforms.uArchGlow.value = smooth(0.88, 0.985, p);
   spineMat.uniforms.uPark.value = smooth(0.978, 0.998, p); /* the head is parked; cool its below-baseline spill */
+  spineMat.uniforms.uGone.value = smooth(0.93, 0.985, p); /* the corridor fades back behind GROW as the arch completes */
 
   /* the orb rides the spine, then glides into the mark's dot position: continuous, never faded */
   v3a.copy(spineCurve.getPointAt(clamp01(orbT)));
