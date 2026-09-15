@@ -87,6 +87,12 @@ ${CSS_BLOCK}
   .page-hero .lede{color:var(--muted);font-size:clamp(16px,1.6vw,19px);margin-top:18px;
     max-width:56ch;line-height:1.55}
   .page-hero .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
+  /* The hero sits over the brightest part of the aurora canvas: measured at
+     1440, the outline button's border fell to 1.94:1 and its label to 3.99:1.
+     site.css gives every outline button a painted dark fill and ring (never
+     backdrop-filter, see tests/hero-contrast.spec.js); here the border is also
+     solid mint rather than .72, because this is where the ground is brightest. */
+  .page-hero .btn-ghost,.page-hero .btn-ghost:hover{border-color:var(--mint)}
   .crumb{font-size:13px;color:var(--muted);margin-bottom:6px}
   .crumb a{color:var(--muted)}
   .crumb a:hover{color:var(--mint)}

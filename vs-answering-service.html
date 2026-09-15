@@ -182,6 +182,7 @@
   --emerald:#2FBF8F; --emerald-deep:#0E5C4B; --emerald-mid:#1E8E6D; --mint:#9FF0CE;
   --ink:#EAF3EE; --muted:#8AA5A0; --line:rgba(159,240,206,.14);
   --line-control:rgba(159,240,206,.46);
+  --line-control-strong:rgba(159,240,206,.72);
   --warm:#F0B462; --warm-deep:#8A6210; --bad:#E5837B;
   --e-out:cubic-bezier(.16,1,.3,1); --e-in:cubic-bezier(.7,0,.84,0);
   --card:var(--navy-2); --frost:rgba(159,240,206,.05);
@@ -268,9 +269,11 @@ html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
   box-shadow:0 10px 30px -12px rgba(47,191,143,.6);background-size:160% 100%;background-position:0 0;
   transition:background-position .45s var(--e-out),box-shadow .3s var(--e-out)}
 .btn-primary:hover{background-position:100% 0;box-shadow:0 16px 44px -14px rgba(47,191,143,.8)}
-.btn-ghost,.btn-light-ghost{border-color:var(--line-control);color:var(--ink);background:transparent;
+.btn-ghost,.btn-light-ghost{border-color:var(--line-control-strong);color:var(--ink);
+  background:rgba(2,8,13,.55);box-shadow:0 0 0 4px rgba(2,8,13,.45);
   transition:border-color .25s var(--e-out),background .25s var(--e-out)}
-.btn-ghost:hover,.btn-light-ghost:hover{border-color:rgba(159,240,206,.42);background:rgba(159,240,206,.05)}
+.btn-ghost:hover,.btn-light-ghost:hover{border-color:var(--mint);background:rgba(2,8,13,.72)}
+.btn-ghost:focus-visible,.btn-light-ghost:focus-visible{box-shadow:inset 0 0 0 3px var(--ink),0 0 0 4px rgba(2,8,13,.45)}
 .ring-once{animation:ringOnce 1s var(--e-out) 1}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 main section,main .dark{position:relative}
@@ -711,6 +714,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .page-hero .lede{color:var(--muted);font-size:clamp(16px,1.6vw,19px);margin-top:18px;
     max-width:56ch;line-height:1.55}
   .page-hero .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
+  /* The hero sits over the brightest part of the aurora canvas: measured at
+     1440, the outline button's border fell to 1.94:1 and its label to 3.99:1.
+     site.css gives every outline button a painted dark fill and ring (never
+     backdrop-filter, see tests/hero-contrast.spec.js); here the border is also
+     solid mint rather than .72, because this is where the ground is brightest. */
+  .page-hero .btn-ghost,.page-hero .btn-ghost:hover{border-color:var(--mint)}
   .crumb{font-size:13px;color:var(--muted);margin-bottom:6px}
   .crumb a{color:var(--muted)}
   .crumb a:hover{color:var(--mint)}

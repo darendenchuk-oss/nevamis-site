@@ -109,9 +109,17 @@ main .more:hover{color:var(--mint)}
 #doc .svc{margin:0 0 12px}
 #doc .svc:last-child{margin-bottom:0}
 #doc .svc p{font-size:15px;line-height:1.55;color:#b9dccb}
-#doc .cta2{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:11px;
-  letter-spacing:.26em;text-transform:uppercase;color:var(--emerald);text-decoration:none}
-#doc .cta2:hover{color:var(--mint)}
+/* The station CTA keeps the film card's filled mint pill (.pane-doc .cta2 in
+   source.html) and its dark label. This rule used to restyle only the TEXT in
+   the transparent text-link idiom (11px uppercase mono, emerald) while the pill
+   stayed filled, so the label measured 1.76:1 on its own fill and 1.00:1 on
+   hover (mint on mint). #06231A on mint is 12.53:1 in both states. The ID
+   selector outranks the source rule, so everything the pill needs to read as a
+   button is restated here rather than inherited by accident. min-height keeps
+   the tap target above 44px on a phone (it was 39.4px). */
+#doc .cta2{font-family:inherit;font-size:15px;font-weight:700;letter-spacing:.01em;text-transform:none;
+  color:#06231A;background:var(--mint);text-decoration:none;min-height:44px;line-height:1.5}
+#doc .cta2:hover,#doc .cta2:focus-visible{color:#06231A;background:var(--mint)}
 
 /* shared list idiom, mono tag on the right */
 main .node-list{list-style:none;margin:0;padding:0}
