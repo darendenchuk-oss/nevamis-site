@@ -41,6 +41,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { publishedFiles } from './lib/published-files.mjs';
+import { decodeRefs } from './lib/char-refs.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const MANIFEST = path.join(root, 'config', 'critical-surface.json');
@@ -76,17 +77,8 @@ function scannedFiles() {
 }
 
 /* HTML attribute values are character-reference decoded by the browser, so
-   href="https&#58;//evil.example" is a link to evil.example. */
-const NAMED = { amp: '&', colon: ':', sol: '/', bsol: '\\', period: '.', commat: '@', quot: '"', apos: "'", lt: '<', gt: '>', num: '#', quest: '?' };
-function decodeRefs(text) {
-  return text
-    .replace(/&#x([0-9a-f]+);?/gi, (m, h) => safeChar(parseInt(h, 16), m))
-    .replace(/&#(\d+);?/g, (m, d) => safeChar(parseInt(d, 10), m))
-    .replace(/&([a-z]+);/gi, (m, n) => NAMED[n.toLowerCase()] ?? m);
-}
-function safeChar(code, fallback) {
-  try { return code > 0 && code < 0x110000 ? String.fromCodePoint(code) : fallback; } catch { return fallback; }
-}
+   href="https&#58;//evil.example" is a link to evil.example. decodeRefs lives
+   in scripts/lib/char-refs.mjs, shared with the published-surface SVG screen. */
 
 /* Every string inside a JSON file, decoded, so an escaped "https:\/\/" is read
    the way the consumer reads it. */
