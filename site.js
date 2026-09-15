@@ -96,15 +96,26 @@
     return q ? "?" + q : "";
   };
 
-  /** The referring site's HOSTNAME, and nothing else.
+  /** The referring site's ORIGIN (scheme and host), and nothing else.
    *  nevamis.ca/privacy promises "the referring site's hostname". Both beacons
    *  used to send document.referrer whole, which is a full URL: a referral from
    *  a CRM, a webmail link or a search results page carries its path and query
    *  string, and those can hold a record id, a mailbox or what someone searched
-   *  for. Same rule as the attribution boundary above: rebuild, never copy. */
+   *  for. Same rule as the attribution boundary above: rebuild, never copy.
+   *
+   *  The origin, not the bare hostname: both engine intake routes
+   *  (/api/events and /api/mkt/events) run new URL(referrer).hostname and
+   *  store null when that throws, and new URL("www.google.com") throws. A bare
+   *  hostname was stored as null on every event from 2026-09-14. The origin
+   *  carries no path, query or fragment, and the engine reduces it to the
+   *  hostname before storing, so what is kept is still only the hostname.
+   *  A referrer with no network origin (an app link) sends nothing. */
   function nvReferrerHost() {
-    try { return document.referrer ? new URL(document.referrer).hostname.slice(0, 120) : ""; }
-    catch (e) { return ""; }
+    try {
+      if (!document.referrer) return "";
+      var o = new URL(document.referrer).origin;
+      return /^https?:\/\/[^\/?#]+$/.test(o) && o.length <= 260 ? o : "";
+    } catch (e) { return ""; }
   }
 
   /* ---------- analytics event layer (first-party, owner-approved 2026-07-27) ----------

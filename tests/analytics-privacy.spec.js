@@ -122,6 +122,79 @@ test('allowed tags survive alongside disallowed ones rather than all-or-nothing'
   }
 });
 
+/* ---- the referrer: the referring ORIGIN, never its path or query ----
+
+   The privacy page promises "the referring site's hostname". The site sends
+   the origin (scheme and host) because both engine routes run
+   new URL(referrer).hostname and store null when that throws: a bare
+   "www.google.com" does not parse, so for a day every event was stored with
+   no referrer at all. These tests assert both halves: nothing past the origin
+   leaves the browser, and what does leave parses to the hostname. */
+function referrers(seen) {
+  return seen.map((s) => { try { return JSON.parse(s.body); } catch { return null; } })
+    .filter((o) => o && Object.prototype.hasOwnProperty.call(o, 'referrer'))
+    .map((o) => o.referrer);
+}
+
+test('a referrer with a path, query and fragment is sent as its origin only', async ({ page }) => {
+  /* A search page's full URL, as a browser reports it when the referring site
+     sends one. Set on the document, since a local http server never receives
+     a cross-origin https referrer. */
+  const REF = 'https://www.google.com/search?q=plumber+answering+service&client=private-id#frag';
+  await page.addInitScript((ref) => {
+    Object.defineProperty(document, 'referrer', { get: () => ref, configurable: true });
+  }, REF);
+  const seen = await capture(page, '/pricing.html');
+  const refs = referrers(seen);
+  expect(refs.length, 'no beacon carried a referrer field, so this test proved nothing').toBeGreaterThan(0);
+  for (const r of refs) {
+    expect(r, 'the referrer must be the origin, with no path, query or fragment').toBe('https://www.google.com');
+    /* What both engine routes do with it before storing. */
+    expect(new URL(r).hostname).toBe('www.google.com');
+  }
+  for (const s of seen) {
+    expect(s.body).not.toContain('plumber');
+    expect(s.body).not.toContain('private-id');
+    expect(s.body).not.toContain('/search');
+  }
+});
+
+test('a same-site referrer carrying a name in its query is sent as the origin only', async ({ page, baseURL }) => {
+  const seen = [];
+  for (const pattern of TELEMETRY) {
+    await page.route(pattern, (route) => {
+      seen.push({ url: route.request().url(), body: route.request().postData() || '' });
+      route.abort();
+    });
+  }
+  await page.goto('/pricing.html?to=Test%20Person').catch(() => {});
+  await page.waitForTimeout(600);
+  seen.length = 0;
+  /* A real same-origin navigation: the browser's document.referrer on the next
+     page is the full previous URL, query included. */
+  await page.evaluate(() => { location.href = '/book.html'; });
+  await page.waitForURL('**/book.html');
+  const docRef = await page.evaluate(() => document.referrer);
+  expect(docRef, 'the browser must report the full previous URL, or this test proves nothing').toContain('?to=');
+  await page.waitForTimeout(1200);
+  const refs = referrers(seen);
+  expect(refs.length).toBeGreaterThan(0);
+  const origin = new URL(baseURL).origin;
+  for (const r of refs) expect(r).toBe(origin);
+  for (const s of seen) {
+    expect(s.body).not.toContain('Test Person');
+    expect(s.body).not.toContain('Test%20Person');
+    expect(s.body).not.toContain('pricing.html');
+  }
+});
+
+test('no referrer sends an empty referrer, not a made-up one', async ({ page }) => {
+  const seen = await capture(page, '/pricing.html');
+  const refs = referrers(seen);
+  expect(refs.length).toBeGreaterThan(0);
+  for (const r of refs) expect(r).toBe('');
+});
+
 /* ---- the fix must not have broken analytics ---- */
 
 test('events still send, and their names are unchanged', async ({ page }) => {
