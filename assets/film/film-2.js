@@ -1653,6 +1653,25 @@ var ARCH_TGT = new T.Vector3(0, 25, 0);
 var MSAA = (Math.min(window.devicePixelRatio || 1, 1.5) >= 1.25) ? 2 : 4;
 var composer = new NV3.EffectComposer(renderer,
   new T.WebGLRenderTarget(1, 1, { type: T.HalfFloatType, samples: MSAA }));
+/* THE SCENE LANDS IN ONE COMPOSER BUFFER. THE OTHER NEVER NEEDED MSAA.
+   EffectComposer clones its target for the second buffer, so both carried
+   multisampled colour and a depth attachment. RenderPass (needsSwap false)
+   draws the scene into readBuffer = renderTarget2 and bloom composites back
+   onto it; only then do grain and OutputPass swap, one each. So renderTarget1
+   only ever receives the grain pass's full-screen quad: no edges to resolve,
+   depthTest and depthWrite off. Measured at 412x915 DPR 2.625 that buffer was a
+   2-sample HalfFloat colour plus a DEPTH24 attachment at 515x1144, with its own
+   MSAA resolve every frame, on phone GPUs that pay for every attachment. It is
+   now single-sampled with no depth. The pixels it holds are the same: a quad
+   covering every pixel shades the same value into every sample. The swap
+   assertion below is what keeps the scene in the multisampled buffer. */
+(function(){
+  var grainRT = new T.WebGLRenderTarget(1, 1, { type: T.HalfFloatType, samples: 0, depthBuffer: false });
+  grainRT.texture.name = 'EffectComposer.rt1';
+  composer.renderTarget1.dispose();
+  composer.renderTarget1 = grainRT;
+  composer.writeBuffer = grainRT;
+})();
 var renderPass = new NV3.RenderPass(scene, camera);
 composer.addPass(renderPass);
 /* Active Theory model: threshold ZERO - the crushed near-black scene is the threshold,
@@ -1718,6 +1737,29 @@ var grainPass = (function(){
 })();
 composer.addPass(grainPass);
 composer.addPass(new NV3.OutputPass());
+/* ASSERT: an even number of swapping passes, so every frame starts with the
+   scene target (readBuffer) being the multisampled renderTarget2. Add or disable
+   one needsSwap pass and the scene would draw into the single-sampled buffer on
+   alternate frames: no antialiasing, thin lines crawling. If that ever happens,
+   say so and give the second buffer its multisampling back rather than ship it. */
+(function(){
+  var swaps = 0;
+  for (var sp = 0; sp < composer.passes.length; sp++) {
+    var ps = composer.passes[sp];
+    if (ps.enabled !== false && ps.needsSwap) swaps++;
+  }
+  var ok = swaps % 2 === 0 && composer.readBuffer === composer.renderTarget2 &&
+           composer.renderTarget2.samples === MSAA;
+  if (!ok) {
+    console.error('film composer: ' + swaps + ' swapping passes would leave the scene outside the MSAA buffer; restoring a multisampled second buffer');
+    var msRT = composer.renderTarget2.clone();
+    msRT.samples = MSAA;
+    msRT.texture.name = 'EffectComposer.rt1';
+    composer.renderTarget1.dispose();
+    composer.renderTarget1 = msRT;
+    composer.writeBuffer = msRT;
+  }
+})();
 
 /* ---------- ADAPTIVE QUALITY GOVERNOR ----------
    Owner directive: "its a bit laggy on my laptop, most people dont have super
