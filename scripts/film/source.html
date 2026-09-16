@@ -8011,11 +8011,16 @@ function groundAt(){
   if (ray.ray.intersectPlane(gPlane, gPt) && Math.abs(gPt.x) < 210 && Math.abs(gPt.z) < 210) return gPt;
   return null;
 }
+/* the touch path below only exists where Touch Events do. Handing a finger to
+   it on an engine that reports pointerType 'touch' without ever firing
+   touchmove would leave that finger with no hover, wake or ripple at all, so
+   the handover is conditional on the replacement being there. */
+var HAS_TOUCHMOVE = ('ontouchmove' in window);
 canvas.addEventListener('pointermove', function(e){
   /* a finger is handled by the touch path below (coalesced to one raycast per
      frame); taking its pointermove too raycast every pane and node twice per
      move. Mouse and pen keep hover here. */
-  if (e.pointerType === 'touch') return;
+  if (e.pointerType === 'touch' && HAS_TOUCHMOVE) return;
   /* raycast priority, explicit: pane > node > ground */
   var pn = paneAt(e.clientX, e.clientY);
   var br = (!pn && uiAwake()) ? brainAt() : null;
