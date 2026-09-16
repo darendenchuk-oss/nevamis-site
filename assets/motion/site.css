@@ -252,7 +252,16 @@ html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
    brightest part of the canvas (scripts/build-content.mjs, .page-hero
    .btn-ghost paints its own dark ground and ring), not by making every outline
    button on the site carry a dark plate. Never backdrop-filter: see the aurora
-   note above. */
+   note above.
+   What that leaves, measured from pixels over the aurora at 390 and 1440: the
+   outline buttons in hand-authored page BODIES (pricing, book, coming-soon,
+   pilot, 404, revenue-engine, and the mid-page bands on the content pages) are
+   better than they were but still short of 3:1 on the brightest frames, about
+   2.5-3.0:1 where .46 gave 1.7-2.5:1. Eleven control-states of 102, every one
+   of them improved, none of them a "Scan my business". Closing that gap means
+   giving those bodies the same dark plate the heroes have, which is a visual
+   change to surfaces nobody has asked to change: it is the owner's call, not a
+   silent one. tests/scan-contrast.spec.js measures the ones that matter. */
 .btn-ghost,.btn-light-ghost{border-color:var(--line-control-strong);color:var(--ink);background:transparent;
   transition:border-color .25s var(--e-out),background .25s var(--e-out)}
 .btn-ghost:hover,.btn-light-ghost:hover{border-color:var(--mint)}

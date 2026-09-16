@@ -14,8 +14,14 @@
  *
  *   text      the label colour against EVERY background pixel inside the
  *             content box: 4.5:1 (3:1 only if the label is large text)
- *   boundary  the control's edge against the pixel just outside it: 3:1
- *             (WCAG 1.4.11), sampled along the straight edges
+ *   boundary  the control's edge against the pixels outside it: 3:1 (WCAG
+ *             1.4.11), sampled along the straight edges, and measured twice
+ *             because a control may paint outside its own border. near takes
+ *             the pixel 2px out, which on a control with a ring is the
+ *             control's own paint; far takes the pixel 8px out, past any ring,
+ *             so what is graded is the control's outermost paint against the
+ *             page. far is the one that falls if a ring is removed, and
+ *             removing the hero's ring does fail this spec.
  *
  * Both at rest and on hover, over several frames where a canvas is behind it.
  * The film's slide-in card copy (#cardBody) is created only when a visitor
