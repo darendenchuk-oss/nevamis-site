@@ -1427,12 +1427,18 @@ body.card-open #hint{opacity:0}
 /* touch screens: the pane card (387x915 at 412px) and the node card drop their
    backdrop blur. Over a canvas that re-renders every frame while the card slides,
    the blur was a full-density compositor pass for a 4-7% contribution through an
-   already 93-96% opaque card. Alpha rises to .97/.98 with the first stop re-solved
-   against the #02080D ground, so the film shows through less and the text on the
-   card reads the same or better. Pointer-fine screens are unchanged. */
+   already 93-96% opaque card. The blur was not only dimming the film behind the
+   card, it was smearing it: what came through was a wash with no detail in it.
+   Take the blur away and the same 4-7% carries the scene's hard edges, so the
+   film's etched letterforms start reading as faint lines across the card even
+   though the average gets darker. Alpha therefore rises to .985/.99 (measured:
+   that is where the local 5px peak-to-peak inside the card returns to the
+   blurred card's level or below), with the first stop re-solved against the
+   #02080D ground so the painted colour is the one the blurred card had.
+   Pointer-fine screens are unchanged. */
 @media (pointer:coarse){
   #card,#ncard{backdrop-filter:none;-webkit-backdrop-filter:none;
-    background:linear-gradient(160deg,rgba(6,25,19,.97),rgba(2,8,13,.98))}
+    background:linear-gradient(160deg,rgba(6,25,19,.985),rgba(2,8,13,.99))}
 }
 #ncardClose{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;
   background:none;border:1px solid rgba(159,240,206,.28);color:var(--mint);cursor:pointer;
