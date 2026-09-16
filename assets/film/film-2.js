@@ -1653,6 +1653,25 @@ var ARCH_TGT = new T.Vector3(0, 25, 0);
 var MSAA = (Math.min(window.devicePixelRatio || 1, 1.5) >= 1.25) ? 2 : 4;
 var composer = new NV3.EffectComposer(renderer,
   new T.WebGLRenderTarget(1, 1, { type: T.HalfFloatType, samples: MSAA }));
+/* THE SCENE LANDS IN ONE COMPOSER BUFFER. THE OTHER NEVER NEEDED MSAA.
+   EffectComposer clones its target for the second buffer, so both carried
+   multisampled colour and a depth attachment. RenderPass (needsSwap false)
+   draws the scene into readBuffer = renderTarget2 and bloom composites back
+   onto it; only then do grain and OutputPass swap, one each. So renderTarget1
+   only ever receives the grain pass's full-screen quad: no edges to resolve,
+   depthTest and depthWrite off. Measured at 412x915 DPR 2.625 that buffer was a
+   2-sample HalfFloat colour plus a DEPTH24 attachment at 515x1144, with its own
+   MSAA resolve every frame, on phone GPUs that pay for every attachment. It is
+   now single-sampled with no depth. The pixels it holds are the same: a quad
+   covering every pixel shades the same value into every sample. The swap
+   assertion below is what keeps the scene in the multisampled buffer. */
+(function(){
+  var grainRT = new T.WebGLRenderTarget(1, 1, { type: T.HalfFloatType, samples: 0, depthBuffer: false });
+  grainRT.texture.name = 'EffectComposer.rt1';
+  composer.renderTarget1.dispose();
+  composer.renderTarget1 = grainRT;
+  composer.writeBuffer = grainRT;
+})();
 var renderPass = new NV3.RenderPass(scene, camera);
 composer.addPass(renderPass);
 /* Active Theory model: threshold ZERO - the crushed near-black scene is the threshold,
@@ -1718,6 +1737,29 @@ var grainPass = (function(){
 })();
 composer.addPass(grainPass);
 composer.addPass(new NV3.OutputPass());
+/* ASSERT: an even number of swapping passes, so every frame starts with the
+   scene target (readBuffer) being the multisampled renderTarget2. Add or disable
+   one needsSwap pass and the scene would draw into the single-sampled buffer on
+   alternate frames: no antialiasing, thin lines crawling. If that ever happens,
+   say so and give the second buffer its multisampling back rather than ship it. */
+(function(){
+  var swaps = 0;
+  for (var sp = 0; sp < composer.passes.length; sp++) {
+    var ps = composer.passes[sp];
+    if (ps.enabled !== false && ps.needsSwap) swaps++;
+  }
+  var ok = swaps % 2 === 0 && composer.readBuffer === composer.renderTarget2 &&
+           composer.renderTarget2.samples === MSAA;
+  if (!ok) {
+    console.error('film composer: ' + swaps + ' swapping passes would leave the scene outside the MSAA buffer; restoring a multisampled second buffer');
+    var msRT = composer.renderTarget2.clone();
+    msRT.samples = MSAA;
+    msRT.texture.name = 'EffectComposer.rt1';
+    composer.renderTarget1.dispose();
+    composer.renderTarget1 = msRT;
+    composer.writeBuffer = msRT;
+  }
+})();
 
 /* ---------- ADAPTIVE QUALITY GOVERNOR ----------
    Owner directive: "its a bit laggy on my laptop, most people dont have super
@@ -1750,15 +1792,20 @@ var GOV = {
   if (m) { GOV.forced = true; GOV.pending = +m[1]; }
 })();
 var LAGMS = (function(){ var m = /^(\d{1,3})$/.exec(new URLSearchParams(location.search).get('lag') || ''); return m ? +m[1] : 0; })();
-function govDprCap(w){
+function govDprCapAt(w, n){
   var base = (w < 800) ? 1.25 : 1.5;
-  return GOV.applied >= 4 ? 1.0 : GOV.applied >= 1 ? Math.min(base, 1.25) : base;
+  return n >= 4 ? 1.0 : n >= 1 ? Math.min(base, 1.25) : base;
 }
+function govDprCap(w){ return govDprCapAt(w, GOV.applied); }
 function applyTier(n){
   if (n === GOV.applied) return;
   GOV.hist.push({ t: Math.round(performance.now()), from: GOV.applied, to: n });
   if (GOV.hist.length > 40) GOV.hist.shift();
   GOV.applied = n;
+  if (PHONE_TIER && n > phoneTierSeen) { /* phones: remember the lightest tier this visit needed */
+    phoneTierSeen = n;
+    try { window.sessionStorage.setItem('nv-film-tier', String(n)); } catch (e) {}
+  }
   /* panes: material (T3+) and tessellation (T4+). The rim shell shares the
      slab's geometry object so both swap together and stay aligned. */
   for (var gv = 0; gv < panes.length; gv++) {
@@ -1814,7 +1861,18 @@ function govFrame(dtMs){
       else {
         var curT = GOV.applied;
         if (p90 > govDown && curT < 4) {
-          GOV.pending = curT + 1; GOV.win.length = 0; GOV.calmMs = 0; GOV.canUp = true;
+          var nextT = curT + 1;
+          /* tier 1 only lowers the DPR cap to 1.25, and a screen under 800px wide
+             already starts there. Stepping to it spent a whole window of the
+             worst frames changing nothing (measured at 4x CPU on a 412px phone:
+             0 to 1 and back to 0, never reaching a tier that saves work). Where
+             the caps are equal, the step goes straight to tier 2. Wider screens
+             keep every step. */
+          if (nextT === 1) {
+            var gvW = W || canvas.clientWidth || window.innerWidth;
+            if (govDprCapAt(gvW, 1) === govDprCapAt(gvW, 0)) nextT = 2;
+          }
+          GOV.pending = nextT; GOV.win.length = 0; GOV.calmMs = 0; GOV.canUp = true;
         } else if (p90 < govUp && GOV.calmMs > 4000 && GOV.canUp && curT > 0) {
           GOV.pending = curT - 1; GOV.canUp = false; GOV.win.length = 0; GOV.calmMs = 0;
         }
@@ -1836,6 +1894,7 @@ function govFrame(dtMs){
 
 /* ---------- sizing / scroll span ---------- */
 var W = 0, H = 0, PRC = 0, spanH = 0;
+var stationW = -1, stationPF = -1, stationSpan = -1, stationIH = -1; /* what the copy stations were built from */
 /* ---------- a scroll span that holds still (owner note 2026-09-14) ----------
    "The velocity at which it scrolls seems to feel randomized." The span was
    10 x window.innerHeight and progress was scrollY / (span - innerHeight), and
@@ -1870,7 +1929,21 @@ function layout(){
   var vh = Math.max(spanVH(), 500);                /* floor the scroll span; toolbar-proof, see spanVH */
   SPAN_VH = vh;
   spanH = vh * 10;
-  if (!reduced) {
+  /* RE-STATION THE COPY ONLY WHEN SOMETHING IT DEPENDS ON CHANGED.
+     layout() runs on every resize, and a phone fires resize each time its
+     address bar hides or shows. The stations below read getComputedStyle and
+     offsetHeight and rewrite every hold, and #close's seat followed
+     innerHeight, so the ending block shifted by up to 0.57x the toolbar
+     height mid-gesture. They are now kept while the width, the portrait
+     composition and the span are unchanged and innerHeight has moved less
+     than 150px since they were set. Rotation, split screen and any desktop
+     window resize (the span follows the large viewport there) re-lay fully,
+     and a font load re-stations once, since it changes #close's height. */
+  var ihNow = window.innerHeight;
+  var stationsCurrent = w === stationW && PF === stationPF && spanH === stationSpan &&
+                        Math.abs(ihNow - stationIH) < 150;
+  if (!reduced && !stationsCurrent) {
+    stationW = w; stationPF = PF; stationSpan = spanH; stationIH = ihNow;
     scrollEl.style.height = spanH + 'px';
     copyEls.forEach(function(c){
       if (c.el.id === 'close') {
@@ -1912,7 +1985,31 @@ function layout(){
   camera.updateProjectionMatrix();
   fieldMat.uniforms.uPx.value = h * pr * 0.5;
 }
-if (GOV.forced && GOV.pending >= 0) { applyTier(GOV.pending); GOV.pending = -1; } /* ?tier=N pins before first sizing */
+/* ---------- PHONES START ON THE LIGHTER GLASS (PROPOSAL, NOT YET OWNER-APPROVED) ----------
+   A phone (coarse primary pointer, under 800px wide) starts at tier 3: the panes
+   use the matcap-LUT glass warm-compiled above instead of physical transmission,
+   whose extra 4x-multisampled scene pass and mipmap rebuild ran every frame, and
+   bloom renders at half resolution. The governor only steps during motion, never
+   during the ignition, and at 4x CPU a phone never got past tier 1 on its own.
+   Applied here the way ?tier=N pins, before the first sizing, so the ignition
+   itself runs cheap and no step pops mid-scroll. The highest tier number this
+   visit reaches is kept in sessionStorage, so a reload or back-navigation does
+   not start above what the phone already needed. The governor still adapts from
+   there (down to tier 4). A ?tier=N pin wins; wider or mouse-driven screens are
+   untouched. */
+var PHONE_TIER = false, phoneTierSeen = -1;
+(function(){
+  if (GOV.forced || !window.matchMedia || !window.matchMedia('(pointer: coarse)').matches) return;
+  if ((canvas.clientWidth || window.innerWidth) >= 800) return;
+  PHONE_TIER = true;
+  var start = 3;
+  try {
+    var kept = /^([0-4])$/.exec(window.sessionStorage.getItem('nv-film-tier') || '');
+    if (kept && +kept[1] > start) start = +kept[1];
+  } catch (e) {}
+  GOV.pending = start;
+})();
+if ((GOV.forced || PHONE_TIER) && GOV.pending >= 0) { applyTier(GOV.pending); GOV.pending = -1; } /* ?tier=N pins (and a phone's start tier) before first sizing */
 layout();
 
 /* ---------- scroll + damping ---------- */
@@ -2475,8 +2572,28 @@ function watchStage(){
     requestRender();
   }, { rootMargin: '15% 0px' }).observe(stage);
 }
+/* ---------- touch follows the finger (owner decision 2026-09-15) ----------
+   On a touch screen the page already carries its own momentum, and the chase
+   below trailed it: ~0.16s time constant and a 0.00004 settle, so after a
+   504px scroll the film kept composing 55 more frames over ~0.9s while the
+   page itself had stopped. With a coarse primary pointer the chase now takes
+   45% of the gap per 60Hz frame (still normalised by real elapsed time), keeps
+   a ceiling of 1.5 progress per second so a flick cannot teleport, and ends
+   the chain at 0.0003 of progress (about 2.5px of scroll). A fine pointer
+   (mouse, trackpad) keeps every constant and code path exactly as it was.
+   The media query is re-read on change: a tablet docking a mouse switches. */
+var COARSE = false;
+var TOUCH_FOLLOW = 0.45, TOUCH_CAP = 1.5, TOUCH_SETTLE = 0.0003;
+(function(){
+  if (!window.matchMedia) return;
+  var mq = window.matchMedia('(pointer: coarse)');
+  COARSE = !!mq.matches;
+  var onPointerKind = function(){ COARSE = !!mq.matches; requestRender(); };
+  if (mq.addEventListener) mq.addEventListener('change', onPointerKind);
+  else if (mq.addListener) mq.addListener(onPointerKind);
+})();
 function needMore(){
-  return EXIT.on || IW.on || HOLDS > 0 || GIX.busy || Math.abs(target - cur) > 0.00004 ||
+  return EXIT.on || IW.on || HOLDS > 0 || GIX.busy || Math.abs(target - cur) > (COARSE ? TOUCH_SETTLE : 0.00004) ||
          Math.abs(mx - smx) > 0.004 || Math.abs(my - smy) > 0.004;
 }
 function tick(t){
@@ -2499,15 +2616,22 @@ function tick(t){
      travelled at different speeds. The intro already moved to rawDt for the same
      reason. 0.25s keeps a long stall from teleporting (cap 0.225 p in one step). */
   var cdt = Math.min(0.25, rawDt);
-  var d = (target - cur) * (1 - Math.pow(0.9, cdt * 60));
-  var cap = cdt * 0.9; /* owner call 2026-09-04: track the hand. The lerp above is
+  var d, cap;
+  if (COARSE) {
+    /* touch: follow the finger tightly (see TOUCH_FOLLOW above) */
+    d = (target - cur) * (1 - Math.pow(1 - TOUCH_FOLLOW, cdt * 60));
+    cap = cdt * TOUCH_CAP;
+  } else {
+  d = (target - cur) * (1 - Math.pow(0.9, cdt * 60));
+  cap = cdt * 0.9; /* owner call 2026-09-04: track the hand. The lerp above is
                          the authored feel and is untouched; this ceiling only
                          stops a violent flick teleporting, and at 0.34 it also
                          flattened every ordinary scroll into constant-rate
                          travel that ran on for seconds after the fingers stopped. */
+  }
   if (d > cap) d = cap; else if (d < -cap) d = -cap;
   cur += d;
-  if (Math.abs(target - cur) <= 0.00004) cur = target;
+  if (Math.abs(target - cur) <= (COARSE ? TOUCH_SETTLE : 0.00004)) cur = target;
   cur = clamp01(cur);
   smx += (mx - smx) * Math.min(1, dt * 4);
   smy += (my - smy) * Math.min(1, dt * 4);
@@ -2641,6 +2765,10 @@ if (reduced) {
     requestRender();
   }, { passive: true });
   window.addEventListener('resize', function(){ layout(); readScroll(); requestRender(); });
+  /* #close is seated by its measured height, which the web font changes: once the
+     fonts are in, re-station (layout() keeps stations otherwise). No render here,
+     the first composed frame keeps its own gate. */
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ stationW = -1; layout(); });
   document.addEventListener('visibilitychange', function(){
     if (document.hidden) {
       if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }

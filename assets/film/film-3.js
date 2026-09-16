@@ -138,7 +138,16 @@ computeViewPs();
    Refresh everything this layer derived from them: the tilt-easing base
    quaternions (only for panes at rest, so a mid-hover resize cannot bake a
    tilt in) and the per-pane best-view scroll positions the nav rail uses. */
+/* a phone's address bar showing or hiding fires resize with the same width and,
+   because the stage is 100svh, the same camera aspect: nothing computeViewPs
+   reads has changed, and it walks 225 camera-curve samples per pane (about
+   2,000 getPoint calls). Skip it then; a real change in width or aspect, or a
+   height change of 150px or more, recomputes as before. */
+var vpW = window.innerWidth, vpH = window.innerHeight, vpAspect = camera.aspect;
 window.addEventListener('resize', function(){
+  var nW = window.innerWidth, nH = window.innerHeight;
+  if (nW === vpW && camera.aspect === vpAspect && Math.abs(nH - vpH) < 150) return;
+  vpW = nW; vpH = nH; vpAspect = camera.aspect;
   for (var ei = 0; ei < eases.length; ei++) {
     var eq = eases[ei];
     if (!eq.moved && eq.tilt < 0.001) eq.baseQ.copy(eq.pn.mesh.quaternion);
@@ -164,8 +173,59 @@ var navRect = null, navYield = false;
 function refreshNavRect(){ navRect = nav ? nav.getBoundingClientRect() : null; }
 refreshNavRect();
 window.addEventListener('resize', refreshNavRect);
+/* PHONES DO NOT SEE THE LABELS, SO THEY DO NOT PAY FOR THEM.
+   #labels is display:none under this exact query (the CSS rule beside
+   #labels). The projection below still ran on every composed frame there: six
+   anchor projections, six style writes to hidden elements, and a
+   getComputedStyle(opacity) plus getBoundingClientRect on the copy blocks,
+   which forces a style and layout pass straight after apply() has toggled
+   classes. When the query matches, only the nav-rail yield is kept, and it is
+   derived without reading layout: the copy blocks are position:fixed and only
+   their opacity changes, so their rects are cached (refreshed after a resize or
+   a font load), and "visible" is the .on class plus its 600ms fade-out.
+   Measured divergence, stated rather than assumed: a frame hook that reads the
+   rail's real state and the painted-opacity rule at the same instant, over a
+   continuous scripted scroll across every beat boundary at 412x915, disagrees
+   on 10 of 1749 composed frames (300 of them mid cross-fade). Every one is the
+   tail of a fade-out, 1 to 4 frames long, where this path still calls the
+   sentence visible and the opacity rule has already dropped it under 0.01; the
+   rail is held dim a few frames longer and never released early. The rail
+   carries its own .3s opacity transition, so that lands inside a cross-fade it
+   was going to run anyway. The same probe on the base tree disagrees on 0 of
+   1927 frames, which is what makes it a fair comparison. */
+var labelsHiddenMQ = window.matchMedia ?
+  window.matchMedia('(max-aspect-ratio:3/4) and (max-width:600px),(max-height:500px) and (orientation:landscape)') : null;
+var copyRects = null, copyWasOn = [], copyOffAt = [];
+function dropCopyRects(){ copyRects = null; }
+window.addEventListener('resize', dropCopyRects);
+if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', dropCopyRects);
+function yieldCopyRect(){
+  if (document.body.classList.contains('card-open') ||
+      document.documentElement.classList.contains('nv-exit')) return null; /* copy is painted out */
+  if (!copyRects) copyRects = copyNodes.map(function(el){ return el.getBoundingClientRect(); });
+  var now = performance.now(), pick = null;
+  for (var i = 0; i < copyNodes.length; i++) {
+    var on = copyNodes[i].classList.contains('on');
+    if (on) { copyWasOn[i] = true; copyOffAt[i] = 0; }
+    else if (copyWasOn[i]) { copyWasOn[i] = false; copyOffAt[i] = now; }
+    if (!pick && (on || (copyOffAt[i] && now - copyOffAt[i] < 600))) pick = copyRects[i];
+  }
+  return pick;
+}
 function updateLabels(){
   if (!navRect || !navRect.width) refreshNavRect();
+  if (labelsHiddenMQ && labelsHiddenMQ.matches) {
+    var yr = yieldCopyRect();
+    var yh = !!(navRect && navRect.width > 0 && yr &&
+      navRect.left < yr.right && navRect.right > yr.left &&
+      navRect.top < yr.bottom && navRect.bottom > yr.top);
+    if (yh !== navYield) {
+      navYield = yh;
+      nav.style.opacity = yh ? '0.1' : '';
+      nav.style.pointerEvents = yh ? 'none' : '';
+    }
+    return;
+  }
   camera.getWorldDirection(vDir);
   /* Gate on the sentence's PAINTED opacity, not its class. The class flips in one
    frame but the sentence cross-fades over 600ms, so a class-gated suppression
@@ -384,7 +444,16 @@ function groundAt(){
   if (ray.ray.intersectPlane(gPlane, gPt) && Math.abs(gPt.x) < 210 && Math.abs(gPt.z) < 210) return gPt;
   return null;
 }
+/* the touch path below only exists where Touch Events do. Handing a finger to
+   it on an engine that reports pointerType 'touch' without ever firing
+   touchmove would leave that finger with no hover, wake or ripple at all, so
+   the handover is conditional on the replacement being there. */
+var HAS_TOUCHMOVE = ('ontouchmove' in window);
 canvas.addEventListener('pointermove', function(e){
+  /* a finger is handled by the touch path below (coalesced to one raycast per
+     frame); taking its pointermove too raycast every pane and node twice per
+     move. Mouse and pen keep hover here. */
+  if (e.pointerType === 'touch' && HAS_TOUCHMOVE) return;
   /* raycast priority, explicit: pane > node > ground */
   var pn = paneAt(e.clientX, e.clientY);
   var br = (!pn && uiAwake()) ? brainAt() : null;
@@ -423,10 +492,19 @@ function touchRest(){
   if (S.groundRippleEnd) S.groundRippleEnd();
 }
 canvas.addEventListener('pointercancel', touchRest);
+/* touchmove arrives several times per frame on a phone, and every event
+   raycast six panes plus the ground. Keep the latest finger position and
+   raycast it once, in the next animation frame. */
+var touchX = 0, touchY = 0, touchRaf = 0;
 canvas.addEventListener('touchmove', function(ev){
   var tp = ev.touches && ev.touches[0];
   if (!tp) return;
-  var pn = paneAt(tp.clientX, tp.clientY);
+  touchX = tp.clientX; touchY = tp.clientY;
+  if (!touchRaf) touchRaf = requestAnimationFrame(touchHover);
+}, { passive: true });
+function touchHover(){
+  touchRaf = 0;
+  var pn = paneAt(touchX, touchY);
   if (pn) {
     if (pn !== hoverPane) { hoverPane = pn; triggerRipple(pn); ensureAnim(); }
     paneWake(pn); /* the continuous glass wake follows the finger */
@@ -438,9 +516,13 @@ canvas.addEventListener('touchmove', function(ev){
       if (g) S.groundRipple(g.x, g.z); else if (S.groundRippleEnd) S.groundRippleEnd();
     }
   }
-}, { passive: true });
+}
 canvas.addEventListener('touchend', function(){ setTimeout(touchRest, 90); }, { passive: true });
-canvas.addEventListener('touchcancel', touchRest, { passive: true });
+canvas.addEventListener('touchcancel', function(){
+  /* a queued hover must not land after the rest and pin the slab */
+  if (touchRaf) { cancelAnimationFrame(touchRaf); touchRaf = 0; }
+  touchRest();
+}, { passive: true });
 canvas.addEventListener('click', function(e){
   /* raycast priority, explicit: pane > node > ground */
   var pn = paneAt(e.clientX, e.clientY);
