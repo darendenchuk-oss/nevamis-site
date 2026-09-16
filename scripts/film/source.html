@@ -6574,10 +6574,6 @@ function applyTier(n){
   GOV.hist.push({ t: Math.round(performance.now()), from: GOV.applied, to: n });
   if (GOV.hist.length > 40) GOV.hist.shift();
   GOV.applied = n;
-  if (PHONE_TIER && n > phoneTierSeen) { /* phones: remember the lightest tier this visit needed */
-    phoneTierSeen = n;
-    try { window.sessionStorage.setItem('nv-film-tier', String(n)); } catch (e) {}
-  }
   /* panes: material (T3+) and tessellation (T4+). The rim shell shares the
      slab's geometry object so both swap together and stay aligned. */
   for (var gv = 0; gv < panes.length; gv++) {
@@ -6757,31 +6753,7 @@ function layout(){
   camera.updateProjectionMatrix();
   fieldMat.uniforms.uPx.value = h * pr * 0.5;
 }
-/* ---------- PHONES START ON THE LIGHTER GLASS (PROPOSAL, NOT YET OWNER-APPROVED) ----------
-   A phone (coarse primary pointer, under 800px wide) starts at tier 3: the panes
-   use the matcap-LUT glass warm-compiled above instead of physical transmission,
-   whose extra 4x-multisampled scene pass and mipmap rebuild ran every frame, and
-   bloom renders at half resolution. The governor only steps during motion, never
-   during the ignition, and at 4x CPU a phone never got past tier 1 on its own.
-   Applied here the way ?tier=N pins, before the first sizing, so the ignition
-   itself runs cheap and no step pops mid-scroll. The highest tier number this
-   visit reaches is kept in sessionStorage, so a reload or back-navigation does
-   not start above what the phone already needed. The governor still adapts from
-   there (down to tier 4). A ?tier=N pin wins; wider or mouse-driven screens are
-   untouched. */
-var PHONE_TIER = false, phoneTierSeen = -1;
-(function(){
-  if (GOV.forced || !window.matchMedia || !window.matchMedia('(pointer: coarse)').matches) return;
-  if ((canvas.clientWidth || window.innerWidth) >= 800) return;
-  PHONE_TIER = true;
-  var start = 3;
-  try {
-    var kept = /^([0-4])$/.exec(window.sessionStorage.getItem('nv-film-tier') || '');
-    if (kept && +kept[1] > start) start = +kept[1];
-  } catch (e) {}
-  GOV.pending = start;
-})();
-if ((GOV.forced || PHONE_TIER) && GOV.pending >= 0) { applyTier(GOV.pending); GOV.pending = -1; } /* ?tier=N pins (and a phone's start tier) before first sizing */
+if (GOV.forced && GOV.pending >= 0) { applyTier(GOV.pending); GOV.pending = -1; } /* ?tier=N pins before first sizing */
 layout();
 
 /* ---------- scroll + damping ---------- */
