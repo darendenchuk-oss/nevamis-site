@@ -7,8 +7,10 @@
  *
  *   the hero's own CTAs are visible and tappable within 1.6s of the timeline
  *   starting, on desktop and on a phone, with motion fully on;
- *   on a phone, the sticky .callbar still carries tel:+15874130035 in plain
- *   CSS with no animation, so the primary action is live from first paint;
+ *   on a phone, the sticky .callbar reaches booking (/book.html#pick-a-time)
+ *   in plain CSS with no animation, so a next step is live from first paint
+ *   on every content page (the film homepage hides the bar until the film
+ *   ends, by design: scripts/film/compose.py);
  *   on desktop, the navigation is clickable within a second.
  *
  * If someone re-gates the CTAs behind the film's payoff, the first test below
@@ -54,14 +56,19 @@ test.describe('a visitor can act before the intro finishes', () => {
     });
   }
 
-  test('a phone visitor can dial from first paint', async ({ page }) => {
+  /* The bar dialled the demo line until 2026-09-15, when the owner made it the
+     phone's booking action. A content page, not /index.html: the film homepage
+     hides the bar until the film ends (compose.py), so the homepage cannot
+     prove first paint. The demo line stays in the nav drawer, the page heroes
+     and the footer number. */
+  test('a phone visitor can reach booking from first paint', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/electricians.html', { waitUntil: 'domcontentloaded' });
 
     const bar = page.locator('.callbar');
-    await expect(bar, 'the sticky call bar must exist on a phone').toHaveCount(1);
+    await expect(bar, 'the sticky booking bar must exist on a phone').toHaveCount(1);
     await expect(bar).toBeVisible();
-    await expect(bar).toHaveAttribute('href', PHONE);
+    await expect(bar).toHaveAttribute('href', '/book.html#pick-a-time');
 
     // Visible AND in the viewport, not merely present in the DOM.
     const box = await bar.boundingBox();
@@ -76,6 +83,28 @@ test.describe('a visitor can act before the intro finishes', () => {
     });
     expect(style.opacity).toBeGreaterThan(0.9);
     expect(style.visibility).toBe('visible');
+  });
+
+  /* The homepage cannot prove first paint, so the test above moved to a content
+     page. This one holds the homepage's half of the same contract, which that
+     move would otherwise have dropped: the film owns the screen first and the
+     bar is hidden under it (compose.py), and the moment the visitor is past the
+     film it is the same booking bar as everywhere else. */
+  test('the homepage bar hides under the film and books below it', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+    const bar = page.locator('a.callbar');
+    await expect(bar, 'the homepage carries exactly one sticky bar').toHaveCount(1);
+    await expect(bar, 'hidden while the film owns the screen').toBeHidden();
+
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains('nv-below')),
+      { message: 'the page never reported itself past the film', timeout: 30_000 }).toBe(true);
+
+    await expect(bar, 'and present once the film is behind you').toBeVisible();
+    await expect(bar).toHaveAttribute('href', '/book.html#pick-a-time');
+    await expect(bar).toHaveAttribute('data-evt', 'callbar_book_click');
   });
 
   test('a desktop visitor has working navigation within a second', async ({ page }) => {
@@ -132,8 +161,12 @@ test.describe('a visitor can act before the intro finishes', () => {
     expect(state.invisible, 'every content block must stay readable without site.js').toBe(0);
     expect(state.hasNoJs, 'no-js must survive when site.js never ran').toBe(true);
 
-    // And the phone number is still there, because the call bar is plain CSS.
+    /* And the booking bar is still there, because it is plain CSS. Checked on a
+       content page with site.js still blocked: the film homepage hides the bar
+       until the film ends, by design, so its top cannot show it. */
+    await page.goto('/electricians.html', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('.callbar')).toBeVisible();
+    await expect(page.locator('.callbar')).toHaveAttribute('href', '/book.html#pick-a-time');
   });
 
   test('reduced motion shows the finished hero at once', async ({ page }) => {

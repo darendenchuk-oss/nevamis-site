@@ -30,7 +30,11 @@ const argv = process.argv.slice(2);
 const arg = (n, d) => { const i = argv.indexOf('--' + n); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
 const BASE = process.env.NEV_BASE ?? 'http://127.0.0.1:3211';
 const PAGES = arg('pages', '/home.html,/pricing.html,/demo.html,/proposal.html,/coming-soon.html,/pilot.html').split(',');
-const SEL = 'input:not([type=hidden]), select, textarea, button, a.btn, .motion-toggle-btn, .btn-ghost, [role=combobox]';
+/* a.cta2 and #close a.cta are the film's own "Scan my business" pills. They
+   carry no .btn class, so the station pill shipped at 1.76:1 with nothing here
+   selecting it. This probe composites computed styles and cannot see the film
+   canvas; tests/scan-contrast.spec.js measures their pixels. */
+const SEL = 'input:not([type=hidden]), select, textarea, button, a.btn, .motion-toggle-btn, .btn-ghost, a.cta2, #close a.cta, [role=combobox]';
 
 const MEASURE = (sel) => {
   const lum = ([r, g, b]) => {

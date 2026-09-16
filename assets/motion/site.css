@@ -25,6 +25,12 @@
      Set by measurement, not derivation. Checked by the site contrast probe
      across /, /pricing, /pilot, /book and /coming-soon. */
   --line-control:rgba(159,240,206,.46);
+  /* --line-control-strong is the boundary of a BUTTON whose only shape is its
+     outline (.btn-ghost, .btn-light-ghost). .46 passed 3:1 as a 1px hairline
+     (3.74:1 on navy-0) but read as a disabled option beside a filled, glowing
+     pill. Inputs and the nav toggle keep --line-control; only outline buttons
+     move. .72 measures about 8:1 on the dark ground. */
+  --line-control-strong:rgba(159,240,206,.72);
   --warm:#F0B462; --warm-deep:#8A6210; --bad:#E5837B;
   --e-out:cubic-bezier(.16,1,.3,1); --e-in:cubic-bezier(.7,0,.84,0);
   /* compat aliases: markup ported from the previous site references these */
@@ -233,9 +239,32 @@ html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
   box-shadow:0 10px 30px -12px rgba(47,191,143,.6);background-size:160% 100%;background-position:0 0;
   transition:background-position .45s var(--e-out),box-shadow .3s var(--e-out)}
 .btn-primary:hover{background-position:100% 0;box-shadow:0 16px 44px -14px rgba(47,191,143,.8)}
-.btn-ghost,.btn-light-ghost{border-color:var(--line-control);color:var(--ink);background:transparent;
+/* Outline buttons. The outline IS the button, so its boundary is
+   --line-control-strong (.72) rather than the .46 control hairline that inputs
+   and the nav toggle keep. The pill itself stays transparent: it shares the
+   navy ground with the nav and the body copy, and a tint over it buys nothing.
+   Hover strengthens the border to mint and paints nothing; it used to drop the
+   border to .42 and add a mint tint, which over the aurora canvas pulled
+   labels under 4.5:1.
+   Where the ground is the aurora shader rather than navy, a transparent pill
+   is at the mercy of the frame (1.9:1 on the border was measured over bright
+   ones). That is answered where it happens, on the page heroes that sit on the
+   brightest part of the canvas (scripts/build-content.mjs, .page-hero
+   .btn-ghost paints its own dark ground and ring), not by making every outline
+   button on the site carry a dark plate. Never backdrop-filter: see the aurora
+   note above.
+   What that leaves, measured from pixels over the aurora at 390 and 1440: the
+   outline buttons in hand-authored page BODIES (pricing, book, coming-soon,
+   pilot, 404, revenue-engine, and the mid-page bands on the content pages) are
+   better than they were but still short of 3:1 on the brightest frames, about
+   2.5-3.0:1 where .46 gave 1.7-2.5:1. Eleven control-states of 102, every one
+   of them improved, none of them a "Scan my business". Closing that gap means
+   giving those bodies the same dark plate the heroes have, which is a visual
+   change to surfaces nobody has asked to change: it is the owner's call, not a
+   silent one. tests/scan-contrast.spec.js measures the ones that matter. */
+.btn-ghost,.btn-light-ghost{border-color:var(--line-control-strong);color:var(--ink);background:transparent;
   transition:border-color .25s var(--e-out),background .25s var(--e-out)}
-.btn-ghost:hover,.btn-light-ghost:hover{border-color:rgba(159,240,206,.42);background:rgba(159,240,206,.05)}
+.btn-ghost:hover,.btn-light-ghost:hover{border-color:var(--mint)}
 .ring-once{animation:ringOnce 1s var(--e-out) 1}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 
