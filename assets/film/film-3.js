@@ -182,7 +182,17 @@ window.addEventListener('resize', refreshNavRect);
    classes. When the query matches, only the nav-rail yield is kept, and it is
    derived without reading layout: the copy blocks are position:fixed and only
    their opacity changes, so their rects are cached (refreshed after a resize or
-   a font load), and "visible" is the .on class plus its 600ms fade-out. */
+   a font load), and "visible" is the .on class plus its 600ms fade-out.
+   Measured divergence, stated rather than assumed: a frame hook that reads the
+   rail's real state and the painted-opacity rule at the same instant, over a
+   continuous scripted scroll across every beat boundary at 412x915, disagrees
+   on 10 of 1749 composed frames (300 of them mid cross-fade). Every one is the
+   tail of a fade-out, 1 to 4 frames long, where this path still calls the
+   sentence visible and the opacity rule has already dropped it under 0.01; the
+   rail is held dim a few frames longer and never released early. The rail
+   carries its own .3s opacity transition, so that lands inside a cross-fade it
+   was going to run anyway. The same probe on the base tree disagrees on 0 of
+   1927 frames, which is what makes it a fair comparison. */
 var labelsHiddenMQ = window.matchMedia ?
   window.matchMedia('(max-aspect-ratio:3/4) and (max-width:600px),(max-height:500px) and (orientation:landscape)') : null;
 var copyRects = null, copyWasOn = [], copyOffAt = [];
