@@ -609,7 +609,9 @@ function updateNodeUi(){
     var px = cx + 20;
     if (px + ncard._w > window.innerWidth - 10) px = cx - 20 - ncard._w;
     px = Math.max(10, Math.min(window.innerWidth - ncard._w - 10, px));
-    var py = Math.max(10, Math.min(window.innerHeight - ncard._h - 10, cy - ncard._h * 0.5));
+    /* never under the fixed 68px site header, which stacks above the card and
+       would swallow clicks on its close button (same cause as the pane card) */
+    var py = Math.max(78, Math.min(window.innerHeight - ncard._h - 10, cy - ncard._h * 0.5));
     ncard.style.transform = 'translate3d(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px,0)';
   }
 }

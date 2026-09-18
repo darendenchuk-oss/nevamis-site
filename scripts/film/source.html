@@ -148,7 +148,11 @@ body.card-open #hint{opacity:0}
 #labels .plabel .lo{display:block;margin-top:6px;font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;
   font-size:.56rem;letter-spacing:.26em;text-transform:uppercase;color:var(--emerald)}
 #labels .plabel:hover .lo{color:var(--mint)}
-#card{position:fixed;top:0;right:0;height:100%;width:min(440px,94vw);z-index:7;
+/* The card starts BELOW the fixed 68px site header (z-index 50), never behind it.
+   From top:0 its close button sat 18px down, under the header, so every click on
+   it landed on the header or the phone menu toggle and a visitor could not close
+   the card (owner report 2026-09-18; tests/pane-card.spec.js). */
+#card{position:fixed;top:68px;right:0;height:calc(100% - 68px);width:min(440px,94vw);z-index:7;
   visibility:hidden;transform:translateX(112%);
   transition:transform .55s cubic-bezier(.22,.8,.24,1),visibility 0s linear .55s;
   background:linear-gradient(160deg,rgba(6,26,19,.93),rgba(2,8,13,.96));
@@ -156,11 +160,11 @@ body.card-open #hint{opacity:0}
   border-left:1px solid rgba(159,240,206,.20);
   box-shadow:-30px 0 80px rgba(1,5,8,.55);
   overflow-y:auto;overscroll-behavior:contain;
-  padding:64px 34px 44px}
+  padding:62px 34px 44px}
 #card.on{visibility:visible;transform:none;transition:transform .55s cubic-bezier(.22,.8,.24,1)}
 #card:focus{outline:none}
 @media (prefers-reduced-motion: reduce){#card{transition:none}}
-#cardClose{position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:50%;
+#cardClose{position:absolute;top:14px;right:18px;width:38px;height:38px;border-radius:50%;
   background:none;border:1px solid rgba(159,240,206,.28);color:var(--mint);cursor:pointer;
   font-size:1.05rem;line-height:1;font-family:inherit;
   transition:border-color .2s ease,transform .3s ease}
@@ -8164,7 +8168,9 @@ function updateNodeUi(){
     var px = cx + 20;
     if (px + ncard._w > window.innerWidth - 10) px = cx - 20 - ncard._w;
     px = Math.max(10, Math.min(window.innerWidth - ncard._w - 10, px));
-    var py = Math.max(10, Math.min(window.innerHeight - ncard._h - 10, cy - ncard._h * 0.5));
+    /* never under the fixed 68px site header, which stacks above the card and
+       would swallow clicks on its close button (same cause as the pane card) */
+    var py = Math.max(78, Math.min(window.innerHeight - ncard._h - 10, cy - ncard._h * 0.5));
     ncard.style.transform = 'translate3d(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px,0)';
   }
 }
