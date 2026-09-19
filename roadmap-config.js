@@ -97,14 +97,16 @@ window.NV_ROADMAP = {
       problem: "Leads live in texts, notebooks, and memory. Nobody can see what is pending.",
       functions: ["Contact creation and matching", "Lead-source capture", "Call summaries attached to records", "Stage and task tracking", "Stale-lead alerts"],
       outcome: "Cleaner records, fewer forgotten opportunities, real visibility.", cta: "/pilot.html" },
-    /* AVAILABLE 2026-08-19, claims shrunk to the shipped truth: detection
-       on the owner's own threshold plus ONE approved follow-up email per
-       quiet quote — "reminder sequences" and "reply classification" are
-       not built and are not claimed. */
+    /* AVAILABLE 2026-08-19. Since the ladder shipped on 2026-08-22 it is
+       detection on the owner's own threshold plus THREE approved follow-ups
+       per quiet quote: the day it goes stale, four days on and eleven days
+       on (canonical.ts quote_recovery; pricing-config.js says the same).
+       "Reply classification" is not claimed, and neither is stopping on a
+       reply: DC#37 left that mechanism an open verification item. */
     { slug: "quote-recovery", name: "Quote Recovery", pillar: "convert", status: "available", stage: "now",
-      desc: "Quotes that go quiet past your threshold get spotted and followed up once, with your name on the email and your approval before it goes.",
+      desc: "Quotes that go quiet past your threshold get followed up for you: the day they go stale, four days on and eleven days on, each email with your name on it and your approval before it goes. Sold as the Quote-Chase Engine.",
       problem: "Quotes are sent and forgotten. Interested customers drift away.",
-      functions: ["Quiet-quote detection on your threshold", "One approved follow-up email per quote", "Your identification on every message", "Recovered value reported against the quotes that came back"],
+      functions: ["Quiet-quote detection on your threshold", "Three approved follow-ups per quote: the day it goes stale, day four and day eleven", "Your identification on every message", "Recovered value reported against the quotes that came back"],
       outcome: "Recovered revenue that was already almost won.", cta: "/pricing.html" },
     { slug: "schedule-protection", name: "Schedule Protection", pillar: "convert", status: "planned", stage: "future",
       desc: "Reminders, approved rescheduling, and cancellation recovery that keep valuable appointment slots from going unused.",
