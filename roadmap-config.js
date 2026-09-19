@@ -114,15 +114,10 @@ window.NV_ROADMAP = {
     { slug: "daily-business-brief", name: "Your Daily Business Brief", pillar: "operate", status: "planned", stage: "future",
       desc: "Is being built to condense calls, open leads, follow-ups, and urgent issues into one concise daily summary.",
       outcome: "Five minutes to know exactly where the business stands." },
-    /* NOT flipped to available, deliberately. pricing-config.js carries
-       review_engine with sellable: true and the pricing page sells it, so this
-       entry under-claims against the add-on catalog. Promoting it here is a NEW
-       public availability claim on an indexed page, which is an owner decision
-       and was not one of the four this branch was authorised to make. Left as
-       the owner last set it; raising it is a separate call. */
-    { slug: "review-referral-engine", name: "Review and Referral Engine", pillar: "grow", status: "planned", stage: "future",
-      desc: "After a completed job, approved feedback requests route concerns privately and make it easy for happy customers to leave a review.",
-      outcome: "More legitimate reviews, faster complaint awareness." },
+    /* No Review Engine row, deliberately and for now (2026-09-19). It is sold
+       today and is inside The Works, so the "planned" row that stood here was
+       false. An "available" row needs a review_engine capability in engine
+       canonical first, or the engine gate fails HIGH (fix plan r15 B11). */
     { slug: "customer-reactivation", name: "Customer Reactivation", pillar: "convert", status: "researching", stage: "future",
       desc: "Reconnect with eligible past customers when maintenance, seasonal work, or renewals may genuinely help them.",
       outcome: "Repeat business from relationships you already earned." },
