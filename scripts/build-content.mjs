@@ -177,15 +177,18 @@ for (const [file, content] of Object.entries(PAGES)) {
   const meta = byFile[file];
   if (!meta) { console.warn(`skip ${file}: not in content-map.json`); continue; }
 
-  /* The brand half of the title is per page. Six pages ship
-     "| The AI Front Desk by Nevamis" (restoration, historically, without
-     the "The"), and this builder hard-coded "| Nevamis", so regenerating
-     any of them silently rewrote six indexed <title> tags. Preserved
-     exactly rather than normalised: the difference is cosmetic, but a
-     title is an indexed string and a reconciliation is not the place to
-     change one. */
+  /* The brand half of the title is per page. Six pages shipped
+     "| The AI Front Desk by Nevamis" (restoration without the "The"), and
+     the 2026-08-27 reconciliation preserved them through `titleBrand`
+     because a reconciliation is not the place to change an indexed string.
+     The owner changed them on purpose on 2026-09-19 (fix plan B2a): the
+     front desk is one part of Nevamis, so every content page is now
+     "| Nevamis". `titleBrand` is still honoured if a row sets one. */
   const title = `${meta.title} | ${meta.titleBrand || 'Nevamis'}`;
-  const description = content.lede.replace(/\s+/g, ' ').trim().slice(0, 155);
+  /* A page's own description when it has one. The lede cut at 155 characters
+     stopped mid-word on seven pages, and that cut is the sentence under the
+     search result (fix plan A31). The cut stays as the fallback. */
+  const description = content.description || content.lede.replace(/\s+/g, ' ').trim().slice(0, 155);
 
   const html =
     head({ title, ogTitle: `${meta.title} | Nevamis`, description, canonical: `${SITE}${meta.url}` }) +
@@ -225,7 +228,7 @@ const CLUSTERS = [
 ];
 
 const hubMeta = byFile['solutions.html'];
-const hubDesc = 'Call answering by trade, by situation, and compared to voicemail and answering services. Every page from Nevamis in one place.';
+const hubDesc = 'Lead Generation by invitation, Quote Recovery and the AI Front Desk, by trade, by situation, and compared to voicemail and answering services.';
 
 const hubHtml =
   head({ title: `${hubMeta.title} | Nevamis`, description: hubDesc, canonical: `${SITE}/solutions.html` }) +
@@ -236,13 +239,11 @@ const hubHtml =
     <div class="wrap">
       <p class="crumb"><a href="/">Home</a> / Solutions</p>
       <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Everything in one place</span>
-      <h1>Find the version of this that matches your business.</h1>
-      <p class="lede">Nevamis finds where a business is losing revenue and builds the system
-        that recovers it. For most trades that starts at the phone, so most of these pages
-        start there too. They just start from where you are.</p>
+      <h1>Find the part of Nevamis that fits your business.</h1>
+      <p class="lede">Nevamis does three things. Lead Generation, offered by invitation, finds businesses of the kind you want more of. Quote Recovery follows up the quotes you already sent. The AI Front Desk answers the calls you cannot. The pages by trade and by situation below start at the phone.</p>
       <div class="cta">
         <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer &nbsp;›</a>
-        <a class="btn btn-ghost btn-lg" href="https://app.nevamis.ca/scan" data-evt="solutions_hero_scan_click">Scan my business</a>
+        <a class="btn btn-ghost btn-lg" href="https://app.nevamis.ca/scan" data-evt="solutions_hero_scan_click">Scan my business website</a>
       </div>
     </div>
   </section>
@@ -277,9 +278,9 @@ const hubHtml =
       </div>
       <div class="related reveal">
         <a href="/book.html" data-evt="solutions_leadgen_click"><strong>Lead Generation (by invitation)</strong><span>Offered by invitation, under your own agreement, and put together by hand. A person here reads public pages and builds you a list of the businesses that fit the work you want, with the page each row came from and the day it was read. You decide every row, and nobody on the list is contacted by us.</span></a>
-        <a href="/pricing.html" data-evt="solutions_recovery_click"><strong>Quote Recovery</strong><span>The quotes you already sent, followed up once when they go quiet, with your name on the email and your approval before it goes.</span></a>
-        <a href="/missed-calls.html"><strong>The AI Front Desk</strong><span>Missed calls are the loudest leak: what one actually costs, and how the front desk catches it.</span></a>
-        <a href="https://app.nevamis.ca/scan" data-evt="solutions_scan_click"><strong>Free Business Scan</strong><span>PULSE reads what is public about your business and prices what it finds. No email required, results in about a minute.</span></a>
+        <a href="/pricing.html" data-evt="solutions_recovery_click"><strong>Quote Recovery</strong><span>The quotes you sent and never heard back about, followed up for you: the day a quote goes quiet, again four days on, and again eleven days on. Each email carries your name and needs your approval before it goes. On the pricing page it is the Quote-Chase Engine.</span></a>
+        <a href="/missed-calls.html"><strong>The AI Front Desk</strong><span>Answers your line when you cannot, takes the job, the address and the time the caller wants, and texts you the summary. Start with what a missed call costs you.</span></a>
+        <a href="https://app.nevamis.ca/scan" data-evt="solutions_scan_click"><strong>Scan my website</strong><span>PULSE reads only what is public on your own website and quotes what it found. Where it puts a figure on something, the figure is a modelled range, not a measurement. No email required.</span></a>
       </div>
     </div>
   </section>
