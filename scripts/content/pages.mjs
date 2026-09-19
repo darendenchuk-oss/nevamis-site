@@ -347,12 +347,13 @@ export const PAGES = {
           <tr><th scope="row">Repeats the details back to the caller</th><td class="no">No</td><td class="yes">Yes, and says you will confirm the time</td></tr>
           <tr><th scope="row">Escalates an emergency</th><td class="no">No</td><td class="yes">By your rules</td></tr>
           <tr><th scope="row">Gives you a useful summary</th><td class="part">A recording</td><td class="yes">Name, number, need, outcome</td></tr>
-          <tr><th scope="row">Costs nothing</th><td class="yes">Yes</td><td class="part">Monthly plan</td></tr>
+          <tr><th scope="row">Costs nothing</th><td class="yes">Yes</td><td class="part">A one-time Launch &amp; Implementation fee to start, then a monthly plan</td></tr>
         </tbody>
       </table>
     </div>
     <p class="foot-note reveal" style="margin-top:14px">Voicemail genuinely wins on price. The
-      question is what one recovered job per month is worth against the plan you are on.</p>
+      question is what one recovered job a month is worth against a one-time
+      Launch &amp; Implementation fee to start, then the monthly plan you would be on.</p>
   </div>
 </section>
 
@@ -389,7 +390,7 @@ export const PAGES = {
           <tr><th scope="row">Takes the job down in full</th><td class="part">Varies by operator</td><td class="yes">Included</td></tr>
           <tr><th scope="row">Never on hold or queued</th><td class="part">Depends on their volume</td><td class="yes">Answers in parallel</td></tr>
           <tr><th scope="row">Handles genuine judgement calls</th><td class="yes">A person can</td><td class="part">Escalates to you instead</td></tr>
-          <tr><th scope="row">Cost as volume grows</th><td class="part">Per call or per minute</td><td class="yes">Plan with included minutes</td></tr>
+          <tr><th scope="row">Cost as volume grows</th><td class="part">Per call or per minute</td><td class="part">${count(FRONT_DESK.includedMinutes)} minutes included on the ${FRONT_DESK.name}, then ${cad(FRONT_DESK.overage)} a minute, or a cap you choose</td></tr>
         </tbody>
       </table>
     </div>
@@ -405,7 +406,8 @@ export const PAGES = {
         that on every call. Nevamis is built to know its limits: for anything outside the rules
         you approved, it takes a message rather than guessing. If most of your calls
         are genuinely unpredictable, hire the person. If most are the same twenty questions and a
-        job to take down, this does that part without a queue and without a per-call charge.</p>
+        job to take down, this does that part without a queue, inside the minutes your plan
+        includes.</p>
     </div>
   </div>
 </section>`,
