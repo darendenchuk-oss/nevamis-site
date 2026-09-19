@@ -8,13 +8,16 @@ const DEMO = '(587)&nbsp;413-0035';
 /** The platform paragraph that sits under the hero CTAs on the four trade
     pages. It lived only in the generated HTML until 2026-08-27, so any run of
     build-content.mjs deleted it from all four at once. Trailing blank line is
-    part of the block: it is what the checked-in pages carry. */
-export const TRADE_HERO_PROOF = `      <p class="proof" style="margin-top:12px">The phone is where most start. Behind it sits the full Nevamis platform:
-        a free scan that reads your public footprint and puts a range on what is leaking,
-        lead generation offered by invitation, where a person here builds you a list of the customers worth
-        calling from public pages and you decide every row, and a portal that shows what every answered call
-        actually produced.
-        <a href="https://app.nevamis.ca/scan" data-evt="trade_scan_click">Run the free scan</a>.</p>
+    part of the block: it is what the checked-in pages carry.
+
+    Rewritten 2026-09-19 (fix plan A12). It said the scan "puts a range on what
+    is leaking" from "your public footprint", and called the listed businesses
+    "the customers worth calling". The scan reads only the business's own
+    public website and every figure it gives is a modelled range, the leak
+    framing was retired by DC#54, and Lead Generation lists businesses the
+    owner decides on: nobody on the list is contacted by us. */
+export const TRADE_HERO_PROOF = `      <p class="proof" style="margin-top:12px">The phone is one part of Nevamis. Lead Generation, offered by invitation, finds businesses of the kind you want more of. A person here reads public pages and builds the list, with the page each one came from, and you decide every one. Nobody on it is contacted by us. Quote Recovery follows up the quotes you already sent, with your name on each email and your approval before it goes.
+        Or <a href="https://app.nevamis.ca/scan" data-evt="trade_scan_click">scan my website</a>: it reads only what is public on your own site, and any figure it gives is a modelled range, not a measurement.</p>
 `;
 
 /** Shared closing block: the honest proof we actually have. */
