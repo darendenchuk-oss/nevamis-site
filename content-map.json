@@ -4,9 +4,9 @@
   "pages": [
     { "file": "index.html", "url": "/", "priority": "1.0", "cluster": "core", "nav": "Home", "title": "Nevamis", "blurb": "Lead Generation by invitation, Quote Recovery and the front desk, with plans and straight answers." },
     { "file": "demo.html", "url": "/demo.html", "priority": "0.9", "cluster": "core", "nav": "Live Demo", "blurb": "Call it yourself and hear what it handles." },
-    { "file": "book.html", "url": "/book.html", "priority": "0.9", "cluster": "core", "nav": "Book a Call", "blurb": "A short strategy call and a quote scoped to your call volume." },
+    { "file": "book.html", "url": "/book.html", "priority": "0.9", "cluster": "core", "nav": "Book a call", "blurb": "A short call with Daren: who you want more of, and what it costs at published prices." },
     { "file": "pricing.html", "url": "/pricing.html", "priority": "0.8", "cluster": "core", "nav": "Pricing", "blurb": "Every plan, what is included, and how usage is counted." },
-    { "file": "pilot.html", "url": "/pilot.html", "priority": "0.8", "cluster": "core", "nav": "How You Start", "blurb": "There is no pilot and no trial. Here is exactly what happens before your line is answered." },
+    { "file": "pilot.html", "url": "/pilot.html", "priority": "0.8", "cluster": "core", "nav": "How you start", "blurb": "There is no pilot and no trial. Here is exactly what happens before your line is answered." },
     { "file": "solutions.html", "url": "/solutions.html", "priority": "0.8", "cluster": "hub", "nav": "Solutions", "title": "Solutions by outcome, trade and situation", "blurb": "Every outcome, trade, situation, and comparison in one place." },
 
     { "file": "electricians.html", "hubTitle": "Nevamis for Electricians", "hubBlurb": "Service calls answered while the crew is on the tools, with the urgent ones flagged to your phone.", "url": "/electricians.html", "priority": "0.7", "cluster": "trade", "nav": "Electricians",
@@ -44,8 +44,8 @@
       "query": "ai receptionist vs answering service",
       "blurb": "Cost, availability, what comes back off the call, and what each is genuinely better at." },
 
-    { "file": "coming-soon.html", "url": "/coming-soon.html", "priority": "0.6", "cluster": "core", "nav": "Coming Soon", "blurb": "What is being built next, with honest status labels." },
-    { "file": "revenue-engine.html", "url": "/revenue-engine.html", "priority": "0.7", "cluster": "core", "nav": "Revenue Engine", "blurb": "The longer-term connected system, in development." },
+    { "file": "coming-soon.html", "url": "/coming-soon.html", "priority": "0.6", "cluster": "core", "nav": "Roadmap", "blurb": "What is being built next, with honest status labels." },
+    { "file": "revenue-engine.html", "url": "/revenue-engine.html", "priority": "0.7", "cluster": "core", "nav": "Revenue Engine", "blurb": "Ad attribution: which marketing produced which job (in development)." },
     { "file": "about.html", "url": "/about.html", "priority": "0.6", "cluster": "core", "nav": "About", "blurb": "Who is behind Nevamis." },
     { "file": "privacy.html", "url": "/privacy.html", "priority": "0.2", "cluster": "legal", "nav": "Privacy", "blurb": "What this website collects." },
     { "file": "terms.html", "url": "/terms.html", "priority": "0.2", "cluster": "legal", "nav": "Terms", "blurb": "Terms of use for the site and demo line." },
