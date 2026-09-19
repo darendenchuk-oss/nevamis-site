@@ -832,66 +832,69 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="section-head reveal">
         <p class="eyebrow mono">Example call</p>
         <h2>What a Nevamis agent sounds like on a client's line.</h2>
-        <p>An illustrative service call for a fictional electrical company, with real AI voices.</p>
+        <p>An illustrative service call for a fictional electrical company, written out turn by turn.</p>
       </div>
       <div class="call-grid">
-        <div class="call-card reveal" id="callCard" aria-label="Example call with playable audio and transcript">
+        <div class="call-card reveal" id="callCard" aria-label="Example call transcript">
           <div class="call-head">
             <span class="label mono">Example call &middot; Cedarview Electric (fictional)</span>
             <span class="state mono">ANSWERED</span>
           </div>
-          <canvas id="callWave" height="46" aria-hidden="true"></canvas>
-          <div class="player-row">
-            <button class="play" id="playBtn" aria-label="Play the example call audio">
-              <span aria-hidden="true">▶</span><span id="playLabel">Hear a 33-second call</span>
-            </button>
-            <span class="timer mono" id="callTimer">0:00 / 0:33</span>
-          </div>
-          <div class="line agent" data-audio="assets/call-0.mp3">
+          <!-- No audio on this page until the example call is re-recorded
+               (owner decision B1, 2026-09-19). In the recording the agent
+               offers a slot and then confirms it, which the front desk cannot
+               do: it takes the time the caller wants, and the office confirms
+               it. So the play control, the waveform and the timer are gone, and
+               no line below carries data-audio: this is the corrected call, not
+               the recorded one. site.js skips the player when #playBtn is
+               absent, and guard 14 in check-consistency.js skips a page that
+               plays no call audio. The player code in site.js stays for the
+               re-recording. -->
+          <div class="line agent">
             <span class="who mono">Cedarview AI</span>
             <p>Thanks for calling Cedarview Electric. This is Ava. How can I help?</p>
           </div>
-          <div class="line caller" data-audio="assets/call-1.mp3">
+          <div class="line caller">
             <span class="who mono">Caller</span>
             <p>Hi, a few outlets in my kitchen stopped working. I reset the breaker, but they're still dead.</p>
           </div>
-          <div class="line agent" data-audio="assets/call-2.mp3">
+          <div class="line agent">
             <span class="who mono">Cedarview AI</span>
             <p>Got it. Are you noticing any sparks, heat, or a burning smell?</p>
           </div>
-          <div class="line caller" data-audio="assets/call-3.mp3">
+          <div class="line caller">
             <span class="who mono">Caller</span>
             <p>No, nothing like that.</p>
           </div>
-          <div class="line agent" data-audio="assets/call-4.mp3">
+          <div class="line agent">
             <span class="who mono">Cedarview AI</span>
-            <p>Okay, that's good. I can have an electrician there tomorrow between eight and ten. The service call is $95, and that amount goes toward the repair if you approve the work. Does that time work for you?</p>
+            <p>Okay, that's good. The service call is $95, and that amount goes toward the repair if you approve the work. When would you like someone out?</p>
           </div>
-          <div class="line caller" data-audio="assets/call-5.mp3">
+          <div class="line caller">
             <span class="who mono">Caller</span>
-            <p>Yes, that works.</p>
+            <p>Tomorrow morning, between eight and ten if you can.</p>
           </div>
-          <div class="line agent" data-audio="assets/call-6.mp3">
+          <div class="line agent">
             <span class="who mono">Cedarview AI</span>
             <p>Perfect. What's the service address?</p>
           </div>
-          <div class="line caller" data-audio="assets/call-7.mp3">
+          <div class="line caller">
             <span class="who mono">Caller</span>
             <p>114 Cedar Lane.</p>
           </div>
           <div class="line agent">
             <span class="who mono">Cedarview AI</span>
-            <p>Thanks. I have you down for tomorrow between eight and ten, and someone from the office will confirm that exact time with you. I have your number if anything changes.</p>
+            <p>Thanks. I've noted tomorrow between eight and ten, and someone from the office will confirm the exact time. I have your number if anything changes.</p>
           </div>
-          <div class="line caller" data-audio="assets/call-9.mp3">
+          <div class="line caller">
             <span class="who mono">Caller</span>
             <p>Great, thank you.</p>
           </div>
-          <div class="line agent" data-audio="assets/call-10.mp3">
+          <div class="line agent">
             <span class="who mono">Cedarview AI</span>
-            <p>You're welcome. We'll see you tomorrow.</p>
+            <p>You're welcome. Thanks for calling Cedarview Electric.</p>
           </div>
-          <p class="foot-note">Illustrative call, fictional company. Real AI voices.</p>
+          <p class="foot-note">Illustrative call, fictional company.</p>
         </div>
         <div class="owner-card reveal">
           <h3>After every call, you get a text and an email like this</h3>
