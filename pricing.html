@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-B6K2v814VkJeyQOwSMHbalPXf+0c7Mp7U5EIJWzOHc4=' 'sha256-mdKYIUCvFl9IW58+GfsMilSCxERvgQ1To0CO9G5nNj4=' 'sha256-gF/MYPC40vXpDhw4l7OlzNnY2sRcYEwlVCxFcx90UN8=' 'sha256-/p3kfG6VVlxKZ5zMJBLU3bl0Y7ysRIFnomBjcxmMXFI='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-B6K2v814VkJeyQOwSMHbalPXf+0c7Mp7U5EIJWzOHc4=' 'sha256-mdKYIUCvFl9IW58+GfsMilSCxERvgQ1To0CO9G5nNj4=' 'sha256-MLxy3H0dJ1rCKNge+NIP2e+jHtPHrko6PZm4GQFW6Wc=' 'sha256-rkiKDYnhKDQmH0/x+1rxb3FiR2/s2TMpgc3759CVJho='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1474,21 +1474,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   var out = document.getElementById("chooserResult");
 
   function grp(n) { return Number(n).toLocaleString("en-CA"); }
-  /* Redeclared here rather than shared with the plan-card block above, which
-     is a separate IIFE: `grp` is duplicated for the same reason. Both copies
-     read the SAME pricing-config.js field, so the duplication is of the
-     accessor and never of the figure. `== null` and not `||`, because
-     `(0 || 3)` is 3 and that is exactly how a zero term would print a
-     three-month minimum under a Buy button. */
-  function minMonths() {
-    var t = P.terms || {};
-    return t.minimumMonths == null ? 0 : t.minimumMonths;
-  }
-  /* The same reasoning one field along, and the same trap: the notice figure
-     went to 0 on 2026-09-12, so a `|| 30` reader would have printed the
-     retired notice under a Buy button exactly as `(0 || 3)` would have
-     printed a three-month minimum. This block is its own IIFE, so it derives
-     the clause itself rather than borrowing the plan cards'. */
+  /* The notice figure went to 0 on 2026-09-12, so a `|| 30` reader would
+     have printed the retired notice under a Buy button, exactly as `(0 || 3)`
+     would have printed a three-month minimum. `== null` and not `||` for that
+     reason. This block is its own IIFE, so it derives the clause itself
+     rather than borrowing the plan cards'. */
   function cancelClause() {
     var t = P.terms || {};
     var n = t.cancellationNoticeDays == null ? 0 : t.cancellationNoticeDays;
@@ -1543,11 +1533,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var chosen = useBundle ? bundle : core;
     var monthly = useBundle ? bundle.monthly : pieces.monthly;
     var launch = useBundle ? bundle.launch : pieces.launch;
-    var t = P.terms || {};
-    /* The same one figure the plan cards read. This line used to pick between
-       two keys on whether automations were in the basket; there is one term
-       decision, so there is one number and nothing to pick between. */
-    var months = minMonths();
 
     var lines;
     if (alone) {
@@ -1582,12 +1567,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       + lines.join("</li><li>") + "</li></ul>";
     h += '<p style="font-size:16px;color:var(--ink);margin-bottom:6px">C$' + grp(launch)
       + " Launch &amp; Implementation to start, then C$" + grp(monthly) + " a month, plus GST.</p>";
+    /* NO MINIMUM TERM, stated outright. A branch here printed a number of
+       months "agreed up front" whenever pricing-config.js carried a term;
+       minimumMonths has been 0 since the 2026-09-08 directive, so it was dead
+       code carrying a retired sentence, and it is deleted (fix plan A33,
+       2026-09-19). If a term ever returns, this sentence must change with
+       it: it no longer reads terms.minimumMonths. */
     h += '<p style="font-size:13.5px;color:var(--muted);margin-bottom:12px">'
-      + (months
-          ? "Your first " + months + " months are agreed up front, then month to month, cancelled "
-            + cancelClause() + " from your own portal."
-          : "There is no minimum term: month to month from the first month, cancelled by you from your own portal "
-            + cancelClause() + ", with service running to the end of the month you already paid for.");
+      + "There is no minimum term: month to month from the first month, cancelled by you from your own portal "
+      + cancelClause() + ", with service running to the end of the month you already paid for.";
     if (useBundle) {
       h += " Bought separately these would be C$" + grp(pieces.monthly) + " a month, so the bundle saves you C$"
         + grp(pieces.monthly - bundle.monthly) + " every month.";

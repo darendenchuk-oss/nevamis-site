@@ -242,9 +242,10 @@
        outer gate: a module that is not sellable is not sold in any
        arrangement. `sellable: false` marks a module whose machinery has not
        shipped end-to-end yet: it may be described as coming, never sold, and no
-       surface may render it with a Buy control. C$450 and not C$500 for the
-       two engines is deliberate: C$500 is a retired monthly and billing
-       refuses retired amounts. */
+       surface may render it with a Buy control. Every figure below is v5's
+       (owner directive 2026-08-24), the same day the two engines' monthly
+       came off the retired-price list; the v4 note that explained a lower
+       figure for them here went stale then and is gone. */
     addOns: [
       {
         id: "missed_call_recovery", name: "Missed-Call Recovery",
@@ -283,8 +284,10 @@
          at zero would be an arrangement this business does not have.
 
          `sellable: false` FOLLOWS THE ENGINE'S CAPABILITY RECORD, which reads
-         private_pilot today (offered by invitation, live gate 3 of 7 evidenced
-         on the site's own record of it). The engine derives its lifecycle from
+         private_pilot today (offered by invitation, live gate 5 of 7
+         evidenced: canonical workflow, configuration, persisted outcomes,
+         client interface and operator remediation; proven execution and
+         customer zero are still open, and each needs a real production run). The engine derives its lifecycle from
          that record rather than typing it; this file cannot derive across
          repositories, so it mirrors today's answer and carries this note. The
          day the capability's own branch evidences the gate, this flips with it
@@ -393,11 +396,12 @@
        order is decided. */
     plans: [
       {
-        /* INVITE / APPROVAL BASED. `selfServe: false` is what keeps a C$250
-           monthly from being read as "the cheap tier": NEVAMIS carries
-           acquisition risk here and chooses when to offer it. Described,
-           never presented as the default, and checkout refuses to sell it
-           without an approval. */
+        /* INVITE / APPROVAL BASED. `selfServe: false` is what keeps the
+           lowest published monthly (the default inside the band below) from
+           being read as "the cheap tier": Nevamis carries acquisition risk
+           here and chooses when to offer it. Described, never presented as
+           the default, and checkout refuses to sell it without an
+           approval. */
         id: "starter", name: "Performance Partnership",
         monthly: 350, monthlyRange: [250, 500], launch: 2500, includedMinutes: 250,
         callRange: "80 to 125 typical calls", overage: 1.10,
@@ -416,10 +420,10 @@
       },
       {
         id: "growth", name: "The Works",
-        /* The bundle carries automations, so it carries the LONGER agreed
-           start. Stated as a flag rather than inferred from the id, because
-           the term is a contractual fact and a card should not have to know
-           which plan key happens to mean "the bundle". */
+        /* The bundle carries every sellable automation, stated as a flag so
+           no renderer has to know which key means "the bundle". Under v4 it
+           marked the LONGER agreed start; no plan has a term now (2026-09-08),
+           and nothing reads it. */
         includesAutomations: true,
         monthly: 2100, launch: 3000, includedMinutes: 1400,
         callRange: "470 to 700 typical calls", overage: 0.75,

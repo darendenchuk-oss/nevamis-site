@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-7hOnRrSGqCvUzj15MFbugAks1a7sayt0ik8FqlHDEck=' 'sha256-N/3MrnmBUBin5DSiwnmOhrQ5P0cxlSEMWzo7YJZ/0wU='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-cchstrNdeEybxdI/DpTUXdlXikbg0xH0O6b45XoetHQ=' 'sha256-9suNpKsXHaKtSNMsTd2DK9mcDaEF2jJt8gG6o9lprsw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1004,20 +1004,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         : (P.publishedPricing
           ? money(plan.monthly) + "/month, charged the day you start and every month after."
           : "Your monthly amount is quoted per client, then it is charged the day you start and every month after."));
-      /* The term sentence reads pricing-config.js and states whichever term
-         is actually there. It said "no minimum term" until the v4 directive
-         of 2026-08-22 made that false; the owner reversed v4 on 2026-09-08
-         and `minimumMonths` is zero, so it says it again. The defaults below
-         are `== null` and not `||` on purpose: `(0 || 3)` is 3, and a `||`
-         default is how a zero term would have gone on printing "3-month
-         minimum to start" on the one document written to close a sale.
-
-         ONE figure, matching canonical. This read a pair of keys until
-         2026-09-08, and a pair is how a document states the absence of a term
-         in one clause and a length in the next from a config only half
-         corrected. There is one decision, so there is one number here. */
+      /* NO MINIMUM TERM, stated outright. It said "no minimum term" until
+         the v4 directive of 2026-08-22 made that false; the owner reversed v4
+         on 2026-09-08 and `minimumMonths` is zero. The branch that printed a
+         minimum length for a non-zero term was dead code carrying a retired
+         sentence, and it is deleted (fix plan A33, 2026-09-19). If a term
+         ever returns, the sentence below must change with it: it no longer
+         reads terms.minimumMonths. The defaults below are `== null` and not
+         `||` on purpose: `(0 || 30)` is 30. */
       var T = P.terms || {};
-      var mMin = T.minimumMonths == null ? 0 : T.minimumMonths;
       /* ZERO, not 30, since the owner directive of 2026-09-12 removed the
          notice period outright. The old default read a missing field as 30
          days, which is the identical trap the comment above describes for
@@ -1031,12 +1026,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       set("planTerms", "One-time " + money(plan.launch) + " Launch & Implementation to start."
         + (plan.performanceNote ? " " + plan.performanceNote : "")
         + " Overage past your included minutes is the only other usage billing."
-        + (mMin
-          ? " " + mMin + "-month minimum to start; the build takes days and you are live inside the first week, and the results show across the months after that."
-            + " After the minimum: month to month, cancelled " + mCancel + " from your own portal,"
-            + " with service running to the end of the month you already paid for."
-          : " There is no minimum term: month to month from the first month, cancel " + mCancel
-            + " from your own portal, with service running to the end of the month you already paid for.")
+        + " There is no minimum term: month to month from the first month, cancel " + mCancel
+        + " from your own portal, with service running to the end of the month you already paid for."
         + " Your price is locked for " + mLock + " months."
         + (plan.selfServe === false ? " This plan is offered by invitation and approval." : ""));
 
