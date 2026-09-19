@@ -187,6 +187,9 @@
       "phone:+15874130035",
       "tel:+15874130035"
     ],
+    "pricing-config.js": [
+      "email:support@nevamis.ca"
+    ],
     "pricing.html": [
       "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",

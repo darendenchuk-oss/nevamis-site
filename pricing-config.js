@@ -167,7 +167,8 @@
     "Included minutes metered in the portal, with alerts at 50%, 75%, 90% and 100%, and your choice of overage, fallback answering or a hard cap",
     "A PULSE scan of your business, with every figure a range and a confidence level, recalibrated as you feed it real numbers",
     "A portal Pulse page that keeps your scans, and Results that label every number as measured or modelled",
-    "Invoices and plan changes you handle yourself in the portal, and self-serve cancellation whenever you want it, with no notice period"
+    "Invoices and plan changes you handle yourself in the portal, and self-serve cancellation whenever you want it, with no notice period",
+    "Email support at support@nevamis.ca"
   ];
 
   window.NV_PRICING = {
@@ -409,8 +410,6 @@
         bestFor: "A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
         features: [
           "One business phone line",
-          "A call review each month, and tuning from what the calls actually show",
-          "Email support",
           "The growth stack: each item added on its own and priced on its own. Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page. The Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement. Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch and Implementation fee and their own monthly, at the prices listed for them. Search Rankings is coming and is not sold."
         ].concat(EVERY_PLAN)
       },
@@ -428,13 +427,11 @@
         bestFor: "The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts, with no performance fee.",
         features: [
           "Everything in the AI Front Desk",
-          "Missed-Call Recovery: one text back to every missed caller, with opt-out",
+          "Missed-Call Recovery: one text back to a caller you missed, during business hours, with your name on it and a working opt-out",
           "Quote-Chase Engine: follow-up on every quiet estimate: day it stales, day 4, day 11, each touch approved by you",
           "Get-Paid Autopilot: overdue-invoice reminders, with the owner told at three weeks instead of a third email",
-          "Review requests and customer reactivation join The Works at no extra monthly when they ship, and they are not sellable yet and nothing here sells them",
-          "One business phone line",
-          "Two call reviews each month, and tuning from what the calls actually show",
-          "Priority email support"
+          "Review Engine: post-job review requests by text, one ask per finished job, with every request released by a person",
+          "One business phone line"
         ].concat(EVERY_PLAN)
       },
       {
@@ -446,10 +443,7 @@
         bestFor: "The start most businesses make: the front desk answering every call, with each automation its own sale you can add whenever it earns its place.",
         features: [
           "One business phone line",
-          "Automation add-ons available one at a time, each its own price and its own sale, on their own or beside this plan",
-          "Two call reviews each month, and tuning from what the calls actually show",
-          "Priority email support",
-          "Higher-volume usage priced with you before you commit to it"
+          "Automation add-ons available one at a time, each its own price and its own sale, on their own or beside this plan"
         ].concat(EVERY_PLAN)
       }
     ]
