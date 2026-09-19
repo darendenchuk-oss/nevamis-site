@@ -208,7 +208,7 @@ automotive and other trades. Trades first, Canada-wide, Edmonton-based.
 - https://nevamis.ca/book.html : book a short strategy call
 - https://nevamis.ca/about.html : who is behind Nevamis
 - https://nevamis.ca/coming-soon.html : what is being built next, with status labels
-- https://nevamis.ca/revenue-engine.html : the longer-term connected system (in development)
+- https://nevamis.ca/revenue-engine.html : ad attribution: which marketing produced which job (in development)
 - https://nevamis.ca/privacy.html and /terms.html : legal
 
 ## Contact
