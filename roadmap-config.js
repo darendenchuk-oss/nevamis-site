@@ -1,8 +1,9 @@
 /* ============================================================
    NEVAMIS SERVICE ROADMAP — SINGLE SOURCE OF TRUTH
    Statuses: available | private_pilot | planned | researching | paused
-   Only the owner flips a service to "available". The Coming Soon page
-   and homepage teaser render from this file. Companion internal docs:
+   Only the owner flips a service to "available". The Roadmap page
+   (coming-soon.html) renders from this file; nothing else does, whatever
+   older comments say about a homepage teaser. Companion internal docs:
    docs/nevamis-product-roadmap.md and docs/service-blueprints/.
    Last reviewed: 2026-09-19
    ============================================================ */
@@ -16,7 +17,9 @@ window.NV_ROADMAP = {
      private_pilot has been BY INVITATION since 2026-09-19 (it was PRIVATE
      TESTING), the same words every other surface uses for it. */
   truthStatement: "Services marked AVAILABLE NOW are live today, described exactly as narrowly as they work. Anything marked BY INVITATION is offered to a few businesses under their own agreement, and a short call is where it starts. The rest are planned or being researched, and their features and pricing may change before they are ready.",
-  highlights: ["instant-lead-follow-up", "automatic-lead-tracking", "quote-recovery"],
+  /* No `highlights` list since 2026-09-19: it named a homepage teaser that
+     nothing renders, and a list nobody reads is still read as fact by the
+     next editor. */
   pillars: [
     { id: "capture", name: "Capture", line: "Every opportunity answered" },
     { id: "convert", name: "Convert", line: "Follow-up that never forgets" },
@@ -69,7 +72,9 @@ window.NV_ROADMAP = {
        agreement, and delivered by hand. A person here assembles the list by
        reading public pages, and each row carries the page it came from. The
        client decides every row. Nothing on a list is contacted by Nevamis.
-       The automated search is not switched on. No number of leads, no win
+       No automated search has run for any client; each list is put together
+       by hand (DC#55, 2026-09-19: the key is connected, but no workspace has
+       the profile a sweep needs). No number of leads, no win
        rate, no amount, no client and no date may appear in this entry or in
        anything derived from it.
 
