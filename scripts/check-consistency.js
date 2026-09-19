@@ -619,6 +619,115 @@ for (const p of contentPages) {
   }
 }
 
+/* 7j. llms.txt STATES EVERY PLAN AND MODULE PRICE BY HAND.
+
+      It is the file the answer engines read, and it carries sixteen C$ figures
+      typed into prose: three plan pairs, the Partnership's published band, four
+      module pairs, the Enterprise floor, and the worked example under "State
+      the two figures". Nothing compared a single one of them to
+      pricing-config.js, so until 2026-09-19 a wrong figure here passed this
+      file, the claims classifier, the surface guards and the engine gate alike,
+      and went out to every model that quotes this site. Proved by changing one
+      digit.
+
+      Everything below is DERIVED from window.NV_PRICING: no figure is typed
+      into this file, because a hand-maintained expectation drifts with the
+      thing it is meant to catch. Four rules:
+
+        pairs    each plan, and each sellable module, must carry its own
+                 "C$launch ... to start, then C$monthly a month" sentence
+                 within reach of its own name, in the approved join.
+        band     a plan with a monthlyRange must state that band exactly.
+        context  a figure written as a Launch & Implementation fee must be a
+                 fee the config charges, and a figure written as a monthly must
+                 be a monthly it charges. This is the rule that catches the two
+                 being swapped, including in the prose under the table.
+        stray    every remaining C$ figure must be some figure the config
+                 charges, so a retired or invented price fails even where no
+                 name and no join sit beside it.
+
+      The file is flattened to one line first. The pricing block is hard-wrapped
+      at about 72 columns, so "C$2,500\n  Launch & Implementation" is one
+      sentence to a reader and two lines to a regex. */
+{
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const cfg = w.NV_PRICING;
+  const raw = fs.readFileSync(path.join(root, "llms.txt"), "utf8");
+  const num = (x) => Number(String(x).replace(/,/g, ""));
+  const money = (n) => "C$" + Number(n).toLocaleString("en-CA");
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  /* Flatten, keeping a map from every flattened offset back to its offset in
+     the file, so a failure can name the line the figure is actually on. The
+     first line that merely CONTAINS the same figure is a different sentence
+     often enough to matter: C$1,000 appears three times. */
+  const flatten = (s) => {
+    let out = "";
+    const map = [];
+    for (let i = 0; i < s.length;) {
+      const ws = /^\s+/.exec(s.slice(i));
+      if (ws) { out += " "; map.push(i); i += ws[0].length; continue; }
+      out += s[i]; map.push(i); i++;
+    }
+    return { flat: out, map };
+  };
+  const { flat, map } = flatten(raw);
+  /* Where a reader would find it: the line the figure is on, and the sentence
+     around it, so a failure names the figure that disagrees, not the file. */
+  const at = (idx) => {
+    const ln = raw.slice(0, map[idx] ?? 0).split(/\n/).length;
+    return "llms.txt:" + ln + ' near "' + flat.slice(Math.max(0, idx - 55), idx + 55).trim() + '"';
+  };
+  if (!cfg || !Array.isArray(cfg.plans) || !Array.isArray(cfg.addOns)) {
+    err("pricing-config.js: NV_PRICING.plans or .addOns not found, so llms.txt's prices are unguarded");
+  } else if (!cfg.publishedPricing) {
+    if (/C\$/.test(raw)) err("llms.txt: states a C$ figure while pricing-config.js has publishedPricing false. "
+      + "An answer engine would publish a price the business has not.");
+  } else {
+    /* Both figures required: a module the config prices at zero is not
+       sellable and has no pair to state. */
+    const modules = cfg.addOns.filter((a) => a.sellable && a.launch > 0 && a.monthly > 0);
+    const launches = new Set([...cfg.plans.map((p) => p.launch), ...modules.map((a) => a.launch)]);
+    if (cfg.enterprise && cfg.enterprise.launchFrom) launches.add(cfg.enterprise.launchFrom);
+    const monthlies = new Set([...cfg.plans.map((p) => p.monthly), ...modules.map((a) => a.monthly)]);
+    for (const p of cfg.plans) (p.monthlyRange || []).forEach((n) => monthlies.add(n));
+    const charged = new Set([...launches, ...monthlies,
+      ...cfg.plans.map((p) => p.overage).filter((n) => typeof n === "number")]);
+    const list = (s) => [...s].sort((a, b) => a - b).map(money).join(", ");
+
+    const pair = (name, want) => {
+      for (const m of flat.matchAll(new RegExp(esc(name), "g"))) {
+        if (flat.slice(m.index, m.index + 420).includes(want)) return;
+      }
+      err('llms.txt: "' + name + '" must state "' + want + '", which is what pricing-config.js charges. '
+        + "The figures and the joins are what an answer engine quotes verbatim.");
+    };
+    for (const p of cfg.plans) {
+      pair(p.name, money(p.launch) + " Launch & Implementation to start, then " + money(p.monthly) + " a month");
+      if (!Array.isArray(p.monthlyRange)) continue;
+      const band = money(p.monthlyRange[0]) + " to " + money(p.monthlyRange[1]);
+      if (!flat.includes(band)) err("llms.txt: " + p.name + "'s published monthly band must read \"" + band
+        + '" (pricing-config.js monthlyRange).');
+    }
+    for (const a of modules) {
+      pair(a.name, money(a.launch) + " to start, then " + money(a.monthly) + " a month");
+    }
+
+    for (const x of flat.matchAll(/C\$([\d,]+(?:\.\d+)?)(?= Launch (?:&|and) Implementation)/g)) {
+      if (!launches.has(num(x[1]))) err(at(x.index) + ": states " + x[0]
+        + " as a Launch & Implementation fee. pricing-config.js charges " + list(launches) + ".");
+    }
+    for (const x of flat.matchAll(/C\$([\d,]+(?:\.\d+)?)(?=(?: an?| per)? month\b)/g)) {
+      if (!monthlies.has(num(x[1]))) err(at(x.index) + ": states " + x[0]
+        + " as a monthly. pricing-config.js charges " + list(monthlies) + " a month.");
+    }
+    for (const x of flat.matchAll(/C\$([\d,]+(?:\.\d+)?)/g)) {
+      if (!charged.has(num(x[1]))) err(at(x.index) + ": states " + x[0]
+        + ", which is no plan or module price, no bound of a published band, and not the Enterprise floor in pricing-config.js.");
+    }
+  }
+}
+
 /* 7z. The inlined stylesheet must equal its sources.
 
        assets/motion/site.css and assets/fonts/fonts.css are still the files
