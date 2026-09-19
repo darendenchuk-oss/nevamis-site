@@ -20,7 +20,13 @@ export const TRADE_HERO_PROOF = `      <p class="proof" style="margin-top:12px">
         Or <a href="https://app.nevamis.ca/scan" data-evt="trade_scan_click">scan my website</a>: it reads only what is public on your own site, and any figure it gives is a modelled range, not a measurement.</p>
 `;
 
-/** Shared closing block: the honest proof we actually have. */
+/** Shared closing block: the honest proof we actually have.
+
+    Until 2026-09-19 it said "The demo line runs the same agent your business
+    would get". It does not: the demo line is Nevamis's own sales agent, which
+    can set up a call with us, while a client's agent has no booking tool at
+    all. They share the voice and the model, so that is the claim now (fix
+    plan A6). */
 export const PROOF_BLOCK = `
 <section class="tight">
   <div class="wrap">
@@ -28,7 +34,9 @@ export const PROOF_BLOCK = `
       <p class="eyebrow mono">Judge it yourself</p>
       <h2>Do not take our word for it. Call it.</h2>
       <p>The fastest way to know whether this is good enough for your customers is to
-        be a customer. The demo line runs the same agent your business would get.</p>
+        be a customer. The demo line runs on the same voice and the same model your line
+        would. It answers for Nevamis, so it can set up a call with us. On your line it
+        takes the job and the time the caller wants, and you confirm the slot.</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer ${DEMO}</a>
