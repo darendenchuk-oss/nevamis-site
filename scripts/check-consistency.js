@@ -578,6 +578,47 @@ for (const p of contentPages) {
   }
 }
 
+/* 7i. THE PRICING PAGE'S SEARCH AND SHARE DESCRIPTIONS QUOTE PLAN PRICES.
+
+      The meta description and og:description are the first price a searcher
+      or a link preview reads, and until 2026-09-19 nothing compared them to
+      anything: a wrong figure there passed this file, the claims classifier
+      and the engine gate alike (proved by changing The Works' C$2,100 to
+      C$2,200 in the meta: every check stayed green). Fix plan A31 rewrote
+      both descriptions and kept their figures, so the figures are held to
+      pricing-config.js here, derived from the config and never typed.
+
+      Two rules. A plan named with a figure after it ("The Works at C$2,100")
+      must carry that plan's monthly. And any other C$ figure must be one the
+      config actually charges, so a stray retired or invented price fails
+      even where no plan name sits beside it. */
+{
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const cfg = w.NV_PRICING;
+  if (cfg && Array.isArray(cfg.plans)) {
+    const ph = fs.readFileSync(path.join(root, "pricing.html"), "utf8");
+    const num = (x) => Number(String(x).replace(/,/g, ""));
+    const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const charged = new Set(cfg.plans.flatMap((p) => [p.monthly, p.launch]));
+    for (const attr of ['name="description"', 'property="og:description"']) {
+      const m = ph.match(new RegExp("<meta " + attr + ' content="([^"]*)"'));
+      if (!m) { err("pricing.html: <meta " + attr + "> missing"); continue; }
+      const text = m[1].replace(/&amp;/g, "&");
+      for (const pl of cfg.plans) {
+        for (const x of text.matchAll(new RegExp(esc(pl.name) + "(?: at| is|:)? C\\$([\\d,]+)", "g"))) {
+          if (num(x[1]) !== pl.monthly) err("pricing.html <meta " + attr + '>: "' + x[0] + '" while pricing-config.js says '
+            + pl.name + " is C$" + pl.monthly.toLocaleString("en-CA") + " a month.");
+        }
+      }
+      for (const x of text.matchAll(/C\$([\d,]+)/g)) {
+        if (!charged.has(num(x[1]))) err("pricing.html <meta " + attr + ">: states " + x[0]
+          + ", which is no plan's monthly or Launch & Implementation fee in pricing-config.js.");
+      }
+    }
+  }
+}
+
 /* 7z. The inlined stylesheet must equal its sources.
 
        assets/motion/site.css and assets/fonts/fonts.css are still the files
