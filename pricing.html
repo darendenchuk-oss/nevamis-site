@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-B6K2v814VkJeyQOwSMHbalPXf+0c7Mp7U5EIJWzOHc4=' 'sha256-mdKYIUCvFl9IW58+GfsMilSCxERvgQ1To0CO9G5nNj4=' 'sha256-MLxy3H0dJ1rCKNge+NIP2e+jHtPHrko6PZm4GQFW6Wc=' 'sha256-rkiKDYnhKDQmH0/x+1rxb3FiR2/s2TMpgc3759CVJho='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-gQQufp7flN1jiT5f5xmFbFwrFFTyLloDbRWMoUaj6yo=' 'sha256-FIDItuZ6jrLzn/lIvwJBaagZEKbziK704fEKflUiizU=' 'sha256-MLxy3H0dJ1rCKNge+NIP2e+jHtPHrko6PZm4GQFW6Wc=' 'sha256-rkiKDYnhKDQmH0/x+1rxb3FiR2/s2TMpgc3759CVJho='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1437,16 +1437,25 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            and a range is the specific thing a business would hold us to.
            Computed, not positional: plan order is display order (Operate
            first) and no longer sorted by price.
-           Still computed over EVERY plan, the invitation-only Partnership
-           included: fix plan A26 asked for the self-serve plans only, and
-           tests/seo.spec.js pins lowPrice to the lowest offer of all (350), so
-           that change waits for the test to move with it. The Partnership's
-           own Offer says LimitedAvailability, which is the part a crawler
-           needs in order not to read it as self-serve. */
-        ...(P.publishedPricing ? {
-          "lowPrice": String(Math.min.apply(null, P.plans.map(function (p) { return p.monthly; }))),
-          "highPrice": String(Math.max.apply(null, P.plans.map(function (p) { return p.monthly; }))),
-        } : {}),
+           OVER THE SELF-SERVE PLANS ONLY (fix plan A26). Over every plan, the
+           floor was the invitation-only Partnership's monthly, so a crawler
+           was told the product starts at a price checkout refuses to take.
+           `selfServe !== false` keeps a plan that never sets the flag
+           buyable, and holds out only an explicit `selfServe: false`. The
+           Partnership keeps its own Offer, with LimitedAvailability, which is
+           how a crawler learns it exists without reading it as the entry
+           price. Guarded by tests/seo.spec.js, which derives the same filter.
+           If every plan ever becomes invitation-only the range is omitted
+           rather than emitted as Infinity. */
+        ...(P.publishedPricing ? (function () {
+          var open = P.plans.filter(function (p) { return p.selfServe !== false; })
+            .map(function (p) { return p.monthly; });
+          if (!open.length) return {};
+          return {
+            "lowPrice": String(Math.min.apply(null, open)),
+            "highPrice": String(Math.max.apply(null, open)),
+          };
+        })() : {}),
         "offerCount": offers.length,
         "offers": offers
       }
