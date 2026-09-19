@@ -102,37 +102,62 @@ test('pricing preview renders every plan from the single source of truth', async
   expect(errors, errors.join('\n')).toEqual([]);
 });
 
-test('the call player plays through the transcript and lights the chips', async ({ page }) => {
-  await page.goto(PLAIN);
-  const play = page.locator('#playBtn');
-  await play.scrollIntoViewIfNeeded();
-  await play.click();
+/* THE CALL PLAYER IS GONE, AND THIS TEST NO LONGER PRETENDS OTHERWISE.
+   2026-09-19, owner decision B1(b).
 
-  // playing state + first line highlighted
-  await expect(page.locator('#callCard')).toHaveClass(/playing/);
-  await expect(page.locator('#playLabel')).toHaveText('Pause');
-  // the duration in the label is the permission slip to press play
-  await expect(page.locator('.line.speaking')).toHaveCount(1);
+   What it used to do: press #playBtn on /home.html, then force-fire
+   nv:callline and nv:callend to light [data-callchip] and reveal
+   .summary-arrive. Every one of those hooks has left the published site. The
+   film homepage has carried no player since it shipped, so the test had been
+   failing on live main for weeks against a page that never had the control;
+   the chips and the arriving summary card survive only in
+   scripts/film/chrome-source.html, which nothing renders; and B1(b) removed
+   the play control, the waveform and the timer from demo.html, because the
+   recording offers a slot and then confirms it, which the front desk cannot
+   do. Driving a control that does not exist is not coverage, and a red test
+   nobody can make green is worse than no test: it hides the next real break.
 
-  // audio element advances lines on 'ended'; force-fire it rather than
-  // waiting out real audio in CI. 11-line call: qualified at line 3,
-  // booked at line 8.
-  await page.evaluate(() => {
-    document.dispatchEvent(new CustomEvent('nv:callline', { detail: { idx: 3 } }));
-  });
-  await expect(page.locator('[data-callchip="qualified"]')).toHaveClass(/lit/);
-  await page.evaluate(() => {
-    document.dispatchEvent(new CustomEvent('nv:callline', { detail: { idx: 8 } }));
-  });
-  await expect(page.locator('[data-callchip="booked"]')).toHaveClass(/lit/);
+   What is kept, because it still applies: the demo transcript is the corrected
+   call and reads as one, and no half-wired remnant of the player is left on
+   either page. A button labelled with a duration that plays nothing would be a
+   worse defect than the one B1(b) fixed, and site.js still contains the player,
+   guarded by `if (playBtn && card)`.
 
-  await page.evaluate(() => { document.dispatchEvent(new CustomEvent('nv:callend')); });
-  await expect(page.locator('[data-callchip="confirm"]')).toHaveClass(/lit/);
-  await expect(page.locator('.summary-arrive')).toHaveClass(/in/);
+   WHAT BRINGS THE OLD ASSERTIONS BACK: B1(a), the re-recording, in the
+   approved voice with the approved greeting and a script that takes the time
+   the caller wants instead of confirming one. When demo.html gets #playBtn,
+   data-audio lines and the chips back, restore the block from this file's
+   history (it was the body of this test) and point it at /demo.html rather
+   than at the homepage. */
+test('the demo transcript is the corrected call, with no half-wired player left behind', async ({ page }) => {
+  await page.goto('/demo.html');
+  const card = page.locator('#callCard');
+  await card.scrollIntoViewIfNeeded();
+  await expect(card).toBeVisible();
 
-  // stop works
-  await play.click();
-  await expect(page.locator('#playLabel')).toHaveText(/Hear a \d+-second call/);
+  // the eleven turns are all there and readable, audio or no audio
+  await expect(card.locator('.line')).toHaveCount(11);
+  await expect(card.locator('.line p').first()).toBeVisible();
+
+  /* The correction itself: the agent takes the time the caller asked for and
+     hands the confirmation to the office. The two retired lines are asserted
+     against by name, because they are what the deleted recording said. */
+  await expect(card).toContainText('someone from the office will confirm');
+  await expect(card).not.toContainText(/you'?re booked/i);
+  await expect(card).not.toContainText(/we'?ll see you tomorrow/i);
+
+  /* Nothing left that invites a press. Each of these is a piece of the player:
+     the button, its label, the waveform, the timer, the per-line audio the
+     player reads, and the highlight it paints. */
+  for (const url of ['/demo.html', PLAIN]) {
+    await page.goto(url);
+    for (const sel of ['#playBtn', '#playLabel', '#callWave', '#callTimer', '[data-audio]', '.line.speaking']) {
+      await expect(page.locator(sel), `${url} still carries ${sel} from the retired call player`).toHaveCount(0);
+    }
+  }
+
+  await page.goto('/demo.html');
+  await card.scrollIntoViewIfNeeded();
   await page.screenshot({ path: path.join(OUT, 'section-call-proof.png') });
 });
 
