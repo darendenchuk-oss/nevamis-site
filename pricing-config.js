@@ -165,7 +165,7 @@
     "Scripted test callers run against your live agent before a phone number is ever pointed at it",
     "Call forwarding proven by placing a real call to your line, not assumed",
     "Included minutes metered in the portal, with alerts at 50%, 75%, 90% and 100%, and your choice of overage, fallback answering or a hard cap",
-    "A PULSE scan of your business, with every figure a range and a confidence level, recalibrated as you feed it real numbers",
+    "A PULSE scan of your public website, with every money figure a modelled range and a confidence level rather than a measurement, and sharper as you connect your own numbers",
     "A portal Pulse page that keeps your scans, and Results that label every number as measured or modelled",
     "Invoices and plan changes you handle yourself in the portal, and self-serve cancellation whenever you want it, with no notice period",
     "Email support at support@nevamis.ca"
