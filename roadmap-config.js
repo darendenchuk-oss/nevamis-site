@@ -4,16 +4,18 @@
    Only the owner flips a service to "available". The Coming Soon page
    and homepage teaser render from this file. Companion internal docs:
    docs/nevamis-product-roadmap.md and docs/service-blueprints/.
-   Last reviewed: 2026-09-12
+   Last reviewed: 2026-09-19
    ============================================================ */
 window.NV_ROADMAP = {
-  lastUpdated: "2026-09-12",
+  lastUpdated: "2026-09-19",
   /* "The rest are in development or planned" stopped being the whole truth on
      2026-09-08, when lead-generation became the first entry to carry
      private_pilot. A truth statement that does not describe every shelf under
      it is not one. Written against the LABEL and not against a count, so it
-     stays true whether that shelf holds one entry or none. */
-  truthStatement: "Services marked AVAILABLE NOW are live today, described exactly as narrowly as they work. Anything marked PRIVATE TESTING is offered by invitation only, to a few businesses under their own agreement. The rest are in development or planned, and their availability, features, integrations and pricing may change as we test them with real businesses.",
+     stays true whether that shelf holds one entry or none. The label for
+     private_pilot has been BY INVITATION since 2026-09-19 (it was PRIVATE
+     TESTING), the same words every other surface uses for it. */
+  truthStatement: "Services marked AVAILABLE NOW are live today, described exactly as narrowly as they work. Anything marked BY INVITATION is offered to a few businesses under their own agreement, and a short call is where it starts. The rest are planned or being researched, and their features and pricing may change before they are ready.",
   highlights: ["instant-lead-follow-up", "automatic-lead-tracking", "quote-recovery"],
   pillars: [
     { id: "capture", name: "Capture", line: "Every opportunity answered" },
@@ -22,7 +24,7 @@ window.NV_ROADMAP = {
     { id: "grow", name: "Grow", line: "Know what makes money" }
   ],
   services: [
-    { slug: "ai-front-desk", name: "Front Desk", pillar: "capture", status: "available", stage: "now",
+    { slug: "ai-front-desk", name: "AI Front Desk", pillar: "capture", status: "available", stage: "now",
       desc: "Answers your line 24/7, qualifies the caller, takes the job and the time they want, and sends you the details. You confirm the slot.",
       outcome: "No more jobs lost to voicemail.", cta: "/pilot.html" },
     { slug: "pulse-scan", name: "PULSE Business Scan", pillar: "grow", status: "available", stage: "now",
@@ -52,10 +54,11 @@ window.NV_ROADMAP = {
        rewrote it as what it WILL do. Canonical moved on 2026-09-08: canonical.ts
        now carries availability "private_pilot" for lead_generation, which
        derives the public readiness "limited", so this entry follows it to
-       "private_pilot". The site's own word for that status is PRIVATE TESTING,
-       which coming-soon.html renders from the status key; in copy it is "by
-       invitation". The word "pilot" is not said to a client anywhere, because
-       there is no pilot and no trial of anything.
+       "private_pilot". The site's own word for that status is BY INVITATION
+       (PRIVATE TESTING until 2026-09-19), which coming-soon.html renders from
+       the status key, and in copy it is "by invitation" too. The word "pilot"
+       is not said to a client anywhere, because there is no pilot and no
+       trial of anything.
 
        WHAT "private_pilot" MEANS HERE, and the fence every surface repeats:
        it is offered to a few businesses by invitation, under their own
@@ -77,8 +80,10 @@ window.NV_ROADMAP = {
     /* AVAILABLE 2026-08-19, and the claims shrank to the shipped truth
        (mirror of canonical.ts): one text per missed call, ever, with the
        business's name on it and a working opt-out — not a retry sequence,
-       not form responses. What ships is what is sold. */
-    { slug: "instant-lead-follow-up", name: "Instant Lead Follow-Up", pillar: "convert", status: "available", stage: "now",
+       not form responses. What ships is what is sold. Named Missed-Call
+       Recovery since 2026-09-19, the name the pricing page sells it under;
+       the slug stays the canonical capability key the engine gate reads. */
+    { slug: "instant-lead-follow-up", name: "Missed-Call Recovery", pillar: "convert", status: "available", stage: "now",
       desc: "A caller you missed gets one text back while the job is still winnable: during business hours, on your say-so, with your business name on it.",
       problem: "Leads contact several companies. The fastest response usually wins the job.",
       functions: ["Missed-call text back", "One text per missed call, ever", "Your identification and a working opt-out on every message", "Hands over the moment they reply or call back"],

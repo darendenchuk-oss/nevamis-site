@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-9OOxjYWstxOdE1Qq7I926gmP6Wi+w30x/gnzIZWgYnY=' 'sha256-oiRHaVA6mpOJQJJJdaOAQDGldl0+uGlglgv0II2IZMs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-g9p11Res0769gA+n/doShxrLYzC/3ZjPjRzkxeHjrkM=' 'sha256-BGhtGsFwpTccbqhEgN4IQNI3F+2zMaJEyTvP9lezU1g='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1114,7 +1114,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap" style="max-width:820px">
       <div class="section-head reveal">
         <p class="eyebrow mono">Straight answers</p>
-        <h2>Coming Soon questions.</h2>
+        <h2>Roadmap questions.</h2>
       </div>
       <details><summary>Are these services available now?</summary><p>Some are. Anything marked AVAILABLE NOW on this page is live today and described exactly as narrowly as it works; everything else is planned or being researched, and may change as we test with real businesses.</p></details>
       <details><summary>Can I start with just the front desk?</summary><p>Yes, that is the intended starting point. It works on its own, and future services are designed to build on it.</p></details>
@@ -1181,12 +1181,13 @@ document.addEventListener("DOMContentLoaded", function () {
   window.nvTrack && window.nvTrack("coming_soon_page_view");
   document.getElementById("truthStatement").textContent = R.truthStatement;
   var grids = { now: document.getElementById("gridNow"), next: document.getElementById("gridNext"), future: document.getElementById("gridFuture") };
-  /* private_pilot renders "PRIVATE TESTING", not "PRIVATE PILOT". No roadmap
-     item currently carries that status, which is exactly why it was worth
-     changing: a dead label is a claim waiting for its first user, and the word
-     it used to print now names an offer Nevamis retired on 2026-08-09. The key
-     is unchanged so roadmap-config.js does not have to move with it. */
-  var statusLabel = { available: "AVAILABLE NOW", private_pilot: "PRIVATE TESTING", planned: "PLANNED", researching: "BEING RESEARCHED", paused: "PAUSED" };
+  /* private_pilot renders "BY INVITATION", never "PRIVATE PILOT": the word it
+     used to print names an offer Nevamis retired on 2026-08-09. It said
+     PRIVATE TESTING until 2026-09-19, which read as a test a stranger could
+     join; "by invitation" is the phrase every other surface uses for this
+     status. The key is unchanged so roadmap-config.js does not have to move
+     with it. */
+  var statusLabel = { available: "AVAILABLE NOW", private_pilot: "BY INVITATION", planned: "PLANNED", researching: "BEING RESEARCHED", paused: "PAUSED" };
   R.services.forEach(function (s) {
     var g = grids[s.stage]; if (!g) return;
     var d = document.createElement("div");
