@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-M9XMV3WYb0mTcv3IXO4U3Ii7cbmgnjj9Hhv0E5v1rmg=' 'sha256-xwGljxO0XlnByvOHhMKGw9gZukUycbxqoOMhBB9WeNg=' 'sha256-gF/MYPC40vXpDhw4l7OlzNnY2sRcYEwlVCxFcx90UN8=' 'sha256-/p3kfG6VVlxKZ5zMJBLU3bl0Y7ysRIFnomBjcxmMXFI='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-oE07FzLtsEJ9pOgu0Bfln9w1ye/LqdcnIGjeEj9k/M0=' 'sha256-d2qjSUESFZpEb8M6Rtldiu1mRw3GEr1HdBpeYiTIseQ=' 'sha256-gF/MYPC40vXpDhw4l7OlzNnY2sRcYEwlVCxFcx90UN8=' 'sha256-/p3kfG6VVlxKZ5zMJBLU3bl0Y7ysRIFnomBjcxmMXFI='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -986,9 +986,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            the plans differ by, and one of them is not something the product
            does at all, so the tool was routing a buyer to a more expensive
            plan on the strength of a feature nobody could have delivered.
-           The plans differ by minutes. So it asks about minutes. -->
+           The plans differ by automations, not by minutes: The Works and the
+           AI Front Desk carry the same allowance. So this only answers
+           whether the included minutes cover a business, and it ranks the
+           self-serve plans only (fix plan A9, 2026-09-19). -->
       <div class="rc reveal" id="recommender">
-        <h3>Which plan fits? It comes down to one number.</h3>
+        <h3>Will the included minutes cover you?</h3>
         <div class="grid">
           <div>
             <label for="rcVol">Calls a month you expect us to answer</label>
@@ -1004,7 +1007,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           </div>
         </div>
         <div class="rc-result" id="rcResult" aria-live="polite"></div>
-        <p style="font-size:12.5px;color:var(--muted);margin-top:10px">Guidance only. Your exact quote is scoped on the strategy call. Nothing you enter here is transmitted.</p>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:10px">Guidance only. Nothing you enter here is transmitted.</p>
       </div>
 
       <div class="midcta reveal" style="margin-top:34px">
@@ -1259,29 +1262,39 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   var plansFallback = document.getElementById("plansFallback");
   if (plansFallback) plansFallback.remove();
   /* recommender */
-  /* Picks the cheapest plan whose included minutes cover the estimate, and
-     nothing else. It used to route on locations, departments and a
-     "CRM/automation connection", which are not differences between these
-     plans and in one case not a thing the product does; a recommender that
-     upsells on an entitlement nobody can deliver is worse than no
+  /* Picks the cheapest SELF-SERVE plan whose included minutes cover the
+     estimate, and nothing else. It used to route on locations, departments
+     and a "CRM/automation connection", which are not differences between
+     these plans and in one case not a thing the product does; a recommender
+     that upsells on an entitlement nobody can deliver is worse than no
      recommender. Derived from P.plans rather than hardcoded, so adding or
-     repricing a plan cannot leave this behind. */
+     repricing a plan cannot leave this behind.
+
+     Until 2026-09-19 it sorted on minutes alone. The Works and the AI Front
+     Desk carry the same allowance, so a tie went to The Works, the dearer
+     of the two for the same minutes, and a small estimate landed on the
+     Performance Partnership, which is by invitation and never self-serve.
+     Ties now break on the monthly, the invitation-only plan is never ranked,
+     and a plan carrying the same minutes is named as a choice about
+     automations (fix plan A9). */
   function recommend() {
     var vol = parseFloat(document.getElementById("rcVol").value) || 0;
     var len = parseFloat(document.getElementById("rcLen").value) || 2.5;
     var est = vol * len;
-    var ladder = P.plans.slice().sort(function (a, b) { return a.includedMinutes - b.includedMinutes; });
+    var ladder = P.plans.filter(function (p) { return p.selfServe !== false; }).sort(function (a, b) { return (a.includedMinutes - b.includedMinutes) || (a.monthly - b.monthly); });
     var pick = null;
     for (var i = 0; i < ladder.length; i++) { if (ladder[i].includedMinutes >= est) { pick = ladder[i]; break; } }
     var over = !pick;
-    if (!pick) pick = ladder[ladder.length - 1];
+    if (!pick) { var maxMin = ladder[ladder.length - 1].includedMinutes; pick = ladder.filter(function (p) { return p.includedMinutes === maxMin; })[0]; }
     var why = Math.round(est) + " estimated AI minutes a month"
-      + (over ? " is past every published allowance, so " + pick.name + " is the right base and the minutes beyond it bill at C$" + pick.overage.toFixed(2) + " each. Worth scoping on the call."
+      + (over ? " is past every published allowance, so " + pick.name + " is the right base and the minutes beyond it bill at C$" + pick.overage.toFixed(2) + " each"
              : " fits inside the " + grp(pick.includedMinutes) + " included on " + pick.name + ", at C$" + pick.overage.toFixed(2) + " for anything past that");
     document.getElementById("rcResult").innerHTML =
       '<span class="mono">CLOSEST FIT</span><div style="font-size:20px;font-weight:700;font-family:\'Bricolage Grotesque\',sans-serif"></div><p></p>';
-    document.querySelector("#rcResult div").textContent = pick.name + " · C$" + grp(pick.monthly) + "/month";
-    document.querySelector("#rcResult p").textContent = "Why: " + why + ". Every plan is the same system, so this is only about minutes. Your real average shows up in the portal from your first week of calls, and you can change plan yourself from there.";
+    document.querySelector("#rcResult div").textContent = pick.name + " · C$" + grp(pick.launch) + " Launch & Implementation to start, then C$" + grp(pick.monthly) + " a month";
+    var twins = ladder.filter(function (p) { return p !== pick && p.includedMinutes === pick.includedMinutes; });
+    var note = twins.length ? twins.map(function (p) { return p.name; }).join(" and ") + " carries the same minutes and adds automations, so choose between them for the automations, not for the minutes. " : "";
+    document.querySelector("#rcResult p").textContent = "Why: " + why + ". " + note + "Your real average shows up in the portal from your first week of calls, and you can change plan yourself from there.";
   }
   ["rcVol", "rcLen"].forEach(function (id) {
     document.getElementById(id).addEventListener("input", recommend);
