@@ -182,7 +182,7 @@ first, Canada-wide, Edmonton-based.
 - https://nevamis.ca/pricing.html : full pricing (source of truth)
 - https://nevamis.ca/pilot.html : how a business starts, and what is built and tested before its line is answered
 - https://nevamis.ca/demo.html : the live demo line
-- https://nevamis.ca/book.html : book a short strategy call
+- https://nevamis.ca/book.html : book a short call
 - https://nevamis.ca/about.html : who is behind Nevamis
 - https://nevamis.ca/coming-soon.html : what is being built next, with status labels
 - https://nevamis.ca/revenue-engine.html : ad attribution: which marketing produced which job (in development)
