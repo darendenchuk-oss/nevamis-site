@@ -203,11 +203,11 @@ const PAGES = [
      every footer and is the page people search for when they ask whether they
      can try it first; the breadcrumb had to stop naming an offer that no
      longer exists. */
-  { file: 'pilot.html', name: 'How You Start', type: 'WebPage' },
-  { file: 'demo.html', name: 'Live Demo', type: 'WebPage' },
-  { file: 'book.html', name: 'Book a Strategy Call', type: 'ContactPage' },
+  { file: 'pilot.html', name: 'How you start', type: 'WebPage' },
+  { file: 'demo.html', name: 'Demo', type: 'WebPage' },
+  { file: 'book.html', name: 'Book a call', type: 'ContactPage' },
   { file: 'about.html', name: 'About', type: 'AboutPage' },
-  { file: 'coming-soon.html', name: 'Coming Soon', type: 'WebPage' },
+  { file: 'coming-soon.html', name: 'Roadmap', type: 'WebPage' },
   { file: 'revenue-engine.html', name: 'Revenue Engine', type: 'WebPage' },
   { file: 'privacy.html', name: 'Privacy', type: 'WebPage' },
   { file: 'terms.html', name: 'Terms', type: 'WebPage' },
