@@ -77,6 +77,15 @@ export const PROOF_BLOCK = `
   </div>
 </section>`;
 
+/* The last section, "More of the work you want" (owner decision B2b,
+   2026-09-19): the trade pages were phone-only while the homepage's industry
+   cards promise Lead Generation and Quote Recovery behind each trade. Lead
+   Generation always carries "by invitation" and no price, volume, guarantee,
+   automation or contact claim. The pricing link carries no data-evt on
+   purpose: trade_pricing_click already fires from "Compare plans" above, and
+   one name from two placements on a page is what tests/analytics.spec.js
+   refuses. hero_book_call_click is one of the three names that test lets fire
+   from several placements. */
 const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours }) => `
 <section class="tight">
   <div class="wrap">
@@ -124,6 +133,27 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
     <div class="midcta reveal">
       <a class="btn btn-ghost" href="/pilot.html" data-evt="trade_start_click">See how you start</a>
       <a class="btn btn-ghost" href="/pricing.html" data-evt="trade_pricing_click">Compare plans</a>
+    </div>
+  </div>
+</section>
+
+<section class="tight">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow mono">Beyond the phone</p>
+      <h2>More of the work you want.</h2>
+    </div>
+    <div class="proc">
+      <div class="reveal"><h3>Lead Generation, by invitation</h3><p>We read public pages and
+        list businesses of exactly the kind you want more of, each with the page it came from.
+        You decide every one, and nobody on it is contacted by us. Lead Generation is by
+        invitation, and a short call is where it starts.</p>
+        <p><a href="/book.html#pick-a-time" data-evt="hero_book_call_click">Book a call</a></p></div>
+      <div class="reveal"><h3>Quote Recovery</h3><p>A quote you sent that goes quiet is followed
+        up for you the day it goes stale, four days on and eleven days on, each email with your
+        name on it and your approval before it goes. On the pricing page it is the Quote-Chase
+        Engine.</p>
+        <p><a href="/pricing.html">See what it costs</a></p></div>
     </div>
   </div>
 </section>`;
