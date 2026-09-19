@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Ahq3evZzLt7B8lBmJ6tzhvn4sBGJImbUe5YFcooOlPc=' 'sha256-GGIIqiZfso4TqVzic68MTjMfnl5vty4qektD4FUco9Y=' 'sha256-gF/MYPC40vXpDhw4l7OlzNnY2sRcYEwlVCxFcx90UN8=' 'sha256-/p3kfG6VVlxKZ5zMJBLU3bl0Y7ysRIFnomBjcxmMXFI='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-B6K2v814VkJeyQOwSMHbalPXf+0c7Mp7U5EIJWzOHc4=' 'sha256-mdKYIUCvFl9IW58+GfsMilSCxERvgQ1To0CO9G5nNj4=' 'sha256-gF/MYPC40vXpDhw4l7OlzNnY2sRcYEwlVCxFcx90UN8=' 'sha256-/p3kfG6VVlxKZ5zMJBLU3bl0Y7ysRIFnomBjcxmMXFI='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -850,7 +850,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            745 ms after first paint, which was 0.093 of the page's 0.095 CLS. -->
       <div id="termsBanner" style="background:var(--navy-2);border:1px solid rgba(47,191,143,.45);border-radius:14px;padding:20px 24px;margin-bottom:30px">
         <h2 style="font-size:19px;margin-bottom:6px;letter-spacing:-.01em">Launch &amp; Implementation to start. Then the monthly, every month.</h2>
-        <p style="color:var(--muted);font-size:15px">Every plan starts with a one-time Launch &amp; Implementation fee: the audit, configuration, integrations, testing and go-live are real work and they are priced in the open, not hidden in the monthly. It is collected once, at the start, beside your first month. After that, your plan's monthly price is charged on the same day every month, and past the start the only recurring charges are that monthly and any overage past your included minutes. There is no trial to convert out of.</p>
+        <p style="color:var(--muted);font-size:15px">Every plan starts with a one-time Launch &amp; Implementation fee: the discovery call, configuration, testing and go-live are real work and they are priced in the open, not hidden in the monthly. It is collected once, at the start, beside your first month. After that, your plan's monthly price is charged on the same day every month, and past the start the only recurring charges are that monthly and any overage past your included minutes. There is no trial to convert out of.</p>
         <!-- THE TERM, and its whole history is a warning. Until 2026-08-25
              this paragraph ended "We do not ask for a term, and we do not
              need one." The v4 directive of 2026-08-22 made that false, and
@@ -926,6 +926,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         </div>
         <p style="color:var(--muted);font-size:14px">The AI Front Desk is the same core system on every plan. Plans differ by which automations are included and, on the Partnership, whether Nevamis shares in the revenue it helps create. A one-time Launch &amp; Implementation fee starts the build; after that, past the start, the only recurring charges are the monthly, any add-ons you chose, and any overage past your included minutes. Enterprise (multi-location, custom integrations, custom data pipelines) is quoted per client: Launch &amp; Implementation starting at C$5,000 or custom quoted, recurring custom. Prices in Canadian dollars, plus applicable GST/HST. No minimum term on anything: month to month from the first month, cancelled from your own portal at any time. Questions: <a href="mailto:Sales@nevamis.ca" style="color:var(--mint);text-decoration:underline;text-underline-offset:3px">Sales@nevamis.ca</a>.</p>
       </div></div>
+      <!-- ENTERPRISE (fix plan A26, 2026-09-19). The rendered cards replace
+           #plansFallback, and the fallback's closing paragraph was the only
+           place this page named Enterprise, so with scripts on, the page that
+           is meant to be the whole price list said nothing about it. This line
+           is rendered from P.enterprise and P.taxNote in the plan script
+           below, in the same task that removes the fallback, so no figure is
+           typed here; with scripts off, the fallback paragraph above states
+           the same thing. -->
+      <p id="enterpriseNote" style="color:var(--muted);font-size:14px;margin-top:14px" hidden></p>
 
       <!-- ADD-ONS, v4 (2026-08-22): every automation is its own product.
            This list is HAND-TYPED HTML, not rendered from pricing-config.js:
@@ -974,8 +983,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            the renderer below overwrites it from pricing-config.js, which
            check-consistency validates against canonical. -->
       <div class="reveal" id="referralCard" style="margin-top:26px;background:var(--navy-2);border:1px solid rgba(47,191,143,.35);border-radius:16px;padding:18px 22px">
-        <h3 style="font-size:17px;margin-bottom:8px" id="referralHeadline">Know another business that misses calls?</h3>
-        <p style="font-size:15px" id="referralOffer">They pay the same published price as everyone else, with nothing to negotiate. When they pay their first invoice, you get a free month of your own plan.</p>
+        <h3 style="font-size:17px;margin-bottom:8px" id="referralHeadline">Refer another business.</h3>
+        <p style="font-size:15px" id="referralOffer">When they pay their first invoice, you get a free month of your own plan, applied as a credit to your next bill.</p>
         <p style="font-size:13.5px;color:var(--muted);margin-top:8px" id="referralTrigger">The free month is earned when the business you referred pays their first invoice, and it comes off your next bill.</p>
         <p style="font-size:13.5px;color:var(--muted);margin-top:6px" id="referralHowTo">Clients get their own link in the portal. Send it yourself: we never email somebody just because you named them.</p>
       </div>
@@ -1266,6 +1275,21 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      throw leaves it in place, which is the point. */
   var plansFallback = document.getElementById("plansFallback");
   if (plansFallback) plansFallback.remove();
+  /* Enterprise, which has no card: see the note on #enterpriseNote. Every
+     figure and the tax line come from pricing-config.js. */
+  var entEl = document.getElementById("enterpriseNote");
+  if (entEl && P.enterprise) {
+    entEl.textContent = P.enterprise.name + " (more than one location, custom integrations, custom data pipelines) is quoted per client: "
+      + (P.enterprise.launchFrom ? "Launch & Implementation starting at C$" + grp(P.enterprise.launchFrom) + " or custom quoted; " : "")
+      + "the recurring amount and any performance component are quoted per client. " + (P.taxNote ? P.taxNote + " " : "") + "Questions: ";
+    var entMail = document.createElement("a");
+    entMail.href = "mailto:Sales@nevamis.ca";
+    entMail.textContent = "Sales@nevamis.ca";
+    entMail.style.cssText = "color:var(--mint);text-decoration:underline;text-underline-offset:3px";
+    entEl.appendChild(entMail);
+    entEl.appendChild(document.createTextNode("."));
+    entEl.hidden = false;
+  }
   /* recommender */
   /* Picks the cheapest SELF-SERVE plan whose included minutes cover the
      estimate, and nothing else. It used to route on locations, departments
@@ -1361,7 +1385,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             "unitText": "included AI minutes per month"
           }
         }),
-        "availability": "https://schema.org/InStock",
+        /* LimitedAvailability for an invitation-only plan (fix plan A26): a
+           crawler told InStock reads the Partnership as something anyone can
+           buy, which checkout refuses. */
+        "availability": pl.selfServe === false ? "https://schema.org/LimitedAvailability" : "https://schema.org/InStock",
         "url": "https://nevamis.ca/pricing.html",
         "seller": { "@id": "https://nevamis.ca/#organization" }
       };
@@ -1372,10 +1399,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       "@context": "https://schema.org",
       "@type": "Product",
       "@id": "https://nevamis.ca/pricing.html#plans",
-      "name": "Nevamis Front Desk",
+      "name": "Nevamis",
       "description": "A configured voice agent that answers a business phone line 24/7, qualifies the caller, takes the job and the time they want, and sends the owner a summary of every call within seconds.",
       "brand": { "@id": "https://nevamis.ca/#organization" },
-      "category": "AI phone answering service",
+      "category": "Lead generation, quote follow-up and phone answering for service businesses",
       "offers": {
         "@type": "AggregateOffer",
         "priceCurrency": P.currency,
@@ -1383,7 +1410,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            reason as the per-offer price: a range is still a published price,
            and a range is the specific thing a business would hold us to.
            Computed, not positional: plan order is display order (Operate
-           first) and no longer sorted by price. */
+           first) and no longer sorted by price.
+           Still computed over EVERY plan, the invitation-only Partnership
+           included: fix plan A26 asked for the self-serve plans only, and
+           tests/seo.spec.js pins lowPrice to the lowest offer of all (350), so
+           that change waits for the test to move with it. The Partnership's
+           own Offer says LimitedAvailability, which is the part a crawler
+           needs in order not to read it as self-serve. */
         ...(P.publishedPricing ? {
           "lowPrice": String(Math.min.apply(null, P.plans.map(function (p) { return p.monthly; }))),
           "highPrice": String(Math.max.apply(null, P.plans.map(function (p) { return p.monthly; }))),

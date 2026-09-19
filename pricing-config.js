@@ -225,7 +225,7 @@
     enterprise: {
       name: "Enterprise",
       launchFrom: 5000,
-      note: "Multi-location, custom integrations, custom data pipelines and advanced deployments are quoted per client, from what a scan of the business finds. Launch & Implementation starting at C$5,000 or custom quoted; the recurring amount and any performance component are quoted per client."
+      note: "Multi-location, custom integrations, custom data pipelines and advanced deployments are quoted per client, from what a scan of the business finds. The recurring amount and any performance component are quoted per client."
     },
     /* The badge on the recommended plan. It moved to the AI Front Desk on
        2026-08-22: The Works is the anchor a reader prices the ladder against,
@@ -344,8 +344,8 @@
        invoice, not on their signup. */
     referral: {
       referrerRewardMonths: 1,
-      headline: "Know another business that misses calls?",
-      offer: "They pay the same published price as everyone else, with nothing to negotiate. When they pay their first invoice, you get a free month of your own plan.",
+      headline: "Refer another business.",
+      offer: "When they pay their first invoice, you get a free month of your own plan, applied as a credit to your next bill.",
       trigger: "The free month is earned when the business you referred pays their first invoice, and it comes off your next bill.",
       howTo: "Clients get their own link in the portal. Send it yourself: we never email somebody just because you named them."
     },
@@ -425,7 +425,7 @@
         callRange: "470 to 700 typical calls", overage: 0.75,
         selfServe: true,
         performanceNote: null,
-        bestFor: "The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts, with no performance fee.",
+        bestFor: "The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts.",
         features: [
           "Everything in the AI Front Desk",
           "Missed-Call Recovery: one text back to a caller you missed, during business hours, with your name on it and a working opt-out",
