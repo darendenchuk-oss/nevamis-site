@@ -96,28 +96,13 @@ Key facts (kept accurate; the pricing page is authoritative):
   The percentage itself is published on /pricing.html: cite it from there
   rather than from this file, and never present it as a figure quoted on a
   call, because it is not one.
-- Pay As You Go ($49/mo) and annual prepay were retired on 2026-08-06 and
-  are no longer offered. Do not quote them.
-- There is no pilot and no evaluation period, paid or unpaid.
-- The seven-day paid pilot at $150 is retired (2026-08-09); never quote it.
-- The doubled 14-day pilot once offered to a referred business is retired
-  with it; never quote that either.
-- Never describe any period of Nevamis service as a trial. A referred
-  business pays the same published price as everybody else. The referrer
-  earns one free month, and only once the business they referred has paid a
-  real first invoice.
-- Pro was $850/month before 2026-08-09; that figure is retired and must
-  never be quoted as a price.
-- Growth was $500/month until 2026-08-15; that figure is retired and
-  must never be quoted as a price.
-- Grow was $750/month until 2026-08-22; that figure is retired and must
-  never be quoted as a price.
-- The plans were renamed on 2026-08-22: what was called Operate is now
-  the AI Front Desk, and what was called Grow was replaced by The Works,
-  the everything bundle. Earlier (2026-08-15): Pro became Operate, Growth
-  became Grow, and Core became the invitation-based Performance
-  Partnership. Recognise an old name if a reader uses one; never present
-  it as current.
+- There is no pilot, trial or evaluation period of any kind, paid or
+  unpaid.
+- Plan names and prices are only those on /pricing.html. Any other name,
+  price or offer is retired: never quote it.
+- A referred business pays the same published price as everybody else.
+  The referrer earns one free month, and only once the business they
+  referred has paid a real first invoice.
 - Legal entity: Nevamis AI Inc. (federal Canadian corporation).
 - Contact: Sales@nevamis.ca · Edmonton, Alberta, Canada.
 
