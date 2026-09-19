@@ -113,6 +113,14 @@ window.NV_ROADMAP = {
       problem: "Quotes are sent and forgotten. Interested customers drift away.",
       functions: ["Quiet-quote detection on your threshold", "Three approved follow-ups per quote: the day it goes stale, day four and day eleven", "Your identification on every message", "Recovered value reported against the quotes that came back"],
       outcome: "Recovered revenue that was already almost won.", cta: "/pricing.html" },
+    /* AVAILABLE, and sold on the pricing page as the Get-Paid Autopilot
+       add-on (canonical.ts get_paid). The slug is the engine's
+       siteSlugFor("get_paid"), so the engine gate matches this row to the
+       capability; its ROADMAP_UNLISTED.get_paid exemption can now go. */
+    { slug: "get-paid", name: "Get-Paid Autopilot", pillar: "operate", status: "available", stage: "now",
+      desc: "Overdue invoices get a gentle reminder with your approval, a firm one a week later, and at three weeks it stops emailing your customer and tells you instead.",
+      functions: ["A gentle reminder when an invoice goes overdue, with your approval", "A firm reminder a week later if it stays unpaid", "At three weeks, the call comes back to you"],
+      outcome: "Overdue invoices stop aging quietly.", cta: "/pricing.html" },
     { slug: "schedule-protection", name: "Schedule Protection", pillar: "convert", status: "planned", stage: "future",
       desc: "Reminders, approved rescheduling, and cancellation recovery that keep valuable appointment slots from going unused.",
       outcome: "Fewer no-shows, better utilization." },
