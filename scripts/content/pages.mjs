@@ -203,7 +203,7 @@ export const PAGES = {
   },
 
   'after-hours-answering.html': {
-    h1: 'After-hours call answering that misses nothing',
+    h1: 'After-hours calls answered on your own number',
     lede: `Evenings, weekends, and holidays covered without hiring a night shift or paying a per-call answering service. Your number, your rules, answered in seconds.`,
     body: `
 <section class="tight">
@@ -220,8 +220,8 @@ export const PAGES = {
         any schedule that matches how you actually work.</p></li>
       <li class="pstep"><h3>Calls forward automatically</h3><p>Your existing number stays
         exactly as it is on every truck, card, and listing.</p></li>
-      <li class="pstep"><h3>It answers in seconds</h3><p>In your business's tone, identifying
-        itself naturally as an assistant.</p></li>
+      <li class="pstep"><h3>It answers in seconds</h3><p>In your business's name and tone. If a
+        caller asks whether they are talking to a person, it says plainly that it is an AI.</p></li>
       <li class="pstep"><h3>Urgent calls escalate</h3><p>Nevamis captures the urgent details
         and alerts your team, exactly as you decide.</p></li>
       <!-- "Routine calls get booked / into the slots your calendar genuinely
@@ -345,7 +345,7 @@ export const PAGES = {
       <table class="compare">
         <thead><tr><th scope="col">On every call</th><th scope="col">Live answering service</th><th scope="col">Nevamis</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Available at 2 AM</th><td class="part">Usually, at a premium</td><td class="yes">Always, same rate</td></tr>
+          <tr><th scope="row">Available at 2 AM</th><td class="part">Usually, at a premium</td><td class="yes">Yes, at the same rate</td></tr>
           <tr><th scope="row">Knows your service area and prices</th><td class="part">A script they follow</td><td class="yes">Rules built with you</td></tr>
           <tr><th scope="row">Takes the job down in full</th><td class="part">Varies by operator</td><td class="yes">Included</td></tr>
           <tr><th scope="row">Never on hold or queued</th><td class="part">Depends on their volume</td><td class="yes">Answers in parallel</td></tr>
