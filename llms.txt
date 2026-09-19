@@ -166,9 +166,11 @@ first, Canada-wide, Edmonton-based.
 - NOT OFFERED today, and not on the published roadmap: booking into a
   calendar, live call transfer, any CRM, ads or software integration,
   multi-location or multi-department routing, more than one number per
-  business, transcripts in the portal, and outbound calling or messaging
-  of any kind (nobody on a Lead Generation list is ever contacted by
-  Nevamis).
+  business, transcripts in the portal, and cold outbound calling or
+  messaging of any kind, meaning contact with people who have not called,
+  been quoted by or bought from the business (the consent-gated automations
+  above message only the business's own callers and customers, and nobody
+  on a Lead Generation list is ever contacted by Nevamis).
 - IN DEVELOPMENT OR BEING RESEARCHED, and never to be described as
   available: the Revenue Engine attribution product, the Inbox Assistant
   and Customer Reactivation campaigns. Search Rankings is listed as
