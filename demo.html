@@ -7,11 +7,11 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Live Demo | Hear the AI Front Desk Answer | Nevamis | (587) 413-0035</title>
+<title>Demo | Hear the AI Front Desk answer | Nevamis | (587) 413-0035</title>
 <meta name="description" content="Call (587) 413-0035 and put the Nevamis front desk through its paces yourself. Try to stump it: give it a job, change details mid-call, ask hard questions.">
 <link rel="canonical" href="https://nevamis.ca/demo.html">
 <meta name="robots" content="index, follow">
-<meta property="og:title" content="Call the live Nevamis | (587) 413-0035">
+<meta property="og:title" content="Call the Nevamis demo line | (587) 413-0035">
 <meta property="og:description" content="It answers in seconds, any hour. Try to stump it.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nevamis.ca/demo.html">
@@ -20,7 +20,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
  {"@type":"ListItem","position":1,"name":"Home","item":"https://nevamis.ca/"},
- {"@type":"ListItem","position":2,"name":"Live Demo","item":"https://nevamis.ca/demo.html"}]}
+ {"@type":"ListItem","position":2,"name":"Demo","item":"https://nevamis.ca/demo.html"}]}
 </script>
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
@@ -556,6 +556,7 @@ table.compare{width:100%;border-collapse:collapse;min-width:640px;font-size:14.5
 .compare td.part{color:var(--warm)}
 .compare tbody tr{transition:background .2s var(--e-out)}
 .compare tbody tr:hover{background:rgba(159,240,206,.03)}
+@media (max-width:700px){table.compare{min-width:0;font-size:13px}.compare th,.compare td{padding:10px 6px}.compare thead th{letter-spacing:.06em}}
 .price-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 @media(max-width:900px){.price-cards{grid-template-columns:1fr}}
 .price-card{background:linear-gradient(180deg,var(--navy-2),#0C1A25);border:1px solid var(--line);
@@ -745,7 +746,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     "@type": "WebPage",
     "@id": "https://nevamis.ca/demo.html",
     "url": "https://nevamis.ca/demo.html",
-    "name": "Live Demo | Hear the AI Front Desk Answer | Nevamis | (587) 413-0035",
+    "name": "Demo | Hear the AI Front Desk answer | Nevamis | (587) 413-0035",
     "description": "Call (587) 413-0035 and put the Nevamis front desk through its paces yourself. Try to stump it: give it a job, change details mid-call, ask hard questions.",
     "isPartOf": {
       "@type": "WebSite",
@@ -799,7 +800,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div>
         <p class="eyebrow mono">Live demo · answers any hour</p>
         <h1>Try to stump it.</h1>
-        <p class="lede">This is not a video of the product. It is the product, on a phone number, right now.</p>
+        <p class="lede">This is not a video. It is the same voice and the same model, answering the phone for Nevamis right now. On your line it answers in your business's name, takes the job and the time the caller wants, and texts and emails you the details.</p>
         <div class="cta-row" style="justify-content:center">
           <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Call (587) 413-0035</a>
         </div>
@@ -819,7 +820,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2>Three ways to push it.</h2>
       </div>
       <div class="proc">
-        <div class="reveal"><h3>Book something awkward</h3><p>Ask for an appointment at a specific time and see how it handles scheduling.</p></div>
+        <div class="reveal"><h3>Ask how it would work for you</h3><p>Ask what happens to your current number. It should explain call forwarding in plain words, without jargon, and tell you what it takes down on every call.</p></div>
         <div class="reveal"><h3>Change your mind mid-call</h3><p>Give a detail, then change it halfway through. A real receptionist keeps up. So should this.</p></div>
         <div class="reveal"><h3>Ask something it should not answer</h3><p>Push for a price it has not been given. It should hold the line without making things up.</p></div>
       </div>
@@ -832,76 +833,79 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="section-head reveal">
         <p class="eyebrow mono">Example call</p>
         <h2>What a Nevamis agent sounds like on a client's line.</h2>
-        <p>An illustrative service call for a fictional electrical company, with real AI voices.</p>
+        <p>An illustrative service call for a fictional electrical company, written out turn by turn.</p>
       </div>
       <div class="call-grid">
-        <div class="call-card reveal" id="callCard" aria-label="Example call with playable audio and transcript">
+        <div class="call-card reveal" id="callCard" aria-label="Example call transcript">
           <div class="call-head">
             <span class="label mono">Example call &middot; Cedarview Electric (fictional)</span>
             <span class="state mono">ANSWERED</span>
           </div>
-          <canvas id="callWave" height="46" aria-hidden="true"></canvas>
-          <div class="player-row">
-            <button class="play" id="playBtn" aria-label="Play the example call audio">
-              <span aria-hidden="true">▶</span><span id="playLabel">Hear a 39-second call</span>
-            </button>
-            <span class="timer mono" id="callTimer">0:00 / 0:39</span>
-          </div>
-          <div class="line agent" data-audio="assets/call-0.mp3">
+          <!-- No audio on this page until the example call is re-recorded
+               (owner decision B1, 2026-09-19). In the recording the agent
+               offers a slot and then confirms it, which the front desk cannot
+               do: it takes the time the caller wants, and the office confirms
+               it. So the play control, the waveform and the timer are gone, and
+               no line below carries data-audio: this is the corrected call, not
+               the recorded one. site.js skips the player when #playBtn is
+               absent, and guard 14 in check-consistency.js skips a page that
+               plays no call audio. The player code in site.js stays for the
+               re-recording. -->
+          <div class="line agent">
             <span class="who mono">Cedarview AI</span>
             <p>Thanks for calling Cedarview Electric. This is Ava. How can I help?</p>
           </div>
-          <div class="line caller" data-audio="assets/call-1.mp3">
+          <div class="line caller">
             <span class="who mono">Caller</span>
             <p>Hi, a few outlets in my kitchen stopped working. I reset the breaker, but they're still dead.</p>
           </div>
-          <div class="line agent" data-audio="assets/call-2.mp3">
+          <div class="line agent">
             <span class="who mono">Cedarview AI</span>
             <p>Got it. Are you noticing any sparks, heat, or a burning smell?</p>
           </div>
-          <div class="line caller" data-audio="assets/call-3.mp3">
+          <div class="line caller">
             <span class="who mono">Caller</span>
             <p>No, nothing like that.</p>
           </div>
-          <div class="line agent" data-audio="assets/call-4.mp3">
+          <div class="line agent">
             <span class="who mono">Cedarview AI</span>
-            <p>Okay, that's good. I can have an electrician there tomorrow between eight and ten. The service call is $95, and that amount goes toward the repair if you approve the work. Does that time work for you?</p>
+            <p>Okay, that's good. The service call is $95, and that amount goes toward the repair if you approve the work. When would you like someone out?</p>
           </div>
-          <div class="line caller" data-audio="assets/call-5.mp3">
+          <div class="line caller">
             <span class="who mono">Caller</span>
-            <p>Yes, that works.</p>
+            <p>Tomorrow morning, between eight and ten if you can.</p>
           </div>
-          <div class="line agent" data-audio="assets/call-6.mp3">
+          <div class="line agent">
             <span class="who mono">Cedarview AI</span>
             <p>Perfect. What's the service address?</p>
           </div>
-          <div class="line caller" data-audio="assets/call-7.mp3">
+          <div class="line caller">
             <span class="who mono">Caller</span>
             <p>114 Cedar Lane.</p>
           </div>
           <div class="line agent">
             <span class="who mono">Cedarview AI</span>
-            <p>Thanks. I have you down for tomorrow between eight and ten, and someone from the office will confirm that exact time with you. I have your number if anything changes.</p>
+            <p>Thanks. I've noted tomorrow between eight and ten, and someone from the office will confirm the exact time. I have your number if anything changes.</p>
           </div>
-          <div class="line caller" data-audio="assets/call-9.mp3">
+          <div class="line caller">
             <span class="who mono">Caller</span>
             <p>Great, thank you.</p>
           </div>
-          <div class="line agent" data-audio="assets/call-10.mp3">
+          <div class="line agent">
             <span class="who mono">Cedarview AI</span>
-            <p>You're welcome. We'll see you tomorrow.</p>
+            <p>You're welcome. Thanks for calling Cedarview Electric.</p>
           </div>
-          <p class="foot-note">Illustrative call, fictional company. Real AI voices.</p>
+          <p class="foot-note">Illustrative call, fictional company.</p>
         </div>
         <div class="owner-card reveal">
-          <h3>After every call, the business gets</h3>
+          <h3>After every call, you get a text and an email like this</h3>
           <div class="sms" role="img" aria-label="Example text message summary sent to the business owner">
             <span class="mono">NEVAMIS SUMMARY · 8:42 PM</span>
-            New job request: dead kitchen outlets (partial circuit). Preferred time tomorrow 8:00 AM, $95 service visit quoted per your price sheet, yours to confirm. Caller: Mike, 780-555-0142. He called 3 competitors first. Nobody answered.
+            New job request: dead kitchen outlets, breaker already reset, no sparks or burning smell. Wants tomorrow 8 to 10 AM, yours to confirm. $95 service call quoted from your price sheet. 114 Cedar Lane. Callback: 780-555-0142.
           </div>
           <p class="note">Example summary for the illustrative call. Your format, destination, and level of detail are configured with you.</p>
           <div class="midcta">
-            <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a strategy call</a>
+            <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
           </div>
         </div>
       </div>
