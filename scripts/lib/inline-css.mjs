@@ -14,10 +14,19 @@
       They are rewritten here. site.css has no url() at all, so it is copied
       verbatim.
 
+      ROOT-ABSOLUTE since 2026-09-19 (fix plan A33). The rewrite used to write
+      `assets/fonts/...`, which is correct only for a document AT the root.
+      404.html is served for every missing path, including nested ones, so on
+      https://nevamis.ca/x/y the same text asked for /x/assets/fonts/ and the
+      four woff2 files 404ed. This is the identical defect A33 fixed for
+      404.html's script and preload paths, one layer down. A leading slash and
+      not a `<base href="/">`, because the CSP on that page sets
+      base-uri 'none'.
+
    2. Order. fonts.css then site.css then the page's own <style>, which is the
       order the <link> tags had. Anything else changes the cascade. */
 
-const FONT_DIR = "assets/fonts/";
+const FONT_DIR = "/assets/fonts/";
 
 /** Strip comments without touching strings or url() payloads. A regex over
  *  the whole file would eat any `/*` that appears inside a quoted string. */
@@ -60,10 +69,15 @@ export function squeeze(css) {
     .trim();
 }
 
-/** fonts.css url() are relative to assets/fonts/; inlined they must not be. */
+/** fonts.css url() are relative to assets/fonts/; inlined they must be
+ *  root-absolute, so they resolve the same from a nested URL as from the root.
+ *  A path already written `assets/...` is anchored rather than left alone: it
+ *  is the same trap one directory up, and leaving it was how a rewrite that
+ *  looked idempotent could still ship a relative font url. */
 export function rewriteFontUrls(css) {
   return css.replace(/url\(\s*(['"]?)([^'")]+)\1\s*\)/g, (m, q, u) => {
-    if (/^(https?:|data:|\/|assets\/)/i.test(u)) return m;
+    if (/^(https?:|data:|\/|#)/i.test(u)) return m;
+    if (/^assets\//i.test(u)) return `url(${q}/${u}${q})`;
     return `url(${q}${FONT_DIR}${u}${q})`;
   });
 }
