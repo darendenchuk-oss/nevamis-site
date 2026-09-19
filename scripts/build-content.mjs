@@ -177,13 +177,13 @@ for (const [file, content] of Object.entries(PAGES)) {
   const meta = byFile[file];
   if (!meta) { console.warn(`skip ${file}: not in content-map.json`); continue; }
 
-  /* The brand half of the title is per page. Six pages ship
-     "| The AI Front Desk by Nevamis" (restoration, historically, without
-     the "The"), and this builder hard-coded "| Nevamis", so regenerating
-     any of them silently rewrote six indexed <title> tags. Preserved
-     exactly rather than normalised: the difference is cosmetic, but a
-     title is an indexed string and a reconciliation is not the place to
-     change one. */
+  /* The brand half of the title is per page. Six pages shipped
+     "| The AI Front Desk by Nevamis" (restoration without the "The"), and
+     the 2026-08-27 reconciliation preserved them through `titleBrand`
+     because a reconciliation is not the place to change an indexed string.
+     The owner changed them on purpose on 2026-09-19 (fix plan B2a): the
+     front desk is one part of Nevamis, so every content page is now
+     "| Nevamis". `titleBrand` is still honoured if a row sets one. */
   const title = `${meta.title} | ${meta.titleBrand || 'Nevamis'}`;
   /* A page's own description when it has one. The lede cut at 155 characters
      stopped mid-word on seven pages, and that cut is the sentence under the
