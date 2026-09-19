@@ -126,9 +126,12 @@ window.NV_ROADMAP = {
       desc: "Overdue invoices get a gentle reminder with your approval, a firm one a week later, and at three weeks it stops emailing your customer and tells you instead.",
       functions: ["A gentle reminder when an invoice goes overdue, with your approval", "A firm reminder a week later if it stays unpaid", "At three weeks, the call comes back to you"],
       outcome: "Overdue invoices stop aging quietly.", cta: "/pricing.html" },
-    { slug: "schedule-protection", name: "Schedule Protection", pillar: "convert", status: "planned", stage: "future",
-      desc: "Reminders, approved rescheduling, and cancellation recovery that keep valuable appointment slots from going unused.",
-      outcome: "Fewer no-shows, better utilization." },
+    /* FUTURE, trimmed by the owner on 2026-09-19 (fix plan r15 B7). Schedule
+       Protection (it presumed appointment slots the front desk cannot book),
+       Web and Messaging Concierge, Smarter Job Intake and Business Knowledge
+       Assistant are gone: no canonical record backs any of them. The Daily
+       Brief and the Growth System stay by the owner's decision. A researched
+       entry says what it WOULD do; "Is being built to" is for planned ones. */
     { slug: "daily-business-brief", name: "Your Daily Business Brief", pillar: "operate", status: "planned", stage: "future",
       desc: "Is being built to condense calls, open leads, follow-ups, and urgent issues into one concise daily summary.",
       outcome: "Five minutes to know exactly where the business stands." },
@@ -139,18 +142,9 @@ window.NV_ROADMAP = {
     { slug: "customer-reactivation", name: "Customer Reactivation", pillar: "convert", status: "researching", stage: "future",
       desc: "Reconnect with eligible past customers when maintenance, seasonal work, or renewals may genuinely help them.",
       outcome: "Repeat business from relationships you already earned." },
-    { slug: "web-messaging-concierge", name: "Web and Messaging Concierge", pillar: "capture", status: "researching", stage: "future",
-      desc: "Is being built to give website visitors and texters the same fast, knowledgeable path to answers that callers receive.",
-      outcome: "More captured leads from people who never call." },
     { slug: "ai-inbox-assistant", name: "Inbox Assistant", pillar: "operate", status: "researching", stage: "future",
-      desc: "Shared business email gets organized: urgent messages flagged, replies drafted for approval, tasks extracted, a clear digest produced.",
+      desc: "Drafts the routine replies, flags the ones that actually need you, and never sends anything without you pressing send.",
       outcome: "Less inbox time, nothing important buried." },
-    { slug: "smarter-job-intake", name: "Smarter Job Intake", pillar: "capture", status: "researching", stage: "future",
-      desc: "Qualified requests become structured job records with the right people alerted, using rules the business approves.",
-      outcome: "Complete job information without repeated questions." },
-    { slug: "business-knowledge-assistant", name: "Business Knowledge Assistant", pillar: "operate", status: "researching", stage: "future",
-      desc: "Employees find approved procedures and company answers instantly instead of asking the same person again.",
-      outcome: "Consistent answers, faster training." },
     /* The Revenue Engine under its own name and the canonical slug since
        2026-09-19 (it was "Revenue Clarity"): ad attribution, which canonical
        carries as private_pilot. "planned" says less than that, which is
