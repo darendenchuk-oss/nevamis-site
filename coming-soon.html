@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-DU06vMOIqFSltuThwVGoRV1z2dJdhvVhI3BkMFhpzKg=' 'sha256-TsmNs0WjDJs92aO6LAZlu4tXKlViVoppRX8S8TgR92c='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Nop4NTNMv6lQ5AYmnrY+HyPhTJAagpZCD2l68v44RAg=' 'sha256-NNAfgYvzM18tYBq185uBuxzeLTkiDPMtlhCv4eFp+30='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -882,10 +882,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       },
       {
         "@type": "Question",
-        "name": "Can I help test something early?",
+        "name": "Can I be one of the first to use something on this page?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Maybe. Use the interest form and tell us your biggest problem. If your business fits an early test of something on this page, we will contact you directly. That is unpaid development testing of an unreleased service, not a trial of the live front desk, which is sold on a normal monthly plan."
+          "text": "Tell us on the form which service would help. When something here is ready, it gets a published price before anyone signs up for it, and we will tell you. Lead Generation is by invitation, and a short call is where it starts."
         }
       },
       {
@@ -1123,7 +1123,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <details><summary>Will anything be sent or changed without your approval?</summary><p>No. Sensitive actions like pricing, complaints, and unusual replies are designed to require human approval, and message templates are approved by you first.</p></details>
       <details><summary>How will my customer information be protected?</summary><p>Data is used only to run the service you configure, with retention and access rules agreed before launch. See our privacy page for how this website itself behaves.</p></details>
       <details><summary>Will this replace my employees?</summary><p>The goal is to remove repetitive phone and office work, not people. Humans stay in charge of judgment calls, pricing, and anything unusual.</p></details>
-      <details><summary>Can I help test something early?</summary><p>Maybe. Use the interest form and tell us your biggest problem. If your business fits an early test of something on this page, we will contact you directly. That is unpaid development testing of an unreleased service, not a trial of the live front desk, which is sold on a normal monthly plan.</p></details>
+      <details><summary>Can I be one of the first to use something on this page?</summary><p>Tell us on the form which service would help. When something here is ready, it gets a published price before anyone signs up for it, and we will tell you. Lead Generation is by invitation, and a short call is where it starts.</p></details>
       <details><summary>Does submitting interest lock me into anything?</summary><p>No. It is feedback that shapes what we build, nothing more.</p></details>
       <details><summary>How will future pricing work?</summary><p>Nothing planned on this page has a price yet. Each one gets a published price before it launches, the same way the live services are priced today. Lead Generation is different: it is by invitation and arranged on a call.</p></details>
       <details><summary>Can I suggest a different workflow?</summary><p>Yes, please do. The form has a free-text field for exactly that, and the best suggestions shape the roadmap.</p></details>
@@ -1330,7 +1330,7 @@ document.addEventListener("DOMContentLoaded", function () {
       signal: ctrl ? ctrl.signal : undefined
     }).then(function (r) {
       if (!r.ok) throw 0;
-      status.textContent = "Got it. Your answers are with the founder now; if an early test of something on this page fits your business, you will hear back directly. Thanks: this genuinely shapes what gets built next.";
+      status.textContent = "Got it. Your answers are with the founder now, and if something on this page fits your business you will hear back directly. Thanks: this genuinely shapes what gets built next.";
     }).catch(function () {
       status.innerHTML = 'That did not go through. <a href="' + mailtoHref.replace(/"/g, "&quot;") + '">Email your answers instead</a> and they land in the same inbox.';
       // Re-enabled only on failure, so they can try again.
