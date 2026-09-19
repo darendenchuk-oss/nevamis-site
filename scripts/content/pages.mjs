@@ -332,7 +332,7 @@ export const PAGES = {
   },
 
   'vs-answering-service.html': {
-    heroProof: `      <p class="proof" style="margin-top:12px">Both options above answer the phone. Only one of them sits inside a platform that also finds where the rest of your revenue is leaking, scores the leads worth chasing, and shows you what every call produced.</p>`,
+    heroProof: `      <p class="proof" style="margin-top:12px">Both options above answer the phone. Nevamis also offers Lead Generation, by invitation, which finds businesses of the kind you want more of and leaves every one for you to decide. It also offers Quote Recovery for the quotes you already sent. Every answered call is in your portal with its summary and recording.</p>`,
     h1: 'AI receptionist vs a live answering service',
     /* "rather than book the job" until 2026-08-09: a comparison whose only
        force came from implying Nevamis books, which nothing does. The real
