@@ -102,7 +102,7 @@ export const PAGES = {
       urgency: 'A burning smell is not a next-Tuesday call.',
       afterHours: `Hazard questions run on every call. If a caller reports sparks, heat, or
         a burning smell, that call is escalated the way you tell us to escalate it.
-        NEVAMIS captures the urgent details and alerts your team, with the summary flagged
+        Nevamis captures the urgent details and alerts your team, with the summary flagged
         urgent and sent straight to your phone.`,
       jobs: [
         { t: 'Service and repair calls', d: 'Dead outlets, tripped circuits, flickering lights, panel faults.' },
@@ -128,15 +128,15 @@ export const PAGES = {
       urgency: 'No heat with a newborn in the house is a different call.',
       afterHours: `You define what an emergency means for your business: a temperature
         threshold, no heat at all, vulnerable occupants, or a commercial account. Calls that
-        meet it are handled as emergencies: NEVAMIS captures the urgent details and alerts
-        your team. Everything else is captured with the first slot your calendar actually has.`,
+        meet it are handled as emergencies: Nevamis captures the urgent details and alerts
+        your team. Everything else is captured with the time the caller wants, for you to confirm.`,
       jobs: [
         { t: 'No-heat and no-cool calls', d: 'Triaged by your emergency criteria, not a generic script.' },
         { t: 'Seasonal tune-ups', d: 'Taken down with the time they want, without interrupting anyone.' },
-        { t: 'Maintenance plans', d: 'Existing plan holders recognised and handled by your rules.' },
+        { t: 'Maintenance plans', d: 'Callers who say they hold a plan are asked the details you need, and it is marked on the summary.' },
         { t: 'Equipment questions', d: 'Answered from your approved FAQ, or taken as a message.' },
         { t: 'Diagnostic fee', d: 'Quoted exactly as you set it, every time.' },
-        { t: 'Commercial vs residential', d: 'Routed differently if that is how you run the business.' },
+        { t: 'Commercial vs residential', d: 'Asked on every call and marked on the summary, so you can handle each your own way.' },
       ],
     }),
   },
@@ -161,7 +161,7 @@ export const PAGES = {
         { t: 'Hot water tanks', d: 'Age, type, and symptoms captured before anyone drives out.' },
         { t: 'Renovation quotes', d: 'Captured as leads rather than lost to voicemail.' },
         { t: 'Trip and diagnostic fees', d: 'Quoted consistently, exactly as you approve them.' },
-        { t: 'Property managers', d: 'Recognised and routed if they are a different workflow for you.' },
+        { t: 'Property managers', d: 'Asked who they manage for and marked on the summary, if they are a different workflow for you.' },
       ],
     }),
   },
@@ -173,7 +173,7 @@ export const PAGES = {
        is provisioned with no booking tool and no calendar credential, so the
        assessment slot is confirmed by a person on your side. What is real is
        the capture and the speed it reaches you at, and that is what is sold. */
-    lede: `Flood, fire, and damage calls arrive stressed and urgent, often at night. Nevamis answers calmly, gathers the incident details, routes priority calls, and sends you the assessment request within seconds.`,
+    lede: `Flood, fire, and damage calls arrive stressed and urgent, often at night. Nevamis answers calmly, gathers the incident details, flags the priority calls, and sends you the assessment request within seconds.`,
     body: tradeBody({
       trade: 'restoration and property services',
       whenItRings: 'The call comes in at the worst moment of someone\'s week.',
@@ -181,15 +181,15 @@ export const PAGES = {
         whether the source is stopped, whether insurance is involved, and who is on site.`,
       urgency: 'Active loss is escalated, not queued.',
       afterHours: `Restoration work is won in the first hour. Calls that meet your emergency
-        definition are handled as emergencies: NEVAMIS captures the urgent details and alerts
+        definition are handled as emergencies: Nevamis captures the urgent details and alerts
         your team, with the incident details already collected so nobody starts from nothing.`,
       jobs: [
         { t: 'Water and flood loss', d: 'Source, spread, and timing captured while it matters.' },
         { t: 'Fire and smoke', d: 'Handled with a calm, approved script rather than improvisation.' },
         { t: 'Insurance questions', d: 'Answered only within what you approve, otherwise taken as a message.' },
-        { t: 'Emergency dispatch', d: 'NEVAMIS captures the urgent details and alerts your team, by your rules.' },
+        { t: 'Emergency alerts', d: 'Nevamis captures the urgent details and alerts your team, by your rules.' },
         { t: 'Assessment requests', d: 'The window they need captured and texted to you, so you confirm the slot.' },
-        { t: 'Property managers and adjusters', d: 'Routed separately if they are a different path for you.' },
+        { t: 'Property managers and adjusters', d: 'Identified on the call and marked on the summary, if they are a different path for you.' },
       ],
     }),
   },
@@ -214,7 +214,7 @@ export const PAGES = {
         exactly as it is on every truck, card, and listing.</p></li>
       <li class="pstep"><h3>It answers in seconds</h3><p>In your business's tone, identifying
         itself naturally as an assistant.</p></li>
-      <li class="pstep"><h3>Urgent calls escalate</h3><p>NEVAMIS captures the urgent details
+      <li class="pstep"><h3>Urgent calls escalate</h3><p>Nevamis captures the urgent details
         and alerts your team, exactly as you decide.</p></li>
       <!-- "Routine calls get booked / into the slots your calendar genuinely
            has open" until 2026-08-09. No agent touches a calendar; the honest

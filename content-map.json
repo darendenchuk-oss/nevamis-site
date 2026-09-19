@@ -24,7 +24,7 @@
     { "file": "restoration.html", "url": "/restoration.html", "priority": "0.7", "cluster": "trade", "nav": "Restoration",
       "title": "Answering Service for Restoration Companies", "titleBrand": "AI Front Desk by Nevamis",
       "query": "restoration company answering service",
-      "blurb": "Stressed emergency callers handled calmly and routed by priority." },
+      "blurb": "Stressed emergency callers handled calmly, with the urgent ones flagged to you." },
 
     { "file": "after-hours-answering.html", "url": "/after-hours-answering.html", "priority": "0.7", "cluster": "situation", "nav": "After hours",
       "title": "After-Hours Call Answering", "titleBrand": "The AI Front Desk by Nevamis",
@@ -42,7 +42,7 @@
     { "file": "vs-answering-service.html", "url": "/vs-answering-service.html", "priority": "0.6", "cluster": "compare", "nav": "vs Answering service",
       "title": "AI Receptionist vs a Live Answering Service",
       "query": "ai receptionist vs answering service",
-      "blurb": "Cost, availability, booking, and what each is genuinely better at." },
+      "blurb": "Cost, availability, what comes back off the call, and what each is genuinely better at." },
 
     { "file": "coming-soon.html", "url": "/coming-soon.html", "priority": "0.6", "cluster": "core", "nav": "Coming Soon", "blurb": "What is being built next, with honest status labels." },
     { "file": "revenue-engine.html", "url": "/revenue-engine.html", "priority": "0.7", "cluster": "core", "nav": "Revenue Engine", "blurb": "The longer-term connected system, in development." },
