@@ -185,7 +185,10 @@ for (const [file, content] of Object.entries(PAGES)) {
      title is an indexed string and a reconciliation is not the place to
      change one. */
   const title = `${meta.title} | ${meta.titleBrand || 'Nevamis'}`;
-  const description = content.lede.replace(/\s+/g, ' ').trim().slice(0, 155);
+  /* A page's own description when it has one. The lede cut at 155 characters
+     stopped mid-word on seven pages, and that cut is the sentence under the
+     search result (fix plan A31). The cut stays as the fallback. */
+  const description = content.description || content.lede.replace(/\s+/g, ' ').trim().slice(0, 155);
 
   const html =
     head({ title, ogTitle: `${meta.title} | Nevamis`, description, canonical: `${SITE}${meta.url}` }) +
@@ -225,7 +228,7 @@ const CLUSTERS = [
 ];
 
 const hubMeta = byFile['solutions.html'];
-const hubDesc = 'Call answering by trade, by situation, and compared to voicemail and answering services. Every page from Nevamis in one place.';
+const hubDesc = 'Lead Generation by invitation, Quote Recovery and the AI Front Desk, by trade, by situation, and compared to voicemail and answering services.';
 
 const hubHtml =
   head({ title: `${hubMeta.title} | Nevamis`, description: hubDesc, canonical: `${SITE}/solutions.html` }) +

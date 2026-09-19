@@ -130,6 +130,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
 
 export const PAGES = {
   'electricians.html': {
+    description: 'Panel upgrades, dead circuits and emergency calls answered on your existing line, qualified, and texted to you while your crew stays on the tools.',
     heroProof: TRADE_HERO_PROOF,
     h1: 'Your line answered while the crew is on the tools',
     lede: `Panel upgrades, dead circuits, and emergency calls answered while your crew is on the tools. Nevamis picks up your existing line 24/7, qualifies the caller, takes the job details, and texts them to you.`,
@@ -156,6 +157,7 @@ export const PAGES = {
   },
 
   'hvac.html': {
+    description: 'No-heat calls answered around the clock on your own line, triaged by your emergency rules, and the summary sent to you within seconds.',
     heroProof: TRADE_HERO_PROOF,
     h1: 'The 11 PM no-heat call, answered',
     lede: `A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, takes the job down, and sends you the summary.`,
@@ -182,6 +184,7 @@ export const PAGES = {
   },
 
   'plumbers.html': {
+    description: 'Burst pipes, blocked drains and no hot water. Nevamis answers the calls you cannot, qualifies them, and gets the details to you within seconds.',
     heroProof: TRADE_HERO_PROOF,
     h1: 'Burst pipes and blocked drains, answered',
     lede: `Burst pipes, blocked drains, and no hot water. The calls that cannot wait are the ones you are least able to answer. Nevamis answers them, qualifies them, and gets the details to you.`,
@@ -207,6 +210,7 @@ export const PAGES = {
   },
 
   'restoration.html': {
+    description: 'Flood, fire and damage calls answered calmly at any hour. Nevamis gathers the incident details, flags priority calls, and texts you the request.',
     heroProof: TRADE_HERO_PROOF,
     h1: 'The first hour of a loss, answered calmly',
     /* "books the assessment" until 2026-08-09. Nothing books: a tenant agent
@@ -285,6 +289,7 @@ export const PAGES = {
   },
 
   'missed-calls.html': {
+    description: 'Every unanswered call is a customer dialling somebody else. Work out what missed calls cost your business, and what catches each one.',
     h1: 'What missed calls actually cost you',
     lede: `Every unanswered call is a customer who is already dialling somebody else. Here is how to work out what that is worth in your business, and what to do about it.`,
     body: `
@@ -331,6 +336,7 @@ export const PAGES = {
   },
 
   'vs-voicemail.html': {
+    description: 'Voicemail is free and better than nothing. It does not qualify anyone or take a job down. An honest comparison, including when voicemail wins.',
     heroProof: `      <p class="proof" style="margin-top:12px">This comparison is about the phone. The phone is one part of Nevamis. Nevamis also offers Lead Generation, by invitation, and Quote Recovery for the quotes you already sent, which tells you which quotes came back and what they were worth.</p>`,
     h1: 'AI receptionist vs voicemail',
     lede: `Voicemail is free and it is better than nothing. It also does not qualify anyone, take a job down, or stop a caller reaching your competitor. Here is the honest comparison.`,
@@ -372,6 +378,7 @@ export const PAGES = {
   },
 
   'vs-answering-service.html': {
+    description: 'Live answering services use real people and charge per call or minute. An honest comparison with Nevamis, including where a person still wins.',
     heroProof: `      <p class="proof" style="margin-top:12px">Both options above answer the phone. Nevamis also offers Lead Generation, by invitation, which finds businesses of the kind you want more of and leaves every one for you to decide. It also offers Quote Recovery for the quotes you already sent. Every answered call is in your portal with its summary and recording.</p>`,
     h1: 'AI receptionist vs a live answering service',
     /* "rather than book the job" until 2026-08-09: a comparison whose only

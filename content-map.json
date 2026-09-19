@@ -21,7 +21,7 @@
       "title": "Answering Service for Plumbers", "titleBrand": "The AI Front Desk by Nevamis",
       "query": "plumber answering service",
       "blurb": "Burst pipes and blocked drains captured before the next call." },
-    { "file": "restoration.html", "url": "/restoration.html", "priority": "0.7", "cluster": "trade", "nav": "Restoration",
+    { "file": "restoration.html", "hubTitle": "Nevamis for Restoration", "hubBlurb": "Flood and fire calls answered calmly at any hour, with the urgent ones flagged to you.", "url": "/restoration.html", "priority": "0.7", "cluster": "trade", "nav": "Restoration",
       "title": "Answering Service for Restoration Companies", "titleBrand": "AI Front Desk by Nevamis",
       "query": "restoration company answering service",
       "blurb": "Stressed emergency callers handled calmly, with the urgent ones flagged to you." },
