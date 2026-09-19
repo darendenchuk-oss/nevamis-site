@@ -311,7 +311,10 @@ for (const p of contentPages) {
       let m, seen = 0;
       while ((m = re.exec(fbMatch[0])) !== null) {
         seen++;
-        const name = m[1].split("&mdash;")[0].trim();
+        /* "&middot;" since 2026-09-19 (fix plan A16): the fallback headings
+           moved off the em dash, which the site bans in rendered text. Both
+           separators are accepted so the heading still yields the plan name. */
+        const name = m[1].split(/&mdash;|&middot;/)[0].trim();
         const body = m[1] + " " + m[2];
         const plan = cfg.plans.find((p) => p.name === name);
         if (!plan) { err('pricing fallback: plan "' + name + '" not in pricing-config.js'); continue; }
@@ -535,6 +538,20 @@ for (const p of contentPages) {
           if (!launchOnPage || num(launchOnPage[1]) !== a.launch) {
             err('pricing.html #addOnList "' + a.name + '": one-time launch fee differs from pricing-config.js. '
               + 'expected "' + money(a.launch) + ' launch", page says "' + (launchOnPage ? launchOnPage[0] : "nothing") + '"');
+          }
+          /* EVERY figure on the line, not only the first of each kind. Since
+             2026-09-19 (fix plan A16) each sellable line also states the
+             approved sentence, "C$750 Launch & Implementation to start, then
+             C$500 a month", so the monthly is written twice. The two matches
+             above read only the first occurrence, which would have left the
+             second copy free to drift while this guard stayed green. */
+          for (const x of li.matchAll(/C\$([\d,]+)(?:\/month\b|\s+a month\b)/gi)) {
+            if (num(x[1]) !== a.monthly) err('pricing.html #addOnList "' + a.name + '": states "' + x[0] + '" while pricing-config.js says '
+              + money(a.monthly) + " a month. Every monthly figure on the line must match the config.");
+          }
+          for (const x of li.matchAll(/C\$([\d,]+)\s+launch\b/gi)) {
+            if (num(x[1]) !== a.launch) err('pricing.html #addOnList "' + a.name + '": states "' + x[0] + '" while pricing-config.js says '
+              + money(a.launch) + " Launch & Implementation. Every launch figure on the line must match the config.");
           }
         } else {
           /* A price is a price whatever unit follows it. The first version of

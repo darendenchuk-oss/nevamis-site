@@ -402,16 +402,16 @@
         monthly: 350, monthlyRange: [250, 500], launch: 2500, includedMinutes: 250,
         callRange: "80 to 125 typical calls", overage: 1.10,
         selfServe: false,
-        performanceNote: "Lower fixed cost, plus performance-based compensation tied to verified results. The monthly, the percentage, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged. Nothing here is a rate on its own.",
+        performanceNote: "Lower fixed cost. Lead Generation, offered by invitation, and the Quote-Chase Engine are each paid on it by an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, subject to your agreement. The monthly, the share, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged.",
         /* NAMES THE GROWTH STACK, v6. The stack is what the Partnership is
            now: a plan whose price is changed by the items chosen on it, two of
            them paid out of the revenue they produce. No figure and no
            percentage appears in this sentence, because the pairs live on the
            add-ons above and the share lives in the executed agreement. */
-        bestFor: "A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
+        bestFor: "A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
         features: [
           "One business phone line",
-          "The growth stack: each item added on its own and priced on its own. Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page. The Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement. Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch and Implementation fee and their own monthly, at the prices listed for them. Search Rankings is coming and is not sold."
+          "The growth stack: each item added on its own and priced on its own. Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page. The Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement. Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch & Implementation fee and their own monthly, at the prices listed for them. Search Rankings is coming and is not sold."
         ].concat(EVERY_PLAN)
       },
       {
