@@ -267,7 +267,7 @@ export const PAGES = {
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow mono">Where the calls go</p>
-      <h2>Four common leaks, and what closes each one.</h2>
+      <h2>Where the calls go, and what catches each one.</h2>
     </div>
     <div class="proc">
       <div class="reveal"><h3>After hours</h3><p>Evenings and weekends are when emergency work
@@ -284,7 +284,7 @@ export const PAGES = {
   },
 
   'vs-voicemail.html': {
-    heroProof: `      <p class="proof" style="margin-top:12px">This comparison is about the phone. The phone is one capability of the Nevamis platform, which also scans your business for the leaks voicemail never sees and measures what each fix actually recovered.</p>`,
+    heroProof: `      <p class="proof" style="margin-top:12px">This comparison is about the phone. The phone is one part of Nevamis. Nevamis also offers Lead Generation, by invitation, and Quote Recovery for the quotes you already sent, which tells you which quotes came back and what they were worth.</p>`,
     h1: 'AI receptionist vs voicemail',
     lede: `Voicemail is free and it is better than nothing. It also does not qualify anyone, take a job down, or stop a caller reaching your competitor. Here is the honest comparison.`,
     body: `
