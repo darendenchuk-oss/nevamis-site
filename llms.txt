@@ -174,7 +174,9 @@ automotive and other trades. Trades first, Canada-wide, Edmonton-based.
   automatic lead tracking, quote recovery follow-ups, overdue-invoice
   reminders, and post-job review requests (one ask per finished job, with
   the business's own review link, every request released by a person).
-  The PULSE business scan is a live service.
+  The PULSE business scan is a live service: it reads only what is public
+  on the business's own website, and its money figures are modelled
+  ranges, not measurements.
 - BY INVITATION ONLY, and never to be described as generally available or
   as something a business can buy: lead generation. It is offered to a few
   businesses under their own agreement and delivered by hand. A person at
