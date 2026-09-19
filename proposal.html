@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-7hOnRrSGqCvUzj15MFbugAks1a7sayt0ik8FqlHDEck=' 'sha256-N/3MrnmBUBin5DSiwnmOhrQ5P0cxlSEMWzo7YJZ/0wU='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-aQv1rM30crO/v86Yp8wQTu7MnxZ2NBWQrhI/jDgB3J0=' 'sha256-4tKNZiQa4lpmYpkvqwQxZzDQFmmznTbo0748xb30FeM='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -767,19 +767,17 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     </div>
     <p class="meta" id="preparedFor">Prepared after our call</p>
     <h1 id="headline">Your Nevamis proposal</h1>
-    <p class="meta" id="preparedMeta"></p>
+    <p class="meta" id="preparedMeta">Prepared by Daren, founder</p>
   </div>
 
   <section>
     <h2>What we discussed</h2>
     <p style="color:var(--muted);font-size:15.5px" id="summaryLine">
-      Nevamis runs one loop for your business: it finds where revenue is leaking,
-      fixes the most expensive leak first, and measures what came back. The
-      recommended starting point below is the front desk: your line answered 24/7
-      by a voice agent configured around your hours, service area, job types, and
-      the rules you approve. It qualifies the caller, takes the job and the time
-      they want, and texts you a summary of every call within seconds. Your phone
-      number does not change.
+      Your line answered around the clock by a front desk configured around your
+      hours, service area, job types and the rules you approve. It qualifies the
+      caller, takes the job, the address and the time they want, and texts and
+      emails you a summary of every call within seconds. Your phone number does
+      not change.
     </p>
   </section>
 
@@ -803,13 +801,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <ul class="ticks" id="planFeatures">
         <li>One business phone line</li>
         <li>Automation add-ons available one at a time, each its own price and its own sale, on their own or beside this plan</li>
-        <li>Two call reviews each month, and tuning from what the calls actually show</li>
-        <li>Priority email support</li>
-        <li>Higher-volume usage priced with you before you commit to it</li>
         <li>Answers your line around the clock, configured from your own hours, services, service area, prices and FAQs</li>
         <li>Asks the qualifying questions you approved, in your words</li>
         <li>Captures the caller's name, callback number, what they want, the service, how urgent it is, how the call ended and what happens next, as one structured lead</li>
         <li>Texts and emails you that summary within seconds of the call ending, and records honestly whether each one was delivered</li>
+        <li>Every call recorded and playable in your portal, with CSV export of the lead record</li>
+        <li>Automatic quality review of any call where a caller used emergency language, or the agent claimed a booking it could not confirm</li>
+        <li>Scripted test callers run against your live agent before a phone number is ever pointed at it</li>
       </ul>
     </div>
     <p class="meta">Canadian dollars, plus applicable GST/HST. No minimum term: month to month from the first month, cancelled from your portal.
@@ -866,7 +864,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
    Every value shown comes from pricing-config.js, so a proposal can never
    quote a number the business has not approved.
    Params: ?to=Business+Name&plan=starter|growth|pro (legacy ids after-hours
-   and scale still resolve). An unknown id renders the recommended plan.
+   and scale still resolve). A bare link or an unknown id renders the
+   recommended plan, the AI Front Desk; until 2026-09-19 a bare link rendered
+   The Works while this line said otherwise (fix plan A29). ?date=YYYY-MM-DD
+   prints the day the proposal was prepared; without it no date is printed,
+   because the day a link is opened is not the day it was prepared.
    The &founding=1 parameter is retired and does nothing. It waived a setup fee
    during the period when setup was $0 for everyone; a first-month amount was
    restored on 2026-08-06 at C$250/C$500/C$1,000 and the waiver was not. Old
@@ -921,12 +923,27 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var to = recipient(q.get("to"));
     if (to) {
       set("preparedFor", "Prepared for " + to);
-      set("headline", "A front desk for " + to);
+      /* "A front desk for ..." led with the phone, while Nevamis leads with
+         Lead Generation (fix plan A29). The plan's heading is "Your Nevamis
+         proposal", which the static copy carries; with a recipient the name
+         stays in it, because tests/proposal.spec.js pins the name there. */
+      set("headline", "A Nevamis proposal for " + to);
       document.title = "Nevamis proposal · " + to;
     }
 
-    var when = new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" });
-    set("preparedMeta", "Prepared " + when + " by Daren, founder");
+    /* The date comes from ?date=YYYY-MM-DD or not at all. It used to be
+       new Date(), the moment the link was OPENED, so a proposal read a week
+       after the call claimed to have been prepared that morning. A value that
+       is not a real calendar date is ignored. */
+    var when = "";
+    var dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(clean(q.get("date"), 10));
+    if (dm) {
+      var dd = new Date(Date.UTC(+dm[1], +dm[2] - 1, +dm[3]));
+      if (dd.getUTCFullYear() === +dm[1] && dd.getUTCMonth() === +dm[2] - 1 && dd.getUTCDate() === +dm[3]) {
+        when = dd.toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+      }
+    }
+    set("preparedMeta", when ? "Prepared " + when + " by Daren, founder" : "Prepared by Daren, founder");
 
     /* Legacy ids from the retired ladder. A proposal link sent before
        2026-08-06 carries ?plan=after-hours or ?plan=scale. Without this map
@@ -935,7 +952,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        The engine has resolved these in resolvePlan() since the rename; this is
        the same map on the page a prospect actually opens. */
     var LEGACY = { "after-hours": "starter", "scale": "pro" };
-    var wanted = clean(q.get("plan"), 24).toLowerCase() || "growth";
+    var wanted = clean(q.get("plan"), 24).toLowerCase() || "pro";
     wanted = LEGACY[wanted] || wanted;
     var plan = (P.plans || []).filter(function (p) { return p.id === wanted; })[0];
     /* Pay As You Go was retired on 2026-08-06 and removed on 2026-08-07.
@@ -949,9 +966,37 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        noticed.
 
        An unrecognised plan id now falls through to the recommended plan,
-       which is what every other unknown value already did. */
+       which is what every other unknown value already did. It read
+       P.plans[1] until 2026-09-19, which is The Works since the display
+       order changed, so "the recommended plan" was a comment, not the code
+       (fix plan A29). */
     {
-      plan = plan || P.plans[1];
+      plan = plan || (P.plans || []).filter(function (p) { return p.recommended; })[0] || P.plans[0];
+      /* What we discussed, per plan. The static copy is the front desk
+         summary, which is right for the AI Front Desk and The Works. The
+         Performance Partnership is where Lead Generation is arranged, so its
+         proposal opens on that, and its steps start with the list. */
+      set("summaryLine", plan.id === "starter" ? "Lead Generation, by invitation. We read public pages and list businesses of exactly the kind you want more of, each with the page it came from. You decide every one, and nobody on it is contacted by us. It is arranged on the Performance Partnership below, which also answers your line around the clock."
+        : "Your line answered around the clock by a front desk configured around your hours, service area, job types and the rules you approve. It qualifies the caller, takes the job, the address and the time they want, and texts and emails you a summary of every call within seconds. Your phone number does not change.");
+      if (plan.id === "starter") {
+        var stepsEl = document.querySelector("ol.steps");
+        var LG_STEPS = [
+          ["Discovery.", "What you do, the areas you work, the kinds of business you want more of, and what you never want brought to you."],
+          ["The list.", "We read public pages and put together businesses of exactly that kind, each with the page it came from and the day it was read."],
+          ["Your call.", "You decide every one in your portal. Nobody on it is contacted by us."],
+          ["What came of it.", "You record what came of the ones you pursued, and your Results show it in your own words."]
+        ];
+        if (stepsEl) {
+          LG_STEPS.slice().reverse().forEach(function (st) {
+            var li = document.createElement("li");
+            var b = document.createElement("b");
+            b.textContent = st[0];
+            li.appendChild(b);
+            li.appendChild(document.createTextNode(" " + st[1]));
+            stepsEl.insertBefore(li, stepsEl.firstChild);
+          });
+        }
+      }
       set("planName", plan.name.toUpperCase() + (plan.recommended ? " · " + (P.recommendedLabel || "RECOMMENDED") : ""));
       /* THE QUOTED AMOUNT, or the published plan price. ?quote= carries a
          per-client figure where one was agreed and always wins. Since the
@@ -1004,20 +1049,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         : (P.publishedPricing
           ? money(plan.monthly) + "/month, charged the day you start and every month after."
           : "Your monthly amount is quoted per client, then it is charged the day you start and every month after."));
-      /* The term sentence reads pricing-config.js and states whichever term
-         is actually there. It said "no minimum term" until the v4 directive
-         of 2026-08-22 made that false; the owner reversed v4 on 2026-09-08
-         and `minimumMonths` is zero, so it says it again. The defaults below
-         are `== null` and not `||` on purpose: `(0 || 3)` is 3, and a `||`
-         default is how a zero term would have gone on printing "3-month
-         minimum to start" on the one document written to close a sale.
-
-         ONE figure, matching canonical. This read a pair of keys until
-         2026-09-08, and a pair is how a document states the absence of a term
-         in one clause and a length in the next from a config only half
-         corrected. There is one decision, so there is one number here. */
+      /* NO MINIMUM TERM, stated outright. It said "no minimum term" until
+         the v4 directive of 2026-08-22 made that false; the owner reversed v4
+         on 2026-09-08 and `minimumMonths` is zero. The branch that printed a
+         minimum length for a non-zero term was dead code carrying a retired
+         sentence, and it is deleted (fix plan A33, 2026-09-19). If a term
+         ever returns, the sentence below must change with it: it no longer
+         reads terms.minimumMonths. The defaults below are `== null` and not
+         `||` on purpose: `(0 || 30)` is 30. */
       var T = P.terms || {};
-      var mMin = T.minimumMonths == null ? 0 : T.minimumMonths;
       /* ZERO, not 30, since the owner directive of 2026-09-12 removed the
          notice period outright. The old default read a missing field as 30
          days, which is the identical trap the comment above describes for
@@ -1031,12 +1071,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       set("planTerms", "One-time " + money(plan.launch) + " Launch & Implementation to start."
         + (plan.performanceNote ? " " + plan.performanceNote : "")
         + " Overage past your included minutes is the only other usage billing."
-        + (mMin
-          ? " " + mMin + "-month minimum to start; the build takes days and you are live inside the first week, and the results show across the months after that."
-            + " After the minimum: month to month, cancelled " + mCancel + " from your own portal,"
-            + " with service running to the end of the month you already paid for."
-          : " There is no minimum term: month to month from the first month, cancel " + mCancel
-            + " from your own portal, with service running to the end of the month you already paid for.")
+        + " There is no minimum term: month to month from the first month, cancel " + mCancel
+        + " from your own portal, with service running to the end of the month you already paid for."
         + " Your price is locked for " + mLock + " months."
         + (plan.selfServe === false ? " This plan is offered by invitation and approval." : ""));
 

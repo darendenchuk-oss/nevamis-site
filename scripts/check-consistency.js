@@ -78,6 +78,11 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
      on Growth, which says the same useful thing and is true.
      Retire these the day there is a real distribution to describe. */
   /most (?:trades |clients |shops |people |businesses )?pick (?:this|it)/i,
+  /* The rule above only knew "pick", so "The start most businesses make" sat
+     on the AI Front Desk card, the pricing JSON-LD and the homepage Offers
+     for weeks while no business had made any start at all (fix plan A8,
+     2026-09-19). Same claim, other verbs. */
+  /\bmost (?:trades|clients|shops|people|businesses|owners) (?:make|choose|start|switch on|go with)\b/i,
   /← ?most\b/, /\bmost popular\b/i, /\bbest[- ]seller\b/i,
   /* "MOST COMMON" was the badge on the recommended plan, on the pricing page,
      the homepage, the staging twin, and the proposal sent to a named prospect.
@@ -85,6 +90,41 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
      the phrase was not in this list. It is plain text in the source, so the
      file-level scan sees it as soon as it is banned. */
   /\bmost common\b/i];
+
+/* KNOWN, OWNED AND NOT YET FIXED. When the popularity verbs above joined
+   `banned` (2026-09-19), five surfaces still carried the claim, and not one
+   of them can be corrected in the commit that added the rule: the homepage's
+   #doc PLANS line is generated from scripts/film/source.html, which the
+   homepage rewrite branch owns; the agent knowledge base and the demo prompt
+   are changed through the live-agent push flow; the cold-calling offer sheet
+   lives outside every repository. Failing on them would leave this command
+   red for work nobody here can do, and a command that is always red stops
+   being read.
+
+   So each entry exempts ONE exact sentence fragment in ONE file, and nothing
+   else: the same claim in any other words, or in any other file, still
+   fails. It is a ledger, not an allowlist. When an owner fixes a surface its
+   entry stops matching, and the run says so, so the entry can be deleted
+   rather than left to excuse the sentence if it ever comes back. */
+const BANNED_PENDING = [
+  { file: "home.html", text: "The start most businesses make", owner: "scripts/film/source.html:417, owned by the homepage rewrite (feat/hero-leadgen)" },
+  { file: "index.html", text: "The start most businesses make", owner: "promoted from home.html; follows scripts/film/source.html:417" },
+  { file: "config/elevenlabs/nevamis-knowledge-base.md", text: "The start most businesses make", owner: "the demo agent's knowledge base, changed with the live-agent push (fix plan A18)" },
+  { file: "../nevamis-engine/docs/agent-prompts/demo.md", text: "the start most businesses make", owner: "engine demo prompt, fix plan A18" },
+  { file: "../Desktop/Nevamis Cold Calling/OFFER-V4.md", text: "the start most shops make", owner: "the cold-calling offer sheet, outside every repository" },
+];
+const pendingHit = new Set();
+/* The text a `banned` rule is allowed to see: the file as written, minus the
+   exact pending fragments recorded for that file above. */
+const bannedView = (label, text) => {
+  let out = text;
+  for (const p of BANNED_PENDING) {
+    if (p.file !== label || !out.includes(p.text)) continue;
+    out = out.split(p.text).join(" ");
+    pendingHit.add(p);
+  }
+  return out;
+};
 let fail = 0;
 const err = (m) => { console.error("FAIL: " + m); fail++; };
 
@@ -164,7 +204,8 @@ for (const p of contentPages) {
     else if (!refCol) refCol = col;
     else if (col !== refCol) err(p + ": footer Site column differs");
   }
-  for (const b of banned) if (b.test(html)) err(p + ": banned phrase " + b);
+  const bannedHtml = bannedView(p, html);
+  for (const b of banned) if (b.test(bannedHtml)) err(p + ": banned phrase " + b);
   const emDashes = (html.match(/—/g) || []).length;
   if (emDashes > 0) err(p + ": contains " + emDashes + " em dash(es)");
   /* The canonical-pilot-naming rule stood here until 2026-08-09. It required a
@@ -221,8 +262,9 @@ for (const p of contentPages) {
     if (!fs.existsSync(file)) continue;
     const text = fs.readFileSync(file, "utf8");
     const label = path.relative(root, file).replace(/\\/g, "/");
+    const bannedText = bannedView(label, text);
     for (const b of banned) {
-      if (statesBanned(text, b)) err(label + ": banned phrase " + b + " (spoken or machine-read surface)");
+      if (statesBanned(bannedText, b)) err(label + ": banned phrase " + b + " (spoken or machine-read surface)");
     }
   }
 }
@@ -269,7 +311,10 @@ for (const p of contentPages) {
       let m, seen = 0;
       while ((m = re.exec(fbMatch[0])) !== null) {
         seen++;
-        const name = m[1].split("&mdash;")[0].trim();
+        /* "&middot;" since 2026-09-19 (fix plan A16): the fallback headings
+           moved off the em dash, which the site bans in rendered text. Both
+           separators are accepted so the heading still yields the plan name. */
+        const name = m[1].split(/&mdash;|&middot;/)[0].trim();
         const body = m[1] + " " + m[2];
         const plan = cfg.plans.find((p) => p.name === name);
         if (!plan) { err('pricing fallback: plan "' + name + '" not in pricing-config.js'); continue; }
@@ -494,6 +539,20 @@ for (const p of contentPages) {
             err('pricing.html #addOnList "' + a.name + '": one-time launch fee differs from pricing-config.js. '
               + 'expected "' + money(a.launch) + ' launch", page says "' + (launchOnPage ? launchOnPage[0] : "nothing") + '"');
           }
+          /* EVERY figure on the line, not only the first of each kind. Since
+             2026-09-19 (fix plan A16) each sellable line also states the
+             approved sentence, "C$750 Launch & Implementation to start, then
+             C$500 a month", so the monthly is written twice. The two matches
+             above read only the first occurrence, which would have left the
+             second copy free to drift while this guard stayed green. */
+          for (const x of li.matchAll(/C\$([\d,]+)(?:\/month\b|\s+a month\b)/gi)) {
+            if (num(x[1]) !== a.monthly) err('pricing.html #addOnList "' + a.name + '": states "' + x[0] + '" while pricing-config.js says '
+              + money(a.monthly) + " a month. Every monthly figure on the line must match the config.");
+          }
+          for (const x of li.matchAll(/C\$([\d,]+)\s+launch\b/gi)) {
+            if (num(x[1]) !== a.launch) err('pricing.html #addOnList "' + a.name + '": states "' + x[0] + '" while pricing-config.js says '
+              + money(a.launch) + " Launch & Implementation. Every launch figure on the line must match the config.");
+          }
         } else {
           /* A price is a price whatever unit follows it. The first version of
              this branch only knew "C$x/month", so "C$2,000 per campaign" --
@@ -514,6 +573,47 @@ for (const p of contentPages) {
             err('pricing.html #addOnList "' + a.name + '": carries a Buy control while pricing-config.js marks it sellable: false.');
           }
         }
+      }
+    }
+  }
+}
+
+/* 7i. THE PRICING PAGE'S SEARCH AND SHARE DESCRIPTIONS QUOTE PLAN PRICES.
+
+      The meta description and og:description are the first price a searcher
+      or a link preview reads, and until 2026-09-19 nothing compared them to
+      anything: a wrong figure there passed this file, the claims classifier
+      and the engine gate alike (proved by changing The Works' C$2,100 to
+      C$2,200 in the meta: every check stayed green). Fix plan A31 rewrote
+      both descriptions and kept their figures, so the figures are held to
+      pricing-config.js here, derived from the config and never typed.
+
+      Two rules. A plan named with a figure after it ("The Works at C$2,100")
+      must carry that plan's monthly. And any other C$ figure must be one the
+      config actually charges, so a stray retired or invented price fails
+      even where no plan name sits beside it. */
+{
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const cfg = w.NV_PRICING;
+  if (cfg && Array.isArray(cfg.plans)) {
+    const ph = fs.readFileSync(path.join(root, "pricing.html"), "utf8");
+    const num = (x) => Number(String(x).replace(/,/g, ""));
+    const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const charged = new Set(cfg.plans.flatMap((p) => [p.monthly, p.launch]));
+    for (const attr of ['name="description"', 'property="og:description"']) {
+      const m = ph.match(new RegExp("<meta " + attr + ' content="([^"]*)"'));
+      if (!m) { err("pricing.html: <meta " + attr + "> missing"); continue; }
+      const text = m[1].replace(/&amp;/g, "&");
+      for (const pl of cfg.plans) {
+        for (const x of text.matchAll(new RegExp(esc(pl.name) + "(?: at| is|:)? C\\$([\\d,]+)", "g"))) {
+          if (num(x[1]) !== pl.monthly) err("pricing.html <meta " + attr + '>: "' + x[0] + '" while pricing-config.js says '
+            + pl.name + " is C$" + pl.monthly.toLocaleString("en-CA") + " a month.");
+        }
+      }
+      for (const x of text.matchAll(/C\$([\d,]+)/g)) {
+        if (!charged.has(num(x[1]))) err("pricing.html <meta " + attr + ">: states " + x[0]
+          + ", which is no plan's monthly or Launch & Implementation fee in pricing-config.js.");
       }
     }
   }
@@ -694,8 +794,9 @@ for (const p of contentPages) {
 
   for (const f of published) {
     const html = fs.readFileSync(path.join(root, f), "utf8");
+    const bannedHtml = bannedView(f, html);
     for (const b of banned) {
-      if (b.test(html)) err(`${f}: banned phrase ${b} on a PUBLISHED page (serves 200 to anyone with the URL; noindex does not stop people or answer engines)`);
+      if (b.test(bannedHtml)) err(`${f}: banned phrase ${b} on a PUBLISHED page (serves 200 to anyone with the URL; noindex does not stop people or answer engines)`);
     }
   }
   if (published.length < contentPages.length) err(`only ${published.length} published pages found; expected at least the ${contentPages.length} content pages`);
@@ -1732,6 +1833,15 @@ for (const p of contentPages) {
       }
     }
   }
+}
+
+/* The BANNED_PENDING ledger reports on itself every run: what it is still
+   excusing and who owns the fix, and which entries have stopped matching and
+   should be deleted. Neither line fails the run; a new offender anywhere
+   else already has. */
+for (const p of BANNED_PENDING) {
+  if (pendingHit.has(p)) console.log(`PENDING: ${p.file} still says "${p.text}" (${p.owner}). Excused by BANNED_PENDING only for that exact text.`);
+  else if (fs.existsSync(path.join(root, p.file))) console.log(`NOTE: ${p.file} no longer says "${p.text}". Delete its BANNED_PENDING entry in scripts/check-consistency.js.`);
 }
 
 if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan.");
