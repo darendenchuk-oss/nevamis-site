@@ -98,10 +98,10 @@ window.NV_ROADMAP = {
       functions: ["Missed-call text back", "One text per missed call, ever", "Your identification and a working opt-out on every message", "Hands over the moment they reply or call back"],
       outcome: "Missed callers hear back before they ring the next company.", cta: "/pricing.html" },
     { slug: "automatic-lead-tracking", name: "Automatic Lead Tracking", pillar: "operate", status: "available", stage: "now",
-      desc: "Calls, messages, forms, appointments, and follow-ups become organized customer records, so owners can see which opportunities need attention.",
+      desc: "Each call, text and form becomes a lead with its source and a status, so you can see what is sitting untouched and what each source is actually producing.",
       problem: "Leads live in texts, notebooks, and memory. Nobody can see what is pending.",
-      functions: ["Contact creation and matching", "Lead-source capture", "Call summaries attached to records", "Stage and task tracking", "Stale-lead alerts"],
-      outcome: "Cleaner records, fewer forgotten opportunities, real visibility.", cta: "/pilot.html" },
+      functions: ["A lead for every call, text and form", "Lead-source capture", "Call summaries attached to each lead", "What is sitting untouched, shown plainly", "A count of what each source produces"],
+      outcome: "Nothing goes cold in a notebook.", cta: "/pilot.html" },
     /* AVAILABLE 2026-08-19. Since the ladder shipped on 2026-08-22 it is
        detection on the owner's own threshold plus THREE approved follow-ups
        per quiet quote: the day it goes stale, four days on and eleven days
