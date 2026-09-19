@@ -78,6 +78,11 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
      on Growth, which says the same useful thing and is true.
      Retire these the day there is a real distribution to describe. */
   /most (?:trades |clients |shops |people |businesses )?pick (?:this|it)/i,
+  /* The rule above only knew "pick", so "The start most businesses make" sat
+     on the AI Front Desk card, the pricing JSON-LD and the homepage Offers
+     for weeks while no business had made any start at all (fix plan A8,
+     2026-09-19). Same claim, other verbs. */
+  /\bmost (?:trades|clients|shops|people|businesses|owners) (?:make|choose|start|switch on|go with)\b/i,
   /← ?most\b/, /\bmost popular\b/i, /\bbest[- ]seller\b/i,
   /* "MOST COMMON" was the badge on the recommended plan, on the pricing page,
      the homepage, the staging twin, and the proposal sent to a named prospect.
@@ -85,6 +90,41 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
      the phrase was not in this list. It is plain text in the source, so the
      file-level scan sees it as soon as it is banned. */
   /\bmost common\b/i];
+
+/* KNOWN, OWNED AND NOT YET FIXED. When the popularity verbs above joined
+   `banned` (2026-09-19), five surfaces still carried the claim, and not one
+   of them can be corrected in the commit that added the rule: the homepage's
+   #doc PLANS line is generated from scripts/film/source.html, which the
+   homepage rewrite branch owns; the agent knowledge base and the demo prompt
+   are changed through the live-agent push flow; the cold-calling offer sheet
+   lives outside every repository. Failing on them would leave this command
+   red for work nobody here can do, and a command that is always red stops
+   being read.
+
+   So each entry exempts ONE exact sentence fragment in ONE file, and nothing
+   else: the same claim in any other words, or in any other file, still
+   fails. It is a ledger, not an allowlist. When an owner fixes a surface its
+   entry stops matching, and the run says so, so the entry can be deleted
+   rather than left to excuse the sentence if it ever comes back. */
+const BANNED_PENDING = [
+  { file: "home.html", text: "The start most businesses make", owner: "scripts/film/source.html:417, owned by the homepage rewrite (feat/hero-leadgen)" },
+  { file: "index.html", text: "The start most businesses make", owner: "promoted from home.html; follows scripts/film/source.html:417" },
+  { file: "config/elevenlabs/nevamis-knowledge-base.md", text: "The start most businesses make", owner: "the demo agent's knowledge base, changed with the live-agent push (fix plan A18)" },
+  { file: "../nevamis-engine/docs/agent-prompts/demo.md", text: "the start most businesses make", owner: "engine demo prompt, fix plan A18" },
+  { file: "../Desktop/Nevamis Cold Calling/OFFER-V4.md", text: "the start most shops make", owner: "the cold-calling offer sheet, outside every repository" },
+];
+const pendingHit = new Set();
+/* The text a `banned` rule is allowed to see: the file as written, minus the
+   exact pending fragments recorded for that file above. */
+const bannedView = (label, text) => {
+  let out = text;
+  for (const p of BANNED_PENDING) {
+    if (p.file !== label || !out.includes(p.text)) continue;
+    out = out.split(p.text).join(" ");
+    pendingHit.add(p);
+  }
+  return out;
+};
 let fail = 0;
 const err = (m) => { console.error("FAIL: " + m); fail++; };
 
@@ -164,7 +204,8 @@ for (const p of contentPages) {
     else if (!refCol) refCol = col;
     else if (col !== refCol) err(p + ": footer Site column differs");
   }
-  for (const b of banned) if (b.test(html)) err(p + ": banned phrase " + b);
+  const bannedHtml = bannedView(p, html);
+  for (const b of banned) if (b.test(bannedHtml)) err(p + ": banned phrase " + b);
   const emDashes = (html.match(/—/g) || []).length;
   if (emDashes > 0) err(p + ": contains " + emDashes + " em dash(es)");
   /* The canonical-pilot-naming rule stood here until 2026-08-09. It required a
@@ -221,8 +262,9 @@ for (const p of contentPages) {
     if (!fs.existsSync(file)) continue;
     const text = fs.readFileSync(file, "utf8");
     const label = path.relative(root, file).replace(/\\/g, "/");
+    const bannedText = bannedView(label, text);
     for (const b of banned) {
-      if (statesBanned(text, b)) err(label + ": banned phrase " + b + " (spoken or machine-read surface)");
+      if (statesBanned(bannedText, b)) err(label + ": banned phrase " + b + " (spoken or machine-read surface)");
     }
   }
 }
@@ -694,8 +736,9 @@ for (const p of contentPages) {
 
   for (const f of published) {
     const html = fs.readFileSync(path.join(root, f), "utf8");
+    const bannedHtml = bannedView(f, html);
     for (const b of banned) {
-      if (b.test(html)) err(`${f}: banned phrase ${b} on a PUBLISHED page (serves 200 to anyone with the URL; noindex does not stop people or answer engines)`);
+      if (b.test(bannedHtml)) err(`${f}: banned phrase ${b} on a PUBLISHED page (serves 200 to anyone with the URL; noindex does not stop people or answer engines)`);
     }
   }
   if (published.length < contentPages.length) err(`only ${published.length} published pages found; expected at least the ${contentPages.length} content pages`);
@@ -1732,6 +1775,15 @@ for (const p of contentPages) {
       }
     }
   }
+}
+
+/* The BANNED_PENDING ledger reports on itself every run: what it is still
+   excusing and who owns the fix, and which entries have stopped matching and
+   should be deleted. Neither line fails the run; a new offender anywhere
+   else already has. */
+for (const p of BANNED_PENDING) {
+  if (pendingHit.has(p)) console.log(`PENDING: ${p.file} still says "${p.text}" (${p.owner}). Excused by BANNED_PENDING only for that exact text.`);
+  else if (fs.existsSync(path.join(root, p.file))) console.log(`NOTE: ${p.file} no longer says "${p.text}". Delete its BANNED_PENDING entry in scripts/check-consistency.js.`);
 }
 
 if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan.");

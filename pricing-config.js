@@ -229,8 +229,9 @@
     },
     /* The badge on the recommended plan. It moved to the AI Front Desk on
        2026-08-22: The Works is the anchor a reader prices the ladder against,
-       and the Front Desk is the start most businesses actually make — the
-       checkout default reads the same record. */
+       and the Front Desk is the recommended start and the checkout default,
+       which reads the same record. It is a recommendation, never a claim about
+       what other businesses chose: there are no clients yet to count. */
     recommendedLabel: "RECOMMENDED",
     /* THE ADD-ON CATALOG, v4, with the 2026-09-08 directives applied: every
        automation is its own product and its own sale. `soldAlone: true` means
@@ -440,7 +441,7 @@
         callRange: "470 to 700 typical calls", overage: 0.75,
         selfServe: true,
         performanceNote: null,
-        bestFor: "The start most businesses make: the front desk answering every call, with each automation its own sale you can add whenever it earns its place.",
+        bestFor: "The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place.",
         features: [
           "One business phone line",
           "Automation add-ons available one at a time, each its own price and its own sale, on their own or beside this plan"
