@@ -138,9 +138,14 @@ window.NV_ROADMAP = {
     { slug: "business-knowledge-assistant", name: "Business Knowledge Assistant", pillar: "operate", status: "researching", stage: "future",
       desc: "Employees find approved procedures and company answers instantly instead of asking the same person again.",
       outcome: "Consistent answers, faster training." },
-    { slug: "revenue-clarity", name: "Revenue Clarity", pillar: "grow", status: "researching", stage: "future",
-      desc: "Lead sources, calls, quotes, completed work, and collected payments connected, so owners see what actually produces revenue.",
-      outcome: "Spending decisions backed by real numbers." },
+    /* The Revenue Engine under its own name and the canonical slug since
+       2026-09-19 (it was "Revenue Clarity"): ad attribution, which canonical
+       carries as private_pilot. "planned" says less than that, which is
+       allowed, and the engine gate logs it as a medium under-claim; it may
+       never say "pilot". Not "now" and not "available": nothing is sold. */
+    { slug: "revenue-engine", name: "Revenue Engine", pillar: "grow", status: "planned", stage: "future",
+      desc: "Is being built to tie each lead back to where it came from, down to the campaign, and follow it to a paid job, so you can see what to spend more on and what to stop.",
+      outcome: "Spending decisions backed by real numbers.", cta: "/revenue-engine.html" },
     { slug: "ai-growth-system", name: "Growth System", pillar: "grow", status: "researching", stage: "future",
       desc: "The long-term goal: conversion-focused web experiences, follow-up, reactivation, reviews, and attribution working as one connected growth system.",
       outcome: "One partner, one connected system, measurable growth." }
