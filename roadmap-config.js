@@ -26,7 +26,7 @@ window.NV_ROADMAP = {
   services: [
     { slug: "ai-front-desk", name: "AI Front Desk", pillar: "capture", status: "available", stage: "now",
       desc: "Answers your line 24/7, qualifies the caller, takes the job and the time they want, and sends you the details. You confirm the slot.",
-      outcome: "No more jobs lost to voicemail.", cta: "/pilot.html" },
+      outcome: "Calls you cannot take are answered instead of going to voicemail.", cta: "/pilot.html" },
     /* Described the way DC#54 (2026-09-18) requires: the public website only,
        and modelled ranges rather than measurements (engine scan/page.tsx).
        The leak promise that stood here is retired. ctaLabel names the path
@@ -96,7 +96,7 @@ window.NV_ROADMAP = {
       desc: "A caller you missed gets one text back while the job is still winnable: during business hours, on your say-so, with your business name on it.",
       problem: "Leads contact several companies. The fastest response usually wins the job.",
       functions: ["Missed-call text back", "One text per missed call, ever", "Your identification and a working opt-out on every message", "Hands over the moment they reply or call back"],
-      outcome: "Missed callers hear back before they ring the next company.", cta: "/pricing.html" },
+      outcome: "A missed caller hears from you while the job is still winnable.", cta: "/pricing.html" },
     { slug: "automatic-lead-tracking", name: "Automatic Lead Tracking", pillar: "operate", status: "available", stage: "now",
       desc: "Each call, text and form becomes a lead with its source and a status, so you can see what is sitting untouched and what each source is actually producing.",
       problem: "Leads live in texts, notebooks, and memory. Nobody can see what is pending.",
