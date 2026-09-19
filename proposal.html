@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-aQv1rM30crO/v86Yp8wQTu7MnxZ2NBWQrhI/jDgB3J0=' 'sha256-4tKNZiQa4lpmYpkvqwQxZzDQFmmznTbo0748xb30FeM='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-iRy388lorIEVn2N8NTYo8VDXstZQ2h25QOW/H0Rh1dw=' 'sha256-eTdU92+rWzhljNdvSsyhnRcsIhd7yjN3+2IW7ye/E4I='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -795,7 +795,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            shipped empty, and filling them 1.9s after first paint on a throttled
            phone was 0.060 of this page's 0.060 CLS: the whole of it, in one
            shift, on the one document written to close a sale. -->
-      <p class="plan-line" id="planIncludes">1400 included AI minutes per month, about 470 to 700 typical calls. Additional minutes C$0.75 each.</p>
+      <p class="plan-line" id="planIncludes">1,400 included AI minutes per month, about 470 to 700 typical calls. Additional minutes C$0.75 each.</p>
       <p class="plan-line" id="planMonthly">C$1,000/month, charged the day you start and every month after.</p>
       <p class="plan-line" id="planTerms">One-time C$1,500 Launch &amp; Implementation to start. Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.</p>
       <p class="plan-line" id="planAnnual"></p>
@@ -1030,7 +1030,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       } else {
         priceEl.textContent = "Quoted per client";
       }
-      set("planIncludes", plan.includedMinutes + " included AI minutes per month, about "
+      /* Grouped (A29): "1,400", not "1400". Every other four-figure number on
+         this page carries its separator, and a bare four digits in the middle
+         of a sentence reads like a typo on the one document a buyer keeps.
+         toLocaleString, not a hand-written string, so the number cannot drift
+         from pricing-config.js. */
+      set("planIncludes", Number(plan.includedMinutes).toLocaleString("en-CA")
+        + " included AI minutes per month, about "
         + plan.callRange + ". Additional minutes " + money(plan.overage) + " each.");
 
       /* Both figures, stated plainly with the rule joining them, never struck

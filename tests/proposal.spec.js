@@ -21,7 +21,12 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
      its separator. Deriving the expectation the same way keeps the test
      asserting "the config's number, as money" rather than a spelling. */
   await expect(page.locator('#planPrice')).toContainText('C$' + cfg.monthly.toLocaleString('en-CA'));
-  await expect(page.locator('#planIncludes')).toContainText(String(cfg.minutes));
+  /* Derived the same way as the price above, since 2026-09-19 (A29): the
+     minute count is rendered as money is, so String(cfg.minutes) pinned the
+     bare "1400" and would fail on the grouped figure the page now writes. The
+     expectation is still the config's number, only spelled as the page spells
+     it. A wrong number fails either way. */
+  await expect(page.locator('#planIncludes')).toContainText(cfg.minutes.toLocaleString('en-CA'));
 
   /* The proposal is emailed to a named prospect, so this line is the one that
      gets forwarded to whoever signs the cheque. It must state ONE number.

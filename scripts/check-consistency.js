@@ -695,9 +695,19 @@ for (const p of contentPages) {
   const money = (n) => "C$" + (Number.isInteger(Number(n)) ? Number(n).toLocaleString("en-CA")
     : Number(n).toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
+  /* `expected` may be an ARRAY of acceptable spellings, since 2026-09-19.
+     #planIncludes writes its minute count as money does on every other line of
+     this page ("1,400"), and the single pinned string here was the bare "1400",
+     so the guard was a contract for the ungrouped spelling: A29's grouping
+     could not land without going red. The guard has no opinion about a
+     thousands separator; it has one about the NUMBER, and a wrong number still
+     fails against every spelling in the list. The first entry is the preferred
+     one and is what the failure message quotes. */
   const eq = (where, id, actual, expected) => {
+    const accepted = Array.isArray(expected) ? expected : [expected];
     if (actual === null) return err(where + ": #" + id + " not found (pre-rendered copy is required, not optional)");
-    if (actual !== expected) err(where + ": #" + id + ' drifted from pricing-config.js\n      page:   "' + actual + '"\n      config: "' + expected + '"');
+    if (!accepted.includes(actual)) err(where + ": #" + id + ' drifted from pricing-config.js\n      page:   "' + actual + '"\n      config: "' + accepted[0] + '"'
+      + (accepted.length > 1 ? '\n      (or:    "' + accepted.slice(1).join('" / "') + '")' : ""));
   };
 
   /* The pilot record was DELETED from pricing-config.js on 2026-08-09, so the
@@ -765,8 +775,14 @@ for (const p of contentPages) {
         : "Your monthly amount is quoted per client, then it is charged the day you start and every month after.");
     eq("proposal.html", "planTerms", flat(textOf(pr, "planTerms")), PLAN_TERMS);
     eq("proposal.html", "planName", flat(textOf(pr, "planName")), dflt.name.toUpperCase());
-    eq("proposal.html", "planIncludes", flat(textOf(pr, "planIncludes")),
-      dflt.includedMinutes + " included AI minutes per month, about " + dflt.callRange + ". Additional minutes " + money(dflt.overage) + " each.");
+    /* Grouped first, bare second: both are dflt.includedMinutes, and the page
+       renders the grouped one (A29). See the note on eq(). */
+    const includesLine = (mins) => mins + " included AI minutes per month, about "
+      + dflt.callRange + ". Additional minutes " + money(dflt.overage) + " each.";
+    eq("proposal.html", "planIncludes", flat(textOf(pr, "planIncludes")), [
+      includesLine(Number(dflt.includedMinutes).toLocaleString("en-CA")),
+      includesLine(String(dflt.includedMinutes)),
+    ]);
     const feats = items(textOf(pr, "planFeatures"));
     if (!feats) err("proposal.html: #planFeatures not found");
     else if (feats.join(" | ") !== dflt.features.slice(0, 9).join(" | "))
