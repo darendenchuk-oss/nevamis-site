@@ -683,6 +683,9 @@ table.compare{width:100%;border-collapse:collapse;min-width:640px;font-size:14.5
 .compare td.part{color:var(--warm)}
 .compare tbody tr{transition:background .2s var(--e-out)}
 .compare tbody tr:hover{background:rgba(159,240,206,.03)}
+/* On a phone the 640px floor made the table 652px wide inside a 348px column,
+   so every comparison needed a sideways scroll. Below 700px it fits instead. */
+@media (max-width:700px){table.compare{min-width:0;font-size:13px}.compare th,.compare td{padding:10px 6px}.compare thead th{letter-spacing:.06em}}
 
 /* ---------- pricing preview cards ---------- */
 .price-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
