@@ -3,7 +3,39 @@
    the product genuinely does these things, and nothing invents a client,
    a statistic, or a result. */
 
+import fs from 'node:fs';
+import path from 'node:path';
+import vm from 'node:vm';
+import { fileURLToPath } from 'node:url';
+
 const DEMO = '(587)&nbsp;413-0035';
+
+/* PRICES ARE READ, NEVER TYPED. pricing-config.js is the single source of
+   truth for every figure (its own header says "do not duplicate these values
+   in HTML, render from here"), and no guard compares a C$ figure on these nine
+   pages with it: guards 7c and 7d catch retired figures and retired shapes,
+   not a wrong current one. So the few figures these pages quote are read from
+   the config the same way build-schema.mjs reads it, and the build refuses to
+   run rather than print a figure it could not find. Added 2026-09-19 with the
+   Missed-Call Recovery card and the answering-service cost row (fix plan A25,
+   A27). */
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const cfgSandbox = { window: {} };
+vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'pricing-config.js'), 'utf8'), cfgSandbox);
+const NV = cfgSandbox.window.NV_PRICING || {};
+const MISSED_CALL = (NV.addOns || []).find((a) => a.id === 'missed_call_recovery');
+const FRONT_DESK = (NV.plans || []).find((p) => p.id === 'pro');
+if (!MISSED_CALL || !MISSED_CALL.sellable || !(MISSED_CALL.launch > 0) || !(MISSED_CALL.monthly > 0)) {
+  throw new Error('pages.mjs: pricing-config.js has no sellable missed_call_recovery add-on with a launch and a monthly; refusing to print its price.');
+}
+if (!FRONT_DESK || !(FRONT_DESK.includedMinutes > 0) || !(FRONT_DESK.overage > 0)) {
+  throw new Error('pages.mjs: pricing-config.js has no "pro" plan with included minutes and an overage rate; refusing to print them.');
+}
+/** C$500, C$1,500, C$0.75: whole dollars bare, cents to two places. */
+const cad = (n) => 'C$' + n.toLocaleString('en-US', {
+  minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2,
+});
+const count = (n) => n.toLocaleString('en-US');
 
 /** The platform paragraph that sits under the hero CTAs on the four trade
     pages. It lived only in the generated HTML until 2026-08-27, so any run of
@@ -261,9 +293,11 @@ export const PAGES = {
     <div class="section-head reveal">
       <p class="eyebrow mono">Do the arithmetic</p>
       <h2>Use your own numbers, not an industry average.</h2>
-      <p>The calculator on the home page uses four inputs you already know: how many calls you
+      <p>The calculator on the home page asks for numbers you already know: how many calls you
         miss in a week, how many of those were real opportunities, what an average job is worth,
-        and how often you close one. Nothing is assumed for you and the formula is shown.</p>
+        and how often you close one. It starts from example figures, so replace them with your
+        own. The formula is shown, and it assumes half of the calls that would have gone to
+        voicemail are caught.</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-primary" href="/#roi" data-evt="situation_roi_click">Open the missed-call calculator</a>
@@ -283,9 +317,14 @@ export const PAGES = {
       <div class="reveal"><h3>On the tools</h3><p>You cannot answer mid-job. Overflow coverage
         picks up only when you do not.</p></div>
       <div class="reveal"><h3>Already on a call</h3><p>A busy signal is a lost caller. Overflow
-        answers the second line instead of dropping it.</p></div>
+        coverage answers the next caller when you are already on the phone.</p></div>
       <div class="reveal"><h3>Nobody in the office</h3><p>Full-time front line answers everything
         and flags the calls that genuinely need a person.</p></div>
+      <div class="reveal"><h3>When you missed it anyway</h3><p>${MISSED_CALL.name} texts a caller
+        you missed, once, during business hours, with your business name on it and a working
+        opt-out, on your written go-ahead. It hands over the moment they reply. On its own it is
+        ${cad(MISSED_CALL.launch)} Launch &amp; Implementation to start, then ${cad(MISSED_CALL.monthly)} a month,
+        plus applicable GST/HST.</p></div>
     </div>
   </div>
 </section>`,
