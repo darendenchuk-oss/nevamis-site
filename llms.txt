@@ -186,14 +186,16 @@ automotive and other trades. Trades first, Canada-wide, Edmonton-based.
   service. The automated search is not switched on. There is no
   pilot and no trial: the words for this state are "by invitation" and
   "private testing".
-- IN DEVELOPMENT OR PLANNED, and never to be described as currently
-  available: direct calendar booking, lead generation (which stays on this
-  list: the invitation-only note above narrows how it is offered, it does
-  not make it generally available or something a business can buy), any
-  CRM or ads integration, multi-location or multi-department routing, more
-  than one number per business, transcripts in the portal, win-back
-  reactivation campaigns, cold outbound calling or messaging of any kind,
-  and the wider "Revenue Engine" attribution product.
+- NOT OFFERED today, and not on the published roadmap: booking into a
+  calendar, live call transfer, any CRM, ads or software integration,
+  multi-location or multi-department routing, more than one number per
+  business, transcripts in the portal, and outbound calling or messaging
+  of any kind (nobody on a Lead Generation list is ever contacted by
+  Nevamis).
+- IN DEVELOPMENT OR BEING RESEARCHED, and never to be described as
+  available: the Revenue Engine attribution product, the Inbox Assistant
+  and Customer Reactivation campaigns. Search Rankings is listed as
+  coming, and nothing is built for it yet.
 
 ## Pages
 
