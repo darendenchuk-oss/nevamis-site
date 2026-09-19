@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-g9p11Res0769gA+n/doShxrLYzC/3ZjPjRzkxeHjrkM=' 'sha256-BGhtGsFwpTccbqhEgN4IQNI3F+2zMaJEyTvP9lezU1g='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-yolmZ/0rMNKsOM5YIGXOLvBVMzcbJMWT/D0051NHeMc=' 'sha256-4UWhtk0LP0d60X7L1K4R36tnyPTuV0TBmaqXRlyeG7E='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1101,10 +1101,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="glow" style="width:600px;height:400px;left:50%;top:-140px;transform:translateX(-50%);opacity:.55" aria-hidden="true"></div>
     <div class="wrap">
       <p class="eyebrow mono reveal">Available today</p>
-      <h2 class="reveal">The starting point is live right now.</h2>
-      <p class="reveal">The loop already runs: the scan reads your business today, and the front desk answers today. Hear it answer, or let it look at your business first.</p>
+      <h2 class="reveal">Start with a short call.</h2>
+      <p class="reveal">Lead Generation is by invitation, and a short call is where it starts. Everything marked AVAILABLE NOW has a published price, and you can hear the front desk answer right now.</p>
       <div class="cta-row reveal" style="justify-content:center">
-        <a class="btn btn-primary btn-lg" href="/pilot.html" data-evt="roadmap_front_desk_cta_clicked">See how you start</a>
+        <a class="btn btn-primary btn-lg" href="/book.html#pick-a-time" data-evt="hero_book_call_click">Book a call</a>
         <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer · (587) 413-0035</a>
       </div>
     </div>
@@ -1207,9 +1207,12 @@ document.addEventListener("DOMContentLoaded", function () {
          this one never was, so the roadmap could report demand for products
          that do not exist yet and not report anyone choosing the one that
          does. No listener needed: site.js delegates every [data-evt] click. */
-      ? '<a class="btn btn-primary" data-evt="roadmap_service_start_clicked_' + s.slug.replace(/-/g, "_") + '" style="align-self:flex-start;font-size:14px;padding:10px 18px" href="' + startCta + '">Start here</a>'
+      ? '<a class="btn btn-primary" data-evt="roadmap_service_start_clicked_' + s.slug.replace(/-/g, "_") + '" style="align-self:flex-start;font-size:14px;padding:10px 18px" href="' + startCta + '"></a>'
       : '<button class="interest" data-svc="' + s.slug + '" data-name="' + s.name + '">Tell us this would help</button>';
     d.innerHTML = h;
+    /* The label is the entry's own ctaLabel ("Scan my website" on the scan),
+       else "Start here". Set as text like every other field on the card. */
+    if (startCta) d.querySelector("a.btn").textContent = s.ctaLabel || "Start here";
     d.querySelector(".status").textContent = statusLabel[s.status] || s.status;
     d.querySelector("h3").textContent = s.name;
     d.querySelector(".desc").textContent = s.desc;

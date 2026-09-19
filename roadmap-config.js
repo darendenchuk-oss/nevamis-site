@@ -27,9 +27,13 @@ window.NV_ROADMAP = {
     { slug: "ai-front-desk", name: "AI Front Desk", pillar: "capture", status: "available", stage: "now",
       desc: "Answers your line 24/7, qualifies the caller, takes the job and the time they want, and sends you the details. You confirm the slot.",
       outcome: "No more jobs lost to voicemail.", cta: "/pilot.html" },
+    /* Described the way DC#54 (2026-09-18) requires: the public website only,
+       and modelled ranges rather than measurements (engine scan/page.tsx).
+       The leak promise that stood here is retired. ctaLabel names the path
+       "Scan my website"; coming-soon.html falls back to "Start here". */
     { slug: "pulse-scan", name: "PULSE Business Scan", pillar: "grow", status: "available", stage: "now",
-      desc: "Looks at your business from the outside and tells you where the money is leaking, with what it is basing that on. Every figure is a range with a confidence level, and feeding it your real numbers sharpens all of them.",
-      outcome: "You see the leaks before you pay to fix any of them.", cta: "https://app.nevamis.ca/scan" },
+      desc: "Reads only what is public on your own website and shows what it found, quoted from your own pages. Where it puts a figure on something, that figure is a modelled range from public information and market benchmarks, not a measurement of your results. Adding your real numbers sharpens it.",
+      outcome: "A free, plain read of your website before you talk to anyone.", cta: "https://app.nevamis.ca/scan", ctaLabel: "Scan my website" },
     /* ONE PATH since 2026-09-12, mirroring canonical.ts: the businesses that
        fit what the client does, found for them. TWO PATHS was the shape from
        2026-08-19 until the owner re-scoped the product: bid and tender work is
