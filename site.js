@@ -427,8 +427,11 @@
     var timer = document.getElementById("callTimer");
     var waveC = document.getElementById("callWave");
     var lines = Array.prototype.slice.call(card.querySelectorAll(".line[data-audio]"));
-    /* Measured durations of assets/call-0..10.mp3 (ffprobe, 2026-07-27). */
-    var durs = [3.9, 5.2, 3.2, 1.3, 11.3, 1.3, 2.2, 1.3, 5.5, 1.0, 2.4];
+    /* Measured durations (ffprobe, 2026-07-27) of the turns a page plays, in
+       order: call-0..7, call-9, call-10. call-8 has no line on any page, so
+       its 5.5s is not in this list: it shifted every later turn and added six
+       seconds to a total nobody heard. */
+    var durs = [3.9, 5.2, 3.2, 1.3, 11.3, 1.3, 2.2, 1.3, 1.0, 2.4];
     var totalDur = durs.reduce(function (a, b) { return a + b; }, 0);
     var audio = new Audio();
     var idx = -1, playing = false;
@@ -462,7 +465,7 @@
     function resetPlayer() {
       playing = false; idx = -1; audio.pause();
       card.classList.remove("playing"); clearHl();
-      if (label) label.textContent = "Hear a 39-second call";
+      if (label) label.textContent = "Hear a 33-second call";
       drawWave();
     }
     function playNext() {
