@@ -77,10 +77,15 @@ window.NV_ROADMAP = {
        own: the site may say less than canonical, never more. Raising this
        above canonical is not a change that starts here. Stage is "next" and
        not "now": "now" is the shelf marked LIVE TODAY, and it is also the
-       engine guard's definition of a public claim to be ready now. */
+       engine guard's definition of a public claim to be ready now.
+
+       Its one action is Book a call (DC#54: "a short call is where it
+       starts"). coming-soon.html renders a private_pilot entry's cta as
+       that button, tracked as hero_book_call_click, never as a "Start here"
+       start action, and keeps it out of the interest form. */
     { slug: "lead-generation", name: "Lead Generation", pillar: "grow", status: "private_pilot", stage: "next",
       desc: "Offered by invitation to a few businesses, under their own agreement, and done by hand. A person here reads public pages and builds you a list of the businesses that need what you do, with the page each row came from and the day it was read, so you can check any of it yourself. Each row is scored against what you told us you want, in words. You decide which rows are worth anything, nobody on the list is contacted by us, and what you tell us came of the ones you pursued is what your Results show.",
-      outcome: "A call list you approved yourself, on businesses that fit the work you want." },
+      outcome: "A call list you approved yourself, on businesses that fit the work you want.", ctaLabel: "Book a call", cta: "/book.html#pick-a-time" },
     /* AVAILABLE 2026-08-19, and the claims shrank to the shipped truth
        (mirror of canonical.ts): one text per missed call, ever, with the
        business's name on it and a working opt-out — not a retry sequence,

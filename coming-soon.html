@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-yolmZ/0rMNKsOM5YIGXOLvBVMzcbJMWT/D0051NHeMc=' 'sha256-4UWhtk0LP0d60X7L1K4R36tnyPTuV0TBmaqXRlyeG7E='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-DU06vMOIqFSltuThwVGoRV1z2dJdhvVhI3BkMFhpzKg=' 'sha256-TsmNs0WjDJs92aO6LAZlu4tXKlViVoppRX8S8TgR92c='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -901,7 +901,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "name": "How will future pricing work?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Future pricing is not set. Each service will get clear pricing before it launches, the same way the current plans are published."
+          "text": "Nothing planned on this page has a price yet. Each one gets a published price before it launches, the same way the live services are priced today. Lead Generation is different: it is by invitation and arranged on a call."
         }
       },
       {
@@ -959,13 +959,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="glow" style="width:600px;height:380px;right:-140px;top:-80px" aria-hidden="true"></div>
     <div class="wrap" style="max-width:880px">
       <div>
-        <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>What we are building</p>
-        <h1 style="font-size:clamp(38px,5.6vw,68px)">The front desk is only the beginning.</h1>
-        <p class="lede">Nevamis is building a connected set of systems that help service businesses capture more opportunities, follow up faster, reduce repetitive office work, and understand what is actually producing revenue.</p>
+        <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>Roadmap</p>
+        <h1 style="font-size:clamp(38px,5.6vw,68px)">What is live today, and what comes next.</h1>
+        <p class="lede">Lead Generation is offered by invitation, and a short call is where it starts. Quote recovery, missed-call recovery and a front desk that answers your line are live today. Below is everything at its true status, and what we are building after it.</p>
         <div class="cta-row">
-          <a class="btn btn-primary btn-lg" href="#interest" data-evt="roadmap_service_interest_clicked">Tell us what would help your business</a>
-          <a class="btn btn-ghost btn-lg" href="/revenue-engine.html" data-evt="roadmap_service_interest_clicked">See the Revenue Engine</a>
-          <a class="btn btn-ghost btn-lg" href="/pricing.html" data-evt="roadmap_front_desk_cta_clicked">Start with the front desk</a>
+          <a class="btn btn-primary btn-lg" href="/book.html#pick-a-time" data-evt="hero_book_call_click">Book a call</a>
+          <a class="btn btn-ghost btn-lg" href="/pricing.html">See what it costs</a>
+          <a class="btn btn-ghost btn-lg" href="#interest" data-evt="roadmap_service_interest_clicked">Tell us what would help your business</a>
         </div>
       </div>
     </div>
@@ -975,11 +975,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap">
       <p class="truth reveal" id="truthStatement">Services marked AVAILABLE NOW are live today, described exactly as narrowly as they work. Lead Generation is offered by invitation. The rest are planned or being researched.</p>
 
+      <h2 class="stage-band reveal">BY INVITATION · A SHORT CALL IS WHERE IT STARTS</h2>
+      <div class="svc-grid" id="gridNext"></div>
+
       <h2 class="stage-band reveal">NOW · LIVE TODAY</h2>
       <div class="svc-grid" id="gridNow"></div>
-
-      <h2 class="stage-band reveal">NEXT · THE CLOSEST ADDITIONS</h2>
-      <div class="svc-grid" id="gridNext"></div>
 
       <h2 class="stage-band reveal">FUTURE · THE DIRECTION</h2>
       <div class="svc-grid" id="gridFuture"></div>
@@ -1035,7 +1035,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <li><strong>The open estimate gets approved follow-up</strong> the day it goes quiet, four days on and eleven days on. (Live today.)</li>
         <li><strong>The finished job gets one review request</strong> by text, released by a person. (Live today.)</li>
         <li><strong>A maintenance reminder becomes eligible</strong> next season. (Being researched.)</li>
-        <li><strong>Collected revenue is linked back</strong> to that original 9 PM call. (In development.)</li>
+        <li><strong>Collected revenue is linked back</strong> to that original 9 PM call. (<a href="/revenue-engine.html">In development</a>.)</li>
       </ol>
     </div>
   </section>
@@ -1125,7 +1125,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <details><summary>Will this replace my employees?</summary><p>The goal is to remove repetitive phone and office work, not people. Humans stay in charge of judgment calls, pricing, and anything unusual.</p></details>
       <details><summary>Can I help test something early?</summary><p>Maybe. Use the interest form and tell us your biggest problem. If your business fits an early test of something on this page, we will contact you directly. That is unpaid development testing of an unreleased service, not a trial of the live front desk, which is sold on a normal monthly plan.</p></details>
       <details><summary>Does submitting interest lock me into anything?</summary><p>No. It is feedback that shapes what we build, nothing more.</p></details>
-      <details><summary>How will future pricing work?</summary><p>Future pricing is not set. Each service will get clear pricing before it launches, the same way the current plans are published.</p></details>
+      <details><summary>How will future pricing work?</summary><p>Nothing planned on this page has a price yet. Each one gets a published price before it launches, the same way the live services are priced today. Lead Generation is different: it is by invitation and arranged on a call.</p></details>
       <details><summary>Can I suggest a different workflow?</summary><p>Yes, please do. The form has a free-text field for exactly that, and the best suggestions shape the roadmap.</p></details>
       <details><summary>How will Nevamis know a service is working?</summary><p>Each service has a defined success metric before it launches, like response time for follow-up or recovered revenue for quotes, measured against your baseline.</p></details>
     </div>
@@ -1202,17 +1202,27 @@ document.addEventListener("DOMContentLoaded", function () {
        that forgets its cta now degrades to the interest button, which is wrong
        but harmless, instead of shipping a dead link. */
     var startCta = s.status === "available" && typeof s.cta === "string" && s.cta.trim() ? s.cta.trim() : null;
+    /* A BY INVITATION entry is not started from a card: its action, when it
+       has one, is a short call. It renders as a Book a call button counted as
+       hero_book_call_click like every other Book a call on the site, never as
+       a roadmap_service_start_clicked_* start, which tests/roadmap-start.spec.js
+       counts against the AVAILABLE NOW cards only. */
+    var inviteCta = !startCta && s.status === "private_pilot" && typeof s.cta === "string" && s.cta.trim() ? s.cta.trim() : null;
     h += startCta
       /* The interest branch below has been counted since this page shipped and
          this one never was, so the roadmap could report demand for products
          that do not exist yet and not report anyone choosing the one that
          does. No listener needed: site.js delegates every [data-evt] click. */
       ? '<a class="btn btn-primary" data-evt="roadmap_service_start_clicked_' + s.slug.replace(/-/g, "_") + '" style="align-self:flex-start;font-size:14px;padding:10px 18px" href="' + startCta + '"></a>'
-      : '<button class="interest" data-svc="' + s.slug + '" data-name="' + s.name + '">Tell us this would help</button>';
+      : inviteCta
+        ? '<a class="btn btn-primary" data-evt="hero_book_call_click" style="align-self:flex-start;font-size:14px;padding:10px 18px" href="' + inviteCta + '"></a>'
+        : '<button class="interest" data-svc="' + s.slug + '" data-name="' + s.name + '">Tell us this would help</button>';
     d.innerHTML = h;
     /* The label is the entry's own ctaLabel ("Scan my website" on the scan),
-       else "Start here". Set as text like every other field on the card. */
+       else "Start here" (or "Book a call" for an invitation). Set as text like
+       every other field on the card. */
     if (startCta) d.querySelector("a.btn").textContent = s.ctaLabel || "Start here";
+    if (inviteCta) d.querySelector("a.btn").textContent = s.ctaLabel || "Book a call";
     d.querySelector(".status").textContent = statusLabel[s.status] || s.status;
     d.querySelector("h3").textContent = s.name;
     d.querySelector(".desc").textContent = s.desc;
@@ -1220,9 +1230,11 @@ document.addEventListener("DOMContentLoaded", function () {
     d.querySelector(".outcome").textContent = s.outcome || "";
     g.appendChild(d);
   });
-  /* service checkboxes in the form */
+  /* service checkboxes in the form. Only what is still to be decided: a live
+     service is bought, and a by-invitation one starts with a call, so neither
+     belongs in "help us decide what to build". */
   var checks = document.getElementById("svcChecks");
-  R.services.filter(function (s) { return s.status !== "available"; }).forEach(function (s) {
+  R.services.filter(function (s) { return s.status === "planned" || s.status === "researching" || s.status === "paused"; }).forEach(function (s) {
     var l = document.createElement("label");
     var c = document.createElement("input");
     c.type = "checkbox"; c.value = s.name; c.setAttribute("data-slug", s.slug);
