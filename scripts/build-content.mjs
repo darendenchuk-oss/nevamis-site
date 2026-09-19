@@ -243,7 +243,7 @@ const hubHtml =
       <p class="lede">Nevamis does three things. Lead Generation, offered by invitation, finds businesses of the kind you want more of. Quote Recovery follows up the quotes you already sent. The AI Front Desk answers the calls you cannot. The pages by trade and by situation below start at the phone.</p>
       <div class="cta">
         <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer &nbsp;›</a>
-        <a class="btn btn-ghost btn-lg" href="https://app.nevamis.ca/scan" data-evt="solutions_hero_scan_click">Scan my business website</a>
+        <a class="btn btn-ghost btn-lg" href="https://app.nevamis.ca/scan" data-evt="solutions_hero_scan_click">Scan my website</a>
       </div>
     </div>
   </section>

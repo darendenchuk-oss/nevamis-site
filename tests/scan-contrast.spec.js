@@ -34,7 +34,15 @@ const VIEWPORTS = [
   { name: 'phone', width: 390, height: 844 },
   { name: 'desktop', width: 1440, height: 900 },
 ];
-const SCAN = /scan my business/i;
+/* BOTH LABELS, since 2026-09-19. The homepage says "Scan my business" and the
+   film's exit flourish keys on that exact text (assets/film/film-2.js:2766);
+   everywhere off the homepage the control says "Scan my website", because that
+   is what the scan reads and what DC#54 named the path (fix plan A12). This
+   regex matching only the homepage spelling is the reason the solutions hero
+   button kept the old label: renaming it would have made this spec find no
+   control at all and pass vacuously on the page it was written for. It now
+   grades whatever the page calls the scan. */
+const SCAN = /scan my (business|website)/i;
 
 /* Production safety: nothing here may reach the real app or the voice widget. */
 async function contain(context) {
@@ -221,14 +229,26 @@ async function check(page, decoder, sel, label, frames) {
   return bad;
 }
 
-async function tagScanLinks(page) {
-  return page.evaluate((src) => {
+/* `root` narrows the sweep to one part of the page. The homepage passes none
+   and grades every placement. The solutions sweep passes its hero, because the
+   hero is what this spec is about there: a ghost button over the animated
+   aurora, whose border once fell to 1.94:1. Widening SCAN to "scan my website"
+   also matched the outcome card lower down the page, and a card in
+   `.related` is not a control with a ring: its surface tint measures 1.2:1
+   against the page by design, the same as the three cards beside it, so
+   grading it here would fail four identical cards on every page of the site
+   over a design nobody has changed. If the card's contrast is a question, it
+   is a question about `.related`, not about the scan. */
+async function tagScanLinks(page, root) {
+  return page.evaluate(({ src, root }) => {
     const re = new RegExp(src, 'i');
-    return [...document.querySelectorAll('a')].filter((a) => re.test(a.textContent || '')).map((a, i) => {
+    const scope = root ? document.querySelector(root) : document;
+    if (!scope) throw new Error('scan sweep root not found: ' + root);
+    return [...scope.querySelectorAll('a')].filter((a) => re.test(a.textContent || '')).map((a, i) => {
       a.setAttribute('data-scan-probe', String(i));
       return { sel: `[data-scan-probe="${i}"]`, inClose: !!a.closest('#close'), where: `${(a.closest('[id]') || {}).id || '?'} a.${String(a.className).trim().split(/\s+/).join('.')}` };
     });
-  }, SCAN.source);
+  }, { src: SCAN.source, root: root || null });
 }
 
 for (const vp of VIEWPORTS) {
@@ -264,14 +284,14 @@ for (const vp of VIEWPORTS) {
     await context.close();
   });
 
-  test(`"Scan my business" over the aurora on solutions.html is readable (${vp.name})`, async ({ browser }) => {
+  test(`the scan control over the aurora on solutions.html is readable (${vp.name})`, async ({ browser }) => {
     test.setTimeout(120_000);
     const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
     await contain(context);
     const decoder = await context.newPage();
     const page = await context.newPage();
     await page.goto('/solutions.html');
-    const links = await tagScanLinks(page);
+    const links = await tagScanLinks(page, '.page-hero');
     expect(links.length, 'the hub hero offers the scan').toBeGreaterThanOrEqual(1);
     const failures = [];
     for (const l of links) {
@@ -280,7 +300,7 @@ for (const vp of VIEWPORTS) {
       await page.waitForTimeout(1500);   // let the aurora reach its resting drift
       failures.push(...await check(page, decoder, l.sel, l.where, 5));
     }
-    expect(failures, `unreadable "Scan my business" controls at ${vp.width}x${vp.height}:\n${failures.join('\n')}`).toEqual([]);
+    expect(failures, `unreadable scan controls at ${vp.width}x${vp.height}:\n${failures.join('\n')}`).toEqual([]);
     await context.close();
   });
 }
