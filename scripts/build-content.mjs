@@ -277,7 +277,7 @@ const hubHtml =
       </div>
       <div class="related reveal">
         <a href="/book.html" data-evt="solutions_leadgen_click"><strong>Lead Generation (by invitation)</strong><span>Offered by invitation, under your own agreement, and put together by hand. A person here reads public pages and builds you a list of the businesses that fit the work you want, with the page each row came from and the day it was read. You decide every row, and nobody on the list is contacted by us.</span></a>
-        <a href="/pricing.html" data-evt="solutions_recovery_click"><strong>Quote Recovery</strong><span>The quotes you already sent, followed up once when they go quiet, with your name on the email and your approval before it goes.</span></a>
+        <a href="/pricing.html" data-evt="solutions_recovery_click"><strong>Quote Recovery</strong><span>The quotes you sent and never heard back about, followed up for you: the day a quote goes quiet, again four days on, and again eleven days on. Each email carries your name and needs your approval before it goes. On the pricing page it is the Quote-Chase Engine.</span></a>
         <a href="/missed-calls.html"><strong>The AI Front Desk</strong><span>Missed calls are the loudest leak: what one actually costs, and how the front desk catches it.</span></a>
         <a href="https://app.nevamis.ca/scan" data-evt="solutions_scan_click"><strong>Free Business Scan</strong><span>PULSE reads what is public about your business and prices what it finds. No email required, results in about a minute.</span></a>
       </div>
