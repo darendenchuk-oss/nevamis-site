@@ -439,9 +439,8 @@ span.eyebrow{display:flex;width:fit-content}
    decoration with no homepage counterpart. The elements themselves come out
    of the markup page by page; this stops them painting in the meantime. */
 .glow{display:none}
-section>.wrap{position:relative;z-index:2}
 .midcta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.midcta .mono{color:var(--muted);font-size:13px}
+.midcta .mono{color:var(--ink-3);font-size:13px}
 
 /* ONE SURFACE for every card-ish thing on the site: radius 12, the green-black
    glass fill, and the lit top edge. The interior ran radius 16 over a navy
