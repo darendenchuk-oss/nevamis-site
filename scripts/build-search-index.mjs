@@ -37,7 +37,17 @@ for (const p of MAP.pages) {
   if (!p.url || p.sitemap === false) continue;
   const file = path.join(root, p.file);
   if (!fs.existsSync(file)) continue;
-  const html = fs.readFileSync(file, 'utf8');
+  /* Comments are removed before anything is read out of the page, and CRLF is
+     normalised. A comment ABOUT a tag used to be indistinguishable from the tag:
+     the homepage's head carried a note mentioning <title> in prose, the lazy
+     title match started inside that note and ran to the real closing tag, and
+     the homepage's search result became a sentence out of a comment. Line endings
+     then made it worse: the captured text carried CRLF on a Windows checkout and
+     LF on the runner, so the committed index could not reproduce in CI and the
+     drift guard failed there while passing here. */
+  const html = fs.readFileSync(file, 'utf8')
+    .replace(/\r\n/g, '\n')
+    .replace(/<!--[\s\S]*?-->/g, ' ');
 
   const title = (html.match(/<title>([\s\S]*?)<\/title>/) || [])[1]?.split('|')[0].trim() ?? p.file;
   const desc = (html.match(/name="description" content="([^"]*)"/) || [])[1] ?? '';
