@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Nop4NTNMv6lQ5AYmnrY+HyPhTJAagpZCD2l68v44RAg=' 'sha256-NNAfgYvzM18tYBq185uBuxzeLTkiDPMtlhCv4eFp+30='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-lzSXCbLeId9HJMZMqHPK6Y7zmGb1mZEkNfJ2u1kmjcM=' 'sha256-KXwr8lKHQ5oeR4OguUjmoEEW3TNckRk2X+FACwr4szo='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -859,73 +859,141 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 <!-- /generated:css -->
 
 <style>
-  /* ---------- page hero (everything shared lives in assets/motion/site.css) ---------- */
-  .hero-intro { position: relative; overflow: hidden; padding: 150px 0 56px; }
-  .hero-intro h1 { font-weight: 700; letter-spacing: -.02em; line-height: 1.05; margin: 14px 0 0; }
-  .lede { color: var(--muted); font-size: clamp(16px, 1.5vw, 19px); margin: 18px 0 26px; line-height: 1.55; max-width: 58ch; }
+  /* ---------- page layout only ----------
+     Colour, surface, radius, type step, border, bullet, label, chip, list row
+     and form control all come from assets/motion/site.css, inlined above. What
+     is left here is the geometry this page alone has - a three-up service
+     grid, the journey rows, the interest form columns - plus three corrections
+     to shared rules that a page stylesheet is the only place to make from
+     here. All three are in the handoff. Nothing below restates a token. */
 
-  .truth { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; font-size: 14px; color: var(--muted); max-width: 62ch; }
-  .stage-band { font-family: "Spline Sans Mono", monospace; font-size: 11px; letter-spacing: .16em; color: var(--mint); margin: 44px 0 16px; }
-  .svc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  .svc {
-    background: linear-gradient(180deg, var(--navy-2), #0C1A25); border: 1px solid var(--line); border-radius: 16px; padding: 20px;
-    display: flex; flex-direction: column; gap: 8px;
+  /* THE LONG EYEBROW. .eyebrow is a flex row, and a wrapping flex line is laid
+     out from each item HYPOTHETICAL size: an auto-basis text run has the
+     max-content size, the whole label on one line. A label too long for a
+     phone therefore never fits beside the dot, drops whole to the next line,
+     and leaves the dot stranded above it. Block flow with an inline-block dot
+     wraps like prose, and a chip still sits on the same line.
+     Handoff: this belongs on .eyebrow/.k in site.css, not here. */
+  .eyebrow,.stage-band{display:block}
+  .eyebrow::before,.stage-band::before{display:inline-block;vertical-align:middle;
+    position:relative;top:-1px;margin-right:9px}
+
+  /* .stage-band is a heading element doing a label job: it separates the three service
+     grids and has to stay a heading for the document outline. It takes the
+     eyebrow type above, and needs the section-heading rule neutralised or it
+     inherits 40px and a 22ch measure. Block flow matters here for a second
+     reason as well: scroll.js wraps every below-the-fold h2 word in an
+     inline-block span, and a flex row would put its 9px gap between each. */
+  .stage-band{max-width:none;margin:48px 0 18px}
+
+  /* THE TRUTH NOTE. .card gives it the surface, the radius and the lit top
+     edge; only its measure and type step are this page own. */
+  .truth{font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2);max-width:62ch}
+
+  /* THE SERVICE GRID. The cards are the shared .card family (.svc), the live
+     ones the shared featured treatment (.svc.now), the status badges the
+     shared .chip, and each card list of functions a .node-list. What is left
+     here is the column count and the internal stack. */
+  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);align-items:start}
+  @media(max-width:900px){.svc-grid{grid-template-columns:1fr}}
+  .svc{display:flex;flex-direction:column;gap:8px}
+  .svc .chip{align-self:flex-start}
+  /* site.css types .card p and .card h3 but not .svc p and .svc h3, so without
+     these two lines a service card copy renders at body scale in --ink.
+     Handoff: add .svc to those two selector lists. */
+  .svc p{font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2);margin:0}
+  .svc .desc{flex:1}
+  .svc .outcome{color:var(--mint);font-weight:700}
+  .svc .node-list{margin:0}
+  .svc .btn,.svc .interest{align-self:flex-start;margin-top:4px}
+
+  /* THE JOURNEY. One card, and inside it the site list row - a dot, a sentence
+     and a mono stage tag on the right rail - rather than seven cards stacked
+     inside a card. .j-step carries the shared card surface today, which is
+     what the background, border and radius below undo.
+     Handoff: drop .j-step from the card family in site.css. */
+  .j-mods{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 20px}
+  /* the homepage own toggle, restated for a page that has no .sim-scenarios */
+  .j-mod{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink-3);cursor:pointer;
+    background:rgba(159,240,206,.04);border:1px solid var(--line-control);
+    border-radius:var(--r-pill);padding:9px 15px;min-height:44px;
+    transition:color var(--t-base) var(--e-out),border-color var(--t-base) var(--e-out),
+               background var(--t-base) var(--e-out)}
+  .j-mod:hover{color:var(--ink);border-color:var(--line-accent)}
+  .j-mod[aria-pressed="true"]{background:var(--mint);color:var(--on-mint);border-color:var(--mint)}
+  .j-steps .j-step{background:none;border:0;border-bottom:1px solid var(--line-soft);
+    border-radius:0;padding:11px 0;backdrop-filter:none;-webkit-backdrop-filter:none;
+    color:var(--ink-4);transition:color var(--t-slow) var(--e-out)}
+  .j-steps .j-step:last-child{border-bottom:none}
+  .j-steps .j-step::before{background:var(--ink-5);box-shadow:none}
+  .j-steps .tag{order:2;color:var(--ink-5);transition:color var(--t-slow) var(--e-out)}
+  .j-steps .j-step.base,.j-steps .j-step.on{color:var(--ink-2)}
+  .j-steps .j-step.base::before,.j-steps .j-step.on::before{
+    background:var(--emerald);box-shadow:0 0 8px rgba(47,191,143,.6)}
+  .j-steps .j-step.base .tag,.j-steps .j-step.on .tag{color:var(--emerald)}
+  /* On a phone the stage tag takes the line above its own row rather than
+     squeezing the sentence to nothing. Grid, not flex-wrap, for the reason
+     written above: a wrapping flex row would strand the dot. */
+  @media(max-width:760px){
+    .j-steps .j-step{display:grid;grid-template-columns:5px 1fr;column-gap:12px;row-gap:4px}
+    .j-steps .j-step::before{grid-column:1;grid-row:1/3}
+    .j-steps .tag{grid-column:2;grid-row:1;order:0;margin-left:0}
   }
-  .svc.now { border-color: rgba(47,191,143,.45); }
-  .svc .status { font-family: "Spline Sans Mono", monospace; font-size: 11px; letter-spacing: .12em; padding: 4px 9px; border-radius: 999px; width: fit-content; }
-  .svc .status.available { background: rgba(47,191,143,.16); color: var(--mint); }
-  .svc .status.planned { background: rgba(240,180,98,.08); border: 1px solid rgba(240,180,98,.35); color: #F0B462; }
-  .svc .status.researching { background: rgba(159,240,206,.07); color: var(--muted); }
-  .svc h3 { font-size: 18px; }
-  .svc p { font-size: 14px; color: var(--muted); flex: 1; }
-  .svc .outcome { font-size: 13px; color: var(--ink); font-weight: 700; }
-  .svc ul { list-style: none; padding: 0; margin: 0; }
-  .svc li { font-size: 13px; color: var(--muted); padding: 3px 0 3px 18px; position: relative; }
-  .svc li::before { content: "·"; position: absolute; left: 6px; color: var(--emerald); font-weight: 700; }
-  .svc .interest { align-self: flex-start; font-size: 13.5px; font-weight: 700; background: none; border: 1px solid var(--line-control); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-family: inherit; color: var(--ink); min-height: 40px; }
-  .svc .interest:hover { border-color: rgba(159,240,206,.42); color: var(--mint); }
-  @media (max-width: 900px) { .svc-grid { grid-template-columns: 1fr; } }
-  /* journey */
-  .journey { background: linear-gradient(180deg, var(--navy-2), #0C1A25); border: 1px solid var(--line); color: var(--ink); border-radius: 16px; padding: 26px; }
-  .journey h3 { font-size: 19px; margin-bottom: 4px; }
-  .journey .sub { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
-  .j-mods { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-  .j-mod {
-    font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer;
-    background: rgba(159,240,206,.05); color: var(--muted);
-    border: 1px solid var(--line-control); border-radius: 999px; padding: 8px 14px; min-height: 40px;
-  }
-  .j-mod[aria-pressed="true"] { background: rgba(47,191,143,.16); color: var(--mint); border-color: rgba(47,191,143,.5); }
-  .j-steps { display: grid; gap: 7px; }
-  .j-step { display: flex; gap: 10px; align-items: baseline; font-size: 14.5px; padding: 8px 12px; border-radius: 9px; border: 1px solid transparent; color: var(--muted); transition: color .3s, border-color .3s, background .3s; }
-  .j-step .mono { font-size: 11px; letter-spacing: .1em; flex-shrink: 0; width: 130px; color: inherit; }
-  .j-step.base { color: var(--ink); border-color: rgba(47,191,143,.4); }
-  .j-step.on { color: var(--ink); background: rgba(159,240,206,.06); border-color: rgba(47,191,143,.5); }
-  .j-step.on .mono { color: var(--mint); }
-  /* scenario */
-  .scenario ol { padding-left: 22px; color: var(--muted); display: grid; gap: 8px; font-size: 15px; }
-  .scenario li strong { color: var(--ink); }
-  /* form */
-  .interest-form { background: linear-gradient(180deg, var(--navy-2), #0C1A25); border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
-  .interest-form .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
-  .interest-form label { font-weight: 700; font-size: 14px; display: block; margin-bottom: 5px; }
-  .interest-form input, .interest-form select, .interest-form textarea {
-    width: 100%; padding: 11px 12px; font-size: 15px; border: 1px solid var(--line-control); color: var(--ink);
-    border-radius: 9px; font-family: inherit; background: rgba(159,240,206,.04); min-height: 44px;
-  }
-  .interest-form select { background: var(--navy-2); }
-  .interest-form select option { background: var(--navy-2); color: var(--ink); }
-  .interest-form input:focus, .interest-form select:focus, .interest-form textarea:focus {
-    outline: none; border-color: rgba(159,240,206,.5); box-shadow: 0 0 0 3px rgba(159,240,206,.5);
-  }
-  .interest-form textarea { min-height: 74px; resize: vertical; }
-  .interest-form .full { grid-column: 1 / -1; }
-  .svc-checks { display: flex; flex-wrap: wrap; gap: 8px; }
-  .svc-checks label { display: inline-flex; align-items: center; gap: 7px; font-weight: 400; font-size: 13.5px; border: 1px solid var(--line-control); border-radius: 999px; padding: 7px 12px; cursor: pointer; margin: 0; min-height: 40px; }
-  .svc-checks input { width: auto; min-height: 0; accent-color: var(--emerald); }
-  .form-note { font-size: 12.5px; color: var(--muted); margin-top: 12px; max-width: 68ch; }
-  .form-note a { color: var(--mint); text-decoration: underline; text-underline-offset: 3px; }
-  @media (max-width: 700px) { .interest-form .grid { grid-template-columns: 1fr; } }
+
+  /* THE SCENARIO. An ordered list in the site row idiom: the numeral comes
+     from ol.steps>li::before in site.css, the row from the .node-list row. */
+  /* The numeral hangs in a gutter rather than sitting in a flex row: each of
+     these steps opens with a <strong>, and as flex items the bold clause and
+     the rest of the sentence became two columns with a hole between them. */
+  .scenario ol.steps>li{position:relative;padding:11px 0 11px 40px;
+    font-size:var(--fs-card);line-height:var(--lh-snug);color:var(--ink-3);
+    border-bottom:1px solid var(--line-soft)}
+  .scenario ol.steps>li:last-child{border-bottom:none}
+  /* the numeral takes the row's own line box so the two baselines agree */
+  .scenario ol.steps>li::before{position:absolute;left:0;top:11px;
+    line-height:calc(var(--fs-card) * var(--lh-snug))}
+
+  /* THE INTEREST FORM. .card gives it the surface; the labels, inputs, selects
+     and focus rings are the shared form control. */
+  .interest-form{padding:var(--pad-card-lg)}
+  .interest-form .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px}
+  @media(max-width:700px){.interest-form .grid{grid-template-columns:1fr}}
+  .interest-form .full{grid-column:1/-1}
+  .interest-form textarea{min-height:74px;resize:vertical}
+  /* a select popup is painted by the platform and needs an opaque fill */
+  .interest-form select,.interest-form select option{background:var(--bg-lift)}
+  .svc-checks{display:flex;flex-wrap:wrap;gap:8px}
+  .svc-checks label{display:inline-flex;align-items:center;gap:8px;font-weight:400;
+    font-size:13.5px;color:var(--ink-2);border:1px solid var(--line-control);
+    border-radius:var(--r-pill);padding:0 14px;cursor:pointer;margin:0;min-height:44px}
+  .svc-checks label:hover{border-color:var(--line-accent)}
+  .svc-checks input{width:auto;min-height:0;accent-color:var(--emerald)}
+  /* two classes, because the shared `form label` is (0,1,1) and would
+     otherwise set this sentence in bold */
+  .interest-form .consent-label{display:inline-flex;gap:8px;align-items:baseline;
+    font-weight:400;font-size:14px;color:var(--ink-2)}
+  .interest-form .consent-label input{width:auto;min-height:0;accent-color:var(--emerald)}
+  /* The shared .card p rule carries four :not() guards, so it is (0,5,1) and
+     outranks .form-note at (0,1,0): fine print inside any card renders at card
+     scale and card colour. An id is the cheapest way past it from a page
+     stylesheet. Handoff: add .form-note, .fine2, .buy-note, .disclaimer and
+     .hint to that :not() chain - pricing.html .buy-note is already caught by
+     it today. */
+  #interestForm .form-note{font-size:var(--fs-fine);line-height:var(--lh-snug);
+    color:var(--ink-4);margin:12px 0 0;max-width:68ch}
+
+  /* CTA rows. .final-cta centres its own text but not the button row inside
+     it, and the shared .final-cta>.wrap>p rule is (0,1,1), so the closing
+     link row needs the extra class to set its own margin. */
+  .cta-submit{margin-top:18px}
+  .cta-centre{justify-content:center}
+  .final-cta .scan-row{margin:18px auto 0}
+  noscript .lede{margin-top:16px}
+
+  /* The phone CTA row. The homepage runs its buttons full width and centred
+     below 760 and site.css has no such rule for .cta-row yet, so a button here
+     measured its own text width against the homepage 350px. */
+  @media(max-width:760px){.cta-row .btn{width:100%;justify-content:center}}
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -1103,13 +1171,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </header>
 
 <main id="main">
-  <section class="hero-intro">
+  <section class="page-hero">
     <div class="grid-lines" aria-hidden="true"></div>
-    <div class="glow" style="width:600px;height:380px;right:-140px;top:-80px" aria-hidden="true"></div>
-    <div class="wrap" style="max-width:880px">
+    <div class="wrap">
       <div>
         <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>Roadmap</p>
-        <h1 style="font-size:clamp(38px,5.6vw,68px)">What is live today, and what comes next.</h1>
+        <h1>What is live today, and what comes next.</h1>
         <p class="lede">Lead Generation is offered by invitation, and a short call is where it starts. Quote recovery, missed-call recovery and a front desk that answers your line are live today. Below is everything at its true status, and what we are building after it.</p>
         <div class="cta-row">
           <a class="btn btn-primary btn-lg" href="/book.html#pick-a-time" data-evt="hero_book_call_click">Book a call</a>
@@ -1122,17 +1189,17 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
   <section class="tight">
     <div class="wrap">
-      <p class="truth reveal" id="truthStatement">Services marked AVAILABLE NOW are live today, described exactly as narrowly as they work. Lead Generation is offered by invitation. The rest are planned or being researched.</p>
+      <p class="truth card reveal" id="truthStatement">Services marked AVAILABLE NOW are live today, described exactly as narrowly as they work. Lead Generation is offered by invitation. The rest are planned or being researched.</p>
 
-      <h2 class="stage-band reveal">BY INVITATION · A SHORT CALL IS WHERE IT STARTS</h2>
+      <h2 class="stage-band eyebrow reveal">BY INVITATION · A SHORT CALL IS WHERE IT STARTS</h2>
       <div class="svc-grid" id="gridNext"></div>
 
-      <h2 class="stage-band reveal">NOW · LIVE TODAY</h2>
+      <h2 class="stage-band eyebrow reveal">NOW · LIVE TODAY</h2>
       <div class="svc-grid" id="gridNow"></div>
 
-      <h2 class="stage-band reveal">FUTURE · THE DIRECTION</h2>
+      <h2 class="stage-band eyebrow reveal">FUTURE · THE DIRECTION</h2>
       <div class="svc-grid" id="gridFuture"></div>
-      <noscript><p style="margin-top:16px;color:var(--muted)">The full roadmap loads with JavaScript. In short: Lead Generation is offered by invitation, and a short call is where it starts. The front desk, missed-call recovery, automatic lead tracking, quote recovery, get-paid reminders and review requests are live today. Owner briefings, reactivation and revenue reporting are planned or being researched. Email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a> for details.</p></noscript>
+      <noscript><p class="lede">The full roadmap loads with JavaScript. In short: Lead Generation is offered by invitation, and a short call is where it starts. The front desk, missed-call recovery, automatic lead tracking, quote recovery, get-paid reminders and review requests are live today. Owner briefings, reactivation and revenue reporting are planned or being researched. Email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a> for details.</p></noscript>
     </div>
   </section>
 
@@ -1143,7 +1210,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2>See how Nevamis grows with your business.</h2>
         <p>The front desk runs the first step today. Add a module to see where the same customer journey goes next. Each one says whether it is live or planned.</p>
       </div>
-      <div class="journey reveal" id="journey">
+      <div class="journey card reveal" id="journey">
         <h3>The journey of one customer inquiry</h3>
         <p class="sub">Solid steps run today. Add a module to extend the journey.</p>
         <div class="j-mods" role="group" aria-label="Add modules">
@@ -1154,27 +1221,27 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <button class="j-mod" aria-pressed="false" data-mod="brief">+ Daily brief (planned)</button>
           <button class="j-mod" aria-pressed="false" data-mod="revenue">+ Revenue Engine (in development)</button>
         </div>
-        <div class="j-steps">
-          <div class="j-step base"><span class="mono">TODAY</span>Call answered, caller qualified, job taken down, owner notified</div>
-          <div class="j-step" data-for="followup"><span class="mono">FOLLOW-UP</span>A caller you missed gets one text back during business hours, with your name on it</div>
-          <div class="j-step" data-for="tracking"><span class="mono">TRACKED</span>Every call, text and form becomes a lead with its source and a status</div>
-          <div class="j-step" data-for="quotes"><span class="mono">QUOTE RECOVERED</span>A quiet quote is followed up the day it goes stale, four days on and eleven days on, each email approved by you</div>
-          <div class="j-step" data-for="reviews"><span class="mono">REVIEW REQUESTED</span>A finished job gets one review request by text, released by a person</div>
-          <div class="j-step" data-for="brief"><span class="mono">OWNER INFORMED</span>One daily brief: new leads, follow-ups due, urgent issues</div>
-          <div class="j-step" data-for="revenue"><span class="mono">REVENUE ATTRIBUTED</span>Collected revenue traced back to the source that produced it</div>
-        </div>
+        <ul class="node-list j-steps">
+          <li class="j-step base"><span class="tag mono">TODAY</span>Call answered, caller qualified, job taken down, owner notified</li>
+          <li class="j-step" data-for="followup"><span class="tag mono">FOLLOW-UP</span>A caller you missed gets one text back during business hours, with your name on it</li>
+          <li class="j-step" data-for="tracking"><span class="tag mono">TRACKED</span>Every call, text and form becomes a lead with its source and a status</li>
+          <li class="j-step" data-for="quotes"><span class="tag mono">QUOTE RECOVERED</span>A quiet quote is followed up the day it goes stale, four days on and eleven days on, each email approved by you</li>
+          <li class="j-step" data-for="reviews"><span class="tag mono">REVIEW REQUESTED</span>A finished job gets one review request by text, released by a person</li>
+          <li class="j-step" data-for="brief"><span class="tag mono">OWNER INFORMED</span>One daily brief: new leads, follow-ups due, urgent issues</li>
+          <li class="j-step" data-for="revenue"><span class="tag mono">REVENUE ATTRIBUTED</span>Collected revenue traced back to the source that produced it</li>
+        </ul>
       </div>
     </div>
   </section>
 
   <section class="scenario tight">
-    <div class="wrap" style="max-width:820px">
+    <div class="wrap read">
       <div class="section-head reveal">
         <p class="eyebrow mono">Illustrative workflow · fictional company</p>
         <h2>One after-hours call, start to finish.</h2>
         <p>A local HVAC company gets a no-cooling call at 9 PM. Here is the connected journey, with each step marked live or planned.</p>
       </div>
-      <ol class="reveal">
+      <ol class="steps prose reveal">
         <li><strong>The front desk answers</strong> in seconds, any hour. (Live today.)</li>
         <li><strong>Service area and urgency are checked</strong> against the company's approved rules. (Live today.)</li>
         <li><strong>The job and the time they want are taken down</strong>, or the call is flagged urgent and your team is alerted with the details. (Live today.)</li>
@@ -1190,13 +1257,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   </section>
 
   <section class="tight" id="interest">
-    <div class="wrap" style="max-width:880px">
+    <div class="wrap read">
       <div class="section-head reveal">
         <p class="eyebrow mono">Help us prioritize</p>
         <h2>Tell us what would help your business.</h2>
         <p>This is how we decide what to build next. No commitment, no spam.</p>
       </div>
-      <form class="interest-form reveal" id="interestForm" method="post" novalidate>
+      <form class="interest-form card reveal" id="interestForm" method="post" novalidate>
         <div class="grid">
           <div><label for="ifName">Name</label><input id="ifName" enterkeyhint="next" name="name" autocomplete="name" required></div>
           <div><label for="ifBiz">Business name</label><input id="ifBiz" enterkeyhint="next" name="business" autocomplete="organization" required></div>
@@ -1227,15 +1294,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <div class="full"><label for="ifProblem">Biggest current problem (one or two sentences)</label>
             <textarea id="ifProblem" name="problem"></textarea>
           </div>
-          <div class="full"><label style="display:inline-flex;gap:8px;align-items:baseline;font-weight:400;font-size:14px">
-            <input type="checkbox" id="ifConsent" aria-label="I agree to be contacted about Nevamis" required style="width:auto;min-height:0"> I agree Nevamis may contact me about the services I selected.
+          <div class="full"><label class="consent-label">
+            <input type="checkbox" id="ifConsent" aria-label="I agree to be contacted about Nevamis" required> I agree Nevamis may contact me about the services I selected.
           </label></div>
           <!-- Honeypot: hidden from people, tempting to bots -->
           <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;height:1px;width:1px;overflow:hidden">
             <label>Website<input aria-hidden="true" id="ifWebsite" name="website" tabindex="-1" autocomplete="off"></label>
           </div>
         </div>
-        <div class="cta-row" style="margin-top:18px">
+        <div class="cta-row cta-submit">
           <!-- No data-evt here, the same reason book.html's callback submit has
                none: a click is intent, not a captured lead. This button carried
                one, and site.js fires a delegated handler for every [data-evt]
@@ -1253,21 +1320,20 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   </section>
 
   <section class="final-cta">
-    <div class="glow" style="width:600px;height:400px;left:50%;top:-140px;transform:translateX(-50%);opacity:.55" aria-hidden="true"></div>
     <div class="wrap">
       <p class="eyebrow mono reveal">Available today</p>
       <h2 class="reveal">Start with a short call.</h2>
       <p class="reveal">Lead Generation is by invitation, and a short call is where it starts. Everything marked AVAILABLE NOW has a published price, and you can hear the front desk answer right now.</p>
-      <div class="cta-row reveal" style="justify-content:center">
+      <div class="cta-row reveal cta-centre">
         <a class="btn btn-primary btn-lg" href="/book.html#pick-a-time" data-evt="hero_book_call_click">Book a call</a>
         <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer · (587) 413-0035</a>
       </div>
-      <p class="reveal" style="margin-top:14px"><a href="https://app.nevamis.ca/scan" data-evt="moves_scan_click">Scan my website</a></p>
+      <p class="reveal scan-row"><a class="more" href="https://app.nevamis.ca/scan" data-evt="moves_scan_click">Scan my website</a></p>
     </div>
   </section>
 
   <section class="faq tight">
-    <div class="wrap" style="max-width:820px">
+    <div class="wrap read">
       <div class="section-head reveal">
         <p class="eyebrow mono">Straight answers</p>
         <h2>Roadmap questions.</h2>
@@ -1344,12 +1410,18 @@ document.addEventListener("DOMContentLoaded", function () {
      status. The key is unchanged so roadmap-config.js does not have to move
      with it. */
   var statusLabel = { available: "AVAILABLE NOW", private_pilot: "BY INVITATION", planned: "PLANNED", researching: "BEING RESEARCHED", paused: "PAUSED" };
+  /* The badge is the site chip, and the site has three of them: a mint fill
+     for what is live, a warm outline for what is by invitation, and a hollow
+     outline for everything not yet live. The nuance between PLANNED and BEING
+     RESEARCHED is carried by the word, which is the honest place for it - a
+     fourth paint would be a new entry in a closed set. */
+  var statusChip = { available: "av", private_pilot: "inv", planned: "dev", researching: "dev", paused: "dev" };
   R.services.forEach(function (s) {
     var g = grids[s.stage]; if (!g) return;
     var d = document.createElement("div");
     d.className = "svc" + (s.stage === "now" ? " now" : "");
-    var h = '<span class="status ' + s.status + '"></span><h3></h3><p class="desc"></p>';
-    if (s.functions) h += "<ul>" + s.functions.map(function () { return "<li></li>"; }).join("") + "</ul>";
+    var h = '<span class="status chip ' + (statusChip[s.status] || "dev") + '"></span><h3></h3><p class="desc"></p>';
+    if (s.functions) h += '<ul class="node-list">' + s.functions.map(function () { return "<li></li>"; }).join("") + "</ul>";
     h += '<p class="outcome"></p>';
     /* An AVAILABLE service needs somewhere to send the visitor. Three entries
        were available with no cta, and this line concatenated undefined into
@@ -1369,10 +1441,10 @@ document.addEventListener("DOMContentLoaded", function () {
          this one never was, so the roadmap could report demand for products
          that do not exist yet and not report anyone choosing the one that
          does. No listener needed: site.js delegates every [data-evt] click. */
-      ? '<a class="btn btn-primary" data-evt="roadmap_service_start_clicked_' + s.slug.replace(/-/g, "_") + '" style="align-self:flex-start;font-size:14px;padding:10px 18px" href="' + startCta + '"></a>'
+      ? '<a class="btn btn-primary" data-evt="roadmap_service_start_clicked_' + s.slug.replace(/-/g, "_") + '" href="' + startCta + '"></a>'
       : inviteCta
-        ? '<a class="btn btn-primary" data-evt="hero_book_call_click" style="align-self:flex-start;font-size:14px;padding:10px 18px" href="' + inviteCta + '"></a>'
-        : '<button class="interest" data-svc="' + s.slug + '" data-name="' + s.name + '">Tell us this would help</button>';
+        ? '<a class="btn btn-primary" data-evt="hero_book_call_click" href="' + inviteCta + '"></a>'
+        : '<button class="interest btn btn-ghost" data-svc="' + s.slug + '" data-name="' + s.name + '">Tell us this would help</button>';
     d.innerHTML = h;
     /* The label is the entry's own ctaLabel ("Scan my website" on the scan),
        else "Start here" (or "Book a call" for an invitation). Set as text like
