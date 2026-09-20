@@ -25,13 +25,54 @@
      that the day it does join the map every custom property below is
      overridden by an identical one and nothing moves.
 
-     WHAT IS STILL DIFFERENT, AND WHY. The type. The site's faces are
-     Bricolage Grotesque, Atkinson Hyperlegible and Spline Sans Mono, all
-     self-hosted, and pulling them in here would add three font requests to
-     the one page whose job is to start a voice session as fast as it can.
-     This page stays on system-ui and is known debt: if it joins
-     content-map.json it gets the faces with everything else.
+     THE TYPE IS THE SITE'S NOW. It was system-ui and a system mono, on the
+     one page a prospect is handed to try the product: measured, seven text
+     nodes in system-ui, two in ui-monospace and not one in any of the site's
+     three faces. The three @font-face blocks below fix that without changing
+     what this page costs to open. They are the site's own faces from
+     /assets/fonts/ - no new typeface, no CDN, no Google Fonts, no preload,
+     nothing added to the CSP (font-src already allows 'self') - the latin
+     subsets only, because every word on the page is latin, and all three are
+     font-display:swap, so they are fetched after the first paint and the
+     button is pressable the whole time. talk.js still loads the provider's
+     software only when the visitor presses start.
+
+     The URLs are root-absolute because 404.html is served for nested paths
+     and base-uri 'none' rules out a <base> tag, which is the same reason
+     inline-css.mjs rewrites them for every other page.
      ============================================================ */
+  /* Metric-matched fallbacks for Atkinson, copied from assets/fonts/fonts.css.
+     They are local() with a measured size-adjust, so they cost no request and
+     they are what holds the layout while the real face arrives. */
+  @font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 400;
+    src: local('Arial'), local('Helvetica');
+    size-adjust: 98.82%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+  @font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 400;
+    src: local('Segoe UI');
+    size-adjust: 99.65%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+  @font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 700;
+    src: local('Arial Bold'), local('Arial'), local('Helvetica');
+    size-adjust: 100.52%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+  @font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 700;
+    src: local('Segoe UI Bold'), local('Segoe UI');
+    size-adjust: 101.13%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+  /* Atkinson Hyperlegible, the body face: two static weights, 17 KB each. */
+  @font-face { font-family: 'Atkinson Hyperlegible'; font-style: normal; font-weight: 400;
+    font-display: swap; src: url(/assets/fonts/atkinson-hyperlegible-400-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Atkinson Hyperlegible'; font-style: normal; font-weight: 700;
+    font-display: swap; src: url(/assets/fonts/atkinson-hyperlegible-700-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  /* Bricolage Grotesque, the display face: one variable file, the whole axis,
+     because a single font-weight descriptor pins it (see fonts.css). */
+  @font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 200 800;
+    font-stretch: 100%; font-display: swap;
+    src: url(/assets/fonts/bricolage-grotesque-variable-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  /* Spline Sans Mono, the label face: one variable file, the whole axis. */
+  @font-face { font-family: 'Spline Sans Mono'; font-style: normal; font-weight: 300 700;
+    font-display: swap; src: url(/assets/fonts/spline-sans-mono-variable-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
   :root{
     color-scheme:dark;
     --bg:#02080D;
@@ -48,14 +89,16 @@
     --glow-lit:linear-gradient(90deg,transparent,var(--line-lit),transparent);
     --glow-btn:0 0 34px rgba(159,240,206,.35),0 0 90px rgba(47,191,143,.18);
     --glow-dot:0 0 8px rgba(47,191,143,.8);
-    --f-mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+    --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+    --f-body:"Atkinson Hyperlegible","Atkinson Fallback","Segoe UI",system-ui,sans-serif;
+    --f-mono:"Spline Sans Mono",ui-monospace,monospace;
     --r-card:12px; --r-pill:999px;
     --e-out:cubic-bezier(.16,1,.3,1);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--bg);color:var(--ink)}
   body{min-height:100vh;display:grid;place-items:center;padding:32px 20px;
-    font:16.5px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    font-family:var(--f-body);font-size:16.5px;line-height:1.55;
     -webkit-font-smoothing:antialiased}
   /* THE HERO POOL, the same two radials .grid-lines paints at the top of
      every interior hero. It is what says "the page begins here" in the
@@ -88,14 +131,15 @@
      capitals, so the link's accessible name is the word, not a seven-letter
      initialism, and the negative margin takes back the tracking the last
      glyph adds to the right edge. The V-A pair closes on its own. */
-  .brand{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px;
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--f-display);
+    font-weight:700;font-size:17px;
     color:var(--ink);margin-bottom:22px;width:fit-content}
   .brand svg{width:22px;height:22px;flex:none;transform:translateY(-1.7px)}
   .brand .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
   .brand .wm-v{letter-spacing:.055em}
 
-  h1{font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1.15;
-    color:var(--ink);margin:0 0 10px}
+  h1{font-family:var(--f-display);font-size:24px;font-weight:700;letter-spacing:-.02em;
+    line-height:1.15;color:var(--ink);margin:0 0 10px}
   p{color:var(--ink-2);font-size:15px;line-height:1.55;margin:0 0 18px}
 
   /* The site's one primary: a flat mint pill on --on-mint, 44px tall, with
