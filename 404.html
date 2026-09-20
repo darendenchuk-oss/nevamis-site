@@ -850,9 +850,99 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 }
 </style>
 <!-- /generated:css -->
+<style>
+  /* ============================================================
+     THE DOCUMENT PAGE - SHARED, NOT PAGE-LOCAL
+
+     This block is the .doc-page adaptation from the coherence spec and it
+     belongs in assets/motion/site.css beside the other components. It is
+     repeated verbatim in terms.html, privacy.html, 404.html and
+     proposal.html because site.css is owned by another group in this pass.
+     Handed off: move it there once, delete these four copies, and change
+     nothing in it on the way.
+
+     A reference document gets the site's ground, its type ramp, its
+     hairlines and its link treatment. It does not get film-scale headings: a
+     52px hero over a column of clause text is theatre. h1 is --fs-doc, a
+     section heading is 22px, and the rule above each one is the same
+     boundary idiom every <section> on the site already carries, so the
+     document reads as one column of the homepage's own rhythm instead of as
+     a wall of text with nothing in it.
+
+     Scoped to `main` throughout. The spec's own selector was a bare
+     `.doc-page h2`, which also matches the footer's .foot-h headings, and on
+     404.html that puts a 22px size and a hairline on "Site" and "Legal".
+
+     The :not() guard is load-bearing for the same reason it is on `.card p`:
+     `.doc-page main p` is (0,1,2) and `.eyebrow` is (0,1,0), so without it
+     the page's one label renders as body copy. It is written as one
+     selector list rather than as a chain of five, because a chain scores the
+     sum of its arguments - (0,6,2) - and nothing on a page could then
+     override it without a worse selector of its own.
+     ============================================================ */
+  /* The document column is the MEASURE, not --col-read. --col-read is 820px,
+     which after the gutter leaves 732px of Atkinson at --fs-body: 97
+     characters a line, well past the 75 a reader tracks without losing the
+     row. 660px leaves 572px, about 76 characters, and it is the same 660 the
+     system already uses for .section-head. Text, headings and the hairline
+     above each heading then share one edge, which is what makes the rule read
+     as a boundary rather than as a line trailing off into the margin. */
+  .doc-page main .wrap{max-width:660px}
+  /* The document opens where every other page opens: the same 150px of air
+     under the fixed header that .page-hero uses, and no rule above it. */
+  .doc-page main>section:first-child{padding-top:150px;border-top:none}
+  .doc-page main h1{font-size:var(--fs-doc);margin:0 0 16px}
+  .doc-page main h2{font-size:22px;line-height:1.3;letter-spacing:var(--tr-h3);
+    color:var(--ink);max-width:none;margin:40px 0 10px;padding-top:26px;
+    border-top:1px solid var(--line-soft)}
+  .doc-page main p:not(.eyebrow,.k,.lede,.fine2,.crumb){
+    font-size:var(--fs-body);line-height:var(--lh-body);color:var(--ink-2);
+    margin:0 0 18px}
+  /* The site's in-sentence link idiom, which is `.prose a` in site.css. A
+     document is prose from end to end, so it does not carry the class: fold
+     these two selectors into the .prose a list when this block moves. */
+  .doc-page main p a,.doc-page main li a{color:var(--mint);text-decoration:underline;
+    text-underline-offset:3px;text-decoration-color:rgba(159,240,206,.45)}
+  .doc-page main p a:hover,.doc-page main li a:hover{text-decoration-color:var(--mint)}
+  @media (max-width:760px){
+    .doc-page main>section:first-child{padding-top:112px}
+    .doc-page main h2{margin-top:32px;padding-top:22px}
+  }
+</style>
+<style>
+  /* ---------- page layout only ----------
+     A 404 is a signpost: one centred column, opening where every other page
+     opens, with the hero pool behind it - the same emerald light an interior
+     hero now carries, because this is where this page begins.
+
+     It used to be a 100svh flex box with the block centred in the viewport.
+     That stretched .grid-lines, which is inset:0, over the whole screen, and
+     the pool it now paints spread into a full-page wash: the one thing this
+     redesign took off every page. A hero-shaped section puts the light back
+     at hero scale.
+
+     The heading takes --fs-doc from .doc-page rather than --fs-hero. It ran
+     clamp(40px,7vw,84px) - the biggest type on the site, on the one page
+     nobody asks to see. */
+  /* 728 = the 640 the homepage centres on, plus the .wrap gutter. Below 728
+     the wrap is full width and the column is the phone's own 350px, which is
+     what a centred CTA measures on the homepage there. */
+  .doc-page main .wrap{max-width:728px;text-align:center;z-index:2}
+  .doc-page main .eyebrow{justify-content:center}
+  .doc-page main h1{max-width:none}
+  .doc-page main p:not(.eyebrow){max-width:46ch;margin-left:auto;margin-right:auto}
+  .doc-page main .cta-row{justify-content:center;margin:26px 0 0}
+  /* The row of onward links is a footnote under the two real actions, so it
+     takes the fine-print step rather than body copy. */
+  .doc-page main p.elsewhere{font-size:var(--fs-fine);line-height:var(--lh-snug);
+    color:var(--ink-4);max-width:none;margin:26px auto 0}
+  @media (max-width:760px){
+    .doc-page main .cta-row .btn{width:100%;justify-content:center}
+  }
+</style>
 
 </head>
-<body>
+<body class="doc-page">
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="site-header">
@@ -880,22 +970,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </header>
 
 <main id="main">
-  <section style="min-height:100svh;display:flex;align-items:center;position:relative;overflow:hidden">
+  <section>
     <div class="grid-lines" aria-hidden="true"></div>
-    <div class="wrap" style="text-align:center;position:relative;z-index:1;padding-top:96px">
-      <p class="eyebrow mono" style="justify-content:center">404 · Signal not found</p>
-      <h1 style="font-size:clamp(40px,7vw,84px);margin:14px 0 12px;color:var(--ink)">This call went to voicemail.</h1>
-      <p style="color:var(--muted);margin-bottom:28px">The page you dialled does not exist. We know a thing or two about missed connections.</p>
-      <div class="cta-row" style="justify-content:center">
+    <div class="wrap">
+      <p class="eyebrow mono">404 · Signal not found</p>
+      <h1>This call went to voicemail.</h1>
+      <p>The page you dialled does not exist. We know a thing or two about missed connections.</p>
+      <div class="cta-row">
         <a class="btn btn-primary btn-lg" href="/">Back to the homepage</a>
         <a class="btn btn-ghost btn-lg" href="tel:+15874130035">Hear it answer instead</a>
       </div>
-      <p style="margin-top:22px;font-size:14.5px;color:var(--muted)">
+      <p class="elsewhere">
         Looking for something specific?
-        <a href="/demo.html" style="color:var(--mint)">Live demo</a> ·
-        <a href="/pricing.html" style="color:var(--mint)">Pricing</a> ·
-        <a href="/how-you-start.html" style="color:var(--mint)">How you start</a> ·
-        <a href="/book.html" style="color:var(--mint)">Book a call</a>
+        <a href="/demo.html">Live demo</a> ·
+        <a href="/pricing.html">Pricing</a> ·
+        <a href="/how-you-start.html">How you start</a> ·
+        <a href="/book.html">Book a call</a>
       </p>
     </div>
   </section>
