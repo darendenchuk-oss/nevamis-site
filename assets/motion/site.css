@@ -534,8 +534,8 @@ a.card:hover::before,.ind-card:hover::before,.related a:hover::before{opacity:.9
 /* The :not() guards are load-bearing. `.card p` is (0,1,1) and `.eyebrow` is
    (0,1,0), so without them every eyebrow inside a card renders at 15px in body
    grey and every plan price renders grey instead of mint. */
-.card p:not(.eyebrow):not(.k):not(.price):not(.lede),
-.plan p:not(.eyebrow):not(.k):not(.price):not(.lede){
+.card p:not(.eyebrow):not(.k):not(.price):not(.lede):not(.outcome),
+.plan p:not(.eyebrow):not(.k):not(.price):not(.lede):not(.outcome){
   font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2);
   max-width:78ch;margin:0 0 8px}
 .card p:last-child,.plan p:last-child{margin-bottom:0}
@@ -546,8 +546,13 @@ a.card:hover::before,.ind-card:hover::before,.related a:hover::before{opacity:.9
    numeral is a <div> and must not pick up a bottom margin from here. */
 p.price{font-size:var(--fs-card);line-height:var(--lh-body);font-weight:700;
   color:var(--ink-2);margin:0 0 8px}
-/* The closing line of an offer card: what the customer ends up with. */
-.outcome{font-weight:700}
+/* The closing line of an offer card: what the customer ends up with, in mint.
+   coming-soon.html has always painted it mint and so does the film's own pane
+   card; the homepage's three said the same sentence in body grey, because the
+   film's rule for it was (0,2,1) against the guarded card rule's (0,5,1) and
+   lost. Hence the sixth guard above: one line, one colour, three pages. */
+.outcome{font-size:var(--fs-card);line-height:var(--lh-body);
+  color:var(--mint);font-weight:700;margin:0 0 8px}
 /* The foot of a card: the row of chips and names under an industry card. Its
    own font-size and colour were dead behind the guarded .card p rule for as
    long as they existed, so what moves here is what actually renders - the row
