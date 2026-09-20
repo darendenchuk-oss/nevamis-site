@@ -531,9 +531,12 @@ a.card:hover::before,.ind-card:hover::before,.related a:hover::before{opacity:.9
    measure, and a two-word heading wraps to three lines inside a panel. */
 .card h2,.panel h2,.plan h2{font-size:var(--fs-h3);letter-spacing:var(--tr-h3);
   line-height:1.3;max-width:none;margin:0 0 8px}
-/* The :not() guards are load-bearing. `.card p` is (0,1,1) and `.eyebrow` is
-   (0,1,0), so without them every eyebrow inside a card renders at 15px in body
-   grey and every plan price renders grey instead of mint. */
+/* The :not() guards are load-bearing, and each one is a component that would
+   otherwise be overruled: `.card p` is (0,1,1) and `.eyebrow`, `.k`, `.price`,
+   `.lede` and `.outcome` are all (0,1,0), so without the guards an eyebrow
+   inside a card renders as 15px of body grey, a price sentence loses its bold,
+   pricing's display numeral loses its size and the outcome line loses its
+   mint. Each of those four has its own rule below or beside this one. */
 .card p:not(.eyebrow):not(.k):not(.price):not(.lede):not(.outcome),
 .plan p:not(.eyebrow):not(.k):not(.price):not(.lede):not(.outcome){
   font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2);
