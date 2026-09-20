@@ -855,41 +855,120 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </style>
 <!-- /generated:css -->
 <style>
-  .page-hero{position:relative;padding:150px 0 60px;overflow:hidden}
-  .page-hero h1{font-size:clamp(34px,5vw,58px);font-weight:700;letter-spacing:-.03em;
-    line-height:1.04;margin:18px 0 0;max-width:19ch}
-  .page-hero .lede{color:var(--muted);font-size:clamp(16px,1.6vw,19px);margin-top:18px;
-    max-width:56ch;line-height:1.55}
+  /* ---------- page layout only ----------
+     Every colour, surface, type step, border, bullet, label and control on
+     these nine pages comes from assets/motion/site.css, inlined above. What is
+     left here is the geometry this template alone has, plus four corrections a
+     generated page needs that the shared sheet does not yet make. Nothing
+     below restates a token.
+
+     What used to be here and is gone: the hero's own 58px/-.03em/19ch headline
+     and its clamped 19px lede (both are shared steps now, --fs-hero and
+     --fs-lede); the .crumb at 13px in body grey (the shared 11px mono label
+     idiom replaces it); the .related card at radius 14 over a navy 180deg
+     gradient with a hover lift (it is the one card now, radius 12, the glass
+     fill and the lit top edge, and it does not move on hover); and the ghost
+     button's painted plate and 4px ring. */
+
+  /* The shared .page-hero h1 sets margin:0, which also takes back the 14px the
+     h1,h2 rule puts under every heading on the site. At the hero step that is
+     52px of display type with its lede sitting on the descenders. Restored at
+     the hero's own scale; the shared rule is reported. */
+  .page-hero h1{margin:0 0 16px}
+
+  /* THE HERO ROW. On a phone the buttons go full width and centre, which is
+     what the homepage's own CTA row does at the same breakpoint: two pills
+     sized to their labels sat 180px wide against the homepage's 350px, and it
+     was the loudest difference between the two halves of the site on a phone.
+     .midcta is the same row lower down the page and takes the same treatment
+     here; the shared rule is reported rather than changed. */
   .page-hero .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
-  /* The hero sits over the brightest part of the aurora canvas: measured at
-     1440, the outline button's border fell to 1.94:1 and its label to 3.99:1.
-     So here, and only here, the outline button carries its own ground: a
-     painted dark fill and a dark ring outside the border, plus a solid mint
-     border instead of the .72 token. A painted fill, never backdrop-filter
-     (see the aurora note in site.css and tests/hero-contrast.spec.js), and
-     never site-wide: elsewhere the ground is navy and the pill stays
-     transparent. .btn:focus-visible sets box-shadow, so the focus rule has to
-     restate the ring or focusing the button would erase it.
-     The ring is .82, not the .45 it started at, because the ring is the
-     outermost thing the eye has to find. Against the brightest aurora pixel
-     measured 8px outside the button, rgb(25,145,87), a .45 ring composites to
-     2.25:1 and the mint border itself only reaches 3.03:1, so the silhouette
-     was riding on the border and the ring was decoration. .82 measures 3.65:1
-     against that same pixel, and on navy it is still invisible. */
-  .page-hero .btn-ghost,.page-hero .btn-ghost:hover{border-color:var(--mint)}
-  .page-hero .btn-ghost{background:rgba(2,8,13,.55);box-shadow:0 0 0 4px rgba(2,8,13,.82)}
-  .page-hero .btn-ghost:hover{background:rgba(2,8,13,.72)}
-  .page-hero .btn-ghost:focus-visible{box-shadow:inset 0 0 0 3px var(--ink),0 0 0 4px rgba(2,8,13,.82)}
-  .crumb{font-size:13px;color:var(--muted);margin-bottom:6px}
-  .crumb a{color:var(--muted)}
-  .crumb a:hover{color:var(--mint)}
-  .related{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-  @media(max-width:860px){.related{grid-template-columns:1fr}}
-  .related a{display:block;padding:18px 20px;border:1px solid var(--line);border-radius:14px;
-    background:linear-gradient(180deg,var(--navy-2),var(--bg));transition:border-color .25s,transform .25s}
-  .related a:hover{border-color:rgba(159,240,206,.32);transform:translateY(-2px)}
-  .related strong{display:block;font-family:"Bricolage Grotesque",sans-serif;margin-bottom:5px}
-  .related span{color:var(--muted);font-size:13.5px}
+  @media(max-width:760px){
+    .page-hero .cta .btn,.midcta .btn{width:100%;justify-content:center}
+  }
+
+  /* THE HERO'S SUPPORTING PARAGRAPH. It had no rule anywhere, so it rendered
+     at the body step in --ink across the full 1092px column: larger, brighter
+     and four times wider than the lede it is supposed to support, and on a
+     phone it was the loudest block on the first screen. It is a footnote to
+     the hero, so it takes the fine-print colour at the card step. Its one
+     inline link was invisible - a defaults to color:inherit and no
+     underline - and now carries the site's prose-link idiom. */
+  .page-hero .proof{font-size:var(--fs-card);line-height:var(--lh-body);
+    color:var(--ink-4);max-width:66ch;margin-top:20px}
+  .page-hero .proof a{color:var(--mint);text-decoration:underline;
+    text-underline-offset:3px;text-decoration-color:rgba(159,240,206,.45)}
+  .page-hero .proof a:hover{text-decoration-color:var(--mint)}
+
+  /* THE EYEBROW INSIDE A SECTION HEAD. p.lede,.section-head p is (0,1,1) and
+     .eyebrow is (0,1,0), so every eyebrow written as a <p> inside a
+     .section-head lost its family, its size and its colour and rendered as a
+     17px line of body text in lede grey carrying the label's .3em of tracking.
+     That is the same specificity defect the card rule already guards against
+     with :not(.eyebrow), and the shared fix is the same guard on
+     .section-head p. Reported, not made here. */
+  .section-head p.eyebrow{font-family:var(--f-mono);font-size:var(--fs-label);
+    line-height:1.3;color:var(--emerald);max-width:none}
+
+  /* CARD COPY IS THE CARD STEP. A homepage card sets its body at 15px in
+     --ink-2; the shared .proc, .stack and .pstep rules still carry the
+     interior's 14.5px and 13.5px at --ink-3, and a trade page shows all three
+     families within one screen of each other. One step here, and the shared
+     correction is reported. */
+  .proc p,.stack span,.pstep p,.related span{
+    font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2)}
+  .stack strong{font-size:var(--fs-h3);letter-spacing:var(--tr-h3)}
+
+  /* THE RELATED STRIP. Grid only: the card itself is the shared one.
+     Three across, except that a row of three leaves an orphan whenever a
+     strip holds two or four - which on the hub is four of the five strips,
+     so the page read as a column of ragged half-rows beside a homepage whose
+     industry grid always fills. Two and four both balance at two across, and
+     the wider column is what the hub's long blurbs want anyway. :has is the
+     only way to count children in CSS; where it is unsupported the strip
+     falls back to three across, which is exactly today's layout. */
+  .related{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap)}
+  .related:has(>a:nth-child(2):last-child),
+  .related:has(>a:nth-child(4):last-child){grid-template-columns:repeat(2,1fr)}
+  @media(max-width:860px){.related,.related:has(>a){grid-template-columns:1fr}}
+  .related span{display:block}
+
+  /* The numbered steps are the one card family on these pages that carries no
+     lit top edge, because .pstep::before is already spoken for by the numeral.
+     Its crown goes on ::after instead, so a step card and the related card
+     below it on the same page are the same object. The numeral itself joins
+     the page's label vocabulary: the same emerald mono at the same tracking as
+     every eyebrow above it, rather than mint at .12em. .pstep markup exists on
+     one page of the site, so this is not a shared component in practice. */
+  .pstep::after{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
+    background:var(--glow-lit);opacity:.55}
+  .pstep::before{color:var(--emerald);letter-spacing:var(--tr-label)}
+
+  /* The numbered path. list-style:none was an inline attribute on the <ol>,
+     which is the marker's only suppression: .pstep::before draws the numeral
+     and the native marker would sit outside a list whose padding * already
+     zeroed. */
+  ol.path-steps{list-style:none}
+
+  /* The comparison note under a table: a footnote, at the footnote colour and
+     a reading measure rather than the full 1092px column. */
+  .foot-note{color:var(--ink-4);line-height:var(--lh-snug);max-width:var(--measure-lede)}
+
+  /* The tick and the cross are generated content whose value ends in a space,
+     and that space collapses away at the start of the cell's line box, so on
+     both comparison pages every verdict rendered as one welded word. A margin
+     cannot collapse. Shared rule, reported. */
+  td.yes::before,td.no::before{margin-right:.42em}
+  /* At 360 the table's own min-content measured 331px inside a 318px wrapper,
+     so the narrowest common phone got 13px of sideways scroll on the component
+     that is the whole page's argument. One more step down of cell padding and
+     type below 380 takes the min-content to about 307 and it fits. Measured on
+     both comparison pages, not derived. Shared rule, reported. */
+  @media(max-width:380px){
+    table.compare{font-size:13px}
+    table.compare th,table.compare td{padding:10px 5px}
+    table.compare thead th{letter-spacing:.05em}
+  }
 </style>
 </head>
 <body>
@@ -924,7 +1003,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="grid-lines" aria-hidden="true"></div>
     <div class="wrap">
       <p class="crumb"><a href="/">Home</a> / Solutions</p>
-      <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Everything in one place</span>
+      <span class="eyebrow mono"><span class="dot" aria-hidden="true"></span>Everything in one place</span>
       <h1>Find the part of Nevamis that fits your business.</h1>
       <p class="lede">Nevamis does three things. Lead Generation, offered by invitation, finds businesses of the kind you want more of. Quote Recovery follows up the quotes you already sent. The AI Front Desk answers the calls you cannot. The pages by trade and by situation below start at the phone.</p>
       <div class="cta">
