@@ -180,7 +180,7 @@ first, Canada-wide, Edmonton-based.
 
 - https://nevamis.ca/ : Lead Generation (by invitation), Quote Recovery and the front desk, with plans and straight answers
 - https://nevamis.ca/pricing.html : full pricing (source of truth)
-- https://nevamis.ca/pilot.html : how a business starts, and what is built and tested before its line is answered
+- https://nevamis.ca/how-you-start.html : how a business starts, and what is built and tested before its line is answered
 - https://nevamis.ca/demo.html : the live demo line
 - https://nevamis.ca/book.html : book a short call
 - https://nevamis.ca/about.html : who is behind Nevamis

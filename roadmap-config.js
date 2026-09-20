@@ -29,7 +29,7 @@ window.NV_ROADMAP = {
   services: [
     { slug: "ai-front-desk", name: "AI Front Desk", pillar: "capture", status: "available", stage: "now",
       desc: "Answers your line 24/7, qualifies the caller, takes the job and the time they want, and sends you the details. You confirm the slot.",
-      outcome: "Calls you cannot take are answered instead of going to voicemail.", cta: "/pilot.html" },
+      outcome: "Calls you cannot take are answered instead of going to voicemail.", cta: "/how-you-start.html" },
     /* Described the way DC#54 (2026-09-18) requires: the public website only,
        and modelled ranges rather than measurements (engine scan/page.tsx).
        The leak promise that stood here is retired. ctaLabel names the path
@@ -106,7 +106,7 @@ window.NV_ROADMAP = {
       desc: "Each call, text and form becomes a lead with its source and a status, so you can see what is sitting untouched and what each source is actually producing.",
       problem: "Leads live in texts, notebooks, and memory. Nobody can see what is pending.",
       functions: ["A lead for every call, text and form", "Lead-source capture", "Call summaries attached to each lead", "What is sitting untouched, shown plainly", "A count of what each source produces"],
-      outcome: "Nothing goes cold in a notebook.", cta: "/pilot.html" },
+      outcome: "Nothing goes cold in a notebook.", cta: "/how-you-start.html" },
     /* AVAILABLE 2026-08-19. Since the ladder shipped on 2026-08-22 it is
        detection on the owner's own threshold plus THREE approved follow-ups
        per quiet quote: the day it goes stale, four days on and eleven days

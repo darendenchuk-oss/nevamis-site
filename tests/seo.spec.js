@@ -8,7 +8,7 @@
 import { test, expect } from '@playwright/test';
 
 const PUBLIC_PAGES = [
-  '/', '/pricing.html', '/pilot.html', '/demo.html', '/book.html',
+  '/', '/pricing.html', '/how-you-start.html', '/demo.html', '/book.html',
   '/about.html', '/coming-soon.html', '/privacy.html', '/terms.html',
   '/revenue-engine.html',
 ];

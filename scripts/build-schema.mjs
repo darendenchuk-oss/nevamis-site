@@ -199,11 +199,14 @@ console.log(`home.html: Service + FAQPage (${faq.length} questions)`);
 // ---------------------------------------------------------------
 const PAGES = [
   { file: 'pricing.html', name: 'Pricing', type: 'WebPage' },
-  /* Was '7-Day Live Pilot'. The URL is kept because it is indexed, linked from
-     every footer and is the page people search for when they ask whether they
-     can try it first; the breadcrumb had to stop naming an offer that no
-     longer exists. */
-  { file: 'pilot.html', name: 'How you start', type: 'WebPage' },
+  /* Was '7-Day Live Pilot' at /pilot.html. The breadcrumb stopped naming the
+     retired offer on 2026-08-09 and the page itself left that URL on
+     2026-09-19, because the filename was the last place the word still showed
+     to a reader. /pilot.html is still served, as a noindex holding page that
+     answers "can I try it first" and points here, and it is deliberately NOT
+     in this list: a page that asks not to be indexed has no use for a
+     breadcrumb trail. */
+  { file: 'how-you-start.html', name: 'How you start', type: 'WebPage' },
   { file: 'demo.html', name: 'Demo', type: 'WebPage' },
   { file: 'book.html', name: 'Book a call', type: 'ContactPage' },
   { file: 'about.html', name: 'About', type: 'AboutPage' },

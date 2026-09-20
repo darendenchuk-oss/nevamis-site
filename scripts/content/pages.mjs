@@ -131,7 +131,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
         what gets captured, and what waits until morning.</p>
     </div>
     <div class="midcta reveal">
-      <a class="btn btn-ghost" href="/pilot.html" data-evt="trade_start_click">See how you start</a>
+      <a class="btn btn-ghost" href="/how-you-start.html" data-evt="trade_start_click">See how you start</a>
       <a class="btn btn-ghost" href="/pricing.html" data-evt="trade_pricing_click">Compare plans</a>
     </div>
   </div>

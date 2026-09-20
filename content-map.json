@@ -6,7 +6,7 @@
     { "file": "demo.html", "url": "/demo.html", "priority": "0.9", "cluster": "core", "nav": "Demo", "blurb": "Call it yourself and hear what it handles." },
     { "file": "book.html", "url": "/book.html", "priority": "0.9", "cluster": "core", "nav": "Book a call", "blurb": "A short call with Daren: who you want more of, and what it costs at published prices." },
     { "file": "pricing.html", "url": "/pricing.html", "priority": "0.8", "cluster": "core", "nav": "Pricing", "blurb": "Every plan, what is included, and how usage is counted." },
-    { "file": "pilot.html", "url": "/pilot.html", "priority": "0.8", "cluster": "core", "nav": "How you start", "blurb": "There is no pilot and no trial. Here is exactly what happens before your line is answered." },
+    { "file": "how-you-start.html", "url": "/how-you-start.html", "priority": "0.8", "cluster": "core", "nav": "How you start", "blurb": "There is no trial and no minimum term. Here is exactly what is built and tested before your line is answered." },
     { "file": "solutions.html", "url": "/solutions.html", "priority": "0.8", "cluster": "hub", "nav": "Solutions", "title": "Solutions by outcome, trade and situation", "blurb": "Every outcome, trade, situation, and comparison in one place." },
 
     { "file": "electricians.html", "hubTitle": "Nevamis for Electricians", "hubBlurb": "Service calls answered while the crew is on the tools, with the urgent ones flagged to your phone.", "url": "/electricians.html", "priority": "0.7", "cluster": "trade", "nav": "Electricians",
@@ -52,6 +52,7 @@
 
     { "file": "404.html", "url": "/404.html", "priority": null, "cluster": "system", "chrome": true, "sitemap": false, "nav": null, "blurb": "Not found." },
     { "file": "proposal.html", "url": "/proposal.html", "priority": null, "cluster": "system", "sitemap": false, "nav": null, "blurb": "Standalone proposal document sent to one prospect." },
-    { "file": "home.html", "url": null, "priority": null, "cluster": "system", "sitemap": false, "nav": null, "blurb": "Noindex staging twin of index.html." }
+    { "file": "home.html", "url": null, "priority": null, "cluster": "system", "sitemap": false, "nav": null, "blurb": "Noindex staging twin of index.html." },
+    { "file": "pilot.html", "url": null, "priority": null, "cluster": "system", "sitemap": false, "nav": null, "blurb": "Noindex holding page at the URL the How You Start page used to live at, answering \"can I try it first\" and pointing at /how-you-start.html." }
   ]
 }

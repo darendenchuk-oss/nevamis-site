@@ -61,7 +61,7 @@ const contentPages = fs.readdirSync(root)
    proposal.html is a standalone document sent to one prospect, so site
    navigation on it would be wrong rather than missing. */
 const noChromePages = ["proposal.html"];
-const fullFooterPages = ["index.html", "demo.html", "book.html", "about.html", "pilot.html", "coming-soon.html", "revenue-engine.html", "404.html"];
+const fullFooterPages = ["index.html", "demo.html", "book.html", "about.html", "how-you-start.html", "pilot.html", "coming-soon.html", "revenue-engine.html", "404.html"];
 const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\b/, /limited spots remaining/i, /join thousands/i, /launching next month/i,
   /first ring/i, /* CLM-02: retired 2026-07-26, unsupported without uptime monitoring */
   /* Nevamis has no clients yet, so any phrasing that asserts a client base is

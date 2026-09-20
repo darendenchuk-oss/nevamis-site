@@ -8,7 +8,7 @@ const root = path.resolve(import.meta.dirname, "..");
 
 /* the guard's own lists, copied so drift between them is visible */
 const guarded = ["index.html", "demo.html", "book.html", "about.html", "pricing.html",
-  "pilot.html", "privacy.html", "terms.html", "coming-soon.html", "revenue-engine.html", "404.html"];
+  "how-you-start.html", "pilot.html", "privacy.html", "terms.html", "coming-soon.html", "revenue-engine.html", "404.html"];
 
 const excluded = (() => {
   try {
