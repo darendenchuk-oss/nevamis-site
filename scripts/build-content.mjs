@@ -153,10 +153,26 @@ ${CSS_BLOCK}
      the wider column is what the hub's long blurbs want anyway. :has is the
      only way to count children in CSS; where it is unsupported the strip
      falls back to three across, which is exactly today's layout. */
+  /* The same count, applied to the shared three-up. "More of the work you
+     want" holds two cards on all four trade pages, so a third of that row was
+     empty on every one of them. Scoped here because .proc is shared. */
+  .proc:has(>div:nth-child(2):last-child){grid-template-columns:repeat(2,1fr)}
+  /* The narrow override has to repeat the same :has selector. :has takes the
+     specificity of its most specific argument, so .proc:has(>div) is (0,1,1)
+     and loses to the (0,3,1) rule above it even inside a media query, and the
+     two cards stayed side by side at 167px each on a phone. */
+  @media(max-width:900px){
+    .proc,.proc:has(>div:nth-child(2):last-child){grid-template-columns:1fr}
+  }
+
   .related{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap)}
   .related:has(>a:nth-child(2):last-child),
   .related:has(>a:nth-child(4):last-child){grid-template-columns:repeat(2,1fr)}
-  @media(max-width:860px){.related,.related:has(>a){grid-template-columns:1fr}}
+  @media(max-width:860px){
+    .related,
+    .related:has(>a:nth-child(2):last-child),
+    .related:has(>a:nth-child(4):last-child){grid-template-columns:1fr}
+  }
   .related span{display:block}
 
   /* The numbered steps are the one card family on these pages that carries no
