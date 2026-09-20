@@ -116,9 +116,16 @@ if (faq.length < 5) {
    the key was deleted from pricing-config.js only because it was dead: had any
    Offer used it, every plan would have published `"setup": undefined` to
    answer engines. One price per plan, and one field for it. */
+/* `selfServe` is carried through because the Offer below has to say whether a
+   plan can actually be bought. The Performance Partnership published
+   `InStock` here while /pricing.html published `LimitedAvailability` for the
+   same plan on the same site: two machine-read surfaces disagreeing about
+   whether an invitation-only plan is purchasable, and the homepage was the
+   one that was wrong. */
 const PLANS = NV.plans.map((p) => ({
   name: p.name,
   price: p.monthly,
+  selfServe: p.selfServe,
   /* The whole offer, in the approved shape: an answer engine quotes this
      verbatim, so it carries the one-time Launch & Implementation fee with
      the rule joining it to the monthly, the performance sentence where the
@@ -127,24 +134,36 @@ const PLANS = NV.plans.map((p) => ({
   desc: `C$${p.launch.toLocaleString('en-CA')} Launch & Implementation to start, then C$${p.monthly.toLocaleString('en-CA')} a month.`
     + (p.performanceNote ? ` ${p.performanceNote}` : '')
     + (p.selfServe === false ? ' Offered by invitation and approval; never the default.' : '')
-    + ` ${p.includedMinutes} included AI minutes. ${p.bestFor}`,
+    /* Grouped, because it is read aloud and quoted verbatim: "1400 included
+       AI minutes" is the one number on this line a person reads as a typo. */
+    + ` ${p.includedMinutes.toLocaleString('en-CA')} included minutes. ${p.bestFor}`,
 }));
 
 const service = {
   '@context': 'https://schema.org',
   '@type': 'Service',
   '@id': `${SITE}/#service`,
-  name: 'Call Answering and Lead Capture Service',
+  /* The name said "Call Answering and Lead Capture Service" while the page it
+     sits on leads with Lead Generation and Quote Recovery: the structured data
+     described the third of three offers as the whole product. Owner ranking of
+     2026-09-12: customers found first, quotes second, the phone third. */
+  name: 'Lead Generation, Quote Recovery and call answering for Canadian trades',
   /* Answer engines quote serviceType verbatim, so it may only name things the
      service actually provisions. It said "appointment booking" while a
      provisioned agent has no calendar credential and no booking tool: the
      structured data was making a promise the phone line refuses to keep, on
      the one surface a prospect never gets to sanity-check. */
-  serviceType: '24/7 phone answering, call qualification, and structured lead capture',
+  serviceType: 'Lead Generation by invitation, quote follow-up, and 24/7 call answering with structured lead capture',
+  /* "by invitation" is load-bearing, not decoration: check-consistency's
+     readiness guard reads every JSON-LD description on this page and fails any
+     that names a capability roadmap-config.js does not mark available without a
+     word saying it is not here yet. lead-generation is private_pilot. */
   description:
-    'A done-for-you service that answers a business phone line 24/7, qualifies the caller, ' +
-    'takes the job details and the time the caller wants, and texts the owner a summary within seconds. ' +
-    'Configured around each business\'s own hours, service area, job types, and approved rules.',
+    'Nevamis finds a trades or service business more of the customers it wants ' +
+    '(Lead Generation, by invitation: a person reads public pages and builds the list, ' +
+    'the owner decides every row, and nobody on it is contacted), follows up the quotes ' +
+    'it already sent with the owner\'s approval, and answers its phone around the clock, ' +
+    'texting and emailing the owner each call\'s details within seconds.',
   provider: { '@id': `${SITE}/#organization` },
   areaServed: [
     { '@type': 'Country', name: 'Canada' },
@@ -167,7 +186,9 @@ const service = {
       unitText: 'MONTH',
       billingIncrement: 1,
     },
-    availability: 'https://schema.org/InStock',
+    availability: p.selfServe === false
+      ? 'https://schema.org/LimitedAvailability'
+      : 'https://schema.org/InStock',
     url: `${SITE}/pricing.html`,
   })),
   hasOfferCatalog: {
