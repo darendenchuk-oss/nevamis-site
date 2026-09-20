@@ -378,13 +378,31 @@ section>.wrap{position:relative;z-index:2}
 
 /* THE PAGE HERO. One geometry, whatever a page calls its first section. */
 .page-hero{position:relative;overflow:clip;padding:150px 0 48px;border-top:none}
-.page-hero h1{font-size:var(--fs-hero);margin:0}
+/* The hero headline keeps the 14px the h1,h2 rule gives every heading on the
+   site. It shipped as margin:0, which took that space back, and at the hero
+   step that is 52px of Bricolage with its lede sitting on the descenders.
+   Six pages had patched it locally (five at 14px, the generated template at
+   16px); all six copies are gone and this line is the only one that sets it. */
+.page-hero h1{font-size:var(--fs-hero);margin:0 0 14px}
 @media(max-width:760px){.page-hero{padding:118px 0 40px}}
 
 .section-head{max-width:660px;margin-bottom:30px}
 .section-head h2{margin:0 0 14px}
-p.lede,.section-head p{font-family:var(--f-body);font-size:var(--fs-lede);
+/* .doc-sub is the film's name for a lede; it sits under the station section's
+   heading and is the same object. */
+p.lede,.section-head p,.doc-sub{font-family:var(--f-body);font-size:var(--fs-lede);
   line-height:var(--lh-snug);color:var(--ink-3);max-width:var(--measure-lede);margin:0}
+
+/* THE CENTRED SECTION HEAD. Homepage-only by usage - a centred head reads as a
+   manifesto, which is right above the fold of the page whose job is to
+   establish the brand and wrong beside a comparison table - but the rule lives
+   here with the other section-head rules rather than in the film's stylesheet,
+   because it is a component and not a piece of the film. The lede keeps its
+   52ch measure and is centred by its margins; only the headings drop the cap,
+   which is what the homepage has always rendered. */
+.centre{max-width:var(--col-centre);margin:0 auto;text-align:center}
+.centre h1,.centre h2{max-width:none;margin-left:auto;margin-right:auto}
+.centre p.lede{margin-left:auto;margin-right:auto}
 
 /* THE EYEBROW, and it is the highest-value swap in this redesign. It is done
    by restyling the class rather than rewriting markup: .eyebrow already exists
@@ -397,13 +415,13 @@ p.lede,.section-head p{font-family:var(--f-body);font-size:var(--fs-lede);
    a small glowing dot drawn by ::before. .k is the film's name for the same
    object and is carried as an alias so sections.html, site.js's runtime markup
    and the #doc stations keep working without a rename. */
-.eyebrow,.k{font-family:var(--f-mono);font-size:var(--fs-label);line-height:1.3;
+.eyebrow,.k,.doc-k{font-family:var(--f-mono);font-size:var(--fs-label);line-height:1.3;
   font-weight:400;letter-spacing:var(--tr-label);text-transform:uppercase;
   color:var(--emerald);display:flex;gap:9px;align-items:center;flex-wrap:wrap;
   margin:0 0 14px;
   /* the pill is gone */
   border:0;border-radius:0;padding:0;background:none}
-.eyebrow::before,.k::before{content:"";width:5px;height:5px;border-radius:50%;
+.eyebrow::before,.k::before,.doc-k::before{content:"";width:5px;height:5px;border-radius:50%;
   background:var(--emerald);box-shadow:var(--glow-dot);flex:none}
 /* The markup dot on the generated hero is now redundant - ::before draws it. */
 .eyebrow .dot{display:none}
@@ -439,8 +457,25 @@ span.eyebrow{display:flex;width:fit-content}
    decoration with no homepage counterpart. The elements themselves come out
    of the markup page by page; this stops them painting in the meantime. */
 .glow{display:none}
+/* THE CTA ROW, under all three names the site has for it: .cta-row on the
+   hand-authored pages, .ctarow in the film's sections, .midcta for the row
+   that sits mid-page beside a line of mono. One recipe for all three - the
+   film's gap and alignment, because the homepage is the reference - so that a
+   row of buttons is the same object wherever it appears. */
 .midcta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .midcta .mono{color:var(--ink-3);font-size:13px}
+.cta-row,.ctarow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.ctarow{margin:22px 0 0}
+.centre .ctarow,#industries .ctarow{justify-content:center}
+/* On a phone every CTA row runs its buttons edge to edge. Two pills sized to
+   their labels measured 136px and 163px on pricing against 350px on the pages
+   that carried this rule locally, and it was the loudest phone difference
+   left on the site. Seven page-local copies were deleted when this landed;
+   this is the only one, and it covers all four class names in use. */
+@media(max-width:760px){
+  .page-hero .cta .btn,.cta-row .btn,.ctarow .btn,.midcta .btn{
+    width:100%;justify-content:center}
+}
 
 /* ONE SURFACE for every card-ish thing on the site: radius 12, the green-black
    glass fill, and the lit top edge. The interior ran radius 16 over a navy
@@ -496,6 +531,20 @@ a.card:hover::before,.ind-card:hover::before,.related a:hover::before{opacity:.9
   font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2);
   max-width:78ch;margin:0 0 8px}
 .card p:last-child,.plan p:last-child{margin-bottom:0}
+/* The guard above excludes .price so that pricing.html's 38px display numeral
+   keeps its own rule, which leaves the OTHER price - the sentence site.js
+   writes into the plans strip, and the one a station card carries - with
+   nothing at all. It is card copy in bold. Qualified with p because the
+   numeral is a <div> and must not pick up a bottom margin from here. */
+p.price{font-size:var(--fs-card);line-height:var(--lh-body);font-weight:700;
+  color:var(--ink-2);margin:0 0 8px}
+/* The closing line of an offer card: what the customer ends up with. */
+.outcome{font-weight:700}
+/* The foot of a card: the row of chips and names under an industry card. Its
+   own font-size and colour were dead behind the guarded .card p rule for as
+   long as they existed, so what moves here is what actually renders - the row
+   itself, at the card step the paragraph rule already gives it. */
+.cardfoot{margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 /* Bigger padding for the blocks that carry a whole offer rather than a note. */
 .offer-card,.plan,.panel,.journey{padding:var(--pad-card-lg)}
 
@@ -527,6 +576,9 @@ a.card:hover::before,.ind-card:hover::before,.related a:hover::before{opacity:.9
   border-radius:var(--r-pill);border:1px solid;white-space:nowrap;line-height:1.35}
 .chip.av {color:var(--on-mint);background:var(--mint);    border-color:var(--mint)}
 .chip.dev{color:#7fae99;        background:none;          border-color:rgba(127,174,153,.4)}
+/* "By invitation" is its own state and needs its own paint. Filled mint (av)
+   would read as available and hollow grey (dev) as not started, and it is
+   neither. Warm outline: present, distinct, not a promise of availability. */
 .chip.inv{color:var(--warm);    background:none;          border-color:rgba(240,180,98,.45)}
 .chip.rec{color:var(--on-mint); background:var(--emerald);border-color:var(--emerald);
   letter-spacing:.14em}
@@ -727,7 +779,6 @@ html.no-js .summary-arrive,html.motion-off .summary-arrive{opacity:1;transform:n
 .ghost-rail{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .ghost-rail span{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--muted);opacity:.5;
   border:1px dashed var(--line);border-radius:999px;padding:5px 12px}
-.cta-row{display:flex;gap:14px;flex-wrap:wrap}
 .sim-body{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:18px;margin-bottom:16px}
 @media(max-width:940px){.sim-body{grid-template-columns:1fr}}
 .sim-col h3{font-size:12px;font-family:"Spline Sans Mono",monospace;font-weight:500;letter-spacing:.13em;
@@ -813,7 +864,10 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
 .ind-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 @media(max-width:1020px){.ind-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.ind-grid{grid-template-columns:1fr}}
-.ind-card{padding:20px;overflow:hidden}
+/* No padding of its own: an industry card is a card, and --pad-card is what a
+   card is padded with. The 20px here made the one page that has these cards
+   disagree with every other card on it by 2px. */
+.ind-card{overflow:hidden}
 .ind-card .art{position:relative;height:86px;border-radius:10px;margin-bottom:14px;
   border:1px solid rgba(159,240,206,.1);background-color:#02080D;
   background-size:cover;background-position:center;background-repeat:no-repeat}
@@ -821,7 +875,10 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
   background:linear-gradient(180deg,rgba(2,8,13,.18) 0%,rgba(6,20,29,.62) 100%)}
 .ind-card>.mono{font-size:11px;letter-spacing:.14em;color:var(--mint)}
 .ind-card h3{margin:7px 0 8px}
-.ind-card p{color:var(--muted);font-size:14px}
+/* No paragraph rule of its own. It set 14px in lede grey with no :not()
+   guards, so it beat the label rule and the industry card's own eyebrow
+   rendered as a 14px line of body text instead of an 11px emerald label. The
+   card's guarded paragraph rule already says what a card's copy is. */
 
 /* ---------- ROI ---------- */
 /* ONE FORM CONTROL for every form on the site. The three families (.roi-grid,
@@ -1026,7 +1083,10 @@ td.part{color:var(--warm)}
 .founder p{color:var(--muted);font-size:14.5px;display:block}
 
 /* ---------- FAQ ---------- */
-.faq details{margin-bottom:10px;overflow:hidden}
+/* padding:0 because the summary and the answer carry their own. Without it a
+   FAQ card took the card padding as well and sat 40px taller than the same
+   card on the homepage, which is where this idiom comes from. */
+.faq details{margin-bottom:10px;overflow:hidden;padding:0}
 .faq summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:14px;
   padding:17px 20px;font-weight:700;font-size:16px;font-family:"Bricolage Grotesque",sans-serif;
   transition:color .2s var(--e-out)}
@@ -1036,8 +1096,11 @@ td.part{color:var(--warm)}
   border:1px solid var(--line);border-radius:50%;transition:transform .3s var(--e-out),background .3s var(--e-out)}
 .faq details[open] summary::before{transform:rotate(45deg);background:rgba(159,240,206,.1)}
 .faq summary:hover{color:var(--mint)}
-.faq details p{padding:0 20px 18px 60px;color:var(--muted);font-size:15px;
-  animation:faqOpen .35s var(--e-out)}
+/* A FAQ answer is card copy: --ink-2 at the card step, not the lede grey it
+   used to run in. The homepage has always rendered it that way and the ladder
+   says so; this is the rule the other pages were missing. */
+.faq details p{padding:0 20px 18px 60px;color:var(--ink-2);font-size:var(--fs-card);
+  line-height:var(--lh-body);animation:faqOpen .35s var(--e-out)}
 .faq details a{color:var(--mint);text-decoration:underline;text-underline-offset:3px}
 @keyframes faqOpen{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 html.motion-off .faq details p{animation:none}

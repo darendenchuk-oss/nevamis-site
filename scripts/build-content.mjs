@@ -96,22 +96,12 @@ ${CSS_BLOCK}
      fill and the lit top edge, and it does not move on hover); and the ghost
      button's painted plate and 4px ring. */
 
-  /* The shared .page-hero h1 sets margin:0, which also takes back the 14px the
-     h1,h2 rule puts under every heading on the site. At the hero step that is
-     52px of display type with its lede sitting on the descenders. Restored at
-     the hero's own scale; the shared rule is reported. */
-  .page-hero h1{margin:0 0 16px}
-
-  /* THE HERO ROW. On a phone the buttons go full width and centre, which is
-     what the homepage's own CTA row does at the same breakpoint: two pills
-     sized to their labels sat 180px wide against the homepage's 350px, and it
-     was the loudest difference between the two halves of the site on a phone.
-     .midcta is the same row lower down the page and takes the same treatment
-     here; the shared rule is reported rather than changed. */
+  /* The hero's h1 margin and the phone's full-width CTA row were both patched
+     here, because the shared sheet zeroed the one and never made the other.
+     Both are in assets/motion/site.css now (.page-hero h1 at 14px, and one
+     phone rule covering .cta, .cta-row, .ctarow and .midcta), so these nine
+     pages read the same two values as the other fourteen. */
   .page-hero .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
-  @media(max-width:760px){
-    .page-hero .cta .btn,.midcta .btn{width:100%;justify-content:center}
-  }
 
   /* THE HERO'S SUPPORTING PARAGRAPH. It had no rule anywhere, so it rendered
      at the body step in --ink across the full 1092px column: larger, brighter

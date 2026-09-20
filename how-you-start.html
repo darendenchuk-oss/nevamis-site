@@ -334,18 +334,21 @@ section.tight{padding-top:var(--sec-y)}
 section>.wrap{position:relative;z-index:2}
 @media(max-width:760px){:root{--sec-y:64px}}
 .page-hero{position:relative;overflow:clip;padding:150px 0 48px;border-top:none}
-.page-hero h1{font-size:var(--fs-hero);margin:0}
+.page-hero h1{font-size:var(--fs-hero);margin:0 0 14px}
 @media(max-width:760px){.page-hero{padding:118px 0 40px}}
 .section-head{max-width:660px;margin-bottom:30px}
 .section-head h2{margin:0 0 14px}
-p.lede,.section-head p{font-family:var(--f-body);font-size:var(--fs-lede);
+p.lede,.section-head p,.doc-sub{font-family:var(--f-body);font-size:var(--fs-lede);
   line-height:var(--lh-snug);color:var(--ink-3);max-width:var(--measure-lede);margin:0}
-.eyebrow,.k{font-family:var(--f-mono);font-size:var(--fs-label);line-height:1.3;
+.centre{max-width:var(--col-centre);margin:0 auto;text-align:center}
+.centre h1,.centre h2{max-width:none;margin-left:auto;margin-right:auto}
+.centre p.lede{margin-left:auto;margin-right:auto}
+.eyebrow,.k,.doc-k{font-family:var(--f-mono);font-size:var(--fs-label);line-height:1.3;
   font-weight:400;letter-spacing:var(--tr-label);text-transform:uppercase;
   color:var(--emerald);display:flex;gap:9px;align-items:center;flex-wrap:wrap;
   margin:0 0 14px;
   border:0;border-radius:0;padding:0;background:none}
-.eyebrow::before,.k::before{content:"";width:5px;height:5px;border-radius:50%;
+.eyebrow::before,.k::before,.doc-k::before{content:"";width:5px;height:5px;border-radius:50%;
   background:var(--emerald);box-shadow:var(--glow-dot);flex:none}
 .eyebrow .dot{display:none}
 .eyebrow i,.k i{font-style:normal;color:var(--ink-dim)}
@@ -364,6 +367,13 @@ span.eyebrow{display:flex;width:fit-content}
 .glow{display:none}
 .midcta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .midcta .mono{color:var(--ink-3);font-size:13px}
+.cta-row,.ctarow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.ctarow{margin:22px 0 0}
+.centre .ctarow,#industries .ctarow{justify-content:center}
+@media(max-width:760px){
+  .page-hero .cta .btn,.cta-row .btn,.ctarow .btn,.midcta .btn{
+    width:100%;justify-content:center}
+}
 .card,.panel,.call-card,.owner-card,.sim,.ind-card,.roi-out,.roi-grid form,
 .proc>div,.proc>li,.week>div,.stack .layer,.assure,.founder,.faq details,
 .compare-wrap,.mode-panel,.related a,.plan,.svc,.twocol>div,.plan-box,.j-step{
@@ -395,6 +405,10 @@ a.card:hover::before,.ind-card:hover::before,.related a:hover::before{opacity:.9
   font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2);
   max-width:78ch;margin:0 0 8px}
 .card p:last-child,.plan p:last-child{margin-bottom:0}
+p.price{font-size:var(--fs-card);line-height:var(--lh-body);font-weight:700;
+  color:var(--ink-2);margin:0 0 8px}
+.outcome{font-weight:700}
+.cardfoot{margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .offer-card,.plan,.panel,.journey{padding:var(--pad-card-lg)}
 .roi-out{position:sticky;top:86px}
 @media(pointer:coarse){
@@ -539,7 +553,6 @@ html.no-js .summary-arrive,html.motion-off .summary-arrive{opacity:1;transform:n
 .ghost-rail{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .ghost-rail span{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--muted);opacity:.5;
   border:1px dashed var(--line);border-radius:999px;padding:5px 12px}
-.cta-row{display:flex;gap:14px;flex-wrap:wrap}
 .sim-body{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:18px;margin-bottom:16px}
 @media(max-width:940px){.sim-body{grid-template-columns:1fr}}
 .sim-col h3{font-size:12px;font-family:"Spline Sans Mono",monospace;font-weight:500;letter-spacing:.13em;
@@ -613,7 +626,7 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
 .ind-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 @media(max-width:1020px){.ind-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.ind-grid{grid-template-columns:1fr}}
-.ind-card{padding:20px;overflow:hidden}
+.ind-card{overflow:hidden}
 .ind-card .art{position:relative;height:86px;border-radius:10px;margin-bottom:14px;
   border:1px solid rgba(159,240,206,.1);background-color:#02080D;
   background-size:cover;background-position:center;background-repeat:no-repeat}
@@ -621,7 +634,6 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
   background:linear-gradient(180deg,rgba(2,8,13,.18) 0%,rgba(6,20,29,.62) 100%)}
 .ind-card>.mono{font-size:11px;letter-spacing:.14em;color:var(--mint)}
 .ind-card h3{margin:7px 0 8px}
-.ind-card p{color:var(--muted);font-size:14px}
 .roi-grid label,.cb label,.rc label,.interest-form label,form label{
   font-weight:700;font-size:14.5px;display:block;margin-bottom:7px;color:var(--ink)}
 .roi-grid input,.roi-grid select,.roi-grid textarea,
@@ -732,7 +744,7 @@ td.part{color:var(--warm)}
 .founder{display:flex;gap:18px;align-items:center;padding:18px;margin-top:6px}
 .founder img{border-radius:50%;border:2px solid rgba(159,240,206,.3);flex:0 0 auto}
 .founder p{color:var(--muted);font-size:14.5px;display:block}
-.faq details{margin-bottom:10px;overflow:hidden}
+.faq details{margin-bottom:10px;overflow:hidden;padding:0}
 .faq summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:14px;
   padding:17px 20px;font-weight:700;font-size:16px;font-family:"Bricolage Grotesque",sans-serif;
   transition:color .2s var(--e-out)}
@@ -742,8 +754,8 @@ td.part{color:var(--warm)}
   border:1px solid var(--line);border-radius:50%;transition:transform .3s var(--e-out),background .3s var(--e-out)}
 .faq details[open] summary::before{transform:rotate(45deg);background:rgba(159,240,206,.1)}
 .faq summary:hover{color:var(--mint)}
-.faq details p{padding:0 20px 18px 60px;color:var(--muted);font-size:15px;
-  animation:faqOpen .35s var(--e-out)}
+.faq details p{padding:0 20px 18px 60px;color:var(--ink-2);font-size:var(--fs-card);
+  line-height:var(--lh-body);animation:faqOpen .35s var(--e-out)}
 .faq details a{color:var(--mint);text-decoration:underline;text-underline-offset:3px}
 @keyframes faqOpen{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 html.motion-off .faq details p{animation:none}
@@ -867,21 +879,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      above: .page-hero, --fs-hero, p.lede, the .twocol>div card surface and the
      one .inc / .exc bullet row. What is left is this page's own geometry. */
   .page-hero .cta-row{margin-top:22px}
-  /* site.css zeroes the page hero's h1 margin (.page-hero h1{margin:0}) while
-     p.lede sets margin:0 as well, so the measured gap between a 52px headline
-     and the paragraph under it is exactly 0 on every converted page. The 14px
-     restored here is the value h1,h2 already carries; the fix belongs in
-     site.css and is listed as a handoff in the report. */
-  .page-hero h1{margin-bottom:14px}
+  /* The hero h1's 14px and the phone's full-width CTA row are both in
+     assets/motion/site.css now, so this page reads the same two values as
+     every other page. The copies that stood here are gone. */
   .proof{max-width:var(--measure-lede)}
-  /* On a phone the homepage puts a whole button row at full width, centred
-     (main .ctarow .btn, 350px at 390). site.css has no such rule for .cta-row
-     or .midcta, so every interior row sat inline at 136-163px beside a
-     full-width homepage. Same breakpoint, same result; handed off in the
-     report. */
-  @media(max-width:760px){
-    .cta-row .btn,.midcta .btn{width:100%;justify-content:center}
-  }
 
   .twocol{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-offer)}
   @media (max-width:820px){.twocol{grid-template-columns:1fr}}
