@@ -890,9 +890,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   /* the standalone link idiom, pushed to the foot so the row of cards agrees */
   .modes .card .more{margin-top:auto;align-self:flex-start;padding-top:8px}
 
-  /* This page's journey is an <ol>, so the numeral lands on ol.proc>li::before,
-     which outranks the shared lit top edge on .proc>li::before. Without this
-     these would be the only cards on the site with no crown of light. */
+  /* This page runs its journey as an ordered list, so the numeral lands on
+     ol.proc>li::before, which outranks the shared lit top edge on
+     .proc>li::before. Without this these would be the only cards on the site
+     with no crown of light. */
   .proc>li::after{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
     background:var(--glow-lit);opacity:.55}
   .proc>li h3{margin:8px 0 7px}
