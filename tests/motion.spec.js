@@ -228,17 +228,28 @@ for (const vp of VIEWPORTS) {
 
     // the plain URL, so the dev inspector never obscures the real layout
     await page.goto(PLAIN);
-    await page.waitForFunction(() => !!window.__heroTL);
-    // jump to the resolved state so CTAs are present
-    // NB: braces matter. GSAP methods return the timeline, and returning that
-    // circular object graph to Playwright makes serialisation hang.
-    await page.evaluate(() => { window.__heroTL.progress(1).pause(); });
-    await page.waitForTimeout(250);
+    /* REPOINTED at the composed page (2026-09-20). Every line of this block
+       used to wait on window.__heroTL and then jump it to progress(1). The
+       homepage has been the film since the film shipped: it does not load
+       assets/motion/main.js, so hero.js never runs and __heroTL is never
+       defined. The wait timed out on all five viewports, which means the
+       horizontal-overflow gate this test exists for — the one at 1440, 1024,
+       390, 375 and 360 — has not run in weeks. The controls it asserts moved
+       too: there is no a.btn-ghost[data-cta] on the page any more, and "Hear
+       it answer" is a ghost button, not the primary.
 
-    const primary = page.locator('a.btn-primary').filter({ hasText: /Hear it answer/i }).first();
-    // scope to the hero CTAs — the header also holds .btn-ghost, and on
-    // mobile that one legitimately lives inside the closed menu
-    const secondary = page.locator('a.btn-ghost[data-cta]').first();
+       The CTAs now checked are the page's own, inside <main>, below the film.
+       Scrolling to the end is what makes them real: site.js ARMS .reveal
+       blocks to opacity 0 and only releases them on intersection, so a CTA
+       asserted at scroll 0 proves the markup and not the layout. */
+    await page.locator('main a.btn-primary').first().waitFor({ state: 'attached' });
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(600);
+
+    const primary = page.locator('main a.btn-primary').first();
+    // scope to <main> — the header also holds a .btn-ghost, and on mobile that
+    // one legitimately lives inside the closed menu
+    const secondary = page.locator('main a.btn-ghost').first();
     await expect(primary).toBeVisible();
     await expect(secondary).toBeVisible();
 
@@ -270,22 +281,16 @@ for (const vp of VIEWPORTS) {
     vp.width);
     expect(escapees, `elements past the right edge at ${vp.name}`).toEqual([]);
 
-    // The primary CTA must sit above the fold on EVERY supported size, phones
-    // included. This is the conversion guarantee, not a desktop nicety.
-    const box = await primary.boundingBox();
-    expect(box.y + box.height, `primary CTA must sit above the fold at ${vp.name}`).toBeLessThan(vp.height);
-
+    /* The above-the-fold CTA guarantee went with the pre-film hero, and it is
+       not restated here as a smaller promise. The first screen of this page is
+       the film, whose own ending CTA (#close-hold .cta2) is the control that
+       has to be reachable; the page CTAs asserted above are deliberately below
+       it. Reinstating a fold assertion against the film's opening frame would
+       fail by design, and quietly weakening it to "somewhere on the page"
+       would be a green test that proved nothing. */
     const file = `layout-${vp.name}.png`;
     await page.screenshot({ path: path.join(OUT, file) });
-    note(file, `Resolved hero at ${vp.name}: both CTAs visible and no horizontal overflow.`);
-
-    // the storytelling beat must survive the shrink, not just the resolved frame.
-    // 3.65 = the middle of the ANSWER dwell (see MOTION.beats "route").
-    await page.evaluate(() => { window.__heroTL.pause(3.65); });
-    await page.waitForTimeout(180);
-    const storyFile = `story-${vp.name}.png`;
-    await page.screenshot({ path: path.join(OUT, storyFile) });
-    note(storyFile, `The ANSWER step of the routing story at ${vp.name} — checks the narrative stays legible as the stage shrinks.`);
+    note(file, `The composed page at ${vp.name}: both CTAs visible and no horizontal overflow.`);
 
     expect(errors, errors.join('\n')).toEqual([]);
     await ctx.close();

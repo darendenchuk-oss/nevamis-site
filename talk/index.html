@@ -11,28 +11,176 @@
 <title>Talk to the front desk | Nevamis</title>
 <link rel="icon" href="/favicon.ico">
 <style>
-  :root { color-scheme: dark; }
-  * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 32px 20px;
-    background: #02080D; color: #EAF3EE;
-    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  .talk { max-width: 460px; width: 100%; border: 1px solid rgba(159,240,206,.14); border-radius: 18px;
-    background: #0D1C27; padding: 30px 30px 26px; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7); }
-  .brand { display: inline-block; margin-bottom: 18px; color: #9FF0CE; text-decoration: none;
-    font-weight: 700; letter-spacing: .12em; font-size: 13px; text-transform: uppercase; }
-  h1 { margin: 0 0 8px; font-size: 24px; }
-  p { margin: 0 0 18px; color: #8AA5A0; font-size: 15px; }
-  .pri { font: inherit; font-weight: 600; cursor: pointer; border: 0; border-radius: 999px;
-    padding: 12px 22px; background: #2FBF8F; color: #04120C; }
-  .pri[disabled] { opacity: .6; cursor: default; }
-  .fine { margin: 14px 0 0; font-size: 13px; }
-  .or { display: block; margin: 22px 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #8AA5A0; }
-  .num { font: 24px ui-monospace, SFMono-Regular, Menlo, monospace; color: #9FF0CE; text-decoration: none; }
+  /* ============================================================
+     /talk/ IS THE ONE PAGE NO BUILDER REACHES.
+
+     It is not in content-map.json, so build-pages.mjs never inlines
+     assets/motion/site.css here and this block is the whole stylesheet. That
+     is deliberate: its CSP is different from every other page's - blob
+     workers, jsDelivr and ElevenLabs websockets - and adding it to the map
+     would drag it into build-pages, build-schema and the shared CSP for the
+     sake of a 3 KB page.
+
+     So the system is restated here by hand, with the real token names, so
+     that the day it does join the map every custom property below is
+     overridden by an identical one and nothing moves.
+
+     THE TYPE IS THE SITE'S NOW. It was system-ui and a system mono, on the
+     one page a prospect is handed to try the product: measured, seven text
+     nodes in system-ui, two in ui-monospace and not one in any of the site's
+     three faces. The three @font-face blocks below fix that without changing
+     what this page costs to open. They are the site's own faces from
+     /assets/fonts/ - no new typeface, no CDN, no Google Fonts, no preload,
+     nothing added to the CSP (font-src already allows 'self') - the latin
+     subsets only, because every word on the page is latin, and all three are
+     font-display:swap, so they are fetched after the first paint and the
+     button is pressable the whole time. talk.js still loads the provider's
+     software only when the visitor presses start.
+
+     The URLs are root-absolute because 404.html is served for nested paths
+     and base-uri 'none' rules out a <base> tag, which is the same reason
+     inline-css.mjs rewrites them for every other page.
+     ============================================================ */
+  /* Metric-matched fallbacks for Atkinson, copied from assets/fonts/fonts.css.
+     They are local() with a measured size-adjust, so they cost no request and
+     they are what holds the layout while the real face arrives. */
+  @font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 400;
+    src: local('Arial'), local('Helvetica');
+    size-adjust: 98.82%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+  @font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 400;
+    src: local('Segoe UI');
+    size-adjust: 99.65%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+  @font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 700;
+    src: local('Arial Bold'), local('Arial'), local('Helvetica');
+    size-adjust: 100.52%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+  @font-face { font-family: 'Atkinson Fallback'; font-style: normal; font-weight: 700;
+    src: local('Segoe UI Bold'), local('Segoe UI');
+    size-adjust: 101.13%; ascent-override: 95%; descent-override: 29%; line-gap-override: 0%; }
+  /* Atkinson Hyperlegible, the body face: two static weights, 17 KB each. */
+  @font-face { font-family: 'Atkinson Hyperlegible'; font-style: normal; font-weight: 400;
+    font-display: swap; src: url(/assets/fonts/atkinson-hyperlegible-400-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Atkinson Hyperlegible'; font-style: normal; font-weight: 700;
+    font-display: swap; src: url(/assets/fonts/atkinson-hyperlegible-700-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  /* Bricolage Grotesque, the display face: one variable file, the whole axis,
+     because a single font-weight descriptor pins it (see fonts.css). */
+  @font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 200 800;
+    font-stretch: 100%; font-display: swap;
+    src: url(/assets/fonts/bricolage-grotesque-variable-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  /* Spline Sans Mono, the label face: one variable file, the whole axis. */
+  @font-face { font-family: 'Spline Sans Mono'; font-style: normal; font-weight: 300 700;
+    font-display: swap; src: url(/assets/fonts/spline-sans-mono-variable-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  :root{
+    color-scheme:dark;
+    --bg:#02080D;
+    --emerald:#2FBF8F; --mint:#9FF0CE; --on-mint:#06231A;
+    --ink:#EAF3EE;    /* headings                                 17.79:1 */
+    --ink-2:#b9dccb;  /* body inside a surface                    13.58:1 */
+    --ink-3:#9dc7b4;  /* lede                                     10.80:1 */
+    --ink-4:#6fa18c;  /* fine print                                6.86:1 */
+    --line-soft:rgba(159,240,206,.08);
+    --line:rgba(159,240,206,.13);
+    --line-lit:rgba(159,240,206,.55);
+    --surface:linear-gradient(160deg,rgba(6,26,19,.72),rgba(2,8,13,.86));
+    --surface-coarse:linear-gradient(160deg,rgba(6,24,18,.80),rgba(2,8,13,.92));
+    --glow-lit:linear-gradient(90deg,transparent,var(--line-lit),transparent);
+    --glow-btn:0 0 34px rgba(159,240,206,.35),0 0 90px rgba(47,191,143,.18);
+    --glow-dot:0 0 8px rgba(47,191,143,.8);
+    --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+    --f-body:"Atkinson Hyperlegible","Atkinson Fallback","Segoe UI",system-ui,sans-serif;
+    --f-mono:"Spline Sans Mono",ui-monospace,monospace;
+    --r-card:12px; --r-pill:999px;
+    --e-out:cubic-bezier(.16,1,.3,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink)}
+  body{min-height:100vh;display:grid;place-items:center;padding:32px 20px;
+    font-family:var(--f-body);font-size:16.5px;line-height:1.55;
+    -webkit-font-smoothing:antialiased}
+  /* THE HERO POOL, the same two radials .grid-lines paints at the top of
+     every interior hero. It is what says "the page begins here" in the
+     site's own vocabulary, and it is the only decoration on the page. */
+  body::before{content:"";position:fixed;left:0;right:0;top:0;
+    height:min(60vh,420px);pointer-events:none;z-index:0;
+    background:
+      radial-gradient(70% 90% at 50% 0,rgba(47,191,143,.16),transparent 70%),
+      radial-gradient(45% 55% at 82% 12%,rgba(159,240,206,.05),transparent 70%)}
+  ::selection{background:rgba(47,191,143,.35);color:var(--ink)}
+  a{color:inherit;text-decoration:none}
+  :focus-visible{outline:2px solid var(--mint);outline-offset:3px;border-radius:6px}
+
+  /* THE CARD. The site's one surface: radius 12, the green-black glass fill,
+     the hairline edge and the lit top crown, inset 12px from each side. It
+     used to be a flat #0D1C27 navy panel at radius 18 under a 30px black
+     drop shadow, which is the one card recipe the redesign retired. */
+  .talk{position:relative;overflow:hidden;z-index:1;max-width:460px;width:100%;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--r-card);padding:26px 28px;
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .talk::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
+    background:var(--glow-lit);opacity:.55}
+  @media (pointer:coarse){
+    .talk{background:var(--surface-coarse);backdrop-filter:none;-webkit-backdrop-filter:none}
+  }
+
+  /* The wordmark, with the same arch-and-dot and the same capitals kerning
+     the nav carries. The DOM text stays "Nevamis": text-transform draws the
+     capitals, so the link's accessible name is the word, not a seven-letter
+     initialism, and the negative margin takes back the tracking the last
+     glyph adds to the right edge. The V-A pair closes on its own. */
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--f-display);
+    font-weight:700;font-size:17px;
+    color:var(--ink);margin-bottom:22px;width:fit-content}
+  .brand svg{width:22px;height:22px;flex:none;transform:translateY(-1.7px)}
+  .brand .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
+  .brand .wm-v{letter-spacing:.055em}
+
+  h1{font-family:var(--f-display);font-size:24px;font-weight:700;letter-spacing:-.02em;
+    line-height:1.15;color:var(--ink);margin:0 0 10px}
+  p{color:var(--ink-2);font-size:15px;line-height:1.55;margin:0 0 18px}
+
+  /* The site's one primary: a flat mint pill on --on-mint, 44px tall, with
+     the two-stop glow. It was an emerald fill, which is the header gradient
+     the redesign retired. */
+  .pri{font:inherit;font-weight:600;font-size:16px;cursor:pointer;border:none;
+    border-radius:var(--r-pill);padding:15px 26px;min-height:44px;
+    background:var(--mint);color:var(--on-mint);box-shadow:var(--glow-btn);
+    transition:transform .18s var(--e-out),box-shadow .25s var(--e-out)}
+  .pri:hover{transform:translateY(-2px);
+    box-shadow:0 0 44px rgba(159,240,206,.5),0 0 110px rgba(47,191,143,.25)}
+  .pri:active{transform:scale(.97)}
+  .pri[disabled]{opacity:.6;cursor:default;transform:none;box-shadow:none}
+  @media (prefers-reduced-motion:reduce){
+    .pri,.pri:hover,.pri:active{transition:none;transform:none}
+  }
+
+  .fine{font-size:12.5px;line-height:1.5;color:var(--ink-4);margin:16px 0 0}
+
+  /* The site's label idiom: 11px mono capitals in emerald with a glowing
+     dot, and a rule above it, which is how every boundary on the site is
+     drawn. 11px is the legibility floor; nothing here goes under it. */
+  .or{display:flex;align-items:center;gap:9px;font-family:var(--f-mono);
+    font-size:11px;line-height:1.3;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--emerald);border-top:1px solid var(--line-soft);
+    margin:24px 0 10px;padding-top:22px}
+  .or::before{content:"";width:5px;height:5px;border-radius:50%;flex:none;
+    background:var(--emerald);box-shadow:var(--glow-dot)}
+  .num{display:inline-block;font-family:var(--f-mono);font-size:22px;
+    color:var(--mint);min-height:44px;line-height:44px}
+  .num:hover{color:var(--ink)}
 </style>
 </head>
 <body>
 <main class="talk">
-  <a class="brand" href="/">Nevamis</a>
+  <a class="brand" href="/">
+    <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <path d="M 15 38 A 17 17 0 0 1 49 38" stroke="#2FBF8F" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="32" cy="48" r="6" fill="#9FF0CE"/>
+    </svg>
+    <span class="wm">Ne<span class="wm-v">v</span>amis</span></a>
   <h1>Talk to the front desk</h1>
   <p>Speak to it right here in your browser. It is the same assistant as the phone line, so try to trip it up.</p>
   <button type="button" class="pri" id="talkStart">Start the voice call</button>
