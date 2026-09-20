@@ -905,9 +905,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      - the same --line-soft hairline the node lists and the table use - instead
      of eleven floating blocks. The left accent stays for the speaking row. */
   #callCard .line+.line{border-top:1px solid var(--line-soft)}
-  #callCard .line{border-radius:0;padding:11px 10px}
+  /* 104px, not the shared 86: "Cedarview AI" is 12 mono characters and at
+     --fs-label it needs 90 of them, so the shared track broke the speaker's
+     name over two lines on every one of the six agent turns. */
+  #callCard .line{border-radius:0;padding:11px 10px;grid-template-columns:104px 1fr}
   #callCard .line p{font-size:var(--fs-card);color:var(--ink-2)}
-  #callCard .line .who{font-size:var(--fs-label);letter-spacing:var(--tr-tag);color:var(--ink-5)}
+  #callCard .line .who{font-size:var(--fs-label);letter-spacing:var(--tr-chip);color:var(--ink-5)}
   #callCard .line.agent .who{color:var(--emerald)}
   /* At phone width an 86px label column breaks "Cedarview AI" over three
      lines beside a two-line sentence. The turns stack instead. */
