@@ -48,7 +48,7 @@ const count = (n) => n.toLocaleString('en-US');
     public website and every figure it gives is a modelled range, the leak
     framing was retired by DC#54, and Lead Generation lists businesses the
     owner decides on: nobody on the list is contacted by us. */
-export const TRADE_HERO_PROOF = `      <p class="proof" style="margin-top:12px">The phone is one part of Nevamis. Lead Generation, offered by invitation, finds businesses of the kind you want more of. A person here reads public pages and builds the list, with the page each one came from, and you decide every one. Nobody on it is contacted by us. Quote Recovery follows up the quotes you already sent, with your name on each email and your approval before it goes.
+export const TRADE_HERO_PROOF = `      <p class="proof">The phone is one part of Nevamis. Lead Generation, offered by invitation, finds businesses of the kind you want more of. A person here reads public pages and builds the list, with the page each one came from, and you decide every one. Nobody on it is contacted by us. Quote Recovery follows up the quotes you already sent, with your name on each email and your approval before it goes.
         Or <a href="https://app.nevamis.ca/scan" data-evt="trade_scan_click">scan my website</a>: it reads only what is public on your own site, and any figure it gives is a modelled range, not a measurement.</p>
 `;
 
@@ -281,7 +281,7 @@ export const PAGES = {
         Nevamis outside your business hours, and during the day nothing is different. You can
         switch it off from your own phone whenever you want.</p>
     </div>
-    <ol class="path-steps" role="list" style="list-style:none;padding:0">
+    <ol class="path-steps" role="list">
       <li class="pstep"><h3>You choose the hours</h3><p>Evenings only, weekends, holidays, or
         any schedule that matches how you actually work.</p></li>
       <li class="pstep"><h3>Calls forward automatically</h3><p>Your existing number stays
@@ -367,7 +367,7 @@ export const PAGES = {
 
   'vs-voicemail.html': {
     description: 'Voicemail is free and better than nothing. It does not qualify anyone or take a job down. An honest comparison, including when voicemail wins.',
-    heroProof: `      <p class="proof" style="margin-top:12px">This comparison is about the phone. The phone is one part of Nevamis. Nevamis also offers Lead Generation, by invitation, and Quote Recovery for the quotes you already sent, which tells you which quotes came back and what they were worth.</p>`,
+    heroProof: `      <p class="proof">This comparison is about the phone. The phone is one part of Nevamis. Nevamis also offers Lead Generation, by invitation, and Quote Recovery for the quotes you already sent, which tells you which quotes came back and what they were worth.</p>`,
     h1: 'AI receptionist vs voicemail',
     lede: `Voicemail is free and it is better than nothing. It also does not qualify anyone, take a job down, or stop a caller reaching your competitor. Here is the honest comparison.`,
     body: `
@@ -387,7 +387,7 @@ export const PAGES = {
         </tbody>
       </table>
     </div>
-    <p class="foot-note reveal" style="margin-top:14px">Voicemail genuinely wins on price. The
+    <p class="foot-note reveal">Voicemail genuinely wins on price. The
       question is what one recovered job a month is worth against a one-time
       Launch &amp; Implementation fee to start, then the monthly plan you would be on.</p>
   </div>
@@ -409,7 +409,7 @@ export const PAGES = {
 
   'vs-answering-service.html': {
     description: 'Live answering services use real people and charge per call or minute. An honest comparison with Nevamis, including where a person still wins.',
-    heroProof: `      <p class="proof" style="margin-top:12px">Both options above answer the phone. Nevamis also offers Lead Generation, by invitation, which finds businesses of the kind you want more of and leaves every one for you to decide. It also offers Quote Recovery for the quotes you already sent. Every answered call is in your portal with its summary and recording.</p>`,
+    heroProof: `      <p class="proof">Both options above answer the phone. Nevamis also offers Lead Generation, by invitation, which finds businesses of the kind you want more of and leaves every one for you to decide. It also offers Quote Recovery for the quotes you already sent. Every answered call is in your portal with its summary and recording.</p>`,
     h1: 'AI receptionist vs a live answering service',
     /* "rather than book the job" until 2026-08-09: a comparison whose only
        force came from implying Nevamis books, which nothing does. The real
