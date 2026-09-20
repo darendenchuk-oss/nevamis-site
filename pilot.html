@@ -853,6 +853,30 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 }
 </style>
 <!-- /generated:css -->
+
+<style>
+  /* This page is the system and nothing else: one .page-hero, the shared hero
+     pool, the shared type steps. The only rule it needs is the gap under the
+     hero copy, because site.css's .cta-row declares no margin of its own while
+     the homepage's .ctarow declares 22px. Same number, so the two rows sit the
+     same distance under their paragraph; see the report for the handoff that
+     moves it into the shared sheet. */
+  .page-hero .cta-row{margin-top:22px}
+  /* On a phone the homepage puts a whole button row at full width, centred
+     (main .ctarow .btn, 350px at 390). site.css has no such rule for .cta-row
+     or .midcta, so every interior row sat inline at 136-163px beside a
+     full-width homepage. Same breakpoint, same result; handed off in the
+     report. */
+  @media(max-width:760px){
+    .cta-row .btn,.midcta .btn{width:100%;justify-content:center}
+  }
+  /* site.css zeroes the page hero's h1 margin (.page-hero h1{margin:0}) while
+     p.lede sets margin:0 as well, so the measured gap between a 52px headline
+     and the paragraph under it is exactly 0 on every converted page. The 14px
+     restored here is the value h1,h2 already carries; the fix belongs in
+     site.css and is listed as a handoff in the report. */
+  .page-hero h1{margin-bottom:14px}
+</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -882,13 +906,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </header>
 
 <main id="main">
-  <section style="min-height:100svh;display:flex;align-items:center;position:relative;overflow:hidden">
+  <section class="page-hero">
     <div class="grid-lines" aria-hidden="true"></div>
-    <div class="wrap" style="max-width:760px;position:relative;z-index:1;padding-top:96px">
+    <div class="wrap">
       <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>The question you came with</p>
-      <h1 style="font-size:clamp(34px,5vw,58px);letter-spacing:-.03em;line-height:1.06;margin:14px 0 0">Can I try it first?</h1>
-      <p style="color:var(--muted);font-size:clamp(16px,1.5vw,19px);line-height:1.55;margin-top:20px">No, and there is nothing of the kind to try: Nevamis has no trial, paid or free, no pilot, and no evaluation period. What there is instead is an ordinary subscription with no minimum term, started by a one-time Launch &amp; Implementation fee, month to month from the first month and cancelled from your own portal at any time. What gets built before a customer ever reaches your line, what it will not do, and what the two published figures are, is all set out on the how you start page.</p>
-      <div class="cta-row" style="margin-top:28px">
+      <h1>Can I try it first?</h1>
+      <p class="lede">No, and there is nothing of the kind to try: Nevamis has no trial, paid or free, no pilot, and no evaluation period. What there is instead is an ordinary subscription with no minimum term, started by a one-time Launch &amp; Implementation fee, month to month from the first month and cancelled from your own portal at any time. What gets built before a customer ever reaches your line, what it will not do, and what the two published figures are, is all set out on the how you start page.</p>
+      <div class="cta-row">
         <a class="btn btn-primary btn-lg" href="/how-you-start.html">How you start</a>
         <a class="btn btn-ghost btn-lg" href="/pricing.html">See the plans</a>
       </div>

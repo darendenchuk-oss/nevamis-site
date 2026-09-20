@@ -859,47 +859,83 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 <!-- /generated:css -->
 
 <style>
-  /* ---------- book-page specific (everything else lives in assets/motion/site.css) ---------- */
-  .page-hero{padding:150px 0 56px}
-  .page-hero h1{font-weight:700;letter-spacing:-.03em;line-height:1.05;margin:14px 0 0;
-    font-size:clamp(38px,5.6vw,68px)}
-  .lede{color:var(--muted);font-size:clamp(16px,1.5vw,19px);margin-top:16px;line-height:1.55;max-width:52ch}
-  #bkPrefill input{color:var(--ink)}
-  #bkPrefill input::placeholder{color:var(--muted)}
+  /* ---------- page layout only ----------
+     Gone from here: a third .page-hero geometry, a 68px headline, a second lede
+     recipe, a second form-control scale (13.5px labels, 9px radius, 44px
+     fields) and the 820px columns that put this page's left edge 180px inside
+     every other page's. All of it is in assets/motion/site.css, inlined above.
+     What is left is the scheduler panel, which is the one object on the site
+     that has to frame somebody else's document. */
+  .midcta{margin-top:26px}
+  /* On a phone the homepage puts a whole button row at full width, centred
+     (main .ctarow .btn, 350px at 390). site.css has no such rule for .cta-row
+     or .midcta, so every interior row sat inline at 136-163px beside a
+     full-width homepage. Same breakpoint, same result; handed off in the
+     report. */
+  @media(max-width:760px){
+    .cta-row .btn,.midcta .btn{width:100%;justify-content:center}
+  }
+  /* site.css zeroes the page hero's h1 margin (.page-hero h1{margin:0}) while
+     p.lede sets margin:0 as well, so the measured gap between a 52px headline
+     and the paragraph under it is exactly 0 on every converted page. The 14px
+     restored here is the value h1,h2 already carries; the fix belongs in
+     site.css and is listed as a handoff in the report. */
+  .page-hero h1{margin-bottom:14px}
+
+  /* THE SCHEDULER PANEL. It takes the shared card surface, the lit crown and
+     radius 12 from .panel, and centres its own heading, sub and notes because
+     the calendar inside it is a centred object and the copy has to agree with
+     it. The heading is the page's destination, not an item in a grid, so it
+     runs at the section step rather than the .panel h2 card step. */
+  #pick-a-time{scroll-margin-top:88px}
+  #pick-a-time .sched-h{font-size:var(--fs-h2);line-height:var(--lh-tight);
+    letter-spacing:var(--tr-head);max-width:none;text-align:center;margin:0 auto 12px}
+  #pick-a-time .sched-sub{font-size:var(--fs-lede);line-height:var(--lh-snug);
+    color:var(--ink-3);max-width:var(--measure-lede);margin:0 auto 20px;text-align:center}
+  #pick-a-time .fine2{text-align:center;max-width:64ch;margin:14px auto 0}
+
+  /* The optional prefill row. It is a form control like every other one on the
+     site and wants the shared recipe; site.css's selector list reaches
+     .roi-grid, .cb, .rc and .interest-form and not this row, so the same
+     values are restated here. See the report for the handoff. */
+  #bkPrefill{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  #bkPrefill input{width:100%;padding:12px 13px;font-size:15.5px;font-family:inherit;
+    color:var(--ink);background:rgba(159,240,206,.04);border:1px solid var(--line-control);
+    border-radius:var(--r-input);min-height:46px;color-scheme:dark;
+    transition:border-color var(--t-base) var(--e-out),box-shadow var(--t-base) var(--e-out)}
+  #bkPrefill input::placeholder{color:var(--ink-4)}
   #bkPrefill input:focus{outline:none;border-color:rgba(159,240,206,.5);
     box-shadow:0 0 0 3px rgba(159,240,206,.5)}
-  #booking a:not(.btn){color:var(--mint);text-decoration:underline;text-underline-offset:3px}
-  @media(max-width:720px){#bkPrefill{grid-template-columns:1fr!important}}
+  @media(max-width:720px){#bkPrefill{grid-template-columns:1fr}}
+
   /* The scheduler had 296px of usable width at a 390px viewport: 40px of .wrap
      padding plus 52px of .panel padding taken off a phone screen, spent framing
      a calendar that then had nowhere to draw. The panel keeps its padding for
      everything else and gives it back to the iframe alone.
      Cal stacks its layout when narrow, so the frame is taller on a phone than
-     on a desktop, not shorter. */
+     on a desktop, not shorter.
+     The !important that used to be here is gone with the inline padding:26px it
+     existed to beat: an id plus a class outranks the shared .panel rule now. */
   @media(max-width:720px){
-    /* !important because the panel carries padding:26px as an inline style,
-       and an inline style beats a stylesheet rule regardless of specificity.
-       Overriding one is the case !important exists for. */
-    #booking .panel{padding-left:12px!important;padding-right:12px!important}
+    #pick-a-time.panel{padding-left:12px;padding-right:12px}
   }
 
   /* ---------- callback request ---------- */
-  .cb{margin-top:34px;padding-top:28px;border-top:1px solid var(--line)}
-  .cb-h{font-size:clamp(20px,2.2vw,25px);letter-spacing:-.02em;margin:0 0 8px}
-  .cb-sub{color:var(--muted);font-size:14.5px;max-width:56ch;margin:0 0 18px;line-height:1.55}
+  /* The fields themselves are site.css's one form control, reached through the
+     .cb label / .cb input selectors. What is left here is the grid and the
+     status message. */
+  .cb{margin-top:34px;padding-top:28px;border-top:1px solid var(--line-soft)}
+  .panel .cb-h{font-size:20px;line-height:1.3;letter-spacing:var(--tr-h3);
+    max-width:none;margin:0 0 8px;text-align:left}
+  .cb-sub{color:var(--ink-3);font-size:var(--fs-card);max-width:var(--measure-lede);
+    margin:0 0 18px;line-height:var(--lh-body)}
   .cb-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   @media(max-width:720px){.cb-grid{grid-template-columns:1fr}}
-  .cb-grid label{display:block;font-size:13.5px;font-weight:700;color:var(--ink)}
-  .cb-grid input{width:100%;margin-top:6px;padding:11px 12px;font-size:15px;font-family:inherit;
-    color:var(--ink);background:rgba(159,240,206,.04);border:1px solid var(--line-control);
-    border-radius:9px;min-height:44px;
-    transition:border-color .2s var(--e-out),box-shadow .2s var(--e-out)}
-  .cb-grid input:focus-visible{outline:none;border-color:rgba(159,240,206,.5);
-    box-shadow:0 0 0 3px rgba(159,240,206,.5)}
-  .cb-grid input[aria-invalid="true"]{border-color:rgba(255,120,120,.55)}
+  .cb-grid input{margin-top:6px}
+  .cb-grid input[aria-invalid="true"]{border-color:rgba(229,131,123,.65)}
   .cb-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:16px}
-  .cb-note{font-size:12.5px;color:var(--muted-dark)}
-  .cb-msg{margin-top:14px;padding:11px 13px;border-radius:9px;font-size:14px;line-height:1.5}
+  .cb-msg{margin-top:14px;padding:11px 13px;border-radius:var(--r-input);
+    font-size:14px;line-height:var(--lh-snug)}
   /* Empty means "nothing to say", not "not here". The live region stays in the
      accessibility tree at all times and only its TEXT changes, because a region
      inserted already containing its message is not reliably announced - several
@@ -986,8 +1022,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 <main id="main">
   <section class="page-hero">
     <div class="grid-lines" aria-hidden="true"></div>
-    <div class="glow" style="width:600px;height:380px;right:-140px;top:-80px" aria-hidden="true"></div>
-    <div class="wrap" style="max-width:820px">
+    <div class="wrap">
       <div>
         <span class="eyebrow mono"><span class="dot" aria-hidden="true"></span>Book a 15-minute call with Daren</span>
         <h1>Fifteen minutes. Your numbers, straight answers.</h1>
@@ -996,23 +1031,27 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     </div>
   </section>
 
-  <section class="tight" id="booking">
-    <div class="wrap" style="max-width:820px">
+  <section id="booking">
+    <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">What the call covers</p>
         <h2>Three things, then you decide.</h2>
       </div>
-      <div class="proc" style="margin-bottom:38px">
+      <div class="proc">
         <div class="reveal"><h3>Who you want more of</h3><p>The kind of customer you would want more of this year. Lead Generation is by invitation, and this call is where it starts.</p></div>
         <div class="reveal"><h3>What slips past you today</h3><p>The quotes that went quiet and the calls you miss, and exactly what Nevamis would handle for you.</p></div>
         <div class="reveal"><h3>What it costs</h3><p>The plan that fits, its one-time Launch &amp; Implementation fee to start, then its monthly. Both are published before you decide.</p></div>
       </div>
+    </div>
+  </section>
 
+  <section>
+    <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">Before you book</p>
         <h2>What this call is, and what it is not.</h2>
       </div>
-      <div class="proc" style="margin-bottom:38px">
+      <div class="proc">
         <div class="reveal">
           <h3>Fifteen minutes, on video or phone</h3>
           <p>Whichever you prefer. No slide deck, no script, and no second call with a
@@ -1036,8 +1075,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             something.</p>
         </div>
       </div>
+    </div>
+  </section>
 
-      <div class="section-head reveal">
+  <section>
+    <div class="wrap">
+      <div class="section-head reveal prose">
         <p class="eyebrow mono">Would rather not book yet</p>
         <h2>Then hear it first.</h2>
         <!-- This said the demo line "is the same system a client's agent runs
@@ -1054,32 +1097,37 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           questions, try to confuse it, hang up whenever you want. It will ask for your name and a
           number so Daren can get back to you, and you can say no and it carries on answering.</p>
       </div>
-      <div class="midcta reveal" style="margin-bottom:38px">
+      <div class="midcta reveal">
         <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer · (587)&nbsp;413-0035</a>
         <a class="btn btn-ghost" href="/how-you-start.html">Read how you start</a>
       </div>
-      <!-- The anchor the header's "Book a call" resolves to. It used to be the
-           #booking section, which starts the page's explanatory run: on desktop
-           that button is in a position:fixed header and therefore on screen at
-           every scroll position, so someone sitting AT the calendar who pressed
-           the only control labelled "Book a call" was carried 1,520px backwards,
-           away from it. On mobile the nav is behind the drawer and the only
-           persistent chrome is the callbar, which dials the demo, so nothing on
-           screen reached the scheduler at all.
-           scroll-margin-top because .site-header is fixed at 68px and this site
-           sets scroll-margin nowhere; without it the heading lands underneath
-           the header. Scoped here rather than globally: the other anchor targets
-           are section tops with padding to spare, and a sitewide scroll offset
-           is a change that would need sitewide proof. -->
-      <div class="reveal panel" id="pick-a-time" style="padding:26px;scroll-margin-top:88px">
-        <h2 style="font-size:clamp(24px,3vw,32px);margin-bottom:8px;text-align:center">Pick a time that works.</h2>
-        <p style="color:var(--muted);margin-bottom:18px;text-align:center">Times show in your timezone (Daren is in Edmonton, Mountain time). You get a calendar invite with a video link.</p>
+    </div>
+  </section>
+
+  <!-- The anchor the header's "Book a call" resolves to. It used to be the
+       #booking section, which starts the page's explanatory run: on desktop
+       that button is in a position:fixed header and therefore on screen at
+       every scroll position, so someone sitting AT the calendar who pressed
+       the only control labelled "Book a call" was carried 1,520px backwards,
+       away from it. On mobile the nav is behind the drawer and the only
+       persistent chrome is the callbar, which dials the demo, so nothing on
+       screen reached the scheduler at all.
+       scroll-margin-top because .site-header is fixed at 68px and this site
+       sets scroll-margin nowhere; without it the heading lands underneath
+       the header. Scoped to the panel rather than applied globally: the other
+       anchor targets are section tops with padding to spare, and a sitewide
+       scroll offset is a change that would need sitewide proof. -->
+  <section>
+    <div class="wrap">
+      <div class="reveal panel prose" id="pick-a-time">
+        <h2 class="sched-h">Pick a time that works.</h2>
+        <p class="sched-sub">Times show in your timezone (Daren is in Edmonton, Mountain time). You get a calendar invite with a video link.</p>
         <!-- Optional prefill: rewrites the scheduler URL with Cal.com prefill
              params. Pure enhancement; the iframe works untouched without JS. -->
-        <div id="bkPrefill" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px" hidden>
-          <input id="bkName" enterkeyhint="next" aria-label="Your name (optional, prefills the booking form)" placeholder="Your name (optional prefill)" autocomplete="name" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line-control);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
-          <input id="bkBiz" enterkeyhint="next" aria-label="Business name (optional, prefills the booking form)" placeholder="Business name" autocomplete="organization" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line-control);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
-          <input id="bkEmail" inputmode="email" enterkeyhint="done" aria-label="Email (optional, prefills the booking form)" type="email" placeholder="Email" autocomplete="email" style="padding:10px 12px;font-size:14.5px;border:1px solid var(--line-control);border-radius:9px;font-family:inherit;background:var(--frost);min-height:44px">
+        <div id="bkPrefill" hidden>
+          <input id="bkName" enterkeyhint="next" aria-label="Your name (optional, prefills the booking form)" placeholder="Your name (optional prefill)" autocomplete="name">
+          <input id="bkBiz" enterkeyhint="next" aria-label="Business name (optional, prefills the booking form)" placeholder="Business name" autocomplete="organization">
+          <input id="bkEmail" inputmode="email" enterkeyhint="done" aria-label="Email (optional, prefills the booking form)" type="email" placeholder="Email" autocomplete="email">
         </div>
         <!-- Inline scheduler (works without JS: plain iframe). The external
              link below stays as the always-available fallback (WEB-138).
@@ -1107,8 +1155,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              If Cal.com ever changes the booker's height this needs re-measuring
              because there is no signal that would tell us automatically. -->
         <iframe id="bkFrame" class="nv-cal-frame" src="https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1" title="Book a 15-minute intro call with Daren on the Cal.com scheduler" loading="lazy"></iframe>
-        <p style="margin-top:16px;font-size:14.5px;color:var(--muted);text-align:center">Scheduler not loading, or prefer a full page? <a href="https://cal.com/daren-qvlah4/nevamis-intro" target="_blank" rel="noopener" data-evt="booking_start">Open booking in a new tab</a>.</p>
-        <p style="margin-top:10px;font-size:14.5px;color:var(--muted);text-align:center">Rather talk first? Call <a class="mono" href="tel:+15874130035">(587) 413-0035</a> and ask it to have Daren call you back, or email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
+        <p class="fine2">Scheduler not loading, or prefer a full page? <a href="https://cal.com/daren-qvlah4/nevamis-intro" target="_blank" rel="noopener" data-evt="booking_start">Open booking in a new tab</a>.</p>
+        <p class="fine2">Rather talk first? Call <a class="mono" href="tel:+15874130035">(587) 413-0035</a> and ask it to have Daren call you back, or email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
 
         <!-- A calendar is a commitment, and plenty of owners will not pick a
              slot for a company they met two minutes ago. Until now the only

@@ -859,25 +859,61 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 <!-- /generated:css -->
 
 <style>
-  /* ---------- how-you-start hero (page-specific; everything else in assets/motion/site.css) ---------- */
-  .hero{position:relative;overflow:hidden;padding:150px 0 56px}
-  .hero h1{font-weight:700;letter-spacing:-.03em;line-height:1.05;margin:18px 0 0}
-  .lede{color:var(--muted);font-size:clamp(16px,1.5vw,19px);margin-top:18px;line-height:1.55;max-width:52ch}
-  .lede strong{color:var(--ink);font-weight:700}
-  .hero .cta-row{margin-top:28px}
-  .proof{margin-top:18px;color:var(--muted);font-size:14px;max-width:56ch}
+  /* ---------- page layout only ----------
+     Gone from here: a fourth hero class, a 68px headline, an 860px and a 900px
+     column, a second lede recipe, a second panel recipe at radius 16 over the
+     old navy gradient, and thirteen bullets drawn with a tick glyph or a
+     middot. All of those now come from assets/motion/site.css, which is inlined
+     above: .page-hero, --fs-hero, p.lede, the .twocol>div card surface and the
+     one .inc / .exc bullet row. What is left is this page's own geometry. */
+  .page-hero .cta-row{margin-top:22px}
+  /* site.css zeroes the page hero's h1 margin (.page-hero h1{margin:0}) while
+     p.lede sets margin:0 as well, so the measured gap between a 52px headline
+     and the paragraph under it is exactly 0 on every converted page. The 14px
+     restored here is the value h1,h2 already carries; the fix belongs in
+     site.css and is listed as a handoff in the report. */
+  .page-hero h1{margin-bottom:14px}
+  .proof{max-width:var(--measure-lede)}
+  /* On a phone the homepage puts a whole button row at full width, centred
+     (main .ctarow .btn, 350px at 390). site.css has no such rule for .cta-row
+     or .midcta, so every interior row sat inline at 136-163px beside a
+     full-width homepage. Same breakpoint, same result; handed off in the
+     report. */
+  @media(max-width:760px){
+    .cta-row .btn,.midcta .btn{width:100%;justify-content:center}
+  }
 
-  .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
-  .twocol > div { background: linear-gradient(180deg,var(--navy-2),#0C1A25); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
-  .twocol h3 { font-size: 18px; margin-bottom: 12px; }
-  .twocol ul { list-style: none; padding: 0; margin: 0; }
-  .twocol li { font-size: 14.5px; color: var(--muted); padding: 5px 0 5px 22px; position: relative; }
-  .inc li::before { content: "✓"; position: absolute; left: 0; color: var(--emerald); font-weight: 700; }
-  .exc li::before { content: "·"; position: absolute; left: 6px; color: var(--muted); font-weight: 700; }
-  @media (max-width: 820px) { .twocol { grid-template-columns: 1fr; } }
-  .qa dt { font-weight: 700; margin-top: 16px; }
-  .qa dd { color: var(--muted); margin: 4px 0 0; font-size: 15.5px; }
-  .founding-note { background: rgba(240,180,98,.08); border: 1px solid rgba(240,180,98,.35); border-radius: 16px; padding: 18px 24px; margin-top: 30px; }
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-offer)}
+  @media (max-width:820px){.twocol{grid-template-columns:1fr}}
+  .twocol h3{margin-bottom:10px}
+  /* The lit top edge, which is the detail that makes a panel look like this
+     site. site.css draws it for .card, .panel, .proc>div and six others but
+     its ::before list does not reach .twocol>div; same recipe, same values,
+     scoped here. See the report: the shared list should grow instead. */
+  .twocol>div::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
+    background:var(--glow-lit);opacity:.55}
+
+  /* The Q&A. It keeps its <dl> - that is what it is - and takes the FAQ's type
+     steps plus the site's row hairline, so a run of eight answers reads as
+     rows rather than as one wall. */
+  .qa{margin-top:34px;border-top:1px solid var(--line-soft)}
+  .qa dt{font-family:var(--f-display);font-size:16px;font-weight:700;
+    letter-spacing:var(--tr-h3);color:var(--ink);padding-top:18px}
+  .qa dd{font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2);
+    max-width:78ch;margin:6px 0 0;padding-bottom:18px;border-bottom:1px solid var(--line-soft)}
+
+  /* The capacity note: the shared card surface, radius 12, and the same lit
+     crown in warm rather than mint, because warm is what the note is for. */
+  .founding-note{position:relative;overflow:hidden;margin-top:30px;
+    background:var(--surface);border:1px solid rgba(240,180,98,.35);
+    border-radius:var(--r-card);padding:var(--pad-card)}
+  .founding-note::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(240,180,98,.55),transparent);opacity:.6}
+  .founding-note .warn{font-weight:700;color:var(--warm)}
+  .founding-note .warn+p{font-size:var(--fs-fine);line-height:var(--lh-snug);
+    color:var(--ink-4);margin-top:6px}
+  .midcta{margin-top:32px}
+  @media(pointer:coarse){.founding-note{background:var(--surface-coarse)}}
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -952,25 +988,24 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </header>
 
 <main id="main">
-  <section class="hero">
+  <section class="page-hero">
     <div class="grid-lines" aria-hidden="true"></div>
-    <div class="glow" style="width:600px;height:380px;right:-140px;top:-80px" aria-hidden="true"></div>
-    <div class="wrap" style="max-width:860px">
+    <div class="wrap">
       <div>
         <span class="eyebrow"><span class="dot" aria-hidden="true"></span>How you start</span>
-        <h1 style="font-size:clamp(38px,5.6vw,68px)">There is no trial, and no minimum term.</h1>
+        <h1>There is no trial, and no minimum term.</h1>
         <p class="lede">You pay a one-time Launch &amp; Implementation fee that starts the build, then your plan's monthly price from the day you start, with no minimum term: it is month to month from the first month, and you stop it yourself from your portal at any time. <strong>Both figures are published before you commit, and past the start, the only recurring charges are the monthly and any overage past your included minutes.</strong> Before a single customer reaches it, the system is built from your business and tested against written call scenarios, with your line proven by a real call.</p>
         <div class="cta-row">
           <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
           <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer</a>
         </div>
-        <p class="proof">Every build is done and reviewed by the founder, so we take on a limited number at a time. That is a capacity limit, not a scarcity tactic.</p>
+        <p class="proof fine2">Every build is done and reviewed by the founder, so we take on a limited number at a time. That is a capacity limit, not a scarcity tactic.</p>
       </div>
     </div>
   </section>
 
   <section class="tight" data-spine>
-    <div class="wrap" style="max-width:900px">
+    <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">Exactly how it works</p>
         <h2>The honest fine print, in plain language.</h2>
@@ -1035,7 +1070,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         </div>
       </div>
 
-      <dl class="qa reveal" style="margin-top:34px">
+      <dl class="qa prose reveal">
         <dt>Is there a trial?</dt>
         <dd>No, paid or free. You start on a plan, or on a single automation bought on its own, and you are charged the day you start. There is no minimum term: it is month to month from the first month, cancelled from your own portal at any time, with service running to the end of the month you already paid for.</dd>
         <!-- The retired offer's own question stood here until 2026-09-19. It
@@ -1045,7 +1080,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <dt>Then what protects me if it does not work?</dt>
         <dd>The cancel button, and the call log. Every call is recorded and playable in your portal with the lead record beside it, so by the end of the first week you are not judging a promise, you are reading what actually happened on your own line. If it is not worth the money, you cancel it yourself from your portal at any time, without asking us and without a phone call, and your service runs to the end of the month you already paid for.</dd>
         <dt>What does it cost to start?</dt>
-        <dd>Two published figures: the one-time Launch &amp; Implementation fee, then the monthly price of the plan you choose. On the AI Front Desk, the recommended plan, that is C$1,500 Launch &amp; Implementation to start, then C$1,000 a month. The fee pays for the build itself, once, and is never charged again; past the start, the only recurring charges are the monthly, any automation add-ons you chose, and any overage past your included minutes. There is no minimum term: month to month from the first month, cancelled from your own portal at any time. The build takes days, so your line is answered inside the first week. Every plan's figures are on the <a href="/pricing.html" style="color:var(--mint)">pricing page</a>, in Canadian dollars, plus GST/HST.</dd>
+        <dd>Two published figures: the one-time Launch &amp; Implementation fee, then the monthly price of the plan you choose. On the AI Front Desk, the recommended plan, that is C$1,500 Launch &amp; Implementation to start, then C$1,000 a month. The fee pays for the build itself, once, and is never charged again; past the start, the only recurring charges are the monthly, any automation add-ons you chose, and any overage past your included minutes. There is no minimum term: month to month from the first month, cancelled from your own portal at any time. The build takes days, so your line is answered inside the first week. Every plan's figures are on the <a href="/pricing.html">pricing page</a>, in Canadian dollars, plus GST/HST.</dd>
         <dt>How does Lead Generation start?</dt>
         <dd>Lead Generation is by invitation, and a short call is where it starts. Tell us who you would want more of this year. We read public pages and list businesses of exactly that kind, each with the page it came from. You decide every one, and nobody on it is contacted by us. It is arranged on the Performance Partnership, and Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement.</dd>
         <dt>What do you need from me?</dt>
@@ -1055,7 +1090,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <dt>What if a caller has an emergency, or the AI does not know?</dt>
         <dd>It uses the fallbacks you approved: take a message, flag the summary as urgent, or fall back to your voicemail. On an urgent call Nevamis captures the urgent details and alerts your team. It does not invent answers outside your rules, and any call where a caller used emergency language is flagged for review automatically rather than waiting for you to find it.</dd>
         <dt>What happens to the call data?</dt>
-        <dd>Call details exist to run your service: the summary to you, the record in your portal. Recording settings are agreed with you before you go live, and you can export the lead record to CSV yourself at any time. If you cancel, data is retained only as our <a href="/privacy.html" style="color:var(--mint)">privacy policy</a> describes, then deleted.</dd>
+        <dd>Call details exist to run your service: the summary to you, the record in your portal. Recording settings are agreed with you before you go live, and you can export the lead record to CSV yourself at any time. If you cancel, data is retained only as our <a href="/privacy.html">privacy policy</a> describes, then deleted.</dd>
       </dl>
 
       <!-- This block promised the first five businesses a waived setup fee.
@@ -1065,11 +1100,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            the capacity limit, which is the only part of it that was ever
            true. -->
       <div class="reveal founding-note">
-        <p style="font-weight:700;color:#F0B462">We take on a few businesses at a time.</p>
-        <p style="font-size:13px;color:var(--muted);margin-top:4px">A real limit, not marketing: every build is done and reviewed by the founder, and founder-led onboarding caps how many can run at once.</p>
+        <p class="warn">We take on a few businesses at a time.</p>
+        <p>A real limit, not marketing: every build is done and reviewed by the founder, and founder-led onboarding caps how many can run at once.</p>
       </div>
 
-      <div class="midcta reveal" style="margin-top:32px">
+      <div class="midcta reveal">
         <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
         <a class="btn btn-light-ghost btn-lg" href="/pricing.html">See the plans</a>
       </div>
