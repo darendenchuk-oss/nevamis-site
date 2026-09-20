@@ -496,7 +496,7 @@ span.eyebrow{display:flex;width:fit-content}
    border and not a shadow: it reads as light across the crown of the panel. */
 .card::before,.panel::before,.roi-out::before,.faq details::before,
 .related a::before,.plan::before,.call-card::before,.compare-wrap::before,
-.stack .layer::before,.proc>div::before,.proc>li::before{
+.stack .layer::before,.proc>div::before,.proc>li::before,.twocol>div::before{
   content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
   background:var(--glow-lit);opacity:.55}
 
