@@ -848,6 +848,65 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 }
 </style>
 <!-- /generated:css -->
+<style>
+  /* ============================================================
+     THE DOCUMENT PAGE - SHARED, NOT PAGE-LOCAL
+
+     This block is the .doc-page adaptation from the coherence spec and it
+     belongs in assets/motion/site.css beside the other components. It is
+     repeated verbatim in terms.html, privacy.html, 404.html and
+     proposal.html because site.css is owned by another group in this pass.
+     Handed off: move it there once, delete these four copies, and change
+     nothing in it on the way.
+
+     A reference document gets the site's ground, its type ramp, its
+     hairlines and its link treatment. It does not get film-scale headings: a
+     52px hero over a column of clause text is theatre. h1 is --fs-doc, a
+     section heading is 22px, and the rule above each one is the same
+     boundary idiom every <section> on the site already carries, so the
+     document reads as one column of the homepage's own rhythm instead of as
+     a wall of text with nothing in it.
+
+     Scoped to `main` throughout. The spec's own selector was a bare
+     `.doc-page h2`, which also matches the footer's .foot-h headings, and on
+     404.html that puts a 22px size and a hairline on "Site" and "Legal".
+
+     The :not() guard is load-bearing for the same reason it is on `.card p`:
+     `.doc-page main p` is (0,1,2) and `.eyebrow` is (0,1,0), so without it
+     the page's one label renders as body copy. It is written as one
+     selector list rather than as a chain of five, because a chain scores the
+     sum of its arguments - (0,6,2) - and nothing on a page could then
+     override it without a worse selector of its own.
+     ============================================================ */
+  /* The document column is the MEASURE, not --col-read. --col-read is 820px,
+     which after the gutter leaves 732px of Atkinson at --fs-body: 97
+     characters a line, well past the 75 a reader tracks without losing the
+     row. 660px leaves 572px, about 76 characters, and it is the same 660 the
+     system already uses for .section-head. Text, headings and the hairline
+     above each heading then share one edge, which is what makes the rule read
+     as a boundary rather than as a line trailing off into the margin. */
+  .doc-page main .wrap{max-width:660px}
+  /* The document opens where every other page opens: the same 150px of air
+     under the fixed header that .page-hero uses, and no rule above it. */
+  .doc-page main>section:first-child{padding-top:150px;border-top:none}
+  .doc-page main h1{font-size:var(--fs-doc);margin:0 0 16px}
+  .doc-page main h2{font-size:22px;line-height:1.3;letter-spacing:var(--tr-h3);
+    color:var(--ink);max-width:none;margin:40px 0 10px;padding-top:26px;
+    border-top:1px solid var(--line-soft)}
+  .doc-page main p:not(.eyebrow,.k,.lede,.fine2,.crumb){
+    font-size:var(--fs-body);line-height:var(--lh-body);color:var(--ink-2);
+    margin:0 0 18px}
+  /* The site's in-sentence link idiom, which is `.prose a` in site.css. A
+     document is prose from end to end, so it does not carry the class: fold
+     these two selectors into the .prose a list when this block moves. */
+  .doc-page main p a,.doc-page main li a{color:var(--mint);text-decoration:underline;
+    text-underline-offset:3px;text-decoration-color:rgba(159,240,206,.45)}
+  .doc-page main p a:hover,.doc-page main li a:hover{text-decoration-color:var(--mint)}
+  @media (max-width:760px){
+    .doc-page main>section:first-child{padding-top:112px}
+    .doc-page main h2{margin-top:32px;padding-top:22px}
+  }
+</style>
 
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -894,7 +953,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </script>
 <!-- /generated:schema -->
 </head>
-<body>
+<body class="doc-page">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="wrap">
@@ -921,34 +980,34 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </header>
 <main id="main">
   <section>
-    <div class="wrap" style="max-width:760px">
+    <div class="wrap">
       <p class="eyebrow mono">Legal</p>
-      <h1 style="font-size:clamp(32px,4.5vw,48px);margin:10px 0 8px">Terms of use</h1>
-      <p style="color:var(--muted);margin-bottom:28px">Version 2.7, effective September 12, 2026 (there is no notice period on a cancellation: you cancel from your client portal at any time and your service runs to the end of the month you have already paid for, which removes the notice that version 2.6 still required before a cancellation took effect. Version 2.6, September 8, 2026, removed the minimum term from every plan and automation add-on, so service is month to month from the first month, replacing the commitment introduced on August 22, 2026; the one-time Launch &amp; Implementation fee and the twelve-month price lock are unchanged by both versions. Version 2.5, August 15, 2026, added the Launch &amp; Implementation fee charged beside the first month and the performance fee on attributable collected revenue, both described below; the paid seven-day pilot described in earlier versions remains retired and no longer offered; prior versions 2.4, August 9, 2026, 2.3, August 7, 2026 and 2.2, August 6, 2026). Plain-language terms for this website, the public demo line, and a summary of how paid service works. If you sign a service agreement with us, that agreement governs where the two differ.</p>
-      <h2 style="font-size:22px;margin:34px 0 8px">The website</h2>
-      <p style="color:var(--muted);margin-bottom:18px">Content on nevamis.ca is provided for general information about the Nevamis service. The example call is an illustration using a fictional company. Estimates from the calculator are estimates, not guarantees of business results.</p>
-      <h2 style="font-size:22px;margin:34px 0 8px">The demo line</h2>
-      <p style="color:var(--muted);margin-bottom:18px">The demo number (587) 413-0035 exists so prospective customers can evaluate the agent. Test it honestly and hard. Do not use it for abuse, harassment, unlawful recordings, attempts to extract confidential configuration, or automated or bulk calling intended to exhaust the service.</p>
-      <h2 style="font-size:22px;margin:34px 0 8px">Service plans and how billing works</h2>
-      <p style="color:var(--muted);margin-bottom:18px">Each plan has two published figures, both stated on the pricing page: a one-time Launch &amp; Implementation fee, then a monthly price. C$1,500 Launch &amp; Implementation on the AI Front Desk, C$3,000 on The Works, from C$2,500 on Performance Partnership, and starting at C$5,000 or custom quoted for Enterprise. The Launch &amp; Implementation fee is charged once, at the start, beside the first month; it covers the audit, configuration, integrations, testing and go-live of your system, and it is never charged again. The monthly price is charged on the day the subscription starts and on the same day each month afterwards, in advance, in Canadian dollars plus applicable GST/HST. Automation add-ons (each priced on the pricing page) are optional and are provided only on your instruction: each may be bought on its own or alongside a plan, and each is billed monthly. Beyond those, nothing is billed except usage beyond the included minutes and, on Performance Partnership only, a performance fee charged on collected revenue directly attributable to qualified NEVAMIS-generated opportunities, never on your unrelated revenue and never on profit. The percentage, the attribution window, the measurement method and what counts as eligible revenue are set in your executed agreement and agreed before anything is charged; no rate applies until that agreement is signed. Service carries no minimum term: every plan and every automation add-on, bought on its own or added later, is month to month from the first month. Your subscription price is fixed for twelve months from signing. Plans and add-ons renew monthly and can be cancelled from your client portal at any time, with no notice period, and service continues to the end of the month already paid for. GST/HST is shown and added in accordance with the law. Included usage and overage rates are stated on the pricing page; overage is billed only with usage alerts as described there. Existing clients receive at least 30 days written notice before a material price increase. Full service terms are confirmed in writing when you engage us.</p>
-      <h2 style="font-size:22px;margin:34px 0 8px">Trials and pilots</h2>
-      <p style="color:var(--muted);margin-bottom:18px">Nevamis does not offer a trial or an evaluation period, paid or free. The paid seven-day pilot described in versions 2.2 and 2.3 of these terms was retired on August 9, 2026 and is no longer available; nothing on this website or in any current quotation offers it. Where Nevamis had already accepted money or granted a credit under those earlier terms, that obligation continues to be honoured on the terms in force when it was created. Any period of service is a normal subscription on the terms set out under Cancellation below: it is charged, it renews, and you can end it yourself from the client portal whenever you choose.</p>
-      <h2 style="font-size:22px;margin:34px 0 8px">Third-party services and availability</h2>
-      <p style="color:var(--muted);margin-bottom:18px">Nevamis is built on telephony, voice, scheduling, and payment providers (currently including Twilio, ElevenLabs, Cal.com, and Stripe). We choose reputable providers and design fallbacks, but we do not control them, and no phone or AI service is available 100% of the time. We commit to commercially reasonable efforts to keep service running and to tell you promptly when something is wrong. An outage caused by a carrier, provider, or event outside our control is not a breach of these terms.</p>
-      <h2 style="font-size:22px;margin:34px 0 8px">Acceptable use and suspension</h2>
-      <p style="color:var(--muted);margin-bottom:18px">Do not use the website, the demo line, or the service for anything unlawful, for harassment or abuse, to make unlawful recordings, to attempt to extract confidential configuration or prompts, or for automated or bulk calling intended to exhaust or probe the service. We may suspend or limit access that we reasonably believe is doing any of these things, and will tell you why if we do.</p>
-      <h2 style="font-size:22px;margin:34px 0 8px">Your responsibilities as a client</h2>
-      <p style="color:var(--muted);margin-bottom:18px">If you deploy Nevamis on your own phone line, you are responsible for the caller notices, recording disclosure, and consent that apply to your business and jurisdiction, for keeping the business information you give us accurate, and for your own carrier's call-forwarding settings and charges. We provide the configuration, disclosure wording guidance, and the exact forwarding steps.</p>
-      <h2 style="font-size:22px;margin:34px 0 8px">Liability</h2>
-      <p style="color:var(--muted);margin-bottom:18px">The website and demo line are provided as is, without warranties of any kind beyond those the law does not allow us to exclude. To the extent permitted by law: neither party is liable to the other for indirect, consequential, or special losses, including lost profits or lost business opportunities; and for paid service, the total liability of Nevamis for all claims in any 12-month period is capped at the fees you paid us in the three months before the event giving rise to the claim. Nothing in these terms limits liability that cannot be limited under applicable law, including under Alberta consumer-protection law where it applies.</p>
-      <h2 style="font-size:22px;margin:34px 0 8px">Cancellation</h2>
-      <p style="color:var(--muted);margin-bottom:18px">Paid plans carry no minimum term, stated above and on the pricing page: every plan and every automation add-on, bought on its own or added later, is month to month from the first month. You can cancel at any time from the Plan and billing page in your client portal, or by emailing Sales@nevamis.ca, and that counts from the moment you send it. There is no notice period: the cancellation takes effect at the end of the month you have already paid for, and you keep the service you paid for until then. Nothing renews after that and there is no cancellation fee. You can reverse a cancellation from the same page at any time before it takes effect, with no gap in service and nothing extra to pay. Your phone number and your call forwarding remain yours throughout: reverting forwarding takes minutes and needs nothing from us. When service ends, we return or delete your business data on request as described in the privacy policy.</p>
-      <h2 style="font-size:22px;margin:34px 0 8px">Governing law and disputes</h2>
-      <p style="color:var(--muted);margin-bottom:18px">These terms are governed by the laws of Alberta and the federal laws of Canada that apply there. Courts located in Edmonton, Alberta have jurisdiction, and both sides agree to try direct good-faith resolution before going there. Nothing here prevents either party from using a court or tribunal that consumer-protection law makes available.</p>
-      <h2 style="font-size:22px;margin:34px 0 8px">Changes and the rest</h2>
-      <p style="color:var(--muted);margin-bottom:18px">If we change these terms materially, we update the version and date at the top of this page and, for active clients, give notice by email at least 30 days before the change applies to them. If part of these terms is found unenforceable, the rest still stands. For visitors, these terms and the privacy policy are the whole agreement about the website and demo line; for clients, your signed service agreement comes first wherever the two differ.</p>
-      <h2 style="font-size:22px;margin:34px 0 8px">Contact</h2>
-      <p style="color:var(--muted);margin-bottom:18px"><a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a> · Edmonton, Alberta, Canada</p>
+      <h1>Terms of use</h1>
+      <p>Version 2.7, effective September 12, 2026 (there is no notice period on a cancellation: you cancel from your client portal at any time and your service runs to the end of the month you have already paid for, which removes the notice that version 2.6 still required before a cancellation took effect. Version 2.6, September 8, 2026, removed the minimum term from every plan and automation add-on, so service is month to month from the first month, replacing the commitment introduced on August 22, 2026; the one-time Launch &amp; Implementation fee and the twelve-month price lock are unchanged by both versions. Version 2.5, August 15, 2026, added the Launch &amp; Implementation fee charged beside the first month and the performance fee on attributable collected revenue, both described below; the paid seven-day pilot described in earlier versions remains retired and no longer offered; prior versions 2.4, August 9, 2026, 2.3, August 7, 2026 and 2.2, August 6, 2026). Plain-language terms for this website, the public demo line, and a summary of how paid service works. If you sign a service agreement with us, that agreement governs where the two differ.</p>
+      <h2>The website</h2>
+      <p>Content on nevamis.ca is provided for general information about the Nevamis service. The example call is an illustration using a fictional company. Estimates from the calculator are estimates, not guarantees of business results.</p>
+      <h2>The demo line</h2>
+      <p>The demo number (587) 413-0035 exists so prospective customers can evaluate the agent. Test it honestly and hard. Do not use it for abuse, harassment, unlawful recordings, attempts to extract confidential configuration, or automated or bulk calling intended to exhaust the service.</p>
+      <h2>Service plans and how billing works</h2>
+      <p>Each plan has two published figures, both stated on the pricing page: a one-time Launch &amp; Implementation fee, then a monthly price. C$1,500 Launch &amp; Implementation on the AI Front Desk, C$3,000 on The Works, from C$2,500 on Performance Partnership, and starting at C$5,000 or custom quoted for Enterprise. The Launch &amp; Implementation fee is charged once, at the start, beside the first month; it covers the audit, configuration, integrations, testing and go-live of your system, and it is never charged again. The monthly price is charged on the day the subscription starts and on the same day each month afterwards, in advance, in Canadian dollars plus applicable GST/HST. Automation add-ons (each priced on the pricing page) are optional and are provided only on your instruction: each may be bought on its own or alongside a plan, and each is billed monthly. Beyond those, nothing is billed except usage beyond the included minutes and, on Performance Partnership only, a performance fee charged on collected revenue directly attributable to qualified NEVAMIS-generated opportunities, never on your unrelated revenue and never on profit. The percentage, the attribution window, the measurement method and what counts as eligible revenue are set in your executed agreement and agreed before anything is charged; no rate applies until that agreement is signed. Service carries no minimum term: every plan and every automation add-on, bought on its own or added later, is month to month from the first month. Your subscription price is fixed for twelve months from signing. Plans and add-ons renew monthly and can be cancelled from your client portal at any time, with no notice period, and service continues to the end of the month already paid for. GST/HST is shown and added in accordance with the law. Included usage and overage rates are stated on the pricing page; overage is billed only with usage alerts as described there. Existing clients receive at least 30 days written notice before a material price increase. Full service terms are confirmed in writing when you engage us.</p>
+      <h2>Trials and pilots</h2>
+      <p>Nevamis does not offer a trial or an evaluation period, paid or free. The paid seven-day pilot described in versions 2.2 and 2.3 of these terms was retired on August 9, 2026 and is no longer available; nothing on this website or in any current quotation offers it. Where Nevamis had already accepted money or granted a credit under those earlier terms, that obligation continues to be honoured on the terms in force when it was created. Any period of service is a normal subscription on the terms set out under Cancellation below: it is charged, it renews, and you can end it yourself from the client portal whenever you choose.</p>
+      <h2>Third-party services and availability</h2>
+      <p>Nevamis is built on telephony, voice, scheduling, and payment providers (currently including Twilio, ElevenLabs, Cal.com, and Stripe). We choose reputable providers and design fallbacks, but we do not control them, and no phone or AI service is available 100% of the time. We commit to commercially reasonable efforts to keep service running and to tell you promptly when something is wrong. An outage caused by a carrier, provider, or event outside our control is not a breach of these terms.</p>
+      <h2>Acceptable use and suspension</h2>
+      <p>Do not use the website, the demo line, or the service for anything unlawful, for harassment or abuse, to make unlawful recordings, to attempt to extract confidential configuration or prompts, or for automated or bulk calling intended to exhaust or probe the service. We may suspend or limit access that we reasonably believe is doing any of these things, and will tell you why if we do.</p>
+      <h2>Your responsibilities as a client</h2>
+      <p>If you deploy Nevamis on your own phone line, you are responsible for the caller notices, recording disclosure, and consent that apply to your business and jurisdiction, for keeping the business information you give us accurate, and for your own carrier's call-forwarding settings and charges. We provide the configuration, disclosure wording guidance, and the exact forwarding steps.</p>
+      <h2>Liability</h2>
+      <p>The website and demo line are provided as is, without warranties of any kind beyond those the law does not allow us to exclude. To the extent permitted by law: neither party is liable to the other for indirect, consequential, or special losses, including lost profits or lost business opportunities; and for paid service, the total liability of Nevamis for all claims in any 12-month period is capped at the fees you paid us in the three months before the event giving rise to the claim. Nothing in these terms limits liability that cannot be limited under applicable law, including under Alberta consumer-protection law where it applies.</p>
+      <h2>Cancellation</h2>
+      <p>Paid plans carry no minimum term, stated above and on the pricing page: every plan and every automation add-on, bought on its own or added later, is month to month from the first month. You can cancel at any time from the Plan and billing page in your client portal, or by emailing Sales@nevamis.ca, and that counts from the moment you send it. There is no notice period: the cancellation takes effect at the end of the month you have already paid for, and you keep the service you paid for until then. Nothing renews after that and there is no cancellation fee. You can reverse a cancellation from the same page at any time before it takes effect, with no gap in service and nothing extra to pay. Your phone number and your call forwarding remain yours throughout: reverting forwarding takes minutes and needs nothing from us. When service ends, we return or delete your business data on request as described in the privacy policy.</p>
+      <h2>Governing law and disputes</h2>
+      <p>These terms are governed by the laws of Alberta and the federal laws of Canada that apply there. Courts located in Edmonton, Alberta have jurisdiction, and both sides agree to try direct good-faith resolution before going there. Nothing here prevents either party from using a court or tribunal that consumer-protection law makes available.</p>
+      <h2>Changes and the rest</h2>
+      <p>If we change these terms materially, we update the version and date at the top of this page and, for active clients, give notice by email at least 30 days before the change applies to them. If part of these terms is found unenforceable, the rest still stands. For visitors, these terms and the privacy policy are the whole agreement about the website and demo line; for clients, your signed service agreement comes first wherever the two differ.</p>
+      <h2>Contact</h2>
+      <p><a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a> · Edmonton, Alberta, Canada</p>
     </div>
   </section>
 </main>
