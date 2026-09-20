@@ -112,7 +112,7 @@ ${CSS_BLOCK}
   .related{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
   @media(max-width:860px){.related{grid-template-columns:1fr}}
   .related a{display:block;padding:18px 20px;border:1px solid var(--line);border-radius:14px;
-    background:linear-gradient(180deg,var(--navy-2),#0C1A25);transition:border-color .25s,transform .25s}
+    background:linear-gradient(180deg,var(--navy-2),var(--bg));transition:border-color .25s,transform .25s}
   .related a:hover{border-color:rgba(159,240,206,.32);transform:translateY(-2px)}
   .related strong{display:block;font-family:"Bricolage Grotesque",sans-serif;margin-bottom:5px}
   .related span{color:var(--muted);font-size:13.5px}

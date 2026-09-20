@@ -9,61 +9,175 @@
    ============================================================ */
 
 :root{
-  --navy:#0B1620; --navy-0:#02080D; --navy-2:#0D1C27; --navy-3:#10222E;
-  --emerald:#2FBF8F; --emerald-deep:#0E5C4B; --emerald-mid:#1E8E6D; --mint:#9FF0CE;
-  --ink:#EAF3EE; --muted:#8AA5A0; --line:rgba(159,240,206,.14);
-  /* --line is a DECORATIVE separator: card edges, section rules, the trust
-     strip. It measures 1.41:1 over --navy, which is right for a hairline and is
-     not governed by WCAG 1.4.11.
+  /* ---------- ground ----------
+     One flat near-black for the whole site. This is the homepage's body
+     colour, measured at rgb(2,8,13) at every scroll depth. There is no
+     gradient, no canvas and no grid on the page ground: all the depth comes
+     from the surfaces and the emerald light above them. */
+  --bg:#02080D;
+  /* The solid equivalent of --surface's top stop composited over --bg.
+     Anything that needs an opaque fill lands on the same colour as a card. */
+  --bg-lift:#051511;
+
+  /* ---------- light ---------- */
+  --emerald:#2FBF8F; --emerald-mid:#1E8E6D; --emerald-deep:#0E5C4B;
+  --mint:#9FF0CE;
+  --warm:#F0B462; --warm-deep:#8A6210; --bad:#E5837B;
+  /* The ONLY label colour permitted on a mint or emerald fill. 12.53:1. */
+  --on-mint:#06231A;
+
+  /* ---------- the text ladder ----------
+     Five steps, all green-grey, all measured against #02080D rather than
+     estimated. The interior pages ran --ink plus one grey-teal --muted; the
+     homepage ran this ladder, and the ladder is the single biggest reason the
+     homepage reads warmer. Every step clears 4.5:1 with room, and the ladder
+     is BRIGHTER on this ground than the old one was on navy (--muted was
+     6.93:1; --ink-3, which replaces it, is 10.80:1). */
+  --ink:#EAF3EE;    /* headings, strong, card titles            17.79:1 */
+  --ink-2:#b9dccb;  /* body inside a surface, list rows, FAQ    13.58:1 */
+  --ink-3:#9dc7b4;  /* lede, section sub, deny rows             10.80:1 */
+  --ink-4:#6fa18c;  /* fine print, hints, disclaimers            6.86:1 */
+  --ink-5:#5f8f7c;  /* mono tags, card feet, breadcrumb          5.47:1 */
+  /* --ink-5 is the darkest step and the floor for 11px text is 4.5:1, so it
+     has real margin. It still may only carry labels, never a sentence.
+     If the hue is ever retuned, #679A85 (6.27:1) is the next stop up. */
+  /* The dimmed chapter numeral. The film ships #3d6b58, which measures
+     3.30:1 on this ground at 11px - a WCAG 1.4.3 failure. #52896F is 4.95:1
+     and still visibly dimmer than --emerald at 8.60:1, which is the job. */
+  --ink-dim:#52896F;
+
+  /* ---------- hairlines ----------
+     One hue, #9FF0CE, at six alphas. There is no grey border anywhere on this
+     site and there never will be.
+
+     --line is a DECORATIVE separator: the card edge. It measures about 1.4:1
+     over the ground, which is right for a hairline and is not governed by
+     WCAG 1.4.11. It used to do two jobs; the rules and row dividers now have
+     their own --line-soft so the card edge can be tuned without moving them.
      --line-control is the boundary of an INTERACTIVE CONTROL, where 1.4.11
      wants 3:1. One token was doing both jobs, so every input, the nav toggle
-     and the ghost buttons inherited a hairline: 1.41:1 on the border with fills
-     at 1.02-1.14:1, meaning there was no fallback boundary either. The search
-     field was the worst case - its <input> declares border:0 and
-     background:none, so the element itself measured 1.00:1 and the only thing
-     drawing the box was the wrapper's hairline.
-     Set by measurement, not derivation. Checked by the site contrast probe
-     across /, /pricing, /pilot, /book and /coming-soon. */
-  --line-control:rgba(159,240,206,.46);
-  /* --line-control-strong is the boundary of a BUTTON whose only shape is its
+     and the ghost buttons inherited a hairline: 1.41:1 on the border with
+     fills at 1.02-1.14:1, meaning there was no fallback boundary either.
+     --line-control-strong is the boundary of a BUTTON whose only shape is its
      outline (.btn-ghost, .btn-light-ghost). .46 passed 3:1 as a 1px hairline
-     (3.74:1 on navy-0) but read as a disabled option beside a filled, glowing
-     pill. Inputs and the nav toggle keep --line-control; only outline buttons
-     move. .72 measures about 8:1 on the dark ground. */
+     but read as a disabled option beside a filled, glowing pill; .72 measures
+     about 8:1 on this ground.
+     Set by measurement, not derivation. */
+  --line-soft:rgba(159,240,206,.08);   /* section rules, list rows, table cells */
+  --line:rgba(159,240,206,.13);        /* card edge */
+  --line-accent:rgba(159,240,206,.28); /* featured card, card hover */
+  --line-control:rgba(159,240,206,.46);/* input, nav toggle - WCAG 1.4.11 3:1 */
+  --line-lit:rgba(159,240,206,.55);    /* the lit top edge, the seam sweep */
   --line-control-strong:rgba(159,240,206,.72);
-  --warm:#F0B462; --warm-deep:#8A6210; --bad:#E5837B;
+
+  /* ---------- surfaces ---------- */
+  --surface:linear-gradient(160deg,rgba(6,26,19,.72),rgba(2,8,13,.86));
+  /* Touch screens drop the blur; the alphas are re-solved so the painted
+     colour over --bg is unchanged. Measured at 412px: 38 blurred cards over a
+     flat ground, composited at full device density, changing nothing that can
+     be seen to change. */
+  --surface-coarse:linear-gradient(160deg,rgba(6,24,18,.80),rgba(2,8,13,.92));
+  --surface-sheen:radial-gradient(60% 50% at 70% 30%,rgba(191,245,222,.06),transparent 70%);
+
+  /* ---------- glow ----------
+     Four recipes, and there are no others. Every one of them is emerald or
+     mint. Nothing on this site is blue, violet or pink. */
+  --glow-lit:linear-gradient(90deg,transparent,var(--line-lit),transparent);
+  --glow-bloom:0 0 60px -22px rgba(47,191,143,.35);
+  --glow-btn:0 0 34px rgba(159,240,206,.35),0 0 90px rgba(47,191,143,.18);
+  --glow-pool:radial-gradient(50% 100% at 50% 0,rgba(47,191,143,.18),transparent);
+  --glow-dot:0 0 8px rgba(47,191,143,.8);
+
+  /* ---------- type ---------- */
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Atkinson Fallback","Segoe UI",system-ui,sans-serif;
+  --f-mono:"Spline Sans Mono",ui-monospace,monospace;
+
+  --fs-hero:clamp(32px,4.4vw,52px);  /* page hero h1 */
+  --fs-h2:clamp(28px,3.6vw,40px);    /* every section heading, incl. homepage h1 */
+  --fs-doc:clamp(26px,3.2vw,34px);   /* long-form / legal h1 */
+  --fs-h3:17px;
+  --fs-lede:17px;
+  --fs-body:16.5px;
+  --fs-card:15px;
+  --fs-fine:12.5px;
+  --fs-label:11px;   /* THE FLOOR. Nothing on this site renders below it. */
+
+  --lh-tight:1.1; --lh-snug:1.5; --lh-body:1.55;
+  --tr-head:-.02em; --tr-h3:-.01em;
+  --tr-label:.3em; --tr-tag:.26em; --tr-chip:.08em; --tr-crumb:.14em;
+  --measure-head:22ch; --measure-lede:52ch;
+
+  /* ---------- space ---------- */
+  --sec-y:88px;          /* 64px at <=760, set in the media query */
+  --gap:16px;
+  --gap-stations:18px;
+  --gap-offer:26px;
+  --pad-card:20px 22px;
+  --pad-card-lg:26px 28px;
+  --pad-gutter:clamp(20px,4vw,44px);
+  --col-wide:1180px;     /* the default .wrap */
+  --col-read:820px;      /* prose: legal, about, long-form bodies */
+  --col-centre:min(88vw,640px);
+  --head-h:68px;         /* the fixed header. Every scroll anchor clears it. */
+
+  /* ---------- radius ---------- */
+  --r-card:12px; --r-input:10px; --r-pill:999px; --r-focus:6px;
+
+  /* ---------- motion ---------- */
   --e-out:cubic-bezier(.16,1,.3,1); --e-in:cubic-bezier(.7,0,.84,0);
-  /* compat aliases: markup ported from the previous site references these */
-  --card:var(--navy-2); --frost:rgba(159,240,206,.05);
-  --signal:var(--mint); --signal-deep:var(--emerald); --muted-dark:var(--muted);
+  --t-fast:.18s; --t-base:.25s; --t-slow:.35s; --t-reveal:.8s;
+  --rise:26px;
+
+  /* ---------- legacy aliases ----------
+     Roughly 220 style="" attributes and six duplicated page-level card
+     recipes still reference these names. Re-pointing them is the
+     highest-leverage line in this file: every un-migrated reference lands on
+     the new ground for free instead of painting navy in the middle of a black
+     page. --navy MUST stay declared as a literal "--navy:" - tests/pages.spec.js
+     asserts that string is present in some <style> on every page. */
+  --navy:var(--bg); --navy-0:var(--bg); --navy-2:var(--bg-lift); --navy-3:#071C15;
+  --card:var(--bg-lift); --frost:rgba(159,240,206,.05);
+  --signal:var(--mint); --signal-deep:var(--emerald);
+  --muted:var(--ink-3); --muted-dark:var(--ink-4);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{background:var(--navy);color:var(--ink)}
+/* html and body agree now. The page used to paint the ground on body while
+   html kept a different colour, so an overscroll rubber-band flashed it. */
+html,body{background:var(--bg);color:var(--ink)}
 /* clip, not hidden: body-only clipping still reports horizontal overflow up on
    the html element, but overflow-x:hidden here would make html a scroll
    container and silently kill the sticky ROI panel.
 
    That reasoning was right and was applied to one element of two. body kept
    overflow-x:hidden, which makes BODY a scroll container, and the page scrolls
-   the viewport rather than body's box — so every sticky descendant pinned to a
+   the viewport rather than body's box - so every sticky descendant pinned to a
    scrollport that never moves. Measured: with hidden, the ROI bar's top went
    320, 20, -280, -580 across a 900px scroll, tracking the page exactly. With
    clip: 320, 86, 86, 86.
    So .roi-out{position:sticky;top:86px} has never once pinned. It looked
    correct in the stylesheet and did nothing, and the desktop result panel only
    appeared to stay put because a two-column grid keeps it beside the form. */
-html{overflow-x:clip}
-body{overflow-x:clip;font-family:"Atkinson Hyperlegible","Atkinson Fallback","Segoe UI",system-ui,sans-serif;
-  -webkit-font-smoothing:antialiased;line-height:1.55;font-size:16.5px}
+html{overflow-x:clip;scrollbar-color:#123528 var(--bg)}
+body{overflow-x:clip;font-family:var(--f-body);font-size:var(--fs-body);
+  line-height:var(--lh-body);-webkit-font-smoothing:antialiased}
 img{max-width:100%;height:auto}
 a{color:inherit;text-decoration:none}
 ::selection{background:rgba(47,191,143,.35);color:var(--ink)}
-.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(20px,4vw,44px)}
-.mono{font-family:"Spline Sans Mono",ui-monospace,monospace}
-h1,h2,h3,h4,.wordmark{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif}
-h2{font-size:clamp(30px,4vw,44px);font-weight:700;letter-spacing:-.02em;line-height:1.08}
-h3{font-size:19px;font-weight:700;letter-spacing:-.01em}
+.wrap{max-width:var(--col-wide);margin:0 auto;padding:0 var(--pad-gutter)}
+.wrap.read{max-width:var(--col-read)}
+.mono{font-family:var(--f-mono)}
+h1,h2,h3,h4,.wordmark{font-family:var(--f-display)}
+/* One heading step for the whole site. The homepage's h1 is 40px and every
+   section head on every page now matches it; a page hero gets --fs-hero, one
+   step above, because an interior page needs one thing on the first screen
+   that says "this is the top". 22ch is the measure the homepage already used
+   and it is what keeps a heading to two or three lines instead of one long
+   ribbon. */
+h1,h2{font-weight:700;letter-spacing:var(--tr-head);line-height:var(--lh-tight);
+  color:var(--ink);font-size:var(--fs-h2);max-width:var(--measure-head);margin:0 0 14px}
+h3{font-size:var(--fs-h3);font-weight:700;letter-spacing:var(--tr-h3)}
 strong{color:var(--ink)}
 
 /* keyboard focus is never removed, only styled */
@@ -84,43 +198,15 @@ strong{color:var(--ink)}
    visitor has to read may drop below 11px. Audited 2026-07-28. */
 
 
-/* ---------- the hero copy needs a floor under it ----------
-   The aurora is a fixed, full-viewport WebGL canvas at opacity .9 and z-index
-   0; the copy sits at z-index 3, and every layer between them was transparent.
-   So the contrast of the hero text was whatever the shader happened to be
-   painting that frame.
+/* ---------- the hero scrim: RETIRED ----------
+   A painted plate used to sit behind .hero .copy because the aurora shader
+   swung the worst pixel behind the lede between 2.15:1 and 4.72:1 over six
+   seconds of its own drift. The shader is gone (see assets/motion/main.js),
+   the ground is one flat #02080D, and the worst pixel behind that paragraph
+   is now the ground itself. The workaround retires with the thing it worked
+   around; there is nothing left for it to defend against, and leaving it
+   would paint a navy rectangle in the middle of a black page. */
 
-   Measured on production at 1440x900, at rest, with nobody scrolling: the
-   worst background point behind the .lede swung 2.15:1 to 4.72:1 over six
-   seconds of the shader's own drift, and 19 frames in 20 contained a point
-   below the 4.5:1 that 19px/400 text requires. Worst pixel rgb(15,118,72).
-   The scroll-energy ceiling added in 2d06ada does not help: that swing is the
-   resting animation, not scroll.
-
-   This is also why the CSS audit reported zero contrast failures. A
-   getComputedStyle walk composites ancestors and gradient stops, and a WebGL
-   canvas is neither.
-
-   A plain painted scrim, NOT backdrop-filter: see the header note below, where
-   a filter over this same canvas is recorded as the page's largest standing
-   cost, because it re-blurs every frame the shader repaints.
-
-   .72 is derived, not chosen. Against the brightest pixel measured behind the
-   paragraph, .60 is the floor that reaches 4.5:1; .72 leaves headroom for a
-   frame brighter than any of the twenty sampled. It fades out to the right so
-   the artwork side of the hero is untouched, and it is inset generously so no
-   edge lands where the eye is. */
-.hero .copy{position:relative}
-.hero .copy::before{
-  content:"";position:absolute;z-index:-1;pointer-events:none;
-  inset:-30px -190px -30px -44px;
-  background:linear-gradient(100deg,
-    rgba(9,18,26,.72) 0%,
-    rgba(9,18,26,.72) 58%,
-    rgba(9,18,26,.34) 82%,
-    rgba(9,18,26,0)   100%);
-}
-html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
 
 /* ---------- header ---------- */
 /* Backdrop blur only once content scrolls beneath the header. At the top
@@ -131,11 +217,11 @@ html.motion-off .hero .copy::before{background:rgba(9,18,26,.72)}
    legible by itself; the blur arrives together with the near-opaque
    scrolled background, so the change hides inside one the eye expects. */
 .site-header{position:fixed;z-index:50;top:0;left:0;right:0;
-  background:linear-gradient(to bottom,rgba(11,22,32,.82),rgba(11,22,32,0));
-  transition:background .3s var(--e-out),box-shadow .3s var(--e-out)}
-.site-header.scrolled{background:rgba(9,18,26,.92);box-shadow:0 1px 0 var(--line);
+  background:linear-gradient(to bottom,rgba(2,8,13,.86),rgba(2,8,13,0));
+  transition:background var(--t-slow) var(--e-out),box-shadow var(--t-slow) var(--e-out)}
+.site-header.scrolled{background:rgba(2,8,13,.94);box-shadow:0 1px 0 var(--line-soft);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.site-header .wrap{display:flex;align-items:center;gap:18px;height:68px}
+.site-header .wrap{display:flex;align-items:center;gap:18px;height:var(--head-h)}
 /* THE WORDMARK IS SET IN CAPITALS, AND THE DOM TEXT STAYS "Nevamis".
    text-transform draws the capitals; the markup keeps the word as it is
    written. That split is deliberate and load-bearing:
@@ -283,14 +369,26 @@ section.tight{padding-top:0}
   letter-spacing:.16em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;
   padding:6px 14px;background:rgba(159,240,206,.04)}
 .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 12px var(--mint)}
-.grid-lines{position:absolute;inset:0;z-index:0;opacity:.4;pointer-events:none;
-  background-image:linear-gradient(var(--line) 1px,transparent 1px),
-                   linear-gradient(90deg,var(--line) 1px,transparent 1px);
-  background-size:64px 64px;
-  mask-image:radial-gradient(120% 100% at 78% 42%,#000 18%,transparent 82%);
-  -webkit-mask-image:radial-gradient(120% 100% at 78% 42%,#000 18%,transparent 82%)}
-.glow{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(47,191,143,.28),transparent);
-  filter:blur(40px);pointer-events:none;z-index:0}
+/* THE HERO POOL. This element used to draw a 64px grid at opacity .4 under a
+   radial mask - the interior system's own decoration, with no counterpart on
+   the homepage. It is now the same emerald pool the homepage puts at the film
+   seam, scaled to a hero: on an interior page the hero IS where the page
+   begins, so it gets the same object. The class name is kept so that eighteen
+   pages of markup do not churn; .hero-light is the name it will be renamed to.
+   Both stay aria-hidden and pointer-events:none. */
+.grid-lines,.hero-light{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(70% 90% at 50% 0,rgba(47,191,143,.16),transparent 70%),
+    radial-gradient(45% 55% at 82% 12%,rgba(159,240,206,.05),transparent 70%)}
+/* the hairline that closes a hero, the same idiom as every section boundary */
+.page-hero::after{content:"";position:absolute;left:20%;right:20%;bottom:0;height:1px;
+  background:var(--glow-lit);opacity:.5;pointer-events:none}
+/* .glow retires. On the homepage it paints nothing at all (no width, no
+   height - probed 0x0). On eight interior pages it paints a blurred blob
+   sized by a style="" attribute, and it is the interior system's only other
+   decoration with no homepage counterpart. The elements themselves come out
+   of the markup page by page; this stops them painting in the meantime. */
+.glow{display:none}
 section>.wrap{position:relative;z-index:2}
 .midcta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .midcta .mono{color:var(--muted);font-size:13px}
@@ -298,7 +396,7 @@ section>.wrap{position:relative;z-index:2}
 /* elevated panel look shared by cards */
 .panel,.call-card,.owner-card,.sim,.ind-card,.roi-out,.roi-grid form,.proc>div,.week>div,
 .stack .layer,.assure,.founder,.faq details,.compare-wrap,.mode-panel{
-  background:linear-gradient(180deg,var(--navy-2),#0C1A25);
+  background:linear-gradient(180deg,var(--navy-2),var(--bg));
   border:1px solid var(--line);border-radius:16px}
 
 /* card hover lift (fine pointers only; JS adds tilt ≤2°) */
@@ -503,7 +601,7 @@ html.no-js .summary-arrive,html.motion-off .summary-arrive{opacity:1;transform:n
 .path-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:step}
 @media(max-width:940px){.path-steps{grid-template-columns:1fr 1fr}}
 @media(max-width:620px){.path-steps{grid-template-columns:1fr}}
-.pstep{counter-increment:step;background:linear-gradient(180deg,var(--navy-2),#0C1A25);
+.pstep{counter-increment:step;background:linear-gradient(180deg,var(--navy-2),var(--bg));
   border:1px solid var(--line);border-radius:16px;padding:22px;position:relative;
   opacity:.45;transform:translateY(10px);
   transition:opacity .6s var(--e-out),transform .6s var(--e-out),border-color .6s var(--e-out)}
@@ -690,7 +788,7 @@ table.compare{width:100%;border-collapse:collapse;min-width:640px;font-size:14.5
 /* ---------- pricing preview cards ---------- */
 .price-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 @media(max-width:900px){.price-cards{grid-template-columns:1fr}}
-.price-card{background:linear-gradient(180deg,var(--navy-2),#0C1A25);border:1px solid var(--line);
+.price-card{background:linear-gradient(180deg,var(--navy-2),var(--bg));border:1px solid var(--line);
   border-radius:16px;padding:24px;position:relative;
   transition:transform .3s var(--e-out),border-color .3s var(--e-out),box-shadow .3s var(--e-out)}
 @media(hover:hover){.price-card:hover{transform:translateY(-3px);border-color:rgba(159,240,206,.32);

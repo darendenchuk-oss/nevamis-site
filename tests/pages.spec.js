@@ -45,8 +45,10 @@ for (const file of PAGES) {
     await expect(page.locator('footer.site-footer')).toHaveCount(1);
     await expect(page.locator('.main-nav a', { hasText: 'Pricing' })).toHaveCount(1);
 
-    // the aurora sky installs site-wide via main.js
-    await expect(page.locator('#aurora')).toHaveCount(1);
+    /* The aurora canvas assertion was here. It is deleted with the shader
+       (assets/motion/aurora.js): the ground is one flat #02080D on every page
+       now, and the only <canvas> left on the site is the film's, on /. */
+    await expect(page.locator('canvas')).toHaveCount(0);
 
     // no unclipped element escapes the right edge
     const escapees = await page.evaluate(() =>

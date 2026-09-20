@@ -10,7 +10,6 @@
 import { isDebug, prefersReduced, isFinePointer } from './tokens.js';
 import { initHero } from './hero.js';
 import { initCursor } from './cursor.js';
-import { initAurora } from './aurora.js';
 import { initSonar } from './sonar.js';
 import { initSearch } from './search.js';
 import { initScroll } from './scroll.js';
@@ -28,7 +27,15 @@ if (gsap) {
   if (window.MotionPathPlugin) gsap.registerPlugin(window.MotionPathPlugin);
   gsap.ticker.lagSmoothing(500, 33);
 
-  guard(initAurora);
+  /* THE AURORA IS GONE (2026-09-20). ./aurora.js drew a fixed, full-viewport
+     WebGL sky of blue, green and pink rays on every page that loads this
+     module - which is every page except the homepage, the one page the owner
+     is happy with. A moving sky on twenty pages and none on the twenty-first
+     is two websites, so it is deleted rather than retuned to emerald: 26,909
+     bytes, one module request, 30 paints a second at rest over 498,294 px at
+     1440, and the 2D fallback path, all of it. It also takes three contrast
+     workarounds with it - the hero scrim, the page-hero ghost button's dark
+     plate, and the reason the header deferred its backdrop-filter. */
   guard(initSonar);
   const hero = guard(initHero);
   const cursor = guard(initCursor);
