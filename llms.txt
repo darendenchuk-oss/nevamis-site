@@ -161,8 +161,8 @@ first, Canada-wide, Edmonton-based.
   list and nothing else: bid and tender work is arranged separately by hand
   under the service agreement's named-approver rule and is not part of this
   service. No automated search has run for any client; each list is put
-  together by hand. There is no pilot and no trial: the words for this
-  state are "by invitation" and "private testing".
+  together by hand. There is no pilot and no trial: the only phrase for
+  this state is "by invitation".
 - NOT OFFERED today, and not on the published roadmap: booking into a
   calendar, live call transfer, any CRM, ads or software integration,
   multi-location or multi-department routing, more than one number per

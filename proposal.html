@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-iRy388lorIEVn2N8NTYo8VDXstZQ2h25QOW/H0Rh1dw=' 'sha256-eTdU92+rWzhljNdvSsyhnRcsIhd7yjN3+2IW7ye/E4I='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-uB+dAj5BzcQWUTc6RCqP+CbDPiTZjyD9lmF7WTEUKR0=' 'sha256-bJluJqx9vI9m6ATL+GWeZLdoADJJTT6REbWEBZxYNnw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -982,7 +982,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       if (plan.id === "starter") {
         var stepsEl = document.querySelector("ol.steps");
         var LG_STEPS = [
-          ["Discovery.", "What you do, the areas you work, the kinds of business you want more of, and what you never want brought to you."],
+          /* Not "Discovery.": these four are prepended to the static steps,
+             whose first one is already called Discovery, so a starter proposal
+             read two identical headings in a row. This one is about who the
+             client wants more of, so it says that. */
+          ["Who you want more of.", "What you do, the areas you work, the kinds of business you want more of, and what you never want brought to you."],
           ["The list.", "We read public pages and put together businesses of exactly that kind, each with the page it came from and the day it was read."],
           ["Your call.", "You decide every one in your portal. Nobody on it is contacted by us."],
           ["What came of it.", "You record what came of the ones you pursued, and your Results show it in your own words."]

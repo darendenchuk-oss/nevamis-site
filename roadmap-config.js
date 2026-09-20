@@ -130,10 +130,14 @@ window.NV_ROADMAP = {
        Protection (it presumed appointment slots the front desk cannot book),
        Web and Messaging Concierge, Smarter Job Intake and Business Knowledge
        Assistant are gone: no canonical record backs any of them. The Daily
-       Brief and the Growth System stay by the owner's decision. A researched
-       entry says what it WOULD do; "Is being built to" is for planned ones. */
+       Brief and the Growth System stay by the owner's decision. An entry says
+       what it WOULD do unless there is canonical work behind it; only then may
+       it say "Is being built to". The Daily Brief has no canonical record, so
+       it says "Would" even though the owner kept it as planned; the Revenue
+       Engine is canonical private_pilot work, so it may say it is being
+       built. */
     { slug: "daily-business-brief", name: "Your Daily Business Brief", pillar: "operate", status: "planned", stage: "future",
-      desc: "Is being built to condense calls, open leads, follow-ups, and urgent issues into one concise daily summary.",
+      desc: "Would condense calls, open leads, follow-ups, and urgent issues into one concise daily summary.",
       outcome: "Five minutes to know exactly where the business stands." },
     /* No Review Engine row, deliberately and for now (2026-09-19). It is sold
        today and is inside The Works, so the "planned" row that stood here was
@@ -149,10 +153,20 @@ window.NV_ROADMAP = {
        2026-09-19 (it was "Revenue Clarity"): ad attribution, which canonical
        carries as private_pilot. "planned" says less than that, which is
        allowed, and the engine gate logs it as a medium under-claim; it may
-       never say "pilot". Not "now" and not "available": nothing is sold. */
+       never say "pilot". Not "now" and not "available": nothing is sold.
+
+       No cta. It carried cta: "/revenue-engine.html", which the renderer
+       ignores: coming-soon.html honours a cta only for an AVAILABLE entry
+       (a "Start here" button) or a BY INVITATION one (a "Book a call"), and
+       both of those mean there is something to start. A planned entry keeps
+       the interest button instead, which is the only way this page measures
+       who wants the Revenue Engine built. Dead config reads as a broken
+       renderer to the next editor, so it is gone rather than honoured.
+       /revenue-engine.html is left with one inbound link, at :1039 on that
+       page; giving it more is a nav decision, not a roadmap card. */
     { slug: "revenue-engine", name: "Revenue Engine", pillar: "grow", status: "planned", stage: "future",
       desc: "Is being built to tie each lead back to where it came from, down to the campaign, and follow it to a paid job, so you can see what to spend more on and what to stop.",
-      outcome: "Spending decisions backed by real numbers.", cta: "/revenue-engine.html" },
+      outcome: "Spending decisions backed by real numbers." },
     { slug: "ai-growth-system", name: "Growth System", pillar: "grow", status: "researching", stage: "future",
       desc: "The long-term goal: conversion-focused web experiences, follow-up, reactivation, reviews, and attribution working as one connected growth system.",
       outcome: "One partner, one connected system, measurable growth." }
