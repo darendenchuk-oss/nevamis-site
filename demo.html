@@ -8,7 +8,7 @@
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Demo | Hear the AI Front Desk answer | Nevamis | (587) 413-0035</title>
-<meta name="description" content="Call (587) 413-0035 and put the Nevamis front desk through its paces yourself. Try to stump it: give it a job, change details mid-call, ask hard questions.">
+<meta name="description" content="Call (587) 413-0035 and hear the same voice and model your own line would run on. It answers for Nevamis, so ask it anything about the service and try to stump it.">
 <link rel="canonical" href="https://nevamis.ca/demo.html">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="Call the Nevamis demo line | (587) 413-0035">
@@ -747,7 +747,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     "@id": "https://nevamis.ca/demo.html",
     "url": "https://nevamis.ca/demo.html",
     "name": "Demo | Hear the AI Front Desk answer | Nevamis | (587) 413-0035",
-    "description": "Call (587) 413-0035 and put the Nevamis front desk through its paces yourself. Try to stump it: give it a job, change details mid-call, ask hard questions.",
+    "description": "Call (587) 413-0035 and hear the same voice and model your own line would run on. It answers for Nevamis, so ask it anything about the service and try to stump it.",
     "isPartOf": {
       "@type": "WebSite",
       "name": "Nevamis",
@@ -808,7 +808,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              do: the agent greets in the business's name and discloses on
              request. The commitment below is the one you can verify on the
              call you are being invited to make. -->
-        <p class="proof">It answers in seconds. Ask it straight out whether you are talking to a person and it will tell you, without hedging. Then see how much of the job it can take down.</p>
+        <!-- "Give it a job" and "see how much of the job it can take down" sent
+             visitors to do the one thing this line does not do. It answers for
+             Nevamis and says so, it is a sales line and not a trades line
+             (engine docs/agent-prompts/demo.md:132, 235), and the caller who
+             follows the old instruction gets a sales conversation. B10(a). -->
+        <p class="proof">It answers in seconds. Ask it straight out whether you are talking to a person and it will tell you, without hedging. Then ask it anything about what Nevamis does and see whether it holds up.</p>
       </div>
     </div>
   </section>
@@ -832,7 +837,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono">Example call</p>
-        <h2>What a Nevamis agent sounds like on a client's line.</h2>
+        <!-- "Sounds like" promised audio. B1(b) hid the player until the call
+             is re-recorded, so what is below this heading is a written
+             transcript and nothing on this page plays. -->
+        <h2>What a Nevamis agent says on a client's line.</h2>
         <p>An illustrative service call for a fictional electrical company, written out turn by turn.</p>
       </div>
       <div class="call-grid">
@@ -900,7 +908,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <div class="owner-card reveal">
           <h3>After every call, you get a text and an email like this</h3>
           <div class="sms" role="img" aria-label="Example text message summary sent to the business owner">
-            <span class="mono">NEVAMIS SUMMARY · 8:42 PM</span>
+            <span class="mono">Nevamis summary · 8:42 PM</span>
             New job request: dead kitchen outlets, breaker already reset, no sparks or burning smell. Wants tomorrow 8 to 10 AM, yours to confirm. $95 service call quoted from your price sheet. 114 Cedar Lane. Callback: 780-555-0142.
           </div>
           <p class="note">Example summary for the illustrative call. Your format, destination, and level of detail are configured with you.</p>
