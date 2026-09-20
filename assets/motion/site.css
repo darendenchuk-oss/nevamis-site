@@ -389,8 +389,16 @@ section>.wrap{position:relative;z-index:2}
 .section-head{max-width:660px;margin-bottom:30px}
 .section-head h2{margin:0 0 14px}
 /* .doc-sub is the film's name for a lede; it sits under the station section's
-   heading and is the same object. */
-p.lede,.section-head p,.doc-sub{font-family:var(--f-body);font-size:var(--fs-lede);
+   heading and is the same object.
+   The :not() guards are the same load-bearing kind the card rule carries.
+   .section-head p is (0,1,1) and .eyebrow is (0,1,0), so without them every
+   eyebrow written as a <p> inside a .section-head - fifteen of them, on the
+   homepage, coming-soon, how-you-start and revenue-engine - lost its family,
+   its size and its colour and rendered as a 17px line of uppercase body text
+   in lede grey, still carrying the label's .3em of tracking. The nine
+   generated pages had patched it locally; that copy is gone with this. */
+p.lede,.section-head p:not(.eyebrow):not(.k):not(.doc-k),.doc-sub{
+  font-family:var(--f-body);font-size:var(--fs-lede);
   line-height:var(--lh-snug);color:var(--ink-3);max-width:var(--measure-lede);margin:0}
 
 /* THE CENTRED SECTION HEAD. Homepage-only by usage - a centred head reads as a

@@ -335,7 +335,8 @@ section>.wrap{position:relative;z-index:2}
 @media(max-width:760px){.page-hero{padding:118px 0 40px}}
 .section-head{max-width:660px;margin-bottom:30px}
 .section-head h2{margin:0 0 14px}
-p.lede,.section-head p,.doc-sub{font-family:var(--f-body);font-size:var(--fs-lede);
+p.lede,.section-head p:not(.eyebrow):not(.k):not(.doc-k),.doc-sub{
+  font-family:var(--f-body);font-size:var(--fs-lede);
   line-height:var(--lh-snug);color:var(--ink-3);max-width:var(--measure-lede);margin:0}
 .centre{max-width:var(--col-centre);margin:0 auto;text-align:center}
 .centre h1,.centre h2{max-width:none;margin-left:auto;margin-right:auto}
@@ -902,15 +903,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     text-underline-offset:3px;text-decoration-color:rgba(159,240,206,.45)}
   .page-hero .proof a:hover{text-decoration-color:var(--mint)}
 
-  /* THE EYEBROW INSIDE A SECTION HEAD. p.lede,.section-head p is (0,1,1) and
-     .eyebrow is (0,1,0), so every eyebrow written as a <p> inside a
-     .section-head lost its family, its size and its colour and rendered as a
-     17px line of body text in lede grey carrying the label's .3em of tracking.
-     That is the same specificity defect the card rule already guards against
-     with :not(.eyebrow), and the shared fix is the same guard on
-     .section-head p. Reported, not made here. */
-  .section-head p.eyebrow{font-family:var(--f-mono);font-size:var(--fs-label);
-    line-height:1.3;color:var(--emerald);max-width:none}
+  /* The eyebrow inside a section head is guarded in site.css now: the lede
+     rule carries :not(.eyebrow):not(.k):not(.doc-k), which is the same kind of
+     guard the card rule already had. The copy that stood here is gone. */
 
   /* CARD COPY IS THE CARD STEP. A homepage card sets its body at 15px in
      --ink-2; the shared .proc, .stack and .pstep rules still carry the

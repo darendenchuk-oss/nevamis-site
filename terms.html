@@ -329,7 +329,8 @@ section>.wrap{position:relative;z-index:2}
 @media(max-width:760px){.page-hero{padding:118px 0 40px}}
 .section-head{max-width:660px;margin-bottom:30px}
 .section-head h2{margin:0 0 14px}
-p.lede,.section-head p,.doc-sub{font-family:var(--f-body);font-size:var(--fs-lede);
+p.lede,.section-head p:not(.eyebrow):not(.k):not(.doc-k),.doc-sub{
+  font-family:var(--f-body);font-size:var(--fs-lede);
   line-height:var(--lh-snug);color:var(--ink-3);max-width:var(--measure-lede);margin:0}
 .centre{max-width:var(--col-centre);margin:0 auto;text-align:center}
 .centre h1,.centre h2{max-width:none;margin-left:auto;margin-right:auto}
