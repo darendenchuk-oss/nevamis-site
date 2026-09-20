@@ -423,21 +423,31 @@ p.lede,.section-head p:not(.eyebrow):not(.k):not(.doc-k),.doc-sub{
    a small glowing dot drawn by ::before. .k is the film's name for the same
    object and is carried as an alias so sections.html, site.js's runtime markup
    and the #doc stations keep working without a rename. */
+/* Block flow, not a flex row, and the reason is worth keeping: a wrapping flex
+   line is laid out from each item's hypothetical size, so the label's text run
+   takes its max-content width, never fits beside the dot, and drops whole to
+   the next line - leaving the dot stranded alone above the words. Measured at
+   390px on restoration, and at 320px on book, demo, hvac and electricians.
+   Inline flow wraps the words and keeps the dot on the first line with them. */
 .eyebrow,.k,.doc-k{font-family:var(--f-mono);font-size:var(--fs-label);line-height:1.3;
   font-weight:400;letter-spacing:var(--tr-label);text-transform:uppercase;
-  color:var(--emerald);display:flex;gap:9px;align-items:center;flex-wrap:wrap;
-  margin:0 0 14px;
+  color:var(--emerald);display:block;margin:0 0 14px;
   /* the pill is gone */
   border:0;border-radius:0;padding:0;background:none}
 .eyebrow::before,.k::before,.doc-k::before{content:"";width:5px;height:5px;border-radius:50%;
-  background:var(--emerald);box-shadow:var(--glow-dot);flex:none}
+  background:var(--emerald);box-shadow:var(--glow-dot);
+  display:inline-block;vertical-align:middle;position:relative;top:-1px;margin-right:9px}
+/* What the flex gap used to do for a label that carries a chip or a numeral. */
+.eyebrow>*+*,.k>*+*,.doc-k>*+*{margin-left:9px}
 /* The markup dot on the generated hero is now redundant - ::before draws it. */
 .eyebrow .dot{display:none}
 /* The film's chapter numeral. <i> is the element, font-style reset. */
 .eyebrow i,.k i{font-style:normal;color:var(--ink-dim)}
-/* span.eyebrow must not be inline, or the flex row collapses. */
-span.eyebrow{display:flex;width:fit-content}
-.centre .eyebrow,.centre .k{justify-content:center}
+/* span.eyebrow must not be inline, or its own box collapses to the text. */
+span.eyebrow{display:block;width:fit-content}
+/* Centred under block flow is text-align, not justify-content. The film's
+   station labels (02 CAPTURE and its chip) depend on this one. */
+.centre .eyebrow,.centre .k{text-align:center}
 
 /* THE BREADCRUMB. The same 11px mono label idiom as the eyebrow. It is not
    added to the eight pages that lack one: that is an IA and copy change. */
@@ -1131,6 +1141,10 @@ html.motion-off .faq details p{animation:none}
   background:radial-gradient(60% 72% at 50% 42%,rgba(11,22,32,.6),transparent 78%)}
 .final-cta h2{margin:12px auto 12px;max-width:18ch}
 .final-cta>.wrap>p{color:var(--muted);max-width:52ch;margin:0 auto 28px}
+/* .final-cta>.wrap>p above is (0,2,1) and outranks .eyebrow (0,1,0), so the
+   closing label rendered in body grey on coming-soon while the same label was
+   emerald on every other page. Matched specificity, not !important. */
+.final-cta>.wrap>p.eyebrow,.final-cta>.wrap>p.k{color:var(--emerald);max-width:none}
 .final-cta .eyebrow{margin:0 auto}
 
 /* ---------- footer ---------- */
