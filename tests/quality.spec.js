@@ -140,8 +140,14 @@ test('tap targets on a phone are big enough to hit', async ({ browser }) => {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
   const page = await ctx.newPage();
   await page.goto('/');
-  await page.waitForFunction(() => !!window.__heroTL);
-  await page.evaluate(() => { window.__heroTL.progress(1).pause(); });
+  /* REPOINTED at the composed page (2026-09-20). This used to wait on
+     window.__heroTL and jump it to the resolved frame. The homepage is the
+     film now and never loads assets/motion/main.js, so __heroTL is never
+     defined, the wait timed out, and the >=40px gate has not run in weeks.
+     Scrolling to the end is the replacement: it releases the .reveal blocks
+     site.js armed and puts every control the page owns into layout. */
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(600);
 
   const small = await page.evaluate(() => {
     const bad = [];
