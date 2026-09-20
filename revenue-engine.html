@@ -859,44 +859,72 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 <!-- /generated:css -->
 
 <style>
-  /* ---------- page-specific rules on the dark system (selectors kept for markup compat) ---------- */
-  :root{--em:var(--mint);--action:var(--warm)}
+  /* ---------- page layout only ----------
+     Every colour, surface, radius, type step, border, bullet, label, chip and
+     form control now comes from assets/motion/site.css, inlined above. What is
+     left here is the geometry this page alone has - a three-up status grid and
+     the calculator's result rail - plus two corrections to shared rules that a
+     page stylesheet is the only place to make from here. Nothing below
+     restates a token, and the local .card recipe that used to live here (navy
+     180deg, radius 16) is gone: it was the last navy island on the site. */
 
-  .hero{position:relative;overflow:hidden;padding:150px 0 56px}
-  .hero h1{font-weight:700;letter-spacing:-.03em;line-height:1.05;margin:18px 0 0}
-  .lede{color:var(--muted);font-size:clamp(16px,1.6vw,19px);margin-top:18px;line-height:1.55;max-width:62ch}
+  /* THE LONG EYEBROW. .eyebrow is a flex row, and a wrapping flex line is laid
+     out from each item's HYPOTHETICAL size: an auto-basis text run's is its
+     max-content, the whole label on one line. So a label too long for a phone
+     never fits beside the dot, drops to the next line whole, and leaves the
+     dot alone on a line above it. Five of this page's six eyebrows are long
+     enough to do that at 390. Block flow with an inline-block dot wraps like
+     prose, and a chip still sits on the same line.
+     Handoff: this belongs on .eyebrow/.k in site.css, not here. */
+  .eyebrow{display:block}
+  .eyebrow::before{display:inline-block;vertical-align:middle;position:relative;
+    top:-1px;margin-right:9px}
 
-  /* seven-step journey rendered as an <ol>; site.css .proc only styles div children */
-  ol.proc{grid-template-columns:repeat(3,1fr);counter-reset:step}
-  @media(max-width:900px){ol.proc{grid-template-columns:1fr}}
-  .proc>li{counter-increment:step;background:linear-gradient(180deg,var(--navy-2),#0C1A25);
-    border:1px solid var(--line);border-radius:16px;padding:22px}
-  .proc>li::before{content:counter(step,decimal-leading-zero);
-    font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.14em;
-    color:var(--mint);display:block}
-  @media(hover:hover){
-    .proc>li{transition:transform .3s var(--e-out),border-color .3s var(--e-out),box-shadow .3s var(--e-out)}
-    .proc>li:hover{transform:translateY(-3px);border-color:rgba(159,240,206,.32);
-      box-shadow:0 18px 40px -24px rgba(47,191,143,.4)}
-  }
-  .proc>li h3{margin:8px 0 7px}
-  .proc>li p{color:var(--muted);font-size:14.5px}
-
-  /* status cards: this page's .modes is a card grid, not the homepage tablist */
-  .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  /* The three-up status grid. The cards in it are the shared .card. */
+  .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);align-items:stretch}
   @media(max-width:900px){.modes{grid-template-columns:1fr}}
-  .card{background:linear-gradient(180deg,var(--navy-2),#0C1A25);
-    border:1px solid var(--line);border-radius:16px;padding:22px;color:var(--ink)}
-  .card h3{margin:12px 0 8px}
-  .card p{color:var(--muted);font-size:14.5px}
-  .card a.mono{display:inline-block;margin-top:12px;font-size:12px;letter-spacing:.1em;
-    color:var(--mint);text-decoration:underline;text-underline-offset:3px}
-  .chip {display:inline-block;font-family:"Spline Sans Mono",ui-monospace,monospace;
-    font-size: 11px;letter-spacing:.13em;text-transform:uppercase;color:var(--mint);
-    border:1px solid rgba(159,240,206,.35);border-radius:999px;padding:4px 12px}
+  .modes .card{display:flex;flex-direction:column}
+  /* a flex item stretches, and a chip that stretches is a banner */
+  .modes .card .chip{align-self:flex-start}
+  .modes .card h3{margin:12px 0 8px}
+  /* the standalone link idiom, pushed to the foot so the row of cards agrees */
+  .modes .card .more{margin-top:auto;align-self:flex-start;padding-top:8px}
 
-  /* ROI calculator: inputs/labels come from site.css .roi-grid; numbers below */
-  .big-num{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+  /* This page runs its journey as an ordered list, so the numeral lands on
+     ol.proc>li::before, which outranks the shared lit top edge on
+     .proc>li::before. Without this these would be the only cards on the site
+     with no crown of light. */
+  .proc>li::after{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
+    background:var(--glow-lit);opacity:.55}
+  .proc>li h3{margin:8px 0 7px}
+
+  /* The calculator. Its inputs, labels and fine print are the shared form
+     control; the result rail is the homepage's own .roi-out row, which site.css
+     scopes to .roi-out, so it is restated once here rather than borrowed with
+     a class that would also make this panel sticky. */
+  #reCalc .roi-grid label{margin-bottom:0}
+  #reCalc .roi-grid input{margin-top:7px}
+  #reCalc .re-out{display:grid;grid-template-columns:1fr 1fr;gap:0 26px;margin-top:24px}
+  #reCalc .re-out .row{padding:13px 0;border-top:1px solid var(--line-soft)}
+  #reCalc .re-out .lbl{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:.13em;
+    text-transform:uppercase;color:var(--ink-5);margin:0 0 5px}
+  #reCalc .re-out .big{font-family:var(--f-display);font-weight:800;letter-spacing:var(--tr-head);
+    line-height:var(--lh-tight);font-size:clamp(26px,3vw,34px);color:var(--mint);margin:0}
+  @media(max-width:700px){#reCalc .re-out{grid-template-columns:1fr}}
+  /* The shared .card p rule carries four :not() guards, so it is (0,5,1) and
+     outranks .disclaimer at (0,1,0): fine print inside any card renders at card
+     scale and card colour. An id is the cheapest way past it from here. */
+  #reCalc .disclaimer{font-size:var(--fs-fine);line-height:var(--lh-snug);color:var(--ink-4);
+    margin:16px 0 0}
+
+  /* The phone CTA row. The homepage runs its buttons full width and centred
+     below 760 and site.css has no such rule for .cta-row or .midcta yet, so a
+     button here measured 180px against the homepage's 350px. */
+  @media(max-width:760px){
+    .midcta .btn,.cta-row .btn{width:100%;justify-content:center}
+  }
+  .page-hero .midcta{margin-top:26px}
+  .midcta{margin-top:24px}
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -1018,31 +1046,30 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </header>
 
 <main id="main">
-  <div class="dark hero" style="padding-bottom:56px">
+  <section class="page-hero">
     <div class="grid-lines" aria-hidden="true"></div>
-    <div class="glow" style="width:600px;height:380px;right:-140px;top:-80px" aria-hidden="true"></div>
-    <div class="wrap" style="grid-template-columns:1fr;max-width:900px">
+    <div class="wrap">
       <div>
         <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>In development · applications open</p>
-        <h1 style="font-size:clamp(38px,5.6vw,68px)">The engine behind the platform&rsquo;s next step.</h1>
+        <h1>The engine behind the platform&rsquo;s next step.</h1>
         <p class="lede">The Revenue Engine is the whole picture after the call: which marketing produced which lead, which lead became a paid job, and what that job was worth, down to the campaign. It is not for sale yet, and applications to be part of the first builds are open now. It is built on the calls, quotes and leads the live services already collect.</p>
-        <div class="midcta" style="margin-top:26px">
+        <div class="midcta">
           <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Apply to be considered</a>
           <a class="btn btn-ghost btn-lg" href="/pricing.html">See what is live today</a>
         </div>
-        <p style="margin-top:18px;font-size:14.5px;color:var(--muted-dark)">Lead Generation is by invitation, and quote recovery and the front desk are live today. The Revenue Engine is in private development and is not yet generally available.</p>
+        <p class="fine2">Lead Generation is by invitation, and quote recovery and the front desk are live today. The Revenue Engine is in private development and is not yet generally available.</p>
       </div>
     </div>
-  </div>
+  </section>
 
   <section>
-    <div class="wrap" style="max-width:1000px">
+    <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>What it is being built to answer</p>
         <h2>What it is being built to answer.</h2>
         <p>Each answer reuses the calls, forms and customer history the live services already collect.</p>
       </div>
-      <ol class="proc reveal" style="list-style:none;padding:0">
+      <ol class="proc reveal">
         <li><h3>Where each lead came from</h3><p>Every lead tied back to where it came from, down to the campaign.</p></li>
         <li><h3>What each job was worth</h3><p>A job tracked from first call to paid, so you can see what a lead is actually worth.</p></li>
         <li><h3>Where to spend next</h3><p>What to spend more on and what to stop, with the evidence behind every number.</p></li>
@@ -1051,31 +1078,31 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   </section>
 
   <section class="tight">
-    <div class="wrap" style="max-width:1000px">
+    <div class="wrap">
       <div class="section-head reveal">
         <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>Where each piece stands</p>
         <h2>Honest about what is live and what is coming.</h2>
       </div>
       <div class="modes reveal">
-        <div class="card"><span class="chip" style="border-color:var(--warm);color:var(--warm)">By invitation</span><h3>Lead Generation</h3><p>Offered by invitation, under your own agreement, and put together by hand. A person here reads public pages and builds you a list of the businesses that fit the work you want, with the page each row came from and the day it was read. You decide every row, and nobody on the list is contacted by us.</p><a class="mono" href="/coming-soon.html">See the roadmap</a></div>
-        <div class="card"><span class="chip">Available now</span><h3>Quote Recovery</h3><p>The quotes you already sent, followed up when they go quiet past your threshold: the day they go stale, four days on and eleven days on, each email with your name on it and your approval before it goes. Live, sold as the Quote-Chase Engine.</p><a class="mono" href="/pricing.html">See what it costs</a></div>
-        <div class="card"><span class="chip">Available now</span><h3>AI Front Desk</h3><p>Answers your line, qualifies callers, takes the job down, and sends you the outcome. Live, on a published monthly price.</p><a class="mono" href="/how-you-start.html">See how you start</a></div>
-        <div class="card"><span class="chip">Available now</span><h3>PULSE Business Scan</h3><p>Reads only what is public on your own website and shows what it found, quoted from your own pages. Any figure it gives is a modelled range from public information and market benchmarks, not a measurement of your results. Free, and live today.</p><a class="mono" href="https://app.nevamis.ca/scan">Scan my website</a></div>
-        <div class="card"><span class="chip" style="border-color:var(--action);color:var(--action)">In development</span><h3>Revenue Engine</h3><p>Which marketing produced which job, and what it was worth, down to the campaign. In private development. Applications to be part of the first builds are open, with no clients onboarded yet.</p></div>
-        <div class="card"><span class="chip">Available now</span><h3>Missed-Call Recovery, Get-Paid Autopilot and Review Engine</h3><p>A missed caller gets one text back during business hours. Overdue invoices get a gentle reminder, then a firm one, and at three weeks you are told instead. Each finished job gets one review request, released by a person. Live, each on a published price.</p><a class="mono" href="/pricing.html">See what it costs</a></div>
-        <div class="card"><span class="chip" style="border-color:var(--muted-dark);color:var(--muted-dark)">Coming soon</span><h3>Inbox Assistant</h3><p>Drafts the routine replies and flags the ones that need you. Nothing sends without you pressing send. In development.</p><a class="mono" href="/coming-soon.html">See the roadmap</a></div>
+        <div class="card"><span class="chip inv">By invitation</span><h3>Lead Generation</h3><p>Offered by invitation, under your own agreement, and put together by hand. A person here reads public pages and builds you a list of the businesses that fit the work you want, with the page each row came from and the day it was read. You decide every row, and nobody on the list is contacted by us.</p><a class="more" href="/coming-soon.html">See the roadmap</a></div>
+        <div class="card"><span class="chip av">Available now</span><h3>Quote Recovery</h3><p>The quotes you already sent, followed up when they go quiet past your threshold: the day they go stale, four days on and eleven days on, each email with your name on it and your approval before it goes. Live, sold as the Quote-Chase Engine.</p><a class="more" href="/pricing.html">See what it costs</a></div>
+        <div class="card"><span class="chip av">Available now</span><h3>AI Front Desk</h3><p>Answers your line, qualifies callers, takes the job down, and sends you the outcome. Live, on a published monthly price.</p><a class="more" href="/how-you-start.html">See how you start</a></div>
+        <div class="card"><span class="chip av">Available now</span><h3>PULSE Business Scan</h3><p>Reads only what is public on your own website and shows what it found, quoted from your own pages. Any figure it gives is a modelled range from public information and market benchmarks, not a measurement of your results. Free, and live today.</p><a class="more" href="https://app.nevamis.ca/scan">Scan my website</a></div>
+        <div class="card"><span class="chip dev">In development</span><h3>Revenue Engine</h3><p>Which marketing produced which job, and what it was worth, down to the campaign. In private development. Applications to be part of the first builds are open, with no clients onboarded yet.</p></div>
+        <div class="card"><span class="chip av">Available now</span><h3>Missed-Call Recovery, Get-Paid Autopilot and Review Engine</h3><p>A missed caller gets one text back during business hours. Overdue invoices get a gentle reminder, then a firm one, and at three weeks you are told instead. Each finished job gets one review request, released by a person. Live, each on a published price.</p><a class="more" href="/pricing.html">See what it costs</a></div>
+        <div class="card"><span class="chip dev">Coming soon</span><h3>Inbox Assistant</h3><p>Drafts the routine replies and flags the ones that need you. Nothing sends without you pressing send. In development.</p><a class="more" href="/coming-soon.html">See the roadmap</a></div>
       </div>
     </div>
   </section>
 
   <section class="tight">
-    <div class="wrap" style="max-width:820px">
+    <div class="wrap read">
       <div class="section-head reveal">
         <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>Use your numbers, not ours</p>
         <h2>What could recovered opportunities be worth?</h2>
         <p>This is an illustrative estimate using assumptions you enter. It is not a guarantee of results.</p>
       </div>
-      <div class="reveal" style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 26px">
+      <div class="card reveal" id="reCalc">
         <div class="roi-grid">
           <label>Missed or slow-response leads per week
             <input type="number" id="re-missed" aria-label="Missed or slow-response leads per week" value="10" min="0" inputmode="numeric"></label>
@@ -1086,17 +1113,17 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <label>Your close rate (%)
             <input type="number" id="re-close" aria-label="Your close rate on real inquiries, percent" value="50" min="0" max="100" inputmode="numeric"></label>
         </div>
-        <div style="margin-top:22px;display:flex;flex-wrap:wrap;gap:22px" aria-live="polite">
-          <div><div class="mono" style="font-size:13px;color:var(--muted)">Monthly opportunity reaching no one</div><div id="re-opp" class="big-num" style="font-size:40px;color:var(--em)">C$0</div></div>
-          <div><div class="mono" style="font-size:13px;color:var(--muted)">If you recover even half</div><div id="re-half" class="big-num" style="font-size:34px;color:var(--action)">C$0</div></div>
+        <div class="re-out" aria-live="polite">
+          <div class="row"><p class="lbl">Monthly opportunity reaching no one</p><p id="re-opp" class="big">C$0</p></div>
+          <div class="row"><p class="lbl">If you recover even half</p><p id="re-half" class="big">C$0</p></div>
         </div>
-        <p style="margin-top:16px;font-family:'Spline Sans Mono',monospace;font-size:12.5px;color:var(--muted)">Illustrative estimate using editable assumptions. Not a guarantee. Formula: leads per week x 4.33 x real share x average job value x close rate.</p>
+        <p class="disclaimer">Illustrative estimate using editable assumptions. Not a guarantee. Formula: leads per week x 4.33 x real share x average job value x close rate.</p>
       </div>
     </div>
   </section>
 
   <section class="tight">
-    <div class="wrap" style="max-width:820px">
+    <div class="wrap read">
       <div class="section-head reveal">
         <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>The first Revenue Engine build</p>
         <h2>This is development work, not a product you can buy.</h2>
@@ -1113,22 +1140,24 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              business. -->
         <p>The front desk is a live product on a published monthly price. The Revenue Engine is not: it is in development, and the first builds are applied for rather than bought. Applying is a conversation about whether your business is a sensible place to build it first.</p>
       </div>
-      <ul class="reveal" style="list-style:none;padding:0;display:grid;gap:12px">
-        <li class="card">Scoped small on purpose: one location, one service line and one advertising channel, with each lead from it followed to a paid job.</li>
-        <li class="card">You own and fund your own advertising account. Advertising, telephony, messaging, and data are disclosed pass-through costs you pay directly.</li>
-        <li class="card">There is no published Revenue Engine price and no standing offer. Commercial terms are scoped and confirmed in writing before anything starts, or there is no engagement.</li>
-        <li class="card">No minimum number of leads, appointments, or revenue is guaranteed, and none is implied by anything on this page.</li>
-        <li class="card">Founder-led, and accepted on fit and onboarding capacity rather than on order of arrival.</li>
+      <div class="card reveal">
+      <ul class="node-list">
+        <li>Scoped small on purpose: one location, one service line and one advertising channel, with each lead from it followed to a paid job.</li>
+        <li>You own and fund your own advertising account. Advertising, telephony, messaging, and data are disclosed pass-through costs you pay directly.</li>
+        <li>There is no published Revenue Engine price and no standing offer. Commercial terms are scoped and confirmed in writing before anything starts, or there is no engagement.</li>
+        <li>No minimum number of leads, appointments, or revenue is guaranteed, and none is implied by anything on this page.</li>
+        <li>Founder-led, and accepted on fit and onboarding capacity rather than on order of arrival.</li>
       </ul>
-      <p style="margin-top:16px;font-size:14.5px;color:var(--muted-dark)">Nothing here is a price list. Your front desk plan, if you have one, is unaffected by any of this: it stays its own published plan, with a monthly you can cancel yourself from the portal at any time, because there is no minimum term and no notice period on anything.</p>
-      <div class="midcta reveal" style="margin-top:24px">
+      </div>
+      <p class="fine2">Nothing here is a price list. Your front desk plan, if you have one, is unaffected by any of this: it stays its own published plan, with a monthly you can cancel yourself from the portal at any time, because there is no minimum term and no notice period on anything.</p>
+      <div class="midcta reveal">
         <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Apply to be considered</a>
       </div>
     </div>
   </section>
 
   <section class="faq tight">
-    <div class="wrap" style="max-width:760px">
+    <div class="wrap read">
       <div class="section-head reveal">
         <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>Questions</p>
         <h2>Straight answers.</h2>
