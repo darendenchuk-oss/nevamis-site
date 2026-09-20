@@ -315,60 +315,110 @@ strong{color:var(--ink)}
 }
 
 /* ---------- buttons ---------- */
-.btn{position:relative;display:inline-flex;align-items:center;gap:9px;border-radius:999px;
-  padding:12px 20px;font-weight:600;font-size:14.5px;border:1px solid transparent;cursor:pointer;
-  white-space:nowrap;will-change:transform;font-family:inherit}
-.btn .arw{transition:transform .18s var(--e-out)}
-.btn:hover .arw{transform:translateX(3px)}
+/* ONE PRIMARY for the whole site: the flat mint pill. The header used to keep
+   the emerald gradient because the flat rule was scoped to `main`, so the
+   homepage showed BOTH primaries on one screen - a gradient pill in the header
+   and a flat one below the film. Unscoping fixes that by construction.
+   min-height is the phone tap target, asserted rather than hoped for. */
+.btn{position:relative;display:inline-flex;align-items:center;gap:9px;
+  border-radius:var(--r-pill);padding:12px 20px;font-family:inherit;font-weight:600;
+  font-size:14.5px;border:1px solid transparent;cursor:pointer;white-space:nowrap;
+  min-height:44px;
+  transition:transform var(--t-fast) var(--e-out),
+             border-color var(--t-base) var(--e-out),
+             box-shadow var(--t-base) var(--e-out)}
 .btn-lg{padding:15px 26px;font-size:16px}
-.btn-primary{background:linear-gradient(110deg,var(--emerald-mid),var(--emerald));color:#04120C;
-  box-shadow:0 10px 30px -12px rgba(47,191,143,.6);background-size:160% 100%;background-position:0 0;
-  transition:background-position .45s var(--e-out),box-shadow .3s var(--e-out)}
-.btn-primary:hover{background-position:100% 0;box-shadow:0 16px 44px -14px rgba(47,191,143,.8)}
+.btn .arw{transition:transform var(--t-fast) var(--e-out)}
+.btn:hover .arw{transform:translateX(3px)}
+
+.btn-primary{background:var(--mint);color:var(--on-mint);border:none;
+  box-shadow:var(--glow-btn)}
+.btn-primary:hover{transform:translateY(-2px);
+  box-shadow:0 0 44px rgba(159,240,206,.5),0 0 110px rgba(47,191,143,.25)}
+.btn-primary:active{transform:scale(.97)}
+
 /* Outline buttons. The outline IS the button, so its boundary is
    --line-control-strong (.72) rather than the .46 control hairline that inputs
    and the nav toggle keep. The pill itself stays transparent: it shares the
-   navy ground with the nav and the body copy, and a tint over it buys nothing.
-   Hover strengthens the border to mint and paints nothing; it used to drop the
-   border to .42 and add a mint tint, which over the aurora canvas pulled
-   labels under 4.5:1.
-   Where the ground is the aurora shader rather than navy, a transparent pill
-   is at the mercy of the frame (1.9:1 on the border was measured over bright
-   ones). That is answered where it happens, on the page heroes that sit on the
-   brightest part of the canvas (scripts/build-content.mjs, .page-hero
-   .btn-ghost paints its own dark ground and ring), not by making every outline
-   button on the site carry a dark plate. Never backdrop-filter: see the aurora
-   note above.
-   What that leaves, measured from pixels over the aurora at 390 and 1440: the
-   outline buttons in hand-authored page BODIES (pricing, book, coming-soon,
-   pilot, 404, revenue-engine, and the mid-page bands on the content pages) are
-   better than they were but still short of 3:1 on the brightest frames, about
-   2.5-3.0:1 where .46 gave 1.7-2.5:1. Eleven control-states of 102, every one
-   of them improved, none of them a "Scan my business". Closing that gap means
-   giving those bodies the same dark plate the heroes have, which is a visual
-   change to surfaces nobody has asked to change: it is the owner's call, not a
-   silent one. tests/scan-contrast.spec.js measures the ones that matter. */
-.btn-ghost,.btn-light-ghost{border-color:var(--line-control-strong);color:var(--ink);background:transparent;
-  transition:border-color .25s var(--e-out),background .25s var(--e-out)}
+   ground with the nav and the body copy, and a tint over it buys nothing.
+   The measured case for a dark plate under these buttons was the aurora - a
+   transparent pill over a bright shader frame measured 1.9:1 on its border.
+   The shader is deleted and the ground is one flat #02080D, so the plate has
+   nothing left to defend against; tests/scan-contrast.spec.js is what decides
+   that, not this comment. */
+.btn-ghost,.btn-light-ghost{border-color:var(--line-control-strong);color:var(--ink);
+  background:transparent}
 .btn-ghost:hover,.btn-light-ghost:hover{border-color:var(--mint)}
 .ring-once{animation:ringOnce 1s var(--e-out) 1}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 
 /* ---------- shared section scaffolding ---------- */
 main section,main .dark{position:relative}
-/* Sections clip their own decorative glows so nothing ever hangs past the
-   page edge. #roi opts out: its results panel is position:sticky, which an
-   overflow-hidden ancestor would silently disable. */
-section{padding:96px 0;overflow:hidden}
+/* ONE RHYTHM for the whole site: --sec-y top AND bottom, with a hairline at
+   every boundary. The interior pages ran 96-bottom-only via .tight, which put
+   96px between sections against the homepage's 176. The divider is what makes
+   the larger gap read as composition rather than as a hole.
+
+   overflow:clip rather than hidden. It clips decorative bleed exactly the same
+   way without creating a scroll container, so it cannot silently kill a sticky
+   descendant - which is the defect documented at the top of this file and the
+   reason .roi-out has never once pinned. #roi keeps its explicit opt-out. */
+section{padding:var(--sec-y) 0;position:relative;overflow:clip;
+  border-top:1px solid var(--line-soft);scroll-margin-top:var(--head-h)}
 #roi{overflow:visible}
-section.tight{padding-top:0}
-.section-head{max-width:660px;margin-bottom:44px}
-.section-head h2{margin:10px 0 12px}
-.section-head p{color:var(--muted);font-size:17px}
-.eyebrow{display:inline-flex;align-items:center;gap:9px;color:var(--mint);font-size:12.5px;
-  letter-spacing:.16em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;
-  padding:6px 14px;background:rgba(159,240,206,.04)}
-.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 12px var(--mint)}
+/* .tight is NEUTRALISED, not deleted: it is on about forty sections of markup
+   across the site and stripping the class is churn for no visual gain. The
+   class keeps existing and stops meaning anything. */
+section.tight{padding-top:var(--sec-y)}
+/* The first section under a hero carries no rule: the hero's own light and its
+   closing hairline already mark the boundary. */
+.page-hero+section{border-top:none}
+section>.wrap{position:relative;z-index:2}
+@media(max-width:760px){:root{--sec-y:64px}}
+
+/* THE PAGE HERO. One geometry, whatever a page calls its first section. */
+.page-hero{position:relative;overflow:clip;padding:150px 0 48px;border-top:none}
+.page-hero h1{font-size:var(--fs-hero);margin:0}
+@media(max-width:760px){.page-hero{padding:118px 0 40px}}
+
+.section-head{max-width:660px;margin-bottom:30px}
+.section-head h2{margin:0 0 14px}
+p.lede,.section-head p{font-family:var(--f-body);font-size:var(--fs-lede);
+  line-height:var(--lh-snug);color:var(--ink-3);max-width:var(--measure-lede);margin:0}
+
+/* THE EYEBROW, and it is the highest-value swap in this redesign. It is done
+   by restyling the class rather than rewriting markup: .eyebrow already exists
+   on about eighteen pages including all nine generated ones, so one rule
+   reaches every page and tests/content-pages.spec.js's byte-identical nav and
+   footer comparison is never touched.
+
+   The interior pill - a bordered, tinted, 12.5px mint capsule - retires. What
+   replaces it is the homepage's own idiom: chipless 11px mono in emerald with
+   a small glowing dot drawn by ::before. .k is the film's name for the same
+   object and is carried as an alias so sections.html, site.js's runtime markup
+   and the #doc stations keep working without a rename. */
+.eyebrow,.k{font-family:var(--f-mono);font-size:var(--fs-label);line-height:1.3;
+  font-weight:400;letter-spacing:var(--tr-label);text-transform:uppercase;
+  color:var(--emerald);display:flex;gap:9px;align-items:center;flex-wrap:wrap;
+  margin:0 0 14px;
+  /* the pill is gone */
+  border:0;border-radius:0;padding:0;background:none}
+.eyebrow::before,.k::before{content:"";width:5px;height:5px;border-radius:50%;
+  background:var(--emerald);box-shadow:var(--glow-dot);flex:none}
+/* The markup dot on the generated hero is now redundant - ::before draws it. */
+.eyebrow .dot{display:none}
+/* The film's chapter numeral. <i> is the element, font-style reset. */
+.eyebrow i,.k i{font-style:normal;color:var(--ink-dim)}
+/* span.eyebrow must not be inline, or the flex row collapses. */
+span.eyebrow{display:flex;width:fit-content}
+.centre .eyebrow,.centre .k{justify-content:center}
+
+/* THE BREADCRUMB. The same 11px mono label idiom as the eyebrow. It is not
+   added to the eight pages that lack one: that is an IA and copy change. */
+.crumb{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-crumb);
+  text-transform:uppercase;color:var(--ink-5);margin-bottom:10px}
+.crumb a{color:var(--ink-4)}
+.crumb a:hover{color:var(--mint)}
 /* THE HERO POOL. This element used to draw a 64px grid at opacity .4 under a
    radial mask - the interior system's own decoration, with no counterpart on
    the homepage. It is now the same emerald pool the homepage puts at the film
@@ -393,19 +443,132 @@ section>.wrap{position:relative;z-index:2}
 .midcta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .midcta .mono{color:var(--muted);font-size:13px}
 
-/* elevated panel look shared by cards */
-.panel,.call-card,.owner-card,.sim,.ind-card,.roi-out,.roi-grid form,.proc>div,.week>div,
-.stack .layer,.assure,.founder,.faq details,.compare-wrap,.mode-panel{
-  background:linear-gradient(180deg,var(--navy-2),var(--bg));
-  border:1px solid var(--line);border-radius:16px}
+/* ONE SURFACE for every card-ish thing on the site: radius 12, the green-black
+   glass fill, and the lit top edge. The interior ran radius 16 over a navy
+   180deg gradient and the homepage ran this; there is no argument for keeping
+   two, and the lit edge is the detail that makes a page recognisable as this
+   site. Today it appears on exactly zero pages other than the homepage. */
+.card,.panel,.call-card,.owner-card,.sim,.ind-card,.roi-out,.roi-grid form,
+.proc>div,.proc>li,.week>div,.stack .layer,.assure,.founder,.faq details,
+.compare-wrap,.mode-panel,.related a,.plan,.svc,.twocol>div,.plan-box,.j-step{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-card);
+  padding:var(--pad-card);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  position:relative;box-shadow:none;transform:none;overflow:hidden}
 
-/* card hover lift (fine pointers only; JS adds tilt ≤2°) */
-@media(hover:hover){
-  .ind-card,.proc>div,.week>div,.stack .layer{transition:transform .3s var(--e-out),border-color .3s var(--e-out),box-shadow .3s var(--e-out)}
-  .ind-card:hover,.proc>div:hover,.week>div:hover,.stack .layer:hover{
-    transform:translateY(-3px);border-color:rgba(159,240,206,.32);
-    box-shadow:0 18px 40px -24px rgba(47,191,143,.4)}
+/* THE LIT TOP EDGE. A 1px hairline of light inset 12px from each side. Not a
+   border and not a shadow: it reads as light across the crown of the panel. */
+.card::before,.panel::before,.roi-out::before,.faq details::before,
+.related a::before,.plan::before,.call-card::before,.compare-wrap::before,
+.stack .layer::before,.proc>div::before,.proc>li::before{
+  content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
+  background:var(--glow-lit);opacity:.55}
+
+/* The homepage card does NOT lift, so neither does any other. The interior's
+   translateY(-3px) and the JS tilt retire with it: hover strengthens the edge
+   and brightens the crown, and moves nothing. */
+a.card:hover,.ind-card:hover,.related a:hover,.proc>div:hover,.stack .layer:hover{
+  border-color:var(--line-accent);transform:none;box-shadow:none}
+a.card:hover::before,.ind-card:hover::before,.related a:hover::before{opacity:.9}
+
+/* Featured: a bloom pulled INSIDE the box's own footprint by the -22px spread,
+   so it glows without casting a drop shadow, plus an off-centre radial wash. */
+.card-featured,.rec,.plan.rec,.price-card.rec,.svc.now{
+  border-color:var(--line-accent);
+  box-shadow:var(--glow-bloom);
+  background-image:var(--surface-sheen),var(--surface)}
+
+.card h3,.panel h3,.plan h3,.related strong{font-family:var(--f-display);
+  font-size:var(--fs-h3);font-weight:700;letter-spacing:var(--tr-h3);
+  color:var(--ink);margin:0 0 8px;display:block}
+/* The :not() guards are load-bearing. `.card p` is (0,1,1) and `.eyebrow` is
+   (0,1,0), so without them every eyebrow inside a card renders at 15px in body
+   grey and every plan price renders grey instead of mint. */
+.card p:not(.eyebrow):not(.k):not(.price):not(.lede),
+.plan p:not(.eyebrow):not(.k):not(.price):not(.lede){
+  font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2);margin:0 0 8px}
+.card p:last-child,.plan p:last-child{margin-bottom:0}
+/* Bigger padding for the blocks that carry a whole offer rather than a note. */
+.offer-card,.plan,.panel,.journey{padding:var(--pad-card-lg)}
+
+/* The sticky ROI panel. The card rule above sets position:relative, which is
+   what has been pushing this panel down instead of pinning it. Restated. */
+.roi-out{position:sticky;top:86px}
+
+/* Touch screens: no backdrop blur. Measured at 412px, 38 of these carried
+   blur(10px) composited at full device density over a flat ground, where a
+   blur changes nothing that can be seen to change. The alphas are re-solved so
+   the painted colour over --bg is unchanged. */
+@media(pointer:coarse){
+.card,.panel,.call-card,.owner-card,.sim,.ind-card,.roi-out,.roi-grid form,
+.proc>div,.proc>li,.week>div,.stack .layer,.assure,.founder,.faq details,
+.compare-wrap,.mode-panel,.related a,.plan,.svc,.twocol>div,.plan-box,.j-step{
+    backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--surface-coarse)}
+  .card-featured,.rec,.plan.rec,.price-card.rec,.svc.now{
+    background-image:var(--surface-sheen),var(--surface-coarse)}
 }
+
+/* THE CHIP. 11px, not .6rem: the old 9.6px is the largest single class of
+   offender in tests/quality.spec.js's legibility floor. Tracking is re-fitted
+   from .06em to .08em and the padding re-balanced so the pill is the same
+   optical size. The string set is closed - Available today / In development /
+   By invitation / RECOMMENDED - and "By invitation" is warm outline so that it
+   can never read as available. */
+.chip{display:inline-block;font-family:var(--f-mono);font-size:var(--fs-label);
+  font-weight:700;letter-spacing:var(--tr-chip);padding:.2rem .58rem;
+  border-radius:var(--r-pill);border:1px solid;white-space:nowrap;line-height:1.35}
+.chip.av {color:var(--on-mint);background:var(--mint);    border-color:var(--mint)}
+.chip.dev{color:#7fae99;        background:none;          border-color:rgba(127,174,153,.4)}
+.chip.inv{color:var(--warm);    background:none;          border-color:rgba(240,180,98,.45)}
+.chip.rec{color:var(--on-mint); background:var(--emerald);border-color:var(--emerald);
+  letter-spacing:.14em}
+
+/* ONE BULLET IDIOM. Five retire: the tick glyph, the middot, native disc,
+   native decimal and the counter(step) hack. What replaces them is the
+   homepage's row - a small emerald dot, a hairline under each row, and an
+   optional mono tag on the right rail. */
+.node-list,ul.ticks,.inc,.exc,.svc-checks{list-style:none;margin:0;padding:0}
+.node-list li,ul.ticks li,.inc li,.exc li,.svc-checks li{
+  display:flex;gap:12px;align-items:baseline;justify-content:space-between;
+  font-size:var(--fs-card);line-height:var(--lh-snug);color:var(--ink-2);
+  padding:10px 0;border-bottom:1px solid var(--line-soft)}
+.node-list li:last-child,ul.ticks li:last-child,.inc li:last-child,
+.exc li:last-child,.svc-checks li:last-child{border-bottom:none}
+.node-list li::before,ul.ticks li::before,.inc li::before,.svc-checks li::before{
+  content:"";width:5px;height:5px;border-radius:50%;background:var(--emerald);
+  flex:none;align-self:center;box-shadow:0 0 8px rgba(47,191,143,.6)}
+/* An exclusion list keeps the row shape and loses the light. */
+.exc li::before{content:"";width:5px;height:5px;border-radius:50%;
+  background:var(--ink-5);flex:none;align-self:center;box-shadow:none}
+.deny .node-list li,.exc li{color:var(--ink-3)}
+/* 11px, not 10px: the second class of live legibility-floor offender. */
+.node-list .tag,.tag{font-family:var(--f-mono);font-size:var(--fs-label);
+  letter-spacing:var(--tr-tag);color:var(--ink-5);flex:none;white-space:nowrap}
+/* Ordered lists keep their numerals but lose the counter hack. */
+ol.proc,ol.steps{list-style:none;counter-reset:nvstep}
+ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
+  content:counter(nvstep,decimal-leading-zero);font-family:var(--f-mono);
+  font-size:var(--fs-label);letter-spacing:var(--tr-label);color:var(--emerald);
+  background:none;box-shadow:none;width:auto;height:auto;border-radius:0}
+@media(max-width:760px){.node-list li,ul.ticks li,.inc li,.exc li{flex-wrap:wrap}}
+
+/* FINE PRINT, and the site's two link idioms. `a` defaults to color:inherit
+   and text-decoration:none, so a bare <a> inside a sentence is invisible as a
+   link. .more is the standalone "read more" row, 11px uppercase mono with no
+   underline, which is all the homepage needs because it has no prose links.
+   .prose a is for a link inside a sentence, where a mono all-caps label cannot
+   live: underlined mint at a 3px offset. Both idioms ship. */
+.fine2,.buy-note,.form-note,.disclaimer,.hint,.roi-out .disclaimer{
+  font-size:var(--fs-fine);line-height:var(--lh-snug);color:var(--ink-4);margin:16px 0 0}
+.more{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-tag);
+  text-transform:uppercase;color:var(--emerald);text-decoration:none}
+.more:hover{color:var(--mint)}
+.prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
+  text-decoration:underline;text-underline-offset:3px;
+  text-decoration-color:rgba(159,240,206,.45)}
+.prose a:hover,.faq details a:hover{text-decoration-color:var(--mint)}
 
 /* ---------- reveals (site.js drives .in; no-js shows everything) ---------- */
 /* Upgraded 2026-08-01: a longer rise on a springier curve, plus a slight
@@ -601,12 +764,12 @@ html.no-js .summary-arrive,html.motion-off .summary-arrive{opacity:1;transform:n
 .path-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:step}
 @media(max-width:940px){.path-steps{grid-template-columns:1fr 1fr}}
 @media(max-width:620px){.path-steps{grid-template-columns:1fr}}
-.pstep{counter-increment:step;background:linear-gradient(180deg,var(--navy-2),var(--bg));
-  border:1px solid var(--line);border-radius:16px;padding:22px;position:relative;
+.pstep{counter-increment:step;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-card);padding:22px;position:relative;
   opacity:.45;transform:translateY(10px);
   transition:opacity .6s var(--e-out),transform .6s var(--e-out),border-color .6s var(--e-out)}
-.pstep::before{content:counter(step,decimal-leading-zero);font-family:"Spline Sans Mono",monospace;
-  font-size:11px;letter-spacing:.12em;color:var(--mint);display:block;margin-bottom:10px}
+.pstep::before{content:counter(step,decimal-leading-zero);font-family:var(--f-mono);
+  font-size:var(--fs-label);letter-spacing:.12em;color:var(--mint);display:block;margin-bottom:10px}
 .pstep h3{margin-bottom:7px}
 .pstep p{color:var(--muted);font-size:14.5px}
 .pstep.active{opacity:1;transform:none;border-color:rgba(159,240,206,.28)}
@@ -641,6 +804,32 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
 .ind-card p{color:var(--muted);font-size:14px}
 
 /* ---------- ROI ---------- */
+/* ONE FORM CONTROL for every form on the site. The three families (.roi-grid,
+   .cb, .interest-form, plus pricing's .rc) ran 9px/44px/14.5px, 11px/44px/15px
+   and 12px/46px/15.5px; they run one scale now. The focus ring is measured by
+   tests/focus-visibility.spec.js against the first opaque ancestor - do not
+   change the 3px spread or the .5 alpha without re-running it on #cbName,
+   #bkName, #ifName, #roiMissed and .rc input. */
+.roi-grid label,.cb label,.rc label,.interest-form label,form label{
+  font-weight:700;font-size:14.5px;display:block;margin-bottom:7px;color:var(--ink)}
+.roi-grid input,.roi-grid select,.roi-grid textarea,
+.cb input,.cb select,.cb textarea,.rc input,.rc select,
+.interest-form input,.interest-form select,.interest-form textarea{
+  width:100%;padding:12px 13px;font-size:15.5px;font-family:inherit;color:var(--ink);
+  background:rgba(159,240,206,.04);border:1px solid var(--line-control);
+  border-radius:var(--r-input);min-height:46px;color-scheme:dark;
+  transition:border-color var(--t-base) var(--e-out),box-shadow var(--t-base) var(--e-out)}
+.roi-grid input:focus,.cb input:focus,.rc input:focus,.interest-form input:focus,
+.roi-grid select:focus,.cb select:focus,.rc select:focus,
+.roi-grid textarea:focus,.cb textarea:focus,.interest-form textarea:focus{
+  outline:none;border-color:rgba(159,240,206,.5);box-shadow:0 0 0 3px rgba(159,240,206,.5)}
+.roi-grid .hint,.cb-note,.form-note{color:var(--ink-4);font-size:var(--fs-fine);margin-top:6px}
+.roi-out .lbl{font-family:var(--f-mono);font-size:var(--fs-label);
+  letter-spacing:.13em;color:var(--ink-5);margin-bottom:5px;text-transform:uppercase}
+.roi-out .big{font-family:var(--f-display);font-weight:800;letter-spacing:var(--tr-head);
+  font-size:clamp(26px,3vw,34px);color:var(--mint)}
+.roi-out .row{padding:13px 0;border-top:1px solid var(--line-soft)}
+
 /* minmax(0,1fr), not 1fr. A 1fr track carries an implicit min-content floor,
    so the widest thing inside the form pushed the column to 352px inside a
    320px container and the calculator hung 12px off the right edge of a 360px
@@ -649,11 +838,7 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
    at opacity 0, and every .reveal block sat at 0 until scrolled into view. */
 .roi-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
 @media(max-width:900px){.roi-grid{grid-template-columns:minmax(0,1fr)}}
-.roi-grid form{padding:24px;display:grid;gap:16px}
-.roi-grid label{font-weight:700;font-size:14.5px;display:block;margin-bottom:7px}
-.roi-grid input{width:100%;padding:12px 13px;font-size:15.5px;font-family:inherit;color:var(--ink);
-  background:rgba(159,240,206,.04);border:1px solid var(--line-control);border-radius:10px;min-height:46px;
-  transition:border-color .2s var(--e-out),box-shadow .2s var(--e-out)}
+.roi-grid form{padding:var(--pad-card-lg);display:grid;gap:16px}
 /* The focus ring is the ONLY indicator on these fields: the rule turns off the
    2px mint outline that :focus-visible would otherwise draw. It was
    rgba(47,191,143,.18), which flattens to rgb(17,52,52) over the rgb(11,22,32)
@@ -665,8 +850,6 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
    tests/focus-visibility.spec.js computes it rather than trusting this note:
    the value depends on what is painted behind the field, which is not knowable
    from here. Turning the outline back on instead would have drawn two rings. */
-.roi-grid input:focus{outline:none;border-color:rgba(159,240,206,.5);
-  box-shadow:0 0 0 3px rgba(159,240,206,.5)}
 /* ---------- the Cal.com scheduler frame, both places it appears ----------
    Cal posts no dimension events, so the height is ours to declare, and it was
    declared twice: book.html carried 940px (1120px on narrow screens) and
@@ -694,11 +877,11 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
    is the one outcome worth ruling out. The THEME inside the frame is a Cal
    account setting and not reachable from here - see book.html, and do not
    reach for /embed?theme=dark, which renders invisible without their SDK. */
-.nv-cal-frame{display:block;width:100%;height:1080px;border:0;border-radius:12px;
-  background:var(--navy-2)}
+.nv-cal-frame{display:block;width:100%;height:1080px;border:0;border-radius:var(--r-card);
+  background:var(--bg-lift)}
 @media(max-width:719px){.nv-cal-frame{height:1120px}}
 
-.roi-grid .hint{color:var(--muted);font-size:12.5px;margin-top:6px}
+.roi-grid .hint{color:var(--ink-4);font-size:var(--fs-fine);margin-top:6px}
 /* The compact estimate, narrow screens only.
 
    Below 900px .roi-grid becomes one column and the estimate lands under the
@@ -726,19 +909,15 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
     position:sticky;top:86px;z-index:5;margin-bottom:14px;
     padding:11px 14px;border-radius:11px;
     background:var(--navy-3);border:1px solid var(--line)}
-  .roi-mini-lbl{font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+  .roi-mini-lbl{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:.12em;color:var(--ink-5)}
   .roi-mini-val{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;
     letter-spacing:-.02em;font-size:21px;color:var(--ink);white-space:nowrap}
 }
-.roi-out{padding:24px;position:sticky;top:86px}
+.roi-out{position:sticky;top:86px}
 .roi-out h3{margin-bottom:16px}
-.roi-out .row{padding:13px 0;border-top:1px solid var(--line)}
-.roi-out .lbl{font-size:11px;letter-spacing:.13em;color:var(--muted);margin-bottom:5px}
-.roi-out .big{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.02em;
-  font-size:clamp(26px,3vw,34px);color:var(--mint)}
 .roi-out .big.tick{animation:tickPop .22s var(--e-out)}
 @keyframes tickPop{0%{transform:scale(1)}45%{transform:scale(1.045)}100%{transform:scale(1)}}
-.roi-out .disclaimer{color:var(--muted);font-size:12px;margin-top:14px;line-height:1.5}
+.roi-out .disclaimer{color:var(--ink-4);font-size:var(--fs-fine);margin-top:14px;line-height:var(--lh-snug)}
 
 /* ---------- proc cards (process / pricing preview / beyond) ---------- */
 .proc{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
@@ -769,39 +948,53 @@ html.no-js .stack .layer,html.motion-off .stack .layer{opacity:1;transform:none}
 .week p{color:var(--muted);font-size:13.5px}
 
 /* ---------- comparison ---------- */
-.compare-wrap{overflow-x:auto;padding:6px}
-table.compare{width:100%;border-collapse:collapse;min-width:640px;font-size:14.5px}
-.compare th,.compare td{padding:12px 14px;text-align:left;border-bottom:1px solid rgba(159,240,206,.08)}
-.compare thead th{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--muted)}
-.compare thead th:last-child{color:var(--mint)}
-.compare tbody th{color:var(--ink);font-weight:600;font-size:14px}
-.compare td.yes{color:var(--mint)} .compare td.yes::before{content:"✓ ";color:var(--emerald)}
-.compare td.no{color:var(--muted);opacity:.7} .compare td.no::before{content:"✕ ";color:var(--bad)}
-.compare td.part{color:var(--warm)}
-.compare tbody tr{transition:background .2s var(--e-out)}
-.compare tbody tr:hover{background:rgba(159,240,206,.03)}
+/* The site has exactly one table family and it joins the system: card chrome
+   from the surface rule above, no inner padding of its own, mono uppercase
+   column heads at the label scale, hairline rules at --line-soft. */
+.compare-wrap{padding:0;overflow:auto}
+table.compare{border-collapse:collapse;width:100%;min-width:640px;
+  font-size:var(--fs-card);color:var(--ink-2)}
+table.compare thead th{font-family:var(--f-mono);font-size:var(--fs-label);
+  letter-spacing:var(--tr-label);text-transform:uppercase;color:var(--ink-5);
+  text-align:left;font-weight:400;padding:14px 16px;
+  border-bottom:1px solid var(--line-soft)}
+table.compare thead th:last-child{color:var(--mint)}
+table.compare td{padding:13px 16px;border-bottom:1px solid var(--line-soft);
+  vertical-align:top;text-align:left}
+table.compare tbody th{color:var(--ink);font-weight:600;font-size:var(--fs-card);
+  text-align:left;padding:13px 16px;border-bottom:1px solid var(--line-soft)}
+table.compare tbody tr:last-child td,table.compare tbody tr:last-child th{border-bottom:none}
+table.compare tbody tr:hover td{background:rgba(159,240,206,.03)}
+td.yes{color:var(--mint)}   td.yes::before{content:"\2713 ";color:var(--emerald)}
+td.no{color:var(--ink-4)}   td.no::before{content:"\2715 ";color:var(--bad)}
+td.part{color:var(--warm)}
 /* On a phone the 640px floor made the table 652px wide inside a 348px column,
    so every comparison needed a sideways scroll. Below 700px it fits instead. */
-@media (max-width:700px){table.compare{min-width:0;font-size:13px}.compare th,.compare td{padding:10px 6px}.compare thead th{letter-spacing:.06em}}
+@media (max-width:700px){table.compare{min-width:0;font-size:13.5px}
+  table.compare th,table.compare td{padding:10px 8px}
+  table.compare thead th{letter-spacing:.08em}}
 
 /* ---------- pricing preview cards ---------- */
 .price-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 @media(max-width:900px){.price-cards{grid-template-columns:1fr}}
-.price-card{background:linear-gradient(180deg,var(--navy-2),var(--bg));border:1px solid var(--line);
-  border-radius:16px;padding:24px;position:relative;
-  transition:transform .3s var(--e-out),border-color .3s var(--e-out),box-shadow .3s var(--e-out)}
-@media(hover:hover){.price-card:hover{transform:translateY(-3px);border-color:rgba(159,240,206,.32);
-  box-shadow:0 18px 40px -24px rgba(47,191,143,.4)}}
-.price-card.rec{border-color:rgba(47,191,143,.45);box-shadow:0 18px 48px -28px rgba(14,143,106,.5)}
-.price-card .rec-tag{position:absolute;top:-11px;left:20px;font-family:"Spline Sans Mono",monospace;
-  font-size:11px;letter-spacing:.13em;background:var(--mint);color:#04120C;border-radius:999px;
-  padding:4px 11px;font-weight:700}
-.price-card h3{font-size:21px}
-.price-card .amount{font-family:"Bricolage Grotesque",sans-serif;font-size:36px;font-weight:800;
-  letter-spacing:-.02em;margin:8px 0 2px;color:var(--ink)}
-.price-card .amount span{font-size:15px;font-weight:400;color:var(--muted);font-family:"Atkinson Hyperlegible","Atkinson Fallback",sans-serif}
-.price-card .meta{color:var(--muted);font-size:13.5px}
+.price-card{background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-card);padding:var(--pad-card-lg);position:relative;overflow:hidden;
+  transition:border-color var(--t-base) var(--e-out)}
+.price-card::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
+  background:var(--glow-lit);opacity:.55}
+@media(hover:hover){.price-card:hover{border-color:var(--line-accent)}}
+/* The recommendation tag is the .chip.rec idiom, drawn where the card puts
+   it. overflow:hidden on the card means it can no longer hang off the top
+   edge, so it sits inside the crown instead of straddling it. */
+.price-card .rec-tag{font-family:var(--f-mono);font-size:var(--fs-label);
+  letter-spacing:.13em;color:var(--on-mint);background:var(--emerald);
+  border-radius:var(--r-pill);padding:.2rem .58rem;font-weight:700;
+  display:inline-block;margin-bottom:10px;line-height:1.35}
+.price-card h3{font-size:var(--fs-h3)}
+.price-card .amount{font-family:var(--f-display);font-size:36px;font-weight:800;
+  letter-spacing:var(--tr-head);margin:8px 0 2px;color:var(--ink)}
+.price-card .amount span{font-size:15px;font-weight:400;color:var(--ink-3);font-family:var(--f-body)}
+.price-card .meta{color:var(--ink-3);font-size:13.5px}
 .price-card .annual-line{color:var(--mint);font-size:12.5px;margin-top:8px}
 
 /* ---------- assure / founder ---------- */
@@ -838,10 +1031,19 @@ html.motion-off .faq details p{animation:none}
 .final-cta .eyebrow{margin:0 auto}
 
 /* ---------- footer ---------- */
-.site-footer{border-top:1px solid var(--line);background:var(--navy-0);padding:56px 0 32px}
+/* The footer gains the seam and loses the visible horizontal join that
+   existed because --navy-0 black met a navy page. The sweep is the same
+   60%-wide hairline the homepage uses at the film seam and at the top of every
+   section: it says "this is a boundary" in the site's own vocabulary instead
+   of with a bare rule. Markup is _partials/footer.html and nowhere else. */
+.site-footer{border-top:1px solid var(--line-soft);background:var(--bg);
+  padding:56px 0 32px;position:relative}
+.site-footer::before{content:"";position:absolute;left:20%;right:20%;top:0;height:1px;
+  background:var(--glow-lit);opacity:.4;pointer-events:none}
 .site-footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px;margin-bottom:34px}
 @media(max-width:760px){.site-footer .cols{grid-template-columns:1fr}}
-.site-footer .foot-h{font-size:15px;margin-bottom:12px;font-weight:700;letter-spacing:-.01em}
+.site-footer .foot-h{font-family:var(--f-display);font-size:15px;margin-bottom:12px;
+  font-weight:700;letter-spacing:var(--tr-h3);max-width:none}
 /* Only the first column's heading is the brand. "Site" and "Legal" are
    column labels and stay title case: setting all three in capitals would
    turn a brand signature into a house style for list headings and lose the
@@ -854,15 +1056,15 @@ html.motion-off .faq details p{animation:none}
    right. */
 .site-footer .foot-brand{font-size:14px;text-transform:uppercase;
   letter-spacing:.16em;margin-right:-.16em;margin-bottom:14px}
-.site-footer p{color:var(--muted);font-size:14px}
-.site-footer .cols a{display:block;color:var(--muted);font-size:14px;padding:4px 0;width:fit-content;
+.site-footer p{color:var(--ink-3);font-size:14px}
+.site-footer .cols a{display:block;color:var(--ink-3);font-size:14px;padding:4px 0;width:fit-content;
   position:relative;transition:color .2s var(--e-out)}
 .site-footer .cols a::after{content:"";position:absolute;left:0;bottom:2px;height:1px;width:100%;
   background:var(--mint);transform:scaleX(0);transform-origin:left;transition:transform .25s var(--e-out)}
 .site-footer .cols a:hover{color:var(--ink)}
 .site-footer .cols a:hover::after{transform:scaleX(1)}
 .site-footer .base{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
-  border-top:1px solid rgba(159,240,206,.08);padding-top:20px;color:var(--muted);font-size:13px}
+  border-top:1px solid var(--line-soft);padding-top:20px;color:var(--ink-4);font-size:13px}
 
 /* ---------- mobile call bar ---------- */
 .callbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;text-align:center;
@@ -927,14 +1129,13 @@ html.motion-off .vb i{transition:none}
 .glowable:hover::after{opacity:1}
 html.motion-off .glowable::after{opacity:0!important}
 
-/* ---------- CTA sheen: one specular pass on hover ---------- */
-.btn-primary{position:relative;overflow:hidden}
-.btn-primary::before{content:"";position:absolute;top:0;bottom:0;left:-40%;width:36%;pointer-events:none;
-  background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,.24) 48%,transparent 100%);
-  transform:translateX(-120%) skewX(-14deg);transition:none;opacity:0}
-.btn-primary:hover::before,.btn-primary:focus-visible::before{opacity:1;
-  transition:transform .6s var(--e-out);transform:translateX(440%) skewX(-14deg)}
-html.motion-off .btn-primary::before{display:none}
+/* ---------- CTA sheen: DELETED ----------
+   A 36%-wide specular band used to sweep across .btn-primary on hover. The
+   homepage already suppressed it (`main .btn-primary::before{display:none}`),
+   so it only ever fired on the header button and on interior pages - one more
+   way the two halves of the site disagreed. The rule, its ::before and its
+   line in the reduced-motion block all go rather than being disabled, because
+   a disabled effect is a thing the next reader has to decide about again. */
 
 /* ---------- night band (scroll.js pins it on desktop) ---------- */
 /* Default layout is three stacked cards driven by the ordinary .reveal
@@ -988,6 +1189,5 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .rail-track{animation:none}
   .reveal,.summary-arrive,.stack .layer,.pstep{opacity:1!important;transform:none!important;filter:none!important}
   .mwi{transform:none!important}
-  .btn-primary::before{display:none}
   .glowable::after{display:none}
 }
