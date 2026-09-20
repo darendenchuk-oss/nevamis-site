@@ -1062,8 +1062,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           </div>
           <div><label for="ifResult">Which result matters most?</label>
             <select id="ifResult" name="result">
-              <option>More leads answered</option><option>Faster follow-up</option><option>More appointments</option>
-              <option>More accepted quotes</option><option>Fewer no-shows</option><option>More repeat customers</option>
+              <!-- "More appointments" and "Fewer no-shows" are gone. Both name
+                   an appointment the front desk cannot make: it takes the time
+                   the caller wants and the owner confirms it, there is no
+                   calendar, and B7 removed Schedule Protection from the roadmap
+                   for the same reason. Their replacements are outcomes of live
+                   services: the Review Engine and Get-Paid Autopilot. -->
+              <option>More leads answered</option><option>Faster follow-up</option><option>More reviews after finished jobs</option>
+              <option>More accepted quotes</option><option>Invoices paid sooner</option><option>More repeat customers</option>
               <option>Less office administration</option><option>Better reporting</option>
             </select>
           </div>
