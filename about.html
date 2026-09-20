@@ -879,6 +879,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .prose+.founder{margin-top:34px}
   .founder+.midcta{margin-top:34px}
   .founder p{max-width:72ch}
+  /* On a phone the homepage puts a whole button row at full width, centred
+     (main .ctarow .btn, 350px at 390). site.css has no such rule for .cta-row
+     or .midcta, so every interior row sat inline at 136-163px beside a
+     full-width homepage. Same breakpoint, same result; handed off in the
+     report. */
+  @media(max-width:760px){
+    .cta-row .btn,.midcta .btn{width:100%;justify-content:center}
+  }
   /* The tel link inside the founder card is a link inside a sentence, which is
      the .prose a idiom; .card p a does not reach .founder. */
   .founder p a{color:var(--mint);text-decoration:underline;text-underline-offset:3px;

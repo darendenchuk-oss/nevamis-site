@@ -874,6 +874,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      site.css and is listed as a handoff in the report. */
   .page-hero h1{margin-bottom:14px}
   .proof{max-width:var(--measure-lede)}
+  /* On a phone the homepage puts a whole button row at full width, centred
+     (main .ctarow .btn, 350px at 390). site.css has no such rule for .cta-row
+     or .midcta, so every interior row sat inline at 136-163px beside a
+     full-width homepage. Same breakpoint, same result; handed off in the
+     report. */
+  @media(max-width:760px){
+    .cta-row .btn,.midcta .btn{width:100%;justify-content:center}
+  }
 
   .twocol{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-offer)}
   @media (max-width:820px){.twocol{grid-template-columns:1fr}}

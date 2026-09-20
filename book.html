@@ -867,6 +867,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      What is left is the scheduler panel, which is the one object on the site
      that has to frame somebody else's document. */
   .midcta{margin-top:26px}
+  /* On a phone the homepage puts a whole button row at full width, centred
+     (main .ctarow .btn, 350px at 390). site.css has no such rule for .cta-row
+     or .midcta, so every interior row sat inline at 136-163px beside a
+     full-width homepage. Same breakpoint, same result; handed off in the
+     report. */
+  @media(max-width:760px){
+    .cta-row .btn,.midcta .btn{width:100%;justify-content:center}
+  }
   /* site.css zeroes the page hero's h1 margin (.page-hero h1{margin:0}) while
      p.lede sets margin:0 as well, so the measured gap between a 52px headline
      and the paragraph under it is exactly 0 on every converted page. The 14px
