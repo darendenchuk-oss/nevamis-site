@@ -858,8 +858,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   /* ---------- page layout only ----------
      Every colour, surface, type step, border, bullet, label and control on
      these nine pages comes from assets/motion/site.css, inlined above. What is
-     left here is the geometry this template alone has, plus four corrections a
-     generated page needs that the shared sheet does not yet make. Nothing
+     left here is the geometry this template alone has, plus the corrections a
+     generated page needs that the shared sheet does not make yet. Nothing
      below restates a token.
 
      What used to be here and is gone: the hero's own 58px/-.03em/19ch headline
@@ -946,24 +946,26 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
   /* The numbered path. list-style:none was an inline attribute on the <ol>,
      which is the marker's only suppression: .pstep::before draws the numeral
-     and the native marker would sit outside a list whose padding * already
-     zeroed. */
+     and the native marker would sit outside a list whose padding the universal
+     reset already zeroed. */
   ol.path-steps{list-style:none}
 
   /* The comparison note under a table: a footnote, at the footnote colour and
      a reading measure rather than the full 1092px column. */
   .foot-note{color:var(--ink-4);line-height:var(--lh-snug);max-width:var(--measure-lede)}
 
-  /* The tick and the cross are generated content whose value ends in a space,
-     and that space collapses away at the start of the cell's line box, so on
-     both comparison pages every verdict rendered as one welded word. A margin
-     cannot collapse. Shared rule, reported. */
+  /* The tick and the cross vanished their own spacing. site.css writes each
+     as a backslash hex escape followed by one space, and in CSS that single
+     following whitespace terminates the escape and is eaten, so the value is
+     the glyph alone: every verdict on both comparison pages rendered as one
+     welded word. It read correctly before the shared rule moved to escapes.
+     A margin cannot be eaten. Shared rule, reported. */
   td.yes::before,td.no::before{margin-right:.42em}
   /* At 360 the table's own min-content measured 331px inside a 318px wrapper,
      so the narrowest common phone got 13px of sideways scroll on the component
      that is the whole page's argument. One more step down of cell padding and
-     type below 380 takes the min-content to about 307 and it fits. Measured on
-     both comparison pages, not derived. Shared rule, reported. */
+     type below 380 takes it to 318, which is exactly the room there is, and
+     both tables fit at 360, 375 and 390. Measured on both, not derived. */
   @media(max-width:380px){
     table.compare{font-size:13px}
     table.compare th,table.compare td{padding:10px 5px}
