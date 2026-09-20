@@ -892,8 +892,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="section-head reveal">
         <p class="eyebrow mono">Would rather not book yet</p>
         <h2>Then hear it first.</h2>
-        <p>The demo line is not a scripted demo: it is the same system a client’s agent runs on. Ask it awkward questions, try to
-          confuse it, hang up whenever you want. Nobody follows up because you called.</p>
+        <!-- This said the demo line "is the same system a client's agent runs
+             on", which is the claim A6 retired everywhere else: the demo line
+             is Nevamis's own sales agent, with live booking and a sign-up text,
+             while a client's agent can only end a call. They share the voice
+             and the model, and nothing else. The last sentence said "Nobody
+             follows up because you called", which the live prompt contradicts:
+             it captures a name and a number and texts them to Daren
+             (engine docs/agent-prompts/demo.md:197). -->
+        <p>The demo line is not a scripted demo. It runs on the same voice and the same model your
+          own line would, and it answers for Nevamis, so it can set up a call with us. On your line
+          it takes the job and the time the caller wants, and you confirm the slot. Ask it awkward
+          questions, try to confuse it, hang up whenever you want. It will ask for your name and a
+          number so Daren can get back to you, and you can say no and it carries on answering.</p>
       </div>
       <div class="midcta reveal" style="margin-bottom:38px">
         <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer · (587)&nbsp;413-0035</a>
