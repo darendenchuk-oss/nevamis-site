@@ -537,8 +537,8 @@ a.card:hover::before,.ind-card:hover::before,.related a:hover::before{opacity:.9
    inside a card renders as 15px of body grey, a price sentence loses its bold,
    pricing's display numeral loses its size and the outcome line loses its
    mint. Each of those four has its own rule below or beside this one. */
-.card p:not(.eyebrow):not(.k):not(.price):not(.lede):not(.outcome),
-.plan p:not(.eyebrow):not(.k):not(.price):not(.lede):not(.outcome){
+.card p:not(.eyebrow):not(.k):not(.price):not(.lede):not(.outcome):not(.cardfoot),
+.plan p:not(.eyebrow):not(.k):not(.price):not(.lede):not(.outcome):not(.cardfoot){
   font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2);
   max-width:78ch;margin:0 0 8px}
 .card p:last-child,.plan p:last-child{margin-bottom:0}
@@ -558,9 +558,13 @@ p.price{font-size:var(--fs-card);line-height:var(--lh-body);font-weight:700;
   color:var(--mint);font-weight:700;margin:0 0 8px}
 /* The foot of a card: the row of chips and names under an industry card. Its
    own font-size and colour were dead behind the guarded .card p rule for as
-   long as they existed, so what moves here is what actually renders - the row
-   itself, at the card step the paragraph rule already gives it. */
-.cardfoot{margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+   long as they existed - (0,2,2) against the guarded card paragraph rule's
+   (0,5,1) - so the row rendered as body copy: four 15px product names wrapped
+   across five lines between the chips, in the same ink as the sentence above
+   them. It is a card foot, it is the last thing in the card, and at the label
+   step it is one tidy line of chips and names. Hence the guard. */
+.cardfoot{font-size:var(--fs-label);line-height:1.6;color:var(--ink-5);
+  margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 /* Bigger padding for the blocks that carry a whole offer rather than a note. */
 .offer-card,.plan,.panel,.journey{padding:var(--pad-card-lg)}
 
