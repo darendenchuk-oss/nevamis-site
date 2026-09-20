@@ -61,7 +61,7 @@ const contentPages = fs.readdirSync(root)
    proposal.html is a standalone document sent to one prospect, so site
    navigation on it would be wrong rather than missing. */
 const noChromePages = ["proposal.html"];
-const fullFooterPages = ["index.html", "demo.html", "book.html", "about.html", "pilot.html", "coming-soon.html", "revenue-engine.html", "404.html"];
+const fullFooterPages = ["index.html", "demo.html", "book.html", "about.html", "how-you-start.html", "pilot.html", "coming-soon.html", "revenue-engine.html", "404.html"];
 const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\b/, /limited spots remaining/i, /join thousands/i, /launching next month/i,
   /first ring/i, /* CLM-02: retired 2026-07-26, unsupported without uptime monitoring */
   /* Nevamis has no clients yet, so any phrasing that asserts a client base is
@@ -78,6 +78,11 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
      on Growth, which says the same useful thing and is true.
      Retire these the day there is a real distribution to describe. */
   /most (?:trades |clients |shops |people |businesses )?pick (?:this|it)/i,
+  /* The rule above only knew "pick", so "The start most businesses make" sat
+     on the AI Front Desk card, the pricing JSON-LD and the homepage Offers
+     for weeks while no business had made any start at all (fix plan A8,
+     2026-09-19). Same claim, other verbs. */
+  /\bmost (?:trades|clients|shops|people|businesses|owners) (?:make|choose|start|switch on|go with)\b/i,
   /← ?most\b/, /\bmost popular\b/i, /\bbest[- ]seller\b/i,
   /* "MOST COMMON" was the badge on the recommended plan, on the pricing page,
      the homepage, the staging twin, and the proposal sent to a named prospect.
@@ -85,14 +90,64 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
      the phrase was not in this list. It is plain text in the source, so the
      file-level scan sees it as soon as it is banned. */
   /\bmost common\b/i];
+
+/* KNOWN, OWNED AND NOT YET FIXED. When the popularity verbs above joined
+   `banned` (2026-09-19), five surfaces still carried the claim, and not one
+   of them can be corrected in the commit that added the rule: the homepage's
+   #doc PLANS line is generated from scripts/film/source.html, which the
+   homepage rewrite branch owns; the agent knowledge base and the demo prompt
+   are changed through the live-agent push flow; the cold-calling offer sheet
+   lives outside every repository. Failing on them would leave this command
+   red for work nobody here can do, and a command that is always red stops
+   being read.
+
+   So each entry exempts ONE exact sentence fragment in ONE file, and nothing
+   else: the same claim in any other words, or in any other file, still
+   fails. It is a ledger, not an allowlist. When an owner fixes a surface its
+   entry stops matching, and the run says so, so the entry can be deleted
+   rather than left to excuse the sentence if it ever comes back.
+
+   AND A LEDGER ENTRY IS A WAIT, NOT A PASS. For its first day this list only
+   printed a PENDING line and left the exit code at 0, so the whole check read
+   `pass consistency` while a prohibited popularity claim was live on the
+   homepage, which is the one page every other page's menu links into. Green
+   has to mean "nothing prohibited is published", not "everything prohibited
+   is excused". Every entry that still matches now goes through wait() and the
+   script exits 2, which check-all.mjs prints as WAITING ON YOU: loud, and
+   still not a reason to block a push for work that is not in this repository.
+   The two homepage entries were deleted the day the source line was fixed
+   (fix plan A8); the knowledge-base entry the day that file was corrected here. What is left is
+   two files outside this repository, which no commit here can fix and which CI
+   never sees: the live demo prompt (fix plan A18, pushed through the agent
+   flow) and the cold-calling offer sheet. Those report as an owner action and
+   leave the exit code alone. */
+const BANNED_PENDING = [
+  { file: "../nevamis-engine/docs/agent-prompts/demo.md", text: "the start most businesses make", owner: "engine demo prompt, fix plan A18" },
+  { file: "../Desktop/Nevamis Cold Calling/OFFER-V4.md", text: "the start most shops make", owner: "the cold-calling offer sheet, outside every repository" },
+];
+const pendingHit = new Set();
+/* The text a `banned` rule is allowed to see: the file as written, minus the
+   exact pending fragments recorded for that file above. */
+const bannedView = (label, text) => {
+  let out = text;
+  for (const p of BANNED_PENDING) {
+    if (p.file !== label || !out.includes(p.text)) continue;
+    out = out.split(p.text).join(" ");
+    pendingHit.add(p);
+  }
+  return out;
+};
 let fail = 0;
 const err = (m) => { console.error("FAIL: " + m); fail++; };
 
 /* Some findings are true but nobody here can fix them, because the thing that
-   is wrong is the prompt running on the live phone line and that is changed by
-   hand, by the owner, in the ElevenLabs dashboard. Reporting those as FAIL
+   is wrong is outside this repository: the prompt running on the live phone
+   line, the knowledge base attached to that agent, or a document on the
+   owner's desktop, all changed by hand by the owner. Reporting those as FAIL
    means the command is permanently red through no fault of the working tree,
-   and a command that is always red is a command that stops being read.
+   and a command that is always red is a command that stops being read. What it
+   must never do is report them as nothing, which is what BANNED_PENDING did
+   for a day (see its own note above).
 
    So they report on their own channel and exit 2. check-all.mjs turns exit 2
    into "WAITING ON YOU" and does not block the push. Exit 1 still means
@@ -164,7 +219,8 @@ for (const p of contentPages) {
     else if (!refCol) refCol = col;
     else if (col !== refCol) err(p + ": footer Site column differs");
   }
-  for (const b of banned) if (b.test(html)) err(p + ": banned phrase " + b);
+  const bannedHtml = bannedView(p, html);
+  for (const b of banned) if (b.test(bannedHtml)) err(p + ": banned phrase " + b);
   const emDashes = (html.match(/—/g) || []).length;
   if (emDashes > 0) err(p + ": contains " + emDashes + " em dash(es)");
   /* The canonical-pilot-naming rule stood here until 2026-08-09. It required a
@@ -221,8 +277,9 @@ for (const p of contentPages) {
     if (!fs.existsSync(file)) continue;
     const text = fs.readFileSync(file, "utf8");
     const label = path.relative(root, file).replace(/\\/g, "/");
+    const bannedText = bannedView(label, text);
     for (const b of banned) {
-      if (statesBanned(text, b)) err(label + ": banned phrase " + b + " (spoken or machine-read surface)");
+      if (statesBanned(bannedText, b)) err(label + ": banned phrase " + b + " (spoken or machine-read surface)");
     }
   }
 }
@@ -269,7 +326,10 @@ for (const p of contentPages) {
       let m, seen = 0;
       while ((m = re.exec(fbMatch[0])) !== null) {
         seen++;
-        const name = m[1].split("&mdash;")[0].trim();
+        /* "&middot;" since 2026-09-19 (fix plan A16): the fallback headings
+           moved off the em dash, which the site bans in rendered text. Both
+           separators are accepted so the heading still yields the plan name. */
+        const name = m[1].split(/&mdash;|&middot;/)[0].trim();
         const body = m[1] + " " + m[2];
         const plan = cfg.plans.find((p) => p.name === name);
         if (!plan) { err('pricing fallback: plan "' + name + '" not in pricing-config.js'); continue; }
@@ -494,6 +554,20 @@ for (const p of contentPages) {
             err('pricing.html #addOnList "' + a.name + '": one-time launch fee differs from pricing-config.js. '
               + 'expected "' + money(a.launch) + ' launch", page says "' + (launchOnPage ? launchOnPage[0] : "nothing") + '"');
           }
+          /* EVERY figure on the line, not only the first of each kind. Since
+             2026-09-19 (fix plan A16) each sellable line also states the
+             approved sentence, "C$750 Launch & Implementation to start, then
+             C$500 a month", so the monthly is written twice. The two matches
+             above read only the first occurrence, which would have left the
+             second copy free to drift while this guard stayed green. */
+          for (const x of li.matchAll(/C\$([\d,]+)(?:\/month\b|\s+a month\b)/gi)) {
+            if (num(x[1]) !== a.monthly) err('pricing.html #addOnList "' + a.name + '": states "' + x[0] + '" while pricing-config.js says '
+              + money(a.monthly) + " a month. Every monthly figure on the line must match the config.");
+          }
+          for (const x of li.matchAll(/C\$([\d,]+)\s+launch\b/gi)) {
+            if (num(x[1]) !== a.launch) err('pricing.html #addOnList "' + a.name + '": states "' + x[0] + '" while pricing-config.js says '
+              + money(a.launch) + " Launch & Implementation. Every launch figure on the line must match the config.");
+          }
         } else {
           /* A price is a price whatever unit follows it. The first version of
              this branch only knew "C$x/month", so "C$2,000 per campaign" --
@@ -515,6 +589,156 @@ for (const p of contentPages) {
           }
         }
       }
+    }
+  }
+}
+
+/* 7i. THE PRICING PAGE'S SEARCH AND SHARE DESCRIPTIONS QUOTE PLAN PRICES.
+
+      The meta description and og:description are the first price a searcher
+      or a link preview reads, and until 2026-09-19 nothing compared them to
+      anything: a wrong figure there passed this file, the claims classifier
+      and the engine gate alike (proved by changing The Works' C$2,100 to
+      C$2,200 in the meta: every check stayed green). Fix plan A31 rewrote
+      both descriptions and kept their figures, so the figures are held to
+      pricing-config.js here, derived from the config and never typed.
+
+      Two rules. A plan named with a figure after it ("The Works at C$2,100")
+      must carry that plan's monthly. And any other C$ figure must be one the
+      config actually charges, so a stray retired or invented price fails
+      even where no plan name sits beside it. */
+{
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const cfg = w.NV_PRICING;
+  if (cfg && Array.isArray(cfg.plans)) {
+    const ph = fs.readFileSync(path.join(root, "pricing.html"), "utf8");
+    const num = (x) => Number(String(x).replace(/,/g, ""));
+    const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const charged = new Set(cfg.plans.flatMap((p) => [p.monthly, p.launch]));
+    for (const attr of ['name="description"', 'property="og:description"']) {
+      const m = ph.match(new RegExp("<meta " + attr + ' content="([^"]*)"'));
+      if (!m) { err("pricing.html: <meta " + attr + "> missing"); continue; }
+      const text = m[1].replace(/&amp;/g, "&");
+      for (const pl of cfg.plans) {
+        for (const x of text.matchAll(new RegExp(esc(pl.name) + "(?: at| is|:)? C\\$([\\d,]+)", "g"))) {
+          if (num(x[1]) !== pl.monthly) err("pricing.html <meta " + attr + '>: "' + x[0] + '" while pricing-config.js says '
+            + pl.name + " is C$" + pl.monthly.toLocaleString("en-CA") + " a month.");
+        }
+      }
+      for (const x of text.matchAll(/C\$([\d,]+)/g)) {
+        if (!charged.has(num(x[1]))) err("pricing.html <meta " + attr + ">: states " + x[0]
+          + ", which is no plan's monthly or Launch & Implementation fee in pricing-config.js.");
+      }
+    }
+  }
+}
+
+/* 7j. llms.txt STATES EVERY PLAN AND MODULE PRICE BY HAND.
+
+      It is the file the answer engines read, and it carries sixteen C$ figures
+      typed into prose: three plan pairs, the Partnership's published band, four
+      module pairs, the Enterprise floor, and the worked example under "State
+      the two figures". Nothing compared a single one of them to
+      pricing-config.js, so until 2026-09-19 a wrong figure here passed this
+      file, the claims classifier, the surface guards and the engine gate alike,
+      and went out to every model that quotes this site. Proved by changing one
+      digit.
+
+      Everything below is DERIVED from window.NV_PRICING: no figure is typed
+      into this file, because a hand-maintained expectation drifts with the
+      thing it is meant to catch. Four rules:
+
+        pairs    each plan, and each sellable module, must carry its own
+                 "C$launch ... to start, then C$monthly a month" sentence
+                 within reach of its own name, in the approved join.
+        band     a plan with a monthlyRange must state that band exactly.
+        context  a figure written as a Launch & Implementation fee must be a
+                 fee the config charges, and a figure written as a monthly must
+                 be a monthly it charges. This is the rule that catches the two
+                 being swapped, including in the prose under the table.
+        stray    every remaining C$ figure must be some figure the config
+                 charges, so a retired or invented price fails even where no
+                 name and no join sit beside it.
+
+      The file is flattened to one line first. The pricing block is hard-wrapped
+      at about 72 columns, so "C$2,500\n  Launch & Implementation" is one
+      sentence to a reader and two lines to a regex. */
+{
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const cfg = w.NV_PRICING;
+  const raw = fs.readFileSync(path.join(root, "llms.txt"), "utf8");
+  const num = (x) => Number(String(x).replace(/,/g, ""));
+  const money = (n) => "C$" + Number(n).toLocaleString("en-CA");
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  /* Flatten, keeping a map from every flattened offset back to its offset in
+     the file, so a failure can name the line the figure is actually on. The
+     first line that merely CONTAINS the same figure is a different sentence
+     often enough to matter: C$1,000 appears three times. */
+  const flatten = (s) => {
+    let out = "";
+    const map = [];
+    for (let i = 0; i < s.length;) {
+      const ws = /^\s+/.exec(s.slice(i));
+      if (ws) { out += " "; map.push(i); i += ws[0].length; continue; }
+      out += s[i]; map.push(i); i++;
+    }
+    return { flat: out, map };
+  };
+  const { flat, map } = flatten(raw);
+  /* Where a reader would find it: the line the figure is on, and the sentence
+     around it, so a failure names the figure that disagrees, not the file. */
+  const at = (idx) => {
+    const ln = raw.slice(0, map[idx] ?? 0).split(/\n/).length;
+    return "llms.txt:" + ln + ' near "' + flat.slice(Math.max(0, idx - 55), idx + 55).trim() + '"';
+  };
+  if (!cfg || !Array.isArray(cfg.plans) || !Array.isArray(cfg.addOns)) {
+    err("pricing-config.js: NV_PRICING.plans or .addOns not found, so llms.txt's prices are unguarded");
+  } else if (!cfg.publishedPricing) {
+    if (/C\$/.test(raw)) err("llms.txt: states a C$ figure while pricing-config.js has publishedPricing false. "
+      + "An answer engine would publish a price the business has not.");
+  } else {
+    /* Both figures required: a module the config prices at zero is not
+       sellable and has no pair to state. */
+    const modules = cfg.addOns.filter((a) => a.sellable && a.launch > 0 && a.monthly > 0);
+    const launches = new Set([...cfg.plans.map((p) => p.launch), ...modules.map((a) => a.launch)]);
+    if (cfg.enterprise && cfg.enterprise.launchFrom) launches.add(cfg.enterprise.launchFrom);
+    const monthlies = new Set([...cfg.plans.map((p) => p.monthly), ...modules.map((a) => a.monthly)]);
+    for (const p of cfg.plans) (p.monthlyRange || []).forEach((n) => monthlies.add(n));
+    const charged = new Set([...launches, ...monthlies,
+      ...cfg.plans.map((p) => p.overage).filter((n) => typeof n === "number")]);
+    const list = (s) => [...s].sort((a, b) => a - b).map(money).join(", ");
+
+    const pair = (name, want) => {
+      for (const m of flat.matchAll(new RegExp(esc(name), "g"))) {
+        if (flat.slice(m.index, m.index + 420).includes(want)) return;
+      }
+      err('llms.txt: "' + name + '" must state "' + want + '", which is what pricing-config.js charges. '
+        + "The figures and the joins are what an answer engine quotes verbatim.");
+    };
+    for (const p of cfg.plans) {
+      pair(p.name, money(p.launch) + " Launch & Implementation to start, then " + money(p.monthly) + " a month");
+      if (!Array.isArray(p.monthlyRange)) continue;
+      const band = money(p.monthlyRange[0]) + " to " + money(p.monthlyRange[1]);
+      if (!flat.includes(band)) err("llms.txt: " + p.name + "'s published monthly band must read \"" + band
+        + '" (pricing-config.js monthlyRange).');
+    }
+    for (const a of modules) {
+      pair(a.name, money(a.launch) + " to start, then " + money(a.monthly) + " a month");
+    }
+
+    for (const x of flat.matchAll(/C\$([\d,]+(?:\.\d+)?)(?= Launch (?:&|and) Implementation)/g)) {
+      if (!launches.has(num(x[1]))) err(at(x.index) + ": states " + x[0]
+        + " as a Launch & Implementation fee. pricing-config.js charges " + list(launches) + ".");
+    }
+    for (const x of flat.matchAll(/C\$([\d,]+(?:\.\d+)?)(?=(?: an?| per)? month\b)/g)) {
+      if (!monthlies.has(num(x[1]))) err(at(x.index) + ": states " + x[0]
+        + " as a monthly. pricing-config.js charges " + list(monthlies) + " a month.");
+    }
+    for (const x of flat.matchAll(/C\$([\d,]+(?:\.\d+)?)/g)) {
+      if (!charged.has(num(x[1]))) err(at(x.index) + ": states " + x[0]
+        + ", which is no plan or module price, no bound of a published band, and not the Enterprise floor in pricing-config.js.");
     }
   }
 }
@@ -595,9 +819,19 @@ for (const p of contentPages) {
   const money = (n) => "C$" + (Number.isInteger(Number(n)) ? Number(n).toLocaleString("en-CA")
     : Number(n).toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
+  /* `expected` may be an ARRAY of acceptable spellings, since 2026-09-19.
+     #planIncludes writes its minute count as money does on every other line of
+     this page ("1,400"), and the single pinned string here was the bare "1400",
+     so the guard was a contract for the ungrouped spelling: A29's grouping
+     could not land without going red. The guard has no opinion about a
+     thousands separator; it has one about the NUMBER, and a wrong number still
+     fails against every spelling in the list. The first entry is the preferred
+     one and is what the failure message quotes. */
   const eq = (where, id, actual, expected) => {
+    const accepted = Array.isArray(expected) ? expected : [expected];
     if (actual === null) return err(where + ": #" + id + " not found (pre-rendered copy is required, not optional)");
-    if (actual !== expected) err(where + ": #" + id + ' drifted from pricing-config.js\n      page:   "' + actual + '"\n      config: "' + expected + '"');
+    if (!accepted.includes(actual)) err(where + ": #" + id + ' drifted from pricing-config.js\n      page:   "' + actual + '"\n      config: "' + accepted[0] + '"'
+      + (accepted.length > 1 ? '\n      (or:    "' + accepted.slice(1).join('" / "') + '")' : ""));
   };
 
   /* The pilot record was DELETED from pricing-config.js on 2026-08-09, so the
@@ -665,8 +899,14 @@ for (const p of contentPages) {
         : "Your monthly amount is quoted per client, then it is charged the day you start and every month after.");
     eq("proposal.html", "planTerms", flat(textOf(pr, "planTerms")), PLAN_TERMS);
     eq("proposal.html", "planName", flat(textOf(pr, "planName")), dflt.name.toUpperCase());
-    eq("proposal.html", "planIncludes", flat(textOf(pr, "planIncludes")),
-      dflt.includedMinutes + " included AI minutes per month, about " + dflt.callRange + ". Additional minutes " + money(dflt.overage) + " each.");
+    /* Grouped first, bare second: both are dflt.includedMinutes, and the page
+       renders the grouped one (A29). See the note on eq(). */
+    const includesLine = (mins) => mins + " included AI minutes per month, about "
+      + dflt.callRange + ". Additional minutes " + money(dflt.overage) + " each.";
+    eq("proposal.html", "planIncludes", flat(textOf(pr, "planIncludes")), [
+      includesLine(Number(dflt.includedMinutes).toLocaleString("en-CA")),
+      includesLine(String(dflt.includedMinutes)),
+    ]);
     const feats = items(textOf(pr, "planFeatures"));
     if (!feats) err("proposal.html: #planFeatures not found");
     else if (feats.join(" | ") !== dflt.features.slice(0, 9).join(" | "))
@@ -694,8 +934,9 @@ for (const p of contentPages) {
 
   for (const f of published) {
     const html = fs.readFileSync(path.join(root, f), "utf8");
+    const bannedHtml = bannedView(f, html);
     for (const b of banned) {
-      if (b.test(html)) err(`${f}: banned phrase ${b} on a PUBLISHED page (serves 200 to anyone with the URL; noindex does not stop people or answer engines)`);
+      if (b.test(bannedHtml)) err(`${f}: banned phrase ${b} on a PUBLISHED page (serves 200 to anyone with the URL; noindex does not stop people or answer engines)`);
     }
   }
   if (published.length < contentPages.length) err(`only ${published.length} published pages found; expected at least the ${contentPages.length} content pages`);
@@ -1734,9 +1975,29 @@ for (const p of contentPages) {
   }
 }
 
+/* The BANNED_PENDING ledger reports on itself every run: what it is still
+   excusing and who owns the fix, and which entries have stopped matching and
+   should be deleted.
+   A still-matching entry is a WAIT, not a note, so the exit code carries it:
+   a prohibited claim that is published somewhere can never leave this command
+   saying "passed". An entry that has stopped matching is the good news, and it
+   only asks for a deletion, so it stays on stdout and changes nothing. */
+for (const p of BANNED_PENDING) {
+  /* A file this repository can edit is a WAIT: green must never mean
+     "excused". A file outside it (its path starts with ../) cannot be fixed
+     by any commit here and is absent in CI, so holding this command red on it
+     would make the exit code mean one thing on a laptop and another on a
+     runner. Those report as an owner action and leave the code alone. */
+  const outside = p.file.startsWith("../");
+  const m = `${p.file} still says "${p.text}" (${p.owner}). BANNED_PENDING excuses that exact text and nothing else, and only until the owner applies it.`;
+  if (pendingHit.has(p) && outside) console.error("OWNER ACTION, outside this repository: " + m);
+  else if (pendingHit.has(p)) wait(m);
+  else if (fs.existsSync(path.join(root, p.file))) console.log(`NOTE: ${p.file} no longer says "${p.text}". Delete its BANNED_PENDING entry in scripts/check-consistency.js.`);
+}
+
 if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan.");
 /* 1 = something here is broken. 2 = nothing here is broken but the live
    phone agent needs a change only the owner can make. 0 = clean. */
 if (fail === 0 && waiting > 0) console.error(`
-${waiting} item${waiting === 1 ? " needs" : "s need"} a change to the LIVE agent prompt, which only the owner can apply.`);
+${waiting} item${waiting === 1 ? " needs" : "s need"} a change only the owner can apply: the LIVE agent prompt, the agent's knowledge base, or a file outside this repository. Nothing in the working tree is broken.`);
 process.exit(fail > 0 ? 1 : waiting > 0 ? 2 : 0);

@@ -32,7 +32,6 @@
     "about.html": [
       "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
-      "https://app.nevamis.ca/brain",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
       "https://schema.org/",
@@ -79,6 +78,7 @@
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/api/interest",
       "https://app.nevamis.ca/login",
+      "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
       "https://schema.org/",
       "mailto:Sales@nevamis.ca",
@@ -119,7 +119,18 @@
       "https://schema.org/",
       "https://schema.org/DesktopWebPlatform",
       "https://schema.org/InStock",
+      "https://schema.org/LimitedAvailability",
       "https://schema.org/MobileWebPlatform",
+      "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
+      "tel:+15874130035"
+    ],
+    "how-you-start.html": [
+      "email:sales@nevamis.ca",
+      "https://app.nevamis.ca/",
+      "https://app.nevamis.ca/login",
+      "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -143,6 +154,7 @@
       "https://schema.org/",
       "https://schema.org/DesktopWebPlatform",
       "https://schema.org/InStock",
+      "https://schema.org/LimitedAvailability",
       "https://schema.org/MobileWebPlatform",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
@@ -172,7 +184,6 @@
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
-      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -187,6 +198,9 @@
       "phone:+15874130035",
       "tel:+15874130035"
     ],
+    "pricing-config.js": [
+      "email:support@nevamis.ca"
+    ],
     "pricing.html": [
       "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",
@@ -195,6 +209,7 @@
       "https://nevamis.ca",
       "https://schema.org/",
       "https://schema.org/InStock",
+      "https://schema.org/LimitedAvailability",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"

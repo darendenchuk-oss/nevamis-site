@@ -63,8 +63,8 @@ test('choosing the available product emits exactly one event', async ({ page }) 
 test('a dead analytics endpoint never costs the roadmap start click', async ({ page }) => {
   await page.route('**/api/events', (r) => r.abort());
   await page.goto('/coming-soon.html');
-  /* The front desk card is the one whose CTA points at /pilot.html. */
+  /* The front desk card is the one whose CTA points at /how-you-start.html. */
   await page.locator(`a[data-evt="${START}_ai_front_desk"]`).click();
-  await page.waitForURL(/pilot\.html/, { timeout: 10_000 });
-  expect(page.url(), 'navigation must survive a failed beacon').toContain('/pilot.html');
+  await page.waitForURL(/how-you-start\.html/, { timeout: 10_000 });
+  expect(page.url(), 'navigation must survive a failed beacon').toContain('/how-you-start.html');
 });

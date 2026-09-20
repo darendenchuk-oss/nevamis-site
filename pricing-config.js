@@ -165,9 +165,10 @@
     "Scripted test callers run against your live agent before a phone number is ever pointed at it",
     "Call forwarding proven by placing a real call to your line, not assumed",
     "Included minutes metered in the portal, with alerts at 50%, 75%, 90% and 100%, and your choice of overage, fallback answering or a hard cap",
-    "A PULSE scan of your business, with every figure a range and a confidence level, recalibrated as you feed it real numbers",
+    "A PULSE scan of your public website, with every money figure a modelled range and a confidence level rather than a measurement, and sharper as you connect your own numbers",
     "A portal Pulse page that keeps your scans, and Results that label every number as measured or modelled",
-    "Invoices and plan changes you handle yourself in the portal, and self-serve cancellation whenever you want it, with no notice period"
+    "Invoices and plan changes you handle yourself in the portal, and self-serve cancellation whenever you want it, with no notice period",
+    "Email support at support@nevamis.ca"
   ];
 
   window.NV_PRICING = {
@@ -224,12 +225,13 @@
     enterprise: {
       name: "Enterprise",
       launchFrom: 5000,
-      note: "Multi-location, custom integrations, custom data pipelines and advanced deployments are quoted per client, from what a scan of the business finds. Launch & Implementation starting at C$5,000 or custom quoted; the recurring amount and any performance component are quoted per client."
+      note: "Multi-location, custom integrations, custom data pipelines and advanced deployments are quoted per client, from what a scan of the business finds. The recurring amount and any performance component are quoted per client."
     },
     /* The badge on the recommended plan. It moved to the AI Front Desk on
        2026-08-22: The Works is the anchor a reader prices the ladder against,
-       and the Front Desk is the start most businesses actually make — the
-       checkout default reads the same record. */
+       and the Front Desk is the recommended start and the checkout default,
+       which reads the same record. It is a recommendation, never a claim about
+       what other businesses chose: there are no clients yet to count. */
     recommendedLabel: "RECOMMENDED",
     /* THE ADD-ON CATALOG, v4, with the 2026-09-08 directives applied: every
        automation is its own product and its own sale. `soldAlone: true` means
@@ -240,9 +242,10 @@
        outer gate: a module that is not sellable is not sold in any
        arrangement. `sellable: false` marks a module whose machinery has not
        shipped end-to-end yet: it may be described as coming, never sold, and no
-       surface may render it with a Buy control. C$450 and not C$500 for the
-       two engines is deliberate: C$500 is a retired monthly and billing
-       refuses retired amounts. */
+       surface may render it with a Buy control. Every figure below is v5's
+       (owner directive 2026-08-24), the same day the two engines' monthly
+       came off the retired-price list; the v4 note that explained a lower
+       figure for them here went stale then and is gone. */
     addOns: [
       {
         id: "missed_call_recovery", name: "Missed-Call Recovery",
@@ -281,8 +284,10 @@
          at zero would be an arrangement this business does not have.
 
          `sellable: false` FOLLOWS THE ENGINE'S CAPABILITY RECORD, which reads
-         private_pilot today (offered by invitation, live gate 3 of 7 evidenced
-         on the site's own record of it). The engine derives its lifecycle from
+         private_pilot today (offered by invitation, live gate 5 of 7
+         evidenced: canonical workflow, configuration, persisted outcomes,
+         client interface and operator remediation; proven execution and
+         customer zero are still open, and each needs a real production run). The engine derives its lifecycle from
          that record rather than typing it; this file cannot derive across
          repositories, so it mirrors today's answer and carries this note. The
          day the capability's own branch evidences the gate, this flips with it
@@ -342,8 +347,8 @@
        invoice, not on their signup. */
     referral: {
       referrerRewardMonths: 1,
-      headline: "Know another business that misses calls?",
-      offer: "They pay the same published price as everyone else, with nothing to negotiate. When they pay their first invoice, you get a free month of your own plan.",
+      headline: "Refer another business.",
+      offer: "When they pay their first invoice, you get a free month of your own plan, applied as a credit to your next bill.",
       trigger: "The free month is earned when the business you referred pays their first invoice, and it comes off your next bill.",
       howTo: "Clients get their own link in the portal. Send it yourself: we never email somebody just because you named them."
     },
@@ -391,50 +396,47 @@
        order is decided. */
     plans: [
       {
-        /* INVITE / APPROVAL BASED. `selfServe: false` is what keeps a C$250
-           monthly from being read as "the cheap tier": NEVAMIS carries
-           acquisition risk here and chooses when to offer it. Described,
-           never presented as the default, and checkout refuses to sell it
-           without an approval. */
+        /* INVITE / APPROVAL BASED. `selfServe: false` is what keeps the
+           lowest published monthly (the default inside the band below) from
+           being read as "the cheap tier": Nevamis carries acquisition risk
+           here and chooses when to offer it. Described, never presented as
+           the default, and checkout refuses to sell it without an
+           approval. */
         id: "starter", name: "Performance Partnership",
         monthly: 350, monthlyRange: [250, 500], launch: 2500, includedMinutes: 250,
         callRange: "80 to 125 typical calls", overage: 1.10,
         selfServe: false,
-        performanceNote: "Lower fixed cost, plus performance-based compensation tied to verified results. The monthly, the percentage, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged. Nothing here is a rate on its own.",
+        performanceNote: "Lower fixed cost. Lead Generation, offered by invitation, and the Quote-Chase Engine are each paid on it by an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, subject to your agreement. The monthly, the share, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged.",
         /* NAMES THE GROWTH STACK, v6. The stack is what the Partnership is
            now: a plan whose price is changed by the items chosen on it, two of
            them paid out of the revenue they produce. No figure and no
            percentage appears in this sentence, because the pairs live on the
            add-ons above and the share lives in the executed agreement. */
-        bestFor: "A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
+        bestFor: "A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
         features: [
           "One business phone line",
-          "A call review each month, and tuning from what the calls actually show",
-          "Email support",
-          "The growth stack: each item added on its own and priced on its own. Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page. The Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement. Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch and Implementation fee and their own monthly, at the prices listed for them. Search Rankings is coming and is not sold."
+          "The growth stack: each item added on its own and priced on its own. Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page. The Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement. Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch & Implementation fee and their own monthly, at the prices listed for them. Search Rankings is coming and is not sold."
         ].concat(EVERY_PLAN)
       },
       {
         id: "growth", name: "The Works",
-        /* The bundle carries automations, so it carries the LONGER agreed
-           start. Stated as a flag rather than inferred from the id, because
-           the term is a contractual fact and a card should not have to know
-           which plan key happens to mean "the bundle". */
+        /* The bundle carries every sellable automation, stated as a flag so
+           no renderer has to know which key means "the bundle". Under v4 it
+           marked the LONGER agreed start; no plan has a term now (2026-09-08),
+           and nothing reads it. */
         includesAutomations: true,
         monthly: 2100, launch: 3000, includedMinutes: 1400,
         callRange: "470 to 700 typical calls", overage: 0.75,
         selfServe: true,
         performanceNote: null,
-        bestFor: "The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts, with no performance fee.",
+        bestFor: "The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts.",
         features: [
           "Everything in the AI Front Desk",
-          "Missed-Call Recovery: one text back to every missed caller, with opt-out",
+          "Missed-Call Recovery: one text back to a caller you missed, during business hours, with your name on it and a working opt-out",
           "Quote-Chase Engine: follow-up on every quiet estimate: day it stales, day 4, day 11, each touch approved by you",
           "Get-Paid Autopilot: overdue-invoice reminders, with the owner told at three weeks instead of a third email",
-          "Review requests and customer reactivation join The Works at no extra monthly when they ship, and they are not sellable yet and nothing here sells them",
-          "One business phone line",
-          "Two call reviews each month, and tuning from what the calls actually show",
-          "Priority email support"
+          "Review Engine: post-job review requests by text, one ask per finished job, with every request released by a person",
+          "One business phone line"
         ].concat(EVERY_PLAN)
       },
       {
@@ -443,13 +445,10 @@
         callRange: "470 to 700 typical calls", overage: 0.75,
         selfServe: true,
         performanceNote: null,
-        bestFor: "The start most businesses make: the front desk answering every call, with each automation its own sale you can add whenever it earns its place.",
+        bestFor: "The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place.",
         features: [
           "One business phone line",
-          "Automation add-ons available one at a time, each its own price and its own sale, on their own or beside this plan",
-          "Two call reviews each month, and tuning from what the calls actually show",
-          "Priority email support",
-          "Higher-volume usage priced with you before you commit to it"
+          "Automation add-ons available one at a time, each its own price and its own sale, on their own or beside this plan"
         ].concat(EVERY_PLAN)
       }
     ]

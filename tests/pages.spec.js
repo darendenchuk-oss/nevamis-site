@@ -11,7 +11,7 @@ import path from 'node:path';
 
 const OUT = path.resolve('artifacts/motion-proof/pages');
 const PAGES = [
-  'pricing.html', 'pilot.html', 'demo.html', 'book.html', 'about.html',
+  'pricing.html', 'how-you-start.html', 'pilot.html', 'demo.html', 'book.html', 'about.html',
   'coming-soon.html', 'privacy.html', 'terms.html', 'revenue-engine.html', '404.html',
 ];
 

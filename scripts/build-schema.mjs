@@ -116,9 +116,16 @@ if (faq.length < 5) {
    the key was deleted from pricing-config.js only because it was dead: had any
    Offer used it, every plan would have published `"setup": undefined` to
    answer engines. One price per plan, and one field for it. */
+/* `selfServe` is carried through because the Offer below has to say whether a
+   plan can actually be bought. The Performance Partnership published
+   `InStock` here while /pricing.html published `LimitedAvailability` for the
+   same plan on the same site: two machine-read surfaces disagreeing about
+   whether an invitation-only plan is purchasable, and the homepage was the
+   one that was wrong. */
 const PLANS = NV.plans.map((p) => ({
   name: p.name,
   price: p.monthly,
+  selfServe: p.selfServe,
   /* The whole offer, in the approved shape: an answer engine quotes this
      verbatim, so it carries the one-time Launch & Implementation fee with
      the rule joining it to the monthly, the performance sentence where the
@@ -127,24 +134,36 @@ const PLANS = NV.plans.map((p) => ({
   desc: `C$${p.launch.toLocaleString('en-CA')} Launch & Implementation to start, then C$${p.monthly.toLocaleString('en-CA')} a month.`
     + (p.performanceNote ? ` ${p.performanceNote}` : '')
     + (p.selfServe === false ? ' Offered by invitation and approval; never the default.' : '')
-    + ` ${p.includedMinutes} included AI minutes. ${p.bestFor}`,
+    /* Grouped, because it is read aloud and quoted verbatim: "1400 included
+       AI minutes" is the one number on this line a person reads as a typo. */
+    + ` ${p.includedMinutes.toLocaleString('en-CA')} included minutes. ${p.bestFor}`,
 }));
 
 const service = {
   '@context': 'https://schema.org',
   '@type': 'Service',
   '@id': `${SITE}/#service`,
-  name: 'Call Answering and Lead Capture Service',
+  /* The name said "Call Answering and Lead Capture Service" while the page it
+     sits on leads with Lead Generation and Quote Recovery: the structured data
+     described the third of three offers as the whole product. Owner ranking of
+     2026-09-12: customers found first, quotes second, the phone third. */
+  name: 'Lead Generation, Quote Recovery and call answering for Canadian trades',
   /* Answer engines quote serviceType verbatim, so it may only name things the
      service actually provisions. It said "appointment booking" while a
      provisioned agent has no calendar credential and no booking tool: the
      structured data was making a promise the phone line refuses to keep, on
      the one surface a prospect never gets to sanity-check. */
-  serviceType: '24/7 phone answering, call qualification, and structured lead capture',
+  serviceType: 'Lead Generation by invitation, quote follow-up, and 24/7 call answering with structured lead capture',
+  /* "by invitation" is load-bearing, not decoration: check-consistency's
+     readiness guard reads every JSON-LD description on this page and fails any
+     that names a capability roadmap-config.js does not mark available without a
+     word saying it is not here yet. lead-generation is private_pilot. */
   description:
-    'A done-for-you service that answers a business phone line 24/7, qualifies the caller, ' +
-    'takes the job details and the time the caller wants, and texts the owner a summary within seconds. ' +
-    'Configured around each business\'s own hours, service area, job types, and approved rules.',
+    'Nevamis finds a trades or service business more of the customers it wants ' +
+    '(Lead Generation, by invitation: a person reads public pages and builds the list, ' +
+    'the owner decides every row, and nobody on it is contacted), follows up the quotes ' +
+    'it already sent with the owner\'s approval, and answers its phone around the clock, ' +
+    'texting and emailing the owner each call\'s details within seconds.',
   provider: { '@id': `${SITE}/#organization` },
   areaServed: [
     { '@type': 'Country', name: 'Canada' },
@@ -167,7 +186,9 @@ const service = {
       unitText: 'MONTH',
       billingIncrement: 1,
     },
-    availability: 'https://schema.org/InStock',
+    availability: p.selfServe === false
+      ? 'https://schema.org/LimitedAvailability'
+      : 'https://schema.org/InStock',
     url: `${SITE}/pricing.html`,
   })),
   hasOfferCatalog: {
@@ -199,15 +220,18 @@ console.log(`home.html: Service + FAQPage (${faq.length} questions)`);
 // ---------------------------------------------------------------
 const PAGES = [
   { file: 'pricing.html', name: 'Pricing', type: 'WebPage' },
-  /* Was '7-Day Live Pilot'. The URL is kept because it is indexed, linked from
-     every footer and is the page people search for when they ask whether they
-     can try it first; the breadcrumb had to stop naming an offer that no
-     longer exists. */
-  { file: 'pilot.html', name: 'How You Start', type: 'WebPage' },
-  { file: 'demo.html', name: 'Live Demo', type: 'WebPage' },
-  { file: 'book.html', name: 'Book a Strategy Call', type: 'ContactPage' },
+  /* Was '7-Day Live Pilot' at /pilot.html. The breadcrumb stopped naming the
+     retired offer on 2026-08-09 and the page itself left that URL on
+     2026-09-19, because the filename was the last place the word still showed
+     to a reader. /pilot.html is still served, as a noindex holding page that
+     answers "can I try it first" and points here, and it is deliberately NOT
+     in this list: a page that asks not to be indexed has no use for a
+     breadcrumb trail. */
+  { file: 'how-you-start.html', name: 'How you start', type: 'WebPage' },
+  { file: 'demo.html', name: 'Demo', type: 'WebPage' },
+  { file: 'book.html', name: 'Book a call', type: 'ContactPage' },
   { file: 'about.html', name: 'About', type: 'AboutPage' },
-  { file: 'coming-soon.html', name: 'Coming Soon', type: 'WebPage' },
+  { file: 'coming-soon.html', name: 'Roadmap', type: 'WebPage' },
   { file: 'revenue-engine.html', name: 'Revenue Engine', type: 'WebPage' },
   { file: 'privacy.html', name: 'Privacy', type: 'WebPage' },
   { file: 'terms.html', name: 'Terms', type: 'WebPage' },

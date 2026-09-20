@@ -8,7 +8,7 @@
 import { test, expect } from '@playwright/test';
 
 const PUBLIC_PAGES = [
-  '/', '/pricing.html', '/pilot.html', '/demo.html', '/book.html',
+  '/', '/pricing.html', '/how-you-start.html', '/demo.html', '/book.html',
   '/about.html', '/coming-soon.html', '/privacy.html', '/terms.html',
   '/revenue-engine.html',
 ];
@@ -150,7 +150,9 @@ test('pricing publishes a parseable price table for answer engines', async ({ pa
 
   // prices must match the config, never a hardcoded copy
   const cfg = await page.evaluate(() => ({
-    plans: window.NV_PRICING.plans.map((p) => ({ name: p.name, monthly: p.monthly })),
+    plans: window.NV_PRICING.plans.map((p) => ({
+      name: p.name, monthly: p.monthly, selfServe: p.selfServe,
+    })),
   }));
   for (const plan of cfg.plans) {
     const offer = agg.offers.find((o) => o.name === plan.name);
@@ -167,14 +169,26 @@ test('pricing publishes a parseable price table for answer engines', async ({ pa
      at the TOP of the range, and this started demanding that the cheapest
      plan cost C$1,000. Order-independent now, so reordering the ladder is
      not a test failure. */
-  const monthlies = cfg.plans.map((p) => p.monthly);
+  /* OVER THE SELF-SERVE PLANS ONLY (fix plan A26). The range used to run over
+     every plan, so the floor a crawler was told was the Performance
+     Partnership's monthly: a plan that is offered by invitation and that
+     checkout refuses, which made the cheapest advertised way into the product
+     one nobody could buy. `selfServe !== false`, not `=== true`, so a plan
+     that never sets the flag keeps counting as buyable; only an explicit
+     `selfServe: false` is held out. The Partnership keeps its own Offer, with
+     LimitedAvailability, which is how a crawler learns it exists without
+     reading it as the entry price. */
+  const monthlies = cfg.plans.filter((p) => p.selfServe !== false).map((p) => p.monthly);
+  expect(monthlies.length).toBeGreaterThan(0);
   expect(Number(agg.lowPrice)).toBe(Math.min(...monthlies));
-  /* The literal is the second opinion on the derived line above — it moves
+  expect(Number(agg.highPrice)).toBe(Math.max(...monthlies));
+  /* The literal is the second opinion on the derived line above: it moves
      only when a directive moves the ladder. 250 was the Partnership monthly
      through v4; v5 (owner-authored, 2026-08-24) made 350 the published
      default, and the C$250-500 band's floor is an agreement matter, not an
-     offer — schema.org lowPrice is the lowest OFFER a crawler may quote. */
-  expect(Number(agg.lowPrice)).toBe(350);
+     offer. Since A26 the floor is the cheapest plan a buyer can actually
+     check out on, which is the AI Front Desk at C$1,000. */
+  expect(Number(agg.lowPrice)).toBe(1000);
 });
 
 test('every price promised to a crawler is visible to a buyer', async ({ page }) => {

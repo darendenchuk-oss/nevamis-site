@@ -25,8 +25,10 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const NAV = read('_partials/nav.html').trim();
 const FOOTER_FULL = read('_partials/footer.html').trim();
 
-/** Privacy/terms/pricing historically ship the compact footer. */
-const FOOTER_BASE_ONLY = new Set(['privacy.html', 'terms.html', 'pricing.html']);
+/** Privacy and terms ship the compact footer. pricing.html used to as well,
+    which left the page with the Buy buttons without the contact, Terms and
+    Privacy links, although checkout binds the buyer to terms.html. */
+const FOOTER_BASE_ONLY = new Set(['privacy.html', 'terms.html']);
 
 /** Pages that receive the shared chrome. This used to skip 404.html on the
  *  grounds that it had no nav or footer, which stopped being true at some

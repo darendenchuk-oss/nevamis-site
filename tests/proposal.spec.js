@@ -21,7 +21,12 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
      its separator. Deriving the expectation the same way keeps the test
      asserting "the config's number, as money" rather than a spelling. */
   await expect(page.locator('#planPrice')).toContainText('C$' + cfg.monthly.toLocaleString('en-CA'));
-  await expect(page.locator('#planIncludes')).toContainText(String(cfg.minutes));
+  /* Derived the same way as the price above, since 2026-09-19 (A29): the
+     minute count is rendered as money is, so String(cfg.minutes) pinned the
+     bare "1400" and would fail on the grouped figure the page now writes. The
+     expectation is still the config's number, only spelled as the page spells
+     it. A wrong number fails either way. */
+  await expect(page.locator('#planIncludes')).toContainText(cfg.minutes.toLocaleString('en-CA'));
 
   /* The proposal is emailed to a named prospect, so this line is the one that
      gets forwarded to whoever signs the cheque. It must state ONE number.
@@ -72,7 +77,16 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
      names the promise a buyer is now being given; the negative names the
      number, because "notice" alone is a word the page is still entitled to
      use about price increases. */
-  await expect(terms).toContainText(/cancel any time/i);
+  /* 2026-09-19: "cancel (at )?any time", because the page writes both and both
+     are the same promise. The static copy a scripts-off reader gets says
+     "cancel any time from your own portal"; the render derives its clause from
+     `cancellationNoticeDays` and writes "cancel at any time", which is the
+     better English. The bare regex pinned the static spelling and failed on
+     the rendered page, on live main as well as here, so the one document
+     written to close a sale had a red test against correct copy. What the
+     assertion is for is that the cancellation is unconditional, and the
+     negatives below still carry the real risk. */
+  await expect(terms).toContainText(/cancel (at )?any time/i);
   await expect(terms).not.toContainText(/30 days notice/i);
   await expect(terms).not.toContainText(/thirty days/i);
 
