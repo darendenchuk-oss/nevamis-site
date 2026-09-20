@@ -313,17 +313,26 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
 <section id="doc" aria-label="What NEVAMIS does">
   <div class="wrap">
     <p class="doc-k">How it works | Six stations</p>
-    <h2 class="doc-h">Every leak, found and handled.</h2>
-    <p class="doc-sub">The journey above has six stations. Here is each one in plain terms. Every engagement starts with the PULSE Business Scan, and everything that follows runs unattended inside rules you approve; anything that touches money stops for a person.</p>
+    <!-- The heading and sub-heading here carried the retired framing the owner
+         dropped on 2026-09-12 (DC#54), and the claim that the scan is the gate every
+         engagement passes through. Neither is true: the scan is a free read of a
+         public website that anyone can skip. Not quoted back here, because an HTML
+         comment ships with the page. The film above is the homepage rewrite's
+         (feat/hero-leadgen); this documentation section is not. -->
+    <h2 class="doc-h">Every station, in plain terms.</h2>
+    <p class="doc-sub">The journey above has six stations. Here is each one. The scan is a free read of your public website, and everything that follows runs inside rules you approve; anything that touches money stops for a person.</p>
 
     <article class="pane-doc" id="doc-scan">
       <p class="kick">PULSE</p>
       <h3>The scan</h3>
-      <p class="intro">Every engagement starts with the PULSE Business Scan.</p>
+      <!-- This line said every engagement starts with the scan. It does not: the
+           scan is free, optional, and asks for no email, and the owner retired it as
+           the way in on 2026-09-12 (DC#54). -->
+      <p class="intro">The scan is free, and nothing here requires you to run one.</p>
       <div class="svc">
         <h4>PULSE Business Scan <span class="chip av">Available today</span></h4>
-        <p>Looks at your business from the outside and tells you where the money is leaking, with what it is basing that on. Every figure is a range with a confidence level, and feeding it your real numbers sharpens all of them.</p>
-        <p class="outcome">You see the leaks before you pay to fix any of them.</p>
+        <p>Reads only what is public on your own website and shows what it found, quoted from your own pages. Where it puts a figure on something, that figure is a modelled range from public information and market benchmarks, not a measurement of your results. Adding your real numbers sharpens it.</p>
+        <p class="outcome">A free, plain read of your website before you talk to anyone.</p>
       </div>
       <a class="cta2" href="https://app.nevamis.ca/scan" data-evt="moves_scan_click">Scan my business</a>
     </article>
@@ -335,14 +344,12 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
         <h4>Front Desk <span class="chip av">Available today</span></h4>
         <p>Answers your line 24/7, qualifies the caller, takes the job and the time they want, and sends you the details. You confirm the slot.</p>
       </div>
-      <div class="svc">
-        <h4>Web and Messaging Concierge <span class="chip dev">In development</span></h4>
-        <p>Is being built to give website visitors and texters the same fast, knowledgeable path to answers that callers receive.</p>
-      </div>
-      <div class="svc">
-        <h4>Smarter Job Intake <span class="chip dev">In development</span></h4>
-        <p>Qualified requests become structured job records with the right people alerted, using rules the business approves.</p>
-      </div>
+      <!-- Web and Messaging Concierge and Smarter Job Intake were removed here on
+           2026-09-19 (fix plan B7, owner decision). Neither had a canonical
+           capability record, so both were being described to a stranger as work in
+           progress that nothing in the product backs. They are also off
+           roadmap-config.js, which is the single source of truth for what exists, so
+           this pillar now lists only the one thing Capture actually provisions. -->
     </article>
 
     <article class="pane-doc" id="doc-convert">
@@ -350,16 +357,17 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
       <h3>Convert</h3>
       <div class="svc" data-addon="quote_chase">
         <h4>Quote Recovery <span class="chip av">Available today</span></h4>
-        <p>Quotes that go quiet past your threshold get spotted and followed up once, with your name on the email and your approval before it goes.</p>
+        <p>Quotes that go quiet past your threshold get followed up for you: the day they go stale, four days on and eleven days on, each email with your name on it and your approval before it goes.</p>
       </div>
       <div class="svc">
         <h4>Instant Lead Follow-Up <span class="chip av">Available today</span></h4>
         <p>A caller you missed gets one text back while the job is still winnable: during business hours, on your say-so, with your business name on it.</p>
       </div>
-      <div class="svc">
-        <h4>Schedule Protection <span class="chip dev">In development</span></h4>
-        <p>Reminders, approved rescheduling, and cancellation recovery that keep valuable appointment slots from going unused.</p>
-      </div>
+      <!-- Schedule Protection was removed here on 2026-09-19 (fix plan B7, owner
+           decision). It presumed appointment slots the product cannot book: a client
+           agent carries end_call only and has no calendar credential, so reminders,
+           rescheduling and cancellation recovery describe a capability that does not
+           exist and never appeared on roadmap-config.js. -->
     </article>
 
     <article class="pane-doc" id="doc-operate">
@@ -367,7 +375,7 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
       <h3>Operate</h3>
       <div class="svc">
         <h4>Automatic Lead Tracking <span class="chip av">Available today</span></h4>
-        <p>Calls, messages, forms, appointments, and follow-ups become organized customer records, so owners can see which opportunities need attention.</p>
+        <p>Each call, text and form becomes a lead with its source and a status, so you can see what is sitting untouched and what each source is actually producing.</p>
       </div>
       <div class="svc">
         <h4>Your Daily Business Brief <span class="chip dev">In development</span></h4>
@@ -390,9 +398,19 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
         <h4>Revenue Clarity <span class="chip dev">In development</span></h4>
         <p>Lead sources, calls, quotes, completed work, and collected payments connected, so owners see what actually produces revenue.</p>
       </div>
+      <!-- This entry was wrong twice until 2026-09-19. The Review Engine has been
+           sold since 2026-08-24 and is inside The Works on the pricing page, so the
+           "in development" chip understated it to the point of being false; and the
+           description promised a routing behaviour nothing in the product does. The
+           roadmap page's approved
+           treatment (fix plan A2) was to delete its planned row rather than publish an
+           "available" one, because a row marked available needs a canonical capability
+           slug the engine does not carry yet (that is B11). So this entry carries no
+           availability chip at all: it states the narrow thing the module does and
+           sends the reader to the page that owns its price. -->
       <div class="svc">
-        <h4>Review and Referral Engine <span class="chip dev">In development</span></h4>
-        <p>After a completed job, approved feedback requests route concerns privately and make it easy for happy customers to leave a review.</p>
+        <h4>Review Engine</h4>
+        <p>Post-job review requests by text: one ask per finished job, with your own review link, and every request released by a person. Sold on the pricing page, on its own or inside The Works.</p>
       </div>
       <p class="fine2">The PULSE Business Scan also belongs to Grow; it leads the journey as the first station and is not repeated here.</p>
     </article>
@@ -403,18 +421,24 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
       <p class="intro">Prices in Canadian dollars, plus applicable GST/HST.</p>
       <div class="svc">
         <h4>Performance Partnership</h4>
-        <p class="price">By invitation. The monthly, the percentage, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged.</p>
-        <p>A partnership we offer by invitation, where NEVAMIS takes on substantially more of the acquisition risk. Not suitable for every business, and never the default.</p>
+        <p class="price">By invitation. The monthly, the share, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged.</p>
+        <p>A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. Not suitable for every business, and never the default.</p>
       </div>
       <div class="svc">
         <h4>The Works</h4>
         <p class="price" data-plan-price="growth">See the plans below.</p>
-        <p>The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts, with no performance fee.</p>
+        <p>The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts.</p>
       </div>
       <div class="svc">
         <h4>AI Front Desk <span class="chip rec">RECOMMENDED</span></h4>
         <p class="price" data-plan-price="pro">See the plans below.</p>
-        <p>The start most businesses make: the front desk answering every call, with each automation its own sale you can add whenever it earns its place.</p>
+        <!-- A popularity claim stood here until 2026-09-19 (fix plan A8). There are
+             no clients, so it was false, and check-consistency.js bans that class of
+             claim outright: this comment therefore does not quote it, because an HTML
+             comment ships to the reader and the guard reads the whole file. The
+             sentence below is pricing-config.js:448 word for word, so this card and
+             the plans strip further down say the same thing. -->
+        <p>The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place.</p>
       </div>
       <div class="svc">
         <h4>Enterprise</h4>
@@ -427,20 +451,20 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
     <article class="pane-doc" id="doc-nodes">
       <p class="kick">The brain, node by node</p>
       <h3>Brain nodes</h3>
-      <p class="intro">On the living map, thirteen dots are named parts of the brain. Each is listed with the pillar it belongs to; what each one does is described in its pillar's section above.</p>
+      <!-- The count was typed here ("thirteen dots") and went stale the moment fix
+           plan B7 removed three of the names below, so it states no count now: the list
+           is the count. -->
+      <p class="intro">On the living map, each named dot is a part of the brain. Each is listed with the pillar it belongs to; what each one does is described in its pillar's section above.</p>
       <ul class="node-list">
         <li><b>PULSE Business Scan</b> <span>The scan</span></li>
         <li><b>Front Desk</b> <span>Capture</span></li>
-        <li><b>Web and Messaging Concierge</b> <span>Capture</span></li>
-        <li><b>Smarter Job Intake</b> <span>Capture</span></li>
         <li><b>Instant Lead Follow-Up</b> <span>Convert</span></li>
         <li><b>Quote Recovery</b> <span>Convert</span></li>
-        <li><b>Schedule Protection</b> <span>Convert</span></li>
         <li><b>Automatic Lead Tracking</b> <span>Operate</span></li>
         <li><b>Your Daily Business Brief</b> <span>Operate</span></li>
         <li><b>Inbox Assistant</b> <span>Operate</span></li>
         <li><b>Revenue Clarity</b> <span>Grow</span></li>
-        <li><b>Review and Referral Engine</b> <span>Grow</span></li>
+        <li><b>Review Engine</b> <span>Grow</span></li>
         <li><b>Lead Generation</b> <span>Grow</span></li>
       </ul>
     </article>
