@@ -116,9 +116,12 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
    script exits 2, which check-all.mjs prints as WAITING ON YOU: loud, and
    still not a reason to block a push for work that is not in this repository.
    The two homepage entries were deleted the day the source line was fixed
-   (fix plan A8); what is left is three owner actions. */
+   (fix plan A8); the knowledge-base entry the day that file was corrected here. What is left is
+   two files outside this repository, which no commit here can fix and which CI
+   never sees: the live demo prompt (fix plan A18, pushed through the agent
+   flow) and the cold-calling offer sheet. Those report as an owner action and
+   leave the exit code alone. */
 const BANNED_PENDING = [
-  { file: "config/elevenlabs/nevamis-knowledge-base.md", text: "The start most businesses make", owner: "the demo agent's knowledge base, changed with the live-agent push (fix plan A18)" },
   { file: "../nevamis-engine/docs/agent-prompts/demo.md", text: "the start most businesses make", owner: "engine demo prompt, fix plan A18" },
   { file: "../Desktop/Nevamis Cold Calling/OFFER-V4.md", text: "the start most shops make", owner: "the cold-calling offer sheet, outside every repository" },
 ];
@@ -1980,7 +1983,15 @@ for (const p of contentPages) {
    saying "passed". An entry that has stopped matching is the good news, and it
    only asks for a deletion, so it stays on stdout and changes nothing. */
 for (const p of BANNED_PENDING) {
-  if (pendingHit.has(p)) wait(`${p.file} still says "${p.text}" (${p.owner}). BANNED_PENDING excuses that exact text and nothing else, and only until the owner applies it.`);
+  /* A file this repository can edit is a WAIT: green must never mean
+     "excused". A file outside it (its path starts with ../) cannot be fixed
+     by any commit here and is absent in CI, so holding this command red on it
+     would make the exit code mean one thing on a laptop and another on a
+     runner. Those report as an owner action and leave the code alone. */
+  const outside = p.file.startsWith("../");
+  const m = `${p.file} still says "${p.text}" (${p.owner}). BANNED_PENDING excuses that exact text and nothing else, and only until the owner applies it.`;
+  if (pendingHit.has(p) && outside) console.error("OWNER ACTION, outside this repository: " + m);
+  else if (pendingHit.has(p)) wait(m);
   else if (fs.existsSync(path.join(root, p.file))) console.log(`NOTE: ${p.file} no longer says "${p.text}". Delete its BANNED_PENDING entry in scripts/check-consistency.js.`);
 }
 
