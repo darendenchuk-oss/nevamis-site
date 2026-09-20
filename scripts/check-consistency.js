@@ -105,10 +105,19 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
    else: the same claim in any other words, or in any other file, still
    fails. It is a ledger, not an allowlist. When an owner fixes a surface its
    entry stops matching, and the run says so, so the entry can be deleted
-   rather than left to excuse the sentence if it ever comes back. */
+   rather than left to excuse the sentence if it ever comes back.
+
+   AND A LEDGER ENTRY IS A WAIT, NOT A PASS. For its first day this list only
+   printed a PENDING line and left the exit code at 0, so the whole check read
+   `pass consistency` while a prohibited popularity claim was live on the
+   homepage, which is the one page every other page's menu links into. Green
+   has to mean "nothing prohibited is published", not "everything prohibited
+   is excused". Every entry that still matches now goes through wait() and the
+   script exits 2, which check-all.mjs prints as WAITING ON YOU: loud, and
+   still not a reason to block a push for work that is not in this repository.
+   The two homepage entries were deleted the day the source line was fixed
+   (fix plan A8); what is left is three owner actions. */
 const BANNED_PENDING = [
-  { file: "home.html", text: "The start most businesses make", owner: "scripts/film/source.html:417, owned by the homepage rewrite (feat/hero-leadgen)" },
-  { file: "index.html", text: "The start most businesses make", owner: "promoted from home.html; follows scripts/film/source.html:417" },
   { file: "config/elevenlabs/nevamis-knowledge-base.md", text: "The start most businesses make", owner: "the demo agent's knowledge base, changed with the live-agent push (fix plan A18)" },
   { file: "../nevamis-engine/docs/agent-prompts/demo.md", text: "the start most businesses make", owner: "engine demo prompt, fix plan A18" },
   { file: "../Desktop/Nevamis Cold Calling/OFFER-V4.md", text: "the start most shops make", owner: "the cold-calling offer sheet, outside every repository" },
@@ -129,10 +138,13 @@ let fail = 0;
 const err = (m) => { console.error("FAIL: " + m); fail++; };
 
 /* Some findings are true but nobody here can fix them, because the thing that
-   is wrong is the prompt running on the live phone line and that is changed by
-   hand, by the owner, in the ElevenLabs dashboard. Reporting those as FAIL
+   is wrong is outside this repository: the prompt running on the live phone
+   line, the knowledge base attached to that agent, or a document on the
+   owner's desktop, all changed by hand by the owner. Reporting those as FAIL
    means the command is permanently red through no fault of the working tree,
-   and a command that is always red is a command that stops being read.
+   and a command that is always red is a command that stops being read. What it
+   must never do is report them as nothing, which is what BANNED_PENDING did
+   for a day (see its own note above).
 
    So they report on their own channel and exit 2. check-all.mjs turns exit 2
    into "WAITING ON YOU" and does not block the push. Exit 1 still means
@@ -1962,10 +1974,13 @@ for (const p of contentPages) {
 
 /* The BANNED_PENDING ledger reports on itself every run: what it is still
    excusing and who owns the fix, and which entries have stopped matching and
-   should be deleted. Neither line fails the run; a new offender anywhere
-   else already has. */
+   should be deleted.
+   A still-matching entry is a WAIT, not a note, so the exit code carries it:
+   a prohibited claim that is published somewhere can never leave this command
+   saying "passed". An entry that has stopped matching is the good news, and it
+   only asks for a deletion, so it stays on stdout and changes nothing. */
 for (const p of BANNED_PENDING) {
-  if (pendingHit.has(p)) console.log(`PENDING: ${p.file} still says "${p.text}" (${p.owner}). Excused by BANNED_PENDING only for that exact text.`);
+  if (pendingHit.has(p)) wait(`${p.file} still says "${p.text}" (${p.owner}). BANNED_PENDING excuses that exact text and nothing else, and only until the owner applies it.`);
   else if (fs.existsSync(path.join(root, p.file))) console.log(`NOTE: ${p.file} no longer says "${p.text}". Delete its BANNED_PENDING entry in scripts/check-consistency.js.`);
 }
 
@@ -1973,5 +1988,5 @@ if (fail === 0) console.log("Consistency check passed: " + contentPages.length +
 /* 1 = something here is broken. 2 = nothing here is broken but the live
    phone agent needs a change only the owner can make. 0 = clean. */
 if (fail === 0 && waiting > 0) console.error(`
-${waiting} item${waiting === 1 ? " needs" : "s need"} a change to the LIVE agent prompt, which only the owner can apply.`);
+${waiting} item${waiting === 1 ? " needs" : "s need"} a change only the owner can apply: the LIVE agent prompt, the agent's knowledge base, or a file outside this repository. Nothing in the working tree is broken.`);
 process.exit(fail > 0 ? 1 : waiting > 0 ? 2 : 0);
