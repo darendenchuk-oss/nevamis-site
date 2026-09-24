@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-c+ZyWu4bw4pp+wY70D/Dmz0HVVm5IzehtoRczxe2uZM=' 'sha256-IKv3oAVi+SOqvgBTeDTKTJ6ZXUGM83omR2niiGfl5hM=' 'sha256-efe+3ZmJOnqs/THk3fas+b9gzIpBQuSrVeqSuDeR4hg=' 'sha256-FqURxVlXv19jd8+M6JGGN9fZ7JdUFZT6t1DLCCcwqjw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xtbLYW6Jj61GBVYLJfki8au+dKsO3wWwjd4trAAtwHM=' 'sha256-fcbUcbCs4zQak+DOahZoXJLmmxjPRo8GhWU+hznESh4=' 'sha256-efe+3ZmJOnqs/THk3fas+b9gzIpBQuSrVeqSuDeR4hg=' 'sha256-FqURxVlXv19jd8+M6JGGN9fZ7JdUFZT6t1DLCCcwqjw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1491,7 +1491,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        deciding where it goes. */
     var own = pl.features.filter(function (f) { return shared.indexOf(f) < 0; });
     h += '<ul class="node-list">' + own.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
-    if (shared.length) h += '<p class="fine2">Plus everything under <a href="#everyPlanCard">What every plan includes</a>.</p>';
+    if (shared.length) h += '<p class="fine2 prose">Plus everything under <a href="#everyPlanCard">What every plan includes</a>.</p>';
     h += '<div class="best"><strong>Best for:</strong> <span></span></div>';
     /* The buy path, in four cases.
 

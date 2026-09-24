@@ -2,7 +2,8 @@
    COMMERCIAL-CLAIM CLASSIFICATION
 
    One definition of "does this text MAKE a retired claim, or DENY one", shared
-   by every guard in check-consistency.js (6b, 7c, 7d, 7e, 7g).
+   by every guard in check-consistency.js (6b, 7c, 7d, 7e, 7g, and 7k, which
+   judges UNBUILT_PROMISES below rather than retired terms).
 
    Extracted from check-consistency.js on 2026-08-10 while fixing a laundering
    defect in the classifier (see SCOPE below). Two reasons to move it rather
