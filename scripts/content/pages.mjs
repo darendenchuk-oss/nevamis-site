@@ -57,8 +57,10 @@ export const TRADE_HERO_PROOF = `      <p class="proof">The phone is one part of
     Until 2026-09-19 it said "The demo line runs the same agent your business
     would get". It does not: the demo line is Nevamis's own sales agent, which
     can set up a call with us, while a client's agent has no booking tool at
-    all. They share the voice and the model, so that is the claim now (fix
-    plan A6). */
+    all. They share the voice (fix plan A6). They do NOT share the language
+    model: the demo line runs its own and a client's agent is created with
+    another (engine src/lib/elevenlabs-provision.ts), so "the same voice and
+    the same model", which this said until 2026-09-23, was false. */
 export const PROOF_BLOCK = `
 <section class="tight">
   <div class="wrap">
@@ -66,7 +68,7 @@ export const PROOF_BLOCK = `
       <p class="eyebrow mono">Judge it yourself</p>
       <h2>Do not take our word for it. Call it.</h2>
       <p>The fastest way to know whether this is good enough for your customers is to
-        be a customer. The demo line runs on the same voice and the same model your line
+        be a customer. The demo line runs on the same voice your line
         would. It answers for Nevamis, so it can set up a call with us. On your line it
         takes the job and the time the caller wants, and you confirm the slot.</p>
     </div>
