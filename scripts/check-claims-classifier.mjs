@@ -29,7 +29,7 @@
    stricter classifier that reddens them is not stricter, it is broken, because
    a permanently red guard stops being read.
    ============================================================ */
-import { ADDITIVE, RETIRED_OFFERS, offendingClause } from "./lib/claims.mjs";
+import { ADDITIVE, RETIRED_OFFERS, UNBUILT_PROMISES, offendingClause } from "./lib/claims.mjs";
 
 const ALL = [...RETIRED_OFFERS, ...ADDITIVE];
 /* Does ANY pricing rule report this text? That is the question the guards ask,
@@ -213,9 +213,60 @@ for (const [name, text] of MUST_NOT_FIRE_QUESTIONS) {
   }
 }
 
+/* ---------- UNBUILT_PROMISES: features the product never had ----------
+
+   Guard 7k's list (2026-09-24), judged by the same classifier and held to
+   the same two tables. The must-fire rows are the sentences nevamis.ca
+   actually published until that day; the must-not-fire rows are the true
+   sentences written in their place and the demo line's refusal, which has to
+   be able to name the thing it refuses. */
+const judgeUnbuilt = (text, opts) => {
+  for (const { re } of UNBUILT_PROMISES) {
+    const c = offendingClause(text, re, opts);
+    if (c) return { re: String(re), clause: c };
+  }
+  return null;
+};
+const UNBUILT_MUST_FIRE = [
+  ["the pricing page usage note, verbatim",
+    "Near the limit you choose: automatic overage, fallback answering, or a hard cap."],
+  ["the plan feature line, verbatim",
+    "Included minutes metered in the portal, with alerts at 50%, 75%, 90% and 100%, and your choice of overage, fallback answering or a hard cap"],
+  ["the portal line on every plan card, verbatim",
+    "A portal Pulse page that keeps your scans, and Results that label every number as measured or modelled"],
+  /* The laundering shape again: a denial in one clause must not excuse a
+     promise in the next. */
+  ["a denial in one clause does not excuse a promise in the next",
+    "There is no setup fee, and you can set a hard cap in your portal."],
+];
+const UNBUILT_MUST_NOT_FIRE = [
+  ["the demo knowledge base's refusal (config/elevenlabs)",
+    "Past the included minutes, extra minutes are billed at the plan's overage rate and calls keep being answered. There is no hard cap, no fallback-answering mode and no choice of what happens at the limit, so never offer one."],
+  ["the demo prompt's instruction not to offer one",
+    "Do not offer a hard cap, a fallback-answering mode, or a choice of what happens at the limit."],
+  ["the usage note that replaced the promise",
+    "Past your included minutes, calls keep being answered and each extra minute is billed at your plan's per-minute rate, shown on its card above."],
+  ["the portal line that replaced the Pulse page",
+    "A Results page in your portal that labels every number as measured, declared, estimated or not yet measured, and never adds an estimate to measured money"],
+];
+for (const [name, text] of UNBUILT_MUST_FIRE) {
+  if (!judgeUnbuilt(text)) {
+    err(`MUST FIRE (unbuilt promise) but did not — ${name}\n      text:   "${text}"\n      `
+      + `This sentence sold a feature nothing delivers. If guard 7k cannot see it, it can go back on the pricing page.`);
+  }
+}
+for (const [name, text] of UNBUILT_MUST_NOT_FIRE) {
+  const hit = judgeUnbuilt(text);
+  if (hit) {
+    err(`MUST NOT FIRE (unbuilt promise) but did — ${name}\n      text:   "${text}"\n      rule:   ${hit.re}\n      clause: "${hit.clause}"\n      `
+      + `This sentence tells the truth about the product or refuses the feature. A guard that reddens it `
+      + `teaches the next person to delete the refusal.`);
+  }
+}
+
 if (fail) {
   console.error(`\n${fail} classifier fixture(s) wrong. The judge is broken, not the content.`);
   process.exit(1);
 }
-console.log(`Claim classifier OK: ${MUST_FIRE.length + MUST_FIRE_QUESTIONS.length} must-fire, `
-  + `${MUST_NOT_FIRE.length + MUST_NOT_FIRE_QUESTIONS.length} must-not-fire fixtures classified correctly.`);
+console.log(`Claim classifier OK: ${MUST_FIRE.length + MUST_FIRE_QUESTIONS.length + UNBUILT_MUST_FIRE.length} must-fire, `
+  + `${MUST_NOT_FIRE.length + MUST_NOT_FIRE_QUESTIONS.length + UNBUILT_MUST_NOT_FIRE.length} must-not-fire fixtures classified correctly.`);
