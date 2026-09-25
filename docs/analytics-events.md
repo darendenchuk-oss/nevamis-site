@@ -13,7 +13,7 @@ input, or customer data in properties.
 | callbar_book_click | mobile sticky bar (<=820px), "Book a 15-min call" to /book.html#pick-a-time; not on book.html, where the bar scrolls to the scheduler and sends nothing | none | Does a persistent booking bar start bookings on phones? |
 | booking_start | Cal.com link click | none | Booking starts |
 | demo_audio_play / demo_audio_complete | example-call player | none | Does the proof get consumed? |
-| roi_calculator_complete | first full ROI input set | none | Calculator engagement |
+| roi_calculator_complete | the visitor's first edit of the homepage ROI calculator, once per page view (see the note below) | none | Calculator engagement |
 | pricing_view_click | homepage pricing preview CTA | none | Pricing interest |
 | coming_soon_page_view | coming-soon.html load | none | Roadmap page reach |
 | roadmap_service_interest_clicked | "Tell us this would help" card button | service (slug) | Which future service has demand? |
@@ -28,6 +28,15 @@ names and silently drops the ones it does not know, so the name has to exist
 there before the site that sends it goes live. This bar used to send
 `demo_phone_click`, so shipping the two out of order loses the new count and
 the old baseline at the same moment, with nothing failing anywhere.
+
+**`roi_calculator_complete` counted page loads until 2026-09-25.** It was sent
+from the calculator's recalculation, and that runs once on load with the
+prefilled defaults, so every homepage view sent it whether or not anyone
+touched the calculator. Rows before 2026-09-25 are page loads, not calculator
+use, and must not be read as engagement (the engine funnel's "ran the
+calculator" step included). From 2026-09-25 site.js sends it once, from a
+one-shot `input` listener on `#roiForm`, after the visitor's first edit. The
+name is unchanged because the engine allowlists event names.
 
 ## Funnel diagnostics (added 2026-07-27)
 

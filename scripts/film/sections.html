@@ -229,17 +229,27 @@
             <div class="big" id="roiOpp">$0</div>
           </div>
           <div class="row">
-            <div class="lbl mono">CONSERVATIVE RECOVERED JOBS (HALF)</div>
+            <div class="lbl mono">CONSERVATIVE RECOVERED REVENUE A MONTH (HALF)</div>
             <div class="big" id="roiRec">$0</div>
           </div>
+          <!-- Two break-even rows since 2026-09-25. One row divided the plan by
+               job value x close rate and called the answer "won jobs": that is
+               the real inquiries you must answer, not the jobs you must win
+               (5 where 3 cover the plan at the defaults). Both numbers are
+               useful, so each is shown under its own name. site.js writes a
+               "Not reachable" sentence into either one rather than a zero. -->
           <div class="row" id="roiBeRow" hidden>
-            <div class="lbl mono">BREAK-EVEN AT YOUR QUOTE</div>
+            <div class="lbl mono">WON JOBS THAT COVER THE MONTHLY</div>
             <div class="big" id="roiBe" style="font-size:clamp(20px,2.2vw,26px)">–</div>
+          </div>
+          <div class="row" id="roiInqRow" hidden>
+            <div class="lbl mono">REAL INQUIRIES NEEDED AT YOUR CLOSE RATE</div>
+            <div class="big" id="roiInq" style="font-size:clamp(20px,2.2vw,26px)">–</div>
           </div>
           <div class="midcta" style="margin-top:18px">
             <a class="btn btn-primary" href="/book.html" data-evt="roi_book_click">Check these against your real call log</a>
           </div>
-          <p class="disclaimer">Estimate only, not a guarantee. Formula: missed calls × 4.33 weeks × opportunity share × job value × close rate. Recovery assumes half of voicemail-bound calls are captured.</p>
+          <p class="disclaimer">Estimate only, not a guarantee. Formula: missed calls × 4.33 weeks × opportunity share × job value × close rate. Recovery assumes half of voicemail-bound calls are captured. These figures are revenue, not profit; the Launch &amp; Implementation fee is not included.</p>
           <p aria-live="polite" class="visually-hidden" id="roiLive"></p>
         </div>
       </div>
@@ -312,7 +322,7 @@
     <details class="reveal"><summary>How does Lead Generation work, and can I get it?</summary><p>It is offered by invitation, under your own agreement, and the list is put together by hand. You tell us the kinds of business you want more of and where you work, and a person here reads public pages and builds the list, with the page each row came from. You decide every row, and nobody on it is contacted by us. Businesses only: it never looks for people at home.</p></details>
     <details class="reveal"><summary>What counts as a quiet quote?</summary><p>A quote you sent that has gone past a threshold you set without an answer. You choose the threshold. When a quote you have recorded as a job crosses it, Nevamis spots it and prepares up to three follow-ups (the day it goes stale, four days on and eleven days on), each one sent only with your approval.</p></details>
     <details class="reveal"><summary>Who sends the Quote Recovery follow-up, and can it go out without me?</summary><p>It goes with your name on the email, and only after your approval. Nothing is sent to your customers without your written go-ahead to email them, every message carries your business identity, and opt-outs are honoured. No outbound marketing campaigns are offered: Quote Recovery only follows up quotes you already wrote.</p></details>
-    <details class="reveal"><summary>Does Quote Recovery need my CRM or quoting software?</summary><p>No, and it does not connect to one. Nevamis does not connect to a CRM, an ads account or an automation tool. You record your quotes as jobs in your Nevamis portal so we can see them go quiet, and the follow-up and the reporting run from there.</p></details>
+    <details class="reveal"><summary>Does Quote Recovery need my CRM or quoting software?</summary><p>No, and it does not connect to one. Outside Enterprise, Nevamis does not connect to a CRM, an ads account or an automation tool; a custom integration is Enterprise work, scoped and quoted per client. You record your quotes as jobs in your Nevamis portal so we can see them go quiet, and the follow-up and the reporting run from there.</p></details>
     <details class="reveal"><summary>Is Quote Recovery the same thing as the Quote-Chase Engine?</summary><p>Yes. Quote Recovery is the capability; the Quote-Chase Engine is the add-on that sells it, bought on its own or beside the AI Front Desk, with its own Launch &amp; Implementation fee to start and then a monthly. It is already included in The Works. Its figures are rendered on the pricing page from the published price list, and there is no minimum term on it.</p></details>
     <details class="reveal"><summary>Will Quote Recovery quote prices, negotiate or offer discounts?</summary><p>No. It follows up a quote you already wrote. It does not answer customer questions, negotiate, change your prices or offer discounts, and it does not book or schedule anything. What you get back is which quotes came back to life and what they were worth.</p></details>
     <details class="reveal"><summary>Will callers know they are talking to an AI?</summary><p>The moment anyone asks, yes, plainly and without hedging. It does not open the call by announcing itself, any more than a receptionist opens by explaining who employs them: it greets the caller in your business's name and gets on with the job. Dial the demo line and ask it directly.</p></details>
