@@ -17,9 +17,11 @@
    what keeps it reconciled: a proof that expires is not a proof.
 
      node scripts/check-generator-drift.mjs
-   0 = regenerating reproduces the committed pages exactly
+   0 = regenerating reproduces the committed pages exactly, and the sitemap
+       still matches the pages (see the note on gen-sitemap below)
    1 = drift: either a generated page was hand-edited, or the generator no
-       longer produces what is committed
+       longer produces what is committed, or a sitemap page changed without
+       a regenerated sitemap
    2 = could not tell (no git, no builders)
 
    WHY IT REFUSES TO RUN ON A DIRTY TREE. This script runs real builders that
@@ -30,14 +32,26 @@
    also the correct answer: a modified generated file is either a hand edit
    (the defect) or an uncommitted build (commit it first).
 
-   gen-sitemap.mjs is deliberately NOT run here. It stamps <lastmod> with
-   today's date, so including it would make this guard fail every day after the
-   last commit, for a reason that has nothing to do with drift.
+   gen-sitemap.mjs is deliberately NOT run here. It does not stamp today's
+   date on every page (an earlier version of this note said so; it never
+   did): it keeps a page's recorded <lastmod> while the page is unchanged and
+   picks a new one from git or the clock only when the content moved. Those
+   dates are exactly what this checkout cannot know: CI clones shallow, so
+   every file's last commit there is HEAD, and a squash merge rewrites the
+   dates. So the sitemap is checked by CONTENT instead, below, with no git and
+   no clock: config/sitemap-hashes.json records a sha256 of every sitemap page
+   (carriage returns removed) and the lastmod that goes with it, and this
+   guard fails when a page no longer matches its hash, when sitemap.xml gives
+   a page a different lastmod from the sidecar, or when the two list different
+   pages. The fix is always the same: node scripts/gen-sitemap.mjs, then
+   commit sitemap.xml and the sidecar. Squash, merge and rebase merges carry
+   both files through unchanged, so main stays green whichever is used.
    ============================================================ */
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { SIDECAR, SITEMAP, sitemapPages, pageHash, renderSitemap, readSitemapLastmods, readSidecar } from "./lib/sitemap.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let fail = 0, cannotTell = 0;
@@ -87,17 +101,74 @@ let restoreNeeded = false;
    exit sets this instead, and the single exit sits after the restore. */
 let aborted = false;
 
+/* ---------- the sitemap still describes the pages on disk ----------
+   First, and read-only: it needs neither git nor a clean tree, only the files.
+   See the header for why this compares content and never dates. */
+const REGEN = `run node scripts/gen-sitemap.mjs, then commit ${SITEMAP} and ${SIDECAR}`;
+try {
+  const sidecar = readSidecar(root);
+  const pages = sitemapPages(root);
+  if (!sidecar || !sidecar.pages) {
+    err(`${SIDECAR} is missing, so no page's <lastmod> can be checked.\n       To fix: ${REGEN}.`);
+  } else {
+    const recorded = sidecar.pages;
+    const inSet = new Set(pages.map((p) => p.file));
+    const stale = pages.filter((p) => recorded[p.file] && recorded[p.file].sha256 !== pageHash(root, p.file));
+    const unrecorded = pages.filter((p) => !recorded[p.file]).map((p) => p.file);
+    const extra = Object.keys(recorded).filter((f) => !inSet.has(f));
+    const xmlPath = path.join(root, SITEMAP);
+    const xml = fs.existsSync(xmlPath) ? fs.readFileSync(xmlPath, "utf8").replace(/\r/g, "") : "";
+    const stated = readSitemapLastmods(xml);
+    const locs = new Set(pages.map((p) => p.loc));
+    const wrongDate = pages.filter((p) => recorded[p.file] && stated.has(p.loc) && stated.get(p.loc) !== recorded[p.file].lastmod);
+    const notInXml = pages.filter((p) => !stated.has(p.loc)).map((p) => p.file);
+    const notAPage = [...stated.keys()].filter((loc) => !locs.has(loc));
+
+    if (stale.length) {
+      err(`${stale.length} sitemap page(s) changed after ${SIDECAR} recorded them, so their <lastmod> is stale:\n`
+        + stale.map((p) => `         ${p.file} (sitemap.xml still says ${recorded[p.file].lastmod})`).join("\n")
+        + `\n       To fix: ${REGEN}.`);
+    }
+    if (unrecorded.length || extra.length) {
+      err(`${SIDECAR} and content-map.json disagree about which pages are in the sitemap.`
+        + (unrecorded.length ? `\n         a sitemap page with no recorded hash: ${unrecorded.join(", ")}` : "")
+        + (extra.length ? `\n         recorded, but no longer a sitemap page: ${extra.join(", ")}` : "")
+        + `\n       To fix: ${REGEN}.`);
+    }
+    if (wrongDate.length) {
+      err(`sitemap.xml and ${SIDECAR} disagree about <lastmod>:\n`
+        + wrongDate.map((p) => `         ${p.file}: sitemap.xml says ${stated.get(p.loc)}, ${SIDECAR} says ${recorded[p.file].lastmod}`).join("\n")
+        + `\n       To fix: ${REGEN}.`);
+    }
+    if (notInXml.length || notAPage.length) {
+      err(`sitemap.xml and ${SIDECAR} list different pages.`
+        + (notInXml.length ? `\n         missing from sitemap.xml: ${notInXml.join(", ")}` : "")
+        + (notAPage.length ? `\n         in sitemap.xml but not a sitemap page: ${notAPage.join(", ")}` : "")
+        + `\n       To fix: ${REGEN}.`);
+    }
+    /* Anything the checks above cannot name (order, priority, markup) still
+       fails: the file must be exactly what gen-sitemap writes from the sidecar. */
+    if (!stale.length && !unrecorded.length && !extra.length && !wrongDate.length && !notInXml.length && !notAPage.length) {
+      const want = renderSitemap(pages.map((p) => ({ loc: p.loc, lastmod: recorded[p.file].lastmod, priority: p.priority })));
+      if (xml !== want) err(`sitemap.xml is not what gen-sitemap writes from ${SIDECAR} (order, priority or markup differs).\n       To fix: ${REGEN}.`);
+      else console.log(`sitemap: ${pages.length} page(s) match their recorded hashes, and every <lastmod> matches ${SIDECAR}.`);
+    }
+  }
+} catch (e) {
+  wait(`the sitemap check could not complete (${String(e.message).split("\n")[0].slice(0, 140)}).`);
+}
+
 try {
   git(["rev-parse", "--git-dir"]);
 } catch {
   wait("git is not usable here, so a regeneration cannot be compared against anything.");
-  process.exit(2);
+  process.exit(fail > 0 ? 1 : 2);
 }
 
 for (const b of BUILDERS) {
   if (!fs.existsSync(path.join(root, "scripts", b))) {
     wait(`scripts/${b} is missing, so the chain cannot be run.`);
-    process.exit(2);
+    process.exit(fail > 0 ? 1 : 2);
   }
 }
 
