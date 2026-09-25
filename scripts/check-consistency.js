@@ -783,7 +783,7 @@ const NO_MECHANISM = [
     /* The denial has to govern the fallback itself: a free-standing "never"
        elsewhere in the clause ("..., and it never invents an answer") must
        not excuse it, and in the mutation test it did. */
-    denial: /\b(?:cannot|can't|can not|does not|doesn't|will not|won't|never)\s+(?:\w+\s+){0,2}?fall\s+back\b|\bno\s+voice\s?mail\s+fallback\b/i,
+    denial: /\b(?:cannot|can't|can not|does not|doesn't|will not|won't|never)\s+(?:\w+\s+){0,2}?fall(?:s|ing)?\s+back\b|\bno\s+voice\s?mail\s+fallback\b/i,
     why: "a client's agent has end_call only (engine elevenlabs-provision.ts) and docs/INCIDENT-RESPONSE.md says there is no voicemail fallback; say it takes a message, flags it urgent and alerts the team" },
   { re: /\bthen\s+(?:automatically\s+)?(?:removed|deleted|erased|purged|destroyed)\b/i,
     why: "nothing deletes these records on a schedule: data is kept until the person or the client asks for deletion. The retention windows are owner item O6; say so rather than promise a deletion nothing performs" },
