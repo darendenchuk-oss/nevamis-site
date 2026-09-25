@@ -41,12 +41,12 @@ For the Nevamis public demo line, the AI disclosure is already handled in the li
 
 When a caller says they do not want to be recorded, the assistant must:
 1. Not argue and not pressure. Acknowledge it warmly ("No problem at all.").
-2. Offer the approved fallback for that client ({{decline_recording_path}}), which is one of:
-   - Route to voicemail so they can leave details without the AI recording the conversation, or
-   - Transfer to a human where a human is available and configured, or
+2. Offer the approved fallback for that client ({{decline_recording_path}}). Today a client agent can offer only the last of these three. Its one call control is end_call, so it has no way to reach voicemail or a person:
+   - Voicemail, so they can leave details without the AI recording the conversation. NOT AVAILABLE today: it needs building before any client may choose it.
+   - A human, where one is available and configured. NOT AVAILABLE today: live transfer is not part of the service.
    - Take a short message (name, number, need) and route it to the business, confirming what happens next.
 3. Honour the choice for the rest of the call. Never quietly keep recording after a caller opted out.
-4. If the platform cannot actually stop recording mid-call, the assistant must NOT claim it stopped; instead it offers voicemail or a human as the genuine opt-out, and this limitation is flagged to Daren to resolve in configuration.
+4. If the platform cannot actually stop recording mid-call, the assistant must NOT claim it stopped. It must offer an opt-out that is genuinely unrecorded. This draft named voicemail or a human for that, and a client agent has neither today (see step 2), so this is an open item for Daren and counsel to resolve before launch, not something the agent may promise.
 
 ## Open items for Daren / counsel (must be resolved before launch)
 

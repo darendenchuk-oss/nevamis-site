@@ -22,6 +22,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { publishedFiles } from './lib/published-files.mjs';
 import { decodeRefs } from './lib/char-refs.mjs';
+import { commentsOf } from './lib/served-comments.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -276,6 +277,98 @@ const readmeProblems = [];
   });
 }
 
+/* EVERY VENDORED SCRIPT IS LOADED BY SOMETHING THIS SITE SERVES.
+
+   assets/vendor/MotionPathPlugin.min.js shipped on about twenty pages for a
+   month after the only code that used it (the pre-film homepage hero) had
+   nothing left to animate: a <script> tag on every page, an import in
+   assets/motion/main.js, about 20 KB gzipped per page view, and no guard
+   that could tell a library in use from one that was merely present
+   (finding T13, 2026-09-25). A vendored file is a third-party library
+   published on nevamis.ca, so it has to earn its place: some other served
+   page, script or stylesheet must name it. A file only a test or a doc
+   names is not loaded by any visitor, and fails. The name is matched as a
+   path ending, so talk/talk.js loading "/assets/vendor/<file>" counts. */
+const vendorOrphans = [];
+{
+  const referrers = published
+    .filter((f) => /\.(?:html?|m?js|css)$/i.test(f) && !f.startsWith('assets/vendor/'))
+    .map((f) => fs.readFileSync(path.join(root, f), 'utf8'));
+  for (const f of published.filter((p) => p.startsWith('assets/vendor/'))) {
+    const tail = f.slice('assets/'.length);
+    if (!referrers.some((src) => src.includes(tail))) vendorOrphans.push(f);
+  }
+}
+
+/* NO SERVED FILE CARRIES THE INTERNAL COMMERCIAL MODEL (finding F149b).
+
+   Every file nevamis.ca serves is readable in full, comments included, by
+   anyone who opens view-source. pricing-config.js is served because
+   pricing.html renders from it, and until 2026-09-25 its header comment
+   stated the Performance Partnership's revenue-share percentage, labelled
+   "NEVER spoken on a call", beside the internal price band and a module
+   marked "NOT yet sellable (prototype)". A buyer who reads that does not
+   read a note to a developer; they read something being kept from them.
+   The reasoning moved to docs/PRICING-CONFIG.md, which is not served.
+
+   Scope: the comments of every served .html, .js, .mjs and .css (the page
+   copy itself is guarded by check-consistency.js, and "not yet sellable
+   from a page" is honest visible copy). Comments are read by
+   scripts/lib/served-comments.mjs, which tells a comment from the same
+   characters in a string or a regex. assets/vendor/ is third-party code,
+   byte-pinned by check-critical-surface.mjs, and not ours to comment.
+   The share rate is also refused as DATA anywhere in a served file
+   (`shareBps`): a rate a page never renders is still published. */
+const SERVED_COMMENT_FORBIDDEN = [
+  [/\bnever\s+(?:be\s+)?(?:spoken|said)\b/i, 'a note about what the business does not say aloud'],
+  [/\bnot\s+(?:yet\s+)?sellable\b/i, 'an internal readiness note'],
+  [/(?<![.\w$])prototype\b/i, 'an internal readiness note ("prototype")'],
+  [/\binternal[\s-]+only\b/i, 'an "internal only" note'],
+  [/(?:C\$|CA\$|US\$|\$)\s?\d/i, 'a money figure (prices render from pricing-config.js data, never from a comment)'],
+  [/\b\d{1,2}(?:\.\d+)?\s?(?:%|percent\b)[^.\n]{0,40}?\b(?:share|revenue|collected|attributable|commission|performance|partnership)\b/i, 'a revenue-share percentage'],
+  [/\b(?:share|revenue|collected|attributable|commission|performance|partnership|rate)\b[^.\n]{0,40}?\b\d{1,2}(?:\.\d+)?\s?(?:%|percent\b)/i, 'a revenue-share percentage'],
+  [/\bbasis\s+points\b|\bshareBps\b/i, 'the share rate'],
+];
+/* Checked on every run, like the README rule: each MUST_CATCH line is the
+   defect or its obvious sibling, each MUST_PASS line is a comment this site
+   really carries that a too-greedy pattern would fail. */
+const SERVED_MUST_CATCH = [
+  'Performance Partnership  from C$2,500 one-time  C$350 (band C$250-500)  10% attributable collected revenue, 12 months, NEVER spoken on a call',
+  'Customer Reactivation  C$2,000/campaign  NOT yet sellable (prototype)',
+  "Performance Partnership's rate dropped 15%->10% and is now never spoken as a number",
+  'an agreed share of 10 percent', 'shareBps mirrors the engine', 'internal-only notes',
+  'Review Engine flipped from prototype to sellable',
+];
+const SERVED_MUST_PASS = [
+  'Array.prototype.slice is not available here',
+  'font-stretch: 100%; size-adjust: 98.82%',
+  'radial-gradient(60% 50% at 70% 30%,rgba(191,245,222,.06),transparent 70%)',
+  'Thousands are grouped: an ungrouped four-digit price beside a three-digit one reads like a typo',
+  '0.093 of the page\'s 0.095 CLS',
+  'the agreed share of attributable collected revenue, subject to your agreement',
+];
+const servedSelfTest = [];
+for (const s of SERVED_MUST_CATCH) if (!SERVED_COMMENT_FORBIDDEN.some(([re]) => re.test(s))) servedSelfTest.push(`misses "${s}"`);
+for (const s of SERVED_MUST_PASS) {
+  const hit = SERVED_COMMENT_FORBIDDEN.find(([re]) => re.test(s));
+  if (hit) servedSelfTest.push(`wrongly flags "${s}" as ${hit[1]}`);
+}
+const servedCommentProblems = [];
+for (const f of published) {
+  if (!/\.(?:html?|m?js|css|json|txt|xml)$/i.test(f) || f.startsWith('assets/vendor/')) continue;
+  const src = fs.readFileSync(path.join(root, f), 'utf8');
+  const data = src.match(/\bshareBps\b/);
+  if (data) servedCommentProblems.push(`${f}:${src.slice(0, data.index).split('\n').length} carries the share rate as data (shareBps)`);
+  for (const c of commentsOf(f, src)) {
+    c.text.split('\n').forEach((line, k) => {
+      for (const [re, what] of SERVED_COMMENT_FORBIDDEN) {
+        const hit = line.match(re);
+        if (hit) { servedCommentProblems.push(`${f}:${c.line + k} has ${what} in a comment ("${hit[0].slice(0, 60)}")`); break; }
+      }
+    });
+  }
+}
+
 if (missing.length) console.error('MUST BE PUBLISHED but is not (excluded, hidden or untracked):\n  ' + missing.join('\n  '));
 if (unsafeSvg.length) console.error('ASSET SVG OUTSIDE THE ALLOW LIST. Opened directly it could run code or load something on the nevamis.ca origin. '
   + 'Asset SVGs may hold only static SVG elements and #fragment references: no links, script, event handlers, foreignObject, <set>, DTDs or processing instructions, '
@@ -292,5 +385,12 @@ if (readmeProblems.length) console.error('README.MD STATES A COMMERCIAL FACT. Th
   + 'Link to nevamis.ca/pricing.html or nevamis.ca/terms.html instead of stating it:\n  ' + readmeProblems.join('\n  '));
 if (readmeSelfTest.length) console.error('THE README RULE FAILS ITS OWN EXAMPLES. Fix README_FORBIDDEN in scripts/check-published-surface.mjs so it catches every README_MUST_CATCH line and none of README_MUST_PASS:\n  '
   + readmeSelfTest.join('\n  '));
-if (missing.length || unexpected.length || securityTxtProblems.length || readmeProblems.length || readmeSelfTest.length) process.exitCode = 1;
-else console.log(`Published surface OK: ${published.length} files, all intended; security.txt points at nevamis.ca; README.md states no commercial fact.`);
+if (vendorOrphans.length) console.error('VENDORED FILE NOTHING LOADS. Every file under assets/vendor/ must be named by a served page, script or stylesheet; '
+  + 'delete the file (and its pin in config/critical-surface.json) or load it:\n  ' + vendorOrphans.join('\n  '));
+if (servedCommentProblems.length) console.error('A SERVED FILE CARRIES INTERNAL COMMERCIAL NOTES. Anyone can read a served file\'s comments with view-source. '
+  + 'Move the reasoning to docs/ (docs/PRICING-CONFIG.md for pricing-config.js) and name the field instead of the figure:\n  ' + servedCommentProblems.join('\n  '));
+if (servedSelfTest.length) console.error('THE SERVED-COMMENT RULE FAILS ITS OWN EXAMPLES. Fix SERVED_COMMENT_FORBIDDEN in scripts/check-published-surface.mjs so it catches every SERVED_MUST_CATCH line and none of SERVED_MUST_PASS:\n  '
+  + servedSelfTest.join('\n  '));
+if (missing.length || unexpected.length || securityTxtProblems.length || readmeProblems.length || readmeSelfTest.length
+  || vendorOrphans.length || servedCommentProblems.length || servedSelfTest.length) process.exitCode = 1;
+else console.log(`Published surface OK: ${published.length} files, all intended; security.txt points at nevamis.ca; README.md states no commercial fact; every vendored file is loaded; no served comment carries internal commercial notes.`);

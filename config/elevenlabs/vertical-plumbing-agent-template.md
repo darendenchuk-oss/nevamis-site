@@ -23,7 +23,7 @@
 | {{approved_prices}} | Any prices the client has APPROVED the AI to state (e.g. a flat diagnostic/trip fee), or "none" | If "none", the AI quotes NO prices at all |
 | {{no_go_topics}} | Topics the AI must not engage (e.g. binding quotes, warranty/liability promises, legal, medical, insurance advice) | The AI declines and routes to a human |
 | {{recording_disclosure}} | The approved recording/AI disclosure line for the greeting (see recording-notice-greetings.md) | Used verbatim from the approved option |
-| {{decline_recording_path}} | What to offer a caller who declines recording (voicemail / human / callback) | Offered when a caller objects to recording |
+| {{decline_recording_path}} | What to offer a caller who declines recording. Today only a message or a callback: a client agent cannot reach voicemail or a person (see recording-notice-greetings.md) | Offered when a caller objects to recording |
 
 Paste or PATCH the filled-in fenced block below as that client's agent system prompt once every placeholder is approved.
 
