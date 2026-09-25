@@ -49,6 +49,7 @@
     { "file": "about.html", "url": "/about.html", "priority": "0.6", "cluster": "core", "nav": "About", "blurb": "Who is behind Nevamis." },
     { "file": "privacy.html", "url": "/privacy.html", "priority": "0.2", "cluster": "legal", "nav": "Privacy", "blurb": "What this website collects." },
     { "file": "terms.html", "url": "/terms.html", "priority": "0.2", "cluster": "legal", "nav": "Terms", "blurb": "Terms of use for the site and demo line." },
+    { "file": "security.html", "url": "/security.html", "priority": "0.2", "cluster": "legal", "nav": "Security", "blurb": "How to report a security problem privately, and what is in scope." },
 
     { "file": "404.html", "url": "/404.html", "priority": null, "cluster": "system", "chrome": true, "sitemap": false, "nav": null, "blurb": "Not found." },
     { "file": "proposal.html", "url": "/proposal.html", "priority": null, "cluster": "system", "sitemap": false, "nav": null, "blurb": "Standalone proposal document sent to one prospect." },

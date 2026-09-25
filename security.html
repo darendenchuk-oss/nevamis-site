@@ -3,21 +3,16 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-lYJzRWu18R1aAuA9y7WvZBssgmeKjQwEbQfhl/gIfcw=' 'sha256-5VZqMSSH2zlAdvIRhkzKA8tHYjysav4/UKn9dWsyNCY='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your Nevamis proposal</title>
-<meta name="description" content="A short written summary of what was discussed: the plan, what is included, what it costs each month, and what happens before your line is answered.">
-<!-- Private sales artefact: shared by link after a call, never indexed. -->
-<meta name="robots" content="noindex, nofollow">
-<!-- noindex, but this page is SENT to a prospect as a link, so it previews in
-     their email, texts and Slack. Without these the preview renders blank,
-     which is a poor first impression on the one document that is meant to
-     close them. Deliberately generic wording: the URL may be forwarded to a
-     partner or spouse who was not on the call. -->
-<meta property="og:title" content="Your Nevamis proposal">
-<meta property="og:description" content="A short written summary of what was discussed: the plan, what is included, what it costs each month, and what happens before your line is answered.">
+<title>Reporting a Security Problem | Nevamis</title>
+<meta name="description" content="How to report a security problem in nevamis.ca or app.nevamis.ca privately, what to include, what not to do while testing, and what is in scope.">
+<link rel="canonical" href="https://nevamis.ca/security.html">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="Reporting a security problem | Nevamis">
+<meta property="og:description" content="How to tell Nevamis about a security problem privately, what to include, and what is in scope.">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -870,7 +865,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 }
 </style>
 <!-- /generated:css -->
-
+<!-- The .doc-page block below is the same verbatim copy that terms.html,
+     privacy.html, 404.html and proposal.html carry; this page is a fifth.
+     Move it to site.css with the others, not on its own. -->
 <style>
   /* ============================================================
      THE DOCUMENT PAGE - SHARED, NOT PAGE-LOCAL
@@ -931,549 +928,139 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   }
 </style>
 
-<style>
-  /* ---------- page layout only ----------
-     Everything that is a colour, a surface, a type step, a border, a bullet
-     or a label now comes from assets/motion/site.css and from the shared
-     .doc-page block above. What is left here is this document's own column,
-     the one panel that carries the quote, and the print sheet.
-
-     Several rules below are written as `p.thing` rather than `.thing`. The
-     shared rule they have to beat is `.doc-page main p:not(...)` at (0,2,2).
-     `.plan-box p.amount` is only (0,2,1) - two classes, one element - and
-     loses to it wherever it sits, which is why the .doc-page prefix is on
-     the front of every one of them. */
-  /* One document column for the whole site: 660, the same measure terms,
-     privacy and 404 use, which leaves about 76 characters a line. */
-  .prop{max-width:660px;margin:0 auto;padding:110px var(--pad-gutter) 80px}
-
-  /* The lockup carries the same treatment as the site nav, and for the same
-     reasons: see the derivations beside .wordmark in assets/motion/site.css.
-     Values are mirrored rather than shared because this page has its own
-     scoped block; if the nav ever moves, move these with it.
-
-     This page was missed by the first pass because it does not use .wordmark:
-     it had its own .mark, and it still read "Nevamis AI". That is the legal
-     name doing duty as a logo on the one document sent to a named prospect. */
-  .prop-head .mark{display:flex;align-items:center;gap:11px;font-family:var(--f-display);
-    font-weight:700;font-size:17px;margin-bottom:22px}
-  .prop-head .mark svg{width:22px;height:22px;transform:translateY(-1.7px)}
-  .prop-head .mark .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
-  .prop-head .mark .wm-v{letter-spacing:.055em}
-
-  /* The head's own border-bottom is gone. The first h2 draws a rule 40px
-     below it, so this page shipped two hairlines 22px apart. */
-  .prop-head{margin-bottom:0}
-  .prop h1{max-width:none}
-  .doc-page .prop p.meta{color:var(--ink-3);font-size:14px;margin:0}
-  .doc-page .prop h1+p.meta{margin-top:8px}
-  .prop section{padding:0;margin:0;border-top:none;overflow:visible}
-
-  /* THE QUOTE PANEL. Surface, border, radius and the featured bloom come
-     from .plan-box and .card-featured in site.css. The lit top edge is
-     restated here because .plan-box is not in that selector list yet - it is
-     the detail that makes a panel look like this site, and this is the one
-     panel on the one page a prospect keeps. */
-  .plan-box{padding:var(--pad-card-lg);margin-bottom:14px}
-  .plan-box::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
-    background:var(--glow-lit);opacity:.55}
-  .doc-page .plan-box p.amount{font-family:var(--f-display);font-weight:700;font-size:38px;
-    letter-spacing:var(--tr-head);line-height:1.1;color:var(--ink);margin:2px 0 12px}
-  .doc-page .plan-box p.amount span{font-size:15px;font-weight:400;color:var(--ink-3);
-    font-family:var(--f-body);letter-spacing:normal}
-  .doc-page .plan-box p.plan-line{font-size:var(--fs-card);line-height:var(--lh-body);
-    color:var(--ink-2);margin:0 0 8px}
-  .doc-page .plan-box p.plan-line:empty{display:none}
-  .doc-page .plan-box p.plan-line s{opacity:.7}
-  .doc-page .plan-box p.plan-line b{color:var(--mint)}
-  .plan-box ul.ticks{margin-top:16px}
-
-  /* The steps take the site's list row - the same hairline, the same 15px
-     at --ink-2 as a .node-list - with the mono numeral ol.steps already
-     draws in place of the emerald dot.
-
-     The numeral hangs in the left margin rather than sitting in a flex row.
-     Every step here is a bold label followed by a sentence, and in a flex
-     row the <b> and the sentence become two separate flex items: the label
-     gets its own narrow column and wraps to three lines beside its own
-     text. */
-  ol.steps>li{position:relative;font-size:var(--fs-card);line-height:var(--lh-snug);
-    color:var(--ink-2);padding:10px 0 10px 38px;
-    border-bottom:1px solid var(--line-soft)}
-  ol.steps>li:last-child{border-bottom:none}
-  ol.steps>li::before{position:absolute;left:0;top:13px;line-height:1}
-  ol.steps b{color:var(--ink)}
-
-  .noprint-cta{display:flex;gap:14px;flex-wrap:wrap;margin:26px 0 0}
-  .prop-foot{border-top:1px solid var(--line-soft);padding-top:24px;margin-top:44px}
-  @media (max-width:760px){.noprint-cta .btn{width:100%;justify-content:center}}
-
-  /* The print sheet. It used to hide #aurora, a canvas this page has never
-     created: it loads neither main.js nor the shader that was deleted with
-     it. Everything else here is the document on white, and the hairlines are
-     re-coloured because a mint hairline at .08 alpha prints as nothing. */
-  @media print{
-    .noprint-cta,.callbar,.nv-cur,.nv-halo{display:none!important}
-    html,body{background:#fff;color:#111}
-    .prop{padding:0;max-width:none}
-    .plan-box{background:#fff;border-color:#bbb;box-shadow:none;
-      backdrop-filter:none;-webkit-backdrop-filter:none}
-    .plan-box::before{display:none}
-    .doc-page main h2,.prop-foot{border-top-color:#ccc}
-    ul.ticks li,ol.steps>li{border-bottom-color:#ddd}
-    ul.ticks li::before{background:#111;box-shadow:none}
-    ol.steps>li::before,.eyebrow{color:#111}
-    .eyebrow::before{background:#111;box-shadow:none}
-    .prop h1,.prop h2,.prop p,.doc-page .prop p.meta,.doc-page .plan-box p.amount,
-    .doc-page .plan-box p.plan-line,
-    ul.ticks li,ol.steps>li{color:#111}
-    a{color:#111;text-decoration:underline}
+<!-- generated:schema -->
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://nevamis.ca/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Security",
+        "item": "https://nevamis.ca/security.html"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://nevamis.ca/security.html",
+    "url": "https://nevamis.ca/security.html",
+    "name": "Reporting a Security Problem | Nevamis",
+    "description": "How to report a security problem in nevamis.ca or app.nevamis.ca privately, what to include, what not to do while testing, and what is in scope.",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Nevamis",
+      "url": "https://nevamis.ca/"
+    },
+    "about": {
+      "@id": "https://nevamis.ca/#service"
+    },
+    "publisher": {
+      "@id": "https://nevamis.ca/#organization"
+    },
+    "inLanguage": "en-CA"
   }
-</style>
+]
+</script>
+<!-- /generated:schema -->
 </head>
 <body class="doc-page">
-<main class="prop" id="main">
-  <div class="prop-head">
-    <div class="mark">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="/">
       <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true">
         <path d="M 15 38 A 17 17 0 0 1 49 38" stroke="#2FBF8F" stroke-width="8" stroke-linecap="round"/>
         <circle cx="32" cy="48" r="6" fill="#9FF0CE"/>
       </svg>
-      <span class="wm">Ne<span class="wm-v">v</span>amis</span>
-    </div>
-    <p class="meta" id="preparedFor">Prepared after our call</p>
-    <h1 id="headline">Your Nevamis proposal</h1>
-    <p class="meta" id="preparedMeta">Prepared by Daren, founder</p>
+      <span class="wm">Ne<span class="wm-v">v</span>amis</span></a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="mainNav" aria-label="Menu">☰</button>
+    <nav class="main-nav" id="mainNav" aria-label="Main">
+      <span class="navitem"><a href="/#how" data-nav>How it works</a></span>
+      <span class="navitem"><a href="/solutions.html" data-nav>Solutions</a></span>
+      <span class="navitem"><a href="/pricing.html" data-nav>Pricing</a></span>
+      <span class="navitem"><a href="/how-you-start.html" data-nav>How you start</a></span>
+      <span class="navitem"><a href="/demo.html" data-nav>Demo</a></span>
+      <span class="navitem"><a class="nav-min" href="/coming-soon.html" data-nav>Roadmap</a></span>
+      <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
+      <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
+      <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
+      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
+    </nav>
   </div>
-
+</header>
+<main id="main">
   <section>
-    <h2>What we discussed</h2>
-    <p id="summaryLine">
-      Your line answered around the clock by a front desk configured around your
-      hours, service area, job types and the rules you approve. It qualifies the
-      caller, takes the job, the address and the time they want, and texts and
-      emails you a summary of every call within seconds. Your phone number does
-      not change.
-    </p>
-  </section>
-
-  <section>
-    <h2>Recommended plan</h2>
-    <div class="plan-box card-featured">
-      <p class="eyebrow mono" id="planName">AI FRONT DESK</p>
-      <p class="amount" id="planPrice">C$1,000<span>/month</span></p>
-      <!-- Real text, not an empty span. Everything in this box is overwritten
-           from pricing-config.js on load; with scripts blocked this is what the
-           prospect reads, and a blank line under a monthly price is where he
-           supplies his own guess about what starting costs.
-           The same rule now covers what is included and the feature list. They
-           shipped empty, and filling them 1.9s after first paint on a throttled
-           phone was 0.060 of this page's 0.060 CLS: the whole of it, in one
-           shift, on the one document written to close a sale. -->
-      <p class="plan-line" id="planIncludes">1,400 included AI minutes per month, about 470 to 700 typical calls. Additional minutes C$0.75 each.</p>
-      <p class="plan-line" id="planMonthly">C$1,000/month, charged the day you start and every month after.</p>
-      <p class="plan-line" id="planTerms">One-time C$1,500 Launch &amp; Implementation to start. Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.</p>
-      <p class="plan-line" id="planAnnual"></p>
-      <ul class="ticks" id="planFeatures">
-        <li>One business phone line</li>
-        <li>Automation add-ons available one at a time, each its own price and its own sale, on their own or beside this plan</li>
-        <li>Answers your line around the clock, configured from your own hours, services, service area, prices and FAQs</li>
-        <li>Asks the qualifying questions you approved, in your words</li>
-        <li>Captures the caller's name, callback number, what they want, the service, how urgent it is, how the call ended and what happens next, as one structured lead</li>
-        <li>Texts and emails you that summary within seconds of the call ending, and records honestly whether each one was delivered</li>
-        <li>Every call recorded and playable in your portal, with CSV export of the lead record</li>
-        <li>Automatic quality review of any call where a caller used emergency language, or the agent claimed a booking it could not confirm</li>
-        <li>Scripted test callers run against your live agent before a phone number is ever pointed at it</li>
-      </ul>
-    </div>
-    <p class="meta">Canadian dollars, plus applicable GST/HST. No minimum term: month to month from the first month, cancelled from your portal.
-      Full plan comparison at <a href="/pricing.html">nevamis.ca/pricing</a>.</p>
-    <!-- The decision happens here, at the price, not 1,300px further down.
-         This document is sent to a named prospect after a call, and its only
-         action used to sit at 86% of the page: measured on production, 1,331px
-         below the fold at 390px and 805px at 1280px. Somebody who had already
-         made up their mind had to read to the end to find a way to say so.
-         The closing pair below stays: it is the natural end of the document
-         and the place a careful reader arrives. This is for the reader who is
-         already convinced. Same destination, its own event name, because
-         which one they use is the useful thing to know.
-
-         START NOW, beside it (F4, 2026-09-24). Until today both of this
-         document's actions were "Book the next call", while the pricing page
-         one click away sold the same plans with "Buy now". A prospect who had
-         decided on the call could buy from a page that had never heard of
-         him, but not from the one written for him. The call stays, as the
-         second button, because a careful buyer still wants one.
-
-         The markup is the AI Front Desk's, the plan this static copy states,
-         so a reader with scripts blocked buys the price he is reading. The
-         render script below re-points it at the rendered plan or removes it,
-         under the rule pricing.html uses for its cards plus the two things
-         only a proposal can do: carry a quoted figure, and fail part way.
-         The event is plan_buy_click_<plan id>, the family the engine already
-         counts as purchase intent; the page field says it came from here. -->
-    <div class="noprint-cta">
-      <a class="btn btn-primary" href="https://app.nevamis.ca/signup?plan=pro" data-buy data-evt="plan_buy_click_pro">Start now</a>
-      <a class="btn btn-ghost" href="/book.html" data-book data-evt="proposal_plan_book_click">Book the next call</a>
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot"></span>Security</p>
+      <h1>Reporting a security problem</h1>
+      <p>If you find a security problem in nevamis.ca or app.nevamis.ca, please tell us privately before you tell anyone else. This is the policy that <a href="/.well-known/security.txt">/.well-known/security.txt</a> points to.</p>
+      <h2>How to report it</h2>
+      <p>Email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a> with &ldquo;Security&rdquo; in the subject line. Tell us what you found, the page or address involved, and the steps that show it. A screenshot or a short recording helps.</p>
+      <p>We read every report and reply as soon as we can, usually within a few business days.</p>
+      <div class="reveal">
+      <h2>Please do not</h2>
+      <p>Send messages, calls, bookings or form submissions that reach real customers or prospects, or that create records in our systems, beyond the minimum needed to show the problem.</p>
+      <p>Run automated scanners, load tests or anything else that degrades the service.</p>
+      <p>Access, keep or share data that is not yours.</p>
+      </div>
+      <div class="reveal">
+      <h2>What is in scope</h2>
+      <p>In scope: nevamis.ca, www.nevamis.ca, app.nevamis.ca, and the source code of this website.</p>
+      <p>Out of scope: the third-party services we use, such as Cal.com, ElevenLabs, Twilio, Stripe, GitHub and Vercel. Please report a problem in one of those to the provider.</p>
+      </div>
     </div>
   </section>
-
-  <section>
-    <h2>What happens next</h2>
-    <!-- This section used to end at a seven-day paid trial: build it, run it
-         live for a week, and on day eight the prospect chose or it stopped.
-         That offer was retired on 2026-08-09, and the steps that survived are
-         the ones that were always the real work. Step four in particular is
-         not a softened pilot: the scripted callers are run against the live
-         agent BEFORE a phone number is pointed at it, so nothing about it
-         depends on the client's customers being used as the test. -->
-    <ol class="steps">
-      <li><b>Discovery.</b> A short call to map your call patterns, services, service area, and the rules it must follow.</li>
-      <li><b>Build.</b> Your agent is configured from your own hours, services, prices, area and FAQs, with the qualifying questions written in your words.</li>
-      <li><b>You review it.</b> You hear it, push on it, and approve it before it takes a single real call.</li>
-      <li><b>Tested against scripted callers.</b> We run written call scenarios at the live agent before a phone number is attached to it, so the first real caller is not the first test.</li>
-      <li><b>Forwarding proven.</b> We place a real call to your line and confirm it lands, rather than assuming the carrier did what it was told.</li>
-      <li><b>Live, and cancellable whenever you want.</b> You are billed monthly from the day you start, with no minimum term. If the service is not earning its price, you cancel it yourself from the portal at any time, and the month you already paid for runs out normally.</li>
-    </ol>
-    <div class="noprint-cta">
-      <a class="btn btn-primary btn-lg" href="https://app.nevamis.ca/signup?plan=pro" data-buy data-evt="plan_buy_click_pro">Start now</a>
-      <a class="btn btn-ghost btn-lg" href="/book.html" data-book data-evt="proposal_book_click">Book the next call</a>
-      <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it again · (587) 413-0035</a>
-    </div>
-  </section>
-
-  <div class="prop-foot">
-    <p class="fine2">Nevamis AI Inc. · Edmonton, Alberta · <a href="tel:+15874130035">(587) 413-0035</a>
-      · <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a></p>
-    <p class="fine2">This summary reflects published pricing at the time it was sent and is not a
-      contract. Terms at <a href="/terms.html">nevamis.ca/terms</a>.</p>
-  </div>
 </main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h2 class="foot-h foot-brand">Nevamis</h2>
+        <p>Nevamis helps Canadian service businesses win more of the work they want. Lead Generation, offered by invitation, finds businesses of the kind you want more of, and you decide every one. Quote Recovery follows up the quotes you already sent, and the AI Front Desk answers the calls you cannot, inside rules you approve.</p>
+        <p style="margin-top:10px">Demo line: <a href="tel:+15874130035" class="mono">(587) 413-0035</a><br>Sales: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a><br>Edmonton, Alberta, Canada</p>
+      </div>
+      <div>
+        <h2 class="foot-h">Site</h2>
+        <a href="/#how">How it works</a>
+        <a href="/#industries">Industries</a>
+        <a href="/solutions.html">Solutions</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/how-you-start.html">How you start</a>
+        <a href="/demo.html">Demo</a>
+        <a href="/coming-soon.html">Roadmap</a>
+        <a href="/about.html">About</a>
+        <a href="/book.html">Book a call</a>
+        <a href="https://app.nevamis.ca/login" data-evt="client_login_click">Client login</a>
+      </div>
+      <div>
+        <h2 class="foot-h">Legal</h2>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+      </div>
+    </div>
+    <div class="base">
+      <span>© 2026 Nevamis AI Inc.</span>
+      <span class="right mono">nevamis.ca</span>
+    </div>
+  </div>
+</footer>
 
-<script>document.documentElement.classList.remove('no-js');</script>
-<script src="pricing-config.js"></script>
-<script>
-/* Renders the proposal from URL parameters against the approved price list.
-   Every value shown comes from pricing-config.js, so a proposal can never
-   quote a number the business has not approved.
-   Params: ?to=Business+Name&plan=starter|growth|pro (legacy ids after-hours
-   and scale still resolve). A bare link or an unknown id renders the
-   recommended plan, the AI Front Desk; until 2026-09-19 a bare link rendered
-   The Works while this line said otherwise (fix plan A29). ?date=YYYY-MM-DD
-   prints the day the proposal was prepared; without it no date is printed,
-   because the day a link is opened is not the day it was prepared.
-   The &founding=1 parameter is retired and does nothing. It waived a setup fee
-   during the period when setup was $0 for everyone; a first-month amount was
-   restored on 2026-08-06 at C$250/C$500/C$1,000 and the waiver was not. Old
-   links carrying it still render correctly, at the real amount.
-   All parameters are rendered with textContent, never innerHTML. */
-(function () {
-  "use strict";
-  /* Takes the "Start now" buttons out and makes "Book the next call" the
-     primary action beside each of them. Used for every plan this page must
-     not sell directly, and by the catch at the bottom: a render that failed
-     part way has stopped vouching that the plan named on the page is the
-     plan the button buys. The call is right for every plan in every state,
-     which is why it is what is left. */
-  function callOnly() {
-    var buys = document.querySelectorAll("a[data-buy]");
-    for (var i = 0; i < buys.length; i++) {
-      var a = buys[i], row = a.parentNode;
-      var book = row && row.querySelector("a[data-book]");
-      if (book) book.className = book.className.replace(/\bbtn-ghost\b/, "btn-primary");
-      if (row) row.removeChild(a);
-    }
-  }
-  /* True when the link asks for the proposal the static copy already is:
-     the AI Front Desk (no plan, "pro", or its legacy id "scale") at its
-     published price (no ?quote=). */
-  function asksForStaticPlan() {
-    var s = new URLSearchParams(location.search);
-    var p = (s.get("plan") || "").replace(/[<>]/g, "").trim().toLowerCase();
-    return (p === "" || p === "pro" || p === "scale") && !(s.get("quote") || "").trim();
-  }
-  try {
-    var P = window.NV_PRICING;
-    /* No config at all (pricing-config.js blocked or failed to load) leaves
-       the static proposal: the Front Desk's copy under the Front Desk's
-       static price. Its "Start now" buys the Front Desk, so it stays only on
-       a link written for that plan. A link written for another plan (the
-       Performance Partnership by invitation, The Works) or carrying an
-       agreed ?quote= was not written to offer the Front Desk at the
-       published price, so it keeps the call alone. A config that loaded and
-       is NOT approved is a price list nobody signed off, so nothing on this
-       page may take money against it. */
-    if (!P || !P.approved) { if (P || !asksForStaticPlan()) callOnly(); return; }
-    var q = new URLSearchParams(location.search);
-
-    /* keep an injected value short and plain; it is only ever printed as text */
-    function clean(v, max) {
-      return (v || "").replace(/[<>]/g, "").trim().slice(0, max || 80);
-    }
-    var money = function (n) {
-      var v = Number(n);
-      return "C$" + (Number.isInteger(v) ? v.toLocaleString("en-CA")
-        : v.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-    };
-    var set = function (id, text) {
-      var el = document.getElementById(id);
-      if (el && text != null) el.textContent = text;
-    };
-
-    /* A recipient's business name, and only that. Anyone can build a
-       nevamis.ca/proposal.html link, so without a limit this page would print
-       "Prepared for <any sentence, phone number or web address>" under the
-       Nevamis name, a ready-made lure for somebody else's message. Markup is
-       dropped whole (so a pasted tag cannot glue words together), then the
-       name must be letters, digits and ordinary business punctuation, at
-       most 60 characters, with no web address, no email and nothing that
-       reads as a phone number. Anything else renders the generic proposal.
-
-       Real trade names use "/" (24/7, A/C, HVAC/R), "!" and "#", and many
-       Alberta companies carry their year of incorporation ("(1991) Ltd").
-       So the digit rule is aimed at phone numbers: 7 or more digits joined
-       only by phone separators (space . - ( ) +), or 10 or more digits in
-       the whole name. A web address is any www., "://" or word.word token
-       with at least two characters before the dot, which leaves initials
-       such as "J.D." alone. */
-    function recipient(v) {
-      var s = String(v || "").replace(/<[^>]*>?/g, " ").replace(/\s+/g, " ").trim();
-      if (!s || s.length > 60) return "";
-      if (!/^[A-Za-zÀ-ɏ0-9 .,'&()\-’\/!#–]+$/.test(s)) return "";
-      if (/\d(?:[ .()+\-–]*\d){6,}/.test(s)) return "";
-      if ((s.match(/\d/g) || []).length >= 10) return "";
-      if (/(www\.|:\/\/|(^|[^A-Za-z0-9.])[A-Za-z0-9-]{2,}\.[A-Za-z]{2,}\b)/i.test(s)) return "";
-      return s;
-    }
-    var to = recipient(q.get("to"));
-    if (to) {
-      set("preparedFor", "Prepared for " + to);
-      /* "A front desk for ..." led with the phone, while Nevamis leads with
-         Lead Generation (fix plan A29). The plan's heading is "Your Nevamis
-         proposal", which the static copy carries; with a recipient the name
-         stays in it, because tests/proposal.spec.js pins the name there. */
-      set("headline", "A Nevamis proposal for " + to);
-      document.title = "Nevamis proposal · " + to;
-    }
-
-    /* The date comes from ?date=YYYY-MM-DD or not at all. It used to be
-       new Date(), the moment the link was OPENED, so a proposal read a week
-       after the call claimed to have been prepared that morning. A value that
-       is not a real calendar date is ignored. */
-    var when = "";
-    var dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(clean(q.get("date"), 10));
-    if (dm) {
-      var dd = new Date(Date.UTC(+dm[1], +dm[2] - 1, +dm[3]));
-      if (dd.getUTCFullYear() === +dm[1] && dd.getUTCMonth() === +dm[2] - 1 && dd.getUTCDate() === +dm[3]) {
-        when = dd.toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
-      }
-    }
-    set("preparedMeta", when ? "Prepared " + when + " by Daren, founder" : "Prepared by Daren, founder");
-
-    /* Legacy ids from the retired ladder. A proposal link sent before
-       2026-08-06 carries ?plan=after-hours or ?plan=scale. Without this map
-       they matched no plan and fell through to the recommended one, so an old
-       link for the CHEAPEST plan quoted the middle one at twice the price.
-       The engine has resolved these in resolvePlan() since the rename; this is
-       the same map on the page a prospect actually opens. */
-    var LEGACY = { "after-hours": "starter", "scale": "pro" };
-    var wanted = clean(q.get("plan"), 24).toLowerCase() || "pro";
-    wanted = LEGACY[wanted] || wanted;
-    var plan = (P.plans || []).filter(function (p) { return p.id === wanted; })[0];
-    /* Pay As You Go was retired on 2026-08-06 and removed on 2026-08-07.
-
-       A branch here used to render it straight from P.payAsYouGo with NO
-       `active` check, unlike the annual block thirty lines below, which is
-       gated correctly. So ?plan=pay-as-you-go went on quoting a prospect
-       C$49/month with C$0 setup: the retired plan AND the retired
-       no-setup-fee position, on a page built to be sent to a buyer.
-       tests/proposal.spec.js asserted that it rendered, which is why nobody
-       noticed.
-
-       An unrecognised plan id now falls through to the recommended plan,
-       which is what every other unknown value already did. It read
-       P.plans[1] until 2026-09-19, which is The Works since the display
-       order changed, so "the recommended plan" was a comment, not the code
-       (fix plan A29). */
-    {
-      plan = plan || (P.plans || []).filter(function (p) { return p.recommended; })[0] || P.plans[0];
-      /* What we discussed, per plan. The static copy is the front desk
-         summary, which is right for the AI Front Desk and The Works. The
-         Performance Partnership is where Lead Generation is arranged, so its
-         proposal opens on that, and its steps start with the list. */
-      set("summaryLine", plan.id === "starter" ? "Lead Generation, by invitation. We read public pages and list businesses of exactly the kind you want more of, each with the page it came from. You decide every one, and nobody on it is contacted by us. It is arranged on the Performance Partnership below, which also answers your line around the clock."
-        : "Your line answered around the clock by a front desk configured around your hours, service area, job types and the rules you approve. It qualifies the caller, takes the job, the address and the time they want, and texts and emails you a summary of every call within seconds. Your phone number does not change.");
-      if (plan.id === "starter") {
-        var stepsEl = document.querySelector("ol.steps");
-        var LG_STEPS = [
-          /* Not "Discovery.": these four are prepended to the static steps,
-             whose first one is already called Discovery, so a starter proposal
-             read two identical headings in a row. This one is about who the
-             client wants more of, so it says that. */
-          ["Who you want more of.", "What you do, the areas you work, the kinds of business you want more of, and what you never want brought to you."],
-          ["The list.", "We read public pages and put together businesses of exactly that kind, each with the page it came from and the day it was read."],
-          ["Your call.", "You decide every one in your portal. Nobody on it is contacted by us."],
-          ["What came of it.", "You record what came of the ones you pursued, and your Results show it in your own words."]
-        ];
-        if (stepsEl) {
-          LG_STEPS.slice().reverse().forEach(function (st) {
-            var li = document.createElement("li");
-            var b = document.createElement("b");
-            b.textContent = st[0];
-            li.appendChild(b);
-            li.appendChild(document.createTextNode(" " + st[1]));
-            stepsEl.insertBefore(li, stepsEl.firstChild);
-          });
-        }
-      }
-      set("planName", plan.name.toUpperCase() + (plan.recommended ? " · " + (P.recommendedLabel || "RECOMMENDED") : ""));
-      /* THE QUOTED AMOUNT, or the published plan price. ?quote= carries a
-         per-client figure where one was agreed and always wins. Since the
-         2026-08-15 evening directive the ladder is published again, so with
-         no quote the box states the plan's own monthly; the morning's
-         "priced after a scan" fallback survives only for the unpublished
-         state, as "quoted per client". */
-      /* Only a figure inside the band of real prices is shown. Anyone can
-         build this link, and ?quote=1 used to print "C$1/month" as a Nevamis
-         proposal. An agreed per-client figure always sits between the lowest
-         and highest monthly in pricing-config.js; anything outside that band
-         is ignored and the plan's own price is stated instead. */
-      var quoted = Number(q.get("quote") || 0);
-      var band = (P.plans || []).reduce(function (b, p) {
-        [p.monthly].concat(p.monthlyRange || []).forEach(function (n) {
-          if (typeof n === "number" && n > 0) { b[0] = Math.min(b[0], n); b[1] = Math.max(b[1], n); }
-        });
-        return b;
-      }, [Infinity, 0]);
-      quoted = (isFinite(quoted) && quoted >= band[0] && quoted <= band[1]) ? Math.round(quoted * 100) / 100 : 0;
-      var priceEl = document.getElementById("planPrice");
-      if (quoted > 0) {
-        priceEl.textContent = money(quoted);
-        var per = document.createElement("span"); per.textContent = "/month";
-        priceEl.appendChild(per);
-      } else if (P.publishedPricing) {
-        priceEl.textContent = (plan.startingAt ? "from " : "") + money(plan.monthly);
-        var per2 = document.createElement("span"); per2.textContent = "/month";
-        priceEl.appendChild(per2);
-      } else {
-        priceEl.textContent = "Quoted per client";
-      }
-
-      /* THE BUY PATH (F4, 2026-09-24). Checkout charges the plan's published
-         Launch & Implementation fee and monthly, nothing else, so "Start now"
-         may sit only under a price that IS that published monthly. Five
-         conditions, each of them a way that button would contradict the box
-         above it:
-           - P.sellable off: the pricing page routes every plan to the call
-             while checkout is shut, and so does this page;
-           - pricing unpublished: the box says "Quoted per client";
-           - a "from C$X" plan: quoted on the call, not the checkout figure;
-           - selfServe false: the Performance Partnership is agreed rather
-             than bought, and its terms line says "by invitation and
-             approval" (checkout refuses it one click later anyway);
-           - a ?quote= that differs from the published monthly: the agreed
-             figure is not what checkout would charge. A quote EQUAL to it is
-             the published price, so it keeps the button.
-         The shut gate, the "from" figure and selfServe are pricing.html's
-         card rule; the unpublished price and the quote are this page's own,
-         because only this page can print either above the button.
-         Everything else keeps the static button, re-pointed at the plan this
-         page rendered. */
-      var buyable = !!P.sellable && !!P.publishedPricing && !plan.startingAt
-        && plan.selfServe !== false && !(quoted > 0 && quoted !== plan.monthly);
-      if (buyable) {
-        var buys = document.querySelectorAll("a[data-buy]");
-        for (var b = 0; b < buys.length; b++) {
-          buys[b].href = "https://app.nevamis.ca/signup?plan=" + encodeURIComponent(plan.id);
-          buys[b].setAttribute("data-evt", "plan_buy_click_" + plan.id);
-        }
-      } else {
-        callOnly();
-      }
-      /* Grouped (A29): "1,400", not "1400". Every other four-figure number on
-         this page carries its separator, and a bare four digits in the middle
-         of a sentence reads like a typo on the one document a buyer keeps.
-         toLocaleString, not a hand-written string, so the number cannot drift
-         from pricing-config.js. */
-      set("planIncludes", Number(plan.includedMinutes).toLocaleString("en-CA")
-        + " included AI minutes per month, about "
-        + plan.callRange + ". Additional minutes " + money(plan.overage) + " each.");
-
-      /* Both figures, stated plainly with the rule joining them, never struck
-         through and never "waived". A fee shown with a line through it is a
-         discount off a price nobody was charged, which is the same
-         fabrication class as a fake original price on a sale tag.
-
-         This pair has been wrong twice in opposite ways: "One-time setup
-         C$500." directly under "C$500/month" was totalled to C$1,000 due on
-         signing, and "First month C$500, then C$500/month from month two"
-         was true and still asked the reader to infer the rule. Since
-         2026-08-15 (evening) the rule is stated in words: the one-time
-         Launch & Implementation fee starts the build, beside the first
-         month, and the monthly recurs. */
-      set("planMonthly", quoted > 0
-        ? money(quoted) + "/month, charged the day you start and every month after."
-        : (P.publishedPricing
-          ? money(plan.monthly) + "/month, charged the day you start and every month after."
-          : "Your monthly amount is quoted per client, then it is charged the day you start and every month after."));
-      /* NO MINIMUM TERM, stated outright. It said "no minimum term" until
-         the v4 directive of 2026-08-22 made that false; the owner reversed v4
-         on 2026-09-08 and `minimumMonths` is zero. The branch that printed a
-         minimum length for a non-zero term was dead code carrying a retired
-         sentence, and it is deleted (fix plan A33, 2026-09-19). If a term
-         ever returns, the sentence below must change with it: it no longer
-         reads terms.minimumMonths. The defaults below are `== null` and not
-         `||` on purpose: `(0 || 30)` is 30. */
-      var T = P.terms || {};
-      /* ZERO, not 30, since the owner directive of 2026-09-12 removed the
-         notice period outright. The old default read a missing field as 30
-         days, which is the identical trap the comment above describes for
-         `minimumMonths`: the moment the real figure became 0, a `|| 30` or a
-         30-default would have gone on printing a retired condition on the one
-         document written to close a sale. The clause is derived from the
-         number rather than typed beside it. */
-      var mNotice = T.cancellationNoticeDays == null ? 0 : T.cancellationNoticeDays;
-      var mCancel = mNotice ? "on " + mNotice + " days notice" : "at any time";
-      var mLock = T.priceLockMonths == null ? 12 : T.priceLockMonths;
-      set("planTerms", "One-time " + money(plan.launch) + " Launch & Implementation to start."
-        + (plan.performanceNote ? " " + plan.performanceNote : "")
-        + " Overage past your included minutes is the only other usage billing."
-        + " There is no minimum term: month to month from the first month, cancel " + mCancel
-        + " from your own portal, with service running to the end of the month you already paid for."
-        + " Your price is locked for " + mLock + " months."
-        + (plan.selfServe === false ? " This plan is offered by invitation and approval." : ""));
-
-      if (P.annual && P.annual.active && plan.annual) {
-        set("planAnnual", "Or " + money(plan.annual) + " for the year: pay ten months, get twelve.");
-      }
-      renderFeatures(plan.features || []);
-    }
-
-    function renderFeatures(list) {
-      var ul = document.getElementById("planFeatures");
-      ul.textContent = "";
-      list.slice(0, 9).forEach(function (f) {
-        var li = document.createElement("li");
-        li.textContent = f;
-        ul.appendChild(li);
-      });
-    }
-
-    /* Four pilot lines were rendered from P.pilot here. The record is deleted
-       from pricing-config.js, so this block would have thrown on
-       `undefined.name` inside the try, silently abandoning the rest of the
-       render. That is exactly how a stale proposal would have gone out
-       looking fine: the static copy stays, and the static copy was the old
-       offer. */
-  } catch (e) {
-    /* The static copy above is already a valid proposal, but this render may
-       have replaced half of it (the plan name, say) before it threw, so the
-       Front Desk's "Start now" could now sit under another plan's name.
-       Whatever broke, the call is still right. */
-    callOnly();
-  }
-})();
-</script>
+<a class="callbar" href="/book.html#pick-a-time" data-evt="callbar_book_click">Book a 15-min call</a>
+<script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/vendor/ScrollTrigger.min.js"></script>
+<script src="assets/vendor/MotionPathPlugin.min.js"></script>
 <script src="site.js" defer></script>
+<script src="motion.js" defer></script>
+<script type="module" src="assets/motion/main.js"></script>
 </body>
 </html>

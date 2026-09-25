@@ -235,6 +235,10 @@ const PAGES = [
   { file: 'revenue-engine.html', name: 'Revenue Engine', type: 'WebPage' },
   { file: 'privacy.html', name: 'Privacy', type: 'WebPage' },
   { file: 'terms.html', name: 'Terms', type: 'WebPage' },
+  /* The page /.well-known/security.txt names as its Policy. That line pointed
+     at SECURITY.md on github.com until 2026-09-24, which is not a nevamis.ca
+     address and stops resolving the day the repository goes private. */
+  { file: 'security.html', name: 'Security', type: 'WebPage' },
 ];
 
 for (const p of PAGES) {
