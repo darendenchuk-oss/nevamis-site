@@ -27,6 +27,11 @@
 > The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
 > survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,
 > and any idea whose whole premise is a setup fee, a pilot, PAYG or annual prepay is moot.
+>
+> **One event name below is gone (2026-09-25).** Ideas 004 and 008 name `booking_page_view` as the
+> booking-intent stage. That event was pushed into a local array nothing sent, and was removed:
+> arrival on /book.html is the ordinary `page_view` with page `/book.html` (see docs/analytics-events.md).
+> Read those two ideas with that substitution.
 
 
 Nevamis already has more measurement machinery than most pre-revenue businesses: `nvTrack()` in `site.js`, a first-party beacon to `app.nevamis.ca/api/events`, a `site_events` table, `/ops/analytics`, and `/ops/weekly`. But reading the code end-to-end exposes a specific set of holes that matter far more than adding tools. `nvSend()` in site.js line 21 serialises only `{name, page, referrer, source}` — it silently **throws away the `data` argument**, so `roadmap_service_interest_clicked`'s `service` slug and every other property in `docs/analytics-events.md` never reaches the server. There is no session or visit identifier, so `/ops/analytics` can only show raw counts, never a conversion rate. The homepage's two biggest interactive assets — the 6-stage simulator in `motion.js` (~200 lines) and the 15-item FAQ — emit nothing at all. The server's `ALLOWED_NAMES` set in `src/app/api/events/route.ts` is a silent drop gate that already contains four dead names and is missing several the site emits. And a single phone number, `(587) 413-0035`, carries every channel, so call attribution is currently zero. The ideas below fix the pipeline first, then instrument the surfaces that answer real sales questions, then build the smallest dashboard and the smallest weekly number set a solo founder should actually look at. Experimentation ideas are deliberately conservative: at current traffic levels, honest sequential measurement and qualitative evidence beat a split test that will never reach significance, and several entries say so explicitly.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-C06N3dBNy4CGtq6mTob9pA1MtgMHxiTcLKy3AGByIZY=' 'sha256-KIzMK1E7Az5FxOtRvLuSeFy5ppgKScEOWVr7J/FYCvg=' 'sha256-v7dBn9mMK4XYmVHBrv6DzaNRJ2eZBzcb/eGtKhuk/yc=' 'sha256-m9lxoY0gKu8qb804sptyy5GNt2w4+pbnycF3TS1BJkU=' 'sha256-M8j0DVq0JeBjn8qTrrBFJub18SKLmBlkSH83M6bvnJ8='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KIzMK1E7Az5FxOtRvLuSeFy5ppgKScEOWVr7J/FYCvg=' 'sha256-v7dBn9mMK4XYmVHBrv6DzaNRJ2eZBzcb/eGtKhuk/yc=' 'sha256-m9lxoY0gKu8qb804sptyy5GNt2w4+pbnycF3TS1BJkU=' 'sha256-M8j0DVq0JeBjn8qTrrBFJub18SKLmBlkSH83M6bvnJ8='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -643,7 +643,7 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
 .roi-grid input,.roi-grid select,.roi-grid textarea,
 .cb input,.cb select,.cb textarea,.rc input,.rc select,
 .interest-form input,.interest-form select,.interest-form textarea{
-  width:100%;padding:12px 13px;font-size:15.5px;font-family:inherit;color:var(--ink);
+  width:100%;padding:12px 13px;font-size:16px;font-family:inherit;color:var(--ink);
   background:rgba(159,240,206,.04);border:1px solid var(--line-control);
   border-radius:var(--r-input);min-height:46px;color-scheme:dark;
   transition:border-color var(--t-base) var(--e-out),box-shadow var(--t-base) var(--e-out)}
@@ -903,9 +903,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   /* The optional prefill row. It is a form control like every other one on the
      site and wants the shared recipe; site.css's selector list reaches
      .roi-grid, .cb, .rc and .interest-form and not this row, so the same
-     values are restated here. See the report for the handoff. */
+     values are restated here. That includes the 16px floor: under 16px,
+     iPhone Safari zooms the page into the field on tap (see the ONE FORM
+     CONTROL note in site.css), and this row is the first thing a phone
+     visitor types into on the way to booking. */
   #bkPrefill{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-  #bkPrefill input{width:100%;padding:12px 13px;font-size:15.5px;font-family:inherit;
+  #bkPrefill input{width:100%;padding:12px 13px;font-size:16px;font-family:inherit;
     color:var(--ink);background:rgba(159,240,206,.04);border:1px solid var(--line-control);
     border-radius:var(--r-input);min-height:46px;color-scheme:dark;
     transition:border-color var(--t-base) var(--e-out),box-shadow var(--t-base) var(--e-out)}
@@ -1253,7 +1256,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 <script src="site.js" defer></script>
 <script src="motion.js" defer></script>
 <script type="module" src="assets/motion/main.js"></script>
-<script>window.nvEvents = window.nvEvents || []; window.nvEvents.push({ event: "booking_page_view", data: {}, t: Date.now() });</script>
 <script>
 /* Prefill enhancement (WEB-140/142 lite): reveal the optional fields and pass
    them plus UTM attribution into the scheduler as Cal.com prefill params.
