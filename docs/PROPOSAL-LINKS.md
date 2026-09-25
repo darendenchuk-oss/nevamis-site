@@ -23,11 +23,12 @@ https://nevamis.ca/proposal.html?to=BUSINESS+NAME&plan=PLAN
 | Part | What to put | Notes |
 |---|---|---|
 | `to` | the business name | spaces become `+` or `%20`. Optional; without it the page still reads fine. |
-| `plan` | `starter`, `growth`, or `pro` | defaults to `growth`. An id it does not recognise also falls back to `growth`, so a typo quotes the middle plan rather than failing visibly. |
+| `plan` | `starter`, `growth`, or `pro` | defaults to `pro`, the recommended plan. An id it does not recognise also falls back to `pro`, so a typo quotes the AI Front Desk rather than failing visibly. |
+| `quote` | an agreed monthly figure, digits only | optional. Replaces the published monthly on the page. A figure outside the range of real plan prices is ignored. A quoted proposal has no **Start now** button, because checkout charges the published price, not the agreed one. |
 
 Those ids are the ones in `pricing-config.js`. They are not what the plans are
-called on the page: `starter` renders as **Core**, `growth` as **Growth**, and
-`pro` as **Pro**.
+called on the page: `starter` renders as **Performance Partnership**, `growth`
+as **The Works**, and `pro` as **AI Front Desk**.
 
 ## Examples
 
@@ -35,12 +36,13 @@ called on the page: `starter` renders as **Core**, `growth` as **Growth**, and
 https://nevamis.ca/proposal.html?to=Cedarview+Electric&plan=growth
 ```
 
-A small shop at the lower end of the volume range:
+The Performance Partnership, offered by invitation only (this one has no
+**Start now** button; it is agreed, not bought):
 ```
 https://nevamis.ca/proposal.html?to=Bronco+Mechanical&plan=starter
 ```
 
-Someone with the volume to justify the top tier:
+The front desk on its own, the recommended plan:
 ```
 https://nevamis.ca/proposal.html?to=Strathcona+Locksmiths&plan=pro
 ```
@@ -51,8 +53,8 @@ Worth knowing, because old links and old habits both still exist.
 
 | Parameter | What happens now |
 |---|---|
-| `founding=1` | Ignored. It waived a setup fee during a period when setup was free for everyone; there is no setup fee to waive. |
-| `plan=pay-as-you-go` | **Do not send this.** The plan was retired on 2026-08-06 and removed on 2026-08-07. It is not recognised, so the link quotes **Growth at C$500/month** to someone you told about a low-volume option. |
+| `founding=1` | Ignored. It waived a setup fee during a period when setup was free for everyone. It does not waive or change the Launch & Implementation fee; the page quotes the real amount. |
+| `plan=pay-as-you-go` | **Do not send this.** The plan was retired on 2026-08-06 and removed on 2026-08-07. It is not recognised, so the link quotes the **AI Front Desk** at its full published price to someone you told about a low-volume option. |
 | `plan=after-hours` | Still resolves, to `starter`. Links sent before 2026-08-06 keep working rather than silently quoting the wrong tier. |
 | `plan=scale` | Still resolves, to `pro`. Same reason. |
 
@@ -60,15 +62,22 @@ Worth knowing, because old links and old habits both still exist.
 
 Their business name in the headline, the plan with its real monthly price, the
 included minutes, the typical call range, the overage rate, the full feature
-list for that plan, and six steps of what happens next. Then a button to book
-the follow-up call and the demo number to hear it again.
+list for that plan, and six steps of what happens next.
 
-Under the price it says one figure and what is not charged beside it: *no setup
-fee, no activation fee, and no minimum term; cancel any time from your portal
-and service runs to the end of the month you paid for.* There is no pilot, paid
-or free, and no annual figure — an annual option exists in the config but is
-switched off, because the approved model locks three monthly prices and
-approves no annual price.
+Two buttons sit under the price and again at the end. For The Works and the AI
+Front Desk the first is **Start now**, which opens signup and checkout for that
+exact plan at the published price, and the second is **Book the next call**.
+The Performance Partnership, a proposal with a `quote`, or any time checkout is
+switched off in `pricing-config.js`, shows **Book the next call** alone, because
+checkout could not charge what the page states. The demo number to hear it
+again is at the end either way.
+
+Under the price it states the monthly, the one-time Launch & Implementation fee
+charged once to start, and the terms: *no minimum term, month to month from the
+first month, cancel any time from your own portal, service runs to the end of
+the month you already paid for, and your price is locked for 12 months.* It
+quotes no annual figure: an annual option exists in the config but is switched
+off.
 
 ## Two things worth knowing
 
@@ -85,7 +94,8 @@ background. Good for anyone who wants to show a partner.
 
 > Hi Mike, good talking. Here is the summary of what we went through:
 > https://nevamis.ca/proposal.html?to=Cedarview+Electric&plan=growth
-> One monthly price, nothing to set up, cancel any time.
+> One monthly price after a one-time start fee, no minimum term, cancel any time.
+> You can start from that page when you are ready, or we can talk it through first.
 > The demo line is (587) 413-0035 any time you want to hear it again.
 
 Keep the link on its own line so it stays clickable in SMS.

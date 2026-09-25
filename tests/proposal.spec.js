@@ -6,6 +6,9 @@
    ============================================================ */
 
 import { test, expect } from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
+import vm from 'node:vm';
 
 test('quotes the approved price list, never hardcoded numbers', async ({ page }) => {
   await page.goto('/proposal.html?plan=growth');
@@ -296,5 +299,166 @@ test('still reads as a complete proposal with no parameters and no JS', async ({
   expect(text).toContain('What happens next');
   expect(text).toContain('(587) 413-0035');
   expect(text.split(/\s+/).length).toBeGreaterThan(200);
+  await ctx.close();
+});
+
+/* ============================================================
+   THE BUY PATH (F4, 2026-09-24)
+
+   Both of this document's actions used to be "Book the next call", while
+   the pricing page one click away sold the same plans with "Buy now". A
+   prospect who had decided on the call could buy from a page that had never
+   heard of him, and not from the one written for him.
+
+   What is asserted is the RULE, read from pricing-config.js the way the page
+   reads it, not a list of today's plans: a plan the checkout can sell at the
+   price this page states gets a signup link for THAT plan, and every other
+   state (the invitation plan, a figure that is not the published one, a shut
+   or unpublished price list, a render that broke part way) keeps the call
+   and offers no signup link at all. The call is never taken away.
+   ============================================================ */
+function pricing() {
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(process.cwd(), 'pricing-config.js'), 'utf8'), { window: w });
+  return w.NV_PRICING;
+}
+
+/* The page's own rule for a proposal with no ?quote=. */
+function sellsDirect(P, pl) {
+  return !!P.sellable && !!P.publishedPricing && !pl.startingAt && pl.selfServe !== false;
+}
+
+/* Every signup link on the page, and the call links around them. */
+async function ctas(page) {
+  return page.evaluate(() => {
+    const planSection = [...document.querySelectorAll('section')].find((s) => s.querySelector('.plan-box'));
+    return {
+      signups: [...document.querySelectorAll('a[href*="app.nevamis.ca/signup"]')].map((a) => ({
+        href: a.getAttribute('href'),
+        evt: a.getAttribute('data-evt'),
+        inPlanSection: planSection.contains(a),
+      })),
+      planBook: [...planSection.querySelectorAll('a[href="/book.html"]')].map((a) => a.className),
+      books: document.querySelectorAll('a[href="/book.html"]').length,
+    };
+  });
+}
+
+/* A copy of pricing-config.js with one change applied, served in place of
+   the real one, so the states the live config is not in today are still
+   exercised against the real page. */
+async function withConfig(page, patch) {
+  const src = fs.readFileSync(path.join(process.cwd(), 'pricing-config.js'), 'utf8');
+  await page.route('**/pricing-config.js', (route) => route.fulfill({
+    contentType: 'application/javascript',
+    body: src + '\n;(function (P) {' + patch + '})(window.NV_PRICING);',
+  }));
+}
+
+function expectCallOnly(c, why) {
+  expect(c.signups, `${why}: no signup link may be offered`).toEqual([]);
+  expect(c.planBook.length, `${why}: the call must still be offered at the price`).toBe(1);
+  expect(c.planBook[0], `${why}: with no buy button, the call is the primary action`).toMatch(/\bbtn-primary\b/);
+  expect(c.books, `${why}: the closing call must survive`).toBe(2);
+}
+
+test('a plan the checkout sells at the stated price can be bought from the proposal', async ({ page }) => {
+  const P = pricing();
+  const direct = P.plans.filter((pl) => sellsDirect(P, pl));
+  expect(direct.length, 'the live config sells nothing directly, so this test proves nothing').toBeGreaterThan(0);
+  for (const pl of direct) {
+    await page.goto(`/proposal.html?plan=${pl.id}`);
+    const c = await ctas(page);
+    expect(c.signups.length, `${pl.id}: one buy action at the price and one at the close`).toBe(2);
+    expect(c.signups.some((s) => s.inPlanSection), `${pl.id}: the buy action must sit where the price is read`).toBe(true);
+    for (const s of c.signups) {
+      expect(s.href, `${pl.id}: the button must buy the plan the page names`)
+        .toBe('https://app.nevamis.ca/signup?plan=' + encodeURIComponent(pl.id));
+      /* The family the engine counts as purchase intent; a name outside it is
+         dropped silently, which looks exactly like nobody clicking. */
+      expect(s.evt).toBe('plan_buy_click_' + pl.id);
+      expect(s.evt).toMatch(/^plan_buy_click_[a-z0-9_]{1,24}$/);
+    }
+    /* The call stays, as the second action, in both places. */
+    expect(c.planBook.length, `${pl.id}: the call must still be offered at the price`).toBe(1);
+    expect(c.books).toBe(2);
+    /* And the price above the button is the one checkout charges. */
+    await expect(page.locator('#planPrice')).toHaveText('C$' + pl.monthly.toLocaleString('en-CA') + '/month');
+  }
+});
+
+test('a plan the checkout does not sell as stated keeps the call and nothing else', async ({ page }) => {
+  const P = pricing();
+  const byInvite = P.plans.filter((pl) => pl.selfServe === false);
+  expect(byInvite.length, 'no invitation-only plan in the config, so this case proves nothing').toBeGreaterThan(0);
+  for (const pl of byInvite) {
+    await page.goto(`/proposal.html?plan=${pl.id}`);
+    expectCallOnly(await ctas(page), `${pl.id} is by invitation`);
+  }
+
+  /* An agreed figure is not what checkout charges, so a quoted proposal has
+     no signup link; a "quote" equal to the published monthly IS the published
+     price, and keeps it. */
+  const pl = P.plans.find((p) => sellsDirect(P, p));
+  const other = P.plans.map((p) => p.monthly).find((m) => m > 0 && m !== pl.monthly);
+  await page.goto(`/proposal.html?plan=${pl.id}&quote=${other}`);
+  await expect(page.locator('#planPrice')).toContainText('C$' + other.toLocaleString('en-CA'));
+  expectCallOnly(await ctas(page), `${pl.id} quoted at ${other}`);
+  await page.goto(`/proposal.html?plan=${pl.id}&quote=${pl.monthly}`);
+  expect((await ctas(page)).signups.length, 'a quote equal to the published monthly is the published price').toBe(2);
+  /* A quote outside the band of real prices is ignored by the page, so the
+     published price, and with it the button, stands. */
+  await page.goto(`/proposal.html?plan=${pl.id}&quote=1`);
+  expect((await ctas(page)).signups.length, 'an ignored quote must not cost the buyer the button').toBe(2);
+});
+
+test('a shut, unpublished or unapproved price list sells nothing from the proposal', async ({ page }) => {
+  const P = pricing();
+  const pl = P.plans.find((p) => sellsDirect(P, p));
+  for (const [patch, why] of [
+    ['P.sellable = false;', 'checkout is shut'],
+    ['P.publishedPricing = false;', 'prices are quoted per client'],
+    ['P.approved = false;', 'the price list is not approved'],
+    [`P.plans.forEach(function (p) { if (p.id === ${JSON.stringify(pl.id)}) p.startingAt = true; });`, 'the price is a "from" figure'],
+  ]) {
+    await page.unrouteAll();
+    await withConfig(page, patch);
+    await page.goto(`/proposal.html?plan=${pl.id}`);
+    expectCallOnly(await ctas(page), why);
+  }
+});
+
+test('a render that breaks part way never leaves a Start now under the wrong plan', async ({ page }) => {
+  const P = pricing();
+  const pl = P.plans.find((p) => sellsDirect(P, p) && !p.recommended) || P.plans.find((p) => sellsDirect(P, p));
+  /* The feature list is rendered last, after the plan name has been
+     written, so this throws with the page already half re-rendered. */
+  await withConfig(page, `P.plans.forEach(function (p) { if (p.id === ${JSON.stringify(pl.id)}) p.features = 5; });`);
+  await page.goto(`/proposal.html?plan=${pl.id}`);
+  await expect(page.locator('#planName')).toContainText(pl.name.toUpperCase());
+  expectCallOnly(await ctas(page), 'the render threw');
+});
+
+/* With scripts blocked the page is the static AI Front Desk proposal, and its
+   "Start now" is in the markup. It must buy the plan that static copy states,
+   and exist only while the config would sell that plan directly. */
+test('with scripts blocked, the static Start now buys the plan the static copy states', async ({ browser }) => {
+  const P = pricing();
+  const dflt = P.plans.find((p) => p.recommended) || P.plans[0];
+  const ctx = await browser.newContext({ javaScriptEnabled: false });
+  const page = await ctx.newPage();
+  await page.goto('/proposal.html?plan=starter');
+  await expect(page.locator('#planName')).toContainText(dflt.name.toUpperCase());
+  const c = await ctas(page);
+  if (sellsDirect(P, dflt)) {
+    expect(c.signups.length).toBe(2);
+    for (const s of c.signups) {
+      expect(s.href, 'the static button must buy the static plan').toBe('https://app.nevamis.ca/signup?plan=' + dflt.id);
+      expect(s.evt).toBe('plan_buy_click_' + dflt.id);
+    }
+  } else {
+    expect(c.signups, `${dflt.id} is not sold directly, so the static page must not carry a buy link`).toEqual([]);
+  }
+  expect(c.books).toBe(2);
   await ctx.close();
 });
