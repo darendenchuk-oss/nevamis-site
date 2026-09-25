@@ -94,7 +94,7 @@ background. Good for anyone who wants to show a partner.
 
 > Hi Mike, good talking. Here is the summary of what we went through:
 > https://nevamis.ca/proposal.html?to=Cedarview+Electric&plan=growth
-> One monthly price after a one-time start fee, no minimum term, cancel any time.
+> A one-time Launch & Implementation fee to start, then one monthly price, no minimum term, cancel any time.
 > You can start from that page when you are ready, or we can talk it through first.
 > The demo line is (587) 413-0035 any time you want to hear it again.
 

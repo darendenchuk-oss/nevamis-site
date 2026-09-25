@@ -462,3 +462,24 @@ test('with scripts blocked, the static Start now buys the plan the static copy s
   expect(c.books).toBe(2);
   await ctx.close();
 });
+
+/* With scripts running but pricing-config.js failing to load, the page is
+   the static AI Front Desk proposal again, and its "Start now" buys that
+   plan at the published price. It may stay only on a link written for that
+   plan. An invitation (?plan=starter), a proposal for another plan, or an
+   agreed ?quote= would otherwise offer to buy a plan the proposal was not
+   written to offer. */
+test('with the price list missing, only a Front Desk link at the published price keeps Start now', async ({ page }) => {
+  await page.route('**/pricing-config.js', (route) => route.abort());
+  for (const qs of ['', '?plan=pro', '?plan=scale', '?plan=PRO&to=Cedarview+Electric']) {
+    await page.goto('/proposal.html' + qs);
+    const c = await ctas(page);
+    expect(c.signups.length, `"${qs}" asks for the static plan: its button stays`).toBe(2);
+    for (const s of c.signups) expect(s.href).toBe('https://app.nevamis.ca/signup?plan=pro');
+    expect(c.books).toBe(2);
+  }
+  for (const qs of ['?plan=starter', '?plan=after-hours', '?plan=growth', '?quote=300', '?plan=pro&quote=1000', '?plan=nonsense']) {
+    await page.goto('/proposal.html' + qs);
+    expectCallOnly(await ctas(page), `no price list, "${qs}"`);
+  }
+});

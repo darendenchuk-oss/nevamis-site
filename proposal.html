@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-5V3WjoxvwnFOjb8i4MQpOQInLvaADM5in8nK+Q2oRl0=' 'sha256-2Ue9um3M/yy/lXPxLApWdi/hTdNPZBU0FL8s9Rg2R6M='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-lYJzRWu18R1aAuA9y7WvZBssgmeKjQwEbQfhl/gIfcw=' 'sha256-5VZqMSSH2zlAdvIRhkzKA8tHYjysav4/UKn9dWsyNCY='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1184,13 +1184,26 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       if (row) row.removeChild(a);
     }
   }
+  /* True when the link asks for the proposal the static copy already is:
+     the AI Front Desk (no plan, "pro", or its legacy id "scale") at its
+     published price (no ?quote=). */
+  function asksForStaticPlan() {
+    var s = new URLSearchParams(location.search);
+    var p = (s.get("plan") || "").replace(/[<>]/g, "").trim().toLowerCase();
+    return (p === "" || p === "pro" || p === "scale") && !(s.get("quote") || "").trim();
+  }
   try {
     var P = window.NV_PRICING;
-    /* No config at all leaves the static proposal whole, button included:
-       it is the Front Desk's, under the Front Desk's static price. A config
-       that loaded and is NOT approved is a price list nobody signed off, so
-       nothing on this page may take money against it. */
-    if (!P || !P.approved) { if (P) callOnly(); return; }
+    /* No config at all (pricing-config.js blocked or failed to load) leaves
+       the static proposal: the Front Desk's copy under the Front Desk's
+       static price. Its "Start now" buys the Front Desk, so it stays only on
+       a link written for that plan. A link written for another plan (the
+       Performance Partnership by invitation, The Works) or carrying an
+       agreed ?quote= was not written to offer the Front Desk at the
+       published price, so it keeps the call alone. A config that loaded and
+       is NOT approved is a price list nobody signed off, so nothing on this
+       page may take money against it. */
+    if (!P || !P.approved) { if (P || !asksForStaticPlan()) callOnly(); return; }
     var q = new URLSearchParams(location.search);
 
     /* keep an injected value short and plain; it is only ever printed as text */
