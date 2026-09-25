@@ -438,9 +438,13 @@ for (const p of contentPages) {
        say it cannot pass the call on, and the same verbs without the "cannot"
        are the promise. Destination-bound for the reason escalation is: "pass
        the details to your team" is what happens, "pass the call to your team"
-       is not. */
-    new RegExp("\\b(?:pass|hand|forward|route|send)(?:es|s|ed|ing)?\\s+(?:the\\s+call(?:er)?|callers?|you|them)"
-      + "\\s+(?:off\\s+|over\\s+|on\\s+|straight\\s+)?to\\s+(?:the|your|a)?\\s*" + PERSON, "i"),
+       is not. Widened after review the same day: the plural ("it passes
+       calls to your team", "it can route urgent calls to your phone") is the
+       same promise, and so is "put the call through to a person", which the
+       put-through rule above misses because its object there is a person. */
+    new RegExp("\\b(?:(?:pass|hand|forward|route|send)(?:es|s|ed|ing)?|sent|put(?:s|ting)?)"
+      + "\\s+(?:(?:the|urgent|any|all|those)\\s+)?(?:calls?|callers?|you|them)"
+      + "\\s+(?:off\\s+|over\\s+|on\\s+|straight\\s+|through\\s+)?to\\s+(?:the|your|a)?\\s*" + PERSON, "i"),
   ];
   /* Constructions that WITHDRAW the claim in the clause that makes it. The
      site's own correction is the first entry's job; the rest are the shapes
@@ -785,7 +789,25 @@ const NO_MECHANISM = [
        not excuse it, and in the mutation test it did. */
     denial: /\b(?:cannot|can't|can not|does not|doesn't|will not|won't|never)\s+(?:\w+\s+){0,2}?fall(?:s|ing)?\s+back\b|\bno\s+voice\s?mail\s+fallback\b/i,
     why: "a client's agent has end_call only (engine elevenlabs-provision.ts) and docs/INCIDENT-RESPONSE.md says there is no voicemail fallback; say it takes a message, flags it urgent and alerts the team" },
-  { re: /\bthen\s+(?:automatically\s+)?(?:removed|deleted|erased|purged|destroyed)\b/i,
+  /* The same missing control said as a hand-off instead of a fallback: "it
+     sends the caller to voicemail", "urgent calls are forwarded to your
+     voicemail" (added after review, 2026-09-25). Bound to a routing verb, so
+     "calls that go to voicemail are lost", the problem this site sells
+     against, is not caught. A bare past participle counts only after an
+     auxiliary ("are forwarded to"), because after a noun it describes the
+     caller's life without the product: after-hours-answering.html says "The
+     same call sent to voicemail is a note about a job you did not get", which
+     is true and is the pitch. The denial governs the verb, as above. First run
+     (2026-09-25) it found config/elevenlabs/recording-notice-greetings.md
+     offering "Route to voicemail" as a decline-recording path a client agent
+     cannot perform; that draft now says so. */
+  { re: /(?:\b(?:send|sends|sending|route|routes|routing|forward|forwards|forwarding|pass|passes|passing|transfer|transfers|transferring|puts?|putting)|\b(?:is|are|be|been|being|gets?|getting|got)\s+(?:\w+\s+)?(?:sent|routed|forwarded|passed|transferred|put))\s+(?:[\w'-]+\s+){0,4}?(?:through\s+)?to\s+(?:your\s+|a\s+|the\s+)?voice\s?mail\b/i,
+    denial: /\b(?:cannot|can't|can not|does not|doesn't|will not|won't|never|not)\s+(?:\w+\s+){0,2}?(?:send|sent|rout|forward|pass|transfer|put)\w*|\bno\s+voice\s?mail\s+(?:fallback|transfer|forwarding)\b/i,
+    why: "a client's agent has end_call only (engine elevenlabs-provision.ts): it cannot send, route or forward a caller anywhere, voicemail included; say it takes a message, flags it urgent and alerts the team" },
+  /* Up to two adverbs may sit between "then" and the verb: "then permanently
+     deleted" and "then automatically and permanently removed" are the same
+     promise (widened after review, 2026-09-25). */
+  { re: /\bthen\s+(?:(?:automatically|permanently|securely|safely)\s+(?:and\s+)?){0,2}(?:removed|deleted|erased|purged|destroyed)\b/i,
     why: "nothing deletes these records on a schedule: data is kept until the person or the client asks for deletion. The retention windows are owner item O6; say so rather than promise a deletion nothing performs" },
   { re: /(?:\bplus|\+)\s*(?:applicable\s+)?GST\b(?!\s*\/\s*HST)/i,
     why: "canonical and pricing-config.js taxNote say \"plus applicable GST/HST\"; derive the tax words from P.taxNote instead of typing them" },

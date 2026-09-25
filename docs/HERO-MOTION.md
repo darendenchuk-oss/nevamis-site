@@ -33,9 +33,11 @@ Deleted in the same change:
 `assets/vendor/` is loaded by no published page, so an orphaned vendor script
 cannot ship again unnoticed.
 
-`tests/motion.spec.js` still describes the old hero and waits for
-`window.__heroTL`. It was already unable to pass once the homepage stopped
-loading `main.js`, and CI does not run it (CI runs `tests/pages.spec.js`).
+`tests/motion.spec.js`, which recorded the old hero and waited for
+`window.__heroTL`, went too, with `isDebug()` and the `?motionDebug=1` override
+in `assets/motion/tokens.js`: with no inspector left, that override only let a
+link switch motion back on for a visitor who had asked for less.
+`tests/reduced-motion-query.spec.js` holds that line.
 
 ## What `assets/motion/` does now
 

@@ -14,8 +14,10 @@
    (47acb84), and the homepage itself does not load this module.
    So every secondary page downloaded the hero and the plugin,
    about 20 KB gzipped, to run one early return. Both files, the
-   plugin's <script> tag on every page, and the ?motionDebug=1
-   inspector that only ever drove the hero's timeline are deleted.
+   plugin's <script> tag on every page, the ?motionDebug=1
+   inspector that only ever drove the hero's timeline, and the
+   override in tokens.js that let that flag switch motion back on
+   for a reduced-motion visitor are deleted.
    scripts/check-published-surface.mjs now fails on a vendored
    file no page loads, so an orphan cannot ship again unnoticed.
    ============================================================ */
