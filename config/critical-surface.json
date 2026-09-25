@@ -11,7 +11,6 @@
   "destinations": {
     ".well-known/security.txt": [
       "email:sales@nevamis.ca",
-      "https://github.com/darendenchuk-oss/nevamis-site/blob/main/SECURITY.md",
       "https://nevamis.ca",
       "mailto:sales@nevamis.ca"
     ],
@@ -268,6 +267,16 @@
     "search-index.json": [
       "email:sales@nevamis.ca",
       "phone:+15874130035"
+    ],
+    "security.html": [
+      "email:sales@nevamis.ca",
+      "https://app.nevamis.ca/",
+      "https://app.nevamis.ca/login",
+      "https://nevamis.ca",
+      "https://schema.org/",
+      "mailto:Sales@nevamis.ca",
+      "phone:+15874130035",
+      "tel:+15874130035"
     ],
     "site.js": [
       "https://app.nevamis.ca/api/events",
