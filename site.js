@@ -616,6 +616,37 @@
   } else { psteps.forEach(function (p) { p.classList.add("active"); }); }
 
   /* ---------- ROI calculator ---------- */
+  /* ROI-MATH BEGIN. The calculator's arithmetic, pure: raw field values in,
+     figures out, no DOM. check-consistency guard 7n cuts this block out of
+     site.js and runs it, so keep it self-contained (no outside names).
+
+     Every input is clamped before anything else, as revenue-engine.html's
+     copy of the same formula already was: counts and dollars to >= 0, the two
+     percentages to 0..100. Until 2026-09-25 this took the fields as typed, so
+     -10 missed calls rendered "$-5,196" and a 150% close rate was accepted.
+
+     Two break-evens, each under its own name. "won" is the fewest WON jobs
+     whose value covers the plan, so the close rate is not in it; "inquiries"
+     is the real inquiries you must answer to win that many at your close
+     rate. One row showed the second under the first's name until 2026-09-24
+     (5 "won jobs" at the defaults, where 3 cover the plan). Either is null
+     when it cannot be reached (no job value; a 0% close rate), never 0. */
+  function roiFigures(raw) {
+    function num(v) { var n = parseFloat(v); return isFinite(n) ? n : 0; }
+    function count(v) { return Math.max(0, num(v)); }
+    function share(v) { return Math.min(100, Math.max(0, num(v))) / 100; }
+    var missed = count(raw.missed), real = share(raw.real), value = count(raw.value);
+    var close = share(raw.close), quote = count(raw.quote);
+    var opp = missed * 4.33 * real * value * close;
+    return {
+      missed: missed, value: value, close: close, quote: quote,
+      opp: opp,
+      recovered: opp * 0.5, /* conservative: capture half of what currently hits voicemail */
+      won: value > 0 ? Math.ceil(quote / value) : null,
+      inquiries: value * close > 0 ? Math.ceil(quote / (value * close)) : null
+    };
+  }
+  /* ROI-MATH END */
   var roiForm = document.getElementById("roiForm");
   if (roiForm) {
     var out = {
@@ -623,6 +654,8 @@
       rec: document.getElementById("roiRec"),
       be: document.getElementById("roiBe"),
       beRow: document.getElementById("roiBeRow"),
+      inq: document.getElementById("roiInq"),
+      inqRow: document.getElementById("roiInqRow"),
       /* The narrow-screen compact estimate. A second PRESENTATION of the same
          number, never a second calculation: it is written from the oppValue
          computed below, in the same pass, so the two can never disagree. */
@@ -630,29 +663,29 @@
     };
     var announced = document.getElementById("roiLive");
     function money(v) { return "$" + Math.round(v).toLocaleString("en-CA"); }
+    function field(id) { var el = document.getElementById(id); return el ? el.value : ""; }
+    var NO_VALUE = "Not reachable: enter an average job value";
+    var NO_CLOSE = "Not reachable at a 0% close rate";
     function calc() {
-      var missed = parseFloat(document.getElementById("roiMissed").value) || 0;
-      var realPct = (parseFloat(document.getElementById("roiReal").value) || 0) / 100;
-      var value = parseFloat(document.getElementById("roiValue").value) || 0;
-      var close = (parseFloat(document.getElementById("roiClose").value) || 0) / 100;
-      var quote = parseFloat(document.getElementById("roiQuote").value) || 0;
-      var monthlyMissed = missed * 4.33;
-      var oppValue = monthlyMissed * realPct * value * close;
-      var recovered = oppValue * 0.5; /* conservative: capture half of what currently hits voicemail */
+      var f = roiFigures({
+        missed: field("roiMissed"), real: field("roiReal"), value: field("roiValue"),
+        close: field("roiClose"), quote: field("roiQuote")
+      });
+      var oppValue = f.opp, recovered = f.recovered;
       if (out.opp) out.opp.textContent = money(oppValue);
       if (out.mini) out.mini.textContent = money(oppValue);
       if (out.rec) out.rec.textContent = money(recovered);
-      if (out.beRow) {
-        if (quote > 0) {
-          out.beRow.hidden = false;
-          var jobs = value * close > 0 ? Math.ceil(quote / (value * close)) : 0;
-          out.be.textContent = jobs + (jobs === 1 ? " won job" : " won jobs") + " per month";
-        } else out.beRow.hidden = true;
-      }
-      if (announced) announced.textContent = "Estimated opportunity " + money(oppValue) + " per month, conservative recovery " + money(recovered) + ".";
-      if (!roiForm.dataset.tracked && (missed > 0 && value > 0)) {
-        roiForm.dataset.tracked = "1";
-        window.nvTrack("roi_calculator_complete");
+      var showBe = f.quote > 0;
+      var wonText = f.won === null ? NO_VALUE
+        : f.won + (f.won === 1 ? " won job" : " won jobs") + " per month";
+      var inqText = f.inquiries === null ? (f.value > 0 ? NO_CLOSE : NO_VALUE)
+        : f.inquiries + (f.inquiries === 1 ? " real inquiry" : " real inquiries") + " per month";
+      if (out.beRow) { out.beRow.hidden = !showBe; if (out.be && showBe) out.be.textContent = wonText; }
+      if (out.inqRow) { out.inqRow.hidden = !showBe; if (out.inq && showBe) out.inq.textContent = inqText; }
+      if (announced) {
+        announced.textContent = "Estimated opportunity " + money(oppValue) + " per month, conservative recovery "
+          + money(recovered) + " per month."
+          + (showBe ? " Won jobs that cover the monthly: " + wonText + ". Real inquiries needed at your close rate: " + inqText + "." : "");
       }
     }
     /* The comparison figure is PREFILLED FROM pricing-config.js, not from the
@@ -678,6 +711,18 @@
 
     roiForm.addEventListener("input", calc);
     roiForm.addEventListener("submit", function (e) { e.preventDefault(); calc(); });
+    /* roi_calculator_complete means a VISITOR used the calculator: it is sent
+       once, on their first edit. Until 2026-09-25 it was sent from inside
+       calc(), and the first calc() below runs on load with the defaults
+       (missed > 0 and value > 0), so every homepage load counted as "ran the
+       calculator" in the engine's funnel. The name is unchanged because the
+       engine's events allowlist accepts only that one; the dated note in
+       docs/analytics-events.md says which rows before this change are page
+       loads. */
+    roiForm.addEventListener("input", function roiFirstEdit() {
+      roiForm.removeEventListener("input", roiFirstEdit);
+      window.nvTrack("roi_calculator_complete");
+    });
     calc();
   }
 
@@ -740,7 +785,16 @@
         html += "<li>" + esc(a.name) + ": " + esc(sentence(a))
           + '<span class="tag mono">ADD-ON</span></li>';
       });
-      html += '</ul><p class="fine2">Every other add-on is on the '
+      /* "Every other add-on" is only true while one is left out. Since
+         2026-09-24 the stations describe all four sold modules, so every
+         priced add-on is already in this list, and the sentence would point
+         a buyer at a pricing page for modules that do not exist. It follows
+         the list instead of assuming it. */
+      var leftOut = (NVP2.addOns || []).filter(function (a) {
+        return a.sellable && a.monthly && onPage.indexOf(a.id) < 0;
+      }).length;
+      html += '</ul><p class="fine2">'
+        + (leftOut ? "Every other add-on is on the " : "Every plan and add-on, side by side, is on the ")
         + '<a class="more" href="/pricing.html">pricing page</a>.</p></div>';
     }
     if (NVP2.terms && NVP2.terms.note) {
