@@ -226,6 +226,19 @@ export const RETIRED_OFFERS = [
      in FALSE_DENIALS below and are spread in here so every guard sweeps
      them. */
   ...FALSE_DENIALS,
+
+  /* A TERM THAT EXISTS. There has been no minimum term on anything since
+     2026-09-08 (owner decision): every plan and module is month to month from
+     the first month and cancelled from the portal. Added 2026-09-24 because
+     the homepage's Plans station still closed on "The term is for the results
+     window, which runs across a season of quotes and invoices", which names
+     no length and no penalty, so no pattern here could see it, while the same
+     page said "no minimum term" three times. These match a sentence that
+     treats a term as a thing the buyer is in; "There is no minimum term" and
+     "the term is not ..." pass, as a denial must. */
+  /\bthe term (?:is|runs|lasts|covers)\b(?!\s+not\b)/i,
+  /\b(?:minimum|initial|fixed|committed) term of\b/i,
+  /\b(?:\d+|three|six|nine|twelve)[- ]month (?:minimum|term|commitment|contract)\b/i,
 ];
 
 /* PROMISES OF THINGS THE PRODUCT DOES NOT HAVE, added 2026-09-24.
@@ -271,6 +284,24 @@ export const UNBUILT_PROMISES = [
     why: "the portal has no Pulse page: it was cut on 2026-09-19 and /portal/pulse redirects to /portal/results" },
   { re: /\bkeeps? your scans\b/i,
     why: "no portal page keeps a client's scans: /portal/results shows one modelled opportunity and no scan history" },
+  /* EVERY LEAK, HANDLED. The homepage's closing line, over its only scan CTA,
+     until 2026-09-24: "One scan. Every leak, found and handled." The scan
+     that CTA opens labels some of its own findings "not us" and "not yet"
+     (nevamis-engine src/domain/pulse/public-dto.ts, nevamisCanHelp): a phone
+     number a site editor should make tappable, calendar booking NEVAMIS does
+     not ship. The buyer read the promise and then the refusal two minutes
+     apart, on a page whose FAQ says "If it is not built, it says so". */
+  { re: /\bevery leak\b[^.;!?]{0,60}?\bhandled\b/i,
+    why: "the scan labels some findings \"not us\" or \"not yet\" (engine public-dto.ts nevamisCanHelp), so NEVAMIS does not handle every leak it finds; say which ones it handles" },
+  { re: /\bhandles? (?:every|all(?: of)?(?: the| your)?) leaks?\b/i,
+    why: "the scan labels some findings \"not us\" or \"not yet\" (engine public-dto.ts nevamisCanHelp), so NEVAMIS does not handle every leak it finds; say which ones it handles" },
+  /* THE SCAN AS A GATE. The owner retired it as the way in on 2026-09-12
+     (DC#54): the scan is a free, optional read of a public website that asks
+     for no email, and nothing requires one. Two homepage surfaces still said
+     every engagement starts with it on 2026-09-24, one of them the pane label
+     that was the first sentence a visitor could read. */
+  { re: /\bevery engagement (?:starts|begins) with\b/i,
+    why: "the scan is free and optional (owner decision DC#54, 2026-09-12): no engagement has to start with one" },
 ];
 
 /* CAVEAT worth knowing before writing plain text for a swept surface: this

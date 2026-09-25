@@ -645,8 +645,19 @@
       if (out.beRow) {
         if (quote > 0) {
           out.beRow.hidden = false;
-          var jobs = value * close > 0 ? Math.ceil(quote / (value * close)) : 0;
-          out.be.textContent = jobs + (jobs === 1 ? " won job" : " won jobs") + " per month";
+          /* WON jobs, so the close rate is not in it. This divided by
+             value x close until 2026-09-24, which is the number of real
+             inquiries you would have to answer, not the jobs you would have
+             to win: at the defaults (the recommended plan's monthly, a job
+             value of 400 and a 50% close rate) it said 5 won jobs where 3
+             cover it. It understated the product,
+             under a label and a hint that both say "won jobs". With no job
+             value there is no break-even to state, so the row shows the dash
+             it starts with rather than claiming 0 jobs cover the plan. */
+          if (value > 0) {
+            var jobs = Math.ceil(quote / value);
+            out.be.textContent = jobs + (jobs === 1 ? " won job" : " won jobs") + " per month";
+          } else out.be.textContent = "–";
         } else out.beRow.hidden = true;
       }
       if (announced) announced.textContent = "Estimated opportunity " + money(oppValue) + " per month, conservative recovery " + money(recovered) + ".";
@@ -740,7 +751,16 @@
         html += "<li>" + esc(a.name) + ": " + esc(sentence(a))
           + '<span class="tag mono">ADD-ON</span></li>';
       });
-      html += '</ul><p class="fine2">Every other add-on is on the '
+      /* "Every other add-on" is only true while one is left out. Since
+         2026-09-24 the stations describe all four sold modules, so every
+         priced add-on is already in this list, and the sentence would point
+         a buyer at a pricing page for modules that do not exist. It follows
+         the list instead of assuming it. */
+      var leftOut = (NVP2.addOns || []).filter(function (a) {
+        return a.sellable && a.monthly && onPage.indexOf(a.id) < 0;
+      }).length;
+      html += '</ul><p class="fine2">'
+        + (leftOut ? "Every other add-on is on the " : "Every plan and add-on, side by side, is on the ")
         + '<a class="more" href="/pricing.html">pricing page</a>.</p></div>';
     }
     if (NVP2.terms && NVP2.terms.note) {

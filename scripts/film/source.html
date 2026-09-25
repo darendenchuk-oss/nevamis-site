@@ -104,6 +104,14 @@ body{
    purpose (<=120ms into the pressed state). Keyboard focus-visible is untouched. */
 #close .cta:active{transform:translateY(0) scale(.97);filter:brightness(1.14);
   transition:transform .09s ease,box-shadow .09s ease,filter .09s ease}
+/* The ending block is position:fixed for the whole film and only its opacity
+   changes, but the rule above gives its button pointer-events:auto, so for the
+   whole span before the finale an INVISIBLE "Scan my business" sat at 38vh and
+   took every tap on that spot, exit flourish and all. Found 2026-09-24, when the
+   homepage's first screen put its own "Book a call" there: at 1366x768 a tap on
+   it landed on the hidden scan link. The button takes taps only while its block
+   is on screen (.on; reduced motion and no-WebGL set .on on every block). */
+#close:not(.on) .cta{pointer-events:none}
 #brand{position:fixed;top:22px;left:28px;z-index:4;font-weight:700;font-size:.95rem;
   letter-spacing:.34em;color:var(--ink);opacity:.85;pointer-events:none}
 .no3d #stage{background:radial-gradient(ellipse at 50% 40%,#0A2A1F 0%,var(--bg1) 70%)}
@@ -196,6 +204,7 @@ body.card-open #hint{opacity:0}
   display:flex;flex-wrap:wrap;align-items:center;gap:.6rem}
 .pane-doc .svc p{font-size:.88rem;line-height:1.55;color:#b9dccb}
 .pane-doc .outcome{margin-top:.5rem;color:var(--mint);font-size:.85rem}
+.pane-doc .sold{margin-top:.5rem;color:#9dc7b4;font-size:.82rem}
 .pane-doc .price{margin-top:.55rem;color:var(--mint);font-size:.85rem;font-weight:700;line-height:1.5}
 /* .chip and its four variants lived here, at 9.6px, and because this block is
    inlined last they beat the site's own chip on this page alone: the same
@@ -291,10 +300,10 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
   </div>
   <section class="copy" id="s1"><p><span class="kick">THE SCAN</span>The scan finds where the money is leaking.</p></section>
   <section class="copy" id="s2"><p><span class="kick">THE READ</span>NEVAMIS works out what to do about each leak.</p></section>
-  <section class="copy" id="s3"><p><span class="kick">THE WORK</span>Then handles them, one at a time.</p></section>
+  <section class="copy" id="s3"><p><span class="kick">THE WORK</span>Then handles the ones it is built for, one at a time.</p></section>
   <section class="copy" id="close">
     <p>See where yours is leaking.</p>
-    <p class="sub">One scan. Every leak, found and handled.</p>
+    <p class="sub">One scan shows where it leaks, and which leaks NEVAMIS handles.</p>
     <a class="cta" href="https://app.nevamis.ca/scan">Scan my business</a>
     <p class="fine">Takes about two minutes. No call required.</p>
   </section>
@@ -308,7 +317,7 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
   <button type="button" data-pane="plans" aria-controls="card" aria-expanded="false"><i>06</i>Plans</button>
 </nav>
 <div id="labels" aria-hidden="true">
-  <div class="plabel" data-pane="scan"><span class="lk">The scan</span><span class="ll">Every engagement starts with the PULSE Business Scan.</span><span class="lo">+ open</span></div>
+  <div class="plabel" data-pane="scan"><span class="lk">The scan</span><span class="ll">A free read of your public website.</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="capture"><span class="lk">Capture</span><span class="ll">Every opportunity answered</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="convert"><span class="lk">Convert</span><span class="ll">Follow-up that never forgets</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="operate"><span class="lk">Operate</span><span class="ll">Less office admin</span><span class="lo">+ open</span></div>
@@ -372,9 +381,15 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
       <div class="svc" data-addon="quote_chase">
         <h4>Quote Recovery <span class="chip av">Available today</span></h4>
         <p>Quotes that go quiet past your threshold get followed up for you: the day they go stale, four days on and eleven days on, each email with your name on it and your approval before it goes.</p>
+        <p class="sold">Sold as the Quote-Chase Engine.</p>
       </div>
-      <div class="svc">
-        <h4>Instant Lead Follow-Up <span class="chip av">Available today</span></h4>
+      <!-- Named Missed-Call Recovery since 2026-09-24, the name the price list
+           sells it under and roadmap-config.js has carried since 2026-09-19. It
+           read "Instant Lead Follow-Up", the engine's capability name, which
+           left a buyer to work out for himself that the thing described here
+           and the add-on priced below were one product. -->
+      <div class="svc" data-addon="missed_call_recovery">
+        <h4>Missed-Call Recovery <span class="chip av">Available today</span></h4>
         <p>A caller you missed gets one text back while the job is still winnable: during business hours, on your say-so, with your business name on it.</p>
       </div>
       <!-- Schedule Protection was removed here on 2026-09-19 (fix plan B7, owner
@@ -390,6 +405,18 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
       <div class="svc">
         <h4>Automatic Lead Tracking <span class="chip av">Available today</span></h4>
         <p>Each call, text and form becomes a lead with its source and a status, so you can see what is sitting untouched and what each source is actually producing.</p>
+      </div>
+      <!-- Get-Paid Autopilot was missing from this pillar until 2026-09-24, while
+           canonical.ts carried it as available and sold alone, The Works
+           included it and the pricing page sold it. It is the one sold module
+           that belongs to "less office admin", so without it the pillar read as
+           one live thing and two unbuilt ones. The approval wording is "by a
+           person" rather than "by you" on purpose: who releases a reminder is
+           the engine's to settle, and this sentence is true either way. -->
+      <div class="svc" data-addon="get_paid">
+        <h4>Get-Paid Autopilot <span class="chip av">Available today</span></h4>
+        <p>An invoice that goes overdue gets a polite reminder, then a firm one a week later if it stays unpaid, each released by a person before it goes. At three weeks it stops emailing your customer and tells you instead.</p>
+        <p class="sold">It needs your written go-ahead to email your own customers, and your invoices recorded so it can see them age.</p>
       </div>
       <div class="svc">
         <h4>Your Daily Business Brief <span class="chip dev">In development</span></h4>
@@ -409,8 +436,8 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
         <p>Offered by invitation, under your own agreement, and put together by hand. A person here reads public pages and builds you a list of the businesses that fit the work you want, with the page each row came from and the day it was read. You decide every row, and nobody on the list is contacted by us.</p>
       </div>
       <div class="svc">
-        <h4>Revenue Clarity <span class="chip dev">In development</span></h4>
-        <p>Lead sources, calls, quotes, completed work, and collected payments connected, so owners see what actually produces revenue.</p>
+        <h4>Revenue Engine <span class="chip dev">In development</span></h4>
+        <p>Is being built to tie each lead back to where it came from, down to the campaign, and follow it to a paid job, so you can see what to spend more on and what to stop.</p>
       </div>
       <!-- This entry was wrong twice until 2026-09-19. The Review Engine has been
            sold since 2026-08-24 and is inside The Works on the pricing page, so the
@@ -423,7 +450,7 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
            (that is B11). So this entry carries no availability chip at all: it states
            the narrow thing the module does and sends the reader to the page that owns
            its price. -->
-      <div class="svc">
+      <div class="svc" data-addon="review_engine">
         <h4>Review Engine</h4>
         <p>Post-job review requests by text: one ask per finished job, with your own review link, and every request released by a person. Sold on the pricing page, on its own or inside The Works.</p>
       </div>
@@ -458,9 +485,9 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
       <div class="svc">
         <h4>Enterprise</h4>
         <p class="price" data-plan-price="enterprise">See the plans below.</p>
-        <p>Multi-location, custom integrations, custom data pipelines and advanced deployments are quoted per client, from what a scan of the business finds.</p>
+        <p>Multi-location, custom integrations, custom data pipelines and advanced deployments are custom work, scoped and quoted per client from what a scan of the business finds. None of them comes with the other plans.</p>
       </div>
-      <p class="fine2">The build takes days, not weeks: your line is answered inside the first week. The term is for the results window, which runs across a season of quotes and invoices.</p>
+      <p class="fine2">The build takes days, not weeks: your line is answered inside the first week. There is no minimum term: month to month from the first month, cancelled from your own portal at any time.</p>
     </article>
 
     <article class="pane-doc" id="doc-nodes">
@@ -473,14 +500,15 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
       <ul class="node-list">
         <li><b>PULSE Business Scan</b> <span>The scan</span></li>
         <li><b>Front Desk</b> <span>Capture</span></li>
-        <li><b>Instant Lead Follow-Up</b> <span>Convert</span></li>
         <li><b>Quote Recovery</b> <span>Convert</span></li>
+        <li><b>Missed-Call Recovery</b> <span>Convert</span></li>
         <li><b>Automatic Lead Tracking</b> <span>Operate</span></li>
+        <li><b>Get-Paid Autopilot</b> <span>Operate</span></li>
         <li><b>Your Daily Business Brief</b> <span>Operate</span></li>
         <li><b>Inbox Assistant</b> <span>Operate</span></li>
-        <li><b>Revenue Clarity</b> <span>Grow</span></li>
-        <li><b>Review Engine</b> <span>Grow</span></li>
         <li><b>Lead Generation</b> <span>Grow</span></li>
+        <li><b>Revenue Engine</b> <span>Grow</span></li>
+        <li><b>Review Engine</b> <span>Grow</span></li>
       </ul>
     </article>
   </div>
@@ -7764,6 +7792,12 @@ labelWrap.addEventListener('click', function(e){
   if (pn) openCard(pn);
 });
 var copyNodes = Array.prototype.slice.call(document.querySelectorAll('.copy'));
+/* The composed homepage puts its first screen (#hero: the h1, one line, one
+   CTA) over this film's opening frame; the standalone film has none, so this is
+   null there and nothing below changes. It is not a .copy beat (no opacity
+   window, it scrolls away with the page), but a label parked on the headline is
+   the same defect as one parked on a beat, so updateLabels treats it as one. */
+var heroIn = document.querySelector('#hero .hero-in');
 var vProj = new T.Vector3(), vDir = new T.Vector3(), vTo = new T.Vector3();
 var lblOrder = [];
 /* the fixed section nav on the left: labels must never sit on it (cached; resize refreshes) */
@@ -7832,6 +7866,10 @@ function updateLabels(){
   for (var i = 0; i < copyNodes.length; i++) {
     var ca = parseFloat(getComputedStyle(copyNodes[i]).opacity) || 0;
     if (ca > 0.01) { copyA = ca; copyRect = copyNodes[i].getBoundingClientRect(); break; }
+  }
+  if (!copyRect && heroIn) {
+    var heroR = heroIn.getBoundingClientRect();
+    if (heroR.bottom > 0 && heroR.top < window.innerHeight) { copyA = 1; copyRect = heroR; }
   }
   var cardUp = document.body.classList.contains('card-open');
   /* the rail yields while a story beat passes under it (the portrait top row

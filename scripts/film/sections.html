@@ -18,9 +18,11 @@
      check-consistency's readiness guard reads. Leading with it is a
      ranking of what the owner sells first, never a claim that it is
      generally available, and no number of leads, win rate, amount, client
-     or date may ever appear beside it. The h1 moved here from the Quote
-     Recovery wedge in the same change: compose.py still asserts exactly
-     one h1 on the page, so the wedge and the front desk carry h2.
+     or date may ever appear beside it. The h1 moved to this section from
+     the Quote Recovery wedge in the same change, and on 2026-09-24 moved
+     again, with the same words, to the first screen (the HERO block
+     below). compose.py still asserts exactly one h1 on the page, so this
+     section, the wedge and the front desk all carry h2.
 
      Every claim here traces to a canonical source: canonical.ts, the service
      agreement, roadmap-config.js, pricing-config.js or the film's #doc. No
@@ -39,11 +41,43 @@
      scripts/film/source.html and extending this list in the same commit.
      ============================================================ -->
 
+<!-- THE FIRST SCREEN. Everything between the two HERO markers is lifted out
+     by compose.py and placed as the first child of the film's #scroll, so it
+     sits over the opening frame instead of below the film. The markers must
+     each appear exactly once in this file, and nowhere in prose.
+
+     Why it exists: measured in a real browser on 2026-09-24, a phone's first
+     screen was black with a dim dot and the word SCROLL for four seconds, the
+     page's only h1 was 8,247px down (about ten phone screens), and the first
+     sentence a visitor could read was a pane label selling the scan. A buyer
+     who does not scroll learned nothing about what Nevamis does and had
+     nothing to press. This block is plain HTML and CSS: it is on screen in
+     the first paint, with no JavaScript, no WebGL and reduced motion, and the
+     cold-open that hides the rest of the chrome (html.nv-intro) does not name
+     it. It is absolutely positioned inside #scroll, so it scrolls away with
+     the page long before the first story beat fades in at 13% of the span.
+
+     It carries the page's one h1 (compose.py asserts exactly one). The h1 is
+     door one, Lead Generation, and the line under it says "by invitation" in
+     the same breath, as every sentence offering it must. The one CTA is the
+     booking link, because an invitation starts with a conversation; it
+     reports hero_book_call_click, the event every Book-a-Call CTA sends and
+     the only one the engine's events allowlist accepts for it. -->
+<!--HERO-->
+<div id="hero">
+  <div class="hero-in">
+    <h1 id="heroTitle">More of the customers you want.</h1>
+    <p class="hero-line">By invitation, we find the businesses you want to work for. We also follow up the quotes you already sent and answer your phone, any hour.</p>
+    <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
+  </div>
+</div>
+<!--/HERO-->
+
 <section id="found">
   <div class="wrap">
     <div class="centre reveal">
       <p class="k"><i>05</i> GROW <span class="chip inv">By invitation</span></p>
-      <h1>More of the customers you want.</h1>
+      <h2>Businesses that fit your work, found by hand.</h2>
       <p class="lede">You tell us the kind of business you want more of, and we find them for you.</p>
     </div>
 
@@ -271,11 +305,11 @@
     <div class="steps">
       <div class="card reveal">
         <p class="k"><i>01</i> SCAN</p>
-        <p>Every engagement starts with the PULSE Business Scan. Takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
+        <p>The PULSE Business Scan is free, and you can skip it. Takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
       </div>
       <div class="card reveal">
         <p class="k"><i>02</i> TALK</p>
-        <p>After the scan, a short strategy call confirms your exact fit. There is no minimum term to discover in the agreement: month to month from the first month, cancelled from your own portal at any time.</p>
+        <p>A short strategy call confirms your exact fit. There is no minimum term to discover in the agreement: month to month from the first month, cancelled from your own portal at any time.</p>
       </div>
       <div class="card reveal">
         <p class="k"><i>03</i> BUILD</p>
@@ -312,7 +346,7 @@
     <details class="reveal"><summary>How does Lead Generation work, and can I get it?</summary><p>It is offered by invitation, under your own agreement, and the list is put together by hand. You tell us the kinds of business you want more of and where you work, and a person here reads public pages and builds the list, with the page each row came from. You decide every row, and nobody on it is contacted by us. Businesses only: it never looks for people at home.</p></details>
     <details class="reveal"><summary>What counts as a quiet quote?</summary><p>A quote you sent that has gone past a threshold you set without an answer. You choose the threshold. When a quote you have recorded as a job crosses it, Nevamis spots it and prepares up to three follow-ups (the day it goes stale, four days on and eleven days on), each one sent only with your approval.</p></details>
     <details class="reveal"><summary>Who sends the Quote Recovery follow-up, and can it go out without me?</summary><p>It goes with your name on the email, and only after your approval. Nothing is sent to your customers without your written go-ahead to email them, every message carries your business identity, and opt-outs are honoured. No outbound marketing campaigns are offered: Quote Recovery only follows up quotes you already wrote.</p></details>
-    <details class="reveal"><summary>Does Quote Recovery need my CRM or quoting software?</summary><p>No, and it does not connect to one. Nevamis does not connect to a CRM, an ads account or an automation tool. You record your quotes as jobs in your Nevamis portal so we can see them go quiet, and the follow-up and the reporting run from there.</p></details>
+    <details class="reveal"><summary>Does Quote Recovery need my CRM or quoting software?</summary><p>No, and it does not connect to one. Outside Enterprise, Nevamis does not connect to a CRM, an ads account or an automation tool; a custom integration is Enterprise work, scoped and quoted per client. You record your quotes as jobs in your Nevamis portal so we can see them go quiet, and the follow-up and the reporting run from there.</p></details>
     <details class="reveal"><summary>Is Quote Recovery the same thing as the Quote-Chase Engine?</summary><p>Yes. Quote Recovery is the capability; the Quote-Chase Engine is the add-on that sells it, bought on its own or beside the AI Front Desk, with its own Launch &amp; Implementation fee to start and then a monthly. It is already included in The Works. Its figures are rendered on the pricing page from the published price list, and there is no minimum term on it.</p></details>
     <details class="reveal"><summary>Will Quote Recovery quote prices, negotiate or offer discounts?</summary><p>No. It follows up a quote you already wrote. It does not answer customer questions, negotiate, change your prices or offer discounts, and it does not book or schedule anything. What you get back is which quotes came back to life and what they were worth.</p></details>
     <details class="reveal"><summary>Will callers know they are talking to an AI?</summary><p>The moment anyone asks, yes, plainly and without hedging. It does not open the call by announcing itself, any more than a receptionist opens by explaining who employs them: it greets the caller in your business's name and gets on with the job. Dial the demo line and ask it directly.</p></details>

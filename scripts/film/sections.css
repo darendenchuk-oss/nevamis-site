@@ -23,6 +23,52 @@
    token, so a station cannot drift from a card again.
    ============================================================ */
 
+/* THE FIRST SCREEN (#hero, lifted out of sections.html into #scroll by
+   compose.py). The page's h1, one line and one CTA, over the film's opening
+   frame and in the first paint.
+
+   Absolutely positioned at the top of #scroll, one screen tall, so it rides
+   the page: the stage is sticky and stays put while this scrolls up and away,
+   long before the first story beat at 13% of the span. It is not position:
+   fixed and it is not driven by the film, deliberately: no script decides
+   whether a buyer sees the headline, so no JavaScript, no WebGL, a dropped
+   film script and reduced motion all show it.
+
+   Seated in the top band of the frame, under the fixed header, because the
+   film's own subject is the lower middle (the orb and the spine it draws) and
+   the pane labels hold the right-hand side on landscape. The film's label
+   placement also treats this block as a copy beat and fades any label that
+   would sit on it (film source, updateLabels). On portrait the chapter rail is
+   a row at 74px (the rule at the end of this file), so the block starts below
+   that row rather than behind it.
+
+   pointer-events:none on the block and auto on the button only: the canvas
+   under the text keeps its hover and tap. The dark pool behind the text is
+   the same idiom as the closing block's (#close::before in the film source),
+   held tight to the words so the panes around it keep their light. */
+#hero{position:absolute;top:0;left:0;right:0;height:100vh;height:100svh;z-index:4;
+  pointer-events:none;display:flex;justify-content:center;align-items:flex-start;
+  padding:calc(var(--head-h) + clamp(20px,6vh,64px)) var(--pad-gutter) 0;text-align:center}
+#hero .hero-in{position:relative;max-width:760px;display:flex;flex-direction:column;align-items:center}
+#hero .hero-in::before{content:"";position:absolute;left:50%;top:50%;width:min(130%,100vw);height:150%;
+  transform:translate(-50%,-50%);pointer-events:none;z-index:-1;
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(2,8,13,.72) 0%,rgba(2,8,13,.4) 55%,rgba(2,8,13,0) 76%)}
+#hero h1{font-size:var(--fs-hero);max-width:18ch;margin:0 auto 14px;text-wrap:balance;
+  text-shadow:0 2px 24px rgba(2,8,13,.9),0 0 60px rgba(2,8,13,.7)}
+#hero .hero-line{font-size:var(--fs-lede);line-height:var(--lh-snug);color:var(--ink-2);
+  max-width:46ch;margin:0 auto;text-wrap:balance;text-shadow:0 1px 3px rgba(2,8,13,.95),0 2px 16px rgba(2,8,13,.92)}
+#hero .btn{pointer-events:auto;margin-top:22px}
+@media (max-aspect-ratio:3/4){#hero{padding-top:calc(74px + 52px)}}
+/* a landscape phone has a screen of about 360px: the line goes, the rest fits */
+@media (max-height:500px) and (orientation:landscape){
+  #hero{padding-top:calc(var(--head-h) + 8px)}
+  #hero .hero-line{display:none}
+  #hero .btn{margin-top:12px}
+}
+/* reduced motion: the film is a still block in the flow (.nv-rm in the film
+   source), so the first screen joins the flow above it instead of floating */
+.nv-rm #hero{position:relative;height:auto;padding-bottom:40px}
+
 /* The two sections the film hands the page to carry no rule above them: the
    seam and the ending are their own boundaries. */
 #found,#next{border-top:none}
@@ -69,6 +115,8 @@
 #doc .svc{margin:0 0 12px}
 #doc .svc:last-child{margin-bottom:0}
 #doc .svc p{font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2)}
+/* the "sold as" line under a module: the price-list name and what it needs, one step quieter */
+#doc .svc .sold{margin-top:8px;color:var(--ink-3)}
 /* The station CTA keeps the film card's filled mint pill (.pane-doc .cta2 in
    source.html) and its dark label. This rule used to restyle only the TEXT in
    the transparent text-link idiom (11px uppercase mono, emerald) while the pill

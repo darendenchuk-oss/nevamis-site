@@ -1274,7 +1274,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "name": "Does Quote Recovery need my CRM or quoting software?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No, and it does not connect to one. Nevamis does not connect to a CRM, an ads account or an automation tool. You record your quotes as jobs in your Nevamis portal so we can see them go quiet, and the follow-up and the reporting run from there."
+          "text": "No, and it does not connect to one. Outside Enterprise, Nevamis does not connect to a CRM, an ads account or an automation tool; a custom integration is Enterprise work, scoped and quoted per client. You record your quotes as jobs in your Nevamis portal so we can see them go quiet, and the follow-up and the reporting run from there."
         }
       },
       {
@@ -1478,6 +1478,14 @@ body{
    purpose (<=120ms into the pressed state). Keyboard focus-visible is untouched. */
 #close .cta:active{transform:translateY(0) scale(.97);filter:brightness(1.14);
   transition:transform .09s ease,box-shadow .09s ease,filter .09s ease}
+/* The ending block is position:fixed for the whole film and only its opacity
+   changes, but the rule above gives its button pointer-events:auto, so for the
+   whole span before the finale an INVISIBLE "Scan my business" sat at 38vh and
+   took every tap on that spot, exit flourish and all. Found 2026-09-24, when the
+   homepage's first screen put its own "Book a call" there: at 1366x768 a tap on
+   it landed on the hidden scan link. The button takes taps only while its block
+   is on screen (.on; reduced motion and no-WebGL set .on on every block). */
+#close:not(.on) .cta{pointer-events:none}
 #brand{position:fixed;top:22px;left:28px;z-index:4;font-weight:700;font-size:.95rem;
   letter-spacing:.34em;color:var(--ink);opacity:.85;pointer-events:none}
 .no3d #stage{background:radial-gradient(ellipse at 50% 40%,#0A2A1F 0%,var(--bg1) 70%)}
@@ -1570,6 +1578,7 @@ body.card-open #hint{opacity:0}
   display:flex;flex-wrap:wrap;align-items:center;gap:.6rem}
 .pane-doc .svc p{font-size:.88rem;line-height:1.55;color:#b9dccb}
 .pane-doc .outcome{margin-top:.5rem;color:var(--mint);font-size:.85rem}
+.pane-doc .sold{margin-top:.5rem;color:#9dc7b4;font-size:.82rem}
 .pane-doc .price{margin-top:.55rem;color:var(--mint);font-size:.85rem;font-weight:700;line-height:1.5}
 /* .chip and its four variants lived here, at 9.6px, and because this block is
    inlined last they beat the site's own chip on this page alone: the same
@@ -1681,6 +1690,52 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
    token, so a station cannot drift from a card again.
    ============================================================ */
 
+/* THE FIRST SCREEN (#hero, lifted out of sections.html into #scroll by
+   compose.py). The page's h1, one line and one CTA, over the film's opening
+   frame and in the first paint.
+
+   Absolutely positioned at the top of #scroll, one screen tall, so it rides
+   the page: the stage is sticky and stays put while this scrolls up and away,
+   long before the first story beat at 13% of the span. It is not position:
+   fixed and it is not driven by the film, deliberately: no script decides
+   whether a buyer sees the headline, so no JavaScript, no WebGL, a dropped
+   film script and reduced motion all show it.
+
+   Seated in the top band of the frame, under the fixed header, because the
+   film's own subject is the lower middle (the orb and the spine it draws) and
+   the pane labels hold the right-hand side on landscape. The film's label
+   placement also treats this block as a copy beat and fades any label that
+   would sit on it (film source, updateLabels). On portrait the chapter rail is
+   a row at 74px (the rule at the end of this file), so the block starts below
+   that row rather than behind it.
+
+   pointer-events:none on the block and auto on the button only: the canvas
+   under the text keeps its hover and tap. The dark pool behind the text is
+   the same idiom as the closing block's (#close::before in the film source),
+   held tight to the words so the panes around it keep their light. */
+#hero{position:absolute;top:0;left:0;right:0;height:100vh;height:100svh;z-index:4;
+  pointer-events:none;display:flex;justify-content:center;align-items:flex-start;
+  padding:calc(var(--head-h) + clamp(20px,6vh,64px)) var(--pad-gutter) 0;text-align:center}
+#hero .hero-in{position:relative;max-width:760px;display:flex;flex-direction:column;align-items:center}
+#hero .hero-in::before{content:"";position:absolute;left:50%;top:50%;width:min(130%,100vw);height:150%;
+  transform:translate(-50%,-50%);pointer-events:none;z-index:-1;
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(2,8,13,.72) 0%,rgba(2,8,13,.4) 55%,rgba(2,8,13,0) 76%)}
+#hero h1{font-size:var(--fs-hero);max-width:18ch;margin:0 auto 14px;text-wrap:balance;
+  text-shadow:0 2px 24px rgba(2,8,13,.9),0 0 60px rgba(2,8,13,.7)}
+#hero .hero-line{font-size:var(--fs-lede);line-height:var(--lh-snug);color:var(--ink-2);
+  max-width:46ch;margin:0 auto;text-wrap:balance;text-shadow:0 1px 3px rgba(2,8,13,.95),0 2px 16px rgba(2,8,13,.92)}
+#hero .btn{pointer-events:auto;margin-top:22px}
+@media (max-aspect-ratio:3/4){#hero{padding-top:calc(74px + 52px)}}
+/* a landscape phone has a screen of about 360px: the line goes, the rest fits */
+@media (max-height:500px) and (orientation:landscape){
+  #hero{padding-top:calc(var(--head-h) + 8px)}
+  #hero .hero-line{display:none}
+  #hero .btn{margin-top:12px}
+}
+/* reduced motion: the film is a still block in the flow (.nv-rm in the film
+   source), so the first screen joins the flow above it instead of floating */
+.nv-rm #hero{position:relative;height:auto;padding-bottom:40px}
+
 /* The two sections the film hands the page to carry no rule above them: the
    seam and the ending are their own boundaries. */
 #found,#next{border-top:none}
@@ -1727,6 +1782,8 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
 #doc .svc{margin:0 0 12px}
 #doc .svc:last-child{margin-bottom:0}
 #doc .svc p{font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2)}
+/* the "sold as" line under a module: the price-list name and what it needs, one step quieter */
+#doc .svc .sold{margin-top:8px;color:var(--ink-3)}
 /* The station CTA keeps the film card's filled mint pill (.pane-doc .cta2 in
    source.html) and its dark label. This rule used to restyle only the TEXT in
    the transparent text-link idiom (11px uppercase mono, emerald) while the pill
@@ -1815,16 +1872,23 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
 </header>
 <div id="hint">Scroll</div>
 <div id="scroll">
+<div id="hero">
+  <div class="hero-in">
+    <h1 id="heroTitle">More of the customers you want.</h1>
+    <p class="hero-line">By invitation, we find the businesses you want to work for. We also follow up the quotes you already sent and answer your phone, any hour.</p>
+    <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
+  </div>
+</div>
   <div id="stage">
     <canvas id="c"></canvas>
     <div id="vignette"></div>
   </div>
   <section class="copy" id="s1"><p><span class="kick">THE SCAN</span>The scan finds where the money is leaking.</p></section>
   <section class="copy" id="s2"><p><span class="kick">THE READ</span>NEVAMIS works out what to do about each leak.</p></section>
-  <section class="copy" id="s3"><p><span class="kick">THE WORK</span>Then handles them, one at a time.</p></section>
+  <section class="copy" id="s3"><p><span class="kick">THE WORK</span>Then handles the ones it is built for, one at a time.</p></section>
   <section class="copy" id="close">
     <p>See where yours is leaking.</p>
-    <p class="sub">One scan. Every leak, found and handled.</p>
+    <p class="sub">One scan shows where it leaks, and which leaks NEVAMIS handles.</p>
     <a class="cta" href="https://app.nevamis.ca/scan">Scan my business</a>
     <p class="fine">Takes about two minutes. No call required.</p>
   </section>
@@ -1838,7 +1902,7 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
   <button type="button" data-pane="plans" aria-controls="card" aria-expanded="false"><i>06</i>Plans</button>
 </nav>
 <div id="labels" aria-hidden="true">
-  <div class="plabel" data-pane="scan"><span class="lk">The scan</span><span class="ll">Every engagement starts with the PULSE Business Scan.</span><span class="lo">+ open</span></div>
+  <div class="plabel" data-pane="scan"><span class="lk">The scan</span><span class="ll">A free read of your public website.</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="capture"><span class="lk">Capture</span><span class="ll">Every opportunity answered</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="convert"><span class="lk">Convert</span><span class="ll">Follow-up that never forgets</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="operate"><span class="lk">Operate</span><span class="ll">Less office admin</span><span class="lo">+ open</span></div>
@@ -1874,9 +1938,11 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
      check-consistency's readiness guard reads. Leading with it is a
      ranking of what the owner sells first, never a claim that it is
      generally available, and no number of leads, win rate, amount, client
-     or date may ever appear beside it. The h1 moved here from the Quote
-     Recovery wedge in the same change: compose.py still asserts exactly
-     one h1 on the page, so the wedge and the front desk carry h2.
+     or date may ever appear beside it. The h1 moved to this section from
+     the Quote Recovery wedge in the same change, and on 2026-09-24 moved
+     again, with the same words, to the first screen (the HERO block
+     below). compose.py still asserts exactly one h1 on the page, so this
+     section, the wedge and the front desk all carry h2.
 
      Every claim here traces to a canonical source: canonical.ts, the service
      agreement, roadmap-config.js, pricing-config.js or the film's #doc. No
@@ -1895,11 +1961,35 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
      scripts/film/source.html and extending this list in the same commit.
      ============================================================ -->
 
+<!-- THE FIRST SCREEN. Everything between the two HERO markers is lifted out
+     by compose.py and placed as the first child of the film's #scroll, so it
+     sits over the opening frame instead of below the film. The markers must
+     each appear exactly once in this file, and nowhere in prose.
+
+     Why it exists: measured in a real browser on 2026-09-24, a phone's first
+     screen was black with a dim dot and the word SCROLL for four seconds, the
+     page's only h1 was 8,247px down (about ten phone screens), and the first
+     sentence a visitor could read was a pane label selling the scan. A buyer
+     who does not scroll learned nothing about what Nevamis does and had
+     nothing to press. This block is plain HTML and CSS: it is on screen in
+     the first paint, with no JavaScript, no WebGL and reduced motion, and the
+     cold-open that hides the rest of the chrome (html.nv-intro) does not name
+     it. It is absolutely positioned inside #scroll, so it scrolls away with
+     the page long before the first story beat fades in at 13% of the span.
+
+     It carries the page's one h1 (compose.py asserts exactly one). The h1 is
+     door one, Lead Generation, and the line under it says "by invitation" in
+     the same breath, as every sentence offering it must. The one CTA is the
+     booking link, because an invitation starts with a conversation; it
+     reports hero_book_call_click, the event every Book-a-Call CTA sends and
+     the only one the engine's events allowlist accepts for it. -->
+
+
 <section id="found">
   <div class="wrap">
     <div class="centre reveal">
       <p class="k"><i>05</i> GROW <span class="chip inv">By invitation</span></p>
-      <h1>More of the customers you want.</h1>
+      <h2>Businesses that fit your work, found by hand.</h2>
       <p class="lede">You tell us the kind of business you want more of, and we find them for you.</p>
     </div>
 
@@ -2027,9 +2117,15 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
       <div class="svc" data-addon="quote_chase">
         <h4>Quote Recovery <span class="chip av">Available today</span></h4>
         <p>Quotes that go quiet past your threshold get followed up for you: the day they go stale, four days on and eleven days on, each email with your name on it and your approval before it goes.</p>
+        <p class="sold">Sold as the Quote-Chase Engine.</p>
       </div>
-      <div class="svc">
-        <h4>Instant Lead Follow-Up <span class="chip av">Available today</span></h4>
+      <!-- Named Missed-Call Recovery since 2026-09-24, the name the price list
+           sells it under and roadmap-config.js has carried since 2026-09-19. It
+           read "Instant Lead Follow-Up", the engine's capability name, which
+           left a buyer to work out for himself that the thing described here
+           and the add-on priced below were one product. -->
+      <div class="svc" data-addon="missed_call_recovery">
+        <h4>Missed-Call Recovery <span class="chip av">Available today</span></h4>
         <p>A caller you missed gets one text back while the job is still winnable: during business hours, on your say-so, with your business name on it.</p>
       </div>
       <!-- Schedule Protection was removed here on 2026-09-19 (fix plan B7, owner
@@ -2045,6 +2141,18 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
       <div class="svc">
         <h4>Automatic Lead Tracking <span class="chip av">Available today</span></h4>
         <p>Each call, text and form becomes a lead with its source and a status, so you can see what is sitting untouched and what each source is actually producing.</p>
+      </div>
+      <!-- Get-Paid Autopilot was missing from this pillar until 2026-09-24, while
+           canonical.ts carried it as available and sold alone, The Works
+           included it and the pricing page sold it. It is the one sold module
+           that belongs to "less office admin", so without it the pillar read as
+           one live thing and two unbuilt ones. The approval wording is "by a
+           person" rather than "by you" on purpose: who releases a reminder is
+           the engine's to settle, and this sentence is true either way. -->
+      <div class="svc" data-addon="get_paid">
+        <h4>Get-Paid Autopilot <span class="chip av">Available today</span></h4>
+        <p>An invoice that goes overdue gets a polite reminder, then a firm one a week later if it stays unpaid, each released by a person before it goes. At three weeks it stops emailing your customer and tells you instead.</p>
+        <p class="sold">It needs your written go-ahead to email your own customers, and your invoices recorded so it can see them age.</p>
       </div>
       <div class="svc">
         <h4>Your Daily Business Brief <span class="chip dev">In development</span></h4>
@@ -2064,8 +2172,8 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
         <p>Offered by invitation, under your own agreement, and put together by hand. A person here reads public pages and builds you a list of the businesses that fit the work you want, with the page each row came from and the day it was read. You decide every row, and nobody on the list is contacted by us.</p>
       </div>
       <div class="svc">
-        <h4>Revenue Clarity <span class="chip dev">In development</span></h4>
-        <p>Lead sources, calls, quotes, completed work, and collected payments connected, so owners see what actually produces revenue.</p>
+        <h4>Revenue Engine <span class="chip dev">In development</span></h4>
+        <p>Is being built to tie each lead back to where it came from, down to the campaign, and follow it to a paid job, so you can see what to spend more on and what to stop.</p>
       </div>
       <!-- This entry was wrong twice until 2026-09-19. The Review Engine has been
            sold since 2026-08-24 and is inside The Works on the pricing page, so the
@@ -2078,7 +2186,7 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
            (that is B11). So this entry carries no availability chip at all: it states
            the narrow thing the module does and sends the reader to the page that owns
            its price. -->
-      <div class="svc">
+      <div class="svc" data-addon="review_engine">
         <h4>Review Engine</h4>
         <p>Post-job review requests by text: one ask per finished job, with your own review link, and every request released by a person. Sold on the pricing page, on its own or inside The Works.</p>
       </div>
@@ -2113,9 +2221,9 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
       <div class="svc">
         <h4>Enterprise</h4>
         <p class="price" data-plan-price="enterprise">See the plans below.</p>
-        <p>Multi-location, custom integrations, custom data pipelines and advanced deployments are quoted per client, from what a scan of the business finds.</p>
+        <p>Multi-location, custom integrations, custom data pipelines and advanced deployments are custom work, scoped and quoted per client from what a scan of the business finds. None of them comes with the other plans.</p>
       </div>
-      <p class="fine2">The build takes days, not weeks: your line is answered inside the first week. The term is for the results window, which runs across a season of quotes and invoices.</p>
+      <p class="fine2">The build takes days, not weeks: your line is answered inside the first week. There is no minimum term: month to month from the first month, cancelled from your own portal at any time.</p>
     </article>
 
     <article class="pane-doc" id="doc-nodes">
@@ -2128,14 +2236,15 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
       <ul class="node-list">
         <li><b>PULSE Business Scan</b> <span>The scan</span></li>
         <li><b>Front Desk</b> <span>Capture</span></li>
-        <li><b>Instant Lead Follow-Up</b> <span>Convert</span></li>
         <li><b>Quote Recovery</b> <span>Convert</span></li>
+        <li><b>Missed-Call Recovery</b> <span>Convert</span></li>
         <li><b>Automatic Lead Tracking</b> <span>Operate</span></li>
+        <li><b>Get-Paid Autopilot</b> <span>Operate</span></li>
         <li><b>Your Daily Business Brief</b> <span>Operate</span></li>
         <li><b>Inbox Assistant</b> <span>Operate</span></li>
-        <li><b>Revenue Clarity</b> <span>Grow</span></li>
-        <li><b>Review Engine</b> <span>Grow</span></li>
         <li><b>Lead Generation</b> <span>Grow</span></li>
+        <li><b>Revenue Engine</b> <span>Grow</span></li>
+        <li><b>Review Engine</b> <span>Grow</span></li>
       </ul>
     </article></div>
   </div>
@@ -2290,11 +2399,11 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
     <div class="steps">
       <div class="card reveal">
         <p class="k"><i>01</i> SCAN</p>
-        <p>Every engagement starts with the PULSE Business Scan. Takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
+        <p>The PULSE Business Scan is free, and you can skip it. Takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
       </div>
       <div class="card reveal">
         <p class="k"><i>02</i> TALK</p>
-        <p>After the scan, a short strategy call confirms your exact fit. There is no minimum term to discover in the agreement: month to month from the first month, cancelled from your own portal at any time.</p>
+        <p>A short strategy call confirms your exact fit. There is no minimum term to discover in the agreement: month to month from the first month, cancelled from your own portal at any time.</p>
       </div>
       <div class="card reveal">
         <p class="k"><i>03</i> BUILD</p>
@@ -2331,7 +2440,7 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
     <details class="reveal"><summary>How does Lead Generation work, and can I get it?</summary><p>It is offered by invitation, under your own agreement, and the list is put together by hand. You tell us the kinds of business you want more of and where you work, and a person here reads public pages and builds the list, with the page each row came from. You decide every row, and nobody on it is contacted by us. Businesses only: it never looks for people at home.</p></details>
     <details class="reveal"><summary>What counts as a quiet quote?</summary><p>A quote you sent that has gone past a threshold you set without an answer. You choose the threshold. When a quote you have recorded as a job crosses it, Nevamis spots it and prepares up to three follow-ups (the day it goes stale, four days on and eleven days on), each one sent only with your approval.</p></details>
     <details class="reveal"><summary>Who sends the Quote Recovery follow-up, and can it go out without me?</summary><p>It goes with your name on the email, and only after your approval. Nothing is sent to your customers without your written go-ahead to email them, every message carries your business identity, and opt-outs are honoured. No outbound marketing campaigns are offered: Quote Recovery only follows up quotes you already wrote.</p></details>
-    <details class="reveal"><summary>Does Quote Recovery need my CRM or quoting software?</summary><p>No, and it does not connect to one. Nevamis does not connect to a CRM, an ads account or an automation tool. You record your quotes as jobs in your Nevamis portal so we can see them go quiet, and the follow-up and the reporting run from there.</p></details>
+    <details class="reveal"><summary>Does Quote Recovery need my CRM or quoting software?</summary><p>No, and it does not connect to one. Outside Enterprise, Nevamis does not connect to a CRM, an ads account or an automation tool; a custom integration is Enterprise work, scoped and quoted per client. You record your quotes as jobs in your Nevamis portal so we can see them go quiet, and the follow-up and the reporting run from there.</p></details>
     <details class="reveal"><summary>Is Quote Recovery the same thing as the Quote-Chase Engine?</summary><p>Yes. Quote Recovery is the capability; the Quote-Chase Engine is the add-on that sells it, bought on its own or beside the AI Front Desk, with its own Launch &amp; Implementation fee to start and then a monthly. It is already included in The Works. Its figures are rendered on the pricing page from the published price list, and there is no minimum term on it.</p></details>
     <details class="reveal"><summary>Will Quote Recovery quote prices, negotiate or offer discounts?</summary><p>No. It follows up a quote you already wrote. It does not answer customer questions, negotiate, change your prices or offer discounts, and it does not book or schedule anything. What you get back is which quotes came back to life and what they were worth.</p></details>
     <details class="reveal"><summary>Will callers know they are talking to an AI?</summary><p>The moment anyone asks, yes, plainly and without hedging. It does not open the call by announcing itself, any more than a receptionist opens by explaining who employs them: it greets the caller in your business's name and gets on with the job. Dial the demo line and ask it directly.</p></details>

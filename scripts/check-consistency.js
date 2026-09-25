@@ -886,6 +886,102 @@ for (const p of contentPages) {
   }
 }
 
+/* 7m. THE HOMEPAGE MUST SHOW WHAT IS SOLD, NAME WHAT IT DRAWS, AND OPEN ON
+       ITS HEADLINE.
+
+       Added 2026-09-24 for three homepage findings, all in files a person
+       composes by hand (scripts/film/source.html and sections.html) and all
+       green under every rule above, because each is about what the page
+       LEAVES OUT or WHERE it puts something, and every rule above reads the
+       words that are there.
+
+       a) Every module sold on its own must have a station. Get-Paid
+          Autopilot was available in canonical, sold alone, inside The Works
+          and priced on pricing.html, and was absent from every station and
+          from the brain map, so "less office admin" read as one live thing
+          and two unbuilt ones. The stations mark a sold module with
+          data-addon, which is also what puts its price in the plans strip
+          (site.js), so the check is on that attribute: a station without it
+          is not priced, and a price without a station cannot render.
+          Derived from pricing-config.js (sellable && soldAlone), so a
+          module that goes on sale tomorrow fails here until the homepage
+          describes it.
+       b) The brain-node list says "each named dot is a part of the brain"
+          and states no count because "the list is the count". The film draws
+          one dot per station module (film source, the BRAIN NODES block,
+          which reads the #doc stations), so the list is only true while it
+          names exactly the stations' modules under their own pillars. It
+          went stale once by count (a typed "thirteen dots") and again by name
+          on 2026-09-24, when the stations had been renamed and the list had
+          not.
+       c) The page's one h1 is on its first screen: inside #hero, the first
+          thing in the film's #scroll, before the stage, with a booking link.
+          compose.py asserts the same, but compose.py is python and never runs
+          in CI (check-generator-drift runs the node builders), so a hand
+          edit to the composed page could put the h1 back ten phone screens
+          down, which is where it was until that day, and nothing would say
+          so. Whether it is VISIBLE is a browser question, and
+          tests/homepage-first-screen.spec.js answers it. */
+{
+  const page = "index.html";
+  const html = fs.existsSync(path.join(root, page)) ? fs.readFileSync(path.join(root, page), "utf8") : "";
+  if (!html) err("guard 7m: index.html is missing");
+  else {
+    const noComments = html.replace(/<!--[\s\S]*?-->/g, " ");
+    const plain = (s) => s.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+    /* The six stations, as the film reads them: an <article> per pillar, its
+       h3 the pillar, each .svc's h4 text minus its chip the module name. */
+    const stations = [];
+    const onPage = new Set();
+    for (const id of ["scan", "capture", "convert", "operate", "grow"]) {
+      const art = (noComments.match(new RegExp(`<article class="pane-doc" id="doc-${id}">([\\s\\S]*?)</article>`)) || [])[1];
+      if (!art) { err(`guard 7m: the #doc-${id} station is missing from index.html`); continue; }
+      const pillar = plain((art.match(/<h3>([\s\S]*?)<\/h3>/) || [, id])[1]);
+      for (const svc of art.matchAll(/<div class="svc"([^>]*)>([\s\S]*?)<\/div>/g)) {
+        const addon = (svc[1].match(/data-addon="([^"]+)"/) || [])[1];
+        if (addon) onPage.add(addon);
+        const h4 = (svc[2].match(/<h4>([\s\S]*?)<\/h4>/) || [])[1];
+        if (h4) stations.push(plain(h4.replace(/<span class="chip[\s\S]*?<\/span>/g, "")) + " | " + pillar);
+      }
+    }
+
+    /* a) */
+    const w = {};
+    vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+    const soldAlone = (w.NV_PRICING?.addOns ?? []).filter((a) => a.sellable && a.soldAlone);
+    if (!soldAlone.length) err("guard 7m: pricing-config.js lists no module sold alone, so the homepage cannot be checked against it");
+    for (const a of soldAlone) {
+      if (!onPage.has(a.id)) {
+        err(`${page}: ${a.name} is sold on its own (pricing-config.js ${a.id}) but no station carries data-addon="${a.id}".\n`
+          + `       A buyer reading the homepage never learns it exists, and the plans strip cannot price it.\n`
+          + `       Add a .svc for it to its pillar in scripts/film/source.html, then recompose.`);
+      }
+    }
+
+    /* b) */
+    const nodesBlock = (noComments.match(/<article class="pane-doc" id="doc-nodes">([\s\S]*?)<\/article>/) || [])[1] || "";
+    const listed = [...nodesBlock.matchAll(/<li><b>([\s\S]*?)<\/b>\s*<span>([\s\S]*?)<\/span><\/li>/g)]
+      .map((m) => plain(m[1]) + " | " + plain(m[2]));
+    if (!listed.length) err(`guard 7m: ${page} has no brain-node list to check`);
+    const drawn = new Set(stations), named = new Set(listed);
+    for (const s of stations) if (!named.has(s)) err(`${page}: the film draws a dot for "${s}" but the brain-node list does not name it (the list is the count)`);
+    for (const l of listed) if (!drawn.has(l)) err(`${page}: the brain-node list names "${l}", which no station describes, so no dot is drawn for it`);
+
+    /* c) */
+    const h1s = noComments.match(/<h1\b/g) || [];
+    const at = (s) => noComments.indexOf(s);
+    const scrollAt = at('<div id="scroll">'), heroAt = at('<div id="hero">'), stageAt = at('<div id="stage">');
+    const firstScreen = heroAt > 0 && stageAt > heroAt ? noComments.slice(heroAt, stageAt) : "";
+    if (h1s.length !== 1) err(`${page}: carries ${h1s.length} h1 elements; it must carry exactly one`);
+    if (!(scrollAt > 0 && heroAt > scrollAt && /^<div id="scroll">\s*<div id="hero">/.test(noComments.slice(scrollAt)))) {
+      err(`${page}: #hero is not the first thing inside the film's #scroll, so the first screen has no headline.`);
+    } else if (!/<h1\b/.test(firstScreen) || !/href="\/book\.html"/.test(firstScreen)) {
+      err(`${page}: the first screen (#hero, before the film stage) must carry the page's h1 and a /book.html link.\n`
+        + `       Until 2026-09-24 the h1 sat 8,247px down on a phone and the first screen had nothing to press.`);
+    }
+  }
+}
+
 /* 7z. The inlined stylesheet must equal its sources.
 
        assets/motion/site.css and assets/fonts/fonts.css are still the files

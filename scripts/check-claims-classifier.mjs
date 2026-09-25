@@ -104,6 +104,14 @@ const MUST_FIRE = [
   /* "five hundred dollars a month" is LIVE spoken copy under v5 (the two
      engines), so the spoken tripwire moved to the figure v5 retired. */
   ["the retired Works month, spoken", "The Works plan is eighteen hundred dollars a month."],
+
+  /* A term that exists (2026-09-24). The first row is the homepage's Plans
+     station, verbatim, which named no length and no penalty and so passed
+     every rule above while the same page said "no minimum term". */
+  ["the homepage Plans station, verbatim: a term the buyer is in",
+    "The build takes days, not weeks: your line is answered inside the first week. The term is for the results window, which runs across a season of quotes and invoices."],
+  ["a retired minimum, with its length", "Every plan has a minimum term of three months."],
+  ["the retired minimum, as the call scripts said it", "It is a 6-month commitment, then month to month."],
 ];
 
 /* Judged WITH the question exemption, and must fire anyway: the offence is in
@@ -159,6 +167,14 @@ const MUST_NOT_FIRE = [
 
   ["a legal denial of retired vocabulary, on its own",
     "No setup fee, no activation fee, and no minimum term."],
+
+  /* The sentences that state the absence of a term, which the 2026-09-24
+     term patterns must never redden. */
+  ["the homepage Plans station, as rewritten",
+    "The build takes days, not weeks: your line is answered inside the first week. There is no minimum term: month to month from the first month, cancelled from your own portal at any time."],
+  ["pricing-config.js terms note", "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing."],
+  ["the retired minimum, recorded as retired", "The 3-month minimum term was retired on 2026-09-08 and is no longer offered."],
+  ["a price lock is not a term", "Your price is locked for 12 months from signing."],
 ];
 
 /* Quoted caller questions, judged only where the guard allows them (7e). The
@@ -238,6 +254,11 @@ const UNBUILT_MUST_FIRE = [
      promise in the next. */
   ["a denial in one clause does not excuse a promise in the next",
     "There is no setup fee, and you can set a hard cap in your portal."],
+  /* 2026-09-24, the homepage film: its closing line over the scan CTA, and
+     the pane label that was the first sentence a visitor could read. */
+  ["the homepage closing line, verbatim", "One scan. Every leak, found and handled."],
+  ["every leak, said as a verb", "NEVAMIS handles every leak the scan finds."],
+  ["the scan pane label, verbatim", "Every engagement starts with the PULSE Business Scan."],
 ];
 const UNBUILT_MUST_NOT_FIRE = [
   ["the demo knowledge base's refusal (config/elevenlabs)",
@@ -248,6 +269,10 @@ const UNBUILT_MUST_NOT_FIRE = [
     "Past your included minutes, calls keep being answered and each extra minute is billed at your plan's per-minute rate, shown on its card above."],
   ["the portal line that replaced the Pulse page",
     "A Results page in your portal that labels every number as measured, declared, estimated or not yet measured, and never adds an estimate to measured money"],
+  ["the homepage closing line, as rewritten", "One scan shows where it leaks, and which leaks NEVAMIS handles."],
+  ["the scan pane label, as rewritten", "A free read of your public website."],
+  ["the film's scan beat", "The scan finds where the money is leaking."],
+  ["the old claim, refused", "There is no rule that every engagement starts with the scan: it is free, and nothing requires one."],
 ];
 for (const [name, text] of UNBUILT_MUST_FIRE) {
   if (!judgeUnbuilt(text)) {
