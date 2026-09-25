@@ -116,14 +116,14 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
    script exits 2, which check-all.mjs prints as WAITING ON YOU: loud, and
    still not a reason to block a push for work that is not in this repository.
    The two homepage entries were deleted the day the source line was fixed
-   (fix plan A8); the knowledge-base entry the day that file was corrected here. What is left is
-   two files outside this repository, which no commit here can fix and which CI
-   never sees: the live demo prompt (fix plan A18, pushed through the agent
-   flow) and the cold-calling offer sheet. Those report as an owner action and
-   leave the exit code alone. */
+   (fix plan A8); the knowledge-base entry the day that file was corrected here;
+   the cold-calling offer sheet's entry on 2026-09-25, the day OFFER-V4.md
+   stopped saying it. What is left is one file outside this repository, which
+   no commit here can fix and which CI never sees: the live demo prompt (fix
+   plan A18, pushed through the agent flow). It reports as an owner action and
+   leaves the exit code alone. */
 const BANNED_PENDING = [
   { file: "../nevamis-engine/docs/agent-prompts/demo.md", text: "the start most businesses make", owner: "engine demo prompt, fix plan A18" },
-  { file: "../Desktop/Nevamis Cold Calling/OFFER-V4.md", text: "the start most shops make", owner: "the cold-calling offer sheet, outside every repository" },
 ];
 const pendingHit = new Set();
 /* The text a `banned` rule is allowed to see: the file as written, minus the
@@ -432,6 +432,15 @@ for (const p of contentPages) {
        what separates the promise from the process, and it fires on nothing in
        the current tree. */
     new RegExp("\\bescalat\\w*\\s+(?:straight\\s+)?to\\s+(?:the|your|a)?\\s*" + PERSON, "i"),
+    /* THE HAND-OFF WITHOUT EITHER WORD (2026-09-25, T6). The how-you-start
+       FAQ answered "What if a caller has an emergency?" by listing fallbacks
+       a client's agent does not have; the honest answer now has to be able to
+       say it cannot pass the call on, and the same verbs without the "cannot"
+       are the promise. Destination-bound for the reason escalation is: "pass
+       the details to your team" is what happens, "pass the call to your team"
+       is not. */
+    new RegExp("\\b(?:pass|hand|forward|route|send)(?:es|s|ed|ing)?\\s+(?:the\\s+call(?:er)?|callers?|you|them)"
+      + "\\s+(?:off\\s+|over\\s+|on\\s+|straight\\s+)?to\\s+(?:the|your|a)?\\s*" + PERSON, "i"),
   ];
   /* Constructions that WITHDRAW the claim in the clause that makes it. The
      site's own correction is the first entry's job; the rest are the shapes
@@ -442,8 +451,9 @@ for (const p of contentPages) {
     /\bthere is no\b/i, /\bthere are no\b/i,
     /\bnot built\b/i, /\bnot available\b/i, /\bnot offered\b/i,
     /\bno live transfer\b/i,
-    /\b(?:does|do|will|can)\s+not\s+(?:transfer|connect|put|patch)\b/i,
-    /\bnever\s+(?:transfer|connect|put|patch)/i,
+    /\b(?:does|do|will|can)\s+not\s+(?:transfer|connect|put|patch|pass|hand|forward|route|send)\b/i,
+    /\b(?:cannot|can't|doesn't|won't)\s+(?:transfer|connect|put|patch|pass|hand|forward|route|send)\b/i,
+    /\bnever\s+(?:transfer|connect|put|patch|pass|hand|forward|route|send)/i,
     /\bwithout\s+(?:a\s+)?transfer\b/i,
     /\bretired\b/i, /\bno longer\b/i,
   ];
@@ -747,6 +757,37 @@ for (const p of contentPages) {
   }
 }
 
+/* PROMISES OF A MECHANISM THAT DOES NOT EXIST, found on 2026-09-25 (fix
+   plan T6, C13/C11, T15-site) and swept by guard 7k below over every surface
+   a visitor or a caller can meet. Each was live on nevamis.ca.
+
+   - "fall back to your voicemail" (how-you-start.html FAQ). A client's agent
+     has one call control, end_call (nevamis-engine elevenlabs-provision.ts),
+     and the engine's docs/INCIDENT-RESPONSE.md says in as many words that
+     there is no voicemail fallback. On an urgent call it captures the
+     details and alerts the team; guard 16 refuses the hand-off to a person.
+   - "then removed" / "then deleted" (privacy.html on contact details,
+     how-you-start.html on cancelled accounts). Nothing deletes
+     interest_requests, and cancelling deletes nothing: data stays until the
+     person or the client asks. The fixed retention windows are an open owner
+     decision (owner item O6, finding F48). THE WAY TO LIFT THIS RULE is O6:
+     when the owner sets a period AND something in nevamis-engine deletes on
+     that schedule, the page may say "then deleted" with the period beside
+     it, and this entry changes in the same commit that ships the job.
+   - "plus GST" without HST (the pricing chooser total). Canonical, and
+     every other figure on the page, says "plus applicable GST/HST"; a buyer
+     in an HST province read a different tax on the total than on the cards
+     above it. `+ GST` is the same claim, and so is "plus applicable GST". */
+const NO_MECHANISM = [
+  { re: /\bfall(?:s|ing)?\s+back\s+(?:on\s+|to\s+)(?:your\s+|a\s+|the\s+)?voice\s?mail\b/i,
+    denial: /\b(?:cannot|can't|can not|does not|doesn't|will not|won't|never)\b|\bno\s+voice\s?mail\s+fallback\b/i,
+    why: "a client's agent has end_call only (engine elevenlabs-provision.ts) and docs/INCIDENT-RESPONSE.md says there is no voicemail fallback; say it takes a message, flags it urgent and alerts the team" },
+  { re: /\bthen\s+(?:automatically\s+)?(?:removed|deleted|erased|purged|destroyed)\b/i,
+    why: "nothing deletes these records on a schedule: data is kept until the person or the client asks for deletion. The retention windows are owner item O6; say so rather than promise a deletion nothing performs" },
+  { re: /(?:\bplus|\+)\s*(?:applicable\s+)?GST\b(?!\s*\/\s*HST)/i,
+    why: "canonical and pricing-config.js taxNote say \"plus applicable GST/HST\"; derive the tax words from P.taxNote instead of typing them" },
+];
+
 /* 7k. NO SURFACE MAY PROMISE A FEATURE THE PRODUCT DOES NOT HAVE.
 
        Added 2026-09-24 for two findings on the pricing page, both on every
@@ -830,6 +871,25 @@ for (const p of contentPages) {
         + "Why it is false: " + why + ". Say what the product does instead. A clause that DENIES it is allowed; "
         + "extend DENIAL rather than dropping the pattern, and remove the pattern from UNBUILT_PROMISES only in "
         + "the change that ships the feature.");
+    }
+  }
+
+  /* NO_MECHANISM, below, over the same units. Judged per rendered clause
+     rather than through offendingClause(): two of these are fragments with
+     no verb of their own ("a month, plus GST."), which the claim classifier
+     deliberately reads as naming rather than asserting, and a guard that
+     cannot see the defect it was written for is decoration. */
+  for (const { label, text } of units) {
+    for (const { re, why, denial } of NO_MECHANISM) {
+      if (!re.test(text)) continue;
+      for (const clause of clauses(text)) {
+        if (!re.test(clause) || (denial && denial.test(clause))) continue;
+        const key = label + "::" + clause;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        err(label + ": says something nothing in the product does (" + re + ").\n      clause: \"" + clause.slice(0, 180) + "\"\n      "
+          + "Why it is false: " + why + ".");
+      }
     }
   }
 }
