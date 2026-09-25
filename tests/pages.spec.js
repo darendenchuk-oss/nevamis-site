@@ -67,9 +67,13 @@ function escapees(page) {
 /* THE PAGE ITSELF SCROLLS SIDEWAYS. The escapee walk above forgives anything
    inside a clipping ancestor, and body is overflow-x:clip, so it can pass while
    the document is still wider than the phone. This is the number a thumb
-   actually feels. */
+   actually feels. Against documentElement.clientWidth, the layout viewport,
+   and not innerWidth: innerWidth counts a classic scrollbar's gutter as page,
+   and on a real phone it grows to the content's width when the browser zooms
+   out to fit an overflowing page (the engine's phone spec measured exactly
+   that: 624 against 624 for a page 249px too wide). */
 function sidewaysScroll(page) {
-  return page.evaluate(() => document.scrollingElement.scrollWidth - innerWidth);
+  return page.evaluate(() => document.scrollingElement.scrollWidth - document.documentElement.clientWidth);
 }
 
 /* iPhone Safari zooms the whole page into any text field under 16px the moment
