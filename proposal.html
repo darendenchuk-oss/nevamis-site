@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-uB+dAj5BzcQWUTc6RCqP+CbDPiTZjyD9lmF7WTEUKR0=' 'sha256-bJluJqx9vI9m6ATL+GWeZLdoADJJTT6REbWEBZxYNnw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-lYJzRWu18R1aAuA9y7WvZBssgmeKjQwEbQfhl/gIfcw=' 'sha256-5VZqMSSH2zlAdvIRhkzKA8tHYjysav4/UKn9dWsyNCY='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1096,9 +1096,25 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          The closing pair below stays: it is the natural end of the document
          and the place a careful reader arrives. This is for the reader who is
          already convinced. Same destination, its own event name, because
-         which one they use is the useful thing to know. -->
+         which one they use is the useful thing to know.
+
+         START NOW, beside it (F4, 2026-09-24). Until today both of this
+         document's actions were "Book the next call", while the pricing page
+         one click away sold the same plans with "Buy now". A prospect who had
+         decided on the call could buy from a page that had never heard of
+         him, but not from the one written for him. The call stays, as the
+         second button, because a careful buyer still wants one.
+
+         The markup is the AI Front Desk's, the plan this static copy states,
+         so a reader with scripts blocked buys the price he is reading. The
+         render script below re-points it at the rendered plan or removes it,
+         under the rule pricing.html uses for its cards plus the two things
+         only a proposal can do: carry a quoted figure, and fail part way.
+         The event is plan_buy_click_<plan id>, the family the engine already
+         counts as purchase intent; the page field says it came from here. -->
     <div class="noprint-cta">
-      <a class="btn btn-primary" href="/book.html" data-evt="proposal_plan_book_click">Book the next call</a>
+      <a class="btn btn-primary" href="https://app.nevamis.ca/signup?plan=pro" data-buy data-evt="plan_buy_click_pro">Start now</a>
+      <a class="btn btn-ghost" href="/book.html" data-book data-evt="proposal_plan_book_click">Book the next call</a>
     </div>
   </section>
 
@@ -1120,7 +1136,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <li><b>Live, and cancellable whenever you want.</b> You are billed monthly from the day you start, with no minimum term. If the service is not earning its price, you cancel it yourself from the portal at any time, and the month you already paid for runs out normally.</li>
     </ol>
     <div class="noprint-cta">
-      <a class="btn btn-primary btn-lg" href="/book.html" data-evt="proposal_book_click">Book the next call</a>
+      <a class="btn btn-primary btn-lg" href="https://app.nevamis.ca/signup?plan=pro" data-buy data-evt="plan_buy_click_pro">Start now</a>
+      <a class="btn btn-ghost btn-lg" href="/book.html" data-book data-evt="proposal_book_click">Book the next call</a>
       <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it again · (587) 413-0035</a>
     </div>
   </section>
@@ -1152,9 +1169,41 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
    All parameters are rendered with textContent, never innerHTML. */
 (function () {
   "use strict";
+  /* Takes the "Start now" buttons out and makes "Book the next call" the
+     primary action beside each of them. Used for every plan this page must
+     not sell directly, and by the catch at the bottom: a render that failed
+     part way has stopped vouching that the plan named on the page is the
+     plan the button buys. The call is right for every plan in every state,
+     which is why it is what is left. */
+  function callOnly() {
+    var buys = document.querySelectorAll("a[data-buy]");
+    for (var i = 0; i < buys.length; i++) {
+      var a = buys[i], row = a.parentNode;
+      var book = row && row.querySelector("a[data-book]");
+      if (book) book.className = book.className.replace(/\bbtn-ghost\b/, "btn-primary");
+      if (row) row.removeChild(a);
+    }
+  }
+  /* True when the link asks for the proposal the static copy already is:
+     the AI Front Desk (no plan, "pro", or its legacy id "scale") at its
+     published price (no ?quote=). */
+  function asksForStaticPlan() {
+    var s = new URLSearchParams(location.search);
+    var p = (s.get("plan") || "").replace(/[<>]/g, "").trim().toLowerCase();
+    return (p === "" || p === "pro" || p === "scale") && !(s.get("quote") || "").trim();
+  }
   try {
     var P = window.NV_PRICING;
-    if (!P || !P.approved) return;
+    /* No config at all (pricing-config.js blocked or failed to load) leaves
+       the static proposal: the Front Desk's copy under the Front Desk's
+       static price. Its "Start now" buys the Front Desk, so it stays only on
+       a link written for that plan. A link written for another plan (the
+       Performance Partnership by invitation, The Works) or carrying an
+       agreed ?quote= was not written to offer the Front Desk at the
+       published price, so it keeps the call alone. A config that loaded and
+       is NOT approved is a price list nobody signed off, so nothing on this
+       page may take money against it. */
+    if (!P || !P.approved) { if (P || !asksForStaticPlan()) callOnly(); return; }
     var q = new URLSearchParams(location.search);
 
     /* keep an injected value short and plain; it is only ever printed as text */
@@ -1309,6 +1358,38 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       } else {
         priceEl.textContent = "Quoted per client";
       }
+
+      /* THE BUY PATH (F4, 2026-09-24). Checkout charges the plan's published
+         Launch & Implementation fee and monthly, nothing else, so "Start now"
+         may sit only under a price that IS that published monthly. Five
+         conditions, each of them a way that button would contradict the box
+         above it:
+           - P.sellable off: the pricing page routes every plan to the call
+             while checkout is shut, and so does this page;
+           - pricing unpublished: the box says "Quoted per client";
+           - a "from C$X" plan: quoted on the call, not the checkout figure;
+           - selfServe false: the Performance Partnership is agreed rather
+             than bought, and its terms line says "by invitation and
+             approval" (checkout refuses it one click later anyway);
+           - a ?quote= that differs from the published monthly: the agreed
+             figure is not what checkout would charge. A quote EQUAL to it is
+             the published price, so it keeps the button.
+         The shut gate, the "from" figure and selfServe are pricing.html's
+         card rule; the unpublished price and the quote are this page's own,
+         because only this page can print either above the button.
+         Everything else keeps the static button, re-pointed at the plan this
+         page rendered. */
+      var buyable = !!P.sellable && !!P.publishedPricing && !plan.startingAt
+        && plan.selfServe !== false && !(quoted > 0 && quoted !== plan.monthly);
+      if (buyable) {
+        var buys = document.querySelectorAll("a[data-buy]");
+        for (var b = 0; b < buys.length; b++) {
+          buys[b].href = "https://app.nevamis.ca/signup?plan=" + encodeURIComponent(plan.id);
+          buys[b].setAttribute("data-evt", "plan_buy_click_" + plan.id);
+        }
+      } else {
+        callOnly();
+      }
       /* Grouped (A29): "1,400", not "1400". Every other four-figure number on
          this page carries its separator, and a bare four digits in the middle
          of a sentence reads like a typo on the one document a buyer keeps.
@@ -1384,7 +1465,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        render. That is exactly how a stale proposal would have gone out
        looking fine: the static copy stays, and the static copy was the old
        offer. */
-  } catch (e) { /* the static copy above is already a valid proposal */ }
+  } catch (e) {
+    /* The static copy above is already a valid proposal, but this render may
+       have replaced half of it (the plan name, say) before it threw, so the
+       Front Desk's "Start now" could now sit under another plan's name.
+       Whatever broke, the call is still right. */
+    callOnly();
+  }
 })();
 </script>
 <script src="site.js" defer></script>
