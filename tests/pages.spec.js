@@ -159,10 +159,10 @@ test('the film homepage fits a phone and its calculator does not zoom', async ({
   await offline(ctx);
   const page = await ctx.newPage();
   await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+  expect(await page.locator('#roiMissed').count(), 'the calculator must be on the homepage to be measured').toBe(1);
   await page.locator('#roiMissed').scrollIntoViewIfNeeded();
   await page.waitForTimeout(400);
 
-  expect(await page.locator('#roiMissed').count(), 'the calculator must be on the homepage to be measured').toBe(1);
   expect(await escapees(page), 'overflow on the homepage at phone width').toEqual([]);
   expect(await sidewaysScroll(page), 'the homepage scrolls sideways on a phone by this many px').toBeLessThanOrEqual(0);
   expect(await smallTextControls(page), 'homepage text fields under 16px make iPhone Safari zoom on tap').toEqual([]);
