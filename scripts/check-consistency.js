@@ -830,6 +830,58 @@ for (const p of contentPages) {
   }
 }
 
+/* 7l. HOW YOU START MUST NOT SAY THE ONLY LAUNCH FEE IS THE PLAN'S.
+
+       Added 2026-09-24. how-you-start.html answered "What does it cost?"
+       with "The fee pays for the build itself, once, and is never charged
+       again; past the start, the only recurring charges are the monthly,
+       any automation add-ons you chose, and any overage". Every add-on on
+       pricing-config.js carries its OWN one-time Launch & Implementation
+       fee, charged when that add-on starts, and terms 2.8 says so; a buyer
+       who read this page and then added the Quote-Chase Engine would meet
+       a launch fee the page had told them would never come again. Each
+       half of that sentence is defensible about the PLAN's fee alone, which
+       is why no figure or retired-term rule could see it.
+
+       So the rule is about what the page must SAY, not a word to ban:
+       while the page mentions automation add-ons, it must state that each
+       one has its own one-time Launch & Implementation fee, and it may not
+       say that fee "is never charged again". The phrase check is a plain
+       regex on purpose: offendingClause() reads "never" as a denial and
+       would excuse the very sentence this exists to stop.
+
+       SCOPE is this one page. terms.html said the same thing at version 2.7
+       and is rewritten to 2.8 on its own branch (sell/a-checkout-terms);
+       sweeping it here would fail this repo until that branch lands, and
+       the history note it keeps quotes the retired wording in the past
+       tense. config/elevenlabs says the plan fee "is never billed again" in
+       a CANCELLATION answer, where only the plan's fee is in question. */
+{
+  const page = "how-you-start.html";
+  const abs = path.join(root, page);
+  if (!fs.existsSync(abs)) {
+    err("guard 7l: " + page + " is missing, so the page that answers \"What does it cost?\" is unswept");
+  } else {
+    const text = fs.readFileSync(abs, "utf8")
+      .replace(/<!--[\s\S]*?-->/g, " ")
+      .replace(/<script\b(?![^>]*application\/ld\+json)[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&amp;/g, "&").replace(/&rsquo;/g, "'")
+      .replace(/\s+/g, " ");
+    const never = text.match(/[^.]*\b(?:is|are) never (?:charged|billed) again\b[^.]*/i);
+    if (never) {
+      err(page + ": says the Launch & Implementation fee is never charged again.\n      clause: \"" + never[0].trim().slice(0, 200) + "\"\n      "
+        + "Each automation add-on carries its own one-time Launch & Implementation fee, charged when that add-on "
+        + "starts (terms 2.8). Say the plan's fee is charged once, when the plan starts, and that each add-on has its own.");
+    }
+    if (/\bautomation add-ons?\b/i.test(text) && !/\bits own one-time Launch & Implementation fee\b/i.test(text)) {
+      err(page + ": names automation add-ons but never says each one carries its own one-time Launch & Implementation fee. "
+        + "A buyer reading it would expect one launch fee in total (terms 2.8 says otherwise).");
+    }
+  }
+}
+
 /* 7z. The inlined stylesheet must equal its sources.
 
        assets/motion/site.css and assets/fonts/fonts.css are still the files

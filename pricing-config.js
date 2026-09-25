@@ -186,7 +186,7 @@
     "Automatic quality review of any call where a caller used emergency language, or the agent claimed a booking it could not confirm",
     "Scripted test callers run against your live agent before a phone number is ever pointed at it",
     "Call forwarding proven by placing a real call to your line, not assumed",
-    "Included minutes metered on your portal's billing page, with a text or email alert at 50%, 75%, 90% and 100%, and calls still answered past the allowance, each extra minute billed at your plan's per-minute rate",
+    "Included minutes metered on your portal's billing page, with a text or email alert after you pass 50%, 75%, 90% or 100%, and calls still answered past the allowance, each extra minute billed at your plan's per-minute rate",
     "A PULSE scan of your public website, with every money figure a modelled range and a confidence level rather than a measurement, and sharper as you connect your own numbers",
     "A Results page in your portal that labels every number as measured, declared, estimated or not yet measured, and never adds an estimate to measured money",
     "Invoices, plan changes and cancellation handled yourself in the portal",
@@ -417,13 +417,20 @@
        gives a caller. The per-minute figures are on each plan card, rendered
        from `overage` below, so none is typed here. If the choice is ever
        built, it is re-published here in the same change that wires it, and
-       guard 7k has to be told in the same commit. */
+       guard 7k has to be told in the same commit.
+
+       THE ALERT LINE says "after you pass", never "at". The engine checks
+       usage from its daily run (checkAndNotifyUsage, called only by
+       /api/autopilot/daily), and when several thresholds were crossed since
+       the last check it sends only the highest one. So a busy client may
+       get one message at 90% a day after crossing it, not four on the dot;
+       "an alert at 50%, 75%, 90% and 100%" promised the four. */
     usagePolicy: {
       minuteDef: "A connected AI minute starts when the AI answers a connected call and ends when the AI portion of the call ends.",
       notes: [
         "Failed calls that never connect are not counted.",
         "Wrong numbers or spam that reach the AI consume usage, because the system handled them.",
-        "A text or email alert at 50%, 75%, 90% and 100% of your included minutes, with your running total on your portal's billing page.",
+        "A text or email alert after you pass 50%, 75%, 90% or 100% of your included minutes, with your running total on your portal's billing page.",
         "Past your included minutes, calls keep being answered and each extra minute is billed at your plan's per-minute rate, shown on its card above."
       ]
     },
