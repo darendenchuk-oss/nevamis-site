@@ -5,9 +5,9 @@
  * retime inverted that: the film no longer gates the controls, and this file
  * now PINS the new contract directly:
  *
- *   the site header's booking action is visible and tappable the moment the
- *   document is ready, on desktop and on a phone, with motion fully on, while
- *   the film's ignition still owns the screen;
+ *   the site header's booking action is visible and tappable while the
+ *   film's ignition still owns the screen, on desktop and on a phone, with
+ *   motion fully on;
  *   on a phone, the sticky .callbar reaches booking (/book.html#pick-a-time)
  *   in plain CSS with no animation, so a next step is live from first paint
  *   on every content page (the film homepage hides the bar until the film
@@ -24,10 +24,17 @@
  * scripts/film/compose.py writes down for nv-late: the ignition cold-open used
  * to fade the chrome in with the wake, and now that the first composed frame
  * is deferred past load, the header is pinned visible from the first paint.
- * That is what they measure now. Measured at DOMContentLoaded, not against a
- * stopwatch: the old 1.6s ran on the film's own clock precisely so that a
- * slow CI machine could not turn a choreography regression into a flake, and
- * "already usable when the document is ready" keeps that property.
+ * That is what they measure now.
+ *
+ * Not against a stopwatch, and not at a moment picked by timing either. The
+ * ignition only hides the header until it is half run, and on a fast machine
+ * that is over before a test can look, so a first draft that sampled at
+ * DOMContentLoaded passed with the pin deleted. The film has a measurement
+ * switch for exactly this, ?debug=1&introhold=1, which freezes the ignition on
+ * its first composed frame (film-2.js, IW.rate = 0). Frozen there, the header
+ * is in the worst state the ignition can put it in, for as long as the test
+ * likes, on any machine. The old 1.6s ran on the film's own clock for the same
+ * reason: so a slow CI machine could not turn a regression into a flake.
  */
 import { test, expect } from '@playwright/test';
 
@@ -51,7 +58,8 @@ function tappable(locator) {
       visible: cs.visibility === 'visible' && cs.display !== 'none' && b.width > 0 && b.height > 0,
       onScreen: b.top >= 0 && b.bottom <= innerHeight && b.left >= 0 && b.right <= innerWidth,
       onTop: !!hit && (hit === el || el.contains(hit)),
-      stillIgniting: document.documentElement.classList.contains('nv-intro'),
+      stillIgniting: document.documentElement.classList.contains('nv-intro')
+        && !document.documentElement.classList.contains('nv-on'),
     };
   });
 }
@@ -60,7 +68,12 @@ test.describe('a visitor can act before the intro finishes', () => {
   for (const vp of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'phone', width: 375, height: 812 }]) {
     test(`the header's booking action is tappable while the film ignites (${vp.name})`, async ({ page }) => {
       await page.setViewportSize({ width: vp.width, height: vp.height });
-      await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+      await page.goto('/index.html?debug=1&introhold=1', { waitUntil: 'load' });
+      /* Held, the ignition never reaches the halfway mark that adds nv-on and
+         fades the header in on its own, so whatever is visible now is visible
+         because the page keeps it visible. Give the deferred first frame time
+         to compose, since that is when the hold takes effect. */
+      await page.waitForTimeout(1500);
 
       /* Desktop books straight from the header; a phone has the menu button,
          and booking is one tap inside it. Either way it is the header's own
@@ -72,7 +85,7 @@ test.describe('a visitor can act before the intro finishes', () => {
 
       const state = await tappable(action);
       expect(state.stillIgniting,
-        'the ignition should still be running at DOMContentLoaded, or this proves nothing about it').toBe(true);
+        'the ignition must still be held before its halfway mark, or this proves nothing about it').toBe(true);
       expect(state.visible, 'the header action must be rendered').toBe(true);
       expect(state.opacity, 'the film must not fade the header out during its ignition').toBeGreaterThan(0.9);
       expect(state.onScreen, 'and it must be in the first viewport').toBe(true);
