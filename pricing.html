@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-gJ7tML7+GelzgIIYyg9lcgyUUxu7r2rc957ghcL4OqA=' 'sha256-lMKgdAWlfkbIwSurllQ69JdMnXx8usUtMwnRpU4F2CY=' 'sha256-efe+3ZmJOnqs/THk3fas+b9gzIpBQuSrVeqSuDeR4hg=' 'sha256-FqURxVlXv19jd8+M6JGGN9fZ7JdUFZT6t1DLCCcwqjw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xtbLYW6Jj61GBVYLJfki8au+dKsO3wWwjd4trAAtwHM=' 'sha256-fcbUcbCs4zQak+DOahZoXJLmmxjPRo8GhWU+hznESh4=' 'sha256-efe+3ZmJOnqs/THk3fas+b9gzIpBQuSrVeqSuDeR4hg=' 'sha256-FqURxVlXv19jd8+M6JGGN9fZ7JdUFZT6t1DLCCcwqjw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1037,7 +1037,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div>
         <p class="eyebrow mono">Pricing</p>
         <h1>Clear plans. Predictable usage.</h1>
-        <p class="lede">Lead Generation is by invitation, and a short call is where it starts. Every plan below runs the same front desk that answers your line and a portal that shows what every call produced, built with you and tuned over time. A one-time Launch &amp; Implementation fee starts the build, then your plan's monthly price is charged the day you start and every month after; past the start, the only recurring charges are the monthly and any overage past your included minutes.</p>
+        <!-- Two sentences since 2026-09-24 (W6). This was a 60-word run-on that
+             restated the fee rule the terms band states directly below it. The
+             lede now says only what the cards differ by, so a buyer knows what
+             to compare before reading them. -->
+        <p class="lede">Lead Generation is by invitation, and a short call is where it starts. Every plan runs the same front desk and the same client portal; the plans differ in which automations are included and in how Nevamis is paid.</p>
       </div>
     </div>
   </section>
@@ -1054,7 +1058,18 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            745 ms after first paint, which was 0.093 of the page's 0.095 CLS. -->
       <div id="termsBanner" class="card band">
         <h2>Launch &amp; Implementation to start. Then the monthly, every month.</h2>
-        <p>Every plan starts with a one-time Launch &amp; Implementation fee: the discovery call, configuration, testing and go-live are real work and they are priced in the open, not hidden in the monthly. It is collected once, at the start, beside your first month. After that, your plan's monthly price is charged on the same day every month, and past the start the only recurring charges are that monthly and any overage past your included minutes. There is no trial to convert out of.</p>
+        <!-- THE ONE PLACE THE TERMS ARE STATED (2026-09-24, W6). The page used
+             to say "month to month from the first month" seven times: here, in
+             a term sentence on every plan card, under both Buy buttons and
+             again under the add-ons. Nothing was false, and nothing could be
+             found either, because a buyer skimming for what differs between
+             plans read the same paragraph four times first. The cards now
+             carry only a one-line exit under the Buy button, derived from the
+             same terms block, and everything else about commitment is here.
+             "There is no trial to convert out of" is gone from the end of the
+             first paragraph: "trial" is a banned word on client surfaces even
+             in a denial. -->
+        <p>Every plan starts with a one-time Launch &amp; Implementation fee: the discovery call, configuration, testing and go-live are real work and they are priced in the open, not hidden in the monthly. It is collected once, beside your first month. After that, your plan's monthly price is charged on the same day every month, and the only other recurring charges are any add-ons you choose and overage past your included minutes.</p>
         <!-- THE TERM, and its whole history is a warning. Until 2026-08-25
              this paragraph ended "We do not ask for a term, and we do not
              need one." The v4 directive of 2026-08-22 made that false, and
@@ -1065,8 +1080,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              and it is gone from every surface rather than softened on one.
              The figures behind this paragraph are pricing-config.js terms,
              both zero; if that block moves, this paragraph is stale and the
-             guard in the engine says so. -->
-        <p class="fine2">There is no minimum term. Your plan, and every add-on whether you buy it on its own or add it later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch &amp; Implementation fee, charged once beside your first month, is the only commitment you make.</p>
+             guard in the engine says so. Since 2026-09-24 it is also the
+             page's only full statement of the term, and it carries the id
+             #termsNote the add-on section used to: the plan script overwrites
+             it from P.terms.note, and guard 7a holds this static copy equal to
+             that note, so the no-script reading and the rendered one are the
+             same words. -->
+        <p id="termsNote" class="fine2">There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch &amp; Implementation fee, charged once beside your first month, is the only commitment.</p>
         <p class="prose"><a href="/how-you-start.html">What happens before your line is answered</a> · <a href="/book.html">Book a call</a></p>
       </div>
       <!-- THE COVERAGE CHOOSER (2026-08-25). A price list asks a business to
@@ -1128,7 +1148,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <p>C$1,500 Launch &amp; Implementation to start, then C$1,000 a month. The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place. No performance fee. 1,400 included AI minutes · C$0.75 per extra minute.</p>
           <p><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
         </div>
-        <p class="fine2 prose">The AI Front Desk is the same core system on every plan. Plans differ by which automations are included and, on the Partnership, whether Nevamis shares in the revenue it helps create. A one-time Launch &amp; Implementation fee starts the build; after that, past the start, the only recurring charges are the monthly, any add-ons you chose, and any overage past your included minutes. Enterprise (multi-location, custom integrations, custom data pipelines) is quoted per client: Launch &amp; Implementation starting at C$5,000 or custom quoted, recurring custom. Prices in Canadian dollars, plus applicable GST/HST. No minimum term on anything: month to month from the first month, cancelled from your own portal at any time. Questions: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
+        <p class="fine2 prose">The AI Front Desk is the same core system on every plan. Plans differ by which automations are included and, on the Partnership, whether Nevamis shares in the revenue it helps create. The one-time fee and the terms are set out in the band above. Enterprise (multi-location, custom integrations, custom data pipelines) is quoted per client: Launch &amp; Implementation starting at C$5,000 or custom quoted, recurring custom. Prices in Canadian dollars, plus applicable GST/HST. Questions: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
       </div></div>
       <!-- ENTERPRISE (fix plan A26, 2026-09-19). The rendered cards replace
            #plansFallback, and the fallback's closing paragraph was the only
@@ -1139,6 +1159,35 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            typed here; with scripts off, the fallback paragraph above states
            the same thing. -->
       <p id="enterpriseNote" class="fine2 prose" hidden></p>
+
+      <!-- WHAT EVERY PLAN INCLUDES, printed once (2026-09-24, W6). These lines
+           were on all three cards, fourteen bullets each, so the page ran to
+           2,443 words and the two or three lines that make one plan different
+           from the next were buried under forty that did not. The cards now
+           list only what is theirs, and this list is P.sharedFeatures(): the
+           lines every plan carries, computed from the plans rather than typed.
+           Real HTML so a reader with scripts off is not left without it, and
+           the plan script replaces it from the config; guard 7a holds this
+           static copy equal to what the script would write. -->
+      <div class="card reveal block-gap" id="everyPlanCard">
+        <h3>What every plan includes</h3>
+        <ul id="everyPlan" class="node-list">
+          <li>One business phone line</li>
+          <li>Answers your line around the clock, configured from your own hours, services, service area, prices and FAQs</li>
+          <li>Asks the qualifying questions you approved, in your words</li>
+          <li>Captures the caller's name, callback number, what they want, the service, how urgent it is, how the call ended and what happens next, as one structured lead</li>
+          <li>Texts and emails you that summary within seconds of the call ending, and records honestly whether each one was delivered</li>
+          <li>Every call recorded and playable in your portal, with CSV export of the lead record</li>
+          <li>Automatic quality review of any call where a caller used emergency language, or the agent claimed a booking it could not confirm</li>
+          <li>Scripted test callers run against your live agent before a phone number is ever pointed at it</li>
+          <li>Call forwarding proven by placing a real call to your line, not assumed</li>
+          <li>Included minutes metered on your portal's billing page, with a text or email alert after you pass 50%, 75%, 90% or 100%, and calls still answered past the allowance, each extra minute billed at your plan's per-minute rate</li>
+          <li>A PULSE scan of your public website, with every money figure a modelled range and a confidence level rather than a measurement, and sharper as you connect your own numbers</li>
+          <li>A Results page in your portal that labels every number as measured, declared, estimated or not yet measured, and never adds an estimate to measured money</li>
+          <li>Invoices, plan changes and cancellation handled yourself in the portal</li>
+          <li>Email support at support@nevamis.ca</li>
+        </ul>
+      </div>
 
       <!-- ADD-ONS, v4 (2026-08-22): every automation is its own product.
            This list is HAND-TYPED HTML, not rendered from pricing-config.js:
@@ -1162,7 +1211,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <li>Search Rankings &middot; coming &middot; better search rankings for the work you want more of. Nothing is built for it yet, so it has no price and is not sold.</li>
           <li>Customer Reactivation &middot; coming &middot; a win-back campaign over your own past-customer list. Not sellable until it ships end to end.</li>
         </ul>
-        <p id="termsNote" class="fine2">There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch &amp; Implementation fee, charged once beside your first month, is the only commitment.</p>
+        <!-- The term paragraph that sat here moved to the terms band on
+             2026-09-24 (W6), where it is the page's one full statement of the
+             term and covers add-ons in the same words. -->
       </div>
 
       <div class="card reveal block-gap">
@@ -1171,8 +1222,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <ul id="usageNotes" class="node-list">
           <li>Failed calls that never connect are not counted.</li>
           <li>Wrong numbers or spam that reach the AI consume usage, because the system handled them.</li>
-          <li>Usage alerts at 50%, 75%, 90%, and 100% of included minutes, in your portal.</li>
-          <li>Near the limit you choose: automatic overage, fallback answering, or a hard cap.</li>
+          <li>A text or email alert after you pass 50%, 75%, 90% or 100% of your included minutes, with your running total on your portal's billing page.</li>
+          <li>Past your included minutes, calls keep being answered and each extra minute is billed at your plan's per-minute rate, shown on its card above.</li>
         </ul>
         <p id="taxNote" class="fine2">Prices in Canadian dollars, plus applicable GST/HST.</p>
         <!-- Lives in the page, not the shared footer: page-specific content in
@@ -1302,8 +1353,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     document.getElementById("foundingOffer").textContent = "Founding clients: " + P.foundingClient.offer;
     document.getElementById("foundingNote").textContent = P.foundingClient.note;
   }
-  /* The add-on section's terms line, rendered from pricing-config.js rather
-     than left as a second hand-typed copy of it. The static HTML above says
+  /* The terms line, rendered from pricing-config.js rather than left as a
+     second hand-typed copy of it. It lived under the add-ons until
+     2026-09-24 and is now the terms band's own paragraph, the one full
+     statement of the term on this page. The static HTML above says
      the same thing so a reader with scripts off is not left termless, and
      this overwrite is what keeps the two from parting company the next time
      the term changes. It changed twice in eighteen days. */
@@ -1316,6 +1369,16 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      HTML so the block has its height before the config lands. */
   notes.textContent = "";
   P.usagePolicy.notes.forEach(function (n) { var li = document.createElement("li"); li.textContent = n; notes.appendChild(li); });
+  /* The lines every plan carries, once, and the cards below list only the
+     rest. A config without sharedFeatures (a cached copy older than this
+     page) yields an empty list, which leaves the static #everyPlan in place
+     and every card with its whole list: repetitive, never missing a line. */
+  var shared = typeof P.sharedFeatures === "function" ? P.sharedFeatures() : [];
+  var everyPlanEl = document.getElementById("everyPlan");
+  if (everyPlanEl && shared.length) {
+    everyPlanEl.textContent = "";
+    shared.forEach(function (f) { var li = document.createElement("li"); li.textContent = f; everyPlanEl.appendChild(li); });
+  }
   var wrap = document.getElementById("plans");
   /* "C$1250" next to "C$849" reads like a typo on the one page where a
      misread number costs a sale. The no-JS fallback already groups thousands;
@@ -1354,23 +1417,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var n = noticeDays();
     return n ? "on " + n + " days notice" : "at any time";
   }
+  /* ONE LINE UNDER THE BUY BUTTON, and the only term a card carries
+     (2026-09-24, W6). Every card also used to print termSentence(), the full
+     term paragraph, under its price, and this note repeated most of it again
+     ten lines lower: with the terms band and the add-on note that was seven
+     statements of one term on one page. The full statement is now the
+     #termsNote paragraph in the terms band, rendered from P.terms.note, and
+     this keeps only the exit, at the moment of commitment, still derived
+     from the same two figures so a returning term or notice period reaches
+     the button without anybody retyping it. termSentence() is deleted with
+     its call: a helper nothing calls is where the next stale sentence
+     hides. */
   function startNote(pl) {
     var months = minMonths();
-    if (!months) return "Month to month from the first month, cancelled by you from your own portal "
-      + cancelClause() + ", with service running to the end of the month you already paid for.";
+    if (!months) return "No minimum term: cancel " + cancelClause() + " from your own portal.";
     return "Your first " + months + " months are agreed up front, then month to month, cancelled "
       + cancelClause() + ".";
-  }
-  function termSentence(pl) {
-    var t = P.terms || {};
-    var months = minMonths();
-    if (!months) return "There is no minimum term: month to month from the first month, cancel "
-      + cancelClause() + " from your own portal, service running to the end of the month you already paid for, and your price locked for "
-      + (t.priceLockMonths || 12) + " months from signing.";
-    return "The billing is month to month, and the agreement locks in your first "
-      + months + " months. After that: month to month, cancelled " + cancelClause()
-      + " from your own portal, and your price is locked for "
-      + t.priceLockMonths + " months from signing.";
   }
   P.plans.forEach(function (pl) {
     var d = document.createElement("div");
@@ -1405,8 +1467,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          term entirely and this sentence is true again, which is exactly why
          it is still read from P.terms and not typed back in: the page has now
          been wrong in BOTH directions, and only the derivation was ever
-         right. */
-      h += '<div class="setup">C$' + grp(pl.launch) + " Launch &amp; Implementation to start, then C$" + grp(pl.monthly) + " a month. " + termSentence(pl)
+         right.
+         SINCE 2026-09-24 THE TERM IS NOT ON THIS LINE AT ALL (W6). It is
+         still derived, and still read from P.terms, but it is stated once in
+         the terms band (#termsNote) and as one short exit under the Buy
+         button (startNote), rather than a third time here on every card.
+         This line now carries only what differs by plan: the two figures,
+         the performance sentence and the invitation status. */
+      h += '<div class="setup">C$' + grp(pl.launch) + " Launch &amp; Implementation to start, then C$" + grp(pl.monthly) + " a month."
         + (pl.performanceNote ? " " + pl.performanceNote : "")
         + (pl.selfServe === false ? " Offered by invitation and approval; never the default." : "")
         + "</div>";
@@ -1415,7 +1483,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       h += '<div class="setup">Your price is quoted per client, then charged monthly, month to month with no minimum term, cancelled ' + cancelClause() + '.</div>';
     }
     h += '<div class="usage">' + grp(pl.includedMinutes) + " connected AI minutes included · ≈ " + pl.callRange + " (estimate) · overage C$" + pl.overage.toFixed(2) + "/min</div>";
-    h += '<ul class="node-list">' + pl.features.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
+    /* ONLY WHAT IS THIS PLAN'S (2026-09-24, W6). The lines every plan
+       carries are printed once, in #everyPlan below the cards, so each card
+       lists what makes it different and then says where the rest is. `own`
+       is whatever is left of pl.features once the shared lines are taken out,
+       so a line added to one plan lands on that plan's card without anybody
+       deciding where it goes. */
+    var own = pl.features.filter(function (f) { return shared.indexOf(f) < 0; });
+    h += '<ul class="node-list">' + own.map(function (f) { return "<li></li>"; }).join("") + "</ul>";
+    if (shared.length) h += '<p class="fine2 prose">Plus everything under <a href="#everyPlanCard">What every plan includes</a>.</p>';
     h += '<div class="best"><strong>Best for:</strong> <span></span></div>';
     /* The buy path, in four cases.
 
@@ -1492,7 +1568,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     });
     d.querySelector("h3").textContent = pl.name;
     var lis = d.querySelectorAll("li");
-    pl.features.forEach(function (f, i) { lis[i].textContent = f; });
+    own.forEach(function (f, i) { lis[i].textContent = f; });
     d.querySelector(".best span").textContent = pl.bestFor;
     wrap.appendChild(d);
   });

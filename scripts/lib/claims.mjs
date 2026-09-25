@@ -2,7 +2,8 @@
    COMMERCIAL-CLAIM CLASSIFICATION
 
    One definition of "does this text MAKE a retired claim, or DENY one", shared
-   by every guard in check-consistency.js (6b, 7c, 7d, 7e, 7g).
+   by every guard in check-consistency.js (6b, 7c, 7d, 7e, 7g, and 7k, which
+   judges UNBUILT_PROMISES below rather than retired terms).
 
    Extracted from check-consistency.js on 2026-08-10 while fixing a laundering
    defect in the classifier (see SCOPE below). Two reasons to move it rather
@@ -225,6 +226,51 @@ export const RETIRED_OFFERS = [
      in FALSE_DENIALS below and are spread in here so every guard sweeps
      them. */
   ...FALSE_DENIALS,
+];
+
+/* PROMISES OF THINGS THE PRODUCT DOES NOT HAVE, added 2026-09-24.
+
+   RETIRED_OFFERS above is about terms that USED to be true. These were never
+   true: features the site sold that no code delivers. They are a separate
+   list because the remedy is different (say what the product does, not what
+   the current price is) and because guard 7k also reads the strings
+   JavaScript renders, where RETIRED_OFFERS has never been swept.
+
+   Judged by the same clause classifier, so a surface can still DENY one:
+   config/elevenlabs/ tells the demo agent "There is no hard cap, no
+   fallback-answering mode and no choice of what happens at the limit", and
+   that sentence is the correction, not the defect.
+
+   Each entry says WHY it is false, which the failure prints. When one of
+   these is actually built, the entry comes out in the same change that ships
+   it, and not before. */
+export const UNBUILT_PROMISES = [
+  /* THE LIMIT CHOICE. pricing.html sold "Near the limit you choose:
+     automatic overage, fallback answering, or a hard cap" in two places.
+     nevamis-engine's src/domain/usage-policy.ts models those three and has
+     no production caller: no setting, no portal screen, nothing in usage,
+     billing or telephony reads it. Every account keeps answering and bills
+     the extra minutes at its plan's rate, which is what the demo line tells
+     a caller. A client who chose a plan for the hard cap would be billed
+     overage. The hyphen and the space are both matched because the demo
+     knowledge base spells it "fallback-answering mode". */
+  { re: /\bhard[- ]cap\b/i,
+    why: "no client can choose a hard cap: usage-policy.ts in nevamis-engine has no production caller, and every account keeps answering and bills extra minutes at the plan's rate" },
+  { re: /\bfallback[- ]answering\b/i,
+    why: "no client can choose fallback answering: usage-policy.ts in nevamis-engine has no production caller, and every account keeps answering and bills extra minutes at the plan's rate" },
+  { re: /\bchoice of (?:automatic )?overage\b/i,
+    why: "there is no choice at the limit: overage is simply what every account does, with no alternative a client can pick" },
+  { re: /\bnear the limit,? you choose\b/i,
+    why: "there is no choice at the limit: every account keeps answering and bills extra minutes at the plan's rate" },
+  /* THE CLIENT PULSE PAGE. Every pricing card promised "a portal Pulse page
+     that keeps your scans". The page was cut from the portal on 2026-09-19
+     and /portal/pulse now redirects to /portal/results, which shows one
+     modelled opportunity and no scan history; nothing under app/portal
+     reads a client's website scans. */
+  { re: /\bPulse page\b/i,
+    why: "the portal has no Pulse page: it was cut on 2026-09-19 and /portal/pulse redirects to /portal/results" },
+  { re: /\bkeeps? your scans\b/i,
+    why: "no portal page keeps a client's scans: /portal/results shows one modelled opportunity and no scan history" },
 ];
 
 /* CAVEAT worth knowing before writing plain text for a swept surface: this

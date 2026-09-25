@@ -154,7 +154,29 @@
      all of the sellable ones on The Works.
 
      Every line here is something the system does today, end to end, for a
-     paying client. That is the bar. */
+     paying client. That is the bar.
+
+     TWO LINES HERE FAILED THAT BAR, and both were fixed on 2026-09-24.
+
+     The minutes line ended "and your choice of overage, fallback answering
+     or a hard cap". No client chooses anything at the limit: nevamis-engine's
+     src/domain/usage-policy.ts models the three behaviours and has no
+     production caller, no setting and no portal screen, and every account
+     does the same thing (calls keep being answered, extra minutes bill at
+     the plan's per-minute rate). The demo line already refused the choice in
+     so many words while this page sold it, so a buyer who picked a plan for
+     the hard cap would have been billed overage. The line now says what
+     happens. The alerts go by text or email (client-notify.ts
+     notifyClientOfUsage), and the running total is on the portal's billing
+     page; the alerts are not "in the portal".
+
+     The portal line promised "a portal Pulse page that keeps your scans".
+     The client Pulse page was cut on 2026-09-19 and /portal/pulse redirects
+     to /portal/results, which shows one modelled opportunity and no scan
+     history. The line now describes the Results page as it is.
+
+     scripts/check-consistency.js guard 7k refuses both promises on every
+     rendered surface, so neither can come back through another page. */
   var EVERY_PLAN = [
     "Answers your line around the clock, configured from your own hours, services, service area, prices and FAQs",
     "Asks the qualifying questions you approved, in your words",
@@ -164,10 +186,10 @@
     "Automatic quality review of any call where a caller used emergency language, or the agent claimed a booking it could not confirm",
     "Scripted test callers run against your live agent before a phone number is ever pointed at it",
     "Call forwarding proven by placing a real call to your line, not assumed",
-    "Included minutes metered in the portal, with alerts at 50%, 75%, 90% and 100%, and your choice of overage, fallback answering or a hard cap",
+    "Included minutes metered on your portal's billing page, with a text or email alert after you pass 50%, 75%, 90% or 100%, and calls still answered past the allowance, each extra minute billed at your plan's per-minute rate",
     "A PULSE scan of your public website, with every money figure a modelled range and a confidence level rather than a measurement, and sharper as you connect your own numbers",
-    "A portal Pulse page that keeps your scans, and Results that label every number as measured or modelled",
-    "Invoices and plan changes you handle yourself in the portal, and self-serve cancellation whenever you want it, with no notice period",
+    "A Results page in your portal that labels every number as measured, declared, estimated or not yet measured, and never adds an estimate to measured money",
+    "Invoices, plan changes and cancellation handled yourself in the portal",
     "Email support at support@nevamis.ca"
   ];
 
@@ -341,6 +363,26 @@
       }
       return { launch: a.launch || 0, monthly: a.monthly || 0, shareBps: 0, attributableTo: null };
     },
+    /* WHAT EVERY PLAN INCLUDES, derived rather than listed a second time
+       (2026-09-24, W6). The pricing page printed the same fourteen lines on
+       all three cards, so a buyer comparing plans read the list three times
+       and could not see the two or three lines that actually differ. The
+       page now prints this list once and each card only what is left.
+
+       It is the lines EVERY plan's `features` carries, in the first plan's
+       order, computed rather than read off EVERY_PLAN: "One business phone
+       line" is on every plan without being in EVERY_PLAN, and a line added
+       to one plan's own list must stay on that plan's card, which a
+       name-based split would get wrong the first time the lists move.
+       `features` itself is untouched, because proposal.html renders one
+       plan's whole list and needs it whole. */
+    sharedFeatures: function () {
+      var plans = this.plans || [];
+      if (!plans.length) return [];
+      return plans[0].features.filter(function (f) {
+        return plans.every(function (p) { return (p.features || []).indexOf(f) >= 0; });
+      });
+    },
     /* The referral offer. Mirrors CANONICAL.referral in nevamis-engine, and the
        engine's consistency checker validates these values against it. The
        REFERRER's free month is earned on the referred business's first PAID
@@ -367,13 +409,29 @@
       offer: "",
       note: ""
     },
+    /* WHAT HAPPENS AT THE LIMIT, stated as the product does it. The last note
+       read "Near the limit you choose: automatic overage, fallback answering,
+       or a hard cap." until 2026-09-24, and there is no such choice: see the
+       note on EVERY_PLAN above. Every account keeps answering and bills the
+       extra minutes at the plan's own rate, the same sentence the demo line
+       gives a caller. The per-minute figures are on each plan card, rendered
+       from `overage` below, so none is typed here. If the choice is ever
+       built, it is re-published here in the same change that wires it, and
+       guard 7k has to be told in the same commit.
+
+       THE ALERT LINE says "after you pass", never "at". The engine checks
+       usage from its daily run (checkAndNotifyUsage, called only by
+       /api/autopilot/daily), and when several thresholds were crossed since
+       the last check it sends only the highest one. So a busy client may
+       get one message at 90% a day after crossing it, not four on the dot;
+       "an alert at 50%, 75%, 90% and 100%" promised the four. */
     usagePolicy: {
       minuteDef: "A connected AI minute starts when the AI answers a connected call and ends when the AI portion of the call ends.",
       notes: [
         "Failed calls that never connect are not counted.",
         "Wrong numbers or spam that reach the AI consume usage, because the system handled them.",
-        "Usage alerts at 50%, 75%, 90%, and 100% of included minutes, in your portal.",
-        "Near the limit you choose: automatic overage, fallback answering, or a hard cap."
+        "A text or email alert after you pass 50%, 75%, 90% or 100% of your included minutes, with your running total on your portal's billing page.",
+        "Past your included minutes, calls keep being answered and each extra minute is billed at your plan's per-minute rate, shown on its card above."
       ]
     },
     /* `monthly` recurs; `launch` is charged once, at the start, beside the
@@ -415,7 +473,13 @@
         bestFor: "A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
         features: [
           "One business phone line",
-          "The growth stack: each item added on its own and priced on its own. Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page. The Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement. Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch & Implementation fee and their own monthly, at the prices listed for them. Search Rankings is coming and is not sold."
+          /* Shortened 2026-09-24 (W6): this line restated, word for word, the
+             two agreed-share sentences the plan's performanceNote already
+             carries on the same card and in the proposal, which made the
+             Partnership card the longest thing on the page. It now names
+             the items and points at the plan's own terms, and the approved
+             share sentence lives once, in performanceNote. */
+          "The growth stack, each item added on its own: Lead Generation (offered by invitation) and the Quote-Chase Engine, paid on this plan's agreed-share terms, and Missed-Call Recovery, Get-Paid Autopilot and Review Engine, each with its own listed Launch & Implementation fee and monthly. Search Rankings is coming and is not sold."
         ].concat(EVERY_PLAN)
       },
       {

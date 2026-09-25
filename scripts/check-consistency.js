@@ -27,7 +27,7 @@ import { applySelfCta } from "./lib/nav-cta.mjs";
    its own fixture table, and fixtures cannot import it from this file without
    running every filesystem guard below as a side effect. See that file for the
    scope rule; see scripts/check-claims-classifier.mjs for the fixtures. */
-import { DENIAL, ADDITIVE, RETIRED_OFFERS, statesBanned, offendingClause } from "./lib/claims.mjs";
+import { DENIAL, ADDITIVE, RETIRED_OFFERS, UNBUILT_PROMISES, statesBanned, offendingClause } from "./lib/claims.mjs";
 import { stripHtmlComments, stripJsComments, jsStringLiterals, renderedProse, clauses } from "./lib/rendered-text.mjs";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
@@ -747,6 +747,145 @@ for (const p of contentPages) {
   }
 }
 
+/* 7k. NO SURFACE MAY PROMISE A FEATURE THE PRODUCT DOES NOT HAVE.
+
+       Added 2026-09-24 for two findings on the pricing page, both on every
+       plan card and both live on nevamis.ca:
+
+         "Near the limit you choose: automatic overage, fallback answering,
+          or a hard cap."   (and "your choice of overage, fallback answering
+          or a hard cap" in the plan feature list)
+         "A portal Pulse page that keeps your scans"
+
+       Neither exists. The limit choice is modelled in nevamis-engine's
+       usage-policy.ts and wired to nothing, and the demo line was already
+       telling callers so; the client Pulse page was cut on 2026-09-19. Every
+       rule above compares FIGURES or retired TERMS, and a promise of a
+       feature is neither, which is why these sat green in front of every
+       buyer. The patterns and the reason each one is false live in
+       UNBUILT_PROMISES in scripts/lib/claims.mjs.
+
+       SCOPE IS EVERYTHING A VISITOR OR A CALLER CAN MEET: every published
+       page (comments stripped, JSON-LD kept, as in 7d), the string literals
+       of its inline scripts, the JavaScript surfaces that render copy
+       (pricing-config.js is where both promises actually lived, and no rule
+       in this file swept its strings for claims until now), llms.txt, and
+       config/elevenlabs/, which feeds the voice agent. A clause that DENIES
+       one of these is allowed, by the same classifier every other claim rule
+       uses, so the demo knowledge base can go on saying "There is no hard
+       cap". Verified red on the tree before this fix: both pricing-config.js
+       lines, the usage note and the static copy of it in pricing.html. */
+{
+  const htmlText = (s) => s
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<script\b(?![^>]*application\/ld\+json)[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&mdash;/g, "—").replace(/&amp;/g, "&").replace(/&rsquo;/g, "'").replace(/&middot;/g, "·")
+    .replace(/[ \t]+/g, " ");
+  /* The readable string literals of a script, each one judged on its own:
+     a literal is a unit of copy, and gluing two together would let a denial
+     in one excuse a promise in the next. */
+  const literalsOf = (js) => jsStringLiterals(stripJsComments(js)).map(renderedProse).filter(Boolean);
+
+  /* {label, text, questions} for every unit of copy in scope. */
+  const units = [];
+  for (const p of contentPages) {
+    const src = fs.readFileSync(path.join(root, p), "utf8");
+    units.push({ label: p, text: htmlText(src) });
+    const inline = /<script\b(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/gi;
+    for (let m = inline.exec(src); m; m = inline.exec(src)) {
+      for (const lit of literalsOf(m[1])) units.push({ label: p + " (inline script)", text: lit });
+    }
+  }
+  const jsSurfaces = ["site.js", "motion.js", "pricing-config.js", "roadmap-config.js"];
+  for (const d of ["assets/motion", "assets/film"]) {
+    const abs = path.join(root, d);
+    if (fs.existsSync(abs)) for (const f of fs.readdirSync(abs)) if (f.endsWith(".js")) jsSurfaces.push(d + "/" + f);
+  }
+  for (const f of jsSurfaces) {
+    const abs = path.join(root, f);
+    if (!fs.existsSync(abs)) continue;
+    for (const lit of literalsOf(fs.readFileSync(abs, "utf8"))) units.push({ label: f, text: lit });
+  }
+  if (fs.existsSync(path.join(root, "llms.txt"))) units.push({ label: "llms.txt", text: fs.readFileSync(path.join(root, "llms.txt"), "utf8") });
+  /* The agent files quote callers verbatim, so a question is not judged
+     there, exactly as in 7e. */
+  for (const file of walk(path.join(root, "config", "elevenlabs"))) {
+    units.push({ label: path.relative(root, file).replace(/\\/g, "/"), text: fs.readFileSync(file, "utf8"), questions: true });
+  }
+  if (!units.some((u) => u.label === "pricing-config.js")) {
+    err("guard 7k: pricing-config.js produced no readable strings, so the file where both of these promises lived is unswept");
+  }
+
+  const seen = new Set();
+  for (const { label, text, questions } of units) {
+    for (const { re, why } of UNBUILT_PROMISES) {
+      const clause = offendingClause(text, re, { allowQuestions: !!questions });
+      if (!clause) continue;
+      const key = label + "::" + clause;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      err(label + ": promises something the product does not have (" + re + ").\n      clause: \"" + clause.slice(0, 180) + "\"\n      "
+        + "Why it is false: " + why + ". Say what the product does instead. A clause that DENIES it is allowed; "
+        + "extend DENIAL rather than dropping the pattern, and remove the pattern from UNBUILT_PROMISES only in "
+        + "the change that ships the feature.");
+    }
+  }
+}
+
+/* 7l. HOW YOU START MUST NOT SAY THE ONLY LAUNCH FEE IS THE PLAN'S.
+
+       Added 2026-09-24. how-you-start.html answered "What does it cost?"
+       with "The fee pays for the build itself, once, and is never charged
+       again; past the start, the only recurring charges are the monthly,
+       any automation add-ons you chose, and any overage". Every add-on on
+       pricing-config.js carries its OWN one-time Launch & Implementation
+       fee, charged when that add-on starts, and terms 2.8 says so; a buyer
+       who read this page and then added the Quote-Chase Engine would meet
+       a launch fee the page had told them would never come again. Each
+       half of that sentence is defensible about the PLAN's fee alone, which
+       is why no figure or retired-term rule could see it.
+
+       So the rule is about what the page must SAY, not a word to ban:
+       while the page mentions automation add-ons, it must state that each
+       one has its own one-time Launch & Implementation fee, and it may not
+       say that fee "is never charged again". The phrase check is a plain
+       regex on purpose: offendingClause() reads "never" as a denial and
+       would excuse the very sentence this exists to stop.
+
+       SCOPE is this one page. terms.html said the same thing at version 2.7
+       and is rewritten to 2.8 on its own branch (sell/a-checkout-terms);
+       sweeping it here would fail this repo until that branch lands, and
+       the history note it keeps quotes the retired wording in the past
+       tense. config/elevenlabs says the plan fee "is never billed again" in
+       a CANCELLATION answer, where only the plan's fee is in question. */
+{
+  const page = "how-you-start.html";
+  const abs = path.join(root, page);
+  if (!fs.existsSync(abs)) {
+    err("guard 7l: " + page + " is missing, so the page that answers \"What does it cost?\" is unswept");
+  } else {
+    const text = fs.readFileSync(abs, "utf8")
+      .replace(/<!--[\s\S]*?-->/g, " ")
+      .replace(/<script\b(?![^>]*application\/ld\+json)[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&amp;/g, "&").replace(/&rsquo;/g, "'")
+      .replace(/\s+/g, " ");
+    const never = text.match(/[^.]*\b(?:is|are) never (?:charged|billed) again\b[^.]*/i);
+    if (never) {
+      err(page + ": says the Launch & Implementation fee is never charged again.\n      clause: \"" + never[0].trim().slice(0, 200) + "\"\n      "
+        + "Each automation add-on carries its own one-time Launch & Implementation fee, charged when that add-on "
+        + "starts (terms 2.8). Say the plan's fee is charged once, when the plan starts, and that each add-on has its own.");
+    }
+    if (/\bautomation add-ons?\b/i.test(text) && !/\bits own one-time Launch & Implementation fee\b/i.test(text)) {
+      err(page + ": names automation add-ons but never says each one carries its own one-time Launch & Implementation fee. "
+        + "A buyer reading it would expect one launch fee in total (terms 2.8 says otherwise).");
+    }
+  }
+}
+
 /* 7z. The inlined stylesheet must equal its sources.
 
        assets/motion/site.css and assets/fonts/fonts.css are still the files
@@ -864,6 +1003,25 @@ for (const p of contentPages) {
     if (!notes) err("pricing.html: #usageNotes not found");
     else if (notes.join(" | ") !== cfg.usagePolicy.notes.join(" | "))
       err("pricing.html: #usageNotes drifted from pricing-config.js\n      page:   " + notes.join(" | ") + "\n      config: " + cfg.usagePolicy.notes.join(" | "));
+
+    /* THE TWO BLOCKS W6 MADE SINGULAR (2026-09-24). The term is now stated in
+       full once, in the terms band's #termsNote, and the lines every plan
+       carries are printed once, in #everyPlan, instead of on every card. Both
+       ship as real text and are overwritten from the config after load, so
+       each is a static copy of a config value and is held to it here like
+       the blocks above. #everyPlan is compared with sharedFeatures(), the
+       same function the page calls, so the guard cannot disagree with the
+       renderer about which lines are shared. A page that loses either block
+       fails too: with the cards no longer listing the shared lines or the
+       term, a missing block would mean those lines are said nowhere. */
+    if (cfg.terms && cfg.terms.note) eq("pricing.html", "termsNote", flat(textOf(ph, "termsNote")), cfg.terms.note);
+    else err("pricing-config.js: terms.note missing, so #termsNote on pricing.html has nothing to render");
+    const shared = typeof cfg.sharedFeatures === "function" ? cfg.sharedFeatures() : null;
+    const everyPlan = items(textOf(ph, "everyPlan"));
+    if (!shared || !shared.length) err("pricing-config.js: sharedFeatures() is missing or empty, so pricing.html has no list of what every plan includes");
+    else if (!everyPlan) err("pricing.html: #everyPlan not found, so the lines every plan includes are printed nowhere");
+    else if (everyPlan.join(" | ") !== shared.join(" | "))
+      err("pricing.html: #everyPlan drifted from pricing-config.js sharedFeatures()\n      page:   " + everyPlan.join(" | ") + "\n      config: " + shared.join(" | "));
 
     /* The proposal defaults to the recommended plan when no id is in the URL,
        so that is the plan its static copy must quote. */
