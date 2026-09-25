@@ -916,13 +916,21 @@ html.no-js .pstep,html.motion-off .pstep{opacity:1;transform:none}
    and 12px/46px/15.5px; they run one scale now. The focus ring is measured by
    tests/focus-visibility.spec.js against the first opaque ancestor - do not
    change the 3px spread or the .5 alpha without re-running it on #cbName,
-   #bkName, #ifName, #roiMissed and .rc input. */
+   #bkName, #ifName, #roiMissed and .rc input.
+   16px is a floor, not a taste. iPhone Safari zooms the whole page into any
+   text field whose font is under 16px the moment it is tapped, and leaves it
+   zoomed after the keyboard closes, so at the 15.5px this used to be, every
+   form on the site (the callback form, the calculator, the pricing
+   recommender, the roadmap interest form) dropped a buyer into a zoomed page
+   mid-sentence. The viewport meta stays pinch-zoomable on purpose, so the fix
+   is the font and never maximum-scale. tests/pages.spec.js measures every
+   text control at phone width against this floor. */
 .roi-grid label,.cb label,.rc label,.interest-form label,form label{
   font-weight:700;font-size:14.5px;display:block;margin-bottom:7px;color:var(--ink)}
 .roi-grid input,.roi-grid select,.roi-grid textarea,
 .cb input,.cb select,.cb textarea,.rc input,.rc select,
 .interest-form input,.interest-form select,.interest-form textarea{
-  width:100%;padding:12px 13px;font-size:15.5px;font-family:inherit;color:var(--ink);
+  width:100%;padding:12px 13px;font-size:16px;font-family:inherit;color:var(--ink);
   background:rgba(159,240,206,.04);border:1px solid var(--line-control);
   border-radius:var(--r-input);min-height:46px;color-scheme:dark;
   transition:border-color var(--t-base) var(--e-out),box-shadow var(--t-base) var(--e-out)}

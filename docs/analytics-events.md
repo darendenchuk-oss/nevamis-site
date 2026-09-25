@@ -11,7 +11,6 @@ input, or customer data in properties.
 | hero_live_demo_call_click | hero phone CTA specifically | none | Hero vs nav CTA performance |
 | hero_book_call_click | any Book-a-Call CTA | none | Primary conversion intent |
 | callbar_book_click | mobile sticky bar (<=820px), "Book a 15-min call" to /book.html#pick-a-time; not on book.html, where the bar scrolls to the scheduler and sends nothing | none | Does a persistent booking bar start bookings on phones? |
-| booking_page_view | book.html load | none | Funnel reach |
 | booking_start | Cal.com link click | none | Booking starts |
 | demo_audio_play / demo_audio_complete | example-call player | none | Does the proof get consumed? |
 | roi_calculator_complete | first full ROI input set | none | Calculator engagement |
@@ -21,6 +20,8 @@ input, or customer data in properties.
 | roadmap_module_activated | journey module toggle | module (slug), on (bool) | Which capability intrigues visitors? |
 | roadmap_form_submitted | interest form submit | services (count only) | Roadmap lead volume |
 | roadmap_front_desk_cta_clicked | Coming-Soon → Front Desk CTAs | none | Does the roadmap feed the live product? |
+
+**Arrival on /book.html is `page_view` (2026-09-25).** site.js sends `page_view` with the page path from every page, so a visit to /book.html is already counted as `page_view` with page `/book.html`. A separate `booking_page_view` used to be pushed straight into `window.nvEvents` by an inline script on book.html. That array is a local record and nothing ever sends it, so the event counted nothing and was removed. The engine's allowlist keeps the name, for the history.
 
 **Ordering, `callbar_book_click` (2026-09-15).** The engine allowlists event
 names and silently drops the ones it does not know, so the name has to exist
