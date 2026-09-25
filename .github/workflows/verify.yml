@@ -7,10 +7,23 @@ name: verify
 # ruleset on main can require, so a change has to pass these guards before it
 # can reach the site.
 #
-# Guards only, deliberately. The full Playwright suite is not run here: in
+# Guards, plus ONE browser spec. The full Playwright suite is not run here: in
 # September 2026 it fails 72 tests on an untouched main (tests written for the
 # pre-film homepage), so a required check built on it would block every merge
 # and get switched off. Each guard below exits 0 on a clean tree today.
+#
+# The exception is tests/pages.spec.js, which is green on main and is the only
+# thing that can see a page at phone width: every page must fit a 375px screen
+# without scrolling sideways, and no text field may be under the 16px that
+# stops iPhone Safari zooming the page when it is tapped. Both are properties
+# of rendered CSS that no node guard can read. Every form on the site shipped
+# at 15.5px (finding F153) while the only overflow check ran at 1440 wide, in
+# a suite nothing ran. The spec
+# answers the site's analytics beacon itself, so a CI run never writes a fake
+# visit into production. Playwright is installed at an exact version, with no
+# lifecycle scripts, rather than from the open range in package.json: there
+# is no lockfile in this repo, and an exact npm version cannot be republished,
+# which is the same property the SHA pins below give the actions.
 #
 # Security posture of the job itself:
 # - `pull_request`, never `pull_request_target`: a fork's pull request runs
@@ -54,3 +67,9 @@ jobs:
         run: node scripts/check-critical-surface.mjs
       - name: generated pages reproduce from their builders
         run: node scripts/check-generator-drift.mjs
+      - name: install the browser for the phone-width spec
+        run: |
+          npm install --no-save --no-audit --no-fund --ignore-scripts @playwright/test@1.62.0
+          npx playwright install --with-deps chromium
+      - name: phone width (no page scrolls sideways, no text field zooms on tap)
+        run: npx playwright test tests/pages.spec.js
