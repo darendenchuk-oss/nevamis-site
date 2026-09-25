@@ -415,7 +415,27 @@ for (const p of contentPages) {
   const PERSON = "(?:on-call\\s+(?:tech(?:nician)?|number|crew|team|person|line)"
     + "|person\\s+on\\s+call|technician|dispatcher|team\\s+member"
     + "|live\\s+(?:person|agent|operator)|human"
-    + "|your\\s+(?:cell|mobile|phone|team|crew)|a\\s+person|the\\s+person)";
+    + "|your\\s+(?:cell|mobile|phone|team|crew)|a\\s+person|the\\s+person"
+    /* Added after the third review (2026-09-25): "it forwards the call to
+       your office manager" names a person and read as honest without it. */
+    + "|(?:office\\s+|service\\s+|shop\\s+)?manager)";
+  /* The hand-off rule alone also takes "you" (the owner): "it forwards the
+     call to you" is a transfer promise (third review, 2026-09-25). Not in
+     PERSON, because the escalation rule shares PERSON and
+     vs-answering-service.html's "Escalates to you instead" is true: an
+     escalation is an alert to the owner, not a call put through. Bounded so
+     it never matches the start of "your". */
+  const HANDOFF_TO = "(?:" + PERSON + "|you\\b)";
+  /* The words that may sit in front of the call in a hand-off ("the urgent
+     call", "your calls", "any after-hours callers"). Closed on purpose: an
+     open "any two words" would let the rule reach across a clause boundary
+     the splitter missed and flag a sentence about something else. */
+  const CALL_MOD = "(?:the|your|their|its|our|this|that|these|those|any|all|every|each|a|an"
+    + "|urgent|emergency|after-hours|overnight|weekend|incoming|inbound|live|real|important|priority"
+    /* "missed" is the product's own word (Missed-Call Recovery), so "it
+       forwards missed calls to your cell" is the likeliest way this promise
+       gets written; it passed until the third review (2026-09-25). */
+    + "|missed)";
   const TRANSFER_PROMISE = [
     /\btransfer(?:s|red|ring)?\b/i,
     /\bpatch(?:es|ing)?\s+(?:you|them|the caller)\s+through\b/i,
@@ -441,10 +461,27 @@ for (const p of contentPages) {
        is not. Widened after review the same day: the plural ("it passes
        calls to your team", "it can route urgent calls to your phone") is the
        same promise, and so is "put the call through to a person", which the
-       put-through rule above misses because its object there is a person. */
+       put-through rule above misses because its object there is a person.
+
+       Widened again after a second review (2026-09-25, FP1): the object took
+       ONE word in front of it from a closed list, so "it forwards the urgent
+       call to your on-call tech" (two words), "it passes your calls to your
+       team" (a possessive) and "it routes emergency calls to your on-call
+       tech" (an adjective the list lacked) all read as honest. Up to two
+       modifiers now, from CALL_MOD: the determiners and possessives a
+       sentence opens the object with, plus the adjectives this trade uses
+       for the calls that matter most. The particle may also come BEFORE the
+       object ("hands off the call to"), which is how people say it.
+
+       "it" is deliberately NOT an object, although "it hands it to your
+       on-call tech" is a promise. On this site "it" is as often the message
+       as the call: "it writes up the job and sends it to your phone" is
+       exactly what the product does, and PERSON includes "your phone". A
+       rule that fails the true sentence gets deleted, which costs every case
+       it does catch. HANDOFF_MUST_PASS below pins that choice. */
     new RegExp("\\b(?:(?:pass|hand|forward|route|send)(?:es|s|ed|ing)?|sent|put(?:s|ting)?)"
-      + "\\s+(?:(?:the|urgent|any|all|those)\\s+)?(?:calls?|callers?|you|them)"
-      + "\\s+(?:off\\s+|over\\s+|on\\s+|straight\\s+|through\\s+)?to\\s+(?:the|your|a)?\\s*" + PERSON, "i"),
+      + "\\s+(?:(?:off|over|on)\\s+)?(?:" + CALL_MOD + "\\s+){0,2}(?:calls?|callers?|you|them)"
+      + "\\s+(?:off\\s+|over\\s+|on\\s+|straight\\s+|through\\s+)?to\\s+(?:the|your|a)?\\s*" + HANDOFF_TO, "i"),
   ];
   /* Constructions that WITHDRAW the claim in the clause that makes it. The
      site's own correction is the first entry's job; the rest are the shapes
@@ -463,6 +500,53 @@ for (const p of contentPages) {
   ];
   const promises = (c) => TRANSFER_PROMISE.some((r) => r.test(c));
   const denies = (c) => TRANSFER_DENIAL.some((r) => r.test(c));
+
+  /* THE RULE'S OWN EXAMPLES, checked on every run (added 2026-09-25, FP1).
+     Each widening above was a reviewer finding a natural sentence the rule
+     let through, and each one was checked by hand once and then only
+     protected by the regex staying as it was. These are those sentences.
+     Narrowing any pattern until one of them passes fails this guard, so the
+     next edit cannot quietly undo a finding the way a regex change with no
+     example beside it can. The same idea as the self-tests in
+     scripts/check-published-surface.mjs. */
+  const HANDOFF_MUST_CATCH = [
+    "It can pass the call to a person.",
+    "It passes calls to your team.",
+    "It can route urgent calls to your phone.",
+    "It can put the call through to a person.",
+    "The call escalates to the on-call tech.",
+    "It forwards the urgent call to your on-call tech.",
+    "It passes your calls to your team.",
+    "It routes emergency calls to your on-call tech.",
+    "It hands off the urgent call to your dispatcher.",
+    "Nevamis sends any after-hours callers straight to your cell.",
+    "It forwards missed calls to your cell.",
+    "It forwards the missed call to your phone.",
+    "It forwards the call to you.",
+    "It forwards the call to your office manager.",
+  ];
+  const HANDOFF_MUST_PASS = [
+    "Live transfer to a person is not part of the service.",
+    "It cannot pass the call to your team; it takes the details and alerts them.",
+    "It passes the details to your team.",
+    "Urgent calls escalate by your rules.",
+    "It writes up the job and sends it to your phone.",
+    "It sends the urgent job summary to your phone.",
+    "It sends the job details to you.",
+    "Urgent calls escalate to you.",
+  ];
+  for (const s of HANDOFF_MUST_CATCH) {
+    if (!clauses(s).some((c) => promises(c) && !denies(c))) {
+      err("guard 16 fails its own example: it lets through \"" + s + "\", a hand-off the agent cannot perform. "
+        + "Fix TRANSFER_PROMISE in scripts/check-consistency.js so every HANDOFF_MUST_CATCH line is caught.");
+    }
+  }
+  for (const s of HANDOFF_MUST_PASS) {
+    if (clauses(s).some((c) => promises(c) && !denies(c))) {
+      err("guard 16 fails its own example: it flags \"" + s + "\", which is true. "
+        + "Fix TRANSFER_PROMISE or TRANSFER_DENIAL so no HANDOFF_MUST_PASS line is flagged.");
+    }
+  }
 
   /* pricing-config.js and roadmap-config.js are page surfaces, not data.
      Their string values are rendered into pricing.html and coming-soon.html
@@ -800,9 +884,30 @@ const NO_MECHANISM = [
      is true and is the pitch. The denial governs the verb, as above. First run
      (2026-09-25) it found config/elevenlabs/recording-notice-greetings.md
      offering "Route to voicemail" as a decline-recording path a client agent
-     cannot perform; that draft now says so. */
-  { re: /(?:\b(?:send|sends|sending|route|routes|routing|forward|forwards|forwarding|pass|passes|passing|transfer|transfers|transferring|puts?|putting)|\b(?:is|are|be|been|being|gets?|getting|got)\s+(?:\w+\s+)?(?:sent|routed|forwarded|passed|transferred|put))\s+(?:[\w'-]+\s+){0,4}?(?:through\s+)?to\s+(?:your\s+|a\s+|the\s+)?voice\s?mail\b/i,
-    denial: /\b(?:cannot|can't|can not|does not|doesn't|will not|won't|never|not)\s+(?:\w+\s+){0,2}?(?:send|sent|rout|forward|pass|transfer|put)\w*|\bno\s+voice\s?mail\s+(?:fallback|transfer|forwarding)\b/i,
+     cannot perform; that draft now says so.
+
+     Second review, same day (FP1): "hand" and "divert" were missing from the
+     verbs, so "it hands the caller off to your voicemail" and "it diverts the
+     caller to voicemail" passed, and so did "switch", which is how the
+     recording-notice draft's Option B offered a decliner "voicemail or a
+     person" (config/elevenlabs/recording-notice-greetings.md, now fixed: a
+     client agent reaches neither). And the denial accepted a bare "not" with
+     any two words before the verb, so in "Calls Nevamis does not answer are
+     forwarded to your voicemail" the "not" that belongs to ANSWER excused
+     the forwarding. A negation now counts only when it governs the routing
+     verb itself: the verb follows it directly, or after "be" or an adverb
+     from a closed list ("will not be sent", "never ever routes").
+
+     Third review, same day: that narrowing failed honest sentences the old
+     denial accepted. "Callers never get sent to voicemail" (a "get" passive)
+     and the no-subject forms "Nothing is ever sent to voicemail" and "No
+     caller is sent to voicemail" all read as promises. "get" joins the
+     closed list, and a "no <caller|call|message|one>" / "nothing" / "nobody"
+     subject counts when the passive verb follows it directly. The subject is
+     a closed list, not any word after "no", so "Calls with no answer are sent
+     to voicemail" is still caught. */
+  { re: /(?:\b(?:send|sends|sending|route|routes|routing|forward|forwards|forwarding|pass|passes|passing|hand|hands|handing|divert|diverts|diverting|switch|switches|switching|transfer|transfers|transferring|puts?|putting)|\b(?:is|are|be|been|being|gets?|getting|got)\s+(?:\w+\s+)?(?:sent|routed|forwarded|passed|handed|diverted|switched|transferred|put))\s+(?:[\w'-]+\s+){0,4}?(?:through\s+)?to\s+(?:your\s+|a\s+|the\s+)?voice\s?mail\b/i,
+    denial: /\b(?:cannot|can't|can not|does not|doesn't|do not|don't|will not|won't|is not|isn't|are not|aren't|never)\s+(?:(?:be|ever|then|just|simply|automatically|quietly|get|gets|got)\s+){0,2}(?:send|sent|rout|forward|pass|hand|divert|switch|transfer|put)\w*|\b(?:no\s+(?:caller|callers|call|calls|one|message|messages)|nothing|nobody)\s+(?:is|are|gets?)\s+(?:ever\s+)?(?:sent|routed|forwarded|passed|handed|diverted|switched|transferred|put)\b|\bno\s+voice\s?mail\s+(?:fallback|transfer|forwarding)\b/i,
     why: "a client's agent has end_call only (engine elevenlabs-provision.ts): it cannot send, route or forward a caller anywhere, voicemail included; say it takes a message, flags it urgent and alerts the team" },
   /* Up to two adverbs may sit between "then" and the verb: "then permanently
      deleted" and "then automatically and permanently removed" are the same
@@ -812,6 +917,47 @@ const NO_MECHANISM = [
   { re: /(?:\bplus|\+)\s*(?:applicable\s+)?GST\b(?!\s*\/\s*HST)/i,
     why: "canonical and pricing-config.js taxNote say \"plus applicable GST/HST\"; derive the tax words from P.taxNote instead of typing them" },
 ];
+
+/* NO_MECHANISM's own examples, checked on every run (2026-09-25, FP1), for
+   the reason guard 16 carries HANDOFF_MUST_CATCH: every widening of these
+   patterns came from a reviewer's sentence, and a sentence only protects the
+   rule while something keeps checking it. Judged exactly as guard 7k judges
+   copy: per clause, the pattern hits and its denial does not. */
+{
+  const flagged = (s) => clauses(s).some((c) => NO_MECHANISM.some(({ re, denial }) => re.test(c) && !(denial && denial.test(c))));
+  const MUST_CATCH = [
+    "It can fall back to your voicemail, and it never invents an answer.",
+    "It sends the caller to voicemail.",
+    "Urgent calls are forwarded to your voicemail.",
+    "It hands the caller off to your voicemail.",
+    "It diverts the caller to voicemail.",
+    "If you'd prefer I don't record, I'll switch you to voicemail or a person.",
+    "Calls Nevamis does not answer are forwarded to your voicemail.",
+    "Calls with no answer are sent to voicemail.",
+    "Contact details are kept for a year, then permanently deleted.",
+    "Old records are then automatically and permanently removed.",
+    "Billed each month, plus GST.",
+  ];
+  const MUST_PASS = [
+    "It never falls back to your voicemail.",
+    "There is no voicemail fallback.",
+    "It cannot send a caller to voicemail.",
+    "Callers are never sent to voicemail.",
+    "Urgent calls will not be forwarded to your voicemail.",
+    "Callers never get sent to voicemail.",
+    "Nothing is ever sent to voicemail.",
+    "No caller is sent to voicemail.",
+    "The same call sent to voicemail is a note about a job you did not get.",
+    "Calls that go to voicemail are lost.",
+    "Billed each month, plus applicable GST/HST.",
+  ];
+  for (const s of MUST_CATCH) if (!flagged(s)) {
+    err("NO_MECHANISM fails its own example: it lets through \"" + s + "\". Fix the pattern in scripts/check-consistency.js so every MUST_CATCH line is caught.");
+  }
+  for (const s of MUST_PASS) if (flagged(s)) {
+    err("NO_MECHANISM fails its own example: it flags \"" + s + "\", which is true. Fix the pattern or its denial so no MUST_PASS line is flagged.");
+  }
+}
 
 /* 7k. NO SURFACE MAY PROMISE A FEATURE THE PRODUCT DOES NOT HAVE.
 

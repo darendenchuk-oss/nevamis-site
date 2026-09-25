@@ -6,9 +6,44 @@
    phone. Every test here is a way that rule could break.
    ============================================================ */
 
+/* REPOINTED AT THE PAGES THAT LOAD THE SCROLL LAYER (2026-09-25, FP3).
+
+   Seven of the eight tests here opened /home.html, and four of them waited
+   on window.__heroTL, the timeline of the pre-film hero. The film homepage
+   has neither that timeline nor the scroll layer (it never loads
+   assets/motion/main.js), so those four timed out at 90 seconds on every run,
+   and two more judged the layer's motion on a page it never touches. The layer
+   itself is alive on the secondary pages, and that is where it is proved
+   now. The ready signal is the one main.js really gives: its tap-ring pool,
+   installed in the same synchronous pass that runs scroll.js, so once the
+   rings exist the headings have been curtained or deliberately left alone.
+
+   DELETED, because no published page carries what they tested:
+     - the night band pinning on desktop (.nb-scene, nv-pin-night) and the
+       night scenes in the scroll-through: no page renders a night band
+     - the ROI count-up: the only ROI calculator is on the film homepage,
+       which does not load scroll.js; tests/interactions.spec.js and
+       tests/homepage-calculator.spec.js prove the calculator itself
+     - the voice bars ([data-voice]): no page renders the motif
+   scroll.js still carries the code for all three; this file comes back to
+   them if a page does. */
+
 import { test, expect } from '@playwright/test';
 
+/* A long sales page that loads ScrollTrigger and has headings well below the
+   fold, which is what the curtain is for. */
+const LONG = '/revenue-engine.html';
+/* The page a buyer is most likely to reach that loads the motion layer. */
+const MOTION_PAGE = '/pricing.html';
 const PLAIN = '/home.html';
+
+/* site.js beacons page_view to the PRODUCTION engine; see tests/pages.spec.js.
+   A route belongs to its context, so a context a test opens gets it too. */
+const stubEngine = (ctx) => ctx.route(/^https:\/\/app\.nevamis\.ca\//, (r) => r.fulfill({ status: 204, body: '' }));
+test.beforeEach(async ({ context }) => { await stubEngine(context); });
+
+/** main.js has run with motion allowed: its pooled tap rings exist. */
+const motionLayerReady = (page) => expect(page.locator('.nv-sonar')).toHaveCount(8);
 
 /** Scroll the whole page in steps, like a person, so every trigger fires. */
 async function scrollThrough(page, step = 600, settle = 120) {
@@ -23,131 +58,65 @@ async function scrollThrough(page, step = 600, settle = 120) {
   }, { step, settle });
 }
 
-test('a full scroll-through leaves no masked word and no scene hidden (desktop)', async ({ page }) => {
+/** Words the curtain translated and never brought back. */
+const stuckWords = (page) => page.evaluate(() =>
+  [...document.querySelectorAll('.mwi')].filter((el) => {
+    const m = getComputedStyle(el).transform.match(/matrix\(([^)]+)\)/);
+    return m && Math.abs(Number(m[1].split(',')[5])) > 1;
+  }).map((el) => el.textContent));
+
+test('a full scroll-through leaves no masked word behind (desktop)', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto(PLAIN);
-  await page.waitForFunction(() => !!window.__heroTL);
-  await page.evaluate(() => { window.__heroTL.progress(1).pause(); });
+  await page.goto(LONG);
+  await motionLayerReady(page);
 
   const wrapped = await page.evaluate(() => document.querySelectorAll('h2[data-masked]').length);
-  expect(wrapped, 'headings should be wrapped for the curtain effect').toBeGreaterThan(8);
+  expect(wrapped, 'below-the-fold headings should be wrapped for the curtain effect').toBeGreaterThan(2);
 
   await scrollThrough(page);
-
-  const hidden = await page.evaluate(() => {
-    const bad = [];
-    for (const el of document.querySelectorAll('.mwi')) {
-      const t = getComputedStyle(el).transform;
-      // identity or none — anything still translated is a word stuck offstage
-      if (t !== 'none') {
-        const m = t.match(/matrix\(([^)]+)\)/);
-        if (m && Math.abs(Number(m[1].split(',')[5])) > 1) bad.push(el.textContent);
-      }
-    }
-    for (const s of document.querySelectorAll('.nb-scene')) {
-      const cs = getComputedStyle(s);
-      // In the pinned choreography earlier scenes legitimately end faded out;
-      // what must never happen is ALL scenes hidden at rest.
-      s.dataset.op = cs.opacity;
-    }
-    const sceneOps = [...document.querySelectorAll('.nb-scene')].map((s) => Number(s.dataset.op));
-    return { stuckWords: bad, sceneOps };
-  });
-
-  expect(hidden.stuckWords, 'words still translated offstage after a full read').toEqual([]);
-  expect(Math.max(...hidden.sceneOps), 'at least the final scene must be visible at rest').toBeGreaterThan(0.9);
-});
-
-test('the night band pins on desktop and never pins on a phone', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto(PLAIN);
-  await page.waitForFunction(() => !!window.__heroTL);
-  const pinnedDesktop = await page.evaluate(() =>
-    document.documentElement.classList.contains('nv-pin-night'));
-  expect(pinnedDesktop, 'desktop should run the pinned scrub').toBe(true);
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.waitForTimeout(500); // gsap.matchMedia reacts to the resize
-  const pinnedPhone = await page.evaluate(() =>
-    document.documentElement.classList.contains('nv-pin-night'));
-  expect(pinnedPhone, 'phones get the stacked cards, never the pin').toBe(false);
-
-  // and the stacked scenes are plainly visible content
-  await page.evaluate(() => document.querySelector('.nb-scene').scrollIntoView({ block: 'center' }));
-  await page.waitForTimeout(800);
-  const firstScene = page.locator('.nb-scene').first();
-  await expect(firstScene).toBeVisible();
+  expect(await stuckWords(page), 'words still translated offstage after a full read').toEqual([]);
 });
 
 test('when ScrollTrigger never loads, headings are plain visible text', async ({ page }) => {
   await page.route('**/ScrollTrigger.min.js', (r) => r.abort());
-  await page.goto(PLAIN);
-  await page.waitForFunction(() => !!window.__heroTL);
+  await page.goto(MOTION_PAGE);
+  await motionLayerReady(page);
 
   const state = await page.evaluate(() => ({
     st: !!window.ScrollTrigger,
     wrapped: document.querySelectorAll('h2[data-masked]').length,
-    firstH2Visible: (() => {
-      const h = document.querySelector('#proof h2');
+    hidden: [...document.querySelectorAll('main h2, section h2')].filter((h) => {
       const cs = getComputedStyle(h);
-      return cs.visibility === 'visible' && Number(cs.opacity) > 0;
-    })(),
+      return cs.visibility !== 'visible' || Number(cs.opacity) === 0;
+    }).map((h) => h.textContent.trim()),
   }));
   expect(state.st, 'the library must actually be missing in this test').toBe(false);
   expect(state.wrapped, 'no wrapping may happen without the library').toBe(0);
-  expect(state.firstH2Visible, 'headings must be plain readable text').toBe(true);
+  expect(state.hidden, 'headings must be plain readable text').toEqual([]);
 });
 
 test('reduced motion gets the complete page with no scroll choreography at all', async ({ browser }) => {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  await stubEngine(ctx);
   const page = await ctx.newPage();
-  await page.goto(PLAIN);
+  await page.goto(LONG, { waitUntil: 'load' });
+  /* Nothing installs under reduced motion, so there is no ready signal to
+     wait on; this is the time the motion layer takes above, and then some. */
   await page.waitForTimeout(800);
 
   const state = await page.evaluate(() => ({
+    rings: document.querySelectorAll('.nv-sonar').length,
     wrapped: document.querySelectorAll('h2[data-masked]').length,
     pinned: document.documentElement.classList.contains('nv-pin-night'),
-    scenesVisible: [...document.querySelectorAll('.nb-scene')].every((s) =>
-      Number(getComputedStyle(s).opacity) > 0.9),
+    h2s: document.querySelectorAll('main h2, section h2').length,
+    hidden: [...document.querySelectorAll('main h2, section h2')].filter((h) =>
+      Number(getComputedStyle(h).opacity) < 0.9).map((h) => h.textContent.trim()),
   }));
+  expect(state.rings, 'the motion layer must not install under reduced motion').toBe(0);
   expect(state.wrapped, 'no heading surgery under reduced motion').toBe(0);
   expect(state.pinned, 'no pinning under reduced motion').toBe(false);
-  expect(state.scenesVisible, 'every scene plainly visible').toBe(true);
-  await ctx.close();
-});
-
-test('the ROI count-up ends on exactly the number the calculator computed', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto(PLAIN);
-  await page.waitForFunction(() => !!window.__heroTL);
-  await page.evaluate(() => { window.__heroTL.progress(1).pause(); });
-
-  // the value site.js computed from the default inputs, before any animation
-  const before = await page.evaluate(() => document.getElementById('roiOpp').textContent);
-  expect(before, 'the calculator must have produced a real figure').toMatch(/^\$[\d,]+$/);
-
-  await page.evaluate(() => document.getElementById('roiOpp').scrollIntoView({ block: 'center' }));
-  await page.waitForTimeout(1600); // count-up runs 0.8s; give it double
-
-  const after = await page.evaluate(() => document.getElementById('roiOpp').textContent);
-  expect(after, 'animation must restore the exact computed figure').toBe(before);
-});
-
-test('voice bars hold still under reduced motion and with the toggle off', async ({ browser }) => {
-  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
-  const page = await ctx.newPage();
-  await page.goto(PLAIN);
-  await page.waitForTimeout(600);
-
-  const still = await page.evaluate(async () => {
-    const bar = document.querySelector('[data-voice] i');
-    if (!bar) return { present: false };
-    const a = bar.style.transform;
-    await new Promise((r) => setTimeout(r, 500));
-    return { present: true, unchanged: bar.style.transform === a };
-  });
-  expect(still.present, 'the motif renders as a static signature').toBe(true);
-  expect(still.unchanged, 'nothing may keep moving under reduced motion').toBe(true);
+  expect(state.h2s, 'the page under test must have headings to judge').toBeGreaterThan(2);
+  expect(state.hidden, 'every heading plainly visible').toEqual([]);
   await ctx.close();
 });
 
