@@ -221,8 +221,12 @@ for (const p of contentPages) {
   }
   const bannedHtml = bannedView(p, html);
   for (const b of banned) if (b.test(bannedHtml)) err(p + ": banned phrase " + b);
-  const emDashes = (html.match(/—/g) || []).length;
-  if (emDashes > 0) err(p + ": contains " + emDashes + " em dash(es)");
+  /* The entity spellings render as the same character. This counted only the
+     literal one, so privacy.html carried three &mdash; entities that every
+     visitor saw as em dashes while this rule read zero (found 2026-09-24).
+     Counted in all three spellings, named and numeric, for that reason. */
+  const emDashes = (html.match(/—|&mdash;|&#8212;|&#x2014;/gi) || []).length;
+  if (emDashes > 0) err(p + ": contains " + emDashes + " em dash(es), counting &mdash; and numeric entities");
   /* The canonical-pilot-naming rule stood here until 2026-08-09. It required a
      page that said "free 7-day pilot" to also say "7-day live pilot", which
      was a rule about SPELLING an offer. The offer is retired, so spelling it
