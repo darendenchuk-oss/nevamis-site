@@ -415,13 +415,27 @@ for (const p of contentPages) {
   const PERSON = "(?:on-call\\s+(?:tech(?:nician)?|number|crew|team|person|line)"
     + "|person\\s+on\\s+call|technician|dispatcher|team\\s+member"
     + "|live\\s+(?:person|agent|operator)|human"
-    + "|your\\s+(?:cell|mobile|phone|team|crew)|a\\s+person|the\\s+person)";
+    + "|your\\s+(?:cell|mobile|phone|team|crew)|a\\s+person|the\\s+person"
+    /* Added after the third review (2026-09-25): "it forwards the call to
+       your office manager" names a person and read as honest without it. */
+    + "|(?:office\\s+|service\\s+|shop\\s+)?manager)";
+  /* The hand-off rule alone also takes "you" (the owner): "it forwards the
+     call to you" is a transfer promise (third review, 2026-09-25). Not in
+     PERSON, because the escalation rule shares PERSON and
+     vs-answering-service.html's "Escalates to you instead" is true: an
+     escalation is an alert to the owner, not a call put through. Bounded so
+     it never matches the start of "your". */
+  const HANDOFF_TO = "(?:" + PERSON + "|you\\b)";
   /* The words that may sit in front of the call in a hand-off ("the urgent
      call", "your calls", "any after-hours callers"). Closed on purpose: an
      open "any two words" would let the rule reach across a clause boundary
      the splitter missed and flag a sentence about something else. */
   const CALL_MOD = "(?:the|your|their|its|our|this|that|these|those|any|all|every|each|a|an"
-    + "|urgent|emergency|after-hours|overnight|weekend|incoming|inbound|live|real|important|priority)";
+    + "|urgent|emergency|after-hours|overnight|weekend|incoming|inbound|live|real|important|priority"
+    /* "missed" is the product's own word (Missed-Call Recovery), so "it
+       forwards missed calls to your cell" is the likeliest way this promise
+       gets written; it passed until the third review (2026-09-25). */
+    + "|missed)";
   const TRANSFER_PROMISE = [
     /\btransfer(?:s|red|ring)?\b/i,
     /\bpatch(?:es|ing)?\s+(?:you|them|the caller)\s+through\b/i,
@@ -467,7 +481,7 @@ for (const p of contentPages) {
        it does catch. HANDOFF_MUST_PASS below pins that choice. */
     new RegExp("\\b(?:(?:pass|hand|forward|route|send)(?:es|s|ed|ing)?|sent|put(?:s|ting)?)"
       + "\\s+(?:(?:off|over|on)\\s+)?(?:" + CALL_MOD + "\\s+){0,2}(?:calls?|callers?|you|them)"
-      + "\\s+(?:off\\s+|over\\s+|on\\s+|straight\\s+|through\\s+)?to\\s+(?:the|your|a)?\\s*" + PERSON, "i"),
+      + "\\s+(?:off\\s+|over\\s+|on\\s+|straight\\s+|through\\s+)?to\\s+(?:the|your|a)?\\s*" + HANDOFF_TO, "i"),
   ];
   /* Constructions that WITHDRAW the claim in the clause that makes it. The
      site's own correction is the first entry's job; the rest are the shapes
@@ -506,6 +520,10 @@ for (const p of contentPages) {
     "It routes emergency calls to your on-call tech.",
     "It hands off the urgent call to your dispatcher.",
     "Nevamis sends any after-hours callers straight to your cell.",
+    "It forwards missed calls to your cell.",
+    "It forwards the missed call to your phone.",
+    "It forwards the call to you.",
+    "It forwards the call to your office manager.",
   ];
   const HANDOFF_MUST_PASS = [
     "Live transfer to a person is not part of the service.",
@@ -514,6 +532,8 @@ for (const p of contentPages) {
     "Urgent calls escalate by your rules.",
     "It writes up the job and sends it to your phone.",
     "It sends the urgent job summary to your phone.",
+    "It sends the job details to you.",
+    "Urgent calls escalate to you.",
   ];
   for (const s of HANDOFF_MUST_CATCH) {
     if (!clauses(s).some((c) => promises(c) && !denies(c))) {
@@ -876,9 +896,18 @@ const NO_MECHANISM = [
      forwarded to your voicemail" the "not" that belongs to ANSWER excused
      the forwarding. A negation now counts only when it governs the routing
      verb itself: the verb follows it directly, or after "be" or an adverb
-     from a closed list ("will not be sent", "never ever routes"). */
+     from a closed list ("will not be sent", "never ever routes").
+
+     Third review, same day: that narrowing failed honest sentences the old
+     denial accepted. "Callers never get sent to voicemail" (a "get" passive)
+     and the no-subject forms "Nothing is ever sent to voicemail" and "No
+     caller is sent to voicemail" all read as promises. "get" joins the
+     closed list, and a "no <caller|call|message|one>" / "nothing" / "nobody"
+     subject counts when the passive verb follows it directly. The subject is
+     a closed list, not any word after "no", so "Calls with no answer are sent
+     to voicemail" is still caught. */
   { re: /(?:\b(?:send|sends|sending|route|routes|routing|forward|forwards|forwarding|pass|passes|passing|hand|hands|handing|divert|diverts|diverting|switch|switches|switching|transfer|transfers|transferring|puts?|putting)|\b(?:is|are|be|been|being|gets?|getting|got)\s+(?:\w+\s+)?(?:sent|routed|forwarded|passed|handed|diverted|switched|transferred|put))\s+(?:[\w'-]+\s+){0,4}?(?:through\s+)?to\s+(?:your\s+|a\s+|the\s+)?voice\s?mail\b/i,
-    denial: /\b(?:cannot|can't|can not|does not|doesn't|do not|don't|will not|won't|is not|isn't|are not|aren't|never)\s+(?:(?:be|ever|then|just|simply|automatically|quietly)\s+){0,2}(?:send|sent|rout|forward|pass|hand|divert|switch|transfer|put)\w*|\bno\s+voice\s?mail\s+(?:fallback|transfer|forwarding)\b/i,
+    denial: /\b(?:cannot|can't|can not|does not|doesn't|do not|don't|will not|won't|is not|isn't|are not|aren't|never)\s+(?:(?:be|ever|then|just|simply|automatically|quietly|get|gets|got)\s+){0,2}(?:send|sent|rout|forward|pass|hand|divert|switch|transfer|put)\w*|\b(?:no\s+(?:caller|callers|call|calls|one|message|messages)|nothing|nobody)\s+(?:is|are|gets?)\s+(?:ever\s+)?(?:sent|routed|forwarded|passed|handed|diverted|switched|transferred|put)\b|\bno\s+voice\s?mail\s+(?:fallback|transfer|forwarding)\b/i,
     why: "a client's agent has end_call only (engine elevenlabs-provision.ts): it cannot send, route or forward a caller anywhere, voicemail included; say it takes a message, flags it urgent and alerts the team" },
   /* Up to two adverbs may sit between "then" and the verb: "then permanently
      deleted" and "then automatically and permanently removed" are the same
@@ -904,6 +933,7 @@ const NO_MECHANISM = [
     "It diverts the caller to voicemail.",
     "If you'd prefer I don't record, I'll switch you to voicemail or a person.",
     "Calls Nevamis does not answer are forwarded to your voicemail.",
+    "Calls with no answer are sent to voicemail.",
     "Contact details are kept for a year, then permanently deleted.",
     "Old records are then automatically and permanently removed.",
     "Billed each month, plus GST.",
@@ -914,6 +944,9 @@ const NO_MECHANISM = [
     "It cannot send a caller to voicemail.",
     "Callers are never sent to voicemail.",
     "Urgent calls will not be forwarded to your voicemail.",
+    "Callers never get sent to voicemail.",
+    "Nothing is ever sent to voicemail.",
+    "No caller is sent to voicemail.",
     "The same call sent to voicemail is a note about a job you did not get.",
     "Calls that go to voicemail are lost.",
     "Billed each month, plus applicable GST/HST.",

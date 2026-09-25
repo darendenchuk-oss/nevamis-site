@@ -309,10 +309,11 @@ test('funnel diagnostics fire without leaking anything personal', async ({ page 
   await page.waitForFunction(() => Array.isArray(window.nvEvents));
 
   // walk the page so section + depth events accumulate. Seven stops, not
-  // four: the pinned night band added roughly two viewports of scroll range,
-  // and a four-teleport walk across the longer page can land between
-  // sections, which says nothing about whether events fire on a real
-  // read-through. Depth milestones are unaffected either way.
+  // four: the film homepage runs many viewports tall (the film's scroll
+  // range plus the sections under it), and a four-teleport walk across a
+  // page that long can land between sections, which says nothing about
+  // whether events fire on a real read-through. Depth milestones are
+  // unaffected either way.
   for (const pct of [0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1]) {
     await page.evaluate((p) => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
