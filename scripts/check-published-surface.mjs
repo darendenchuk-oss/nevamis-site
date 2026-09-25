@@ -191,6 +191,91 @@ const unexpected = published.filter((f) => {
 });
 const missing = REQUIRED.filter((f) => !set.has(f));
 
+/* THE SECURITY CONTACT MUST POINT AT THIS SITE.
+
+   security.txt's Policy used to be github.com/.../blob/main/SECURITY.md. That
+   is an address on someone else's domain, it names the repository, and it
+   stops resolving the day the repository is made private, which leaves the one
+   file a researcher is told to read pointing at a 404. Every URL in it must be
+   on https://nevamis.ca/ and must be a file this site actually serves, so the
+   policy it names can never be a page that was excluded, renamed or never
+   committed. A mailto: Contact is not a URL here and is left alone. */
+const securityTxtProblems = [];
+{
+  const file = path.join(root, '.well-known/security.txt');
+  const text = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+  for (const url of text.match(/https?:\/\/[^\s>]+/gi) || []) {
+    const m = url.match(/^https:\/\/nevamis\.ca\/([^?#]*)/);
+    if (!m) { securityTxtProblems.push(`${url} is not on https://nevamis.ca/`); continue; }
+    const served = m[1] === '' || m[1].endsWith('/') ? m[1] + 'index.html' : m[1];
+    if (!set.has(decodeURIComponent(served))) securityTxtProblems.push(`${url} names ${served}, which this site does not serve`);
+  }
+}
+
+/* THE REPOSITORY'S OWN FRONT PAGE IS PUBLISHED TOO.
+
+   README.md is excluded from nevamis.ca, but this repository is public and its
+   README is what github.com shows, and that page is a top search result for
+   the company's own name. By September 2026 it carried a retired commercial
+   model in full: plan mechanics, what the price did and did not include, two
+   retired offers by name and a note that they were retired. None of that is
+   checked anywhere else, because every copy guard reads the pages.
+
+   What the business sells, and on what terms, lives on the site and is checked
+   there; the README links to it. So the rule is not "the README states the
+   right price" but "the README states no commercial fact at all": a figure it
+   does not carry cannot go stale. Each pattern is the SHAPE of such a fact, so a
+   new wording of an old mistake still fails. */
+const README_FORBIDDEN = [
+  [/(?:C\$|CA\$|\$)\s?\d/i, 'a money figure'],
+  [/\b(?:dollars?|bucks|CAD|USD)\b/i, 'a money figure in words'],
+  [/\b\d{9}\s?R[TP]\s?\d{4}\b/i, 'a CRA business or tax account number'],
+  [/\b(?:GST|HST|PST)\b/i, 'a sales tax registration or rate'],
+  [/\b(?:set-?up|activation|onboarding|launch)[\s-]+(?:fee|charge)s?\b/i, 'a one-time fee'],
+  [/\b(?:pilot|trial|free period|discount|money-back|guarantee)\b/i, 'an offer term'],
+  [/\b(?:months?|weeks?|days?)\s+(?:free|at no (?:charge|cost)|on us)\b|\bfree\s+(?:months?|weeks?|days?)\b|\bfirst\s+(?:month|week)\b/i, 'a free period'],
+  [/\b(?:minimum|fixed|initial)\s+(?:term|commitment|contract|period)\b|\b(?:\d+|one|two|three|four|six|nine|twelve|eighteen|twenty-four)[\s-](?:month|year)s?\b|\bper\s+(?:month|year)\b|\ba\s+(?:month|year)\b|\/(?:mo|month|yr|year)\b/i, 'a term or billing period'],
+  [/\bretired\b/i, 'a note about what the business no longer offers or says'],
+];
+/* The rule checks itself on every run. Each MUST_CATCH line is a wording that
+   once got past an earlier version of these patterns (or its obvious sibling);
+   each MUST_PASS line is ordinary developer prose from this README that a
+   too-greedy pattern would start failing. Loosening a pattern until one of
+   these flips fails the check, not a later README. */
+const README_MUST_CATCH = [
+  'C$450 a month', 'CA$ 450', '$450', '450 dollars a month', 'four hundred and fifty dollars',
+  '123456789 RT0001', 'GST included', 'plus HST',
+  'no setup fee', 'no setup-fee', 'no set-up fee', 'an activation charge',
+  'a 30-day pilot', 'try the trial', 'money-back guarantee',
+  'first month free', 'two months free', 'free months for referrals',
+  'minimum term of 3 months', 'a 12-month term', 'a three-month commitment', 'billed per month', 'from 450/mo',
+  'the retired offer',
+];
+const README_MUST_PASS = [
+  'Pages serves the `main` branch at nevamis.ca, and a commit on `main` is live within about a minute.',
+  'Prices come from `pricing-config.js`. Where a page carries a figure as text,',
+  'node serve.js 3222       # another port, or set NV_PORT',
+  'You need Node 22 (what CI uses). Python 3 is needed only to rebuild the homepage.',
+  '| every page in `content-map.json` | `node scripts/build-search-index.mjs` | `search-index.json` |',
+];
+const readmeSelfTest = [];
+for (const s of README_MUST_CATCH) if (!README_FORBIDDEN.some(([re]) => re.test(s))) readmeSelfTest.push(`misses "${s}"`);
+for (const s of README_MUST_PASS) {
+  const hit = README_FORBIDDEN.find(([re]) => re.test(s));
+  if (hit) readmeSelfTest.push(`wrongly flags "${s}" as ${hit[1]}`);
+}
+const readmeProblems = [];
+{
+  const file = path.join(root, 'README.md');
+  const text = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+  text.split(/\r?\n/).forEach((line, i) => {
+    for (const [re, what] of README_FORBIDDEN) {
+      const hit = line.match(re);
+      if (hit) readmeProblems.push(`README.md:${i + 1} carries ${what} ("${hit[0]}")`);
+    }
+  });
+}
+
 if (missing.length) console.error('MUST BE PUBLISHED but is not (excluded, hidden or untracked):\n  ' + missing.join('\n  '));
 if (unsafeSvg.length) console.error('ASSET SVG OUTSIDE THE ALLOW LIST. Opened directly it could run code or load something on the nevamis.ca origin. '
   + 'Asset SVGs may hold only static SVG elements and #fragment references: no links, script, event handlers, foreignObject, <set>, DTDs or processing instructions, '
@@ -201,5 +286,11 @@ if (unexpected.length) {
   console.error(`PUBLISHED BUT NOT ALLOWED (${unexpected.length} files). Exclude them in _config.yml, or allow them in scripts/check-published-surface.mjs if they are meant to be public:`);
   for (const [t, files] of Object.entries(byTop)) console.error(`  ${t}: ${files.length} file(s), e.g. ${files.slice(0, 3).join(', ')}`);
 }
-if (missing.length || unexpected.length) process.exitCode = 1;
-else console.log(`Published surface OK: ${published.length} files, all intended.`);
+if (securityTxtProblems.length) console.error('SECURITY.TXT POINTS OFF THIS SITE. Every URL in .well-known/security.txt must be a file served on https://nevamis.ca/ '
+  + '(the Policy is security.html):\n  ' + securityTxtProblems.join('\n  '));
+if (readmeProblems.length) console.error('README.MD STATES A COMMERCIAL FACT. This repository is public and its README is a search result for the company. '
+  + 'Link to nevamis.ca/pricing.html or nevamis.ca/terms.html instead of stating it:\n  ' + readmeProblems.join('\n  '));
+if (readmeSelfTest.length) console.error('THE README RULE FAILS ITS OWN EXAMPLES. Fix README_FORBIDDEN in scripts/check-published-surface.mjs so it catches every README_MUST_CATCH line and none of README_MUST_PASS:\n  '
+  + readmeSelfTest.join('\n  '));
+if (missing.length || unexpected.length || securityTxtProblems.length || readmeProblems.length || readmeSelfTest.length) process.exitCode = 1;
+else console.log(`Published surface OK: ${published.length} files, all intended; security.txt points at nevamis.ca; README.md states no commercial fact.`);
