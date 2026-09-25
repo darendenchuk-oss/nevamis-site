@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-ZPt9/vMPQLvyt1IS9E82fUdYK7E31qRKBhfQAQXztns=' 'sha256-MkpR5TaV7nZyjyZ6rbpOLsHp03kiOECS1nrD/rmDytc='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-5V3WjoxvwnFOjb8i4MQpOQInLvaADM5in8nK+Q2oRl0=' 'sha256-2Ue9um3M/yy/lXPxLApWdi/hTdNPZBU0FL8s9Rg2R6M='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1361,9 +1361,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            - a ?quote= that differs from the published monthly: the agreed
              figure is not what checkout would charge. A quote EQUAL to it is
              the published price, so it keeps the button.
-         The first four are pricing.html's card rule; the last is this page's
-         own. Everything else keeps the static button, re-pointed at the plan
-         this page rendered. */
+         The shut gate, the "from" figure and selfServe are pricing.html's
+         card rule; the unpublished price and the quote are this page's own,
+         because only this page can print either above the button.
+         Everything else keeps the static button, re-pointed at the plan this
+         page rendered. */
       var buyable = !!P.sellable && !!P.publishedPricing && !plan.startingAt
         && plan.selfServe !== false && !(quoted > 0 && quoted !== plan.monthly);
       if (buyable) {
