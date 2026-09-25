@@ -1,9 +1,44 @@
 /* ============================================================
    NEVAMIS INTERACTION PROOF
-   The ported components must actually work in the new skin:
-   audio player, simulator, coverage tabs, ROI calculator, FAQ,
-   pricing preview, capability rail, and the motion toggle.
+   The components a visitor can work must actually work: the
+   homepage plans strip, ROI calculator, FAQ, funnel events and
+   post-call prompt; the tap rings on the pages that load the
+   motion layer; and the booking page's scheduler and callback
+   form.
    ============================================================ */
+
+/* REPOINTED AT THE PAGES THAT SHIP (2026-09-25, FP3).
+
+   This file was written for the pre-film homepage and half of it still
+   drove that page. Two tests waited on window.__heroTL, the timeline of a
+   hero the film homepage does not have, so they timed out at 90 seconds on
+   every run; eight more looked for components that have left the published
+   site. On the day this was repointed, 10 of its 20 tests failed on main,
+   and a file that is always red hides the next real break the same way a
+   file that is never run does. Each case is now in one of two states:
+
+   REPOINTED at the page that really carries the behaviour:
+     - the plans preview    -> the homepage's #plansStrip, which site.js
+                               renders from NV_PRICING (was #pricePreview)
+     - the tap sonar        -> a secondary page; the pooled rings ARE the
+                               ready signal (was a wait on __heroTL)
+     - sections and callbar -> the film homepage's own sections, read from
+                               scripts/film/sections.html, and its callbar
+                               rule (hidden while the film owns the screen)
+
+   DELETED, because nothing on the published site carries them. Each one
+   comes back with its component, from this file's history:
+     - the six-stage simulator and its empty-state hint (#sim): not on the
+       film homepage or any other page
+     - the coverage tabs (.modes, #panelOver): not on any page
+     - the capability rail marquee (.rail-track): motion.js builds it from
+       .trust-strip, and no page has a .trust-strip element
+     - the aurora (#aurora): deleted 2026-09-20, see assets/motion/main.js
+     - the inline homepage scheduler (#inlineBook): the scheduler lives on
+       /book.html, and the tests at the bottom of this file cover it there
+     - the motion toggle freezing the hero: the <button class="motion-toggle-btn">
+       was part of the pre-film hero and no page renders one now. site.js and
+       main.js still wire it if it exists; the test comes back with the button */
 
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
@@ -11,15 +46,26 @@ import path from 'node:path';
 
 const OUT = path.resolve('artifacts/motion-proof');
 const PLAIN = '/home.html';
+/* A secondary page that loads the motion layer (assets/motion/main.js), which
+   the film homepage deliberately does not. pricing.html is the page a buyer
+   is most likely to reach, so it is the one worth proving. */
+const MOTION_PAGE = '/pricing.html';
 
 test.beforeAll(() => { fs.mkdirSync(OUT, { recursive: true }); });
+
+/* site.js beacons page_view to the PRODUCTION engine; see tests/pages.spec.js.
+   A local test run must never write a visit into the live event log. Every
+   context a test opens for itself (a phone, reduced motion) gets the same
+   stub, because a route belongs to the context it was set on. */
+const stubEngine = (ctx) => ctx.route(/^https:\/\/app\.nevamis\.ca\//, (r) => r.fulfill({ status: 204, body: '' }));
+test.beforeEach(async ({ context }) => { await stubEngine(context); });
 
 function watchErrors(page, sink) {
   page.on('console', (m) => { if (m.type() === 'error') sink.push(`console: ${m.text()}`); });
   page.on('pageerror', (e) => sink.push(`pageerror: ${e.message}`));
 }
 
-test('pricing preview renders every plan from the single source of truth', async ({ page }) => {
+test('the homepage plans strip renders every plan from the single source of truth', async ({ page }) => {
   const errors = [];
   watchErrors(page, errors);
   await page.goto(PLAIN);
@@ -31,72 +77,87 @@ test('pricing preview renders every plan from the single source of truth', async
      and the numbers had all moved on, so this test could only ever fail, and
      while it failed it was still the thing standing guard over the homepage's
      price cards. A test that hardcodes the answer stops being a guard the
-     first time the answer legitimately changes. */
-  const cfg = await page.evaluate(() => ({
-    plans: window.NV_PRICING.plans.map((p) => ({
-      name: p.name, monthly: p.monthly, minutes: p.includedMinutes,
-      recommended: !!p.recommended,
-    })),
-    recommendedLabel: window.NV_PRICING.recommendedLabel,
-    annualActive: !!(window.NV_PRICING.annual && window.NV_PRICING.annual.active),
-    /* 150 and 850 joined the list on 2026-08-09 with the paid pilot and the
-       old Pro price. The list only ever grows: every entry is a number a real
-       page published, and the reason C$249, C$449 and C$849 lingered is that
-       the sweep once checked C$49 alone. */
-    retired: [49, 150, 197, 249, 397, 449, 450, 499, 750, 797, 849, 850, 1800],
-  }));
+     first time the answer legitimately changes.
 
-  const cards = page.locator('#pricePreview .price-card');
+     REPOINTED 2026-09-25 (FP3): the cards it read, #pricePreview .price-card,
+     left with the pre-film homepage. The film homepage prices its plans in
+     #plansStrip, rendered by site.js from the same NV_PRICING, so that is
+     where the same rules are proved now. */
+  const cfg = await page.evaluate(() => {
+    const P = window.NV_PRICING;
+    /* Every figure the config charges anywhere: a plan's, an add-on's, or the
+       Enterprise floor. A number on the retired list below that the config
+       charges again today is not retired, and sweeping for it would fail the
+       correct page (C$750 was a retired monthly and is an add-on launch fee
+       now). */
+    const charged = new Set();
+    for (const x of [...P.plans, ...(P.addOns || [])]) {
+      for (const k of ['monthly', 'launch']) if (x[k]) charged.add(Number(x[k]));
+    }
+    if (P.enterprise && P.enterprise.launchFrom) charged.add(Number(P.enterprise.launchFrom));
+    return {
+      plans: P.plans.map((p) => ({
+        name: p.name, monthly: p.monthly, launch: p.launch,
+        recommended: !!p.recommended, selfServe: p.selfServe !== false,
+      })),
+      recommendedLabel: P.recommendedLabel,
+      annualActive: !!(P.annual && P.annual.active),
+      charged: [...charged],
+      /* 150 and 850 joined the list on 2026-08-09 with the paid pilot and the
+         old Pro price. The list only ever grows: every entry is a number a
+         real page published, and the reason C$249, C$449 and C$849 lingered is
+         that the sweep once checked C$49 alone. */
+      retired: [49, 150, 197, 249, 397, 449, 450, 499, 750, 797, 849, 850, 1800],
+    };
+  });
+
+  const cards = page.locator('#plansStrip .plan-row .card');
   await expect(cards).toHaveCount(cfg.plans.length);
 
   const grp = (n) => Number(n).toLocaleString('en-CA');
+  const figures = (s) => [...s.matchAll(/C\$([\d,]+)/g)].map((m) => Number(m[1].replace(/,/g, '')));
   for (const [i, plan] of cfg.plans.entries()) {
     const card = cards.nth(i);
     await expect(card).toContainText(plan.name);
-    /* ONE number, and no second one anywhere on the card.
-
-       This pair of assertions has been inverted twice. It first checked the
-       recurring price alone, which let "C$250/month" ship over "setup C$250"
-       (two correct figures arranged so a reader totals them to C$500 on day
-       one). It was then changed to require BOTH, in the order a buyer meets
-       them. Since 2026-08-09 there is one price charged every month including
-       the first, so requiring the pair would fail the correct card and pass a
-       reverted one. What survives from both versions is the real rule: the
-       card must never put a second figure beside the monthly price. */
-    await expect(card, `${plan.name} must state its monthly price`)
-      .toContainText(`C$${grp(plan.monthly)}`);
-    await expect(card, `${plan.name} must not reintroduce a second figure`)
-      .not.toContainText(/first month|one-time|setup|then C\$/i);
-    await expect(card).toContainText(`${grp(plan.minutes)} AI minutes included`);
+    const text = await card.innerText();
+    if (!plan.selfServe) {
+      /* A plan offered by invitation is never shown as a price: a figure
+         beside it reads as something a visitor can buy. */
+      await expect(card, `${plan.name} is by invitation`).toContainText(/by invitation/i);
+      expect(figures(text), `${plan.name} is by invitation and must carry no price`).toEqual([]);
+      continue;
+    }
+    /* Its own two figures, and nothing else. This pair of assertions was
+       inverted twice while the model changed underneath it (monthly alone,
+       then setup plus monthly, then one price). What survived every version
+       is the rule: the card states what this plan charges and puts no other
+       figure beside it for a reader to add up. */
+    await expect(card, `${plan.name} must state its monthly price`).toContainText(`C$${grp(plan.monthly)} a month`);
+    await expect(card, `${plan.name} must state its launch fee`).toContainText(`C$${grp(plan.launch)}`);
+    expect(figures(text).filter((n) => n !== plan.monthly && n !== plan.launch),
+      `${plan.name} carries a figure the config does not charge for it`).toEqual([]);
   }
 
   /* The badge used to say "MOST COMMON", a statistic about a client base that
-     does not exist, and the old assertion pinned that exact wording in place.
-     Asserting the CONFIGURED label instead proves the badge renders from the
-     single source of truth without insisting on any particular claim. */
+     does not exist. Asserting the CONFIGURED label proves the badge renders
+     from the single source of truth without insisting on any claim, and the
+     card is found by the FLAG, not by a plan name that can be renamed. */
   expect(cfg.recommendedLabel, 'pricing-config must define recommendedLabel').toBeTruthy();
-  /* By the FLAG, not by the name. This read `p.name === 'Growth'`, and when
-     the 2026-08-15 evening model renamed that plan to "Grow" the lookup
-     returned -1, so `cards.nth(-1)` silently asserted against the LAST card
-     instead of the recommended one. The same hardcoding this test's own
-     comment above warns about, three lines below the warning. */
   const recIndex = cfg.plans.findIndex((p) => p.recommended);
   expect(recIndex, 'a plan must be marked recommended').toBeGreaterThanOrEqual(0);
   await expect(cards.nth(recIndex)).toContainText(cfg.recommendedLabel);
 
   /* Annual prepay is suspended. Advertising "two months free" against a yearly
-     figure nobody approved is inventing a price, so the card must NOT carry it
-     while the config says it is off. */
+     figure nobody approved is inventing a price. */
   if (!cfg.annualActive) {
-    await expect(page.locator('#pricePreview')).not.toContainText('two months free');
+    await expect(page.locator('#plansStrip')).not.toContainText('two months free');
   }
 
-  /* Every retired price, in one sweep. C$49 was checked alone here, which is
-     why C$249, C$449 and C$849 stayed on this page for as long as they did. */
+  /* Every retired price, in one sweep over the whole page. */
   const body = await page.locator('body').innerText();
-  for (const n of cfg.retired) {
+  for (const n of cfg.retired.filter((x) => !cfg.charged.includes(x))) {
     expect(body, `retired price C$${n} must not appear on the homepage`)
-      .not.toMatch(new RegExp(`C\\$${n}\\b`));
+      .not.toMatch(new RegExp(`C\\$${grp(n)}(?!,?\\d)`));
   }
   await expect(page.locator('body')).not.toContainText('Pay As You Go');
   expect(errors, errors.join('\n')).toEqual([]);
@@ -161,64 +222,6 @@ test('the demo transcript is the corrected call, with no half-wired player left 
   await page.screenshot({ path: path.join(OUT, 'section-call-proof.png') });
 });
 
-test('the simulator runs a scenario through all six stages', async ({ page }) => {
-  await page.goto(PLAIN);
-  const sim = page.locator('#sim');
-  await sim.scrollIntoViewIfNeeded();
-
-  await page.locator('#simWatch').click();
-  await expect(page.locator('#simBody')).toBeVisible();
-
-  // speed through: click forward until complete
-  const fwd = page.locator('[data-sim-fwd]');
-  for (let i = 0; i < 12; i++) await fwd.click();
-
-  await expect(page.locator('[data-sim-state]')).toHaveText(/Complete/i);
-  await expect(page.locator('.sim-out-card.on')).toHaveCount(3); // calendar, customer, summary for routine
-  await expect(page.locator('.stage-pill.done, .stage-pill.active')).toHaveCount(6);
-  await page.screenshot({ path: path.join(OUT, 'section-simulator.png') });
-
-  // scenario switch restarts and plays
-  await page.locator('[data-scen="emergency"]').click();
-  await expect(page.locator('[data-scen="emergency"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('.sim-log .sim-line').first()).toBeVisible();
-});
-
-/* The simulator's empty state has to be readable, because it is the only thing
-   telling a visitor how to work the demo.
-
-   It shipped as a bare .sim-line, and .sim-line starts at opacity 0 waiting for
-   the .on class that arrives when a line is spoken — which never happens before
-   you press play. So the sentence was invisible to every visitor in both motion
-   settings, leaving a blank 38px panel under a play button.
-
-   toBeVisible() does not catch this: Playwright treats an opacity-0 element with
-   a box as visible, which is why the assertion twenty lines above passed the
-   whole time. Computed opacity is the only thing that matches what a human
-   sees. */
-test('the simulator says how to start it, before you start it', async ({ page }) => {
-  await page.goto(PLAIN);
-  await page.locator('#sim').scrollIntoViewIfNeeded();
-  const hint = page.locator('.sim-log .sim-line').first();
-  await expect(hint).toHaveText(/press play/i);
-  const shown = await hint.evaluate((el) => Number(getComputedStyle(el).opacity));
-  expect(shown, 'the empty-state hint must be legible, not merely present').toBeGreaterThan(0.9);
-});
-
-test('coverage tabs switch with mouse and arrow keys', async ({ page }) => {
-  await page.goto(PLAIN);
-  const tabs = page.locator('.modes [role=tab]');
-  await tabs.first().scrollIntoViewIfNeeded();
-
-  await tabs.nth(1).click();
-  await expect(page.locator('#panelOver')).toBeVisible();
-  await expect(page.locator('#panelAfter')).toBeHidden();
-
-  await page.keyboard.press('ArrowRight');
-  await expect(page.locator('#panelFull')).toBeVisible();
-  await expect(tabs.nth(2)).toHaveAttribute('aria-selected', 'true');
-});
-
 test('the ROI calculator computes and shows break-even with a quote', async ({ page }) => {
   await page.goto(PLAIN);
   await page.locator('#roiMissed').scrollIntoViewIfNeeded();
@@ -265,77 +268,12 @@ test('FAQ items open, close, and stay keyboard operable', async ({ page }) => {
   await page.screenshot({ path: path.join(OUT, 'section-faq.png') });
 });
 
-test('the capability rail becomes a marquee and pauses for reduced motion', async ({ page, browser }) => {
-  await page.goto(PLAIN);
-  await expect(page.locator('.rail-track')).toHaveCount(1);
-  const anim = await page.evaluate(() =>
-    getComputedStyle(document.querySelector('.rail-track')).animationName);
-  expect(anim).toBe('railScroll');
-
-  const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
-  const p2 = await ctx.newPage();
-  await p2.goto(PLAIN);
-  // motion.js only builds the marquee when motion is allowed
-  await expect(p2.locator('.rail-track')).toHaveCount(0);
-  await expect(p2.locator('.trust-strip li').first()).toBeVisible();
-  await ctx.close();
-});
-
-test('the motion toggle freezes the hero on its finished frame and resumes', async ({ page }) => {
-  await page.goto(PLAIN);
-  await page.waitForFunction(() => !!window.__heroTL);
-
-  await page.locator('.motion-toggle-btn').click();
-  await page.waitForTimeout(150);
-  const off = await page.evaluate(() => ({
-    cls: document.documentElement.classList.contains('motion-off'),
-    heroPaused: window.__heroTL.paused(),
-    h1Visible: getComputedStyle(document.querySelector('h1 .w')).visibility,
-    ctaVisible: getComputedStyle(document.querySelector('[data-cta]')).visibility,
-  }));
-  expect(off.cls).toBe(true);
-  expect(off.heroPaused).toBe(true);
-  expect(off.h1Visible).toBe('visible');
-  expect(off.ctaVisible).toBe('visible');
-
-  await page.locator('.motion-toggle-btn').click();
-  await page.waitForTimeout(150);
-  const on = await page.evaluate(() => document.documentElement.classList.contains('motion-off'));
-  expect(on).toBe(false);
-});
-
-test('the aurora flows with scroll and stands still under reduced motion', async ({ page, browser }) => {
-  await page.goto(PLAIN);
-  const aurora = page.locator('#aurora');
-  await expect(aurora).toHaveCount(1);
-
-  // the sky must be alive: two samples a moment apart differ
-  const a = await page.evaluate(() => document.getElementById('aurora').toDataURL());
-  await page.waitForTimeout(450);
-  const b = await page.evaluate(() => document.getElementById('aurora').toDataURL());
-  expect(a === b, 'aurora should drift over time').toBeFalsy();
-
-  // scrolling injects energy — and never throws
-  await page.evaluate(() => window.scrollTo({ top: 2400, behavior: 'instant' }));
-  await page.waitForTimeout(250);
-  const c = await page.evaluate(() => document.getElementById('aurora').toDataURL());
-  expect(b === c, 'aurora should respond to scroll').toBeFalsy();
-
-  // reduced motion: present but perfectly still
-  const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
-  const p2 = await ctx.newPage();
-  await p2.goto(PLAIN);
-  await expect(p2.locator('#aurora')).toHaveCount(1);
-  const r1 = await p2.evaluate(() => document.getElementById('aurora').toDataURL());
-  await p2.waitForTimeout(450);
-  const r2 = await p2.evaluate(() => document.getElementById('aurora').toDataURL());
-  expect(r1).toBe(r2);
-  await ctx.close();
-});
-
+/* REPOINTED 2026-09-25 (FP3): it waited on window.__heroTL on the film
+   homepage, which never loads the motion layer, so it timed out on every
+   run. The rings are installed by assets/motion/sonar.js on the pages that
+   load main.js, and the pool of eight is itself the ready signal. */
 test('every tap emits a sonar ring, except under reduced motion', async ({ page, browser }) => {
-  await page.goto(PLAIN);
-  await page.waitForFunction(() => !!window.__heroTL);
+  await page.goto(MOTION_PAGE);
   await expect(page.locator('.nv-sonar')).toHaveCount(8); // pooled, idle
 
   // press on open page space → a ring becomes visible
@@ -356,8 +294,12 @@ test('every tap emits a sonar ring, except under reduced motion', async ({ page,
 
   // reduced motion: the module never installs
   const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
+  await stubEngine(ctx);
   const p2 = await ctx.newPage();
-  await p2.goto(PLAIN);
+  await p2.goto(MOTION_PAGE, { waitUntil: 'load' });
+  /* Absence needs a moment to mean anything: give main.js the time it takes
+     to install the pool on the page above before counting none. */
+  await p2.waitForTimeout(800);
   await expect(p2.locator('.nv-sonar')).toHaveCount(0);
   await ctx.close();
 });
@@ -416,33 +358,37 @@ test('the post-call prompt appears only after a real call gap', async ({ page })
   await expect(page.locator('.callback-bar')).toHaveCount(0);
 });
 
-test('the homepage scheduler loads lazily and books without leaving the page', async ({ page }) => {
-  await page.goto(PLAIN);
-  // nothing costly before it is needed
-  await expect(page.locator('#inlineBook iframe')).toHaveCount(0);
-
-  await page.locator('#inlineBook').scrollIntoViewIfNeeded();
-  const frame = page.locator('#inlineBook iframe');
-  await expect(frame).toHaveCount(1);
-  await expect(frame).toHaveAttribute('src', /cal\.com/);
-  await expect(frame).toHaveAttribute('title', /Book a 15-minute intro call/);
-});
-
 test('footer, callbar and every section land without console errors', async ({ browser }) => {
   const errors = [];
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await stubEngine(ctx);
   const page = await ctx.newPage();
   watchErrors(page, errors);
   await page.goto(PLAIN);
 
-  // all major sections exist
-  for (const id of ['proof', 'simulator', 'how', 'solutions', 'industries', 'roi',
-    'process', 'compare', 'build-stack', 'day-one', 'pricing-preview', 'risk', 'beyond', 'faq']) {
-    await expect(page.locator('#' + id)).toHaveCount(1);
+  /* Every section the composer puts below the film, read from its source
+     rather than typed here. The list this replaced (2026-09-25, FP3) named
+     fourteen sections of the pre-film homepage, and twelve of them had been
+     gone for weeks: a hand-kept list of what a page contains is stale the
+     first time the page changes. The film's own #doc and the <main> that
+     scripts/film/compose.py wraps around it are the two it adds itself. */
+  const src = fs.readFileSync(new URL('../scripts/film/sections.html', import.meta.url), 'utf8');
+  const ids = [...src.matchAll(/<section\b[^>]*\bid="([^"]+)"/g)].map((m) => m[1]);
+  expect(ids.length, 'scripts/film/sections.html should define the sections below the film').toBeGreaterThan(4);
+  for (const id of [...ids, 'doc', 'main']) {
+    await expect(page.locator('#' + id), `#${id} is authored but not on the homepage`).toHaveCount(1);
   }
-  // mobile call bar visible at phone width
+
+  /* The phone call bar: hidden while the film owns the screen, by design
+     (scripts/film/compose.py, "html:not(.nv-below) .callbar"), and there to
+     tap once the visitor is into the page below it. */
+  await expect(page.locator('.callbar')).toBeHidden();
+  await page.locator('#faq').scrollIntoViewIfNeeded();
   await expect(page.locator('.callbar')).toBeVisible();
+  await expect(page.locator('.callbar')).toHaveAttribute('href', /\/book\.html/);
+
   // mobile menu opens
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.locator('.nav-toggle').click();
   await expect(page.locator('.main-nav')).toHaveClass(/open/);
   await expect(page.locator('.main-nav a', { hasText: 'Pricing' })).toBeVisible();
