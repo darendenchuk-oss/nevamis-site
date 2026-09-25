@@ -46,12 +46,16 @@
    pages. The fix is always the same: node scripts/gen-sitemap.mjs, then
    commit sitemap.xml and the sidecar. Squash, merge and rebase merges carry
    both files through unchanged, so main stays green whichever is used.
+   gen-sitemap has to run LAST, after compose.py and every builder in
+   BUILDERS below, because it hashes the pages' final bytes. Run any earlier,
+   it records pages that a later step then rewrites, and this check fails on
+   exactly those pages.
    ============================================================ */
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { SIDECAR, SITEMAP, sitemapPages, pageHash, renderSitemap, readSitemapLastmods, readSidecar } from "./lib/sitemap.mjs";
+import { SIDECAR, SITEMAP, sitemapPages, pageHash, renderSitemap, readSitemapLastmods, readSidecar, isLastmod } from "./lib/sitemap.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let fail = 0, cannotTell = 0;
@@ -83,15 +87,20 @@ const generatedFiles = () => {
 /* The documented chain, minus gen-sitemap. Order matters: build-content writes
    the pages, build-pages puts the chrome back into them, build-schema rewrites
    their structured data, build-csp hashes the inline scripts they all left
-   behind, and promote copies the finished home.html to index.html. Running
-   them out of order proves nothing. */
+   behind, promote copies the finished home.html to index.html, and
+   build-search-index reads the finished pages, index.html among them, so it
+   comes after promote. (It used to sit before build-csp. On a committed tree
+   that gives the same result, but a person following that order after a
+   homepage edit indexed the OLD index.html, committed a stale
+   search-index.json, and this guard failed on it in CI.) Running them out of
+   order proves nothing. */
 const BUILDERS = [
   "build-content.mjs",
   "build-pages.mjs",
   "build-schema.mjs",
-  "build-search-index.mjs",
   "build-csp.mjs",
   "promote.mjs",
+  "build-search-index.mjs",
 ];
 
 const files = generatedFiles();
@@ -106,10 +115,17 @@ let aborted = false;
    See the header for why this compares content and never dates. */
 const REGEN = `run node scripts/gen-sitemap.mjs, then commit ${SITEMAP} and ${SIDECAR}`;
 try {
-  const sidecar = readSidecar(root);
+  /* A sidecar that does not parse is a committed defect (a bad hand merge,
+     say), not an unknown: FAIL, exit 1, with the same fix as everything else
+     here. Only a failure to read the page set itself stays CANNOT VERIFY. */
+  let sidecar = null, unreadable = null;
+  try { sidecar = readSidecar(root); }
+  catch (e) { unreadable = String(e.message).split("\n")[0].slice(0, 140); }
   const pages = sitemapPages(root);
-  if (!sidecar || !sidecar.pages) {
-    err(`${SIDECAR} is missing, so no page's <lastmod> can be checked.\n       To fix: ${REGEN}.`);
+  if (unreadable) {
+    err(`${SIDECAR} is not valid JSON (${unreadable}), so no page's <lastmod> can be checked.\n       To fix: ${REGEN}.`);
+  } else if (!sidecar || !sidecar.pages) {
+    err(`${SIDECAR} is missing or records no pages, so no page's <lastmod> can be checked.\n       To fix: ${REGEN}.`);
   } else {
     const recorded = sidecar.pages;
     const inSet = new Set(pages.map((p) => p.file));
@@ -123,7 +139,17 @@ try {
     const wrongDate = pages.filter((p) => recorded[p.file] && stated.has(p.loc) && stated.get(p.loc) !== recorded[p.file].lastmod);
     const notInXml = pages.filter((p) => !stated.has(p.loc)).map((p) => p.file);
     const notAPage = [...stated.keys()].filter((loc) => !locs.has(loc));
+    /* The two files agreeing is not enough if they agree on something that
+       is not a date. gen-sitemap only ever writes YYYY-MM-DD, so anything else
+       came from a hand edit; isLastmod() is the same test it uses to decide
+       whether a recorded date may be kept, so rerunning it repairs these. */
+    const notADate = pages.filter((p) => recorded[p.file] && !isLastmod(recorded[p.file].lastmod));
 
+    if (notADate.length) {
+      err(`${SIDECAR} records a <lastmod> that is not a calendar date (YYYY-MM-DD):\n`
+        + notADate.map((p) => `         ${p.file}: ${JSON.stringify(recorded[p.file].lastmod)}`).join("\n")
+        + `\n       To fix: ${REGEN}.`);
+    }
     if (stale.length) {
       err(`${stale.length} sitemap page(s) changed after ${SIDECAR} recorded them, so their <lastmod> is stale:\n`
         + stale.map((p) => `         ${p.file} (sitemap.xml still says ${recorded[p.file].lastmod})`).join("\n")
@@ -148,7 +174,7 @@ try {
     }
     /* Anything the checks above cannot name (order, priority, markup) still
        fails: the file must be exactly what gen-sitemap writes from the sidecar. */
-    if (!stale.length && !unrecorded.length && !extra.length && !wrongDate.length && !notInXml.length && !notAPage.length) {
+    if (!notADate.length && !stale.length && !unrecorded.length && !extra.length && !wrongDate.length && !notInXml.length && !notAPage.length) {
       const want = renderSitemap(pages.map((p) => ({ loc: p.loc, lastmod: recorded[p.file].lastmod, priority: p.priority })));
       if (xml !== want) err(`sitemap.xml is not what gen-sitemap writes from ${SIDECAR} (order, priority or markup differs).\n       To fix: ${REGEN}.`);
       else console.log(`sitemap: ${pages.length} page(s) match their recorded hashes, and every <lastmod> matches ${SIDECAR}.`);

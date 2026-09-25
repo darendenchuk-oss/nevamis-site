@@ -2,6 +2,28 @@
 /* Regenerates sitemap.xml and its sidecar, config/sitemap-hashes.json.
    Run: node scripts/gen-sitemap.mjs   (writes both in place; commit both)
 
+   RUN IT LAST, after every writer of a page: python scripts/film/compose.py
+   (for a homepage edit), then build-content, build-pages, build-schema,
+   build-csp, promote and build-search-index (the order
+   check-generator-drift.mjs runs them in). This script records a hash of each
+   page's bytes as they are at that moment. Run before build-csp or promote,
+   it records half-built pages, gives pages that end up unchanged today's
+   date, and CI fails on every page a later step rewrote. Then commit the
+   pages together with sitemap.xml and the sidecar.
+
+   On a merge or rebase conflict in sitemap.xml or the sidecar, do not merge
+   the lines by hand. Finish resolving the pages, run this script, and commit
+   what it writes. It rewrites sitemap.xml whole, and a sidecar that still
+   holds conflict markers counts as no sidecar (every page takes its git
+   date); if you took one side of the sidecar instead, pages whose bytes match
+   a recorded hash keep their date and the rest get a fresh one.
+
+   A <lastmod> is the date the change was committed (or regenerated) on its
+   branch, not the date it went live: squash, rebase and merge commits carry
+   the sidecar through unchanged. A branch that sits for a week advertises
+   the week-old date once merged. That is the price of a check that needs no
+   git history, and it errs early, never late.
+
    A <lastmod> should move when, and only when, the page's content moves.
    Until 2026-09-24 this script stamped each page's latest git commit date
    (WEB-226), which is right on the day it runs and wrong the moment a page
@@ -29,7 +51,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SIDECAR, SITEMAP, sitemapPages, pageHash, renderSitemap, readSidecar } from './lib/sitemap.mjs';
+import { SIDECAR, SITEMAP, sitemapPages, pageHash, renderSitemap, readSidecar, isLastmod } from './lib/sitemap.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const git = (args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
@@ -57,19 +79,27 @@ function clean(file) {
 function commitDate(file) {
   try {
     const out = git(['log', '-1', '--format=%cs', '--', file]).trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(out)) return out;
+    if (isLastmod(out)) return out;
   } catch { /* fall through */ }
   return null;
 }
 
-const stored = (readSidecar(root) || {}).pages || {};
+/* A sidecar that does not parse (conflict markers from a merge, say) is
+   treated as no sidecar: every page takes its git date, as on the first run. */
+let stored = {};
+try {
+  const sc = readSidecar(root);
+  if (sc && sc.pages && typeof sc.pages === 'object' && !Array.isArray(sc.pages)) stored = sc.pages;
+} catch (e) {
+  console.warn(`${SIDECAR} did not parse (${String(e.message).split('\n')[0].slice(0, 120)}); every page takes its git date.`);
+}
 const pages = {};
 const moved = [];
 const rows = sitemapPages(root).map(({ file, loc, priority }) => {
   const sha256 = pageHash(root, file);
   const prev = stored[file];
   let lastmod;
-  if (prev && prev.sha256 === sha256 && /^\d{4}-\d{2}-\d{2}$/.test(prev.lastmod || '')) {
+  if (prev && prev.sha256 === sha256 && isLastmod(prev.lastmod)) {
     lastmod = prev.lastmod;
   } else {
     lastmod = (clean(file) && commitDate(file)) || today();

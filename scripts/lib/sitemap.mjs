@@ -41,6 +41,16 @@ export function pageHash(root, file) {
   return crypto.createHash('sha256').update(buf.filter((b) => b !== 0x0d)).digest('hex');
 }
 
+/* A real calendar date in the one form gen-sitemap writes. The writer keeps a
+   recorded lastmod only when this holds, and the guard fails when it does not,
+   so a hand-edited "garbage" or 2026-13-45 is both caught and repaired by a
+   rerun. */
+export function isLastmod(s) {
+  if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = new Date(s + 'T00:00:00Z');
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s;
+}
+
 export function renderSitemap(rows) {
   const lines = rows.map((r) =>
     `  <url><loc>${r.loc}</loc><lastmod>${r.lastmod}</lastmod><priority>${r.priority}</priority></url>`);
