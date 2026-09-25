@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-lYJzRWu18R1aAuA9y7WvZBssgmeKjQwEbQfhl/gIfcw=' 'sha256-5VZqMSSH2zlAdvIRhkzKA8tHYjysav4/UKn9dWsyNCY='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-afge87k3bKEZBq3XmcMEywPrae1/li/72OoUJYNe008=' 'sha256-YXhiOoF9IdEwS8u3V3f0uokaOlFvWAA0Z5jXSNPzsz4='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1162,10 +1162,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
    The Works while this line said otherwise (fix plan A29). ?date=YYYY-MM-DD
    prints the day the proposal was prepared; without it no date is printed,
    because the day a link is opened is not the day it was prepared.
-   The &founding=1 parameter is retired and does nothing. It waived a setup fee
-   during the period when setup was $0 for everyone; a first-month amount was
-   restored on 2026-08-06 at C$250/C$500/C$1,000 and the waiver was not. Old
-   links carrying it still render correctly, at the real amount.
+   The &founding=1 parameter does nothing. Old links carrying it still render
+   correctly, at the real amount.
    All parameters are rendered with textContent, never innerHTML. */
 (function () {
   "use strict";
@@ -1282,13 +1280,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var plan = (P.plans || []).filter(function (p) { return p.id === wanted; })[0];
     /* Pay As You Go was retired on 2026-08-06 and removed on 2026-08-07.
 
-       A branch here used to render it straight from P.payAsYouGo with NO
-       `active` check, unlike the annual block thirty lines below, which is
-       gated correctly. So ?plan=pay-as-you-go went on quoting a prospect
-       C$49/month with C$0 setup: the retired plan AND the retired
-       no-setup-fee position, on a page built to be sent to a buyer.
-       tests/proposal.spec.js asserted that it rendered, which is why nobody
-       noticed.
+       A branch here used to render it straight from its old record with NO
+       `active` check, so ?plan=pay-as-you-go went on quoting a retired plan
+       on a page built to be sent to a buyer. tests/proposal.spec.js asserted
+       that it rendered, which is why nobody noticed.
 
        An unrecognised plan id now falls through to the recommended plan,
        which is what every other unknown value already did. It read
@@ -1334,8 +1329,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          "priced after a scan" fallback survives only for the unpublished
          state, as "quoted per client". */
       /* Only a figure inside the band of real prices is shown. Anyone can
-         build this link, and ?quote=1 used to print "C$1/month" as a Nevamis
-         proposal. An agreed per-client figure always sits between the lowest
+         build this link, and ?quote=1 used to print a one-dollar monthly as a
+         Nevamis proposal. An agreed per-client figure always sits between the lowest
          and highest monthly in pricing-config.js; anything outside that band
          is ignored and the plan's own price is stated instead. */
       var quoted = Number(q.get("quote") || 0);
@@ -1404,11 +1399,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          discount off a price nobody was charged, which is the same
          fabrication class as a fake original price on a sale tag.
 
-         This pair has been wrong twice in opposite ways: "One-time setup
-         C$500." directly under "C$500/month" was totalled to C$1,000 due on
-         signing, and "First month C$500, then C$500/month from month two"
-         was true and still asked the reader to infer the rule. Since
-         2026-08-15 (evening) the rule is stated in words: the one-time
+         This pair has been wrong twice in opposite ways: a one-time figure
+         directly under the monthly was totalled as both due on signing, and a
+         "first month, then monthly" pair was true and still asked the reader
+         to infer the rule. Since 2026-08-15 (evening) the rule is stated in
+         words: the one-time
          Launch & Implementation fee starts the build, beside the first
          month, and the monthly recurs. */
       set("planMonthly", quoted > 0
@@ -1459,12 +1454,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       });
     }
 
-    /* Four pilot lines were rendered from P.pilot here. The record is deleted
-       from pricing-config.js, so this block would have thrown on
-       `undefined.name` inside the try, silently abandoning the rest of the
-       render. That is exactly how a stale proposal would have gone out
-       looking fine: the static copy stays, and the static copy was the old
-       offer. */
   } catch (e) {
     /* The static copy above is already a valid proposal, but this render may
        have replaced half of it (the plan name, say) before it threw, so the

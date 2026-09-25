@@ -223,7 +223,6 @@ ${FOOTER}
 
 <script>document.documentElement.classList.remove('no-js');</script>
 <script src="assets/vendor/gsap.min.js"></script>
-<script src="assets/vendor/MotionPathPlugin.min.js"></script>
 <script src="site.js" defer></script>
 <script src="motion.js" defer></script>
 <script type="module" src="assets/motion/main.js"></script>

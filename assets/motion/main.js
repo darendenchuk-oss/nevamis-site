@@ -2,13 +2,25 @@
    NEVAMIS MOTION — entry point
    Loads after the vendored GSAP scripts and after site.js (which
    owns the motion-off class + nv-motion preference). Wires the
-   hero, cursor, magnetic buttons, card tilt, and the glue that
-   lets the site-wide "pause motion" toggle stop the GSAP layer.
-   Every init is guarded: a failure must never hide content.
+   cursor, magnetic buttons, card tilt, and the glue that lets the
+   site-wide "pause motion" toggle stop the GSAP layer. Every init
+   is guarded: a failure must never hide content.
+
+   NO HERO HERE ANY MORE (2026-09-25). This module used to import
+   ./hero.js and register GSAP's MotionPathPlugin for it. hero.js
+   animated the #stage and #mark SVGs of the pre-film homepage and
+   returned at once on any page without them; no page that loads
+   this module has had #mark since the film homepage shipped
+   (47acb84), and the homepage itself does not load this module.
+   So every secondary page downloaded the hero and the plugin,
+   about 20 KB gzipped, to run one early return. Both files, the
+   plugin's <script> tag on every page, and the ?motionDebug=1
+   inspector that only ever drove the hero's timeline are deleted.
+   scripts/check-published-surface.mjs now fails on a vendored
+   file no page loads, so an orphan cannot ship again unnoticed.
    ============================================================ */
 
-import { isDebug, prefersReduced, isFinePointer } from './tokens.js';
-import { initHero } from './hero.js';
+import { prefersReduced, isFinePointer } from './tokens.js';
 import { initCursor } from './cursor.js';
 import { initSonar } from './sonar.js';
 import { initSearch } from './search.js';
@@ -23,8 +35,6 @@ const gsap = window.gsap;
 guard(initSearch);
 
 if (gsap) {
-  // Plugins are optional per page: only ever register what actually loaded.
-  if (window.MotionPathPlugin) gsap.registerPlugin(window.MotionPathPlugin);
   gsap.ticker.lagSmoothing(500, 33);
 
   /* THE AURORA IS GONE (2026-09-20). ./aurora.js drew a fixed, full-viewport
@@ -37,7 +47,6 @@ if (gsap) {
      workarounds with it - the hero scrim, the page-hero ghost button's dark
      plate, and the reason the header deferred its backdrop-filter. */
   guard(initSonar);
-  const hero = guard(initHero);
   const cursor = guard(initCursor);
   guard(initScroll);
   guard(initVoice);
@@ -45,10 +54,6 @@ if (gsap) {
   guard(initTilt);
   guard(initCardGlow);
   guard(() => initMotionToggle(cursor));
-
-  if (isDebug() && hero && hero.tl) {
-    import('./debug.js').then((m) => m.initDebug(hero.tl)).catch(() => {});
-  }
 }
 
 /** Run an init; on failure log and leave the page fully readable. */
@@ -56,16 +61,9 @@ function guard(fn) {
   try { return fn(); } catch (err) {
     console.error('[motion]', err);
     try {
-      /* The hero no longer hides anything here to begin with: since
-         2026-08-27 it animates the #stage SVG and nothing else, so a thrown
-         initHero cannot cost a visitor the headline, the copy or a CTA. This
-         stays for the modules that still mask their own targets (scroll.js
-         and .mwi), and it keeps nav/CTAs in the list because "failure means
-         show everything" is cheaper to keep true than to keep accurate.
-
-         Two entries went with the rewrite: `h1 .ch`, the per-character spans
-         nothing creates any more, and a lookup that force-hid the #wake veil,
-         which no longer exists. */
+      /* For the modules that mask their own targets (scroll.js and .mwi).
+         It keeps nav/CTAs in the list because "failure means show
+         everything" is cheaper to keep true than to keep accurate. */
       gsap.set('[data-nav], [data-cta], h1 .w, .mwi', { clearProps: 'all', autoAlpha: 1, yPercent: 0 });
     } catch (e2) { /* leave CSS defaults */ }
     return null;
@@ -149,8 +147,8 @@ function initTilt() {
 
 /* ------------------------------------------------------------
    The site-wide "pause motion" button (owned by site.js) also
-   halts the GSAP layer: hero freezes on its finished frame,
-   the custom cursor steps aside, and everything resumes cleanly.
+   halts the GSAP layer: the scroll flourishes stop, the custom
+   cursor steps aside, and everything resumes cleanly.
    ------------------------------------------------------------ */
 function initMotionToggle(cursor) {
   const btn = document.querySelector('.motion-toggle-btn');
@@ -160,15 +158,12 @@ function initMotionToggle(cursor) {
     requestAnimationFrame(() => {
       const off = document.documentElement.classList.contains('motion-off');
       if (off) {
-        if (window.__heroMotionOff) window.__heroMotionOff();
         if (window.__scrollMotionOff) window.__scrollMotionOff();
         if (cursor && cursor.hide) cursor.hide();
         document.documentElement.classList.remove('nv-cursor-ready');
-      } else if (window.__heroMotionOn) {
-        window.__heroMotionOn();
-        // The scroll flourishes rebuild on the next page load; the IO-based
-        // .reveal baseline covers the rest of this visit.
       }
+      // Turning motion back on: the scroll flourishes rebuild on the next
+      // page load; the IO-based .reveal baseline covers the rest of this visit.
     });
   });
 }

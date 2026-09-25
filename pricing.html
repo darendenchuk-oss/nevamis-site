@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xtbLYW6Jj61GBVYLJfki8au+dKsO3wWwjd4trAAtwHM=' 'sha256-fcbUcbCs4zQak+DOahZoXJLmmxjPRo8GhWU+hznESh4=' 'sha256-efe+3ZmJOnqs/THk3fas+b9gzIpBQuSrVeqSuDeR4hg=' 'sha256-FqURxVlXv19jd8+M6JGGN9fZ7JdUFZT6t1DLCCcwqjw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-+psDRHFpPKXDwS5G/lgBO7D7u4luFcw/Vc+q9L3TqnQ=' 'sha256-MNZV7p5Rb20m8fINKT9gCBCCdTZRUDzHSRmZtVsntjA=' 'sha256-vdFqsRG4dbM94ZyLQb+d7KYeFaoa62xfg4ICGxkaBm4=' 'sha256-XnTXsJcwYjObQqoVm3epG2mmgh0MZQVtoPfXJTCHXnI='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1048,14 +1048,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
   <section class="tight">
     <div class="wrap">
-      <!-- This banner sold a C$150 seven-day trial until 2026-08-09. It is now
-           the terms band, and it is static text on purpose: there is no
-           `pilot` record left in pricing-config.js to render from, and there
-           should not be one. Every sentence here is a commitment the billing
-           system already keeps, so it is safe to state without a renderer.
-           Kept at full height for the reason the old banner was given real
-           text: an empty block here pushed everything below it down 256px
-           745 ms after first paint, which was 0.093 of the page's 0.095 CLS. -->
+      <!-- The terms band is static text on purpose: every sentence here is a
+           commitment the billing system already keeps, so it needs no
+           renderer. It is real text at full height because an empty block
+           here pushed everything below it down 256px 745 ms after first
+           paint, which was 0.093 of the page's 0.095 CLS. -->
       <div id="termsBanner" class="card band">
         <h2>Launch &amp; Implementation to start. Then the monthly, every month.</h2>
         <!-- THE ONE PLACE THE TERMS ARE STATED (2026-09-24, W6). The page used
@@ -1123,15 +1120,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
            It states BOTH halves of the offer, in the approved shape: the
            one-time Launch & Implementation fee and the monthly, joined by
-           "to start" and "then", never "plus". This block has now been
-           rewritten in every direction this model has moved: "C$250/month"
-           with "One-time setup C$250" beside it (reads as C$500 due on day
-           one), "first month C$250, then C$250/month" (two figures, no rule),
-           one recurring figure (2026-08-09), no figure at all (2026-08-15
-           morning), and the published OPERATE/GROW/PARTNERSHIP ladder with
-           the Launch & Implementation fee (2026-08-15 evening). Guard 7
-           requires the monthly AND the launch figure while pricing is
-           published, and still fails a first-month/then-per-month pair. -->
+           "to start" and "then", never "plus". Guard 7 requires the monthly
+           AND the launch figure while pricing is published, and fails a
+           first-month/then-per-month pair. -->
       <div class="plans" id="plans"><div id="plansFallback">
         <div class="card">
           <h3>Performance Partnership &middot; C$350/month, by invitation</h3>
@@ -1324,7 +1315,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 <script src="pricing-config.js"></script>
 <script src="assets/vendor/gsap.min.js"></script>
 <script src="assets/vendor/ScrollTrigger.min.js"></script>
-<script src="assets/vendor/MotionPathPlugin.min.js"></script>
 <script src="site.js" defer></script>
 <script src="motion.js" defer></script>
 <script type="module" src="assets/motion/main.js"></script>
@@ -1334,10 +1324,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   if (!P) return;
   if (!P.approved) document.getElementById("draftBanner").hidden = false;
   document.getElementById("pricingUpdated").textContent = "pricing updated " + P.lastUpdated;
-  /* The three pilot lines were rendered here from P.pilot. The record is gone
-     from pricing-config.js, so this read `undefined.name` on a page that has
-     no pilot banner left to fill; the terms band above is static because its
-     sentences are commitments, not configuration. */
   if (P.referral) {
     /* Overwrites the static copy so one edit to pricing-config.js moves the
        page, the portal and the engine together. If the config fails to load,
@@ -1380,9 +1366,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     shared.forEach(function (f) { var li = document.createElement("li"); li.textContent = f; everyPlanEl.appendChild(li); });
   }
   var wrap = document.getElementById("plans");
-  /* "C$1250" next to "C$849" reads like a typo on the one page where a
-     misread number costs a sale. The no-JS fallback already groups thousands;
-     the rendered cards were the ones concatenating raw values. */
+  /* Thousands are grouped: an ungrouped four-digit price beside a
+     three-digit one reads like a typo on the one page where a misread number
+     costs a sale. The no-JS fallback groups them the same way. */
   function grp(n) { return Number(n).toLocaleString("en-CA"); }
   /* THE TERM, per plan, derived from pricing-config.js and never typed.
      `minimumMonths` is zero since the 2026-09-08 directive, so the zero branch
@@ -1440,12 +1426,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var h = "";
     if (pl.recommended) h += '<div class="rec-tag">' + (P.recommendedLabel || 'RECOMMENDED') + '</div>';
     h += "<h3></h3>";
-    /* ONE number. This line has carried three different sentences: a monthly
-       price with "One-time setup: C$250" beneath it (two right figures
-       arranged to look like a bill for C$500 on day one), then "First month
-       C$250, then C$250/month" (accurate, and still two figures and a rule),
-       and now the price itself with what it buys.
-       There is no `pl.setup` to read any more, deliberately: the defect is
+    /* ONE number on the price line. A monthly price with a one-time figure
+       beneath it read as a bill for both on day one, so the one-time fee is
+       stated on the line below in the approved "to start, then" shape.
+       There is no `pl.setup` to read, deliberately: the defect is
        unrepresentable rather than forbidden. */
     /* PUBLISHED AGAIN, 2026-08-15 (evening), with BOTH halves of the offer.
        The price line carries the monthly; the line under it states the
@@ -1572,10 +1556,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     d.querySelector(".best span").textContent = pl.bestFor;
     wrap.appendChild(d);
   });
-  /* The Pay As You Go card was rendered here. Retired 2026-08-06, removed
-     2026-08-07 along with its record in pricing-config.js. The floor is now
-     Core, and the structured data below says so. It used to advertise
-     C$49 to crawlers as lowPrice while every human saw C$249 as the floor. */
   /* Live cards rendered: the static fallback has done its job. Any earlier
      throw leaves it in place, which is the point. */
   var plansFallback = document.getElementById("plansFallback");
@@ -1797,6 +1777,18 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var n = t.cancellationNoticeDays == null ? 0 : t.cancellationNoticeDays;
     return n ? "on " + n + " days notice" : "at any time";
   }
+  /* The tax words on the total come from P.taxNote, the same record the plan
+     cards' tax line renders. This total was the one place on the page that
+     typed its own, and it typed "GST" alone while every other figure on the
+     page, and the engine's canonical record, said "applicable GST/HST", so
+     a buyer in an HST province read a different tax on the total than on
+     the cards above it. The "plus ..." clause is lifted out of the note so the total
+     reads as one sentence; a note without one is appended whole. */
+  function taxClause() {
+    var note = P.taxNote || "";
+    var m = /\bplus\b[^.]*/i.exec(note);
+    return m ? ", " + m[0] + "." : "." + (note ? " " + note : "");
+  }
 
   LEAKS.forEach(function (l) {
     var b = document.createElement("button");
@@ -1878,7 +1870,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     h += '<ul class="node-list"><li>'
       + lines.join("</li><li>") + "</li></ul>";
     h += '<p class="amount">C$' + grp(launch)
-      + " Launch &amp; Implementation to start, then C$" + grp(monthly) + " a month, plus GST.</p>";
+      + " Launch &amp; Implementation to start, then C$" + grp(monthly) + " a month" + taxClause() + "</p>";
     /* NO MINIMUM TERM, stated outright. A branch here printed a number of
        months "agreed up front" whenever pricing-config.js carried a term;
        minimumMonths has been 0 since the 2026-09-08 directive, so it was dead
