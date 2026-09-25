@@ -29,7 +29,9 @@ exclude:
   - package.json
   - package-lock.json
   - playwright.config.js
-  # Security policy for this repository; security.txt links to it on GitHub.
+  # Security policy for this repository, shown in GitHub's Security tab. The
+  # served copy is security.html, which is what security.txt's Policy names:
+  # a github.com Policy URL stops resolving the day this repository is private.
   - SECURITY.md
   # Film production working set: After Effects project, cost plan, checkpoint
   # notes with local machine paths, build scripts, a vendored skills clone.
