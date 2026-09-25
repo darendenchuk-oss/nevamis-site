@@ -228,12 +228,42 @@ const securityTxtProblems = [];
    new wording of an old mistake still fails. */
 const README_FORBIDDEN = [
   [/(?:C\$|CA\$|\$)\s?\d/i, 'a money figure'],
+  [/\b(?:dollars?|bucks|CAD|USD)\b/i, 'a money figure in words'],
   [/\b\d{9}\s?R[TP]\s?\d{4}\b/i, 'a CRA business or tax account number'],
   [/\b(?:GST|HST|PST)\b/i, 'a sales tax registration or rate'],
-  [/\b(?:setup|set-up|activation|onboarding|launch)\s+(?:fee|charge)s?\b/i, 'a one-time fee'],
+  [/\b(?:set-?up|activation|onboarding|launch)[\s-]+(?:fee|charge)s?\b/i, 'a one-time fee'],
   [/\b(?:pilot|trial|free period|discount|money-back|guarantee)\b/i, 'an offer term'],
+  [/\b(?:months?|weeks?|days?)\s+(?:free|at no (?:charge|cost)|on us)\b|\bfree\s+(?:months?|weeks?|days?)\b|\bfirst\s+(?:month|week)\b/i, 'a free period'],
+  [/\b(?:minimum|fixed|initial)\s+(?:term|commitment|contract|period)\b|\b(?:\d+|one|two|three|four|six|nine|twelve|eighteen|twenty-four)[\s-](?:month|year)s?\b|\bper\s+(?:month|year)\b|\ba\s+(?:month|year)\b|\/(?:mo|month|yr|year)\b/i, 'a term or billing period'],
   [/\bretired\b/i, 'a note about what the business no longer offers or says'],
 ];
+/* The rule checks itself on every run. Each MUST_CATCH line is a wording that
+   once got past an earlier version of these patterns (or its obvious sibling);
+   each MUST_PASS line is ordinary developer prose from this README that a
+   too-greedy pattern would start failing. Loosening a pattern until one of
+   these flips fails the check, not a later README. */
+const README_MUST_CATCH = [
+  'C$450 a month', 'CA$ 450', '$450', '450 dollars a month', 'four hundred and fifty dollars',
+  '123456789 RT0001', 'GST included', 'plus HST',
+  'no setup fee', 'no setup-fee', 'no set-up fee', 'an activation charge',
+  'a 30-day pilot', 'try the trial', 'money-back guarantee',
+  'first month free', 'two months free', 'free months for referrals',
+  'minimum term of 3 months', 'a 12-month term', 'a three-month commitment', 'billed per month', 'from 450/mo',
+  'the retired offer',
+];
+const README_MUST_PASS = [
+  'Pages serves the `main` branch at nevamis.ca, and a commit on `main` is live within about a minute.',
+  'Prices come from `pricing-config.js`. Where a page carries a figure as text,',
+  'node serve.js 3222       # another port, or set NV_PORT',
+  'You need Node 22 (what CI uses). Python 3 is needed only to rebuild the homepage.',
+  '| every page in `content-map.json` | `node scripts/build-search-index.mjs` | `search-index.json` |',
+];
+const readmeSelfTest = [];
+for (const s of README_MUST_CATCH) if (!README_FORBIDDEN.some(([re]) => re.test(s))) readmeSelfTest.push(`misses "${s}"`);
+for (const s of README_MUST_PASS) {
+  const hit = README_FORBIDDEN.find(([re]) => re.test(s));
+  if (hit) readmeSelfTest.push(`wrongly flags "${s}" as ${hit[1]}`);
+}
 const readmeProblems = [];
 {
   const file = path.join(root, 'README.md');
@@ -260,5 +290,7 @@ if (securityTxtProblems.length) console.error('SECURITY.TXT POINTS OFF THIS SITE
   + '(the Policy is security.html):\n  ' + securityTxtProblems.join('\n  '));
 if (readmeProblems.length) console.error('README.MD STATES A COMMERCIAL FACT. This repository is public and its README is a search result for the company. '
   + 'Link to nevamis.ca/pricing.html or nevamis.ca/terms.html instead of stating it:\n  ' + readmeProblems.join('\n  '));
-if (missing.length || unexpected.length || securityTxtProblems.length || readmeProblems.length) process.exitCode = 1;
+if (readmeSelfTest.length) console.error('THE README RULE FAILS ITS OWN EXAMPLES. Fix README_FORBIDDEN in scripts/check-published-surface.mjs so it catches every README_MUST_CATCH line and none of README_MUST_PASS:\n  '
+  + readmeSelfTest.join('\n  '));
+if (missing.length || unexpected.length || securityTxtProblems.length || readmeProblems.length || readmeSelfTest.length) process.exitCode = 1;
 else console.log(`Published surface OK: ${published.length} files, all intended; security.txt points at nevamis.ca; README.md states no commercial fact.`);
