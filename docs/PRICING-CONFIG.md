@@ -34,9 +34,10 @@ read nothing, and it then reports the wrong number of plans.
 - **`launch`, never `setup`.** The one-time Launch & Implementation fee is
   charged once, beside the first month, never instead of it. The approved
   sentence joins the two figures with "to start" and "then", never "plus", "+"
-  or "and". "Setup fee", "activation fee" and "onboarding fee" are retired
-  names for it and may only be denied. The engine treats the presence of a
-  `setup` key as a defect.
+  or "and". The fee has one name; the older names for it are retired
+  vocabulary, listed in the engine's canonical record, and may only be
+  denied, never used. The engine treats the presence of a `setup` key as a
+  defect.
 - **No minimum term.** `terms.minimumMonths` is 0 (owner directive
   2026-09-08). Every sentence about the term is derived from that one number,
   so re-introducing a term is a one-figure change here. A shape that needs a
