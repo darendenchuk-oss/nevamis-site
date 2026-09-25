@@ -309,8 +309,8 @@ test('funnel diagnostics fire without leaking anything personal', async ({ page 
   await page.waitForFunction(() => Array.isArray(window.nvEvents));
 
   // walk the page so section + depth events accumulate. Seven stops, not
-  // four: the film homepage runs many viewports tall (the film's scroll
-  // range plus the sections under it), and a four-teleport walk across a
+  // four: the film homepage runs many viewports tall (a full-height film
+  // opening, then a dozen-plus sections under it), and a four-teleport walk across a
   // page that long can land between sections, which says nothing about
   // whether events fire on a real read-through. Depth milestones are
   // unaffected either way.
