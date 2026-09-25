@@ -14,12 +14,12 @@
       "lastmod": "2026-09-23"
     },
     "pricing.html": {
-      "sha256": "349230aa86d9efb68fe737a2991721299932ec055fb8b0316a69a799e2fbe6e4",
-      "lastmod": "2026-09-20"
+      "sha256": "960f9c5ec9eec7a7d641c53ae224b41c27b990a03f1b98d022c8a44c85a84699",
+      "lastmod": "2026-09-24"
     },
     "how-you-start.html": {
-      "sha256": "91d4b8b781ae16e8450047a907aba0b29c0b9fc919211b6537d4fccd0f0e51e8",
-      "lastmod": "2026-09-20"
+      "sha256": "b3c0f9c734cb63e63945caac0a15abf0ca3a92375e9c0b9271f308291f9a2351",
+      "lastmod": "2026-09-24"
     },
     "solutions.html": {
       "sha256": "e3ddda482aaae79e0fef4396631f4afa5745b35e00f8feacb2ec5f34c01d2805",
@@ -70,12 +70,12 @@
       "lastmod": "2026-09-20"
     },
     "privacy.html": {
-      "sha256": "d781da57fe9fcf625e3013963bc7c2b964f898443710a20e98108d8585d5ac5a",
-      "lastmod": "2026-09-20"
+      "sha256": "db7dab55c729d17c79e5ba6a7384e031d1ac9eba031a43dd229ff681379233e8",
+      "lastmod": "2026-09-24"
     },
     "terms.html": {
-      "sha256": "45e018ce10ef7a80b3316930e96b4919e6f505639ac4192595109cdd36eca71d",
-      "lastmod": "2026-09-20"
+      "sha256": "073b8d206011810fe843103af2688524fdb28f88a6e07d8e3ec03332d5c83e89",
+      "lastmod": "2026-09-24"
     }
   }
 }
