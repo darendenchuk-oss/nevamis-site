@@ -127,14 +127,19 @@ test.describe('the homepage opens on its headline and one CTA', () => {
     await ctx.close();
   });
 
+  /* A ghosted label (the film draws the farther ones at about 0.2) is still
+     words laid over the headline, so any label that is painted at all counts.
+     1366x768 because that is where one lands on it: measured without the film
+     treating #hero as a copy beat, the Capture label sat on the headline at
+     1024, 1180, 1280 and 1366 wide, and at none of the wider sizes. */
   test('no film label sits on the headline block (laptop)', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(7000);
     const clash = await page.evaluate(() => {
       const hero = document.querySelector('#hero .hero-in').getBoundingClientRect();
       return [...document.querySelectorAll('#labels .plabel')].filter((el) => {
-        if (Number(getComputedStyle(el).opacity) <= 0.3) return false;
+        if (Number(getComputedStyle(el).opacity) <= 0.02) return false;
         const r = el.getBoundingClientRect();
         return r.left < hero.right && r.right > hero.left && r.top < hero.bottom && r.bottom > hero.top;
       }).map((el) => el.getAttribute('data-pane'));
