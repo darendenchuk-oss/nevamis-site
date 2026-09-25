@@ -2,80 +2,84 @@
   "_comment": "Written by scripts/gen-sitemap.mjs; do not edit by hand. Per sitemap page: sha256 of the file with \\r removed, and the <lastmod> sitemap.xml gives it. scripts/check-generator-drift.mjs fails when a page no longer matches its hash. Fix: node scripts/gen-sitemap.mjs, then commit sitemap.xml and this file.",
   "pages": {
     "index.html": {
-      "sha256": "ef389570fce7da7c0ab9ef32256ae21e54b9ff17a104099c164699ebc337d649",
+      "sha256": "4535f75c033723d34f23132be5220dea6475576a3775ff1e28856b8050dd12dc",
       "lastmod": "2026-09-25"
     },
     "demo.html": {
-      "sha256": "86e379c93ad5e2674a72ced12c6e5e214222d0383243390e5bb748523fabf9c2",
-      "lastmod": "2026-09-23"
+      "sha256": "5f678d73d91ae3f087049dd452f3c3843fb938c148edd4ce2e2077f0780f69bb",
+      "lastmod": "2026-09-25"
     },
     "book.html": {
-      "sha256": "cb86d924ae84b57c21cb52411dcae13fd0790409129d6672f76cb2b7619ee393",
-      "lastmod": "2026-09-23"
+      "sha256": "61062841c2fece7355df9bea45c121cf712b57d8b8b834d3325b79917853b49d",
+      "lastmod": "2026-09-25"
     },
     "pricing.html": {
-      "sha256": "960f9c5ec9eec7a7d641c53ae224b41c27b990a03f1b98d022c8a44c85a84699",
-      "lastmod": "2026-09-24"
+      "sha256": "b0a24fe807acf163df4bfe907fd2f42b23fc016bbc21cfce63b02647e3d0cbcf",
+      "lastmod": "2026-09-25"
     },
     "how-you-start.html": {
-      "sha256": "b3c0f9c734cb63e63945caac0a15abf0ca3a92375e9c0b9271f308291f9a2351",
-      "lastmod": "2026-09-24"
+      "sha256": "391bd30d6ee552a67a4a7dcd188f9d906d0ccaa652ce1eb8162485d0c3d0731d",
+      "lastmod": "2026-09-25"
     },
     "solutions.html": {
-      "sha256": "e3ddda482aaae79e0fef4396631f4afa5745b35e00f8feacb2ec5f34c01d2805",
-      "lastmod": "2026-09-23"
+      "sha256": "0e2159adc22560f6fc52e6b0fb793b4db3dc78a5774d7361b04a8ecfc3785ead",
+      "lastmod": "2026-09-25"
     },
     "electricians.html": {
-      "sha256": "3e860d2f610cae85cc2ba1eaf30c3af576dd3b8ab4d622cbbe32ced8d78c382e",
-      "lastmod": "2026-09-23"
+      "sha256": "887028eb296691a9559f4f43157db59707637dae2dc14ff5cddfe7ac6a055bf0",
+      "lastmod": "2026-09-25"
     },
     "hvac.html": {
-      "sha256": "eabbc0422d543554e60b912107c443f6b9d8e091c1eea340cb9566fd01cad7e3",
-      "lastmod": "2026-09-23"
+      "sha256": "9e7a5803898533e43ba4ea7da669e7eea7c02943244a0f615e97b66230cd6a31",
+      "lastmod": "2026-09-25"
     },
     "plumbers.html": {
-      "sha256": "bac98126f22d3d1e0884d96d1b5f804388de33e941eec5a02341c1bd4d231ad1",
-      "lastmod": "2026-09-23"
+      "sha256": "c470f290fd740706726feb0759e037217aaa106ce9906a0b5214546ee8aba11e",
+      "lastmod": "2026-09-25"
     },
     "restoration.html": {
-      "sha256": "f63a5b55d9ee038a00aa04b50fc7ec3001e593c69ec3ed95880f85922aa1995b",
-      "lastmod": "2026-09-23"
+      "sha256": "778c6b461bb1bc5cc2e0ab8adf9eb20b5e2ff6a10878711a9f47c85533de7288",
+      "lastmod": "2026-09-25"
     },
     "after-hours-answering.html": {
-      "sha256": "ed496d3d8dd354e0c4b402ede36a43f815efcd3a5d0bd0c7f9f3d89535aea01b",
-      "lastmod": "2026-09-23"
+      "sha256": "7320a5810f7b474c71610ed85458a6c0cb705386501c195fa2099e0aaed43de6",
+      "lastmod": "2026-09-25"
     },
     "missed-calls.html": {
-      "sha256": "7c3d7c21f9ad3136f55fdcd053bb8ac4a98390717c35692080238d41dfbfb7fb",
-      "lastmod": "2026-09-23"
+      "sha256": "e9f5a1f6e6cf8625923488486ea9fd20b1b94dbf2ce34fb56a1aaa8e706ff18b",
+      "lastmod": "2026-09-25"
     },
     "revenue-engine.html": {
-      "sha256": "b504dee5188715c8b692d13d80f2b4028f2d40e4e388f51002e977745c6324db",
+      "sha256": "a593e4dee6b4e5886bc248932674bfe22073254a05020b3e32da696d6fb41976",
       "lastmod": "2026-09-25"
     },
     "vs-voicemail.html": {
-      "sha256": "add6fdd2635765dd62246d8202ccfca65fa8ef1b2a2791dcb2c80cb56c36a2db",
-      "lastmod": "2026-09-23"
+      "sha256": "75d291a2f5817ce977f196fba42d4f6a7aab5027d68461da5c1f7d86acb0de55",
+      "lastmod": "2026-09-25"
     },
     "vs-answering-service.html": {
-      "sha256": "ea451d73870c8b71c40acb508fbe158292d178ccb8165b3aad4e949f03301413",
-      "lastmod": "2026-09-23"
+      "sha256": "d9ce6785743febd5d147282835fff27b94fa845d17f750e02ebc9bd4097a13b4",
+      "lastmod": "2026-09-25"
     },
     "coming-soon.html": {
-      "sha256": "1cc9e66dab44589aa025657608efd84b12dc742676664075e04b6826eb4bb66b",
-      "lastmod": "2026-09-20"
+      "sha256": "63d6863e335bd8a9abcf95380841bad096dd003bfeb3edf572472136e88e7647",
+      "lastmod": "2026-09-25"
     },
     "about.html": {
-      "sha256": "0e5658477aa58866b4165e97df2edfabc868ae5ec07666d0101a233f8e5d0548",
-      "lastmod": "2026-09-20"
+      "sha256": "49db4784e42954b29a83fd8f45f045c034decca8cb28492cd481e70260249fd2",
+      "lastmod": "2026-09-25"
     },
     "privacy.html": {
-      "sha256": "db7dab55c729d17c79e5ba6a7384e031d1ac9eba031a43dd229ff681379233e8",
-      "lastmod": "2026-09-24"
+      "sha256": "aa8805c2055b9f2a772ff06ecf1beedcaed751effdec418f566bbac41f030f35",
+      "lastmod": "2026-09-25"
     },
     "terms.html": {
-      "sha256": "073b8d206011810fe843103af2688524fdb28f88a6e07d8e3ec03332d5c83e89",
-      "lastmod": "2026-09-24"
+      "sha256": "a75c8256abf4153e734b3173cd9e214618c3df261ee59ab6931d2926179184c6",
+      "lastmod": "2026-09-25"
+    },
+    "security.html": {
+      "sha256": "4a8215ec74c9975bf92dfde19b2e43ef4dcab8a83ebb977af89d993960a7b56f",
+      "lastmod": "2026-09-25"
     }
   }
 }
