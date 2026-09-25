@@ -116,14 +116,14 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
    script exits 2, which check-all.mjs prints as WAITING ON YOU: loud, and
    still not a reason to block a push for work that is not in this repository.
    The two homepage entries were deleted the day the source line was fixed
-   (fix plan A8); the knowledge-base entry the day that file was corrected here. What is left is
-   two files outside this repository, which no commit here can fix and which CI
-   never sees: the live demo prompt (fix plan A18, pushed through the agent
-   flow) and the cold-calling offer sheet. Those report as an owner action and
-   leave the exit code alone. */
+   (fix plan A8); the knowledge-base entry the day that file was corrected here;
+   the cold-calling offer sheet's entry on 2026-09-25, the day OFFER-V4.md
+   stopped saying it. What is left is one file outside this repository, which
+   no commit here can fix and which CI never sees: the live demo prompt (fix
+   plan A18, pushed through the agent flow). It reports as an owner action and
+   leaves the exit code alone. */
 const BANNED_PENDING = [
   { file: "../nevamis-engine/docs/agent-prompts/demo.md", text: "the start most businesses make", owner: "engine demo prompt, fix plan A18" },
-  { file: "../Desktop/Nevamis Cold Calling/OFFER-V4.md", text: "the start most shops make", owner: "the cold-calling offer sheet, outside every repository" },
 ];
 const pendingHit = new Set();
 /* The text a `banned` rule is allowed to see: the file as written, minus the
@@ -432,6 +432,19 @@ for (const p of contentPages) {
        what separates the promise from the process, and it fires on nothing in
        the current tree. */
     new RegExp("\\bescalat\\w*\\s+(?:straight\\s+)?to\\s+(?:the|your|a)?\\s*" + PERSON, "i"),
+    /* THE HAND-OFF WITHOUT EITHER WORD (2026-09-25, T6). The how-you-start
+       FAQ answered "What if a caller has an emergency?" by listing fallbacks
+       a client's agent does not have; the honest answer now has to be able to
+       say it cannot pass the call on, and the same verbs without the "cannot"
+       are the promise. Destination-bound for the reason escalation is: "pass
+       the details to your team" is what happens, "pass the call to your team"
+       is not. Widened after review the same day: the plural ("it passes
+       calls to your team", "it can route urgent calls to your phone") is the
+       same promise, and so is "put the call through to a person", which the
+       put-through rule above misses because its object there is a person. */
+    new RegExp("\\b(?:(?:pass|hand|forward|route|send)(?:es|s|ed|ing)?|sent|put(?:s|ting)?)"
+      + "\\s+(?:(?:the|urgent|any|all|those)\\s+)?(?:calls?|callers?|you|them)"
+      + "\\s+(?:off\\s+|over\\s+|on\\s+|straight\\s+|through\\s+)?to\\s+(?:the|your|a)?\\s*" + PERSON, "i"),
   ];
   /* Constructions that WITHDRAW the claim in the clause that makes it. The
      site's own correction is the first entry's job; the rest are the shapes
@@ -442,8 +455,9 @@ for (const p of contentPages) {
     /\bthere is no\b/i, /\bthere are no\b/i,
     /\bnot built\b/i, /\bnot available\b/i, /\bnot offered\b/i,
     /\bno live transfer\b/i,
-    /\b(?:does|do|will|can)\s+not\s+(?:transfer|connect|put|patch)\b/i,
-    /\bnever\s+(?:transfer|connect|put|patch)/i,
+    /\b(?:does|do|will|can)\s+not\s+(?:transfer|connect|put|patch|pass|hand|forward|route|send)\b/i,
+    /\b(?:cannot|can't|doesn't|won't)\s+(?:transfer|connect|put|patch|pass|hand|forward|route|send)\b/i,
+    /\bnever\s+(?:transfer|connect|put|patch|pass|hand|forward|route|send)/i,
     /\bwithout\s+(?:a\s+)?transfer\b/i,
     /\bretired\b/i, /\bno longer\b/i,
   ];
@@ -747,6 +761,58 @@ for (const p of contentPages) {
   }
 }
 
+/* PROMISES OF A MECHANISM THAT DOES NOT EXIST, found on 2026-09-25 (fix
+   plan T6, C13/C11, T15-site) and swept by guard 7k below over every surface
+   a visitor or a caller can meet. Each was live on nevamis.ca.
+
+   - "fall back to your voicemail" (how-you-start.html FAQ). A client's agent
+     has one call control, end_call (nevamis-engine elevenlabs-provision.ts),
+     and the engine's docs/INCIDENT-RESPONSE.md says in as many words that
+     there is no voicemail fallback. On an urgent call it captures the
+     details and alerts the team; guard 16 refuses the hand-off to a person.
+   - "then removed" / "then deleted" (privacy.html on contact details,
+     how-you-start.html on cancelled accounts). Nothing deletes
+     interest_requests, and cancelling deletes nothing: data stays until the
+     person or the client asks. The fixed retention windows are an open owner
+     decision (owner item O6, finding F48). THE WAY TO LIFT THIS RULE is O6:
+     when the owner sets a period AND something in nevamis-engine deletes on
+     that schedule, the page may say "then deleted" with the period beside
+     it, and this entry changes in the same commit that ships the job.
+   - "plus GST" without HST (the pricing chooser total). Canonical, and
+     every other figure on the page, says "plus applicable GST/HST"; a buyer
+     in an HST province read a different tax on the total than on the cards
+     above it. `+ GST` is the same claim, and so is "plus applicable GST". */
+const NO_MECHANISM = [
+  { re: /\bfall(?:s|ing)?\s+back\s+(?:on\s+|to\s+)(?:your\s+|a\s+|the\s+)?voice\s?mail\b/i,
+    /* The denial has to govern the fallback itself: a free-standing "never"
+       elsewhere in the clause ("..., and it never invents an answer") must
+       not excuse it, and in the mutation test it did. */
+    denial: /\b(?:cannot|can't|can not|does not|doesn't|will not|won't|never)\s+(?:\w+\s+){0,2}?fall(?:s|ing)?\s+back\b|\bno\s+voice\s?mail\s+fallback\b/i,
+    why: "a client's agent has end_call only (engine elevenlabs-provision.ts) and docs/INCIDENT-RESPONSE.md says there is no voicemail fallback; say it takes a message, flags it urgent and alerts the team" },
+  /* The same missing control said as a hand-off instead of a fallback: "it
+     sends the caller to voicemail", "urgent calls are forwarded to your
+     voicemail" (added after review, 2026-09-25). Bound to a routing verb, so
+     "calls that go to voicemail are lost", the problem this site sells
+     against, is not caught. A bare past participle counts only after an
+     auxiliary ("are forwarded to"), because after a noun it describes the
+     caller's life without the product: after-hours-answering.html says "The
+     same call sent to voicemail is a note about a job you did not get", which
+     is true and is the pitch. The denial governs the verb, as above. First run
+     (2026-09-25) it found config/elevenlabs/recording-notice-greetings.md
+     offering "Route to voicemail" as a decline-recording path a client agent
+     cannot perform; that draft now says so. */
+  { re: /(?:\b(?:send|sends|sending|route|routes|routing|forward|forwards|forwarding|pass|passes|passing|transfer|transfers|transferring|puts?|putting)|\b(?:is|are|be|been|being|gets?|getting|got)\s+(?:\w+\s+)?(?:sent|routed|forwarded|passed|transferred|put))\s+(?:[\w'-]+\s+){0,4}?(?:through\s+)?to\s+(?:your\s+|a\s+|the\s+)?voice\s?mail\b/i,
+    denial: /\b(?:cannot|can't|can not|does not|doesn't|will not|won't|never|not)\s+(?:\w+\s+){0,2}?(?:send|sent|rout|forward|pass|transfer|put)\w*|\bno\s+voice\s?mail\s+(?:fallback|transfer|forwarding)\b/i,
+    why: "a client's agent has end_call only (engine elevenlabs-provision.ts): it cannot send, route or forward a caller anywhere, voicemail included; say it takes a message, flags it urgent and alerts the team" },
+  /* Up to two adverbs may sit between "then" and the verb: "then permanently
+     deleted" and "then automatically and permanently removed" are the same
+     promise (widened after review, 2026-09-25). */
+  { re: /\bthen\s+(?:(?:automatically|permanently|securely|safely)\s+(?:and\s+)?){0,2}(?:removed|deleted|erased|purged|destroyed)\b/i,
+    why: "nothing deletes these records on a schedule: data is kept until the person or the client asks for deletion. The retention windows are owner item O6; say so rather than promise a deletion nothing performs" },
+  { re: /(?:\bplus|\+)\s*(?:applicable\s+)?GST\b(?!\s*\/\s*HST)/i,
+    why: "canonical and pricing-config.js taxNote say \"plus applicable GST/HST\"; derive the tax words from P.taxNote instead of typing them" },
+];
+
 /* 7k. NO SURFACE MAY PROMISE A FEATURE THE PRODUCT DOES NOT HAVE.
 
        Added 2026-09-24 for two findings on the pricing page, both on every
@@ -832,6 +898,25 @@ for (const p of contentPages) {
         + "the change that ships the feature.");
     }
   }
+
+  /* NO_MECHANISM, below, over the same units. Judged per rendered clause
+     rather than through offendingClause(): two of these are fragments with
+     no verb of their own ("a month, plus GST."), which the claim classifier
+     deliberately reads as naming rather than asserting, and a guard that
+     cannot see the defect it was written for is decoration. */
+  for (const { label, text } of units) {
+    for (const { re, why, denial } of NO_MECHANISM) {
+      if (!re.test(text)) continue;
+      for (const clause of clauses(text)) {
+        if (!re.test(clause) || (denial && denial.test(clause))) continue;
+        const key = label + "::" + clause;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        err(label + ": says something nothing in the product does (" + re + ").\n      clause: \"" + clause.slice(0, 180) + "\"\n      "
+          + "Why it is false: " + why + ".");
+      }
+    }
+  }
 }
 
 /* 7l. HOW YOU START MUST NOT SAY THE ONLY LAUNCH FEE IS THE PLAN'S.
@@ -882,6 +967,144 @@ for (const p of contentPages) {
     if (/\bautomation add-ons?\b/i.test(text) && !/\bits own one-time Launch & Implementation fee\b/i.test(text)) {
       err(page + ": names automation add-ons but never says each one carries its own one-time Launch & Implementation fee. "
         + "A buyer reading it would expect one launch fee in total (terms 2.8 says otherwise).");
+    }
+  }
+}
+
+/* 7m. THE HOMEPAGE MUST SHOW WHAT IS SOLD AND NAME WHAT IT DRAWS.
+
+       Added 2026-09-24 for two homepage findings, both in a file a person
+       composes by hand (scripts/film/source.html) and both green under every
+       rule above, because each is about what the page LEAVES OUT, and every
+       rule above reads the words that are there.
+
+       a) Every module sold on its own must have a station. Get-Paid
+          Autopilot was available in canonical, sold alone, inside The Works
+          and priced on pricing.html, and was absent from every station and
+          from the brain map, so "less office admin" read as one live thing
+          and two unbuilt ones. The stations mark a sold module with
+          data-addon, which is also what puts its price in the plans strip
+          (site.js), so the check is on that attribute: a station without it
+          is not priced, and a price without a station cannot render.
+          Derived from pricing-config.js (sellable && soldAlone), so a
+          module that goes on sale tomorrow fails here until the homepage
+          describes it.
+       b) The brain-node list says "each named dot is a part of the brain"
+          and states no count because "the list is the count". The film draws
+          one dot per station module (film source, the BRAIN NODES block,
+          which reads the #doc stations), so the list is only true while it
+          names exactly the stations' modules under their own pillars. It
+          went stale once by count (a typed "thirteen dots") and again by name
+          on 2026-09-24, when the stations had been renamed and the list had
+          not. */
+{
+  const page = "index.html";
+  const html = fs.existsSync(path.join(root, page)) ? fs.readFileSync(path.join(root, page), "utf8") : "";
+  if (!html) err("guard 7m: index.html is missing");
+  else {
+    const noComments = html.replace(/<!--[\s\S]*?-->/g, " ");
+    const plain = (s) => s.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+    /* The six stations, as the film reads them: an <article> per pillar, its
+       h3 the pillar, each .svc's h4 text minus its chip the module name. */
+    const stations = [];
+    const onPage = new Set();
+    for (const id of ["scan", "capture", "convert", "operate", "grow"]) {
+      const art = (noComments.match(new RegExp(`<article class="pane-doc" id="doc-${id}">([\\s\\S]*?)</article>`)) || [])[1];
+      if (!art) { err(`guard 7m: the #doc-${id} station is missing from index.html`); continue; }
+      const pillar = plain((art.match(/<h3>([\s\S]*?)<\/h3>/) || [, id])[1]);
+      for (const svc of art.matchAll(/<div class="svc"([^>]*)>([\s\S]*?)<\/div>/g)) {
+        const addon = (svc[1].match(/data-addon="([^"]+)"/) || [])[1];
+        if (addon) onPage.add(addon);
+        const h4 = (svc[2].match(/<h4>([\s\S]*?)<\/h4>/) || [])[1];
+        if (h4) stations.push(plain(h4.replace(/<span class="chip[\s\S]*?<\/span>/g, "")) + " | " + pillar);
+      }
+    }
+
+    /* a) */
+    const w = {};
+    vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+    const soldAlone = (w.NV_PRICING?.addOns ?? []).filter((a) => a.sellable && a.soldAlone);
+    if (!soldAlone.length) err("guard 7m: pricing-config.js lists no module sold alone, so the homepage cannot be checked against it");
+    for (const a of soldAlone) {
+      if (!onPage.has(a.id)) {
+        err(`${page}: ${a.name} is sold on its own (pricing-config.js ${a.id}) but no station carries data-addon="${a.id}".\n`
+          + `       A buyer reading the homepage never learns it exists, and the plans strip cannot price it.\n`
+          + `       Add a .svc for it to its pillar in scripts/film/source.html, then recompose.`);
+      }
+    }
+
+    /* b) */
+    const nodesBlock = (noComments.match(/<article class="pane-doc" id="doc-nodes">([\s\S]*?)<\/article>/) || [])[1] || "";
+    const listed = [...nodesBlock.matchAll(/<li><b>([\s\S]*?)<\/b>\s*<span>([\s\S]*?)<\/span><\/li>/g)]
+      .map((m) => plain(m[1]) + " | " + plain(m[2]));
+    if (!listed.length) err(`guard 7m: ${page} has no brain-node list to check`);
+    const drawn = new Set(stations), named = new Set(listed);
+    for (const s of stations) if (!named.has(s)) err(`${page}: the film draws a dot for "${s}" but the brain-node list does not name it (the list is the count)`);
+    for (const l of listed) if (!drawn.has(l)) err(`${page}: the brain-node list names "${l}", which no station describes, so no dot is drawn for it`);
+  }
+}
+
+/* 7n. THE HOMEPAGE CALCULATOR CANNOT SHOW AN IMPOSSIBLE NUMBER, AND LOADING
+       THE PAGE IS NOT USING IT.
+
+       Added 2026-09-25. The calculator in site.js took its fields as typed:
+       -10 missed calls rendered "$-5,196", and a 150% close rate was taken at
+       face value. revenue-engine.html's copy of the same formula clamped, and
+       the homepage's did not. Its one break-even row also showed real
+       inquiries under the name "won jobs" (5 where 3 cover the plan).
+
+       This runs the real arithmetic: the ROI-MATH block of site.js, cut out
+       and evaluated here, so a change to the formula is judged by what it
+       returns, not by how it is spelled. The Playwright spec
+       tests/homepage-calculator.spec.js checks the rendered rows in a browser.
+
+       It also holds the analytics half. roi_calculator_complete was sent from
+       inside calc(), which runs on load with the defaults, so every page view
+       counted as calculator use. The math block must not send anything, and
+       site.js must send the event from a one-shot input listener only. */
+{
+  const src = fs.existsSync(path.join(root, "site.js")) ? fs.readFileSync(path.join(root, "site.js"), "utf8") : "";
+  const block = (src.match(/\/\* ROI-MATH BEGIN\.[\s\S]*?\/\* ROI-MATH END \*\//) || [])[0];
+  if (!block) err("guard 7n: site.js has no ROI-MATH BEGIN ... ROI-MATH END block, so the calculator's arithmetic is unchecked");
+  else {
+    let roi = null;
+    try {
+      const box = {};
+      vm.runInNewContext(block + "\nthis.roiFigures = roiFigures;", box, { timeout: 1000 });
+      roi = box.roiFigures;
+    } catch (e) { err(`guard 7n: the ROI-MATH block in site.js does not run on its own: ${e.message}`); }
+    if (typeof roi === "function") {
+      const base = { missed: "10", real: "60", value: "400", close: "50", quote: "1000" };
+      const run = (over) => roi(Object.assign({}, base, over));
+      const bad = (msg) => err(`site.js calculator: ${msg}`);
+      const d = run({});
+      if (d.won !== 3) bad(`at the defaults (plan 1000, job 400, 50%) 3 won jobs cover the plan; it says ${d.won}`);
+      if (d.inquiries !== 5) bad(`at the defaults 5 real inquiries are needed at a 50% close rate; it says ${d.inquiries}`);
+      for (const [name, over] of [["missed calls", { missed: "-10" }], ["the opportunity share", { real: "-60" }],
+        ["the job value", { value: "-400" }], ["the close rate", { close: "-50" }]]) {
+        const r = run(over);
+        if (!(r.opp >= 0) || !(r.recovered >= 0)) bad(`a negative ${name} gives a negative dollar figure (${r.opp}); every input must be clamped to >= 0`);
+      }
+      const q = run({ quote: "-1000" });
+      if (!(q.quote >= 0) || (q.won !== null && q.won < 0)) bad(`a negative plan price is not clamped (quote ${q.quote}, won ${q.won})`);
+      const at100 = run({ close: "100" }), over100 = run({ close: "150" });
+      if (over100.opp !== at100.opp || over100.inquiries !== at100.inquiries) bad(`a 150% close rate is accepted (opportunity ${over100.opp}, at 100% it is ${at100.opp}); percentages must be clamped to 0..100`);
+      const r100 = run({ real: "100" }), r150 = run({ real: "150" });
+      if (r150.opp !== r100.opp) bad(`a 150% opportunity share is accepted (${r150.opp} vs ${r100.opp} at 100%)`);
+      const noValue = run({ value: "0" });
+      if (noValue.won !== null || noValue.inquiries !== null) bad(`with no job value neither break-even is reachable; it says won ${noValue.won}, inquiries ${noValue.inquiries} (must be null, shown as "Not reachable")`);
+      const noClose = run({ close: "0" });
+      if (noClose.inquiries !== null) bad(`at a 0% close rate no number of inquiries is enough; it says ${noClose.inquiries}`);
+      if (noClose.won !== 3) bad(`won jobs do not depend on the close rate; at 0% it says ${noClose.won}`);
+      const junk = run({ missed: "abc", value: "" });
+      if (!(junk.opp === 0)) bad(`unreadable input gives ${junk.opp}, not 0`);
+    }
+    if (/nvTrack/.test(block)) err("guard 7n: the ROI-MATH block sends analytics; it must be pure");
+    const sends = src.match(/nvTrack\("roi_calculator_complete"\)/g) || [];
+    const oneShot = /addEventListener\("input", function (\w+)\(\) \{\s*roiForm\.removeEventListener\("input", \1\);\s*window\.nvTrack\("roi_calculator_complete"\);/.test(src);
+    if (sends.length !== 1 || !oneShot) {
+      err(`site.js: roi_calculator_complete must be sent exactly once, from a one-shot "input" listener on roiForm that removes itself.\n`
+        + `       Sent from calc(), it fires on every page load with the defaults and the funnel counts page views as calculator use.`);
     }
   }
 }

@@ -1,55 +1,115 @@
 # nevamis.ca
 
-Marketing site for Nevamis AI (Edmonton AI receptionist studio).
-Plain HTML/CSS/JS, no build step, hosted on **GitHub Pages** with the custom
-domain `nevamis.ca` (DNS at Porkbun).
+This repository is the source of [nevamis.ca](https://nevamis.ca), the website
+of Nevamis AI Inc., a company in Edmonton, Alberta that helps Canadian trades
+and service businesses win more of the work they want.
 
-## Structure
+What Nevamis offers, what it costs and the terms it is sold on are published on
+the site, and only there:
 
-| File | Purpose |
-|---|---|
-| `index.html` | Home: hero + signal scene, call proof, how it works, coverage modes, industries, ROI calculator, process, offers, founder, FAQ, final CTA |
-| `demo.html` | Live-demo page (call the AI, test scenarios, example call) |
-| `book.html` | Strategy-call booking (links to Cal.com) |
-| `about.html`, `privacy.html`, `terms.html`, `404.html` | Supporting pages |
-| `assets/motion/site.css` | Design system (palette, components, responsive, reduced-motion). The old root `styles.css` was deleted on 2026-08-07: no page had linked it for months, so edits made there silently did nothing. |
-| `assets/fonts/fonts.css` | Self-hosted faces. Bricolage Grotesque and Spline Sans Mono are single **variable** files declared over their full weight range (`200 800` / `300 700`); do not add per-weight files. |
-| `site.js` | Nav, motion toggle, signal-scene canvas, call player, tabs, ROI calc, reveals, analytics layer |
-| `assets/` | Call audio (call-0..5.mp3), founder photo |
-| `docs/higgsfield-prompts.md` | Generative-asset production record + prompts |
-| `serve.js` | Local preview: `node serve.js` → http://localhost:3211 |
+- Services: [nevamis.ca](https://nevamis.ca) and [nevamis.ca/solutions.html](https://nevamis.ca/solutions.html)
+- Pricing: [nevamis.ca/pricing.html](https://nevamis.ca/pricing.html)
+- Terms and privacy: [nevamis.ca/terms.html](https://nevamis.ca/terms.html), [nevamis.ca/privacy.html](https://nevamis.ca/privacy.html)
+- Contact: [Sales@nevamis.ca](mailto:Sales@nevamis.ca), or book a call at [nevamis.ca/book.html](https://nevamis.ca/book.html)
 
-## Editing
+The client app at app.nevamis.ca is a separate codebase and is not in this
+repository.
 
-- **Phone number / email:** search-replace `(587) 413-0035`, `+15874130035`, `Sales@nevamis.ca` across the HTML files.
-- **Booking link:** `book.html` → `https://cal.com/daren-qvlah4/nevamis-intro`. Change here if the Cal.com event moves.
-- **Offers:** there is exactly one, and it is the price. One recurring figure per plan (pricing-config.js), no setup or activation charge, no pilot and no trial; the free 7-day pilot and the money-back guarantee are both retired. The copy lives in `index.html` section `#risk`, the FAQ, and `how-you-start.html`. That page served from `pilot.html` until 2026-09-19; the old URL is still served as a short noindex page that answers "can I try it first" and points at the new one, and it must never grow back into an offer. Confirm with docs/CLAIMS-LEDGER.md before changing anything public.
-- **Demo transcript:** `index.html` + `demo.html` `.line` blocks must match the audio verbatim; regenerate text via speech-to-text if the audio changes.
+## How the site is made
 
-## Deploy
+Plain HTML, CSS and JavaScript. There is no framework and no bundler: GitHub
+Pages serves the `main` branch at nevamis.ca, and a commit on `main` is live
+within about a minute.
+
+Some files are written by scripts rather than by hand. Edit the source, run the
+builder, and commit what it writes; `scripts/check-generator-drift.mjs` fails
+when a generated file no longer matches what its builder produces.
+
+| Source you edit | Builder | What it writes |
+|---|---|---|
+| `scripts/film/source.html`, `scripts/film/sections.html`, `scripts/film/sections.css`, `scripts/film/chrome-source.html` | `python scripts/film/compose.py` | `home.html` (the homepage, noindex) and `assets/film/*.js` |
+| `scripts/content/pages.mjs`, `content-map.json` | `node scripts/build-content.mjs` | the trade, situation and comparison pages, and `solutions.html` |
+| `_partials/nav.html`, `_partials/footer.html`, `assets/motion/site.css`, `assets/fonts/fonts.css` | `node scripts/build-pages.mjs` | the shared header and footer, and the inlined stylesheet, on every page |
+| page titles and descriptions | `node scripts/build-schema.mjs` | structured data (JSON-LD) |
+| every page in `content-map.json` | `node scripts/build-search-index.mjs` | `search-index.json` |
+| every inline script | `node scripts/build-csp.mjs` | each page's Content-Security-Policy |
+| `home.html` | `node scripts/promote.mjs` | `index.html`, the indexable homepage |
+| `content-map.json` and git history | `node scripts/gen-sitemap.mjs` | `sitemap.xml` |
+
+Run the builders in the order listed; each later one reads what the earlier
+ones wrote. Never edit `index.html` or `search-index.json` by hand.
+
+`content-map.json` is the list of public pages. Adding a page means adding a
+row there, which puts it in the sitemap, the search index and the checks.
+
+Prices come from `pricing-config.js`. Where a page carries a figure as text,
+`scripts/check-consistency.js` fails if it differs from that file.
+
+## Run it locally
+
+You need Node 22 (what CI uses). Python 3 is needed only to rebuild the
+homepage.
 
 ```
-git add -A && git commit -m "..." && git push
+node serve.js            # http://localhost:3211
+node serve.js 3222       # another port, or set NV_PORT
 ```
-GitHub Pages redeploys `main` automatically (~1 min). HTTPS enforced.
 
-## Analytics
+`serve.js` compresses text responses the way GitHub Pages does, so what you
+measure locally is close to production.
 
-`site.js` exposes `nvTrack(name, data)` and queues into `window.nvEvents`.
-CTAs carry `data-evt` attributes (hero_book_call_click, demo_phone_click,
-demo_audio_play, demo_audio_complete, booking_start, booking_page_view,
-roi_calculator_complete). Nothing is sent anywhere until you add a provider:
-- **GA4:** paste the gtag snippet into each page's `<head>`; events forward automatically.
-- **Plausible:** add their script tag; events forward via `window.plausible`.
+## Checks
 
-## Environment / integrations
+The `verify` workflow (`.github/workflows/verify.yml`) runs these on every pull
+request and every push to `main`. Each exits non-zero on failure, and each can
+be run on its own:
 
-The site itself needs no secrets. Related service config lives in
-`C:\Users\daren\ai-assistant\.env` (Twilio, ElevenLabs, Cal.com, Stripe).
-See `.env.example` for names only.
+```
+node scripts/check-claims-classifier.mjs   # the copy checker's own rules still hold
+node scripts/check-consistency.js          # copy, prices, contact details and generated blocks agree across pages
+node scripts/build-csp.mjs --check         # every page's security policy matches its inline scripts
+node scripts/check-published-surface.mjs   # nothing is served that should not be
+node scripts/check-critical-surface.mjs    # call routing, vendored code, phone numbers, emails and outbound links are unchanged unless pinned
+node scripts/check-generator-drift.mjs     # generated files reproduce from their builders
+```
 
-## Prelaunch
+`npm run check` runs all of the above plus a whole-site browser audit and the
+Playwright tests. The browser tests need the dev dependency installed once:
 
-Open `PRELAUNCH.md` for the short list of items requiring the owner's
-confirmation.
+```
+npm install
+npx playwright install chromium
+```
 
+Changing a phone number, email address or outside link in a published file
+means re-pinning it in the same commit:
+`node scripts/check-critical-surface.mjs --update`, then review the diff.
+
+## What is published
+
+Jekyll on GitHub Pages serves everything in this repository except what
+`_config.yml` excludes: working documents, scripts, tests and tooling are
+excluded there. `scripts/check-published-surface.mjs` turns that into an
+allow list, so publishing a new file or folder is a deliberate change to the
+check rather than an accident.
+
+## Changing the site
+
+1. Branch from `main`.
+2. Edit the source files, run the builders your change touches, and run the
+   checks above.
+3. Open a pull request against `main`. Merge when `verify` is green; Pages
+   publishes the merge.
+
+## Security
+
+Please report security problems privately, as described at
+[nevamis.ca/security.html](https://nevamis.ca/security.html) (also in
+[SECURITY.md](SECURITY.md)). The machine-readable contact is
+[/.well-known/security.txt](https://nevamis.ca/.well-known/security.txt).
+
+## Licence
+
+This repository has no open-source licence, so no right to reuse its contents
+is granted. Third-party components keep their own licences, listed in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

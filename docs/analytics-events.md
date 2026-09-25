@@ -11,10 +11,9 @@ input, or customer data in properties.
 | hero_live_demo_call_click | hero phone CTA specifically | none | Hero vs nav CTA performance |
 | hero_book_call_click | any Book-a-Call CTA | none | Primary conversion intent |
 | callbar_book_click | mobile sticky bar (<=820px), "Book a 15-min call" to /book.html#pick-a-time; not on book.html, where the bar scrolls to the scheduler and sends nothing | none | Does a persistent booking bar start bookings on phones? |
-| booking_page_view | book.html load | none | Funnel reach |
 | booking_start | Cal.com link click | none | Booking starts |
 | demo_audio_play / demo_audio_complete | example-call player | none | Does the proof get consumed? |
-| roi_calculator_complete | first full ROI input set | none | Calculator engagement |
+| roi_calculator_complete | the visitor's first edit of the homepage ROI calculator, once per page view (see the note below) | none | Calculator engagement |
 | pricing_view_click | homepage pricing preview CTA | none | Pricing interest |
 | coming_soon_page_view | coming-soon.html load | none | Roadmap page reach |
 | roadmap_service_interest_clicked | "Tell us this would help" card button | service (slug) | Which future service has demand? |
@@ -22,6 +21,8 @@ input, or customer data in properties.
 | roadmap_form_submitted | interest form submit | services (count only) | Roadmap lead volume |
 | roadmap_front_desk_cta_clicked | Coming-Soon → Front Desk CTAs | none | Does the roadmap feed the live product? |
 | revenue_engine_scan_click | revenue-engine.html, the PULSE Business Scan card's "Scan my website" link to app.nevamis.ca/scan | none | Does the Revenue Engine page send people to the scan? |
+
+**Arrival on /book.html is `page_view` (2026-09-25).** site.js sends `page_view` with the page path from every page, so a visit to /book.html is already counted as `page_view` with page `/book.html`. A separate `booking_page_view` used to be pushed straight into `window.nvEvents` by an inline script on book.html. That array is a local record and nothing ever sends it, so the event counted nothing and was removed. The engine's allowlist keeps the name, for the history.
 
 **Ordering, `callbar_book_click` (2026-09-15).** The engine allowlists event
 names and silently drops the ones it does not know, so the name has to exist
@@ -36,6 +37,15 @@ merges only after the engine commit that adds the name to ALLOWED_NAMES is
 deployed; check the build that https://app.nevamis.ca/api/health reports.
 Like every other `*_scan_click`, it is deliberately not mapped to a funnel
 stage: the scan is a second path to proof beside the phone demo.
+
+**`roi_calculator_complete` counted page loads until 2026-09-25.** It was sent
+from the calculator's recalculation, and that runs once on load with the
+prefilled defaults, so every homepage view sent it whether or not anyone
+touched the calculator. Rows before 2026-09-25 are page loads, not calculator
+use, and must not be read as engagement (the engine funnel's "ran the
+calculator" step included). From 2026-09-25 site.js sends it once, from a
+one-shot `input` listener on `#roiForm`, after the visitor's first edit. The
+name is unchanged because the engine allowlists event names.
 
 ## Funnel diagnostics (added 2026-07-27)
 

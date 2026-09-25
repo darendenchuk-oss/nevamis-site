@@ -22,6 +22,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { publishedFiles } from './lib/published-files.mjs';
 import { decodeRefs } from './lib/char-refs.mjs';
+import { commentsOf } from './lib/served-comments.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -191,6 +192,183 @@ const unexpected = published.filter((f) => {
 });
 const missing = REQUIRED.filter((f) => !set.has(f));
 
+/* THE SECURITY CONTACT MUST POINT AT THIS SITE.
+
+   security.txt's Policy used to be github.com/.../blob/main/SECURITY.md. That
+   is an address on someone else's domain, it names the repository, and it
+   stops resolving the day the repository is made private, which leaves the one
+   file a researcher is told to read pointing at a 404. Every URL in it must be
+   on https://nevamis.ca/ and must be a file this site actually serves, so the
+   policy it names can never be a page that was excluded, renamed or never
+   committed. A mailto: Contact is not a URL here and is left alone. */
+const securityTxtProblems = [];
+{
+  const file = path.join(root, '.well-known/security.txt');
+  const text = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+  for (const url of text.match(/https?:\/\/[^\s>]+/gi) || []) {
+    const m = url.match(/^https:\/\/nevamis\.ca\/([^?#]*)/);
+    if (!m) { securityTxtProblems.push(`${url} is not on https://nevamis.ca/`); continue; }
+    const served = m[1] === '' || m[1].endsWith('/') ? m[1] + 'index.html' : m[1];
+    if (!set.has(decodeURIComponent(served))) securityTxtProblems.push(`${url} names ${served}, which this site does not serve`);
+  }
+}
+
+/* THE REPOSITORY'S OWN FRONT PAGE IS PUBLISHED TOO.
+
+   README.md is excluded from nevamis.ca, but this repository is public and its
+   README is what github.com shows, and that page is a top search result for
+   the company's own name. By September 2026 it carried a retired commercial
+   model in full: plan mechanics, what the price did and did not include, two
+   retired offers by name and a note that they were retired. None of that is
+   checked anywhere else, because every copy guard reads the pages.
+
+   What the business sells, and on what terms, lives on the site and is checked
+   there; the README links to it. So the rule is not "the README states the
+   right price" but "the README states no commercial fact at all": a figure it
+   does not carry cannot go stale. Each pattern is the SHAPE of such a fact, so a
+   new wording of an old mistake still fails. */
+const README_FORBIDDEN = [
+  [/(?:C\$|CA\$|\$)\s?\d/i, 'a money figure'],
+  [/\b(?:dollars?|bucks|CAD|USD)\b/i, 'a money figure in words'],
+  [/\b\d{9}\s?R[TP]\s?\d{4}\b/i, 'a CRA business or tax account number'],
+  [/\b(?:GST|HST|PST)\b/i, 'a sales tax registration or rate'],
+  [/\b(?:set-?up|activation|onboarding|launch)[\s-]+(?:fee|charge)s?\b/i, 'a one-time fee'],
+  [/\b(?:pilot|trial|free period|discount|money-back|guarantee)\b/i, 'an offer term'],
+  [/\b(?:months?|weeks?|days?)\s+(?:free|at no (?:charge|cost)|on us)\b|\bfree\s+(?:months?|weeks?|days?)\b|\bfirst\s+(?:month|week)\b/i, 'a free period'],
+  [/\b(?:minimum|fixed|initial)\s+(?:term|commitment|contract|period)\b|\b(?:\d+|one|two|three|four|six|nine|twelve|eighteen|twenty-four)[\s-](?:month|year)s?\b|\bper\s+(?:month|year)\b|\ba\s+(?:month|year)\b|\/(?:mo|month|yr|year)\b/i, 'a term or billing period'],
+  [/\bretired\b/i, 'a note about what the business no longer offers or says'],
+];
+/* The rule checks itself on every run. Each MUST_CATCH line is a wording that
+   once got past an earlier version of these patterns (or its obvious sibling);
+   each MUST_PASS line is ordinary developer prose from this README that a
+   too-greedy pattern would start failing. Loosening a pattern until one of
+   these flips fails the check, not a later README. */
+const README_MUST_CATCH = [
+  'C$450 a month', 'CA$ 450', '$450', '450 dollars a month', 'four hundred and fifty dollars',
+  '123456789 RT0001', 'GST included', 'plus HST',
+  'no setup fee', 'no setup-fee', 'no set-up fee', 'an activation charge',
+  'a 30-day pilot', 'try the trial', 'money-back guarantee',
+  'first month free', 'two months free', 'free months for referrals',
+  'minimum term of 3 months', 'a 12-month term', 'a three-month commitment', 'billed per month', 'from 450/mo',
+  'the retired offer',
+];
+const README_MUST_PASS = [
+  'Pages serves the `main` branch at nevamis.ca, and a commit on `main` is live within about a minute.',
+  'Prices come from `pricing-config.js`. Where a page carries a figure as text,',
+  'node serve.js 3222       # another port, or set NV_PORT',
+  'You need Node 22 (what CI uses). Python 3 is needed only to rebuild the homepage.',
+  '| every page in `content-map.json` | `node scripts/build-search-index.mjs` | `search-index.json` |',
+];
+const readmeSelfTest = [];
+for (const s of README_MUST_CATCH) if (!README_FORBIDDEN.some(([re]) => re.test(s))) readmeSelfTest.push(`misses "${s}"`);
+for (const s of README_MUST_PASS) {
+  const hit = README_FORBIDDEN.find(([re]) => re.test(s));
+  if (hit) readmeSelfTest.push(`wrongly flags "${s}" as ${hit[1]}`);
+}
+const readmeProblems = [];
+{
+  const file = path.join(root, 'README.md');
+  const text = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+  text.split(/\r?\n/).forEach((line, i) => {
+    for (const [re, what] of README_FORBIDDEN) {
+      const hit = line.match(re);
+      if (hit) readmeProblems.push(`README.md:${i + 1} carries ${what} ("${hit[0]}")`);
+    }
+  });
+}
+
+/* EVERY VENDORED SCRIPT IS LOADED BY SOMETHING THIS SITE SERVES.
+
+   assets/vendor/MotionPathPlugin.min.js shipped on about twenty pages for a
+   month after the only code that used it (the pre-film homepage hero) had
+   nothing left to animate: a <script> tag on every page, an import in
+   assets/motion/main.js, about 20 KB gzipped per page view, and no guard
+   that could tell a library in use from one that was merely present
+   (finding T13, 2026-09-25). A vendored file is a third-party library
+   published on nevamis.ca, so it has to earn its place: some other served
+   page, script or stylesheet must name it. A file only a test or a doc
+   names is not loaded by any visitor, and fails. The name is matched as a
+   path ending, so talk/talk.js loading "/assets/vendor/<file>" counts. */
+const vendorOrphans = [];
+{
+  const referrers = published
+    .filter((f) => /\.(?:html?|m?js|css)$/i.test(f) && !f.startsWith('assets/vendor/'))
+    .map((f) => fs.readFileSync(path.join(root, f), 'utf8'));
+  for (const f of published.filter((p) => p.startsWith('assets/vendor/'))) {
+    const tail = f.slice('assets/'.length);
+    if (!referrers.some((src) => src.includes(tail))) vendorOrphans.push(f);
+  }
+}
+
+/* NO SERVED FILE CARRIES THE INTERNAL COMMERCIAL MODEL (finding F149b).
+
+   Every file nevamis.ca serves is readable in full, comments included, by
+   anyone who opens view-source. pricing-config.js is served because
+   pricing.html renders from it, and until 2026-09-25 its header comment
+   stated the Performance Partnership's revenue-share percentage, labelled
+   "NEVER spoken on a call", beside the internal price band and a module
+   marked "NOT yet sellable (prototype)". A buyer who reads that does not
+   read a note to a developer; they read something being kept from them.
+   The reasoning moved to docs/PRICING-CONFIG.md, which is not served.
+
+   Scope: the comments of every served .html, .js, .mjs and .css (the page
+   copy itself is guarded by check-consistency.js, and "not yet sellable
+   from a page" is honest visible copy). Comments are read by
+   scripts/lib/served-comments.mjs, which tells a comment from the same
+   characters in a string or a regex. assets/vendor/ is third-party code,
+   byte-pinned by check-critical-surface.mjs, and not ours to comment.
+   The share rate is also refused as DATA anywhere in a served file
+   (`shareBps`): a rate a page never renders is still published. */
+const SERVED_COMMENT_FORBIDDEN = [
+  [/\bnever\s+(?:be\s+)?(?:spoken|said)\b/i, 'a note about what the business does not say aloud'],
+  [/\bnot\s+(?:yet\s+)?sellable\b/i, 'an internal readiness note'],
+  [/(?<![.\w$])prototype\b/i, 'an internal readiness note ("prototype")'],
+  [/\binternal[\s-]+only\b/i, 'an "internal only" note'],
+  [/(?:C\$|CA\$|US\$|\$)\s?\d/i, 'a money figure (prices render from pricing-config.js data, never from a comment)'],
+  [/\b\d{1,2}(?:\.\d+)?\s?(?:%|percent\b)[^.\n]{0,40}?\b(?:share|revenue|collected|attributable|commission|performance|partnership)\b/i, 'a revenue-share percentage'],
+  [/\b(?:share|revenue|collected|attributable|commission|performance|partnership|rate)\b[^.\n]{0,40}?\b\d{1,2}(?:\.\d+)?\s?(?:%|percent\b)/i, 'a revenue-share percentage'],
+  [/\bbasis\s+points\b|\bshareBps\b/i, 'the share rate'],
+];
+/* Checked on every run, like the README rule: each MUST_CATCH line is the
+   defect or its obvious sibling, each MUST_PASS line is a comment this site
+   really carries that a too-greedy pattern would fail. */
+const SERVED_MUST_CATCH = [
+  'Performance Partnership  from C$2,500 one-time  C$350 (band C$250-500)  10% attributable collected revenue, 12 months, NEVER spoken on a call',
+  'Customer Reactivation  C$2,000/campaign  NOT yet sellable (prototype)',
+  "Performance Partnership's rate dropped 15%->10% and is now never spoken as a number",
+  'an agreed share of 10 percent', 'shareBps mirrors the engine', 'internal-only notes',
+  'Review Engine flipped from prototype to sellable',
+];
+const SERVED_MUST_PASS = [
+  'Array.prototype.slice is not available here',
+  'font-stretch: 100%; size-adjust: 98.82%',
+  'radial-gradient(60% 50% at 70% 30%,rgba(191,245,222,.06),transparent 70%)',
+  'Thousands are grouped: an ungrouped four-digit price beside a three-digit one reads like a typo',
+  '0.093 of the page\'s 0.095 CLS',
+  'the agreed share of attributable collected revenue, subject to your agreement',
+];
+const servedSelfTest = [];
+for (const s of SERVED_MUST_CATCH) if (!SERVED_COMMENT_FORBIDDEN.some(([re]) => re.test(s))) servedSelfTest.push(`misses "${s}"`);
+for (const s of SERVED_MUST_PASS) {
+  const hit = SERVED_COMMENT_FORBIDDEN.find(([re]) => re.test(s));
+  if (hit) servedSelfTest.push(`wrongly flags "${s}" as ${hit[1]}`);
+}
+const servedCommentProblems = [];
+for (const f of published) {
+  if (!/\.(?:html?|m?js|css|json|txt|xml)$/i.test(f) || f.startsWith('assets/vendor/')) continue;
+  const src = fs.readFileSync(path.join(root, f), 'utf8');
+  const data = src.match(/\bshareBps\b/);
+  if (data) servedCommentProblems.push(`${f}:${src.slice(0, data.index).split('\n').length} carries the share rate as data (shareBps)`);
+  for (const c of commentsOf(f, src)) {
+    c.text.split('\n').forEach((line, k) => {
+      for (const [re, what] of SERVED_COMMENT_FORBIDDEN) {
+        const hit = line.match(re);
+        if (hit) { servedCommentProblems.push(`${f}:${c.line + k} has ${what} in a comment ("${hit[0].slice(0, 60)}")`); break; }
+      }
+    });
+  }
+}
+
 if (missing.length) console.error('MUST BE PUBLISHED but is not (excluded, hidden or untracked):\n  ' + missing.join('\n  '));
 if (unsafeSvg.length) console.error('ASSET SVG OUTSIDE THE ALLOW LIST. Opened directly it could run code or load something on the nevamis.ca origin. '
   + 'Asset SVGs may hold only static SVG elements and #fragment references: no links, script, event handlers, foreignObject, <set>, DTDs or processing instructions, '
@@ -201,5 +379,18 @@ if (unexpected.length) {
   console.error(`PUBLISHED BUT NOT ALLOWED (${unexpected.length} files). Exclude them in _config.yml, or allow them in scripts/check-published-surface.mjs if they are meant to be public:`);
   for (const [t, files] of Object.entries(byTop)) console.error(`  ${t}: ${files.length} file(s), e.g. ${files.slice(0, 3).join(', ')}`);
 }
-if (missing.length || unexpected.length) process.exitCode = 1;
-else console.log(`Published surface OK: ${published.length} files, all intended.`);
+if (securityTxtProblems.length) console.error('SECURITY.TXT POINTS OFF THIS SITE. Every URL in .well-known/security.txt must be a file served on https://nevamis.ca/ '
+  + '(the Policy is security.html):\n  ' + securityTxtProblems.join('\n  '));
+if (readmeProblems.length) console.error('README.MD STATES A COMMERCIAL FACT. This repository is public and its README is a search result for the company. '
+  + 'Link to nevamis.ca/pricing.html or nevamis.ca/terms.html instead of stating it:\n  ' + readmeProblems.join('\n  '));
+if (readmeSelfTest.length) console.error('THE README RULE FAILS ITS OWN EXAMPLES. Fix README_FORBIDDEN in scripts/check-published-surface.mjs so it catches every README_MUST_CATCH line and none of README_MUST_PASS:\n  '
+  + readmeSelfTest.join('\n  '));
+if (vendorOrphans.length) console.error('VENDORED FILE NOTHING LOADS. Every file under assets/vendor/ must be named by a served page, script or stylesheet; '
+  + 'delete the file (and its pin in config/critical-surface.json) or load it:\n  ' + vendorOrphans.join('\n  '));
+if (servedCommentProblems.length) console.error('A SERVED FILE CARRIES INTERNAL COMMERCIAL NOTES. Anyone can read a served file\'s comments with view-source. '
+  + 'Move the reasoning to docs/ (docs/PRICING-CONFIG.md for pricing-config.js) and name the field instead of the figure:\n  ' + servedCommentProblems.join('\n  '));
+if (servedSelfTest.length) console.error('THE SERVED-COMMENT RULE FAILS ITS OWN EXAMPLES. Fix SERVED_COMMENT_FORBIDDEN in scripts/check-published-surface.mjs so it catches every SERVED_MUST_CATCH line and none of SERVED_MUST_PASS:\n  '
+  + servedSelfTest.join('\n  '));
+if (missing.length || unexpected.length || securityTxtProblems.length || readmeProblems.length || readmeSelfTest.length
+  || vendorOrphans.length || servedCommentProblems.length || servedSelfTest.length) process.exitCode = 1;
+else console.log(`Published surface OK: ${published.length} files, all intended; security.txt points at nevamis.ca; README.md states no commercial fact; every vendored file is loaded; no served comment carries internal commercial notes.`);

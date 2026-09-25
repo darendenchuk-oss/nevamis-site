@@ -69,6 +69,8 @@
 #doc .svc{margin:0 0 12px}
 #doc .svc:last-child{margin-bottom:0}
 #doc .svc p{font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2)}
+/* the "sold as" line under a module: the price-list name and what it needs, one step quieter */
+#doc .svc .sold{margin-top:8px;color:var(--ink-3)}
 /* The station CTA keeps the film card's filled mint pill (.pane-doc .cta2 in
    source.html) and its dark label. This rule used to restyle only the TEXT in
    the transparent text-link idiom (11px uppercase mono, emerald) while the pill

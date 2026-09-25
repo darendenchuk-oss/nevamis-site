@@ -3,27 +3,21 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Answering Service for Restoration Companies | Nevamis</title>
-<meta name="description" content="Flood, fire and damage calls answered calmly at any hour. Nevamis gathers the incident details, flags priority calls, and texts you the request.">
+<title>Reporting a Security Problem | Nevamis</title>
+<meta name="description" content="How to report a security problem in nevamis.ca or app.nevamis.ca privately, what to include, what not to do while testing, and what is in scope.">
+<link rel="canonical" href="https://nevamis.ca/security.html">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://nevamis.ca/restoration.html">
-<meta property="og:title" content="Answering Service for Restoration Companies | Nevamis">
-<meta property="og:description" content="Flood, fire and damage calls answered calmly at any hour. Nevamis gathers the incident details, flags priority calls, and texts you the request.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://nevamis.ca/restoration.html">
-<meta property="og:site_name" content="Nevamis">
-<meta property="og:locale" content="en_CA">
+<meta property="og:title" content="Reporting a security problem | Nevamis">
+<meta property="og:description" content="How to tell Nevamis about a security problem privately, what to include, and what is in scope.">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nevamis.ca/assets/og-default.png">
-<meta name="geo.region" content="CA-AB">
-<meta name="geo.placename" content="Edmonton, Alberta">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -41,7 +35,7 @@
        both, always          2,916       0.0011         164         0.0000
        both, >=900px         2,028       0.0013         152         0.0000
 
-     On a phone nothing arrives before first paint, so swap fires whatever
+     On a phone nothing arrives before first paint, so `swap` fires whatever
      we do. Mobile CLS is ~0.001 with no preload at all, because the
      metric-matched fallbacks in fonts.css hold the layout. There the preload
      buys nothing and costs 34 KB of a 400 kbps pipe shared with the
@@ -871,128 +865,116 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 }
 </style>
 <!-- /generated:css -->
+<!-- The .doc-page block below is the same verbatim copy that terms.html,
+     privacy.html, 404.html and proposal.html carry; this page is a fifth.
+     Move it to site.css with the others, not on its own. -->
 <style>
-  /* ---------- page layout only ----------
-     Every colour, surface, type step, border, bullet, label and control on
-     these nine pages comes from assets/motion/site.css, inlined above. What is
-     left here is the geometry this template alone has, plus the corrections a
-     generated page needs that the shared sheet does not make yet. Nothing
-     below restates a token.
+  /* ============================================================
+     THE DOCUMENT PAGE - SHARED, NOT PAGE-LOCAL
 
-     What used to be here and is gone: the hero's own 58px/-.03em/19ch headline
-     and its clamped 19px lede (both are shared steps now, --fs-hero and
-     --fs-lede); the .crumb at 13px in body grey (the shared 11px mono label
-     idiom replaces it); the .related card at radius 14 over a navy 180deg
-     gradient with a hover lift (it is the one card now, radius 12, the glass
-     fill and the lit top edge, and it does not move on hover); and the ghost
-     button's painted plate and 4px ring. */
+     This block is the .doc-page adaptation from the coherence spec and it
+     belongs in assets/motion/site.css beside the other components. It is
+     repeated verbatim in terms.html, privacy.html, 404.html and
+     proposal.html because site.css is owned by another group in this pass.
+     Handed off: move it there once, delete these four copies, and change
+     nothing in it on the way.
 
-  /* The hero's h1 margin and the phone's full-width CTA row were both patched
-     here, because the shared sheet zeroed the one and never made the other.
-     Both are in assets/motion/site.css now (.page-hero h1 at 14px, and one
-     phone rule covering .cta, .cta-row, .ctarow and .midcta), so these nine
-     pages read the same two values as the other fourteen. */
-  .page-hero .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
+     A reference document gets the site's ground, its type ramp, its
+     hairlines and its link treatment. It does not get film-scale headings: a
+     52px hero over a column of clause text is theatre. h1 is --fs-doc, a
+     section heading is 22px, and the rule above each one is the same
+     boundary idiom every <section> on the site already carries, so the
+     document reads as one column of the homepage's own rhythm instead of as
+     a wall of text with nothing in it.
 
-  /* THE HERO'S SUPPORTING PARAGRAPH. It had no rule anywhere, so it rendered
-     at the body step in --ink across the full 1092px column: larger, brighter
-     and four times wider than the lede it is supposed to support, and on a
-     phone it was the loudest block on the first screen. It is a footnote to
-     the hero, so it takes the fine-print colour at the card step. Its one
-     inline link was invisible - a defaults to color:inherit and no
-     underline - and now carries the site's prose-link idiom. */
-  .page-hero .proof{font-size:var(--fs-card);line-height:var(--lh-body);
-    color:var(--ink-4);max-width:66ch;margin-top:20px}
-  .page-hero .proof a{color:var(--mint);text-decoration:underline;
+     Scoped to `main` throughout. The spec's own selector was a bare
+     `.doc-page h2`, which also matches the footer's .foot-h headings, and on
+     404.html that puts a 22px size and a hairline on "Site" and "Legal".
+
+     The :not() guard is load-bearing for the same reason it is on `.card p`:
+     `.doc-page main p` is (0,1,2) and `.eyebrow` is (0,1,0), so without it
+     the page's one label renders as body copy. It is written as one
+     selector list rather than as a chain of five, because a chain scores the
+     sum of its arguments - (0,6,2) - and nothing on a page could then
+     override it without a worse selector of its own.
+     ============================================================ */
+  /* The document column is the MEASURE, not --col-read. --col-read is 820px,
+     which after the gutter leaves 732px of Atkinson at --fs-body: 97
+     characters a line, well past the 75 a reader tracks without losing the
+     row. 660px leaves 572px, about 76 characters, and it is the same 660 the
+     system already uses for .section-head. Text, headings and the hairline
+     above each heading then share one edge, which is what makes the rule read
+     as a boundary rather than as a line trailing off into the margin. */
+  .doc-page main .wrap{max-width:660px}
+  /* The document opens where every other page opens: the same 150px of air
+     under the fixed header that .page-hero uses, and no rule above it. */
+  .doc-page main>section:first-child{padding-top:150px;border-top:none}
+  .doc-page main h1{font-size:var(--fs-doc);margin:0 0 16px}
+  .doc-page main h2{font-size:22px;line-height:1.3;letter-spacing:var(--tr-h3);
+    color:var(--ink);max-width:none;margin:40px 0 10px;padding-top:26px;
+    border-top:1px solid var(--line-soft)}
+  .doc-page main p:not(.eyebrow,.k,.lede,.fine2,.crumb){
+    font-size:var(--fs-body);line-height:var(--lh-body);color:var(--ink-2);
+    margin:0 0 18px}
+  /* The site's in-sentence link idiom, which is `.prose a` in site.css. A
+     document is prose from end to end, so it does not carry the class: fold
+     these two selectors into the .prose a list when this block moves. */
+  .doc-page main p a,.doc-page main li a{color:var(--mint);text-decoration:underline;
     text-underline-offset:3px;text-decoration-color:rgba(159,240,206,.45)}
-  .page-hero .proof a:hover{text-decoration-color:var(--mint)}
-
-  /* The eyebrow inside a section head is guarded in site.css now: the lede
-     rule carries :not(.eyebrow):not(.k):not(.doc-k), which is the same kind of
-     guard the card rule already had. The copy that stood here is gone. */
-
-  /* CARD COPY IS THE CARD STEP. A homepage card sets its body at 15px in
-     --ink-2; the shared .proc, .stack and .pstep rules still carry the
-     interior's 14.5px and 13.5px at --ink-3, and a trade page shows all three
-     families within one screen of each other. One step here, and the shared
-     correction is reported. */
-  .proc p,.stack span,.pstep p,.related span{
-    font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2)}
-  .stack strong{font-size:var(--fs-h3);letter-spacing:var(--tr-h3)}
-
-  /* THE RELATED STRIP. Grid only: the card itself is the shared one.
-     Three across, except that a row of three leaves an orphan whenever a
-     strip holds two or four - which on the hub is four of the five strips,
-     so the page read as a column of ragged half-rows beside a homepage whose
-     industry grid always fills. Two and four both balance at two across, and
-     the wider column is what the hub's long blurbs want anyway. :has is the
-     only way to count children in CSS; where it is unsupported the strip
-     falls back to three across, which is exactly today's layout. */
-  /* The same count, applied to the shared three-up. "More of the work you
-     want" holds two cards on all four trade pages, so a third of that row was
-     empty on every one of them. Scoped here because .proc is shared. */
-  .proc:has(>div:nth-child(2):last-child){grid-template-columns:repeat(2,1fr)}
-  /* The narrow override has to repeat the same :has selector. :has takes the
-     specificity of its most specific argument, so .proc:has(>div) is (0,1,1)
-     and loses to the (0,3,1) rule above it even inside a media query, and the
-     two cards stayed side by side at 167px each on a phone. */
-  @media(max-width:900px){
-    .proc,.proc:has(>div:nth-child(2):last-child){grid-template-columns:1fr}
-  }
-
-  .related{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap)}
-  .related:has(>a:nth-child(2):last-child),
-  .related:has(>a:nth-child(4):last-child){grid-template-columns:repeat(2,1fr)}
-  @media(max-width:860px){
-    .related,
-    .related:has(>a:nth-child(2):last-child),
-    .related:has(>a:nth-child(4):last-child){grid-template-columns:1fr}
-  }
-  .related span{display:block}
-
-  /* The numbered steps are the one card family on these pages that carries no
-     lit top edge, because .pstep::before is already spoken for by the numeral.
-     Its crown goes on ::after instead, so a step card and the related card
-     below it on the same page are the same object. The numeral itself joins
-     the page's label vocabulary: the same emerald mono at the same tracking as
-     every eyebrow above it, rather than mint at .12em. .pstep markup exists on
-     one page of the site, so this is not a shared component in practice. */
-  .pstep::after{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
-    background:var(--glow-lit);opacity:.55}
-  .pstep::before{color:var(--emerald);letter-spacing:var(--tr-label)}
-
-  /* The numbered path. list-style:none was an inline attribute on the <ol>,
-     which is the marker's only suppression: .pstep::before draws the numeral
-     and the native marker would sit outside a list whose padding the universal
-     reset already zeroed. */
-  ol.path-steps{list-style:none}
-
-  /* The comparison note under a table: a footnote, at the footnote colour and
-     a reading measure rather than the full 1092px column. */
-  .foot-note{color:var(--ink-4);line-height:var(--lh-snug);max-width:var(--measure-lede)}
-
-  /* The tick and the cross vanished their own spacing. site.css writes each
-     as a backslash hex escape followed by one space, and in CSS that single
-     following whitespace terminates the escape and is eaten, so the value is
-     the glyph alone: every verdict on both comparison pages rendered as one
-     welded word. It read correctly before the shared rule moved to escapes.
-     A margin cannot be eaten. Shared rule, reported. */
-  td.yes::before,td.no::before{margin-right:.42em}
-  /* At 360 the table's own min-content measured 331px inside a 318px wrapper,
-     so the narrowest common phone got 13px of sideways scroll on the component
-     that is the whole page's argument. One more step down of cell padding and
-     type below 380 takes it to 318, which is exactly the room there is, and
-     both tables fit at 360, 375 and 390. Measured on both, not derived. */
-  @media(max-width:380px){
-    table.compare{font-size:13px}
-    table.compare th,table.compare td{padding:10px 5px}
-    table.compare thead th{letter-spacing:.05em}
+  .doc-page main p a:hover,.doc-page main li a:hover{text-decoration-color:var(--mint)}
+  @media (max-width:760px){
+    .doc-page main>section:first-child{padding-top:112px}
+    .doc-page main h2{margin-top:32px;padding-top:22px}
   }
 </style>
-</head>
-<body>
-<a class="skip" href="#main">Skip to content</a>
 
+<!-- generated:schema -->
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://nevamis.ca/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Security",
+        "item": "https://nevamis.ca/security.html"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://nevamis.ca/security.html",
+    "url": "https://nevamis.ca/security.html",
+    "name": "Reporting a Security Problem | Nevamis",
+    "description": "How to report a security problem in nevamis.ca or app.nevamis.ca privately, what to include, what not to do while testing, and what is in scope.",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Nevamis",
+      "url": "https://nevamis.ca/"
+    },
+    "about": {
+      "@id": "https://nevamis.ca/#service"
+    },
+    "publisher": {
+      "@id": "https://nevamis.ca/#organization"
+    },
+    "inLanguage": "en-CA"
+  }
+]
+</script>
+<!-- /generated:schema -->
+</head>
+<body class="doc-page">
+<a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="wrap">
     <a class="wordmark" href="/">
@@ -1016,136 +998,29 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     </nav>
   </div>
 </header>
-
 <main id="main">
-  <section class="page-hero">
-    <div class="grid-lines" aria-hidden="true"></div>
+  <section>
     <div class="wrap">
-      <p class="crumb"><a href="/">Home</a> / <a href="/solutions.html">Solutions</a> / Restoration</p>
-      <span class="eyebrow mono"><span class="dot" aria-hidden="true"></span>Built for your trade</span>
-      <h1>The first hour of a loss, answered calmly</h1>
-      <p class="lede">Flood, fire, and damage calls arrive stressed and urgent, often at night. Nevamis answers calmly, gathers the incident details, flags the priority calls, and sends you the assessment request within seconds.</p>
-      <div class="cta">
-        <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer &nbsp;›</a>
-        <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-min call</a>
+      <p class="eyebrow"><span class="dot"></span>Security</p>
+      <h1>Reporting a security problem</h1>
+      <p>If you find a security problem in nevamis.ca or app.nevamis.ca, please tell us privately before you tell anyone else. This is the policy that <a href="/.well-known/security.txt">/.well-known/security.txt</a> points to.</p>
+      <h2>How to report it</h2>
+      <p>Email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a> with &ldquo;Security&rdquo; in the subject line. Tell us what you found, the page or address involved, and the steps that show it. A screenshot or a short recording helps.</p>
+      <p>We read every report and reply as soon as we can, usually within a few business days.</p>
+      <div class="reveal">
+      <h2>Please do not</h2>
+      <p>Send messages, calls, bookings or form submissions that reach real customers or prospects, or that create records in our systems, beyond the minimum needed to show the problem.</p>
+      <p>Run automated scanners, load tests or anything else that degrades the service.</p>
+      <p>Access, keep or share data that is not yours.</p>
       </div>
-      <p class="proof">The phone is one part of Nevamis. Lead Generation, offered by invitation, finds businesses of the kind you want more of. A person here reads public pages and builds the list, with the page each one came from, and you decide every one. Nobody on it is contacted by us. Quote Recovery follows up the quotes you already sent, with your name on each email and your approval before it goes.
-        Or <a href="https://app.nevamis.ca/scan" data-evt="trade_scan_click">scan my website</a>: it reads only what is public on your own site, and any figure it gives is a modelled range, not a measurement.</p>
-
+      <div class="reveal">
+      <h2>What is in scope</h2>
+      <p>In scope: nevamis.ca, www.nevamis.ca, app.nevamis.ca, and the source code of this website.</p>
+      <p>Out of scope: the third-party services we use, such as Cal.com, ElevenLabs, Twilio, Stripe, GitHub and Vercel. Please report a problem in one of those to the provider.</p>
+      </div>
     </div>
   </section>
-
-<section class="tight">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow mono">The problem</p>
-      <h2>The call comes in at the worst moment of someone's week.</h2>
-      <p>You cannot answer a phone with your hands full. So the call goes to voicemail,
-        and the person on the other end simply calls the next name on their list. The job
-        is not lost because of price or quality. It is lost because nobody picked up.</p>
-    </div>
-    <div class="proc">
-      <div class="reveal"><h3>Answered in seconds</h3><p>Nevamis picks up in your
-        business's tone, day or night, while you stay on the tools.</p></div>
-      <div class="reveal"><h3>Qualified the way you would</h3><p>It asks what happened, when it started, how much area is affected,
-        whether the source is stopped, whether insurance is involved, and who is on site.</p></div>
-      <div class="reveal"><h3>Written down, not lost</h3><p>It takes the job and the time
-        they want, and tells them plainly that you will confirm it.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="tight">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow mono">Built around restoration and property services</p>
-      <h2>It answers with your rules, not a generic script.</h2>
-      <p>Before it takes a single call we agree on what it is allowed to say. Your service
-        area, your hours, your job types, the prices you approve, and what counts as an
-        emergency for your business.</p>
-    </div>
-    <div class="stack" aria-label="What we configure for restoration and property services">
-      <div class="layer"><strong>Water and flood loss</strong><span>Source, spread, and timing captured while it matters.</span></div>
-      <div class="layer"><strong>Fire and smoke</strong><span>Handled with a calm, approved script rather than improvisation.</span></div>
-      <div class="layer"><strong>Insurance questions</strong><span>Answered only within what you approve, otherwise taken as a message.</span></div>
-      <div class="layer"><strong>Emergency alerts</strong><span>Nevamis captures the urgent details and alerts your team, by your rules.</span></div>
-      <div class="layer"><strong>Assessment requests</strong><span>The window they need captured and texted to you, so you confirm the slot.</span></div>
-      <div class="layer"><strong>Property managers and adjusters</strong><span>Identified on the call and marked on the summary, if they are a different path for you.</span></div>
-    </div>
-  </div>
-</section>
-
-<section class="tight">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow mono">Urgency handled properly</p>
-      <h2>Active loss is escalated, not queued.</h2>
-      <p>Restoration work is won in the first hour. Calls that meet your emergency
-        definition are handled as emergencies: Nevamis captures the urgent details and alerts
-        your team, with the incident details already collected so nobody starts from nothing. For anything outside the rules you approved, it takes a message and
-        flags the summary rather than inventing an answer. You decide what gets escalated,
-        what gets captured, and what waits until morning.</p>
-    </div>
-    <div class="midcta reveal">
-      <a class="btn btn-ghost" href="/how-you-start.html" data-evt="trade_start_click">See how you start</a>
-      <a class="btn btn-ghost" href="/pricing.html" data-evt="trade_pricing_click">Compare plans</a>
-    </div>
-  </div>
-</section>
-
-<section class="tight">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow mono">Beyond the phone</p>
-      <h2>More of the work you want.</h2>
-    </div>
-    <div class="proc">
-      <div class="reveal"><h3>Lead Generation, by invitation</h3><p>We read public pages and
-        list businesses of exactly the kind you want more of, each with the page it came from.
-        You decide every one, and nobody on it is contacted by us. Lead Generation is by
-        invitation, and a short call is where it starts.</p>
-        <p><a href="/book.html#pick-a-time" data-evt="hero_book_call_click">Book a call</a></p></div>
-      <div class="reveal"><h3>Quote Recovery</h3><p>A quote you sent that goes quiet is followed
-        up for you the day it goes stale, four days on and eleven days on, each email with your
-        name on it and your approval before it goes. On the pricing page it is the Quote-Chase
-        Engine.</p>
-        <p><a href="/pricing.html">See what it costs</a></p></div>
-    </div>
-  </div>
-</section>
-
-<section class="tight">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow mono">Judge it yourself</p>
-      <h2>Do not take our word for it. Call it.</h2>
-      <p>The fastest way to know whether this is good enough for your customers is to
-        be a customer. The demo line runs on the same voice your line
-        would. It answers for Nevamis, so it can set up a call with us. On your line it
-        takes the job and the time the caller wants, and you confirm the slot.</p>
-    </div>
-    <div class="midcta reveal">
-      <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer (587)&nbsp;413-0035</a>
-      <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-min call</a>
-    </div>
-  </div>
-</section>
-
-<section class="tight">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow mono">Keep reading</p>
-      <h2>Related pages</h2>
-    </div>
-    <div class="related reveal">
-      <a href="/electricians.html"><strong>Answering Service for Electricians</strong><span>Service calls answered while the crew is on the tools.</span></a>
-      <a href="/hvac.html"><strong>Answering Service for HVAC Companies</strong><span>No-heat calls at 11 PM answered, triaged, and taken down for you.</span></a>
-      <a href="/plumbers.html"><strong>Answering Service for Plumbers</strong><span>Burst pipes and blocked drains captured before the next call.</span></a>
-    </div>
-  </div>
-</section>
 </main>
-
 <footer class="site-footer">
   <div class="wrap">
     <div class="cols">
@@ -1181,9 +1056,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </footer>
 
 <a class="callbar" href="/book.html#pick-a-time" data-evt="callbar_book_click">Book a 15-min call</a>
-
-<script>document.documentElement.classList.remove('no-js');</script>
 <script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/vendor/ScrollTrigger.min.js"></script>
 <script src="site.js" defer></script>
 <script src="motion.js" defer></script>
 <script type="module" src="assets/motion/main.js"></script>

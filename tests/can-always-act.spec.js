@@ -5,54 +5,98 @@
  * retime inverted that: the film no longer gates the controls, and this file
  * now PINS the new contract directly:
  *
- *   the hero's own CTAs are visible and tappable within 1.6s of the timeline
- *   starting, on desktop and on a phone, with motion fully on;
+ *   the site header's booking action is visible and tappable while the
+ *   film's ignition still owns the screen, on desktop and on a phone, with
+ *   motion fully on;
  *   on a phone, the sticky .callbar reaches booking (/book.html#pick-a-time)
  *   in plain CSS with no animation, so a next step is live from first paint
  *   on every content page (the film homepage hides the bar until the film
  *   ends, by design: scripts/film/compose.py);
  *   on desktop, the navigation is clickable within a second.
  *
- * If someone re-gates the CTAs behind the film's payoff, the first test below
- * fails by name instead of nothing noticing.
+ * If someone re-gates the header behind the film's ignition, the first test
+ * below fails by name instead of nothing noticing.
+ *
+ * REPOINTED 2026-09-25. The first and last tests here were written for the
+ * pre-film homepage: they waited on window.__heroTL and counted [data-cta]
+ * elements, and the film homepage has neither, so they failed on every run
+ * and proved nothing about the page that ships. The film's contract is the one
+ * scripts/film/compose.py writes down for nv-late: the ignition cold-open used
+ * to fade the chrome in with the wake, and now that the first composed frame
+ * is deferred past load, the header is pinned visible from the first paint.
+ * That is what they measure now.
+ *
+ * Not against a stopwatch, and not at a moment picked by timing either. The
+ * ignition only hides the header until it is half run, and on a fast machine
+ * that is over before a test can look, so a first draft that sampled at
+ * DOMContentLoaded passed with the pin deleted. The film has a measurement
+ * switch for exactly this, ?debug=1&introhold=1, which freezes the ignition on
+ * its first composed frame (film-2.js, IW.rate = 0). Frozen there, the header
+ * is in the worst state the ignition can put it in, for as long as the test
+ * likes, on any machine. The old 1.6s ran on the film's own clock for the same
+ * reason: so a slow CI machine could not turn a regression into a flake.
  */
 import { test, expect } from '@playwright/test';
 
-const PHONE = 'tel:+15874130035';
+/* site.js beacons page_view to the PRODUCTION engine; see tests/pages.spec.js. */
+test.beforeEach(async ({ context }) => {
+  await context.route(/^https:\/\/app\.nevamis\.ca\//, (r) => r.fulfill({ status: 204, body: '' }));
+});
+
+/* Is this element painted, opaque, on screen and the thing a tap at its centre
+   would actually land on? Opacity is read up the whole ancestor chain, because
+   the ignition hides the HEADER, not the link inside it. */
+function tappable(locator) {
+  return locator.evaluate((el) => {
+    let op = 1;
+    for (let a = el; a; a = a.parentElement) op *= +getComputedStyle(a).opacity;
+    const cs = getComputedStyle(el);
+    const b = el.getBoundingClientRect();
+    const hit = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+    return {
+      opacity: Math.round(op * 100) / 100,
+      visible: cs.visibility === 'visible' && cs.display !== 'none' && b.width > 0 && b.height > 0,
+      onScreen: b.top >= 0 && b.bottom <= innerHeight && b.left >= 0 && b.right <= innerWidth,
+      onTop: !!hit && (hit === el || el.contains(hit)),
+      stillIgniting: document.documentElement.classList.contains('nv-intro')
+        && !document.documentElement.classList.contains('nv-on'),
+    };
+  });
+}
 
 test.describe('a visitor can act before the intro finishes', () => {
   for (const vp of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'phone', width: 375, height: 812 }]) {
-    test(`hero CTAs are interactive within 1.6s of the film starting (${vp.name})`, async ({ page }) => {
+    test(`the header's booking action is tappable while the film ignites (${vp.name})`, async ({ page }) => {
       await page.setViewportSize({ width: vp.width, height: vp.height });
-      await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
-      await page.waitForFunction(() => !!window.__heroTL, null, { timeout: 10_000 });
+      await page.goto('/index.html?debug=1&introhold=1', { waitUntil: 'load' });
+      /* Held, the ignition never reaches the halfway mark that adds nv-on and
+         fades the header in on its own, so whatever is visible now is visible
+         because the page keeps it visible. Give the deferred first frame time
+         to compose, since that is when the hold takes effect. */
+      await page.waitForTimeout(1500);
 
-      /* Measured on the timeline's own clock, not wall time, so a slow CI
-         machine cannot turn a choreography regression into a flake, and a
-         fast one cannot hide it. The film's job is to have both CTAs fully
-         visible before t=1.6s. */
-      const at = await page.evaluate(() => new Promise((res) => {
-        const ctas = [...document.querySelectorAll('[data-cta]')];
-        const check = () => {
-          const t = window.__heroTL.time();
-          const ready = ctas.length >= 2 && ctas.every((el) => {
-            const cs = getComputedStyle(el);
-            return cs.visibility === 'visible' && Number(cs.opacity) > 0.9;
-          });
-          if (ready) return res(t);
-          if (t > 5) return res(-t); // stop looping; report failure with the time
-          requestAnimationFrame(check);
-        };
-        check();
-      }));
-      expect(at, `CTAs became fully visible at t=${Math.abs(at).toFixed(2)}s`).toBeGreaterThan(0);
-      expect(at, 'the film must not re-gate its own CTAs').toBeLessThan(1.6);
+      /* Desktop books straight from the header; a phone has the menu button,
+         and booking is one tap inside it. Either way it is the header's own
+         control, so what is being proven is that the film does not hide it. */
+      const action = vp.name === 'desktop'
+        ? page.locator('.main-nav a.btn-primary[href="/book.html"]')
+        : page.locator('.nav-toggle');
+      await expect(action).toHaveCount(1);
 
-      // And they are genuinely tappable, not merely painted.
-      const primary = page.locator('a.btn-primary[data-cta]');
-      await expect(primary).toBeVisible();
-      const href = await primary.getAttribute('href');
-      expect(href).toBe(PHONE);
+      const state = await tappable(action);
+      expect(state.stillIgniting,
+        'the ignition must still be held before its halfway mark, or this proves nothing about it').toBe(true);
+      expect(state.visible, 'the header action must be rendered').toBe(true);
+      expect(state.opacity, 'the film must not fade the header out during its ignition').toBeGreaterThan(0.9);
+      expect(state.onScreen, 'and it must be in the first viewport').toBe(true);
+      expect(state.onTop, 'nothing may sit on top of it').toBe(true);
+
+      // And genuinely usable, not merely painted: it leads to booking.
+      if (vp.name === 'phone') {
+        await action.click();
+        await expect(page.locator('.main-nav')).toHaveClass(/open/);
+        await expect(page.locator('.main-nav a.btn-primary[href="/book.html"]')).toBeVisible();
+      }
     });
   }
 
@@ -169,14 +213,45 @@ test.describe('a visitor can act before the intro finishes', () => {
     await expect(page.locator('.callbar')).toHaveAttribute('href', '/book.html#pick-a-time');
   });
 
-  test('reduced motion shows the finished hero at once', async ({ page }) => {
-    // The accessibility path must never inherit the 6.6s wait. Measured at 7ms.
+  test('reduced motion shows the header at once', async ({ page }) => {
+    /* The accessibility path must never inherit the film's wait. There is no
+       ignition for these visitors at all: the film adds nv-rm instead of
+       nv-intro, so the header is never faded in the first place. */
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
-    const ctas = page.locator('[data-cta]');
-    await expect(ctas).toHaveCount(2);
-    for (let i = 0; i < 2; i++) await expect(ctas.nth(i)).toBeVisible({ timeout: 2000 });
+    expect(await page.evaluate(() => document.documentElement.classList.contains('nv-rm')),
+      'the film must have taken its reduced-motion path').toBe(true);
+    const toggle = await tappable(page.locator('.nav-toggle'));
+    expect(toggle.visible).toBe(true);
+    expect(toggle.opacity, 'the header is not faded for a reduced-motion visitor').toBeGreaterThan(0.9);
+    expect(toggle.onTop, 'nothing may sit on top of it').toBe(true);
+  });
+
+  /* KNOWN DEFECT, found 2026-09-25 while repointing the test above, and pinned
+     here as an expected failure so that it cannot be forgotten: the day it is
+     fixed this test starts passing, Playwright reports that as a failure, and
+     whoever fixed it deletes the test.fail line.
+
+     The film's reduced-motion branch (assets/film/film-2.js, composed from
+     scripts/film/source.html) adds "on" to every copy block and then calls
+     apply(0.26) for its one still frame. apply()'s copy-visibility loop turns
+     "on" back off for every block whose scroll window does not contain 0.26,
+     so a reduced-motion visitor sees the first line and then three empty
+     spaces where "NEVAMIS works out what to do", "Then handles them" and the
+     closing "Scan my business" should be. The link is still there at opacity 0
+     and pointer-events:auto: an invisible button. */
+  test('reduced motion shows every film copy block, including the closing call to action', async ({ page }) => {
+    test.fail(true, 'known defect: apply(0.26) re-hides the copy on the reduced-motion path');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/index.html', { waitUntil: 'load' });
+    await page.waitForTimeout(1500);
+
+    const hidden = await page.evaluate(() => ['s1', 's2', 's3', 'close']
+      .filter((id) => +getComputedStyle(document.getElementById(id)).opacity < 0.9));
+    expect(hidden, 'film copy blocks a reduced-motion visitor cannot see').toEqual([]);
+    await expect(page.locator('#close a.cta')).toHaveAttribute('href', 'https://app.nevamis.ca/scan');
   });
 });

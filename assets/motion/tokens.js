@@ -78,16 +78,12 @@ export const MOTION = {
 export function prefersReduced() {
   const p = new URLSearchParams(location.search);
   if (p.get('reduce') === '1') return true;
-  // motionDebug deliberately forces motion so the sequence can be inspected.
-  if (p.get('motionDebug') === '1') return false;
+  // No query string turns motion back ON. ?motionDebug=1 used to, for the hero
+  // inspector deleted with hero.js (finding T13); with no inspector left it only
+  // let a shared link override a visitor's reduced-motion setting.
   if (document.documentElement.classList.contains('motion-off')) return true;
   try { if (localStorage.getItem('nv-motion') === 'off') return true; } catch (e) { /* storage blocked */ }
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-/** Dev-only motion inspector flag. */
-export function isDebug() {
-  return new URLSearchParams(location.search).get('motionDebug') === '1';
 }
 
 /** Mouse/trackpad — not touch. Gates the custom cursor and hover-only flourishes. */
