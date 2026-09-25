@@ -36,6 +36,9 @@ const ROOT_FILES = new Set([
   'THIRD_PARTY_NOTICES.md',
   /* Twilio fetches this for every Nevamis phone number. It must stay published. */
   'ring.xml',
+  /* Twilio's voice FALLBACK for a client number diverted to the engine's
+     missed-call line: what a caller hears if the engine does not answer. */
+  'missed-line.xml',
 ]);
 /* assets/ holds what pages load: media, fonts, scripts, styles and data. No
    documents. An HTML page (or an SVG carrying script) served from assets/ would
@@ -180,7 +183,7 @@ const DIRS = [
   { dir: 'brand/', ok: (f) => BRAND.has(f) },
 ];
 /* Must stay reachable, or a phone line, the domain or the security contact breaks. */
-const REQUIRED = ['ring.xml', 'CNAME', 'assets/ringback-tone.wav', '.well-known/security.txt', 'talk/index.html'];
+const REQUIRED = ['ring.xml', 'missed-line.xml', 'CNAME', 'assets/ringback-tone.wav', '.well-known/security.txt', 'talk/index.html'];
 
 const published = publishedFiles(root);
 const set = new Set(published);

@@ -5,7 +5,8 @@
     "assets/ringback-tone.wav": "adca34b56966b7e5a5b102cd082ff2ea6e001699f042e645c0a8d34d0e412928",
     "assets/vendor/gsap.min.js": "28033e449a31ebcc396e5be8b13b63152bf03094288fb5867034321927bce087",
     "assets/vendor/ScrollTrigger.min.js": "ad33c2df9ada8a663c2147357828f980d0b7ca731ef33eb3c6e4f327c3b2cda5",
-    "assets/vendor/elevenlabs-convai-widget-embed-0.18.2.js": "12907c8b162e5de2cb9be7754272eb7148bbe1c97724d6268975aed13f9ae8c0"
+    "assets/vendor/elevenlabs-convai-widget-embed-0.18.2.js": "12907c8b162e5de2cb9be7754272eb7148bbe1c97724d6268975aed13f9ae8c0",
+    "missed-line.xml": "0fdd770bfc3cc026171c345eaf51cf1b83493a8c4d58cd7c317fd053190e948b"
   },
   "destinations": {
     ".well-known/security.txt": [
