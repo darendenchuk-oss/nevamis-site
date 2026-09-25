@@ -21,12 +21,21 @@ input, or customer data in properties.
 | roadmap_module_activated | journey module toggle | module (slug), on (bool) | Which capability intrigues visitors? |
 | roadmap_form_submitted | interest form submit | services (count only) | Roadmap lead volume |
 | roadmap_front_desk_cta_clicked | Coming-Soon → Front Desk CTAs | none | Does the roadmap feed the live product? |
+| revenue_engine_scan_click | revenue-engine.html, the PULSE Business Scan card's "Scan my website" link to app.nevamis.ca/scan | none | Does the Revenue Engine page send people to the scan? |
 
 **Ordering, `callbar_book_click` (2026-09-15).** The engine allowlists event
 names and silently drops the ones it does not know, so the name has to exist
 there before the site that sends it goes live. This bar used to send
 `demo_phone_click`, so shipping the two out of order loses the new count and
 the old baseline at the same moment, with nothing failing anywhere.
+
+**Ordering, `revenue_engine_scan_click` (2026-09-24).** Same rule. This link
+sent nothing before, and the scan itself stores only "public_scan", so a
+click from this page was invisible. The site change that adds the attribute
+merges only after the engine commit that adds the name to ALLOWED_NAMES is
+deployed; check the build that https://app.nevamis.ca/api/health reports.
+Like every other `*_scan_click`, it is deliberately not mapped to a funnel
+stage: the scan is a second path to proof beside the phone demo.
 
 ## Funnel diagnostics (added 2026-07-27)
 

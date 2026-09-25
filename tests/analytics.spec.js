@@ -32,6 +32,9 @@ const REQUIRED = [
   { page: '/missed-calls.html', sel: 'a[data-evt="situation_roi_click"]', evt: 'situation_roi_click' },
   { page: '/after-hours-answering.html', sel: 'a[data-evt="situation_compare_click"]', evt: 'situation_compare_click' },
   { page: '/about.html', sel: 'a[data-evt="about_demo_click"]', evt: 'about_demo_click' },
+  /* The revenue-engine page's scan card. Its own name, not trade_scan_click,
+     which belongs to the trade pages; the engine allowlist carries it first. */
+  { page: '/revenue-engine.html', sel: 'a[href="https://app.nevamis.ca/scan"][data-evt]', evt: 'revenue_engine_scan_click' },
   /* The phone sticky bar books (owner decision 2026-09-15). Its own name, so
      the bar is distinguishable from the header, hero and closing booking
      buttons; the engine allowlist and funnel carry it before the site ships. */
