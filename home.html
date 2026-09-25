@@ -1481,10 +1481,11 @@ body{
 /* The ending block is position:fixed for the whole film and only its opacity
    changes, but the rule above gives its button pointer-events:auto, so for the
    whole span before the finale an INVISIBLE "Scan my business" sat at 38vh and
-   took every tap on that spot, exit flourish and all. Found 2026-09-24, when the
-   homepage's first screen put its own "Book a call" there: at 1366x768 a tap on
-   it landed on the hidden scan link. The button takes taps only while its block
-   is on screen (.on; reduced motion and no-WebGL set .on on every block). */
+   took every tap on that spot, exit flourish and all. Reproduced on the live
+   build 2026-09-25: at 1366x768, five seconds in, with the block at opacity 0, a
+   click at the middle of the screen went to the scan app. The button takes taps
+   only while its block is on screen (.on; reduced motion and no-WebGL set .on
+   on every block). */
 #close:not(.on) .cta{pointer-events:none}
 #brand{position:fixed;top:22px;left:28px;z-index:4;font-weight:700;font-size:.95rem;
   letter-spacing:.34em;color:var(--ink);opacity:.85;pointer-events:none}
@@ -1690,52 +1691,6 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
    token, so a station cannot drift from a card again.
    ============================================================ */
 
-/* THE FIRST SCREEN (#hero, lifted out of sections.html into #scroll by
-   compose.py). The page's h1, one line and one CTA, over the film's opening
-   frame and in the first paint.
-
-   Absolutely positioned at the top of #scroll, one screen tall, so it rides
-   the page: the stage is sticky and stays put while this scrolls up and away,
-   long before the first story beat at 13% of the span. It is not position:
-   fixed and it is not driven by the film, deliberately: no script decides
-   whether a buyer sees the headline, so no JavaScript, no WebGL, a dropped
-   film script and reduced motion all show it.
-
-   Seated in the top band of the frame, under the fixed header, because the
-   film's own subject is the lower middle (the orb and the spine it draws) and
-   the pane labels hold the right-hand side on landscape. The film's label
-   placement also treats this block as a copy beat and fades any label that
-   would sit on it (film source, updateLabels). On portrait the chapter rail is
-   a row at 74px (the rule at the end of this file), so the block starts below
-   that row rather than behind it.
-
-   pointer-events:none on the block and auto on the button only: the canvas
-   under the text keeps its hover and tap. The dark pool behind the text is
-   the same idiom as the closing block's (#close::before in the film source),
-   held tight to the words so the panes around it keep their light. */
-#hero{position:absolute;top:0;left:0;right:0;height:100vh;height:100svh;z-index:4;
-  pointer-events:none;display:flex;justify-content:center;align-items:flex-start;
-  padding:calc(var(--head-h) + clamp(20px,6vh,64px)) var(--pad-gutter) 0;text-align:center}
-#hero .hero-in{position:relative;max-width:760px;display:flex;flex-direction:column;align-items:center}
-#hero .hero-in::before{content:"";position:absolute;left:50%;top:50%;width:min(130%,100vw);height:150%;
-  transform:translate(-50%,-50%);pointer-events:none;z-index:-1;
-  background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(2,8,13,.72) 0%,rgba(2,8,13,.4) 55%,rgba(2,8,13,0) 76%)}
-#hero h1{font-size:var(--fs-hero);max-width:18ch;margin:0 auto 14px;text-wrap:balance;
-  text-shadow:0 2px 24px rgba(2,8,13,.9),0 0 60px rgba(2,8,13,.7)}
-#hero .hero-line{font-size:var(--fs-lede);line-height:var(--lh-snug);color:var(--ink-2);
-  max-width:46ch;margin:0 auto;text-wrap:balance;text-shadow:0 1px 3px rgba(2,8,13,.95),0 2px 16px rgba(2,8,13,.92)}
-#hero .btn{pointer-events:auto;margin-top:22px}
-@media (max-aspect-ratio:3/4){#hero{padding-top:calc(74px + 52px)}}
-/* a landscape phone has a screen of about 360px: the line goes, the rest fits */
-@media (max-height:500px) and (orientation:landscape){
-  #hero{padding-top:calc(var(--head-h) + 8px)}
-  #hero .hero-line{display:none}
-  #hero .btn{margin-top:12px}
-}
-/* reduced motion: the film is a still block in the flow (.nv-rm in the film
-   source), so the first screen joins the flow above it instead of floating */
-.nv-rm #hero{position:relative;height:auto;padding-bottom:40px}
-
 /* The two sections the film hands the page to carry no rule above them: the
    seam and the ending are their own boundaries. */
 #found,#next{border-top:none}
@@ -1872,13 +1827,6 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
 </header>
 <div id="hint">Scroll</div>
 <div id="scroll">
-<div id="hero">
-  <div class="hero-in">
-    <h1 id="heroTitle">More of the customers you want.</h1>
-    <p class="hero-line">By invitation, we find the businesses you want to work for. We also follow up the quotes you already sent and answer your phone, any hour.</p>
-    <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
-  </div>
-</div>
   <div id="stage">
     <canvas id="c"></canvas>
     <div id="vignette"></div>
@@ -1902,7 +1850,7 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
   <button type="button" data-pane="plans" aria-controls="card" aria-expanded="false"><i>06</i>Plans</button>
 </nav>
 <div id="labels" aria-hidden="true">
-  <div class="plabel" data-pane="scan"><span class="lk">The scan</span><span class="ll">A free read of your public website.</span><span class="lo">+ open</span></div>
+  <div class="plabel" data-pane="scan"><span class="lk">The scan</span><span class="ll">Every engagement starts with the PULSE Business Scan.</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="capture"><span class="lk">Capture</span><span class="ll">Every opportunity answered</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="convert"><span class="lk">Convert</span><span class="ll">Follow-up that never forgets</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="operate"><span class="lk">Operate</span><span class="ll">Less office admin</span><span class="lo">+ open</span></div>
@@ -1938,11 +1886,9 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
      check-consistency's readiness guard reads. Leading with it is a
      ranking of what the owner sells first, never a claim that it is
      generally available, and no number of leads, win rate, amount, client
-     or date may ever appear beside it. The h1 moved to this section from
-     the Quote Recovery wedge in the same change, and on 2026-09-24 moved
-     again, with the same words, to the first screen (the HERO block
-     below). compose.py still asserts exactly one h1 on the page, so this
-     section, the wedge and the front desk all carry h2.
+     or date may ever appear beside it. The h1 moved here from the Quote
+     Recovery wedge in the same change: compose.py still asserts exactly
+     one h1 on the page, so the wedge and the front desk carry h2.
 
      Every claim here traces to a canonical source: canonical.ts, the service
      agreement, roadmap-config.js, pricing-config.js or the film's #doc. No
@@ -1961,35 +1907,11 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
      scripts/film/source.html and extending this list in the same commit.
      ============================================================ -->
 
-<!-- THE FIRST SCREEN. Everything between the two HERO markers is lifted out
-     by compose.py and placed as the first child of the film's #scroll, so it
-     sits over the opening frame instead of below the film. The markers must
-     each appear exactly once in this file, and nowhere in prose.
-
-     Why it exists: measured in a real browser on 2026-09-24, a phone's first
-     screen was black with a dim dot and the word SCROLL for four seconds, the
-     page's only h1 was 8,247px down (about ten phone screens), and the first
-     sentence a visitor could read was a pane label selling the scan. A buyer
-     who does not scroll learned nothing about what Nevamis does and had
-     nothing to press. This block is plain HTML and CSS: it is on screen in
-     the first paint, with no JavaScript, no WebGL and reduced motion, and the
-     cold-open that hides the rest of the chrome (html.nv-intro) does not name
-     it. It is absolutely positioned inside #scroll, so it scrolls away with
-     the page long before the first story beat fades in at 13% of the span.
-
-     It carries the page's one h1 (compose.py asserts exactly one). The h1 is
-     door one, Lead Generation, and the line under it says "by invitation" in
-     the same breath, as every sentence offering it must. The one CTA is the
-     booking link, because an invitation starts with a conversation; it
-     reports hero_book_call_click, the event every Book-a-Call CTA sends and
-     the only one the engine's events allowlist accepts for it. -->
-
-
 <section id="found">
   <div class="wrap">
     <div class="centre reveal">
       <p class="k"><i>05</i> GROW <span class="chip inv">By invitation</span></p>
-      <h2>Businesses that fit your work, found by hand.</h2>
+      <h1>More of the customers you want.</h1>
       <p class="lede">You tell us the kind of business you want more of, and we find them for you.</p>
     </div>
 
@@ -2357,17 +2279,27 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
             <div class="big" id="roiOpp">$0</div>
           </div>
           <div class="row">
-            <div class="lbl mono">CONSERVATIVE RECOVERED JOBS (HALF)</div>
+            <div class="lbl mono">CONSERVATIVE RECOVERED REVENUE A MONTH (HALF)</div>
             <div class="big" id="roiRec">$0</div>
           </div>
+          <!-- Two break-even rows since 2026-09-25. One row divided the plan by
+               job value x close rate and called the answer "won jobs": that is
+               the real inquiries you must answer, not the jobs you must win
+               (5 where 3 cover the plan at the defaults). Both numbers are
+               useful, so each is shown under its own name. site.js writes a
+               "Not reachable" sentence into either one rather than a zero. -->
           <div class="row" id="roiBeRow" hidden>
-            <div class="lbl mono">BREAK-EVEN AT YOUR QUOTE</div>
+            <div class="lbl mono">WON JOBS THAT COVER THE MONTHLY</div>
             <div class="big" id="roiBe" style="font-size:clamp(20px,2.2vw,26px)">–</div>
+          </div>
+          <div class="row" id="roiInqRow" hidden>
+            <div class="lbl mono">REAL INQUIRIES NEEDED AT YOUR CLOSE RATE</div>
+            <div class="big" id="roiInq" style="font-size:clamp(20px,2.2vw,26px)">–</div>
           </div>
           <div class="midcta" style="margin-top:18px">
             <a class="btn btn-primary" href="/book.html" data-evt="roi_book_click">Check these against your real call log</a>
           </div>
-          <p class="disclaimer">Estimate only, not a guarantee. Formula: missed calls × 4.33 weeks × opportunity share × job value × close rate. Recovery assumes half of voicemail-bound calls are captured.</p>
+          <p class="disclaimer">Estimate only, not a guarantee. Formula: missed calls × 4.33 weeks × opportunity share × job value × close rate. Recovery assumes half of voicemail-bound calls are captured. These figures are revenue, not profit; the Launch &amp; Implementation fee is not included.</p>
           <p aria-live="polite" class="visually-hidden" id="roiLive"></p>
         </div>
       </div>
@@ -2399,11 +2331,11 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
     <div class="steps">
       <div class="card reveal">
         <p class="k"><i>01</i> SCAN</p>
-        <p>The PULSE Business Scan is free, and you can skip it. Takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
+        <p>Every engagement starts with the PULSE Business Scan. Takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
       </div>
       <div class="card reveal">
         <p class="k"><i>02</i> TALK</p>
-        <p>A short strategy call confirms your exact fit. There is no minimum term to discover in the agreement: month to month from the first month, cancelled from your own portal at any time.</p>
+        <p>After the scan, a short strategy call confirms your exact fit. There is no minimum term to discover in the agreement: month to month from the first month, cancelled from your own portal at any time.</p>
       </div>
       <div class="card reveal">
         <p class="k"><i>03</i> BUILD</p>

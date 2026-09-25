@@ -37,8 +37,10 @@ GitHub Pages redeploys `main` automatically (~1 min). HTTPS enforced.
 
 `site.js` exposes `nvTrack(name, data)` and queues into `window.nvEvents`.
 CTAs carry `data-evt` attributes (hero_book_call_click, demo_phone_click,
-demo_audio_play, demo_audio_complete, booking_start, booking_page_view,
-roi_calculator_complete). Nothing is sent anywhere until you add a provider:
+demo_audio_play, demo_audio_complete, booking_start, booking_page_view).
+The homepage calculator sends roi_calculator_complete once, on the visitor's
+first edit (since 2026-09-25; before that it fired on every page load, see
+docs/analytics-events.md). Nothing is sent anywhere until you add a provider:
 - **GA4:** paste the gtag snippet into each page's `<head>`; events forward automatically.
 - **Plausible:** add their script tag; events forward via `window.plausible`.
 

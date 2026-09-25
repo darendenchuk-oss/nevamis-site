@@ -234,9 +234,10 @@ export const RETIRED_OFFERS = [
      window, which runs across a season of quotes and invoices", which names
      no length and no penalty, so no pattern here could see it, while the same
      page said "no minimum term" three times. These match a sentence that
-     treats a term as a thing the buyer is in; "There is no minimum term" and
-     "the term is not ..." pass, as a denial must. */
-  /\bthe term (?:is|runs|lasts|covers)\b(?!\s+not\b)/i,
+     treats a term as a thing the buyer is in; "There is no minimum term",
+     "the term is not ..." and "the term is month to month" (or "monthly")
+     pass, because each states the owner's decision rather than a commitment. */
+  /\bthe term (?:is|runs|lasts|covers)\b(?!\s+(?:not|monthly|month[- ]to[- ]month)\b)/i,
   /\b(?:minimum|initial|fixed|committed) term of\b/i,
   /\b(?:\d+|three|six|nine|twelve)[- ]month (?:minimum|term|commitment|contract)\b/i,
 ];
@@ -295,13 +296,6 @@ export const UNBUILT_PROMISES = [
     why: "the scan labels some findings \"not us\" or \"not yet\" (engine public-dto.ts nevamisCanHelp), so NEVAMIS does not handle every leak it finds; say which ones it handles" },
   { re: /\bhandles? (?:every|all(?: of)?(?: the| your)?) leaks?\b/i,
     why: "the scan labels some findings \"not us\" or \"not yet\" (engine public-dto.ts nevamisCanHelp), so NEVAMIS does not handle every leak it finds; say which ones it handles" },
-  /* THE SCAN AS A GATE. The owner retired it as the way in on 2026-09-12
-     (DC#54): the scan is a free, optional read of a public website that asks
-     for no email, and nothing requires one. Two homepage surfaces still said
-     every engagement starts with it on 2026-09-24, one of them the pane label
-     that was the first sentence a visitor could read. */
-  { re: /\bevery engagement (?:starts|begins) with\b/i,
-    why: "the scan is free and optional (owner decision DC#54, 2026-09-12): no engagement has to start with one" },
 ];
 
 /* CAVEAT worth knowing before writing plain text for a swept surface: this

@@ -100,20 +100,6 @@ assert close, 'doc close not found before scripts'
 # one <!--DOC--> marker: everything before it precedes the film's own #doc (which
 # IS the six-station section, no longer hidden), everything after follows it.
 SECTIONS = open('scripts/film/sections.html', encoding='utf-8').read()
-# THE FIRST SCREEN. sections.html also carries one block between <!--HERO--> and
-# <!--/HERO-->, which is not below the film at all: it is the page's opening
-# headline, line and CTA, and it goes over the film's first frame as the first
-# child of #scroll (see the note above the block in sections.html for why it
-# exists and why it has to be plain HTML). Lifted out BEFORE the DOC split, so
-# neither half of the page below the film carries it.
-assert SECTIONS.count('<!--HERO-->') == 1 and SECTIONS.count('<!--/HERO-->') == 1, \
-    'sections.html needs exactly one <!--HERO--> ... <!--/HERO--> block'
-_h0 = SECTIONS.find('<!--HERO-->')
-_h1 = SECTIONS.find('<!--/HERO-->')
-assert _h0 < _h1 < SECTIONS.find('<!--DOC-->'), 'the HERO block must come before the DOC marker'
-HERO = SECTIONS[_h0 + len('<!--HERO-->'):_h1].strip()
-SECTIONS = SECTIONS[:_h0] + SECTIONS[_h1 + len('<!--/HERO-->'):]
-assert HERO.startswith('<div id="hero"') and '<h1' in HERO, 'the HERO block must be #hero and carry the h1'
 assert SECTIONS.count('<!--DOC-->') == 1, 'sections.html needs exactly one <!--DOC--> marker'
 sec_top, sec_bottom = SECTIONS.split('<!--DOC-->')
 assert sec_bottom.count('<details') == 16, 'the FAQ must carry 16 entries'
@@ -126,11 +112,6 @@ assert 'id="roiForm"' in sec_bottom and 'id="roiQuotePlan"' in sec_bottom, 'the 
 film_body = (film_body[:close.end()] + '\n' + sec_bottom
              + '\n</main>\n' + film_body[close.end():])
 film_body = film_body.replace('<main id="main">', '<main id="main">' + sec_top, 1)
-# The first screen goes in LAST, for the reason in the order note above: it is
-# an insertion near the top of film_body, and made before the offset splice it
-# would have moved the DOC seam.
-assert film_body.count('<div id="scroll">') == 1, 'the film has no single #scroll to put the first screen in'
-film_body = film_body.replace('<div id="scroll">', '<div id="scroll">\n' + HERO, 1)
 
 # --- site chrome from the old page ---
 def block(s, start_pat, end_pat):
@@ -215,16 +196,6 @@ assert '/privacy.html' in out and '/terms.html' in out
 assert 'id="paneNav"' in out and 'id="doc"' in out
 assert 'id="how"' in out and 'id="industries"' in out
 assert out.count('<h1') == 1, 'the page needs exactly one h1'
-# ...and that h1 is on the FIRST SCREEN: inside #scroll, ahead of the film's
-# stage, with the booking CTA beside it. Checked by position, because the
-# failure this exists for (2026-09-24) was an h1 that was present, unique and
-# ten phone screens down.
-_scroll = out.find('<div id="scroll">')
-_hero = out.find('<div id="hero">')
-assert 0 < _scroll < _hero < out.find('<h1') < out.find('<div id="stage">'), \
-    'the h1 must sit in #hero, the first thing inside #scroll, before the film stage'
-assert 'href="/book.html" data-evt="hero_book_call_click"' in out[_hero:out.find('<div id="stage">')], \
-    'the first screen lost its booking CTA'
 assert out.count('<details') == 16, 'the FAQ must publish 16 entries'
 assert 'id="plansStrip"' in out and 'id="qrPrice"' in out, 'runtime price targets missing'
 for _e in ['compare_demo_click', 'dayone_roi_click', 'roi_book_click', 'hero_scan_click']:

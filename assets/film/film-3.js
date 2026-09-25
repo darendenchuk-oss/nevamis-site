@@ -166,12 +166,6 @@ labelWrap.addEventListener('click', function(e){
   if (pn) openCard(pn);
 });
 var copyNodes = Array.prototype.slice.call(document.querySelectorAll('.copy'));
-/* The composed homepage puts its first screen (#hero: the h1, one line, one
-   CTA) over this film's opening frame; the standalone film has none, so this is
-   null there and nothing below changes. It is not a .copy beat (no opacity
-   window, it scrolls away with the page), but a label parked on the headline is
-   the same defect as one parked on a beat, so updateLabels treats it as one. */
-var heroIn = document.querySelector('#hero .hero-in');
 var vProj = new T.Vector3(), vDir = new T.Vector3(), vTo = new T.Vector3();
 var lblOrder = [];
 /* the fixed section nav on the left: labels must never sit on it (cached; resize refreshes) */
@@ -240,10 +234,6 @@ function updateLabels(){
   for (var i = 0; i < copyNodes.length; i++) {
     var ca = parseFloat(getComputedStyle(copyNodes[i]).opacity) || 0;
     if (ca > 0.01) { copyA = ca; copyRect = copyNodes[i].getBoundingClientRect(); break; }
-  }
-  if (!copyRect && heroIn) {
-    var heroR = heroIn.getBoundingClientRect();
-    if (heroR.bottom > 0 && heroR.top < window.innerHeight) { copyA = 1; copyRect = heroR; }
   }
   var cardUp = document.body.classList.contains('card-open');
   /* the rail yields while a story beat passes under it (the portrait top row

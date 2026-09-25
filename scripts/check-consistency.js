@@ -886,14 +886,12 @@ for (const p of contentPages) {
   }
 }
 
-/* 7m. THE HOMEPAGE MUST SHOW WHAT IS SOLD, NAME WHAT IT DRAWS, AND OPEN ON
-       ITS HEADLINE.
+/* 7m. THE HOMEPAGE MUST SHOW WHAT IS SOLD AND NAME WHAT IT DRAWS.
 
-       Added 2026-09-24 for three homepage findings, all in files a person
-       composes by hand (scripts/film/source.html and sections.html) and all
-       green under every rule above, because each is about what the page
-       LEAVES OUT or WHERE it puts something, and every rule above reads the
-       words that are there.
+       Added 2026-09-24 for two homepage findings, both in a file a person
+       composes by hand (scripts/film/source.html) and both green under every
+       rule above, because each is about what the page LEAVES OUT, and every
+       rule above reads the words that are there.
 
        a) Every module sold on its own must have a station. Get-Paid
           Autopilot was available in canonical, sold alone, inside The Works
@@ -913,15 +911,7 @@ for (const p of contentPages) {
           names exactly the stations' modules under their own pillars. It
           went stale once by count (a typed "thirteen dots") and again by name
           on 2026-09-24, when the stations had been renamed and the list had
-          not.
-       c) The page's one h1 is on its first screen: inside #hero, the first
-          thing in the film's #scroll, before the stage, with a booking link.
-          compose.py asserts the same, but compose.py is python and never runs
-          in CI (check-generator-drift runs the node builders), so a hand
-          edit to the composed page could put the h1 back ten phone screens
-          down, which is where it was until that day, and nothing would say
-          so. Whether it is VISIBLE is a browser question, and
-          tests/homepage-first-screen.spec.js answers it. */
+          not. */
 {
   const page = "index.html";
   const html = fs.existsSync(path.join(root, page)) ? fs.readFileSync(path.join(root, page), "utf8") : "";
@@ -966,18 +956,70 @@ for (const p of contentPages) {
     const drawn = new Set(stations), named = new Set(listed);
     for (const s of stations) if (!named.has(s)) err(`${page}: the film draws a dot for "${s}" but the brain-node list does not name it (the list is the count)`);
     for (const l of listed) if (!drawn.has(l)) err(`${page}: the brain-node list names "${l}", which no station describes, so no dot is drawn for it`);
+  }
+}
 
-    /* c) */
-    const h1s = noComments.match(/<h1\b/g) || [];
-    const at = (s) => noComments.indexOf(s);
-    const scrollAt = at('<div id="scroll">'), heroAt = at('<div id="hero">'), stageAt = at('<div id="stage">');
-    const firstScreen = heroAt > 0 && stageAt > heroAt ? noComments.slice(heroAt, stageAt) : "";
-    if (h1s.length !== 1) err(`${page}: carries ${h1s.length} h1 elements; it must carry exactly one`);
-    if (!(scrollAt > 0 && heroAt > scrollAt && /^<div id="scroll">\s*<div id="hero">/.test(noComments.slice(scrollAt)))) {
-      err(`${page}: #hero is not the first thing inside the film's #scroll, so the first screen has no headline.`);
-    } else if (!/<h1\b/.test(firstScreen) || !/href="\/book\.html"/.test(firstScreen)) {
-      err(`${page}: the first screen (#hero, before the film stage) must carry the page's h1 and a /book.html link.\n`
-        + `       Until 2026-09-24 the h1 sat 8,247px down on a phone and the first screen had nothing to press.`);
+/* 7n. THE HOMEPAGE CALCULATOR CANNOT SHOW AN IMPOSSIBLE NUMBER, AND LOADING
+       THE PAGE IS NOT USING IT.
+
+       Added 2026-09-25. The calculator in site.js took its fields as typed:
+       -10 missed calls rendered "$-5,196", and a 150% close rate was taken at
+       face value. revenue-engine.html's copy of the same formula clamped, and
+       the homepage's did not. Its one break-even row also showed real
+       inquiries under the name "won jobs" (5 where 3 cover the plan).
+
+       This runs the real arithmetic: the ROI-MATH block of site.js, cut out
+       and evaluated here, so a change to the formula is judged by what it
+       returns, not by how it is spelled. The Playwright spec
+       tests/homepage-calculator.spec.js checks the rendered rows in a browser.
+
+       It also holds the analytics half. roi_calculator_complete was sent from
+       inside calc(), which runs on load with the defaults, so every page view
+       counted as calculator use. The math block must not send anything, and
+       site.js must send the event from a one-shot input listener only. */
+{
+  const src = fs.existsSync(path.join(root, "site.js")) ? fs.readFileSync(path.join(root, "site.js"), "utf8") : "";
+  const block = (src.match(/\/\* ROI-MATH BEGIN\.[\s\S]*?\/\* ROI-MATH END \*\//) || [])[0];
+  if (!block) err("guard 7n: site.js has no ROI-MATH BEGIN ... ROI-MATH END block, so the calculator's arithmetic is unchecked");
+  else {
+    let roi = null;
+    try {
+      const box = {};
+      vm.runInNewContext(block + "\nthis.roiFigures = roiFigures;", box, { timeout: 1000 });
+      roi = box.roiFigures;
+    } catch (e) { err(`guard 7n: the ROI-MATH block in site.js does not run on its own: ${e.message}`); }
+    if (typeof roi === "function") {
+      const base = { missed: "10", real: "60", value: "400", close: "50", quote: "1000" };
+      const run = (over) => roi(Object.assign({}, base, over));
+      const bad = (msg) => err(`site.js calculator: ${msg}`);
+      const d = run({});
+      if (d.won !== 3) bad(`at the defaults (plan 1000, job 400, 50%) 3 won jobs cover the plan; it says ${d.won}`);
+      if (d.inquiries !== 5) bad(`at the defaults 5 real inquiries are needed at a 50% close rate; it says ${d.inquiries}`);
+      for (const [name, over] of [["missed calls", { missed: "-10" }], ["the opportunity share", { real: "-60" }],
+        ["the job value", { value: "-400" }], ["the close rate", { close: "-50" }]]) {
+        const r = run(over);
+        if (!(r.opp >= 0) || !(r.recovered >= 0)) bad(`a negative ${name} gives a negative dollar figure (${r.opp}); every input must be clamped to >= 0`);
+      }
+      const q = run({ quote: "-1000" });
+      if (!(q.quote >= 0) || (q.won !== null && q.won < 0)) bad(`a negative plan price is not clamped (quote ${q.quote}, won ${q.won})`);
+      const at100 = run({ close: "100" }), over100 = run({ close: "150" });
+      if (over100.opp !== at100.opp || over100.inquiries !== at100.inquiries) bad(`a 150% close rate is accepted (opportunity ${over100.opp}, at 100% it is ${at100.opp}); percentages must be clamped to 0..100`);
+      const r100 = run({ real: "100" }), r150 = run({ real: "150" });
+      if (r150.opp !== r100.opp) bad(`a 150% opportunity share is accepted (${r150.opp} vs ${r100.opp} at 100%)`);
+      const noValue = run({ value: "0" });
+      if (noValue.won !== null || noValue.inquiries !== null) bad(`with no job value neither break-even is reachable; it says won ${noValue.won}, inquiries ${noValue.inquiries} (must be null, shown as "Not reachable")`);
+      const noClose = run({ close: "0" });
+      if (noClose.inquiries !== null) bad(`at a 0% close rate no number of inquiries is enough; it says ${noClose.inquiries}`);
+      if (noClose.won !== 3) bad(`won jobs do not depend on the close rate; at 0% it says ${noClose.won}`);
+      const junk = run({ missed: "abc", value: "" });
+      if (!(junk.opp === 0)) bad(`unreadable input gives ${junk.opp}, not 0`);
+    }
+    if (/nvTrack/.test(block)) err("guard 7n: the ROI-MATH block sends analytics; it must be pure");
+    const sends = src.match(/nvTrack\("roi_calculator_complete"\)/g) || [];
+    const oneShot = /addEventListener\("input", function (\w+)\(\) \{\s*roiForm\.removeEventListener\("input", \1\);\s*window\.nvTrack\("roi_calculator_complete"\);/.test(src);
+    if (sends.length !== 1 || !oneShot) {
+      err(`site.js: roi_calculator_complete must be sent exactly once, from a one-shot "input" listener on roiForm that removes itself.\n`
+        + `       Sent from calc(), it fires on every page load with the defaults and the funnel counts page views as calculator use.`);
     }
   }
 }

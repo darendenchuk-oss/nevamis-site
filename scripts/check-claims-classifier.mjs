@@ -175,6 +175,11 @@ const MUST_NOT_FIRE = [
   ["pricing-config.js terms note", "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing."],
   ["the retired minimum, recorded as retired", "The 3-month minimum term was retired on 2026-09-08 and is no longer offered."],
   ["a price lock is not a term", "Your price is locked for 12 months from signing."],
+  /* The owner's decision with "the term" as its subject (2026-09-25): a
+     sentence that says month to month states the decision, not a commitment. */
+  ["the term, stated as month to month", "The term is month to month, and you can cancel from your portal at any time."],
+  ["the term runs month-to-month", "The term runs month-to-month from the first month."],
+  ["the term, stated as monthly", "The term is monthly: cancel from your own portal whenever you like."],
 ];
 
 /* Quoted caller questions, judged only where the guard allows them (7e). The
@@ -254,11 +259,9 @@ const UNBUILT_MUST_FIRE = [
      promise in the next. */
   ["a denial in one clause does not excuse a promise in the next",
     "There is no setup fee, and you can set a hard cap in your portal."],
-  /* 2026-09-24, the homepage film: its closing line over the scan CTA, and
-     the pane label that was the first sentence a visitor could read. */
+  /* 2026-09-24, the homepage film: its closing line over the scan CTA. */
   ["the homepage closing line, verbatim", "One scan. Every leak, found and handled."],
   ["every leak, said as a verb", "NEVAMIS handles every leak the scan finds."],
-  ["the scan pane label, verbatim", "Every engagement starts with the PULSE Business Scan."],
 ];
 const UNBUILT_MUST_NOT_FIRE = [
   ["the demo knowledge base's refusal (config/elevenlabs)",
@@ -270,9 +273,7 @@ const UNBUILT_MUST_NOT_FIRE = [
   ["the portal line that replaced the Pulse page",
     "A Results page in your portal that labels every number as measured, declared, estimated or not yet measured, and never adds an estimate to measured money"],
   ["the homepage closing line, as rewritten", "One scan shows where it leaks, and which leaks NEVAMIS handles."],
-  ["the scan pane label, as rewritten", "A free read of your public website."],
   ["the film's scan beat", "The scan finds where the money is leaking."],
-  ["the old claim, refused", "There is no rule that every engagement starts with the scan: it is free, and nothing requires one."],
 ];
 for (const [name, text] of UNBUILT_MUST_FIRE) {
   if (!judgeUnbuilt(text)) {

@@ -18,11 +18,9 @@
      check-consistency's readiness guard reads. Leading with it is a
      ranking of what the owner sells first, never a claim that it is
      generally available, and no number of leads, win rate, amount, client
-     or date may ever appear beside it. The h1 moved to this section from
-     the Quote Recovery wedge in the same change, and on 2026-09-24 moved
-     again, with the same words, to the first screen (the HERO block
-     below). compose.py still asserts exactly one h1 on the page, so this
-     section, the wedge and the front desk all carry h2.
+     or date may ever appear beside it. The h1 moved here from the Quote
+     Recovery wedge in the same change: compose.py still asserts exactly
+     one h1 on the page, so the wedge and the front desk carry h2.
 
      Every claim here traces to a canonical source: canonical.ts, the service
      agreement, roadmap-config.js, pricing-config.js or the film's #doc. No
@@ -41,43 +39,11 @@
      scripts/film/source.html and extending this list in the same commit.
      ============================================================ -->
 
-<!-- THE FIRST SCREEN. Everything between the two HERO markers is lifted out
-     by compose.py and placed as the first child of the film's #scroll, so it
-     sits over the opening frame instead of below the film. The markers must
-     each appear exactly once in this file, and nowhere in prose.
-
-     Why it exists: measured in a real browser on 2026-09-24, a phone's first
-     screen was black with a dim dot and the word SCROLL for four seconds, the
-     page's only h1 was 8,247px down (about ten phone screens), and the first
-     sentence a visitor could read was a pane label selling the scan. A buyer
-     who does not scroll learned nothing about what Nevamis does and had
-     nothing to press. This block is plain HTML and CSS: it is on screen in
-     the first paint, with no JavaScript, no WebGL and reduced motion, and the
-     cold-open that hides the rest of the chrome (html.nv-intro) does not name
-     it. It is absolutely positioned inside #scroll, so it scrolls away with
-     the page long before the first story beat fades in at 13% of the span.
-
-     It carries the page's one h1 (compose.py asserts exactly one). The h1 is
-     door one, Lead Generation, and the line under it says "by invitation" in
-     the same breath, as every sentence offering it must. The one CTA is the
-     booking link, because an invitation starts with a conversation; it
-     reports hero_book_call_click, the event every Book-a-Call CTA sends and
-     the only one the engine's events allowlist accepts for it. -->
-<!--HERO-->
-<div id="hero">
-  <div class="hero-in">
-    <h1 id="heroTitle">More of the customers you want.</h1>
-    <p class="hero-line">By invitation, we find the businesses you want to work for. We also follow up the quotes you already sent and answer your phone, any hour.</p>
-    <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
-  </div>
-</div>
-<!--/HERO-->
-
 <section id="found">
   <div class="wrap">
     <div class="centre reveal">
       <p class="k"><i>05</i> GROW <span class="chip inv">By invitation</span></p>
-      <h2>Businesses that fit your work, found by hand.</h2>
+      <h1>More of the customers you want.</h1>
       <p class="lede">You tell us the kind of business you want more of, and we find them for you.</p>
     </div>
 
@@ -263,17 +229,27 @@
             <div class="big" id="roiOpp">$0</div>
           </div>
           <div class="row">
-            <div class="lbl mono">CONSERVATIVE RECOVERED JOBS (HALF)</div>
+            <div class="lbl mono">CONSERVATIVE RECOVERED REVENUE A MONTH (HALF)</div>
             <div class="big" id="roiRec">$0</div>
           </div>
+          <!-- Two break-even rows since 2026-09-25. One row divided the plan by
+               job value x close rate and called the answer "won jobs": that is
+               the real inquiries you must answer, not the jobs you must win
+               (5 where 3 cover the plan at the defaults). Both numbers are
+               useful, so each is shown under its own name. site.js writes a
+               "Not reachable" sentence into either one rather than a zero. -->
           <div class="row" id="roiBeRow" hidden>
-            <div class="lbl mono">BREAK-EVEN AT YOUR QUOTE</div>
+            <div class="lbl mono">WON JOBS THAT COVER THE MONTHLY</div>
             <div class="big" id="roiBe" style="font-size:clamp(20px,2.2vw,26px)">–</div>
+          </div>
+          <div class="row" id="roiInqRow" hidden>
+            <div class="lbl mono">REAL INQUIRIES NEEDED AT YOUR CLOSE RATE</div>
+            <div class="big" id="roiInq" style="font-size:clamp(20px,2.2vw,26px)">–</div>
           </div>
           <div class="midcta" style="margin-top:18px">
             <a class="btn btn-primary" href="/book.html" data-evt="roi_book_click">Check these against your real call log</a>
           </div>
-          <p class="disclaimer">Estimate only, not a guarantee. Formula: missed calls × 4.33 weeks × opportunity share × job value × close rate. Recovery assumes half of voicemail-bound calls are captured.</p>
+          <p class="disclaimer">Estimate only, not a guarantee. Formula: missed calls × 4.33 weeks × opportunity share × job value × close rate. Recovery assumes half of voicemail-bound calls are captured. These figures are revenue, not profit; the Launch &amp; Implementation fee is not included.</p>
           <p aria-live="polite" class="visually-hidden" id="roiLive"></p>
         </div>
       </div>
@@ -305,11 +281,11 @@
     <div class="steps">
       <div class="card reveal">
         <p class="k"><i>01</i> SCAN</p>
-        <p>The PULSE Business Scan is free, and you can skip it. Takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
+        <p>Every engagement starts with the PULSE Business Scan. Takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
       </div>
       <div class="card reveal">
         <p class="k"><i>02</i> TALK</p>
-        <p>A short strategy call confirms your exact fit. There is no minimum term to discover in the agreement: month to month from the first month, cancelled from your own portal at any time.</p>
+        <p>After the scan, a short strategy call confirms your exact fit. There is no minimum term to discover in the agreement: month to month from the first month, cancelled from your own portal at any time.</p>
       </div>
       <div class="card reveal">
         <p class="k"><i>03</i> BUILD</p>

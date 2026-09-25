@@ -107,10 +107,11 @@ body{
 /* The ending block is position:fixed for the whole film and only its opacity
    changes, but the rule above gives its button pointer-events:auto, so for the
    whole span before the finale an INVISIBLE "Scan my business" sat at 38vh and
-   took every tap on that spot, exit flourish and all. Found 2026-09-24, when the
-   homepage's first screen put its own "Book a call" there: at 1366x768 a tap on
-   it landed on the hidden scan link. The button takes taps only while its block
-   is on screen (.on; reduced motion and no-WebGL set .on on every block). */
+   took every tap on that spot, exit flourish and all. Reproduced on the live
+   build 2026-09-25: at 1366x768, five seconds in, with the block at opacity 0, a
+   click at the middle of the screen went to the scan app. The button takes taps
+   only while its block is on screen (.on; reduced motion and no-WebGL set .on
+   on every block). */
 #close:not(.on) .cta{pointer-events:none}
 #brand{position:fixed;top:22px;left:28px;z-index:4;font-weight:700;font-size:.95rem;
   letter-spacing:.34em;color:var(--ink);opacity:.85;pointer-events:none}
@@ -317,7 +318,7 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
   <button type="button" data-pane="plans" aria-controls="card" aria-expanded="false"><i>06</i>Plans</button>
 </nav>
 <div id="labels" aria-hidden="true">
-  <div class="plabel" data-pane="scan"><span class="lk">The scan</span><span class="ll">A free read of your public website.</span><span class="lo">+ open</span></div>
+  <div class="plabel" data-pane="scan"><span class="lk">The scan</span><span class="ll">Every engagement starts with the PULSE Business Scan.</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="capture"><span class="lk">Capture</span><span class="ll">Every opportunity answered</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="convert"><span class="lk">Convert</span><span class="ll">Follow-up that never forgets</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="operate"><span class="lk">Operate</span><span class="ll">Less office admin</span><span class="lo">+ open</span></div>
@@ -7792,12 +7793,6 @@ labelWrap.addEventListener('click', function(e){
   if (pn) openCard(pn);
 });
 var copyNodes = Array.prototype.slice.call(document.querySelectorAll('.copy'));
-/* The composed homepage puts its first screen (#hero: the h1, one line, one
-   CTA) over this film's opening frame; the standalone film has none, so this is
-   null there and nothing below changes. It is not a .copy beat (no opacity
-   window, it scrolls away with the page), but a label parked on the headline is
-   the same defect as one parked on a beat, so updateLabels treats it as one. */
-var heroIn = document.querySelector('#hero .hero-in');
 var vProj = new T.Vector3(), vDir = new T.Vector3(), vTo = new T.Vector3();
 var lblOrder = [];
 /* the fixed section nav on the left: labels must never sit on it (cached; resize refreshes) */
@@ -7866,10 +7861,6 @@ function updateLabels(){
   for (var i = 0; i < copyNodes.length; i++) {
     var ca = parseFloat(getComputedStyle(copyNodes[i]).opacity) || 0;
     if (ca > 0.01) { copyA = ca; copyRect = copyNodes[i].getBoundingClientRect(); break; }
-  }
-  if (!copyRect && heroIn) {
-    var heroR = heroIn.getBoundingClientRect();
-    if (heroR.bottom > 0 && heroR.top < window.innerHeight) { copyA = 1; copyRect = heroR; }
   }
   var cardUp = document.body.classList.contains('card-open');
   /* the rail yields while a story beat passes under it (the portrait top row
