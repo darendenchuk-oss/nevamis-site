@@ -350,3 +350,41 @@ test('BP6: on the book page the call bar steps aside while the scheduler is on s
   expect(await shown(), 'back at the top it returns').toBe(true);
   await ctx.close();
 });
+
+/* ---------- below the film, its hidden ending CTA takes no taps ----------
+   Found while proving BP5: the film's #close stays .on after the visitor
+   scrolls past the film, faded to nothing, and its "Scan my business" link
+   kept pointer-events:auto, so the button that scrolled under the middle of
+   the screen was unclickable and a tap there opened the scan app. */
+
+test('below the film, the button in the middle of the screen is the one a tap reaches', async ({ browser }) => {
+  test.setTimeout(120_000);
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await ctx.route(/^https:\/\/app\.nevamis\.ca\//, (r) => r.fulfill({ status: 204, body: '' }));
+  const page = await ctx.newPage();
+  await page.goto('/home.html?debug=1&nointro=1');
+  await page.waitForFunction(() => window.__nv && window.__nv.dbg, null, { timeout: 60_000 });
+  /* play the film to its end, where #close turns on */
+  await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, Math.ceil(d.spanH - d.vh)); });
+  await expect.poll(() => page.evaluate(() => { const d = window.__nv.dbg; return d.target > 0.999 && Math.abs(d.cur - d.target) < 0.002; }),
+    { timeout: 60_000 }).toBe(true);
+  await expect(page.locator('#close')).toHaveClass(/\bon\b/);
+  /* then scroll on, below it, and put every link below the film at the centre in turn */
+  const hits = await page.evaluate(async () => {
+    const film = document.getElementById('close').closest('[id]');
+    const out = [];
+    const links = [...document.querySelectorAll('main a.btn')].filter((a) => !a.closest('#close') && a.offsetParent);
+    for (const a of links) {
+      a.scrollIntoView({ block: 'center' });
+      await new Promise((r) => setTimeout(r, 120));
+      if (!document.documentElement.classList.contains('nv-below')) continue;
+      const b = a.getBoundingClientRect();
+      if (b.top < 0 || b.bottom > innerHeight) continue;
+      const top = document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2);
+      if (top && top.closest('#close')) out.push(a.textContent.trim().replace(/\s+/g, ' '));
+    }
+    return { out, film: !!film };
+  });
+  expect(hits.out, 'buttons below the film whose centre the hidden film CTA takes').toEqual([]);
+  await ctx.close();
+});

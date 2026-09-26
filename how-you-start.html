@@ -296,7 +296,7 @@ strong{color:var(--ink)}
 @media(max-width:1080px){
   .nav-toggle{display:grid;place-items:center}
   .main-nav{position:absolute;top:var(--head-h);left:0;right:0;flex-direction:column;align-items:stretch;
-    gap:0;padding:8px 20px 18px;background:rgba(7,15,22,.98);border-bottom:1px solid var(--line);
+    gap:0;padding:8px 20px 18px;background:#070F16;border-bottom:1px solid var(--line);
     display:none;max-height:calc(100vh - var(--head-h));max-height:calc(100dvh - var(--head-h));
     overflow-y:auto;overscroll-behavior:contain}
   .main-nav.open{display:flex}
@@ -465,6 +465,7 @@ ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
   .more{display:inline-flex;align-items:center;min-height:44px}
   #paneNav button{min-height:44px}
 }
+html.nv-below #close .cta{pointer-events:none}
 .prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:rgba(159,240,206,.45)}

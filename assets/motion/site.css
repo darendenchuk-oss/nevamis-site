@@ -328,11 +328,12 @@ strong{color:var(--ink)}
    THE OPEN MENU SCROLLS ITSELF (BP9). site.js locks the page behind it
    while it is open, so a menu taller than a landscape phone must be able to
    scroll on its own, and contain the gesture so it never chains to the
-   page. */
+   page. Its ground is opaque for the same reason: at .98 alpha the page's
+   headline read through the links behind them. */
 @media(max-width:1080px){
   .nav-toggle{display:grid;place-items:center}
   .main-nav{position:absolute;top:var(--head-h);left:0;right:0;flex-direction:column;align-items:stretch;
-    gap:0;padding:8px 20px 18px;background:rgba(7,15,22,.98);border-bottom:1px solid var(--line);
+    gap:0;padding:8px 20px 18px;background:#070F16;border-bottom:1px solid var(--line);
     display:none;max-height:calc(100vh - var(--head-h));max-height:calc(100dvh - var(--head-h));
     overflow-y:auto;overscroll-behavior:contain}
   .main-nav.open{display:flex}
@@ -710,6 +711,18 @@ ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
   .more{display:inline-flex;align-items:center;min-height:44px}
   #paneNav button{min-height:44px}
 }
+/* BELOW THE FILM, ITS ENDING CTA TAKES NO TAPS. #close is position:fixed and
+   keeps its .on class after the visitor scrolls past the film: the film
+   fades it to opacity 0 and sets pointer-events:none on #close, but its
+   .cta sets pointer-events:auto for itself, so an invisible "Scan my
+   business" sat mid-screen over the sections below the film and took the
+   tap meant for whatever button scrolled under it (found 2026-09-25: the
+   "next" section's primary button, centred on a 1440x900 screen, opened the
+   scan app). The rule belongs with the film's own #close rules and lives
+   here because this stylesheet is inlined into the homepage and the film
+   source is maintained separately; html.nv-below is the film's own
+   below-the-film state. */
+html.nv-below #close .cta{pointer-events:none}
 .prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:rgba(159,240,206,.45)}
