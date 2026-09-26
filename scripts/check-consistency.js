@@ -19,6 +19,8 @@ import { fileURLToPath } from "node:url";
 import { promoteHtml } from "./promote.mjs";
 import { headCssBlock, readCssSources, CSS_OPEN, CSS_CLOSE, LINK_FONTS, LINK_SITE } from "./lib/inline-css.mjs";
 import { applySelfCta } from "./lib/nav-cta.mjs";
+import { chipsOf, chipFindings, statusLabelsFrom, CHIP_FIXTURES } from "./lib/status-chips.mjs";
+import { termFindings, TERM_FIXTURES } from "./lib/llms-terms.mjs";
 /* DENIAL / ADDITIVE / RETIRED_OFFERS and the claim classifier moved to
    ./lib/claims.mjs on 2026-08-10, when a laundering defect in the classifier
    was fixed: a denial in ONE CLAUSE used to excuse every claim in the whole
@@ -2387,6 +2389,11 @@ const NO_MECHANISM = [
     const w = {};
     vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
     const ids = new Set((w.NV_PRICING?.plans ?? []).map((p) => p.id));
+    /* Since BD-F7 (2026-09-26) a proposal can also be for a module sold on
+       its own: the ids proposal.html renders as a module, by the same rule it
+       uses. They may be sent; they are not required to be. */
+    const moduleIds = new Set((w.NV_PRICING?.addOns ?? [])
+      .filter((a) => a.sellable === true && a.soldAlone === true && a.monthly > 0 && a.launch > 0).map((a) => a.id));
     const doc = fs.readFileSync(docPath, "utf8");
 
     const urls = [...doc.matchAll(/proposal\.html\?[^\s)`"']*/g)].map((m) => m[0]);
@@ -2401,11 +2408,11 @@ const NO_MECHANISM = [
          ?plan=PAY-AS-YOU-GO would still fail, which is the point. */
       if (plan === "PLAN") continue;
       used.add(plan);
-      if (!ids.has(plan)) {
+      if (!ids.has(plan) && !moduleIds.has(plan)) {
         err(`${docRel}: an example link sends ?plan=${plan}, which pricing-config.js does not define.\n`
-          + `       proposal.html falls back to the recommended plan for an unknown id, so this link\n`
-          + `       quotes the wrong tier at the wrong price to a named prospect.\n`
-          + `       Known ids: ${[...ids].join(", ")}`);
+          + `       proposal.html shows "no plan named" for an unknown id, so this link sends a\n`
+          + `       named prospect a proposal with nothing in it.\n`
+          + `       Known ids: ${[...ids, ...moduleIds].join(", ")}`);
       }
     }
     for (const id of ids) {
@@ -2558,6 +2565,77 @@ const NO_MECHANISM = [
   }
 }
 
+/* 7o. A PAGE'S STATUS CHIP FOR A ROADMAP ITEM IS THE ROADMAP'S STATUS (BD-F4).
+
+      One item carried three statuses on three pages (the Inbox Assistant:
+      "In development" on the homepage, BEING RESEARCHED on the Roadmap,
+      "Coming soon" on revenue-engine.html), and nothing compared a chip typed
+      into a page with roadmap-config.js. scripts/lib/status-chips.mjs holds
+      the rule and its fixtures; the labels are read from coming-soon.html's
+      renderer, so this file types none. The judge is proved on its fixtures
+      first, so a rule that has stopped firing fails here rather than passing
+      everything. */
+{
+  let judged = true;
+  const F = CHIP_FIXTURES;
+  for (const [why, html] of F.mustFail) {
+    if (!chipFindings(html, F.services, F.labels).length) { err("status-chips judge: missed a wrong chip (" + why + ")"); judged = false; }
+  }
+  for (const [why, html] of F.mustPass) {
+    const b = chipFindings(html, F.services, F.labels);
+    if (b.length) { err("status-chips judge: refused a right chip (" + why + "): " + JSON.stringify(b)); judged = false; }
+  }
+  const labels = statusLabelsFrom(fs.readFileSync(path.join(root, "coming-soon.html"), "utf8"));
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "roadmap-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const services = w.NV_ROADMAP?.services;
+  if (!labels) err("coming-soon.html: its statusLabel map was not found, so no page's roadmap chips can be checked");
+  else if (!Array.isArray(services) || !services.length) err("roadmap-config.js: NV_ROADMAP.services not found, so no page's roadmap chips can be checked");
+  else if (judged) {
+    let chips = 0;
+    for (const page of contentPages) {
+      const html = fs.readFileSync(path.join(root, page), "utf8");
+      chips += chipsOf(html).length;
+      for (const b of chipFindings(html, services, labels)) {
+        err(`${page}: a chip reads "${b.chip}" for ${b.name}, whose roadmap-config.js status is "${b.status}". `
+          + `It must read ${b.want.map((x) => '"' + x + '"').join(" or ")} (case aside), the words the Roadmap shows for it.`);
+      }
+    }
+    if (!chips) err("no page carries a status chip, so guard 7o proves nothing: has the chip markup changed?");
+  }
+}
+
+/* 7p. llms.txt's TERM STATEMENTS MATCH pricing-config.js terms (G6-12).
+
+      Guard 7j reads llms.txt's prices; nothing read its term, so "locked for
+      six months" passed every check. scripts/lib/llms-terms.mjs holds the
+      rule (price lock, minimum term, cancellation notice) and its fixtures;
+      the fixtures run first, then the real file is judged against the real
+      config. */
+{
+  let judged = true;
+  const F = TERM_FIXTURES;
+  for (const [why, text] of F.mustPass) {
+    const b = termFindings(text, F.terms);
+    if (b.length) { err("llms-terms judge: refused a right statement (" + why + "): " + b.join("; ")); judged = false; }
+  }
+  for (const [why, text] of F.mustFail) {
+    if (!termFindings(text, F.terms).length) { err("llms-terms judge: missed a wrong statement (" + why + ")"); judged = false; }
+  }
+  for (const [why, text, terms] of F.mustFailWith) {
+    if (!termFindings(text, terms).length) { err("llms-terms judge: missed a wrong statement (" + why + ")"); judged = false; }
+  }
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const terms = w.NV_PRICING?.terms;
+  if (!terms || typeof terms.priceLockMonths !== "number" || typeof terms.minimumMonths !== "number"
+    || typeof terms.cancellationNoticeDays !== "number") {
+    err("pricing-config.js: NV_PRICING.terms is missing a number, so llms.txt's term statements are unguarded");
+  } else if (judged) {
+    for (const f of termFindings(fs.readFileSync(path.join(root, "llms.txt"), "utf8"), terms)) err("llms.txt: " + f);
+  }
+}
+
 /* The BANNED_PENDING ledger reports on itself every run: what it is still
    excusing and who owns the fix, and which entries have stopped matching and
    should be deleted.
@@ -2578,7 +2656,7 @@ for (const p of BANNED_PENDING) {
   else if (fs.existsSync(path.join(root, p.file))) console.log(`NOTE: ${p.file} no longer says "${p.text}". Delete its BANNED_PENDING entry in scripts/check-consistency.js.`);
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan.");
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan, every roadmap status chip reads its roadmap status, llms.txt states the term pricing-config.js carries.");
 /* 1 = something here is broken. 2 = nothing here is broken but the live
    phone agent needs a change only the owner can make. 0 = clean. */
 if (fail === 0 && waiting > 0) console.error(`

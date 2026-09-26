@@ -72,7 +72,7 @@
       {
         id: "missed_call_recovery", name: "Missed-Call Recovery",
         monthly: 350, launch: 500, sellable: true, soldAlone: true,
-        blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out, before they ring the next name on Google."
+        blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out."
       },
       /* `partnership` is what this item costs on the Performance Partnership.
          Bought on its own, or beside any other plan, it is its own pair above. */
@@ -80,7 +80,7 @@
         id: "quote_chase", name: "Quote-Chase Engine",
         monthly: 500, launch: 750, sellable: true, soldAlone: true,
         partnership: { launch: 0, monthly: 0, attributableTo: "a quote Nevamis recovered" },
-        blurb: "Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you, stopping the moment the customer replies."
+        blurb: "Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you."
       },
       {
         id: "get_paid", name: "Get-Paid Autopilot",
@@ -154,6 +154,12 @@
         ? " by default, inside a monthly band of " + this.money(pl.monthlyRange[0])
           + " to " + this.money(pl.monthlyRange[1])
         : "";
+    },
+    /* The lowest and highest monthly a plan may be agreed at: its band where
+       it has `monthlyRange`, otherwise its one published monthly at both
+       ends. proposal.html honours an agreed ?quote= only inside these. */
+    monthlyBounds: function (pl) {
+      return Array.isArray(pl.monthlyRange) ? [pl.monthlyRange[0], pl.monthlyRange[1]] : [pl.monthly, pl.monthly];
     },
     money: function (n) { return "C$" + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); },
     /* The lines every plan's `features` carries, in the first plan's order,

@@ -259,7 +259,11 @@ strong{color:var(--ink)}
    right edge and sits that much left of where it looks like it should.
    Taking it back is the only reason the mark-to-word and the word-to-nav
    gaps measure the same to the eye as they do to the layout. */
-.wordmark{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
+/* A 44PX TARGET (BPH-3, 2026-09-26). The wordmark is the link home and
+   measured 26px tall: the lockup's own height and not a pixel more. The
+   min-height grows the box around it, centred, inside the 68px header, so
+   nothing moves. */
+.wordmark{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:17px;min-height:44px}
 .wordmark .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
 
 /* V-A is the one pair the brand cannot leave to the font. Two facing
@@ -306,8 +310,10 @@ strong{color:var(--ink)}
 .main-nav a:not(.btn):hover{color:var(--ink)}
 .main-nav a:not(.btn):hover::after,.main-nav a.active-section::after{transform:scaleX(1)}
 .main-nav a.active-section{color:var(--ink)}
+/* 44 by 44, the tap floor every other control on the site is held to; it
+   was 42 (BPH-3). */
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
-  color:var(--ink);border-radius:9px;width:42px;height:42px;font-size:17px;cursor:pointer}
+  color:var(--ink);border-radius:9px;width:44px;height:44px;font-size:17px;cursor:pointer}
 
 /* THE MENU TAKES OVER AT 1080, WHERE THE ROW STOPS FITTING (BD-8,
    2026-09-25). The inline row drops Roadmap, About and Client login below
@@ -343,6 +349,25 @@ strong{color:var(--ink)}
   .main-nav a:not(.btn)::after{display:none}
   .main-nav a.nav-min{display:flex}
   .main-nav .btn{margin-top:12px;justify-content:center}
+}
+/* ONE PRIMARY ACTION BESIDE THE MENU BUTTON, 821 TO 1080 (BD-F2,
+   2026-09-26). Above 1080 the header row carries "Book a call"; at 820 and
+   below the phone call bar does. Between the two, the header was the
+   wordmark and a menu button, so on a 1024 tablet About and Pricing had no
+   action in the first screen at all. Across that band the closed menu shows
+   its LAST item, the primary "Book a call", in the header row, and the menu
+   button sits after it. Opening the menu gives the whole list back, button
+   included, as it was. The markup is the shared nav partial's, unchanged:
+   which item shows is decided here, so no page carries a second copy of the
+   button to drift. */
+@media (min-width:821px) and (max-width:1080px){
+  .main-nav:not(.open){display:flex;position:static;flex-direction:row;align-items:center;
+    padding:0;background:none;border:0;max-height:none;overflow:visible;margin-left:auto;order:1}
+  .main-nav:not(.open) .navitem{display:none}
+  .main-nav:not(.open) .navitem:last-child{display:block}
+  .main-nav:not(.open) .btn{margin-top:0}
+  .nav-toggle{order:2;margin-left:12px}
+  .nav-toggle[aria-expanded="true"]{margin-left:auto}
 }
 html.nav-locked{overflow:hidden}
 
@@ -485,7 +510,11 @@ span.eyebrow{display:block;width:fit-content}
    added to the eight pages that lack one: that is an IA and copy change. */
 .crumb{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-crumb);
   text-transform:uppercase;color:var(--ink-5);margin-bottom:10px}
-.crumb a{color:var(--ink-4)}
+/* A crumb link is an 11px label and was a 14px-tall target, 24px from its
+   neighbour (BPH-4, 2026-09-26). Inline-block with vertical padding makes the
+   target 44px tall; the equal negative margin gives the padding back to the
+   line, so the label, the row and everything under it stay where they were. */
+.crumb a{color:var(--ink-4);display:inline-block;padding:14px 0;margin:-14px 0}
 .crumb a:hover{color:var(--mint)}
 /* THE HERO POOL. This element used to draw a 64px grid at opacity .4 under a
    radial mask - the interior system's own decoration, with no counterpart on

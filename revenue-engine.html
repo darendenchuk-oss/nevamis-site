@@ -275,7 +275,7 @@ strong{color:var(--ink)}
 .site-header.scrolled{background:rgba(2,8,13,.94);box-shadow:0 1px 0 var(--line-soft);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .site-header .wrap{display:flex;align-items:center;gap:18px;height:var(--head-h)}
-.wordmark{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
+.wordmark{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:17px;min-height:44px}
 .wordmark .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
 .wordmark .wm-v{letter-spacing:.055em}
 .wordmark svg{width:22px;height:22px;transform:translateY(-1.7px);
@@ -292,7 +292,7 @@ strong{color:var(--ink)}
 .main-nav a:not(.btn):hover::after,.main-nav a.active-section::after{transform:scaleX(1)}
 .main-nav a.active-section{color:var(--ink)}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
-  color:var(--ink);border-radius:9px;width:42px;height:42px;font-size:17px;cursor:pointer}
+  color:var(--ink);border-radius:9px;width:44px;height:44px;font-size:17px;cursor:pointer}
 @media(max-width:1080px){
   .nav-toggle{display:grid;place-items:center}
   .main-nav{position:absolute;top:var(--head-h);left:0;right:0;flex-direction:column;align-items:stretch;
@@ -306,6 +306,15 @@ strong{color:var(--ink)}
   .main-nav a:not(.btn)::after{display:none}
   .main-nav a.nav-min{display:flex}
   .main-nav .btn{margin-top:12px;justify-content:center}
+}
+@media (min-width:821px) and (max-width:1080px){
+  .main-nav:not(.open){display:flex;position:static;flex-direction:row;align-items:center;
+    padding:0;background:none;border:0;max-height:none;overflow:visible;margin-left:auto;order:1}
+  .main-nav:not(.open) .navitem{display:none}
+  .main-nav:not(.open) .navitem:last-child{display:block}
+  .main-nav:not(.open) .btn{margin-top:0}
+  .nav-toggle{order:2;margin-left:12px}
+  .nav-toggle[aria-expanded="true"]{margin-left:auto}
 }
 html.nav-locked{overflow:hidden}
 .btn{position:relative;display:inline-flex;align-items:center;gap:9px;
@@ -361,7 +370,7 @@ span.eyebrow{display:block;width:fit-content}
 .centre .eyebrow,.centre .k{text-align:center}
 .crumb{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-crumb);
   text-transform:uppercase;color:var(--ink-5);margin-bottom:10px}
-.crumb a{color:var(--ink-4)}
+.crumb a{color:var(--ink-4);display:inline-block;padding:14px 0;margin:-14px 0}
 .crumb a:hover{color:var(--mint)}
 .grid-lines,.hero-light{position:absolute;inset:0;z-index:0;pointer-events:none;
   background:
@@ -1115,7 +1124,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <div class="card"><span class="chip av">Available now</span><h3>PULSE Business Scan</h3><p>Reads only what is public on your own website and shows what it found, quoted from your own pages. Any figure it gives is a modelled range from public information and market benchmarks, not a measurement of your results. Free, and live today.</p><a class="more" href="https://app.nevamis.ca/scan">Scan my website</a></div>
         <div class="card"><span class="chip dev">In development</span><h3>Revenue Engine</h3><p>Which marketing produced which job, and what it was worth, down to the campaign. In private development. Applications to be part of the first builds are open, with no clients onboarded yet.</p></div>
         <div class="card"><span class="chip av">Available now</span><h3>Missed-Call Recovery, Get-Paid Autopilot and Review Engine</h3><p>A missed caller gets one text back during business hours. Overdue invoices get a gentle reminder, then a firm one, and at three weeks you are told instead. Each finished job gets one review request, released by a person. Live, each on a published price.</p><a class="more" href="/pricing.html">See what it costs</a></div>
-        <div class="card"><span class="chip dev">Coming soon</span><h3>Inbox Assistant</h3><p>Drafts the routine replies and flags the ones that need you. Nothing sends without you pressing send. In development.</p><a class="more" href="/coming-soon.html">See the roadmap</a></div>
+        <div class="card"><span class="chip dev">Being researched</span><h3>Inbox Assistant</h3><p>Would draft the routine replies and flag the ones that need you, with nothing sent until you press send. Being researched, not built.</p><a class="more" href="/coming-soon.html">See the roadmap</a></div>
       </div>
     </div>
   </section>

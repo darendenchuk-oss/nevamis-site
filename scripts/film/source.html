@@ -146,10 +146,18 @@ body{
 #paneNav button[aria-expanded="true"]{color:var(--mint)}
 #paneNav button:focus-visible{outline:1px solid rgba(159,240,206,.5);outline-offset:3px}
 @media (max-width:820px){#paneNav{left:12px;gap:9px}}
+/* Portrait: the rail is a row of numerals. Each numeral sits centred in its
+   own 44x44 target (BPH-2, 2026-09-26): the buttons were 22px wide, the
+   numeral's own width plus 3px a side, on a 35px pitch, so a thumb chose
+   between two chapters. The targets now touch (gap 0), so the row is 264px
+   wide and fits a 320px screen; it sits under the header (sections.css puts
+   it at 74px), and the numerals are 44px apart, 9px wider than they were.
+   The negative margin takes back the tracking after the last digit, so each
+   numeral is centred in its target rather than 1px left of it. */
 @media (max-aspect-ratio:3/4){
-  #paneNav{left:auto;right:14px;top:18px;bottom:auto;transform:none;flex-direction:row;gap:13px}
-  #paneNav button{font-size:0;letter-spacing:0;gap:0;padding:8px 3px}
-  #paneNav button i{font-size:var(--fs-label);letter-spacing:.13em}
+  #paneNav{left:auto;right:14px;top:18px;bottom:auto;transform:none;flex-direction:row;gap:0}
+  #paneNav button{font-size:0;letter-spacing:0;gap:0;padding:0;min-width:44px;min-height:44px;justify-content:center}
+  #paneNav button i{font-size:var(--fs-label);letter-spacing:.13em;margin-right:-.13em}
 }
 body.card-open .copy.on{opacity:0}
 body.card-open #hint{opacity:0}
@@ -318,7 +326,7 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
   <button type="button" data-pane="plans" aria-controls="card" aria-expanded="false"><i>06</i>Plans</button>
 </nav>
 <div id="labels" aria-hidden="true">
-  <div class="plabel" data-pane="scan"><span class="lk">The scan</span><span class="ll">Every engagement starts with the PULSE Business Scan.</span><span class="lo">+ open</span></div>
+  <div class="plabel" data-pane="scan"><span class="lk">The scan</span><span class="ll">A free read of your public website.</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="capture"><span class="lk">Capture</span><span class="ll">Every opportunity answered</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="convert"><span class="lk">Convert</span><span class="ll">Follow-up that never forgets</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="operate"><span class="lk">Operate</span><span class="ll">Less office admin</span><span class="lo">+ open</span></div>
@@ -419,13 +427,20 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
         <p>An invoice that goes overdue gets a polite reminder, then a firm one a week later if it stays unpaid, each released by a person before it goes. At three weeks it stops emailing your customer and tells you instead.</p>
         <p class="sold">It needs your written go-ahead to email your own customers, and your invoices recorded so it can see them age.</p>
       </div>
+      <!-- ONE STATUS PER ITEM, roadmap-config.js's (BD-F4, 2026-09-26). These
+           two read "In development" here while the Roadmap page said PLANNED
+           and BEING RESEARCHED, and the Brief said it "is being built", which
+           that file reserves for canonical work. Each chip is now the words
+           the Roadmap card shows for the entry's status, each line says what
+           the entry WOULD do, and scripts/check-consistency.js fails the day
+           a chip here disagrees with the file. -->
       <div class="svc">
-        <h4>Your Daily Business Brief <span class="chip dev">In development</span></h4>
-        <p>Is being built to condense calls, open leads, follow-ups, and urgent issues into one concise daily summary.</p>
+        <h4>Your Daily Business Brief <span class="chip dev">Planned</span></h4>
+        <p>Would condense calls, open leads, follow-ups, and urgent issues into one concise daily summary.</p>
       </div>
       <div class="svc">
-        <h4>Inbox Assistant <span class="chip dev">In development</span></h4>
-        <p>Shared business email gets organized: urgent messages flagged, replies drafted for approval, tasks extracted, a clear digest produced.</p>
+        <h4>Inbox Assistant <span class="chip dev">Being researched</span></h4>
+        <p>Would draft the routine replies, flag the ones that actually need you, and never send anything without you pressing send.</p>
       </div>
     </article>
 
@@ -445,14 +460,13 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
            "in development" chip understated it to the point of being false; and the
            description promised a routing behaviour nothing in the product does.
 
-           The roadmap page's approved treatment (fix plan A2) was to delete its
-           planned row rather than publish an "available" one, because a row marked
-           available needs a canonical capability slug the engine does not carry yet
-           (that is B11). So this entry carries no availability chip at all: it states
-           the narrow thing the module does and sends the reader to the page that owns
-           its price. -->
+           It then carried no chip at all while the engine had no canonical slug to
+           back an "available" row. That slug exists (canonical.ts review_engine,
+           available and sold alone), roadmap-config.js lists it as available, and
+           so it is "Available today" like every other live module (BD-F4,
+           2026-09-26). -->
       <div class="svc" data-addon="review_engine">
-        <h4>Review Engine</h4>
+        <h4>Review Engine <span class="chip av">Available today</span></h4>
         <p>Post-job review requests by text: one ask per finished job, with your own review link, and every request released by a person. Sold on the pricing page, on its own or inside The Works.</p>
       </div>
       <p class="fine2">The PULSE Business Scan also belongs to Grow; it leads the journey as the first station and is not repeated here.</p>
@@ -4890,6 +4904,15 @@ try {
   renderer = new T.WebGLRenderer({ canvas: canvas, antialias: false, powerPreference: 'high-performance' });
 } catch (e) {
   document.body.classList.add('no3d');
+  /* NO FILM, SO THE PAGE READS TOP TO BOTTOM (BPH-1, 2026-09-26). Every
+     block is switched on here, and .copy is position:fixed at one resting
+     line: without the film to fade them in turn, all four sat on that line
+     at once, on top of each other and over the "Scan my business" button
+     (390x844 with WebGL unavailable). The static layout already exists for
+     reduced motion, .nv-rm, which stacks the blocks in the document under a
+     short hero strip; a browser that cannot draw the film gets the same
+     page as one that asked not to see it move. */
+  document.documentElement.classList.add('nv-rm');
   copyEls.forEach(function(c){ c.el.classList.add('on'); });
   return; /* nv-filmwait stays: the poster and .no3d are the same ground */
 }

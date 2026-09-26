@@ -149,7 +149,13 @@ window.NV_ROADMAP = {
        it say "Is being built to". The Daily Brief has no canonical record, so
        it says "Would" even though the owner kept it as planned; the Revenue
        Engine is canonical private_pilot work, so it may say it is being
-       built. */
+       built. The Inbox Assistant is being researched and said "Drafts", in
+       the present tense, until 2026-09-26 (BD-F4); it says "Would" too.
+
+       EVERY OTHER SURFACE TAKES ITS STATUS FROM HERE. A chip for one of these
+       entries on the homepage or revenue-engine.html reads the label
+       coming-soon.html shows for its status (or its statusLabel), and
+       scripts/check-consistency.js guard 7o fails the day one does not. */
     { slug: "daily-business-brief", name: "Your Daily Business Brief", pillar: "operate", status: "planned", stage: "future",
       desc: "Would condense calls, open leads, follow-ups, and urgent issues into one concise daily summary.",
       outcome: "Five minutes to know exactly where the business stands." },
@@ -157,7 +163,7 @@ window.NV_ROADMAP = {
       desc: "Reconnect with eligible past customers when maintenance, seasonal work, or renewals may genuinely help them.",
       outcome: "Repeat business from relationships you already earned." },
     { slug: "ai-inbox-assistant", name: "Inbox Assistant", pillar: "operate", status: "researching", stage: "future",
-      desc: "Drafts the routine replies, flags the ones that actually need you, and never sends anything without you pressing send.",
+      desc: "Would draft the routine replies, flag the ones that actually need you, and never send anything without you pressing send.",
       outcome: "Less inbox time, nothing important buried." },
     /* The Revenue Engine under its own name and the canonical slug since
        2026-09-19 (it was "Revenue Clarity"): ad attribution, which canonical

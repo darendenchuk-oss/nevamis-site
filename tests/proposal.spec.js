@@ -164,11 +164,73 @@ test('a retired or unknown plan id never quotes a retired price', async ({ page 
        model claiming it was a fabrication. It is now the truth for every plan,
        and it lives on #planTerms rather than here. The thing worth catching is
        a retired FIGURE resolving out of an unknown id. */
-    /* /front desk/i since 2026-08-22 (v4): the recommended fallback plan is
-       the AI Front Desk. The point is unchanged - an unknown id falls back to
-       a real, current plan and never a retired figure. */
-    await expect(page.locator('#planName')).toContainText(/front desk/i);
+    /* It fell back to the AI Front Desk until 2026-09-26, which quoted a
+       real product nobody asked for (BD-F7). An id that names nothing now
+       names nothing: no plan, no price, nothing to buy. */
+    await expect(page.locator('#planName')).toHaveText('NO PLAN NAMED');
+    await expect(page.locator('#planName')).not.toContainText(/front desk/i);
+    await expect(page.locator('#planPrice')).toBeHidden();
+    expect((await ctas(page)).signups, `${id} must offer nothing to buy`).toEqual([]);
   }
+});
+
+/* BD-F7 (2026-09-26). A module this business sells on its own used to fall
+   through to the recommended plan, so ?plan=quote_chase rendered the AI
+   Front Desk at its price with a Start now that bought the front desk. Every
+   soldAlone module now renders as itself, from its own config pair, with the
+   call as its only action; everything read from the config, nothing typed. */
+test('a module sold on its own renders as itself, with its own pair and no buy button', async ({ page }) => {
+  const P = pricing();
+  const alone = P.addOns.filter((a) => a.sellable && a.soldAlone && a.monthly > 0 && a.launch > 0);
+  expect(alone.map((a) => a.id), 'the quote-chase case the finding names must be in the set').toContain('quote_chase');
+  const cash = (n) => 'C$' + n.toLocaleString('en-CA');
+  const desk = P.plans.find((p) => p.recommended);
+  for (const a of alone) {
+    await page.goto(`/proposal.html?plan=${a.id}&to=Cedarview+Electric`);
+    await expect(page.locator('#planName'), a.id).toHaveText(a.name.toUpperCase());
+    await expect(page.locator('#planPrice'), a.id).toHaveText(cash(a.monthly) + '/month');
+    await expect(page.locator('#planMonthly'), a.id)
+      .toContainText(cash(a.launch) + ' Launch & Implementation to start, then ' + cash(a.monthly) + ' a month');
+    await expect(page.locator('#summaryLine'), a.id).toHaveText(a.blurb);
+    /* Whether a module (the automatic text-back above all) may be
+       recommended is the owner's open item O24/O12, so the heading names
+       what was discussed and recommends nothing. */
+    await expect(page.locator('#planHeading'), a.id).toHaveText('The module we discussed');
+    await expect(page.locator('#planHeading'), a.id).not.toContainText(/recommend/i);
+    /* Nothing of the front desk's may be left on a module's page. */
+    const body = await page.locator('main').innerText();
+    expect(body, `${a.id} must not name the recommended plan`).not.toContain(desk.name.toUpperCase());
+    expect(body, `${a.id} must not print the front desk's monthly`).not.toContain(cash(desk.monthly) + '/month');
+    expect(body, `${a.id} must not carry the front desk's feature list`).not.toContain('One business phone line');
+    const c = await ctas(page);
+    expect(c.signups, `${a.id}: no module is bought from this page`).toEqual([]);
+    expect(await page.locator('a[href*="signup?plan=pro"]').count()).toBe(0);
+    expect(c.planBook[0], `${a.id}: the call is the primary action`).toMatch(/\bbtn-primary\b/);
+  }
+  /* A module that is not sold on its own is not a proposal either. */
+  for (const a of P.addOns.filter((x) => !(x.sellable && x.soldAlone))) {
+    await page.goto(`/proposal.html?plan=${a.id}`);
+    await expect(page.locator('#planName'), a.id).toHaveText('NO PLAN NAMED');
+  }
+});
+
+test('an id that names no plan says so, visibly, instead of substituting one', async ({ page }) => {
+  await page.goto('/proposal.html?plan=bogus&to=Cedarview+Electric');
+  await expect(page.locator('#planHeading')).toHaveText(/does not name a plan/i);
+  await expect(page.locator('#planName')).toHaveText('NO PLAN NAMED');
+  await expect(page.locator('#planPrice')).toBeHidden();
+  await expect(page.locator('#planFeatures')).toBeHidden();
+  /* No steps, so no "What happens next" standing over nothing, and no
+     footer vouching for published pricing on a page that states none. */
+  await expect(page.locator('ol.steps')).toBeHidden();
+  await expect(page.locator('#stepsHeading')).toBeHidden();
+  await expect(page.locator('.prop-foot')).not.toContainText(/published pricing/i);
+  await expect(page.locator('.prop-foot')).toContainText('states no price');
+  expect(await page.locator('main').innerText()).not.toMatch(/C\$[\d,]+\/month/);
+  expectCallOnly(await ctas(page), 'no plan is named');
+  /* A bare link is still the recommended plan: only a wrong id is refused. */
+  await page.goto('/proposal.html');
+  await expect(page.locator('#planName')).toContainText(/front desk/i);
 });
 
 /* This test used to assert the opposite: that ?founding=1 struck through the
@@ -397,19 +459,54 @@ test('a plan the checkout does not sell as stated keeps the call and nothing els
   }
 
   /* An agreed figure is not what checkout charges, so a quoted proposal has
-     no signup link; a "quote" equal to the published monthly IS the published
-     price, and keeps it. */
+     no signup link. Since BD-F1 an agreed figure exists only inside a banded
+     plan's own band, and a banded plan is agreed rather than bought, so the
+     quoted case is the banded one. A "quote" equal to a direct plan's
+     published monthly IS the published price, and keeps its button. */
+  const banded = P.plans.find((p) => Array.isArray(p.monthlyRange));
+  const inside = banded.monthlyRange.find((m) => m !== banded.monthly);
+  await page.goto(`/proposal.html?plan=${banded.id}&quote=${inside}`);
+  await expect(page.locator('#planPrice')).toContainText('C$' + inside.toLocaleString('en-CA'));
+  expectCallOnly(await ctas(page), `${banded.id} quoted at ${inside}`);
   const pl = P.plans.find((p) => sellsDirect(P, p));
-  const other = P.plans.map((p) => p.monthly).find((m) => m > 0 && m !== pl.monthly);
-  await page.goto(`/proposal.html?plan=${pl.id}&quote=${other}`);
-  await expect(page.locator('#planPrice')).toContainText('C$' + other.toLocaleString('en-CA'));
-  expectCallOnly(await ctas(page), `${pl.id} quoted at ${other}`);
   await page.goto(`/proposal.html?plan=${pl.id}&quote=${pl.monthly}`);
   expect((await ctas(page)).signups.length, 'a quote equal to the published monthly is the published price').toBe(2);
   /* A quote outside the band of real prices is ignored by the page, so the
      published price, and with it the button, stands. */
   await page.goto(`/proposal.html?plan=${pl.id}&quote=1`);
   expect((await ctas(page)).signups.length, 'an ignored quote must not cost the buyer the button').toBe(2);
+});
+
+/* BD-F1 (2026-09-26). The quote filter was one band over every plan's
+   prices, so ?plan=growth&quote=<the Partnership's floor> printed The Works at
+   that floor above "This summary reflects published pricing". A quote is now
+   honoured only inside the named plan's OWN band, and a plan with no band has
+   exactly one price. */
+test("a quote is honoured only inside the named plan's own band", async ({ page }) => {
+  const P = pricing();
+  const cash = (n) => 'C$' + n.toLocaleString('en-CA');
+  const byId = (id) => P.plans.find((p) => p.id === id);
+  const works = byId('growth'), desk = byId('pro'), partner = byId('starter');
+  const [lo, hi] = partner.monthlyRange;
+  /* The two links the finding names, derived: The Works at the band's floor,
+     the front desk at its ceiling, and their mirror images. Each shows its
+     own published price and never the quoted figure. */
+  for (const [pl, q] of [[works, lo], [desk, hi], [works, hi], [desk, lo], [works, works.monthly - 1]]) {
+    await page.goto(`/proposal.html?plan=${pl.id}&quote=${q}&to=Cedar+Plumbing`);
+    await expect(page.locator('#planPrice'), `${pl.id} quote=${q}`).toHaveText(cash(pl.monthly) + '/month');
+    await expect(page.locator('#planMonthly'), `${pl.id} quote=${q}`).toContainText(cash(pl.monthly) + '/month');
+    expect(await page.locator('main').innerText(), `${pl.id} must never print ${cash(q)}/month`)
+      .not.toContain(cash(q) + '/month');
+  }
+  /* The Partnership: inside its band the agreed figure stands; outside it,
+     the published default. */
+  const insideQ = [400, lo, hi].find((n) => n >= lo && n <= hi && n !== partner.monthly);
+  await page.goto(`/proposal.html?plan=${partner.id}&quote=${insideQ}`);
+  await expect(page.locator('#planPrice')).toHaveText(cash(insideQ) + '/month');
+  for (const out of [hi + 100, lo - 1, desk.monthly, works.monthly]) {
+    await page.goto(`/proposal.html?plan=${partner.id}&quote=${out}`);
+    await expect(page.locator('#planPrice'), `starter quote=${out}`).toHaveText(cash(partner.monthly) + '/month');
+  }
 });
 
 test('a shut, unpublished or unapproved price list sells nothing from the proposal', async ({ page }) => {
