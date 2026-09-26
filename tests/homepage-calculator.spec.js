@@ -62,10 +62,13 @@ test.describe('the homepage calculator', () => {
       expect(won, `won jobs reads "${s.won}"`).toBeGreaterThan(0);
       expect(won * s.value, `${won} jobs at ${s.value} must cover ${s.quote}`).toBeGreaterThanOrEqual(s.quote);
       expect((won - 1) * s.value, `${won - 1} jobs at ${s.value} must not cover ${s.quote}`).toBeLessThan(s.quote);
+      /* The inquiries row is the inquiries it takes to WIN the jobs in the
+         row above at this close rate (BD-6, 2026-09-25): it said 5 beside 3
+         won jobs at 50%, and 5 inquiries at 50% win 2.5 jobs. */
       const inq = countIn(s.inq, INQ);
       expect(inq, `inquiries reads "${s.inq}"`).toBeGreaterThan(0);
-      expect(inq * s.value * s.close, `${inq} inquiries at ${s.close} must cover ${s.quote}`).toBeGreaterThanOrEqual(s.quote - 1e-9);
-      expect((inq - 1) * s.value * s.close, `${inq - 1} inquiries must not cover ${s.quote}`).toBeLessThan(s.quote);
+      expect(inq * s.close, `${inq} inquiries at ${s.close} must win the ${won} jobs above`).toBeGreaterThanOrEqual(won - 1e-9);
+      expect((inq - 1) * s.close, `${inq - 1} inquiries must not already win ${won} jobs`).toBeLessThan(won - 1e-9);
       return { won, inq };
     };
     const d = holds(await read(page));

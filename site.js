@@ -346,22 +346,66 @@
     io.observe(host);
   })();
 
-  /* ---------- mobile nav ---------- */
+  /* ---------- header: solid once the page moves ----------
+     The same rule as motion.js (a passive listener, solid past 40px), here
+     because the homepage does not load motion.js: until 2026-09-25 its header
+     stayed a transparent gradient at every scroll position, and on a phone
+     the page's text ran straight through the wordmark (BP1). On a page that
+     loads both files the two listeners set the same class from the same
+     number, so running twice changes nothing. */
+  var siteHeader = document.querySelector(".site-header");
+  if (siteHeader) {
+    var headerState = function () { siteHeader.classList.toggle("scrolled", window.scrollY > 40); };
+    window.addEventListener("scroll", headerState, { passive: true });
+    headerState();
+  }
+
+  /* ---------- mobile nav ----------
+     While the menu is open it owns the screen (BP9, 2026-09-25): the page
+     behind it is locked (html.nav-locked, so a swipe on the menu cannot
+     scroll the page out from under it), Escape closes it and puts focus
+     back on the button, and a link tap closes it. It also closes if the
+     window widens past the width the menu exists at, which would otherwise
+     leave the page locked behind a row of links. */
   var navBtn = document.querySelector(".nav-toggle");
   var nav = document.querySelector(".main-nav");
   if (navBtn && nav) {
-    navBtn.addEventListener("click", function () {
-      var open = nav.classList.toggle("open");
+    var setNav = function (open) {
+      nav.classList.toggle("open", open);
+      document.documentElement.classList.toggle("nav-locked", open);
       navBtn.setAttribute("aria-expanded", String(open));
       navBtn.textContent = open ? "✕" : "☰";
-    });
+    };
+    navBtn.addEventListener("click", function () { setNav(!nav.classList.contains("open")); });
     nav.addEventListener("click", function (e) {
-      if (e.target.tagName === "A" && nav.classList.contains("open")) {
-        nav.classList.remove("open");
-        navBtn.setAttribute("aria-expanded", "false");
-        navBtn.textContent = "☰";
+      if (e.target.closest && e.target.closest("a") && nav.classList.contains("open")) setNav(false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if ((e.key === "Escape" || e.key === "Esc") && nav.classList.contains("open")) {
+        setNav(false);
+        navBtn.focus();
       }
     });
+    if (typeof window.matchMedia === "function") {
+      var menuWidth = window.matchMedia("(max-width:1080px)");
+      var onWidth = function () { if (!menuWidth.matches && nav.classList.contains("open")) setNav(false); };
+      if (menuWidth.addEventListener) menuWidth.addEventListener("change", onWidth);
+      else if (menuWidth.addListener) menuWidth.addListener(onWidth);
+    }
+  }
+
+  /* ---------- the call bar steps aside for the scheduler ----------
+     On book.html the phone bar points at #pick-a-time, deliberately (see the
+     comment above that panel). Fixed to the bottom of the screen, it then sat
+     over the last 54px of the calendar it points at, at every scroll position
+     inside it (BP6). It is hidden only while the scheduler is on screen, and
+     back everywhere else. */
+  var callbar = document.querySelector("a.callbar");
+  var sched = document.getElementById("pick-a-time");
+  if (callbar && sched && typeof window.IntersectionObserver === "function") {
+    new IntersectionObserver(function (es) {
+      es.forEach(function (en) { callbar.classList.toggle("callbar-off", en.isIntersecting); });
+    }).observe(sched);
   }
 
   /* ---------- same-page anchors ----------
@@ -410,11 +454,43 @@
        the visitor scrolled to while the script was still downloading does not
        vanish underneath them. */
     var fold = window.innerHeight || 0;
+    /* A jump to an anchor must land where the header lets it be read (BP5,
+       2026-09-25). An armed block waits 26px low for its entrance, and the
+       browser scrolls to where the block IS, so a jump to one (or into one)
+       landed 26px high and the entrance then slid the heading up under the
+       header. The target of a jump, and every block around it, is therefore
+       shown in place first: on load for the URL's own #hash, and on the
+       click, before the browser scrolls, for a link on the page. */
+    var hashTarget = null;
+    try { hashTarget = location.hash.length > 1 ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null; }
+    catch (e) { hashTarget = null; }
     reveals.forEach(function (el) {
       if (el.getBoundingClientRect().top < fold) return;
+      if (hashTarget && el.contains(hashTarget)) return;
       el.classList.add("armed");
       io.observe(el);
     });
+    var landNow = function (target) {
+      for (var n = target; n && n !== document.body; n = n.parentElement) {
+        if (!n.classList || !n.classList.contains("armed") || n.classList.contains("in")) continue;
+        n.style.transition = "none";
+        n.classList.add("in");
+        void n.offsetWidth;
+        n.style.transition = "";
+        io.unobserve(n);
+      }
+    };
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest('a[href*="#"]');
+      if (!a) return;
+      var href = a.getAttribute("href");
+      var at = href.indexOf("#");
+      var path = href.slice(0, at);
+      if (path && path !== location.pathname && !(path === "/" && /\/(?:index\.html)?$/.test(location.pathname))) return;
+      var target = null;
+      try { target = document.getElementById(decodeURIComponent(href.slice(at + 1))); } catch (err) { target = null; }
+      if (target) landNow(target);
+    }, true);
   } else {
     reveals.forEach(function (el) { el.classList.add("in"); });
   }
@@ -630,7 +706,14 @@
      is the real inquiries you must answer to win that many at your close
      rate. One row showed the second under the first's name until 2026-09-24
      (5 "won jobs" at the defaults, where 3 cover the plan). Either is null
-     when it cannot be reached (no job value; a 0% close rate), never 0. */
+     when it cannot be reached (no job value; a 0% close rate), never 0.
+
+     "inquiries" is derived FROM "won", as its row says: the inquiries you
+     must answer to win that many jobs at your close rate. Until 2026-09-25
+     it was worked out from the dollars instead (plan / (job value x close
+     rate)), which assumes you can win half a job, so at the defaults the
+     page said 3 won jobs and then 5 inquiries, and 5 inquiries at 50% win
+     2.5 jobs, not 3 (BD-6). */
   function roiFigures(raw) {
     function num(v) { var n = parseFloat(v); return isFinite(n) ? n : 0; }
     function count(v) { return Math.max(0, num(v)); }
@@ -638,12 +721,15 @@
     var missed = count(raw.missed), real = share(raw.real), value = count(raw.value);
     var close = share(raw.close), quote = count(raw.quote);
     var opp = missed * 4.33 * real * value * close;
+    var won = value > 0 ? Math.ceil(quote / value) : null;
     return {
       missed: missed, value: value, close: close, quote: quote,
       opp: opp,
       recovered: opp * 0.5, /* conservative: capture half of what currently hits voicemail */
-      won: value > 0 ? Math.ceil(quote / value) : null,
-      inquiries: value * close > 0 ? Math.ceil(quote / (value * close)) : null
+      won: won,
+      /* Less a hair before rounding up: 3 / 0.3 is 10.000000000000002 in
+         binary, and ceil() of that would ask for one inquiry too many. */
+      inquiries: won !== null && close > 0 ? Math.ceil(won / close - 1e-9) : null
     };
   }
   /* ROI-MATH END */

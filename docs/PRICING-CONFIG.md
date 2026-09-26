@@ -66,7 +66,16 @@ read nothing, and it then reports the wrong number of plans.
   is live.
 - **`selfServe: false`** marks an invitation-only plan (the Partnership). No
   surface may present it as the default, and checkout refuses it without an
-  approval. `monthlyRange` is the published band its monthly sits in.
+  approval. `monthlyRange` is the published band its monthly sits in, and
+  `launchRange` the band its Launch & Implementation fee sits in (canonical
+  `recurringMonthlyRange` and `launchFeeOverrideRange`). `monthly` and
+  `launch` are then the defaults inside those bands, not a price list, so a
+  surface that prints the Partnership as a flat "C$2,500 ... then C$350 a
+  month" is wrong even though both numbers are real (finding BD-4,
+  2026-09-25). Every renderer states a plan's figures through
+  `NV_PRICING.startLine(plan)`, which reads "From" and the band off these two
+  fields; `scripts/check-consistency.js` holds `llms.txt` and the
+  `pricing.html` fallback to the same sentence.
 - **`recommendedLabel`** is a recommendation, never a claim about what other
   businesses chose. There are no clients yet to count.
 

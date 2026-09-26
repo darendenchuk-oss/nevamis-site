@@ -360,6 +360,19 @@ for (const p of contentPages) {
           const launch = body.match(/C\$([\d,]+)\s+Launch\s+(?:&|&amp;|and)\s+Implementation/i);
           if (!launch || num(launch[1]) !== plan.launch) err('pricing fallback "' + name + '": does not state the one-time Launch & Implementation fee from config ('
             + plan.launch + '); expected "C$' + plan.launch.toLocaleString("en-CA") + ' Launch &amp; Implementation to start".');
+          /* A banded plan stated as a flat pair is the BD-4 defect: two real
+             numbers, arranged into a fixed price the agreement then
+             contradicts. Its fee must read "From", and its monthly band must
+             be on the card. */
+          const cash = (n) => "C$" + Number(n).toLocaleString("en-CA");
+          if (Array.isArray(plan.launchRange) && !new RegExp("\\bfrom " + cash(plan.launch).replace("$", "\\$") + "\\s+Launch", "i").test(body)) {
+            err('pricing fallback "' + name + '": its Launch & Implementation fee is a band (pricing-config.js launchRange), so it must read "From '
+              + cash(plan.launch) + ' Launch &amp; Implementation", never as a flat fee.');
+          }
+          if (Array.isArray(plan.monthlyRange) && !body.includes(cash(plan.monthlyRange[0]) + " to " + cash(plan.monthlyRange[1]))) {
+            err('pricing fallback "' + name + '": its monthly is a band (pricing-config.js monthlyRange), so it must state "'
+              + cash(plan.monthlyRange[0]) + " to " + cash(plan.monthlyRange[1]) + '".');
+          }
         } else {
           if (monthly) err('pricing fallback "' + name + '": still states C$' + monthly[1] + '/month. Pricing is unpublished; the fallback must carry no figure.');
           if (!/quoted per client|priced after your scan/i.test(body)) err('pricing fallback "' + name + '": does not say how the price is arrived at, so a reader with no JavaScript is told nothing about how it is priced.');
@@ -806,6 +819,7 @@ for (const p of contentPages) {
     const modules = cfg.addOns.filter((a) => a.sellable && a.launch > 0 && a.monthly > 0);
     const launches = new Set([...cfg.plans.map((p) => p.launch), ...modules.map((a) => a.launch)]);
     if (cfg.enterprise && cfg.enterprise.launchFrom) launches.add(cfg.enterprise.launchFrom);
+    for (const p of cfg.plans) (p.launchRange || []).forEach((n) => launches.add(n));
     const monthlies = new Set([...cfg.plans.map((p) => p.monthly), ...modules.map((a) => a.monthly)]);
     for (const p of cfg.plans) (p.monthlyRange || []).forEach((n) => monthlies.add(n));
     const charged = new Set([...launches, ...monthlies,
@@ -819,8 +833,17 @@ for (const p of contentPages) {
       err('llms.txt: "' + name + '" must state "' + want + '", which is what pricing-config.js charges. '
         + "The figures and the joins are what an answer engine quotes verbatim.");
     };
+    /* A plan's sentence is NV_PRICING.startLine's, the one every page
+       renders, so a banded plan must be stated as a band here too. Until
+       2026-09-25 this required the flat "C$launch ... then C$monthly a
+       month" of every plan, which made the Partnership's flat price the
+       only spelling this file would accept (BD-4). */
     for (const p of cfg.plans) {
-      pair(p.name, money(p.launch) + " Launch & Implementation to start, then " + money(p.monthly) + " a month");
+      if (typeof cfg.startLine !== "function") {
+        err("pricing-config.js: NV_PRICING.startLine is missing, so no plan's sentence in llms.txt can be derived");
+        break;
+      }
+      pair(p.name, cfg.startLine(p).replace(/\.$/, ""));
       if (!Array.isArray(p.monthlyRange)) continue;
       const band = money(p.monthlyRange[0]) + " to " + money(p.monthlyRange[1]);
       if (!flat.includes(band)) err("llms.txt: " + p.name + "'s published monthly band must read \"" + band
@@ -1225,7 +1248,21 @@ const NO_MECHANISM = [
       const bad = (msg) => err(`site.js calculator: ${msg}`);
       const d = run({});
       if (d.won !== 3) bad(`at the defaults (plan 1000, job 400, 50%) 3 won jobs cover the plan; it says ${d.won}`);
-      if (d.inquiries !== 5) bad(`at the defaults 5 real inquiries are needed at a 50% close rate; it says ${d.inquiries}`);
+      /* 6, not 5 (BD-6, 2026-09-25): the inquiries row answers "how many to
+         win the jobs in the row above", and 3 won jobs at 50% take 6
+         inquiries. 5 was the plan divided by job value x close rate, which
+         wins 2.5 jobs. Held as a rule over a grid as well as at the
+         defaults, so a formula that only happens to agree at one point
+         still fails. */
+      if (d.inquiries !== 6) bad(`at the defaults 3 won jobs at a 50% close rate take 6 real inquiries; it says ${d.inquiries}`);
+      for (const close of ["10", "25", "30", "33.3", "50", "70", "99", "100"]) {
+        for (const value of ["150", "400", "999"]) {
+          const r = run({ close, value });
+          const c = Number(close) / 100;
+          if (!(r.inquiries * c >= r.won - 1e-9)) bad(`at ${close}% and a ${value} job, ${r.inquiries} inquiries win ${r.inquiries * c} jobs, fewer than the ${r.won} it says cover the plan`);
+          if (!((r.inquiries - 1) * c < r.won - 1e-9)) bad(`at ${close}% and a ${value} job, ${r.inquiries - 1} inquiries already win the ${r.won} jobs; it asks for one too many`);
+        }
+      }
       for (const [name, over] of [["missed calls", { missed: "-10" }], ["the opportunity share", { real: "-60" }],
         ["the job value", { value: "-400" }], ["the close rate", { close: "-50" }]]) {
         const r = run(over);

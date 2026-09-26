@@ -131,7 +131,11 @@ const PLANS = NV.plans.map((p) => ({
      the rule joining it to the monthly, the performance sentence where the
      plan has one, and the invitation status where the plan is not
      self-serve. */
-  desc: `C$${p.launch.toLocaleString('en-CA')} Launch & Implementation to start, then C$${p.monthly.toLocaleString('en-CA')} a month.`
+  /* NV.startLine, the sentence every renderer states a plan's figures in.
+     This line typed its own pair and published the Partnership to answer
+     engines as one flat price while its figures are a band (BD-4,
+     2026-09-25). */
+  desc: NV.startLine(p)
     + (p.performanceNote ? ` ${p.performanceNote}` : '')
     + (p.selfServe === false ? ' Offered by invitation and approval; never the default.' : '')
     /* Grouped, because it is read aloud and quoted verbatim: "1400 included

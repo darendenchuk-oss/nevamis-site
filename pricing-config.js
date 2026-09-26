@@ -127,6 +127,22 @@
       }
       return { launch: a.launch || 0, monthly: a.monthly || 0, attributableTo: null };
     },
+    /* A plan's two figures as the one approved sentence, in plain text (a
+       page that writes it into HTML escapes it). Every renderer states a
+       plan's price through this, so a plan whose figures are a band cannot
+       be printed as a flat price on one surface and a band on another: with
+       `launchRange` the fee reads "From", and with `monthlyRange` the
+       monthly reads as the default inside its published band. */
+    startLine: function (pl) {
+      function money(n) { return "C$" + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+      var s = (Array.isArray(pl.launchRange) ? "From " : "") + money(pl.launch)
+        + " Launch & Implementation to start, then " + money(pl.monthly) + " a month";
+      if (Array.isArray(pl.monthlyRange)) {
+        s += " by default, inside a monthly band of " + money(pl.monthlyRange[0])
+          + " to " + money(pl.monthlyRange[1]);
+      }
+      return s + ".";
+    },
     /* The lines every plan's `features` carries, in the first plan's order,
        so the pricing page prints them once and each card prints only what
        differs. Computed, not read off EVERY_PLAN, because "One business phone
@@ -177,17 +193,20 @@
     /* `monthly` recurs; `launch` is charged once, at the start, beside the
        first month and never instead of it. There is deliberately no `setup`
        key. `performanceNote` is the approved wording for a plan's
-       performance component, or null. Order is display order: every renderer
-       walks this array in order. */
+       performance component, or null. `launchRange` and `monthlyRange`,
+       where a plan has them, are the bands its figures are agreed within,
+       and `launch` and `monthly` are then the defaults inside them; state
+       such a plan through startLine(), never as a flat pair. Order is
+       display order: every renderer walks this array in order. */
     plans: [
       {
         /* By invitation. `selfServe: false`: never presented as the default,
            and checkout refuses it without an approval. */
         id: "starter", name: "Performance Partnership",
-        monthly: 350, monthlyRange: [250, 500], launch: 2500, includedMinutes: 250,
+        monthly: 350, monthlyRange: [250, 500], launch: 2500, launchRange: [2500, 10000], includedMinutes: 250,
         callRange: "80 to 125 typical calls", overage: 1.10,
         selfServe: false,
-        performanceNote: "Lower fixed cost. Lead Generation, offered by invitation, and the Quote-Chase Engine are each paid on it by an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, subject to your agreement. The monthly, the share, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged.",
+        performanceNote: "Lower fixed cost. Lead Generation, offered by invitation, and the Quote-Chase Engine are each paid on it by an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, subject to your agreement. Its Launch & Implementation fee and its monthly, the share, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged.",
         /* Names the items that can be added on this plan. The figures live on
            the add-ons above and the share in the executed agreement. */
         bestFor: "A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",

@@ -1,14 +1,17 @@
 /* ============================================================
    NEVAMIS SERVICE ROADMAP — SINGLE SOURCE OF TRUTH
    Statuses: available | private_pilot | planned | researching | paused
+   An entry that is not available may carry `statusLabel`, the words its
+   card shows instead of its status's own label; the renderer refuses it on
+   an available entry, so it can say less than the status, never more.
    Only the owner flips a service to "available". The Roadmap page
    (coming-soon.html) renders from this file; nothing else does, whatever
    older comments say about a homepage teaser. Companion internal docs:
    docs/nevamis-product-roadmap.md and docs/service-blueprints/.
-   Last reviewed: 2026-09-19
+   Last reviewed: 2026-09-25
    ============================================================ */
 window.NV_ROADMAP = {
-  lastUpdated: "2026-09-19",
+  lastUpdated: "2026-09-25",
   /* "The rest are in development or planned" stopped being the whole truth on
      2026-09-08, when lead-generation became the first entry to carry
      private_pilot. A truth statement that does not describe every shelf under
@@ -16,7 +19,7 @@ window.NV_ROADMAP = {
      stays true whether that shelf holds one entry or none. The label for
      private_pilot has been BY INVITATION since 2026-09-19 (it was PRIVATE
      TESTING), the same words every other surface uses for it. */
-  truthStatement: "Services marked AVAILABLE NOW are live today, described exactly as narrowly as they work. Anything marked BY INVITATION is offered to a few businesses under their own agreement, and a short call is where it starts. The rest are planned or being researched, and their features and pricing may change before they are ready.",
+  truthStatement: "Services marked AVAILABLE NOW are live today, described exactly as narrowly as they work. Anything marked BY INVITATION is offered to a few businesses under their own agreement, and a short call is where it starts. The rest are in development, planned or being researched, and their features and pricing may change before they are ready.",
   /* No `highlights` list since 2026-09-19: it named a homepage teaser that
      nothing renders, and a list nobody reads is still read as fact by the
      next editor. */
@@ -126,6 +129,17 @@ window.NV_ROADMAP = {
       desc: "Overdue invoices get a gentle reminder with your approval, a firm one a week later, and at three weeks it stops emailing your customer and tells you instead.",
       functions: ["A gentle reminder when an invoice goes overdue, with your approval", "A firm reminder a week later if it stays unpaid", "At three weeks, the call comes back to you"],
       outcome: "Overdue invoices stop aging quietly.", cta: "/pricing.html" },
+    /* AVAILABLE, on the row the engine gate reads by siteSlugFor("review_engine").
+       Sold as an add-on and inside The Works since 2026-08-24, and missing
+       from this list until 2026-09-25 (BD-9) while the page above it said
+       "everything at its true status". The copy is canonical.ts's capability
+       record for review_engine: its summary as desc, its `does` lines as
+       functions. The one that says it never picks who to ask is the one
+       buyers ask about by name, so it stays. */
+    { slug: "review-engine", name: "Review Engine", pillar: "grow", status: "available", stage: "now",
+      desc: "One text after a finished job, asking your customer for a review on your own link.",
+      functions: ["Asks your customer for a review once after their job is finished, by text", "Sends them to your own Google review link, so the review lands on your listing", "Asks every finished job the same way: it never picks who to ask based on how the job seemed to go", "Waits for a person to release each request before it sends", "Sends during daytime hours only, and stops on STOP"],
+      outcome: "Every finished job is asked the same way, on your own review link.", cta: "/pricing.html" },
     /* FUTURE, trimmed by the owner on 2026-09-19 (fix plan r15 B7). Schedule
        Protection (it presumed appointment slots the front desk cannot book),
        Web and Messaging Concierge, Smarter Job Intake and Business Knowledge
@@ -139,10 +153,6 @@ window.NV_ROADMAP = {
     { slug: "daily-business-brief", name: "Your Daily Business Brief", pillar: "operate", status: "planned", stage: "future",
       desc: "Would condense calls, open leads, follow-ups, and urgent issues into one concise daily summary.",
       outcome: "Five minutes to know exactly where the business stands." },
-    /* No Review Engine row, deliberately and for now (2026-09-19). It is sold
-       today and is inside The Works, so the "planned" row that stood here was
-       false. An "available" row needs a review_engine capability in engine
-       canonical first, or the engine gate fails HIGH (fix plan r15 B11). */
     { slug: "customer-reactivation", name: "Customer Reactivation", pillar: "convert", status: "researching", stage: "future",
       desc: "Reconnect with eligible past customers when maintenance, seasonal work, or renewals may genuinely help them.",
       outcome: "Repeat business from relationships you already earned." },
@@ -154,6 +164,11 @@ window.NV_ROADMAP = {
        carries as private_pilot. "planned" says less than that, which is
        allowed, and the engine gate logs it as a medium under-claim; it may
        never say "pilot". Not "now" and not "available": nothing is sold.
+       Its card reads IN DEVELOPMENT (statusLabel), the words
+       revenue-engine.html and the rest of the Roadmap page use for it: the
+       card said PLANNED two screens above a module button and a link that
+       both said "in development" (BD-9, 2026-09-25). The status key stays
+       "planned" because the engine gate reads a closed vocabulary.
 
        No cta. It carried cta: "/revenue-engine.html", which the renderer
        ignores: coming-soon.html honours a cta only for an AVAILABLE entry
@@ -164,7 +179,7 @@ window.NV_ROADMAP = {
        renderer to the next editor, so it is gone rather than honoured.
        /revenue-engine.html is left with one inbound link, at :1039 on that
        page; giving it more is a nav decision, not a roadmap card. */
-    { slug: "revenue-engine", name: "Revenue Engine", pillar: "grow", status: "planned", stage: "future",
+    { slug: "revenue-engine", name: "Revenue Engine", pillar: "grow", status: "planned", stage: "future", statusLabel: "IN DEVELOPMENT",
       desc: "Is being built to tie each lead back to where it came from, down to the campaign, and follow it to a paid job, so you can see what to spend more on and what to stop.",
       outcome: "Spending decisions backed by real numbers." },
     { slug: "ai-growth-system", name: "Growth System", pillar: "grow", status: "researching", stage: "future",
