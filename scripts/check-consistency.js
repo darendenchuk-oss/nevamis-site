@@ -1042,6 +1042,15 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     "Forwarding runs on a schedule you set.",
     "Nevamis answers only after hours.",
     "It never misses a call, and you pick the hours it covers.",
+    /* One line per shape the pattern names, each caught by that shape
+       alone, so deleting any one of them turns this list red. */
+    "During the day nothing is different.",
+    "It fits any schedule you keep.",
+    "Scheduled forwarding covers your evenings.",
+    "Set your forwarding schedule once and forget it.",
+    "Your line switches over by the clock.",
+    "Time-of-day routing covers your evenings.",
+    "It automatically switches your line over at 6 PM.",
   ];
   const MUST_PASS = [
     "It never falls back to your voicemail.",
