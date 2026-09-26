@@ -112,7 +112,20 @@
      buys nothing and costs 34 KB of a 400 kbps pipe shared with the
      render-blocking stylesheet that gates the LCP text. On a desktop the font
      does beat first paint, so the preload is what keeps CLS at zero.
-     Scoping it to wide viewports takes the best column of each. -->
+     Scoping it to wide viewports takes the best column of each.
+
+     Still needed with the film, although it looks redundant. The film head
+     (scripts/film/source.html) also carries both weights as data: URI faces,
+     declared after fonts.css, and they win the match, but only once decoded,
+     which happens asynchronously. At the first layout they are still
+     loading, so on desktop these two preloaded files paint the first frame.
+     Removing the links was tried on 2026-09-24 and measured (1440x900,
+     cold, Playwright chromium, serve.js, ABBA): without them the nav's
+     first frame painted in Atkinson Fallback in 7 of 7 runs, against 0 of 7
+     with them, and swapped to Atkinson 36 to 208 ms later, moving the nav
+     3.5 px (CLS 0 -> 0.00008 in 9 of 9 runs). Delete these links only
+     together with those data: faces (the hero lane's X-A1), when the files
+     become the only copy. -->
 <link rel="preload" href="assets/fonts/atkinson-hyperlegible-400-latin.woff2" media="(min-width: 900px)" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/atkinson-hyperlegible-700-latin.woff2" media="(min-width: 900px)" as="font" type="font/woff2" crossorigin>
 <!-- generated:css -->

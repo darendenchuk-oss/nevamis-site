@@ -20,6 +20,7 @@ input, or customer data in properties.
 | roadmap_module_activated | journey module toggle | module (slug), on (bool) | Which capability intrigues visitors? |
 | roadmap_form_submitted | interest form submit | services (count only) | Roadmap lead volume |
 | roadmap_front_desk_cta_clicked | Coming-Soon → Front Desk CTAs | none | Does the roadmap feed the live product? |
+| revenue_engine_scan_click | revenue-engine.html, the PULSE Business Scan card's "Scan my website" link to app.nevamis.ca/scan | none | Does the Revenue Engine page send people to the scan? |
 
 **Arrival on /book.html is `page_view` (2026-09-25).** site.js sends `page_view` with the page path from every page, so a visit to /book.html is already counted as `page_view` with page `/book.html`. A separate `booking_page_view` used to be pushed straight into `window.nvEvents` by an inline script on book.html. That array is a local record and nothing ever sends it, so the event counted nothing and was removed. The engine's allowlist keeps the name, for the history.
 
@@ -28,6 +29,14 @@ names and silently drops the ones it does not know, so the name has to exist
 there before the site that sends it goes live. This bar used to send
 `demo_phone_click`, so shipping the two out of order loses the new count and
 the old baseline at the same moment, with nothing failing anywhere.
+
+**Ordering, `revenue_engine_scan_click` (2026-09-24).** Same rule. This link
+sent nothing before, and the scan itself stores only "public_scan", so a
+click from this page was invisible. The site change that adds the attribute
+merges only after the engine commit that adds the name to ALLOWED_NAMES is
+deployed; check the build that https://app.nevamis.ca/api/health reports.
+Like every other `*_scan_click`, it is deliberately not mapped to a funnel
+stage: the scan is a second path to proof beside the phone demo.
 
 **`roi_calculator_complete` counted page loads until 2026-09-25.** It was sent
 from the calculator's recalculation, and that runs once on load with the

@@ -386,4 +386,21 @@ ${PROOF_BLOCK}
 fs.writeFileSync(path.join(root, 'solutions.html'), hubHtml);
 console.log('solutions.html: built (hub)');
 
-console.log(`\n${built + 1} pages generated. Now run:\n  node scripts/build-pages.mjs\n  node scripts/build-schema.mjs\n  node scripts/gen-sitemap.mjs\n  node scripts/promote.mjs`);
+/* The rest of the chain, in the order check-generator-drift.mjs runs it
+   (its BUILDERS list), then gen-sitemap LAST. gen-sitemap records a hash of
+   each page's final bytes, so run before build-csp or promote it records
+   half-built pages, gives unchanged pages today's date, and the drift guard
+   then fails on the pages those later steps rewrote. build-search-index reads
+   index.html, so it follows promote. A homepage edit starts one step earlier,
+   with python scripts/film/compose.py. */
+console.log([
+  '',
+  `${built + 1} pages generated. Now run, in this order:`,
+  '  node scripts/build-pages.mjs',
+  '  node scripts/build-schema.mjs',
+  '  node scripts/build-csp.mjs',
+  '  node scripts/promote.mjs',
+  '  node scripts/build-search-index.mjs',
+  '  node scripts/gen-sitemap.mjs   (always last)',
+  'then commit the pages together with sitemap.xml and config/sitemap-hashes.json.',
+].join('\n'));
