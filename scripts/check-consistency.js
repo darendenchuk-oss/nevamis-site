@@ -941,7 +941,71 @@ const NO_MECHANISM = [
     why: "nothing deletes these records on a schedule: data is kept until the person or the client asks for deletion. The retention windows are owner item O6; say so rather than promise a deletion nothing performs" },
   { re: /(?:\bplus|\+)\s*(?:applicable\s+)?GST\b(?!\s*\/\s*HST)/i,
     why: "canonical and pricing-config.js taxNote say \"plus applicable GST/HST\"; derive the tax words from P.taxNote instead of typing them" },
+  /* FORWARDING THAT FOLLOWS A CLOCK (BD-G10C-1, 2026-09-26). The after-hours
+     page told buyers "Call forwarding sends calls to Nevamis outside your
+     business hours, and during the day nothing is different", then "You
+     choose the hours: Evenings only, weekends, holidays, or any schedule" and
+     "Calls forward automatically". The homepage and its FAQ offered forwarding
+     "always, after hours, or only when you miss one", llms.txt "always, only
+     after hours, or only when a call is missed" and "Coverage modes:
+     after-hours only", and the demo agent's knowledge base "a human answers
+     during the day, and the AI takes evenings". None of it exists. The codes
+     a client is handed (nevamis-engine forwarding-codes.ts, rendered by
+     forwarding-setup.ts buildSteps) are no-answer, busy and unreachable, or
+     every call, and each switches only when the owner dials it. So a client
+     who bought "after hours" either has every daytime call they miss reach
+     the AI too, on their included minutes, or dials the all-calls code on
+     and off by hand each evening and morning.
+
+     One rule, several shapes, because every one of those sentences said it
+     differently: "after hours" offered as a setting beside "always" or with
+     "only"; choosing the hours or a schedule; calls routed by business
+     hours; the day left untouched while the AI takes the night; and a
+     forward that switches itself at a time. "After hours" on its own is
+     allowed, in the honest sense: nobody picks up at night, so no-answer
+     forwarding catches those calls. So is "during business hours", which
+     is when Missed-Call Recovery sends its one text and is true.
+
+     THE WAY TO LIFT THIS RULE is to build it: when nevamis-engine can switch
+     a client's forwarding by time of day (or route by the clock on its own
+     number), this entry changes in the same commit that ships that. The
+     denial accepts a negation governing the schedule, timer or clock itself
+     ("Forwarding does not run on a schedule"), not one elsewhere in the
+     clause. */
+  { name: "forwarding on a schedule",
+    re: new RegExp([
+      String.raw`\balways\s*,\s*(?:only\s+)?after[- ]hours\b`,
+      String.raw`\bafter[- ]hours\s+only\b`,
+      String.raw`\bonly\s+after[- ]hours\b`,
+      String.raw`\b(?:choose|chooses|choosing|pick|picks|picking)\s+(?:the|your|its|their|which)\s+hours\b`,
+      String.raw`\bany\s+schedule\b`,
+      String.raw`\b(?:on|to|by|with)\s+a\s+(?:schedule|timer)\b`,
+      String.raw`\bscheduled\s+(?:forwarding|coverage|answering|hours)\b`,
+      String.raw`\b(?:forwarding|coverage|answering)\s+(?:schedule|timer)\b`,
+      String.raw`\bby\s+the\s+(?:clock|hour)\b`,
+      String.raw`\btime[- ]of[- ]day\s+(?:forwarding|routing|coverage|switching)\b`,
+      String.raw`(?:\bforward\w*|\b(?:send|sends|sending|route|routes|routing)\s+(?:\w+\s+){0,2}?calls?\b|\bcalls?\s+(?:\w+\s+){0,3}?(?:sent|routed|forwarded|go|goes|reach|reaches|ring|rings)\b)[^.;:]{0,60}?\b(?:outside|after|before)\s+(?:of\s+)?(?:your\s+|its\s+|their\s+|normal\s+|regular\s+|the\s+)?(?:business|office|opening|working|shop)\s+hours\b`,
+      String.raw`\bduring\s+the\s+day\b[^.;]{0,40}?\bnothing\s+(?:else\s+)?(?:is\s+|at\s+all\s+)?(?:different|changes)\b`,
+      String.raw`\b(?:human|person|your\s+team|you)\s+(?:answers?|picks?\s+up)\s+(?:\w+\s+)?during\s+the\s+day\s*,?\s*(?:and|while|then)\s+(?:the\s+)?(?:AI|Nevamis|it|assistant|agent)\s+(?:takes|answers|covers|handles)\b`,
+      String.raw`\bforward\w*\s+(?:\w+\s+)?automatically\s+(?:at|after|before|every|each|outside|overnight|in\s+the\s+evening|when\s+you\s+close)\b`,
+      String.raw`\bautomatically\s+(?:forward\w*|switch\w*|turn\w*)\s+(?:[\w-]+\s+){0,3}?(?:at|after|every|each)\s+(?:night|evening|closing|close|\d)`,
+    ].join("|"), "i"),
+    denial: /(?:\bno|\bnot|\bnever|\bwithout|n't)\s+(?:[\w-]+\s+){0,3}?(?:schedule|timer|clock)\b/i,
+    why: "forwarding has no clock: the codes a client dials (nevamis-engine forwarding-codes.ts, forwarding-setup.ts) are no-answer, busy and unreachable, or every call, switched only when the owner dials them. Say that the phone rings first and a call nobody picks up goes to Nevamis, which after hours is every call, or that the owner dials the all-calls code at closing and the off code at opening" },
 ];
+
+/* clauses() cuts at every newline, and the page sources hard-wrap their
+   prose: after-hours-answering.html carried "Call forwarding sends calls
+   to" on one line and "Nevamis outside your business hours" on the next,
+   so no single clause held the verb and the hours together and the claim
+   read as two harmless fragments (BD-G10C-1). Each unit is therefore also
+   judged with its line wraps joined, a blank line still ending a
+   paragraph. Both cuts are judged, so joining can only add findings: a
+   clause the old cut caught is caught still. The self-test below judges
+   through the same function, so a MUST_CATCH line with a wrap in it proves
+   the join is still there. */
+const unwrapped = (t) => t.replace(/([^\r\n])[ \t]*\r?\n[ \t]*(?=\S)/g, "$1 ");
+const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
 
 /* NO_MECHANISM's own examples, checked on every run (2026-09-25, FP1), for
    the reason guard 16 carries HANDOFF_MUST_CATCH: every widening of these
@@ -949,7 +1013,7 @@ const NO_MECHANISM = [
    rule while something keeps checking it. Judged exactly as guard 7k judges
    copy: per clause, the pattern hits and its denial does not. */
 {
-  const flagged = (s) => clauses(s).some((c) => NO_MECHANISM.some(({ re, denial }) => re.test(c) && !(denial && denial.test(c))));
+  const flagged = (s) => [...judgedClauses(s)].some((c) => NO_MECHANISM.some(({ re, denial }) => re.test(c) && !(denial && denial.test(c))));
   const MUST_CATCH = [
     "It can fall back to your voicemail, and it never invents an answer.",
     "It sends the caller to voicemail.",
@@ -962,6 +1026,22 @@ const NO_MECHANISM = [
     "Contact details are kept for a year, then permanently deleted.",
     "Old records are then automatically and permanently removed.",
     "Billed each month, plus GST.",
+    /* BD-G10C-1: every sentence that carried it, as it was published. */
+    "Call forwarding sends calls to Nevamis outside your business hours, and during the day nothing is different.",
+    "You choose the hours Evenings only, weekends, holidays, or any schedule that matches how you actually work.",
+    "Forwarding sends calls to Nevamis always, after hours, or only when you miss one, and you can switch it off from your own phone.",
+    "Call forwarding sends calls to Nevamis always, only after hours, or only when a call is missed.",
+    "Coverage modes: after-hours only, overflow when the team cannot pick up, or full-time front line.",
+    "After-hours coverage: a human answers during the day, and the AI takes evenings, weekends, and holidays.",
+    /* Hard-wrapped the way the page source was, verb on one line and the
+       hours on the next: caught only because judgedClauses() joins the wrap. */
+    "Call forwarding sends calls to\n        Nevamis after your business hours.",
+    /* And the shapes a rewrite reaches for next. */
+    "Your calls are routed to Nevamis after business hours.",
+    "Calls forward automatically at closing time.",
+    "Forwarding runs on a schedule you set.",
+    "Nevamis answers only after hours.",
+    "It never misses a call, and you pick the hours it covers.",
   ];
   const MUST_PASS = [
     "It never falls back to your voicemail.",
@@ -975,6 +1055,17 @@ const NO_MECHANISM = [
     "The same call sent to voicemail is a note about a job you did not get.",
     "Calls that go to voicemail are lost.",
     "Billed each month, plus applicable GST/HST.",
+    /* BD-G10C-1: the honest wording, which must stay sayable. */
+    "Forwarding follows whether you answer, not the clock, so a call you miss on a job during the day is answered too.",
+    "After hours, when nobody is picking up, that is every call.",
+    "It changes only when you dial it: there is no timer to set.",
+    "Forwarding does not run on a schedule.",
+    "Forwarding has no timer and no business-hours setting.",
+    "Evenings, weekends, and holidays covered without hiring a night shift.",
+    "A caller you missed gets one text back, during business hours, with your name on it.",
+    "A call you do not answer forwards automatically.",
+    "Dial the all-calls code when you close and its off code when you open.",
+    "Before you go live your agent is configured around your hours, services, prices, service area and rules.",
   ];
   for (const s of MUST_CATCH) if (!flagged(s)) {
     err("NO_MECHANISM fails its own example: it lets through \"" + s + "\". Fix the pattern in scripts/check-consistency.js so every MUST_CATCH line is caught.");
@@ -1076,14 +1167,14 @@ const NO_MECHANISM = [
      deliberately reads as naming rather than asserting, and a guard that
      cannot see the defect it was written for is decoration. */
   for (const { label, text } of units) {
-    for (const { re, why, denial } of NO_MECHANISM) {
+    for (const { re, why, denial, name } of NO_MECHANISM) {
       if (!re.test(text)) continue;
-      for (const clause of clauses(text)) {
+      for (const clause of judgedClauses(text)) {
         if (!re.test(clause) || (denial && denial.test(clause))) continue;
         const key = label + "::" + clause;
         if (seen.has(key)) continue;
         seen.add(key);
-        err(label + ": says something nothing in the product does (" + re + ").\n      clause: \"" + clause.slice(0, 180) + "\"\n      "
+        err(label + ": says something nothing in the product does (" + (name || re) + ").\n      clause: \"" + clause.slice(0, 180) + "\"\n      "
           + "Why it is false: " + why + ".");
       }
     }

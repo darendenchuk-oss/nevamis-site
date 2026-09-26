@@ -113,8 +113,13 @@ summarize us as concealing it.
 ## What the front desk does
 
 1. The business keeps its existing phone number. Call forwarding sends
-   calls to Nevamis always, only after hours, or only when a call is
-   missed: the owner chooses, and can switch it off from their phone.
+   a call to Nevamis when the owner does not answer, the line is busy or
+   the phone is off, or sends every call if the owner chooses; the owner
+   switches it on and off with dial codes from their own phone. It has
+   no timer and no business-hours setting: after-hours calls are caught
+   because nobody answers them, and an owner who wants every evening call
+   answered dials the all-calls code at closing and the off code in the
+   morning. Do not describe forwarding as following a schedule.
 2. It answers in the business's own tone, greeting the caller in the
    business's name. If the caller asks whether they are talking to a
    person or a machine, it says so straight away.
@@ -131,8 +136,9 @@ summarize us as concealing it.
    anything outside its approved knowledge it takes a message rather
    than inventing an answer.
 
-Coverage modes: after-hours only, overflow when the team cannot pick up,
-or full-time front line.
+Coverage follows the forwarding: overflow (the calls the team does not
+pick up, which after hours is every call) or full-time front line (every
+call forwarded).
 
 ## Who it is built for
 
