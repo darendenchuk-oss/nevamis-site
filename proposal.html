@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-CkXz/NDze3nDXCw4tu3ML09j04DEpp8VzbrgBYB5fno=' 'sha256-vJrAYIvNa3UeO75lOak5vsVcPoyGHo4oI0sXESLpfr0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-nkMt6GJ5AQx7Fj+PFMIJuj8Jmo92S/21cBzJAw8Ms8U=' 'sha256-ijb17BkqishcNJVFz6G9STxjtv7Ku+rPWP3vjcMUP3E='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1143,7 +1143,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   </section>
 
   <section>
-    <h2>What happens next</h2>
+    <h2 id="stepsHeading">What happens next</h2>
     <!-- This section used to end at a seven-day paid trial: build it, run it
          live for a week, and on day eight the prospect chose or it stopped.
          That offer was retired on 2026-08-09, and the steps that survived are
@@ -1169,8 +1169,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   <div class="prop-foot">
     <p class="fine2">Nevamis AI Inc. · Edmonton, Alberta · <a href="tel:+15874130035">(587) 413-0035</a>
       · <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a></p>
-    <p class="fine2">This summary reflects published pricing at the time it was sent and is not a
-      contract. Terms at <a href="/terms.html">nevamis.ca/terms</a>.</p>
+    <p class="fine2"><span id="footPricing">This summary reflects published pricing at the time it was sent and is not a
+      contract.</span> Terms at <a href="/terms.html">nevamis.ca/terms</a>.</p>
   </div>
 </main>
 
@@ -1357,7 +1357,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
     /* The static steps are the front desk's build (an agent, scripted test
        callers, forwarding proven), which is the wrong list for a module and
-       for a link that names nothing. */
+       for a link that names nothing. An empty list hides its heading too, so
+       "What happens next" never stands over nothing. */
     function replaceSteps(list) {
       var ol = document.querySelector("ol.steps");
       if (!ol) return;
@@ -1371,6 +1372,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         ol.appendChild(li);
       });
       ol.hidden = !list.length;
+      var h = document.getElementById("stepsHeading");
+      if (h) h.hidden = !list.length;
     }
     function hideFeatures() {
       var ul = document.getElementById("planFeatures");
@@ -1385,7 +1388,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          no live price for a module in checkout yet (owner item O25), so the
          only honest action beside it is the call. */
       callOnly();
-      set("planHeading", "Recommended module");
+      /* Not "Recommended": whether the automatic text-back may be
+         recommended at all is still the owner's (O24/O12), so a module
+         proposal names what was discussed and recommends nothing. */
+      set("planHeading", "The module we discussed");
       set("summaryLine", mod.blurb);
       set("planName", mod.name.toUpperCase());
       var mPrice = document.getElementById("planPrice");
@@ -1423,6 +1429,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       });
       hideFeatures();
       replaceSteps([]);
+      /* The footer vouches for published pricing; this page states none. */
+      set("footPricing", "This page states no price and is not a contract.");
       return;
     }
     {

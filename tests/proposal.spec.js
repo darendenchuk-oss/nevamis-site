@@ -192,6 +192,11 @@ test('a module sold on its own renders as itself, with its own pair and no buy b
     await expect(page.locator('#planMonthly'), a.id)
       .toContainText(cash(a.launch) + ' Launch & Implementation to start, then ' + cash(a.monthly) + ' a month');
     await expect(page.locator('#summaryLine'), a.id).toHaveText(a.blurb);
+    /* Whether a module (the automatic text-back above all) may be
+       recommended is the owner's open item O24/O12, so the heading names
+       what was discussed and recommends nothing. */
+    await expect(page.locator('#planHeading'), a.id).toHaveText('The module we discussed');
+    await expect(page.locator('#planHeading'), a.id).not.toContainText(/recommend/i);
     /* Nothing of the front desk's may be left on a module's page. */
     const body = await page.locator('main').innerText();
     expect(body, `${a.id} must not name the recommended plan`).not.toContain(desk.name.toUpperCase());
@@ -215,6 +220,12 @@ test('an id that names no plan says so, visibly, instead of substituting one', a
   await expect(page.locator('#planName')).toHaveText('NO PLAN NAMED');
   await expect(page.locator('#planPrice')).toBeHidden();
   await expect(page.locator('#planFeatures')).toBeHidden();
+  /* No steps, so no "What happens next" standing over nothing, and no
+     footer vouching for published pricing on a page that states none. */
+  await expect(page.locator('ol.steps')).toBeHidden();
+  await expect(page.locator('#stepsHeading')).toBeHidden();
+  await expect(page.locator('.prop-foot')).not.toContainText(/published pricing/i);
+  await expect(page.locator('.prop-foot')).toContainText('states no price');
   expect(await page.locator('main').innerText()).not.toMatch(/C\$[\d,]+\/month/);
   expectCallOnly(await ctas(page), 'no plan is named');
   /* A bare link is still the recommended plan: only a wrong id is refused. */

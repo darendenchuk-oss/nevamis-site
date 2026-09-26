@@ -155,7 +155,7 @@ window.NV_ROADMAP = {
        EVERY OTHER SURFACE TAKES ITS STATUS FROM HERE. A chip for one of these
        entries on the homepage or revenue-engine.html reads the label
        coming-soon.html shows for its status (or its statusLabel), and
-       scripts/check-consistency.js guard 7m fails the day one does not. */
+       scripts/check-consistency.js guard 7o fails the day one does not. */
     { slug: "daily-business-brief", name: "Your Daily Business Brief", pillar: "operate", status: "planned", stage: "future",
       desc: "Would condense calls, open leads, follow-ups, and urgent issues into one concise daily summary.",
       outcome: "Five minutes to know exactly where the business stands." },
