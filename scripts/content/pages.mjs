@@ -281,6 +281,13 @@ export const PAGES = {
      switching on all-calls forwarding at closing and off at opening.
      The page now says exactly that, and guard 7k's NO_MECHANISM in
      scripts/check-consistency.js refuses a schedule claim anywhere. */
+  /* "Ask us for your provider's all-calls on and off codes" (review of PR
+     #39, 2026-09-26): no client surface prints them yet. The portal's
+     forwarding page builds the no-answer steps only, and the setup email's
+     undo line gives the erase-all code first, which also removes no-answer
+     forwarding. Told to "switch it off when you open", an owner using that
+     code would lose daytime missed-call answering. When the engine shows
+     allOn/allOff apart from eraseAll, this can point there instead. */
   'after-hours-answering.html': {
     h1: 'After-hours calls answered on your own number',
     lede: `Evenings, weekends, and holidays covered without hiring a night shift or paying a per-call answering service. Your number, your rules, answered in seconds.`,
@@ -306,8 +313,9 @@ export const PAGES = {
         are covered because nobody is there to pick up. A few providers only offer forwarding
         every call, and setup tells you before you switch it on.</p></li>
       <li class="pstep"><h3>Or send every call, when you choose</h3><p>If you would rather your
-        phone stayed quiet at night, switch on all-calls forwarding when you close and switch
-        it off when you open. It changes only when you change it: there is no timer to set.</p></li>
+        phone stayed quiet at night, ask us for your provider's all-calls on and off codes, then
+        dial one when you close and the other when you open. It changes only when you change
+        it: there is no timer to set.</p></li>
       <li class="pstep"><h3>It answers in seconds</h3><p>In your business's name and tone. If a
         caller asks whether they are talking to a person, it says plainly that it is an AI.</p></li>
       <li class="pstep"><h3>Urgent calls escalate</h3><p>Nevamis captures the urgent details
@@ -370,7 +378,9 @@ export const PAGES = {
     </div>
     <div class="proc">
       <div class="reveal"><h3>After hours</h3><p>Evenings and weekends are when emergency work
-        is decided. <a href="/after-hours-answering.html">After-hours coverage</a> catches it.</p></div>
+        is decided. Nobody is picking up then, so the same no-answer forwarding that catches a
+        call you miss on a job sends every one of them to Nevamis.
+        <a href="/after-hours-answering.html">How after-hours answering works</a>.</p></div>
       <div class="reveal"><h3>On the tools</h3><p>You cannot answer mid-job. Overflow coverage
         picks up only when you do not.</p></div>
       <div class="reveal"><h3>Already on a call</h3><p>A busy signal is a lost caller. Overflow
