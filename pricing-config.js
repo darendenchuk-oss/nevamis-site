@@ -72,7 +72,7 @@
       {
         id: "missed_call_recovery", name: "Missed-Call Recovery",
         monthly: 350, launch: 500, sellable: true, soldAlone: true,
-        blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out, before they ring the next name on Google."
+        blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out."
       },
       /* `partnership` is what this item costs on the Performance Partnership.
          Bought on its own, or beside any other plan, it is its own pair above. */
@@ -80,7 +80,7 @@
         id: "quote_chase", name: "Quote-Chase Engine",
         monthly: 500, launch: 750, sellable: true, soldAlone: true,
         partnership: { launch: 0, monthly: 0, attributableTo: "a quote Nevamis recovered" },
-        blurb: "Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you, stopping the moment the customer replies."
+        blurb: "Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you."
       },
       {
         id: "get_paid", name: "Get-Paid Autopilot",
