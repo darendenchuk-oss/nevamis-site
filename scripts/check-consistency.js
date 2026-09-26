@@ -968,30 +968,62 @@ const NO_MECHANISM = [
 
      THE WAY TO LIFT THIS RULE is to build it: when nevamis-engine can switch
      a client's forwarding by time of day (or route by the clock on its own
-     number), this entry changes in the same commit that ships that. The
-     denial accepts a negation governing the schedule, timer or clock itself
-     ("Forwarding does not run on a schedule"), not one elsewhere in the
-     clause. */
-  { name: "forwarding on a schedule",
-    re: new RegExp([
+     number), this entry changes in the same commit that ships that.
+
+     Review of PR #39 (2026-09-26) found rewrites the first cut let through,
+     each now its own shape: "Forwarding switches on automatically after
+     hours" (a switch verb before "automatically"), "You decide which hours
+     it covers" (decide / select / set which hours), "Nevamis takes over at
+     6 PM every night" (a handover at a clock time), "Forward calls only at
+     night" (only at night / evenings / weekends), and "Forwarding sends
+     calls to Nevamis after hours" (a routing verb conditioned on bare
+     "after hours", which reads as a mode; "After hours, when nobody is
+     picking up, that is every call" has no routing verb and stays sayable).
+
+     The denial must govern the claim, not sit beside it. It used to excuse
+     any clause holding "no timer" anywhere, so "No timer, calls forward
+     automatically at 5 PM" passed. Now a negation counts only when the
+     words between it and the schedule, timer, clock, "automatically" or
+     "hours" come from a closed list ("does not run on a schedule", "does
+     not switch on automatically"), AND the clause with that negated phrase
+     cut out no longer makes the claim. A negation elsewhere in the clause
+     leaves the claim standing, so it is still caught. */
+  (() => {
+    /* A clock time: "6 PM", "5:30", "at 6", noon, midnight, closing time.
+       A bare number is a time only when no count follows it, so "after
+       four rings" and "after 20 seconds" (how no-answer forwarding really
+       triggers) are not clock times. */
+    const CLOCK = String.raw`(?:\d{1,2}(?::\d\d)?\s*(?:[ap]\.?\s?m\b\.?|o'clock\b)|\d{1,2}(?::\d\d)?\b(?!\s*(?:rings?|seconds?|secs?|minutes?|mins?|calls?|times?|%))|noon\b|midnight\b|closing\s+time\b)`;
+    /* When a timed switch happens: a clock time, after or outside hours,
+       every night, overnight, when you close. */
+    const WHEN = String.raw`(?:(?:at|from|after|by|before)\s+${CLOCK}|(?:after|outside)\s+(?:of\s+)?(?:your\s+|its\s+|their\s+|normal\s+|regular\s+|the\s+)?(?:(?:business|office|opening|working|shop)\s+)?hours\b|(?:at|every|each)\s+(?:night|evening|close|closing|dusk|sundown|sunset)\b|(?:every|each)\s+(?:weekend|day)\b|overnight\b|in\s+the\s+evenings?\b|when\s+you\s+(?:close|lock\s+up|leave)\b)`;
+    const re = new RegExp([
       String.raw`\balways\s*,\s*(?:only\s+)?after[- ]hours\b`,
       String.raw`\bafter[- ]hours\s+only\b`,
       String.raw`\bonly\s+after[- ]hours\b`,
-      String.raw`\b(?:choose|chooses|choosing|pick|picks|picking)\s+(?:the|your|its|their|which)\s+hours\b`,
+      String.raw`\b(?:(?:choose|chooses|choosing|chose|pick|picks|picking|picked|decide|decides|deciding|select|selects|selecting)\s+(?:the|your|its|their)|(?:choose|chooses|choosing|chose|pick|picks|picking|picked|decide|decides|deciding|select|selects|selecting|set|sets|setting)\s+(?:which|what))\s+hours\b`,
       String.raw`\bany\s+schedule\b`,
       String.raw`\b(?:forward\w*|calls?|coverage|answer\w*|line)\b[^.;]{0,40}?\b(?:on|to|by|with)\s+a\s+(?:schedule|timer)\b`,
       String.raw`\bscheduled\s+(?:forwarding|coverage|answering|hours)\b`,
       String.raw`\b(?:forwarding|coverage|answering)\s+(?:schedule|timer)\b`,
       String.raw`\bby\s+the\s+clock\b`,
       String.raw`\btime[- ]of[- ]day\s+(?:forwarding|routing|coverage|switching)\b`,
-      String.raw`(?:\bforward\w*|\b(?:send|sends|sending|route|routes|routing)\s+(?:\w+\s+){0,2}?calls?\b|\bcalls?\s+(?:\w+\s+){0,3}?(?:sent|routed|forwarded|go|goes|reach|reaches|ring|rings)\b)[^.;:]{0,60}?\b(?:outside|after|before)\s+(?:of\s+)?(?:your\s+|its\s+|their\s+|normal\s+|regular\s+|the\s+)?(?:business|office|opening|working|shop)\s+hours\b`,
+      String.raw`(?:\bforward\w*|\b(?:send|sends|sending|route|routes|routing)\s+(?:\w+\s+){0,2}?calls?\b|\bcalls?\s+(?:\w+\s+){0,3}?(?:sent|routed|forwarded|go|goes|reach|reaches|ring|rings)\b)[^.;:]{0,60}?\b(?:outside|after|before)\s+(?:of\s+)?(?:your\s+|its\s+|their\s+|normal\s+|regular\s+|the\s+)?(?:(?:business|office|opening|working|shop)\s+)?hours\b`,
       String.raw`\bduring\s+the\s+day\b[^.;]{0,40}?\bnothing\s+(?:else\s+)?(?:is\s+|at\s+all\s+)?(?:different|changes)\b`,
       String.raw`\b(?:human|person|your\s+team|you)\s+(?:answers?|picks?\s+up)\s+(?:\w+\s+)?during\s+the\s+day\s*,?\s*(?:and|while|then)\s+(?:the\s+)?(?:AI|Nevamis|it|assistant|agent)\s+(?:takes|answers|covers|handles)\b`,
-      String.raw`\bforward\w*\s+(?:\w+\s+)?automatically\s+(?:at|after|before|every|each|outside|overnight|in\s+the\s+evening|when\s+you\s+close)\b`,
-      String.raw`\bautomatically\s+(?:forward\w*|switch\w*|turn\w*)\s+(?:[\w-]+\s+){0,3}?(?:at|after|every|each)\s+(?:night|evening|closing|close|\d)`,
-    ].join("|"), "i"),
-    denial: /(?:\bno|\bnot|\bnever|\bwithout|n't)\s+(?:[\w-]+\s+){0,3}?(?:schedule|timer|clock)\b/i,
-    why: "forwarding has no clock: the codes a client dials (nevamis-engine forwarding-codes.ts, forwarding-setup.ts) are no-answer, busy and unreachable, or every call, switched only when the owner dials them. Say that the phone rings first and a call nobody picks up goes to Nevamis, which after hours is every call, or that the owner dials the all-calls code at closing and the off code at opening" },
+      String.raw`\b(?:forward\w*|switch\w*|turn\w*|flip\w*|kick\w*|come\w*|go|goes|going|cuts?)\s+(?:[\w-]+\s+){0,2}?automatically\s+${WHEN}`,
+      String.raw`\bautomatically\s+(?:forward\w*|switch\w*|turn\w*|flip\w*|send\w*|rout\w*)\s+(?:[\w-]+\s+){0,3}?${WHEN}`,
+      String.raw`\b(?:(?:switches|turns|flips|kicks|comes)\s+(?:on|over|in)|(?:is|are|gets?)\s+(?:switched|turned|flipped)\s+(?:on|over))\s+(?:[\w-]+\s+){0,2}?(?:at|from|after|by)\s+${CLOCK}`,
+      String.raw`\b(?:takes?|taking|took)\s+over\s+(?:(?:at|from|after|by)\s+${CLOCK}|(?:every|each)\s+(?:night|evening|weekend)\b)`,
+      String.raw`\b(?:forward\w*|answer\w*|cover\w*|calls?|line|Nevamis)\b[^.;]{0,40}?\bonly\s+(?:at\s+night|overnight|after\s+dark|(?:in\s+the\s+|on\s+)?(?:evenings?|nights|weekends)|when\s+you(?:'re|\s+are)\s+closed)\b`,
+      String.raw`\b(?:forward\w*|answer\w*|cover\w*|calls?)\b[^.;]{0,40}?\b(?:evenings?|nights?|weekends?|at\s+night|overnight)\s+only\b`,
+    ].join("|"), "i");
+    const NEGATED = String.raw`(?:\bno|\bnot|\bnever|\bwithout|n't)\s+(?:(?:be|ever|run|runs|running|work|works|go|goes|follow|follows|use|uses|need|needs|have|has|set|choose|pick|decide|switch|switches|turn|turns|forward|forwards|take|takes|change|changes|on|over|to|by|with|at|a|an|any|the|its|your|which|what|itself)\s+){0,4}(?:schedule|timer|clock|automatically|hours)\b`;
+    return { name: "forwarding on a schedule", re,
+      denial: { test: (c) => [...c.matchAll(new RegExp(NEGATED, "gi"))]
+        .some((m) => !re.test(c.slice(0, m.index) + " " + c.slice(m.index + m[0].length))) },
+      why: "forwarding has no clock: the codes a client dials (nevamis-engine forwarding-codes.ts, forwarding-setup.ts) are no-answer, busy and unreachable, or every call, switched only when the owner dials them. Say that the phone rings first and a call nobody picks up goes to Nevamis, which after hours is every call, or that the owner dials the all-calls code at closing and the off code at opening" };
+  })(),
 ];
 
 /* clauses() cuts at every newline, and the page sources hard-wrap their
@@ -1051,6 +1083,19 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     "Your line switches over by the clock.",
     "Time-of-day routing covers your evenings.",
     "It automatically switches your line over at 6 PM.",
+    /* Review of PR #39: the rewrites the first cut let through, and one
+       line per new shape, each caught by that shape alone. */
+    "Forwarding switches on automatically after hours.",
+    "You decide which hours it covers.",
+    "Nevamis takes over at 6 PM every night.",
+    "Forward calls only at night.",
+    "Forwarding sends calls to Nevamis after hours.",
+    "Calls forward automatically at closing time.",
+    "Forwarding switches on at 6 PM.",
+    "Nevamis answers calls at night only.",
+    /* A negation beside the claim is not a denial of it. */
+    "No timer, calls forward automatically at 5 PM.",
+    "Forwarding has no timer, and it switches on at 6 PM.",
   ];
   const MUST_PASS = [
     "It never falls back to your voicemail.",
@@ -1075,6 +1120,13 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     "A call you do not answer forwards automatically.",
     "Dial the all-calls code when you close and its off code when you open.",
     "Before you go live your agent is configured around your hours, services, prices, service area and rules.",
+    /* A negation that governs the claim still denies it, and no-answer
+       forwarding's real trigger is a count of rings, not a clock. */
+    "Forwarding does not switch on automatically at closing.",
+    "You do not choose the hours it covers.",
+    "It forwards automatically after four rings.",
+    "A call you miss forwards after 20 seconds.",
+    "Nobody picks up after hours, so every call reaches Nevamis.",
     /* Other products keep time honestly, and the rule is about forwarding. */
     "Invoice reminders go out on a schedule you approve.",
     "An answering service bills by the hour.",
