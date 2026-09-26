@@ -237,6 +237,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--ink)}
 html{overflow-x:clip;scrollbar-color:#123528 var(--bg)}
+html{scroll-padding-top:calc(var(--head-h) + 16px)}
 body{overflow-x:clip;font-family:var(--f-body);font-size:var(--fs-body);
   line-height:var(--lh-body);-webkit-font-smoothing:antialiased}
 img{max-width:100%;height:auto}
@@ -284,18 +285,20 @@ strong{color:var(--ink)}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
   color:var(--ink);border-radius:9px;width:42px;height:42px;font-size:17px;cursor:pointer}
 @media(max-width:1080px){
-  .main-nav a.nav-min{display:none}
-}
-@media(max-width:880px){
   .nav-toggle{display:grid;place-items:center}
-  .main-nav{position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:stretch;
-    gap:0;padding:8px 20px 18px;background:rgba(7,15,22,.98);border-bottom:1px solid var(--line);
-    display:none}
+  .main-nav{position:absolute;top:var(--head-h);left:0;right:0;flex-direction:column;align-items:stretch;
+    gap:0;padding:8px 20px 18px;background:#070F16;border-bottom:1px solid var(--line);
+    display:none;max-height:calc(100vh - var(--head-h));max-height:calc(100dvh - var(--head-h));
+    overflow-y:auto;overscroll-behavior:contain}
   .main-nav.open{display:flex}
-  .main-nav a:not(.btn){padding:12px 4px;font-size:16px;border-bottom:1px solid rgba(159,240,206,.07)}
-  .main-nav a.nav-min{display:block}
+  .main-nav .navitem{display:block;overflow:visible}
+  .main-nav a:not(.btn){display:flex;align-items:center;min-height:44px;padding:10px 4px;font-size:16px;
+    border-bottom:1px solid rgba(159,240,206,.07)}
+  .main-nav a:not(.btn)::after{display:none}
+  .main-nav a.nav-min{display:flex}
   .main-nav .btn{margin-top:12px;justify-content:center}
 }
+html.nav-locked{overflow:hidden}
 .btn{position:relative;display:inline-flex;align-items:center;gap:9px;
   border-radius:var(--r-pill);padding:12px 20px;font-family:inherit;font-weight:600;
   font-size:14.5px;border:1px solid transparent;cursor:pointer;white-space:nowrap;
@@ -318,7 +321,7 @@ strong{color:var(--ink)}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 main section,main .dark{position:relative}
 section{padding:var(--sec-y) 0;position:relative;overflow:clip;
-  border-top:1px solid var(--line-soft);scroll-margin-top:var(--head-h)}
+  border-top:1px solid var(--line-soft)}
 #roi{overflow:visible}
 section.tight{padding-top:var(--sec-y)}
 .page-hero+section{border-top:none}
@@ -449,6 +452,11 @@ ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
 .more{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-tag);
   text-transform:uppercase;color:var(--emerald);text-decoration:none}
 .more:hover{color:var(--mint)}
+@media (max-width:820px),(pointer:coarse){
+  .more{display:inline-flex;align-items:center;min-height:44px}
+  #paneNav button{min-height:44px}
+}
+html.nv-below #close .cta{pointer-events:none}
 .prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:rgba(159,240,206,.45)}
@@ -782,6 +790,13 @@ html.motion-off .faq details p{animation:none}
 .callbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;text-align:center;
   background:var(--mint);color:var(--on-mint);font-weight:700;
   padding:14px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px -12px rgba(0,0,0,.5)}
+@media (max-width:820px),(pointer:coarse){
+  .site-footer .cols a{display:flex;align-items:center;min-height:44px;padding:0}
+  .site-footer .cols a::after{bottom:11px}
+}
+.callbar{transition:transform var(--t-base) var(--e-out),visibility 0s linear 0s}
+.callbar.callbar-off{transform:translateY(110%);visibility:hidden;
+  transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}
 @media(max-width:820px){
   .callbar{display:block}
   .site-footer{padding-bottom:96px}
@@ -1023,7 +1038,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       </div>
       <div class="reveal">
       <h2>Where your data is processed</h2>
-      <p>To run the demo line, scheduling, voice, text messages, email, and our website and database, we use service providers that may store and process personal information in the United States and other countries. They are ElevenLabs (the voice agent), Twilio (calls and texts), Resend (sending email, and receiving replies to Quote Recovery follow-ups), Google (our nevamis.ca mailbox, which receives email you send us, our lead alerts and your customers&rsquo; replies to invoice reminders and estimate follow-ups; and the public business listings we look up for Lead Generation and business scans), Cal.com (booking a call with us), Vercel and Turso (hosting and our database), Trigger.dev (running a business scan you ask for), Activepieces (connecting the automations you switch on to your own tools, such as your CRM), Stripe (billing), and Anthropic, whose AI model we use to review call summaries and transcripts, to check that the agent kept to the facts it was given. This means your information may be handled outside Canada and may be subject to the laws of those countries. We use providers that offer commercially reasonable safeguards, and we share only what is needed to deliver the service.</p>
+      <p>To run the demo line, scheduling, voice, text messages, email, and our website and database, we use service providers that may store and process personal information in the United States and other countries. They are ElevenLabs (the voice agent), Twilio (calls and texts), Resend (sending email, and receiving replies to Quote Recovery follow-ups), Google (our nevamis.ca mailbox, which receives email you send us, our lead alerts and your customers&rsquo; replies to invoice reminders and estimate follow-ups; and the public business listings we look up for Lead Generation and business scans), Cal.com (booking a call with us), Vercel and Turso (hosting and our database), Trigger.dev (running a business scan you ask for), Activepieces (running some of the automations you switch on, inside Nevamis only: outside an Enterprise agreement, nothing is linked to your CRM, ad accounts or other tools), Stripe (billing), and Anthropic, whose AI model we use to review call summaries and transcripts, to check that the agent kept to the facts it was given. This means your information may be handled outside Canada and may be subject to the laws of those countries. We use providers that offer commercially reasonable safeguards, and we share only what is needed to deliver the service.</p>
       </div>
       <div class="reveal">
       <h2>How long we keep it</h2>
@@ -1036,7 +1051,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="reveal">
       <h2>When you have a Nevamis account</h2>
       <p>If your business signs up, we hold your business name, the contact details of the people you give access to, and a record of when they sign in. We hold the configuration you give us: your hours, services, prices and the answers you want the agent to give. We hold the calls the agent handles on your behalf and the leads it takes down, so we can deliver them to you and bill for the minutes used; the written agreement sets out how long those are kept and how to get them back or have them deleted. Billing is handled by Stripe, and we do not hold your card details.</p>
-      <p>The other services you switch on work with your customers&rsquo; details, which we handle for you and only for you. For Quote Recovery and Get-Paid Autopilot we hold the quotes and unpaid invoices you give us: each customer&rsquo;s name and email, the amount, the dates and where it stands. We send the follow-ups and reminders you approve, in your business&rsquo;s name, and we keep those messages and any reply your customer sends, so you can see who answered. For Instant Lead Follow-Up and the Review Engine we hold the number we text and the text we sent. If Lead Generation is enabled for you, we hold the businesses it shows you: name, website, phone, address, and where and when we read each one, from public listings on Google or a supplier we are licensed to use. We contact none of them. Nothing here is switched on until you switch it on, and the written agreement sets out how long these details are kept and how to get them back or have them deleted.</p>
+      <p>The other services you switch on work with your customers&rsquo; details, which we handle for you and only for you. For Quote Recovery and Get-Paid Autopilot we hold the quotes and unpaid invoices you give us: each customer&rsquo;s name and email, the amount, the dates and where it stands. We send the follow-ups and reminders you approve, in your business&rsquo;s name, and we keep those messages and any reply your customer sends, so you can see who answered. For Missed-Call Recovery and the Review Engine we hold the number we text and the text we sent. If Lead Generation is enabled for you, we hold the businesses it shows you: name, website, phone, address, and where and when we read each one, from public listings on Google or a supplier we are licensed to use. We contact none of them. Nothing here is switched on until you switch it on, and the written agreement sets out how long these details are kept and how to get them back or have them deleted.</p>
       <p>If you refer another business to us, we record which business referred which, so we can apply the reward. We do not ask you for their contact details and we do not email anyone on the strength of a referral: you send them the link yourself.</p>
       <p>If you put your business forward for something we have not built yet, we record which one you asked about, who asked, and anything you typed in the box, so we can come back to you about it. That is a waiting list and nothing else: it is not an order, there is no price attached, and it does not change what we hold about your calls or your customers.</p>
       <p>Some of the things we are working on would involve a kind of information we do not handle today. An assistant that helps with your email would need access to your inbox, for example. <strong>We will not start handling a new kind of information without asking you first and updating this page to say so.</strong> Being on a waiting list is not that permission, and nothing on this page grants it in advance.</p>

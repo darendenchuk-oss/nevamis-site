@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-+psDRHFpPKXDwS5G/lgBO7D7u4luFcw/Vc+q9L3TqnQ=' 'sha256-MNZV7p5Rb20m8fINKT9gCBCCdTZRUDzHSRmZtVsntjA=' 'sha256-vdFqsRG4dbM94ZyLQb+d7KYeFaoa62xfg4ICGxkaBm4=' 'sha256-XnTXsJcwYjObQqoVm3epG2mmgh0MZQVtoPfXJTCHXnI='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Jegac2IZQVRVxHgC0UiiAiE6llgmO0DbxY8k2Lgwn/M=' 'sha256-xrzID0FizTfVYBiFe2F5zVf7myC7m93zZV3LnVfxlvA=' 'sha256-Cs1w1IL712NUw7XbP7G61T79kY1QBFPDorsM7elwhko=' 'sha256-bPRso//ze45Grv0GRtD1Q5GqYrW4aSG5zQAev7FyWfw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -237,6 +237,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--ink)}
 html{overflow-x:clip;scrollbar-color:#123528 var(--bg)}
+html{scroll-padding-top:calc(var(--head-h) + 16px)}
 body{overflow-x:clip;font-family:var(--f-body);font-size:var(--fs-body);
   line-height:var(--lh-body);-webkit-font-smoothing:antialiased}
 img{max-width:100%;height:auto}
@@ -284,18 +285,20 @@ strong{color:var(--ink)}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
   color:var(--ink);border-radius:9px;width:42px;height:42px;font-size:17px;cursor:pointer}
 @media(max-width:1080px){
-  .main-nav a.nav-min{display:none}
-}
-@media(max-width:880px){
   .nav-toggle{display:grid;place-items:center}
-  .main-nav{position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:stretch;
-    gap:0;padding:8px 20px 18px;background:rgba(7,15,22,.98);border-bottom:1px solid var(--line);
-    display:none}
+  .main-nav{position:absolute;top:var(--head-h);left:0;right:0;flex-direction:column;align-items:stretch;
+    gap:0;padding:8px 20px 18px;background:#070F16;border-bottom:1px solid var(--line);
+    display:none;max-height:calc(100vh - var(--head-h));max-height:calc(100dvh - var(--head-h));
+    overflow-y:auto;overscroll-behavior:contain}
   .main-nav.open{display:flex}
-  .main-nav a:not(.btn){padding:12px 4px;font-size:16px;border-bottom:1px solid rgba(159,240,206,.07)}
-  .main-nav a.nav-min{display:block}
+  .main-nav .navitem{display:block;overflow:visible}
+  .main-nav a:not(.btn){display:flex;align-items:center;min-height:44px;padding:10px 4px;font-size:16px;
+    border-bottom:1px solid rgba(159,240,206,.07)}
+  .main-nav a:not(.btn)::after{display:none}
+  .main-nav a.nav-min{display:flex}
   .main-nav .btn{margin-top:12px;justify-content:center}
 }
+html.nav-locked{overflow:hidden}
 .btn{position:relative;display:inline-flex;align-items:center;gap:9px;
   border-radius:var(--r-pill);padding:12px 20px;font-family:inherit;font-weight:600;
   font-size:14.5px;border:1px solid transparent;cursor:pointer;white-space:nowrap;
@@ -318,7 +321,7 @@ strong{color:var(--ink)}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 main section,main .dark{position:relative}
 section{padding:var(--sec-y) 0;position:relative;overflow:clip;
-  border-top:1px solid var(--line-soft);scroll-margin-top:var(--head-h)}
+  border-top:1px solid var(--line-soft)}
 #roi{overflow:visible}
 section.tight{padding-top:var(--sec-y)}
 .page-hero+section{border-top:none}
@@ -449,6 +452,11 @@ ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
 .more{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-tag);
   text-transform:uppercase;color:var(--emerald);text-decoration:none}
 .more:hover{color:var(--mint)}
+@media (max-width:820px),(pointer:coarse){
+  .more{display:inline-flex;align-items:center;min-height:44px}
+  #paneNav button{min-height:44px}
+}
+html.nv-below #close .cta{pointer-events:none}
 .prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:rgba(159,240,206,.45)}
@@ -782,6 +790,13 @@ html.motion-off .faq details p{animation:none}
 .callbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;text-align:center;
   background:var(--mint);color:var(--on-mint);font-weight:700;
   padding:14px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px -12px rgba(0,0,0,.5)}
+@media (max-width:820px),(pointer:coarse){
+  .site-footer .cols a{display:flex;align-items:center;min-height:44px;padding:0}
+  .site-footer .cols a::after{bottom:11px}
+}
+.callbar{transition:transform var(--t-base) var(--e-out),visibility 0s linear 0s}
+.callbar.callbar-off{transform:translateY(110%);visibility:hidden;
+  transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}
 @media(max-width:820px){
   .callbar{display:block}
   .site-footer{padding-bottom:96px}
@@ -1126,7 +1141,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="plans" id="plans"><div id="plansFallback">
         <div class="card">
           <h3>Performance Partnership &middot; C$350/month, by invitation</h3>
-          <p>Offered by invitation and approval, where Nevamis takes on substantially more of the acquisition risk; it is not the default and not self-serve. C$2,500 Launch &amp; Implementation to start, then C$350 a month. It is the plan that carries the growth stack, and each item on it is a separate choice that changes what the plan costs: Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page; the Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement; Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch &amp; Implementation fee and their own monthly, at the prices listed below; Search Rankings is coming and is not sold. 250 included AI minutes · C$1.10 per extra minute.</p>
+          <p>Offered by invitation and approval, where Nevamis takes on substantially more of the acquisition risk; it is not the default and not self-serve. From C$2,500 Launch &amp; Implementation to start, then C$350 a month by default, inside a monthly band of C$250 to C$500. Both figures, the share and the attribution window are set in your agreement before anything is charged. It is the plan that carries the growth stack, and each item on it is a separate choice that changes what the plan costs: Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page; the Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement; Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch &amp; Implementation fee and their own monthly, at the prices listed below; Search Rankings is coming and is not sold. 250 included AI minutes · C$1.10 per extra minute.</p>
           <p><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
         </div>
         <div class="card">
@@ -1458,7 +1473,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          button (startNote), rather than a third time here on every card.
          This line now carries only what differs by plan: the two figures,
          the performance sentence and the invitation status. */
-      h += '<div class="setup">C$' + grp(pl.launch) + " Launch &amp; Implementation to start, then C$" + grp(pl.monthly) + " a month."
+      /* P.startLine, not the pair typed here: the Partnership's figures are a
+         band, and this line printed them as one flat price for a month while
+         the same card went on to say its monthly is set in the agreement
+         (BD-4, 2026-09-25). */
+      h += '<div class="setup">' + P.startLine(pl).replace(/&/g, "&amp;")
         + (pl.performanceNote ? " " + pl.performanceNote : "")
         + (pl.selfServe === false ? " Offered by invitation and approval; never the default." : "")
         + "</div>";
@@ -1604,7 +1623,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              : " fits inside the " + grp(pick.includedMinutes) + " included on " + pick.name + ", at C$" + pick.overage.toFixed(2) + " for anything past that");
     document.getElementById("rcResult").innerHTML =
       '<span class="mono">CLOSEST FIT</span><div class="pick"></div><p></p>';
-    document.querySelector("#rcResult .pick").textContent = pick.name + " · C$" + grp(pick.launch) + " Launch & Implementation to start, then C$" + grp(pick.monthly) + " a month";
+    document.querySelector("#rcResult .pick").textContent = pick.name + " · " + P.startLine(pick).replace(/\.$/, "");
     var twins = ladder.filter(function (p) { return p !== pick && p.includedMinutes === pick.includedMinutes; });
     var note = twins.length ? twins.map(function (p) { return p.name; }).join(" and ") + " carries the same minutes and adds automations, so choose between them for the automations, not for the minutes. " : "";
     document.querySelector("#rcResult p").textContent = "Why: " + why + ". " + note + "Your real average shows up in the portal from your first week of calls, and you can change plan yourself from there.";
@@ -1636,7 +1655,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            them, the performance sentence where the plan has one, and the
            invitation status where the plan is not self-serve. */
         "description": (P.publishedPricing
-          ? "C$" + grp(pl.launch) + " Launch & Implementation to start, then C$" + grp(pl.monthly) + " a month."
+          ? P.startLine(pl)
             + (pl.performanceNote ? " " + pl.performanceNote : "")
             + (pl.selfServe === false ? " Offered by invitation and approval; never the default." : "") + " "
           : "Quoted per client, then one monthly amount. ") + pl.bestFor,
@@ -1838,23 +1857,37 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var monthly = useBundle ? bundle.monthly : pieces.monthly;
     var launch = useBundle ? bundle.launch : pieces.launch;
 
-    var lines;
+    /* EACH PRICE ONCE, AND EACH LINE ONE BOX (BP2, 2026-09-25). A .node-list
+       li is display:flex, so a bare <strong> followed by text laid out as
+       two flex items: at 390px the name became a 37px column three lines
+       tall and the price started on the next item with an orphaned ", C$".
+       Every line's content is now ONE <span>, so it wraps as a sentence.
+       And the total below restated the only line's price whenever a single
+       thing was picked, so the same figure sat twice, 40px apart. A line
+       carries its own price only when there is more than one priced line,
+       and the total is then labelled as the sum it is. */
+    var priced = [];
+    /* A plan's or a module's figures in NV_PRICING.startLine's words, not a
+       pair typed here, so a banded plan could never reach this list flat. */
+    var figures = function (x) {
+      return P.startLine(x).replace(/\.$/, "").replace(/&/g, "&amp;");
+    };
+    var item = function (x, suffix) {
+      return { name: x.name + (suffix || ""), price: figures(x) };
+    };
+    var notes = [];
     if (alone) {
-      lines = mods.map(function (a) {
-        return "<strong style=\"color:var(--ink)\">" + a.name + "</strong> on its own, C$"
-          + grp(a.launch) + " Launch &amp; Implementation to start, then C$" + grp(a.monthly) + " a month";
-      });
+      mods.forEach(function (a) { priced.push(item(a, " on its own")); });
     } else {
-      lines = ["<strong style=\"color:var(--ink)\">" + chosen.name + "</strong>, C$" + grp(chosen.launch)
-        + " Launch &amp; Implementation to start, then C$" + grp(chosen.monthly) + " a month"];
-      if (useBundle) {
-        lines.push("every automation included, which is why it beats the pieces");
-      } else {
-        mods.forEach(function (a) {
-          lines.push(a.name + ", C$" + grp(a.launch) + " Launch &amp; Implementation to start, then C$" + grp(a.monthly) + " a month");
-        });
-      }
+      priced.push(item(chosen));
+      if (useBundle) notes.push("every automation included, which is why it beats the pieces");
+      else mods.forEach(function (a) { priced.push(item(a)); });
     }
+    var many = priced.length > 1;
+    var lines = priced.map(function (x) {
+      return "<span><strong style=\"color:var(--ink)\">" + x.name + "</strong>"
+        + (many ? ", " + x.price : "") + "</span>";
+    }).concat(notes.map(function (n) { return "<span>" + n + "</span>"; }));
 
     var coverageParam = encodeURIComponent(mods.map(function (a) { return a.id; }).join(","));
     /* A module-only request carries no plan key at all, which is what the
@@ -1869,7 +1902,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     h += '<p class="lbl">Your coverage</p>';
     h += '<ul class="node-list"><li>'
       + lines.join("</li><li>") + "</li></ul>";
-    h += '<p class="amount">C$' + grp(launch)
+    h += '<p class="amount">' + (many ? "Together, C$" : "C$") + grp(launch)
       + " Launch &amp; Implementation to start, then C$" + grp(monthly) + " a month" + taxClause() + "</p>";
     /* NO MINIMUM TERM, stated outright. A branch here printed a number of
        months "agreed up front" whenever pricing-config.js carried a term;
@@ -1888,12 +1921,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          shape: there is no plan to charge, so nothing is charged at all. */
       h += " Nothing is bought or charged on this page. Create your account and we set it up with you"
         + " under your agreement. If you want the phone answered too, the "
-        + core.name + " is C$" + grp(core.launch) + " Launch &amp; Implementation to start, then C$"
-        + grp(core.monthly) + " a month.";
+        + core.name + " is " + figures(core).replace(/^From /, "from ") + ".";
     } else if (mods.length) {
       /* The honest half of a chooser that is not a cart. */
-      h += " Checkout charges the " + chosen.name + ": C$" + grp(chosen.launch)
-        + " Launch &amp; Implementation to start, then C$" + grp(chosen.monthly) + " a month."
+      /* The core's figures are on its own line above; naming the plan is
+         enough to say which of the lines checkout charges. */
+      h += " Checkout charges the " + chosen.name + " line only."
         + " The automations you ticked are recorded with your signup and set up with you under your agreement;"
         + " their fees are not charged at checkout.";
     }
