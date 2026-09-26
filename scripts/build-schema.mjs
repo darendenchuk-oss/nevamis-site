@@ -131,7 +131,8 @@ const PLANS = NV.plans.map((p) => ({
      the rule joining it to the monthly, the performance sentence where the
      plan has one, and the invitation status where the plan is not
      self-serve. */
-  /* NV.startLine, the sentence every renderer states a plan's figures in.
+  /* NV.startLine, the sentence a plan's figures are stated in (see
+     docs/PRICING-CONFIG.md for the surfaces that use it).
      This line typed its own pair and published the Partnership to answer
      engines as one flat price while its figures are a band (BD-4,
      2026-09-25). */

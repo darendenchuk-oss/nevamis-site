@@ -72,10 +72,19 @@ read nothing, and it then reports the wrong number of plans.
   `launch` are then the defaults inside those bands, not a price list, so a
   surface that prints the Partnership as a flat "C$2,500 ... then C$350 a
   month" is wrong even though both numbers are real (finding BD-4,
-  2026-09-25). Every renderer states a plan's figures through
+  2026-09-25). A plan's figures are stated through
   `NV_PRICING.startLine(plan)`, which reads "From" and the band off these two
-  fields; `scripts/check-consistency.js` holds `llms.txt` and the
-  `pricing.html` fallback to the same sentence.
+  fields: the pricing cards and their static fallback, the Offer JSON-LD on
+  `pricing.html`, the plan chooser's lines, `scripts/build-schema.mjs` (the
+  homepage JSON-LD) and `llms.txt`. `proposal.html` sets the fee and the
+  monthly on separate lines, so it uses the two parts `startLine` is built
+  from, `NV_PRICING.launchPart(plan)` and `NV_PRICING.monthlyBand(plan)`.
+  The chooser's add-on lines go through `startLine` too; an add-on has no
+  band, so they read as a flat pair, which is true of them.
+  `scripts/check-consistency.js` holds `llms.txt` and the `pricing.html`
+  fallback to `startLine`'s sentence and requires `proposal.html` to take
+  the two parts rather than type its own; `tests/site-truth.spec.js` renders
+  the proposal for each banded plan.
 - **`recommendedLabel`** is a recommendation, never a claim about what other
   businesses chose. There are no clients yet to count.
 

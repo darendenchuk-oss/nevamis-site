@@ -833,7 +833,7 @@ for (const p of contentPages) {
       err('llms.txt: "' + name + '" must state "' + want + '", which is what pricing-config.js charges. '
         + "The figures and the joins are what an answer engine quotes verbatim.");
     };
-    /* A plan's sentence is NV_PRICING.startLine's, the one every page
+    /* A plan's sentence is NV_PRICING.startLine's, the one the pricing page
        renders, so a banded plan must be stated as a band here too. Until
        2026-09-25 this required the flat "C$launch ... then C$monthly a
        month" of every plan, which made the Partnership's flat price the
@@ -1433,6 +1433,21 @@ const NO_MECHANISM = [
        so that is the plan its static copy must quote. */
     const dflt = cfg.plans.find((p) => p.recommended) || cfg.plans[0];
     const pr = fs.readFileSync(path.join(root, "proposal.html"), "utf8");
+    /* A banded plan's figures on the proposal come from the two parts
+       NV_PRICING.startLine is built from, never from a band or a "from" the
+       page types itself (review of BD-4, 2026-09-26): a hand-built band here
+       drifts from the pricing card with nothing to catch it, and a render
+       that drops it prints the Partnership flat on the document a buyer
+       keeps. tests/site-truth.spec.js renders the proposal for each banded
+       plan; this holds the source to the same parts in CI. */
+    for (const need of ["P.launchPart(plan)", "P.monthlyBand(plan)"]) {
+      if (!pr.includes(need)) err("proposal.html: the plan's figures must come from " + need
+        + " (pricing-config.js), the part startLine() is built from, so a banded plan cannot render as a flat pair");
+    }
+    for (const typed of [/monthly band of/, /\bplan\.(?:launchRange|monthlyRange)\b/]) {
+      if (typed.test(pr)) err("proposal.html: builds a plan's band itself (" + typed.source
+        + "); use NV_PRICING.launchPart/monthlyBand so it cannot drift from the pricing card");
+    }
     /* The proposal is the document a named prospect keeps, so its price
        sentence is held to the exact shape of the approved model rather than
        just to the right figure. PLAN_TERMS is written out here on purpose: it

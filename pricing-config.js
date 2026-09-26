@@ -128,21 +128,32 @@
       return { launch: a.launch || 0, monthly: a.monthly || 0, attributableTo: null };
     },
     /* A plan's two figures as the one approved sentence, in plain text (a
-       page that writes it into HTML escapes it). Every renderer states a
-       plan's price through this, so a plan whose figures are a band cannot
-       be printed as a flat price on one surface and a band on another: with
-       `launchRange` the fee reads "From", and with `monthlyRange` the
-       monthly reads as the default inside its published band. */
+       page that writes it into HTML escapes it), so a plan whose figures are
+       a band cannot be printed as a flat price on one surface and a band on
+       another: with `launchRange` the fee reads "From", and with
+       `monthlyRange` the monthly reads as the default inside its published
+       band. It is built from launchPart() and monthlyBand() below, and a page
+       that sets the fee and the monthly on separate lines (proposal.html)
+       uses those two parts instead of typing its own. */
     startLine: function (pl) {
-      function money(n) { return "C$" + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
-      var s = (Array.isArray(pl.launchRange) ? "From " : "") + money(pl.launch)
-        + " Launch & Implementation to start, then " + money(pl.monthly) + " a month";
-      if (Array.isArray(pl.monthlyRange)) {
-        s += " by default, inside a monthly band of " + money(pl.monthlyRange[0])
-          + " to " + money(pl.monthlyRange[1]);
-      }
-      return s + ".";
+      return this.launchPart(pl) + ", then " + this.money(pl.monthly) + " a month"
+        + this.monthlyBand(pl) + ".";
     },
+    /* "From C$2,500 Launch & Implementation to start" for a plan whose fee
+       is a band, "C$1,500 Launch & Implementation to start" otherwise. */
+    launchPart: function (pl) {
+      return (Array.isArray(pl.launchRange) ? "From " : "") + this.money(pl.launch)
+        + " Launch & Implementation to start";
+    },
+    /* " by default, inside a monthly band of C$250 to C$500" after the
+       monthly figure of a plan with `monthlyRange`, and nothing otherwise. */
+    monthlyBand: function (pl) {
+      return Array.isArray(pl.monthlyRange)
+        ? " by default, inside a monthly band of " + this.money(pl.monthlyRange[0])
+          + " to " + this.money(pl.monthlyRange[1])
+        : "";
+    },
+    money: function (n) { return "C$" + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); },
     /* The lines every plan's `features` carries, in the first plan's order,
        so the pricing page prints them once and each card prints only what
        differs. Computed, not read off EVERY_PLAN, because "One business phone

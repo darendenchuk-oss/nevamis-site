@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-N451ZtBVg9XbvbflXY4UQi0MOhhcLjNhgcHI4NRfO6Q=' 'sha256-Cq3RA41AD33+RyuAKUVYjJ2TRdFylnl2QzpuwkAEoIM='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-NHxO6fsBxqioQB9zB5PRp7XXYHqbbBwXmRgjADcfi1c=' 'sha256-ufY6Puo+3Qh3H5YqUGDmHBoBaFTyKYkNh17WkfVTRDo='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1423,14 +1423,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          month, and the monthly recurs. */
       /* A banded plan's published monthly is the default inside its band,
          not a fixed price (BD-4, 2026-09-25), so with no agreed ?quote= the
-         band is stated beside it, as on the pricing card. */
-      var band2 = Array.isArray(plan.monthlyRange)
-        ? " by default, inside a monthly band of " + money(plan.monthlyRange[0]) + " to " + money(plan.monthlyRange[1]) + ","
-        : ",";
+         band is stated beside it, as on the pricing card. The band's words
+         are NV_PRICING.monthlyBand's, the part startLine() is built from,
+         never typed here: this page is the one that splits the fee and the
+         monthly onto two lines, so it cannot use startLine() whole. */
       set("planMonthly", quoted > 0
         ? money(quoted) + "/month, charged the day you start and every month after."
         : (P.publishedPricing
-          ? money(plan.monthly) + "/month" + band2 + " charged the day you start and every month after."
+          ? money(plan.monthly) + "/month" + P.monthlyBand(plan) + ", charged the day you start and every month after."
           : "Your monthly amount is quoted per client, then it is charged the day you start and every month after."));
       /* NO MINIMUM TERM, stated outright. It said "no minimum term" until
          the v4 directive of 2026-08-22 made that false; the owner reversed v4
@@ -1451,9 +1451,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       var mNotice = T.cancellationNoticeDays == null ? 0 : T.cancellationNoticeDays;
       var mCancel = mNotice ? "on " + mNotice + " days notice" : "at any time";
       var mLock = T.priceLockMonths == null ? 12 : T.priceLockMonths;
-      set("planTerms", (Array.isArray(plan.launchRange)
-          ? "One-time Launch & Implementation from " + money(plan.launch) + " to start."
-          : "One-time " + money(plan.launch) + " Launch & Implementation to start.")
+      /* NV_PRICING.launchPart, "From C$2,500 ..." for a fee that is a band,
+         for the same reason as monthlyBand above. */
+      set("planTerms", "One-time " + P.launchPart(plan).replace(/^From /, "from ") + "."
         + (plan.performanceNote ? " " + plan.performanceNote : "")
         + " Overage past your included minutes is the only other usage billing."
         + " There is no minimum term: month to month from the first month, cancel " + mCancel

@@ -67,6 +67,35 @@ test('BD-4: no surface a crawler or an answer engine reads states the Partnershi
   expect(ld, 'the homepage structured data carries the band').toMatch(/From C\$2,500 Launch & Implementation to start, then C\$350 a month by default, inside a monthly band of C\$250 to C\$500/);
 });
 
+/* The proposal is the one page that sets the fee and the monthly on separate
+   lines, so it builds a banded plan from NV_PRICING.launchPart/monthlyBand
+   rather than startLine. Rendered, for every banded plan in the config, the
+   way a named prospect reads it. */
+test('BD-4: the proposal for a banded plan states the fee as a floor and the monthly band, never flat', async ({ page }) => {
+  await page.goto('/pricing.html');
+  const banded = await page.evaluate(() => window.NV_PRICING.plans
+    .filter((p) => Array.isArray(p.monthlyRange) || Array.isArray(p.launchRange))
+    .map((p) => ({ id: p.id, name: p.name, launchRange: p.launchRange, monthlyRange: p.monthlyRange,
+      launch: p.launch, monthly: p.monthly })));
+  expect(banded.length, 'no banded plan in pricing-config.js, so this rule checks nothing').toBeGreaterThan(0);
+  const money = (n) => 'C$' + Number(n).toLocaleString('en-CA');
+  for (const pl of banded) {
+    await page.goto('/proposal.html?plan=' + encodeURIComponent(pl.id));
+    await expect(page.locator('#planName')).toHaveText(pl.name.toUpperCase());
+    const monthly = (await page.locator('#planMonthly').innerText()).replace(/\s+/g, ' ');
+    const terms = (await page.locator('#planTerms').innerText()).replace(/\s+/g, ' ');
+    if (pl.monthlyRange) {
+      expect(monthly, `${pl.id}: the monthly is the default inside its band`)
+        .toContain(money(pl.monthly) + '/month by default, inside a monthly band of '
+          + money(pl.monthlyRange[0]) + ' to ' + money(pl.monthlyRange[1]));
+    }
+    if (pl.launchRange) {
+      expect(terms, `${pl.id}: the Launch & Implementation fee is a floor`)
+        .toContain('One-time from ' + money(pl.launch) + ' Launch & Implementation to start.');
+    }
+  }
+});
+
 /* ---------- BD-1: nothing connects to a CRM outside Enterprise ---------- */
 
 test('BD-1: privacy and terms never say Nevamis connects your CRM or your own tools outside an Enterprise clause', () => {
@@ -373,6 +402,7 @@ test('below the film, the button in the middle of the screen is the one a tap re
   const hits = await page.evaluate(async () => {
     const film = document.getElementById('close').closest('[id]');
     const out = [];
+    let tested = 0;
     const links = [...document.querySelectorAll('main a.btn')].filter((a) => !a.closest('#close') && a.offsetParent);
     for (const a of links) {
       a.scrollIntoView({ block: 'center' });
@@ -381,10 +411,14 @@ test('below the film, the button in the middle of the screen is the one a tap re
       const b = a.getBoundingClientRect();
       if (b.top < 0 || b.bottom > innerHeight) continue;
       const top = document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2);
+      tested += 1;
       if (top && top.closest('#close')) out.push(a.textContent.trim().replace(/\s+/g, ' '));
     }
-    return { out, film: !!film };
+    return { out, tested, film: !!film };
   });
+  /* Without this an empty page, or one where nv-below never turns on, would
+     measure nothing and pass. */
+  expect(hits.tested, 'no button below the film was measured with the film scrolled past').toBeGreaterThan(0);
   expect(hits.out, 'buttons below the film whose centre the hidden film CTA takes').toEqual([]);
   await ctx.close();
 });

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Jegac2IZQVRVxHgC0UiiAiE6llgmO0DbxY8k2Lgwn/M=' 'sha256-xrzID0FizTfVYBiFe2F5zVf7myC7m93zZV3LnVfxlvA=' 'sha256-rVH1VogcvKcocI6P3biuduIeASzLR7RdUD0lPO8BPfw=' 'sha256-rSvJLj3/1JQXJDsFYc6DVuCcVue4ELwZMpG6avMjoZc='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Jegac2IZQVRVxHgC0UiiAiE6llgmO0DbxY8k2Lgwn/M=' 'sha256-xrzID0FizTfVYBiFe2F5zVf7myC7m93zZV3LnVfxlvA=' 'sha256-Cs1w1IL712NUw7XbP7G61T79kY1QBFPDorsM7elwhko=' 'sha256-bPRso//ze45Grv0GRtD1Q5GqYrW4aSG5zQAev7FyWfw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1867,9 +1867,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        carries its own price only when there is more than one priced line,
        and the total is then labelled as the sum it is. */
     var priced = [];
+    /* A plan's or a module's figures in NV_PRICING.startLine's words, not a
+       pair typed here, so a banded plan could never reach this list flat. */
+    var figures = function (x) {
+      return P.startLine(x).replace(/\.$/, "").replace(/&/g, "&amp;");
+    };
     var item = function (x, suffix) {
-      return { name: x.name + (suffix || ""), price: "C$" + grp(x.launch)
-        + " Launch &amp; Implementation to start, then C$" + grp(x.monthly) + " a month" };
+      return { name: x.name + (suffix || ""), price: figures(x) };
     };
     var notes = [];
     if (alone) {
@@ -1917,8 +1921,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          shape: there is no plan to charge, so nothing is charged at all. */
       h += " Nothing is bought or charged on this page. Create your account and we set it up with you"
         + " under your agreement. If you want the phone answered too, the "
-        + core.name + " is C$" + grp(core.launch) + " Launch &amp; Implementation to start, then C$"
-        + grp(core.monthly) + " a month.";
+        + core.name + " is " + figures(core).replace(/^From /, "from ") + ".";
     } else if (mods.length) {
       /* The honest half of a chooser that is not a cart. */
       /* The core's figures are on its own line above; naming the plan is
