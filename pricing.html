@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Jegac2IZQVRVxHgC0UiiAiE6llgmO0DbxY8k2Lgwn/M=' 'sha256-xrzID0FizTfVYBiFe2F5zVf7myC7m93zZV3LnVfxlvA=' 'sha256-Cs1w1IL712NUw7XbP7G61T79kY1QBFPDorsM7elwhko=' 'sha256-bPRso//ze45Grv0GRtD1Q5GqYrW4aSG5zQAev7FyWfw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ucK4mdyWBHgDIvAS/VwLOqeLkk43CajHJ8e+zpZtDJ8=' 'sha256-iZ8OMWRMEJ9wbAyoYFGWaINwV1Lie6fGq/X9oUh5JTc=' 'sha256-2DrAI+HRw11Dal8zG+4dQ1MlRONFs0QWTUwRq2XgDJg=' 'sha256-L5hzxmuixfuveKyl6PKQA/GPSe3+FDaUzBXn34w3dFw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -266,7 +266,7 @@ strong{color:var(--ink)}
 .site-header.scrolled{background:rgba(2,8,13,.94);box-shadow:0 1px 0 var(--line-soft);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .site-header .wrap{display:flex;align-items:center;gap:18px;height:var(--head-h)}
-.wordmark{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
+.wordmark{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:17px;min-height:44px}
 .wordmark .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
 .wordmark .wm-v{letter-spacing:.055em}
 .wordmark svg{width:22px;height:22px;transform:translateY(-1.7px);
@@ -283,7 +283,7 @@ strong{color:var(--ink)}
 .main-nav a:not(.btn):hover::after,.main-nav a.active-section::after{transform:scaleX(1)}
 .main-nav a.active-section{color:var(--ink)}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
-  color:var(--ink);border-radius:9px;width:42px;height:42px;font-size:17px;cursor:pointer}
+  color:var(--ink);border-radius:9px;width:44px;height:44px;font-size:17px;cursor:pointer}
 @media(max-width:1080px){
   .nav-toggle{display:grid;place-items:center}
   .main-nav{position:absolute;top:var(--head-h);left:0;right:0;flex-direction:column;align-items:stretch;
@@ -297,6 +297,15 @@ strong{color:var(--ink)}
   .main-nav a:not(.btn)::after{display:none}
   .main-nav a.nav-min{display:flex}
   .main-nav .btn{margin-top:12px;justify-content:center}
+}
+@media (min-width:821px) and (max-width:1080px){
+  .main-nav:not(.open){display:flex;position:static;flex-direction:row;align-items:center;
+    padding:0;background:none;border:0;max-height:none;overflow:visible;margin-left:auto;order:1}
+  .main-nav:not(.open) .navitem{display:none}
+  .main-nav:not(.open) .navitem:last-child{display:block}
+  .main-nav:not(.open) .btn{margin-top:0}
+  .nav-toggle{order:2;margin-left:12px}
+  .nav-toggle[aria-expanded="true"]{margin-left:auto}
 }
 html.nav-locked{overflow:hidden}
 .btn{position:relative;display:inline-flex;align-items:center;gap:9px;
@@ -352,7 +361,7 @@ span.eyebrow{display:block;width:fit-content}
 .centre .eyebrow,.centre .k{text-align:center}
 .crumb{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-crumb);
   text-transform:uppercase;color:var(--ink-5);margin-bottom:10px}
-.crumb a{color:var(--ink-4)}
+.crumb a{color:var(--ink-4);display:inline-block;padding:14px 0;margin:-14px 0}
 .crumb a:hover{color:var(--mint)}
 .grid-lines,.hero-light{position:absolute;inset:0;z-index:0;pointer-events:none;
   background:
@@ -913,6 +922,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .plan .price{font-family:var(--f-display);font-size:38px;font-weight:700;
     letter-spacing:var(--tr-head);line-height:1.1;color:var(--ink);margin-top:2px}
   .plan .price span{font-size:15px;font-weight:400;color:var(--ink-3);font-family:var(--f-body)}
+  /* The invitation card's headline and its band (BD-F3): the words take the
+     headline slot, and the band sits under them at the size of the fee line,
+     so no figure on this card is set in the type the buyable plans use. */
+  .plan .price-band{font-size:var(--fs-card);line-height:var(--lh-snug);color:var(--ink-2);margin-top:6px}
   .plan .setup{font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-3);margin:8px 0 14px}
   .plan .usage{font-size:var(--fs-fine);line-height:var(--lh-snug);color:var(--ink-2);
     background:var(--frost);border:1px solid var(--line);border-radius:var(--r-input);
@@ -1454,7 +1467,23 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        unpublished branch is kept as a switch, not deleted: it has been
        flipped in both directions inside one calendar day. */
     if (P.publishedPricing) {
-      h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
+      if (pl.selfServe === false) {
+        /* AN INVITATION IS NOT AN ENTRY TIER (BD-F3, 2026-09-26). The
+           Performance Partnership is the first card (Lead Generation is door
+           one, an owner decision), and its headline was a bare monthly in the
+           same 38px type as the plans anyone can buy, the lowest figure on the
+           page, while "never the default" sat at the end of a fourteen-line
+           paragraph. canonical.ts names the hazard: a published cheap monthly
+           is read as the entry tier. So the headline is what the plan IS, the
+           words the homepage already heads it with, and its band is stated
+           under it in small type, from monthlyRange, never typed. */
+        h += '<div class="price price-invite">By invitation</div>';
+        if (Array.isArray(pl.monthlyRange)) {
+          h += '<div class="price-band">C$' + grp(pl.monthlyRange[0]) + " to C$" + grp(pl.monthlyRange[1]) + " a month</div>";
+        }
+      } else {
+        h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
+      }
       /* THE TERM, and it is derived, not typed. This sentence said "No
          minimum term." from the day the page was written until 2026-08-25,
          which was true of the old month-to-month model and became false the
@@ -1768,14 +1797,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     return P.addOns.filter(function (a) { return a.id === id && a.sellable && a.monthly; })[0];
   }
   /* Each leak is a sentence a business would say about itself, mapped to
-     the one module that answers it. The first has no module because the
-     core plan IS the answer to it, and since 2026-09-08 that is also what
-     TICKING it means: leave it unticked and the automations are quoted on
+     the one module that answers it. The first two have no module because the
+     core plan IS the answer to them, and since 2026-09-08 that is also what
+     TICKING one means: leave both unticked and the automations are quoted on
      their own, with the front desk offered beside them rather than under
-     them. */
+     them.
+
+     "People ring while I am on a job" is a phone that is not being answered,
+     so its answer is the front desk (BD-F5, 2026-09-26). It mapped to
+     Missed-Call Recovery, and because that module is sold alone, ticking it
+     on its own quoted a text-back with no front desk at all, while every
+     trade page sells answering for exactly this case ("Your line answered
+     while the crew is on the tools"). Whether the text-back should be
+     recommended here at all is an owner decision (O24/O12), not this list's. */
   var LEAKS = [
     { id: "calls",    say: "Calls go to voicemail",            mod: null },
-    { id: "missed",   say: "People ring while I am on a job",  mod: "missed_call_recovery" },
+    { id: "missed",   say: "People ring while I am on a job",  mod: null },
     { id: "quotes",   say: "Quotes go quiet",                  mod: "quote_chase" },
     { id: "invoices", say: "Invoices sit unpaid",              mod: "get_paid" },
     { id: "reviews",  say: "Not enough reviews coming in",     mod: "review_engine" }

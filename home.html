@@ -336,7 +336,7 @@ strong{color:var(--ink)}
 .site-header.scrolled{background:rgba(2,8,13,.94);box-shadow:0 1px 0 var(--line-soft);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .site-header .wrap{display:flex;align-items:center;gap:18px;height:var(--head-h)}
-.wordmark{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
+.wordmark{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:17px;min-height:44px}
 .wordmark .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
 .wordmark .wm-v{letter-spacing:.055em}
 .wordmark svg{width:22px;height:22px;transform:translateY(-1.7px);
@@ -353,7 +353,7 @@ strong{color:var(--ink)}
 .main-nav a:not(.btn):hover::after,.main-nav a.active-section::after{transform:scaleX(1)}
 .main-nav a.active-section{color:var(--ink)}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
-  color:var(--ink);border-radius:9px;width:42px;height:42px;font-size:17px;cursor:pointer}
+  color:var(--ink);border-radius:9px;width:44px;height:44px;font-size:17px;cursor:pointer}
 @media(max-width:1080px){
   .nav-toggle{display:grid;place-items:center}
   .main-nav{position:absolute;top:var(--head-h);left:0;right:0;flex-direction:column;align-items:stretch;
@@ -367,6 +367,15 @@ strong{color:var(--ink)}
   .main-nav a:not(.btn)::after{display:none}
   .main-nav a.nav-min{display:flex}
   .main-nav .btn{margin-top:12px;justify-content:center}
+}
+@media (min-width:821px) and (max-width:1080px){
+  .main-nav:not(.open){display:flex;position:static;flex-direction:row;align-items:center;
+    padding:0;background:none;border:0;max-height:none;overflow:visible;margin-left:auto;order:1}
+  .main-nav:not(.open) .navitem{display:none}
+  .main-nav:not(.open) .navitem:last-child{display:block}
+  .main-nav:not(.open) .btn{margin-top:0}
+  .nav-toggle{order:2;margin-left:12px}
+  .nav-toggle[aria-expanded="true"]{margin-left:auto}
 }
 html.nav-locked{overflow:hidden}
 .btn{position:relative;display:inline-flex;align-items:center;gap:9px;
@@ -422,7 +431,7 @@ span.eyebrow{display:block;width:fit-content}
 .centre .eyebrow,.centre .k{text-align:center}
 .crumb{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-crumb);
   text-transform:uppercase;color:var(--ink-5);margin-bottom:10px}
-.crumb a{color:var(--ink-4)}
+.crumb a{color:var(--ink-4);display:inline-block;padding:14px 0;margin:-14px 0}
 .crumb a:hover{color:var(--mint)}
 .grid-lines,.hero-light{position:absolute;inset:0;z-index:0;pointer-events:none;
   background:
@@ -1535,10 +1544,18 @@ body{
 #paneNav button[aria-expanded="true"]{color:var(--mint)}
 #paneNav button:focus-visible{outline:1px solid rgba(159,240,206,.5);outline-offset:3px}
 @media (max-width:820px){#paneNav{left:12px;gap:9px}}
+/* Portrait: the rail is a row of numerals. Each numeral sits centred in its
+   own 44x44 target (BPH-2, 2026-09-26): the buttons were 22px wide, the
+   numeral's own width plus 3px a side, on a 35px pitch, so a thumb chose
+   between two chapters. The targets now touch (gap 0), so the row is 264px
+   wide and fits a 320px screen; it sits under the header (sections.css puts
+   it at 74px), and the numerals are 44px apart, 9px wider than they were.
+   The negative margin takes back the tracking after the last digit, so each
+   numeral is centred in its target rather than 1px left of it. */
 @media (max-aspect-ratio:3/4){
-  #paneNav{left:auto;right:14px;top:18px;bottom:auto;transform:none;flex-direction:row;gap:13px}
-  #paneNav button{font-size:0;letter-spacing:0;gap:0;padding:8px 3px}
-  #paneNav button i{font-size:var(--fs-label);letter-spacing:.13em}
+  #paneNav{left:auto;right:14px;top:18px;bottom:auto;transform:none;flex-direction:row;gap:0}
+  #paneNav button{font-size:0;letter-spacing:0;gap:0;padding:0;min-width:44px;min-height:44px;justify-content:center}
+  #paneNav button i{font-size:var(--fs-label);letter-spacing:.13em;margin-right:-.13em}
 }
 body.card-open .copy.on{opacity:0}
 body.card-open #hint{opacity:0}
@@ -1865,7 +1882,7 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
   <button type="button" data-pane="plans" aria-controls="card" aria-expanded="false"><i>06</i>Plans</button>
 </nav>
 <div id="labels" aria-hidden="true">
-  <div class="plabel" data-pane="scan"><span class="lk">The scan</span><span class="ll">Every engagement starts with the PULSE Business Scan.</span><span class="lo">+ open</span></div>
+  <div class="plabel" data-pane="scan"><span class="lk">The scan</span><span class="ll">A free read of your public website.</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="capture"><span class="lk">Capture</span><span class="ll">Every opportunity answered</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="convert"><span class="lk">Convert</span><span class="ll">Follow-up that never forgets</span><span class="lo">+ open</span></div>
   <div class="plabel" data-pane="operate"><span class="lk">Operate</span><span class="ll">Less office admin</span><span class="lo">+ open</span></div>
@@ -1920,12 +1937,20 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
      other client-facing string, here and everywhere: there is no pilot and no
      trial of anything. Adding a fifth string means adding its .chip class in
      scripts/film/source.html and extending this list in the same commit.
+     Since 2026-09-26 (BD-F4) a chip on a roadmap entry reads that entry's
+     status as the Roadmap page labels it, so the #doc stations also carry
+     "Planned" and "Being researched", both on .chip.dev, and
+     check-consistency.js guard 7o holds every such chip to roadmap-config.js.
+
+     The section eyebrows carry no numbers (BD-F6, 2026-09-26). They were
+     the film's station numbers, so in reading order they ran 05, 03, 02, 06
+     with the How you start steps' own 01 to 04 after them.
      ============================================================ -->
 
 <section id="found">
   <div class="wrap">
     <div class="centre reveal">
-      <p class="k"><i>05</i> GROW <span class="chip inv">By invitation</span></p>
+      <p class="k">GROW <span class="chip inv">By invitation</span></p>
       <h1>More of the customers you want.</h1>
       <p class="lede">You tell us the kind of business you want more of, and we find them for you.</p>
     </div>
@@ -1955,7 +1980,7 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
 <section id="recover">
   <div class="wrap">
     <div class="centre reveal">
-      <p class="k"><i>03</i> CONVERT <span class="chip av">Available today</span></p>
+      <p class="k">CONVERT <span class="chip av">Available today</span></p>
       <h2>The quotes you already sent, followed up.</h2>
       <p class="lede">A quote that goes quiet past your threshold gets spotted and followed up the day it goes stale, four days on and eleven days on, each touch with your name on it and your approval before it goes.</p>
     </div>
@@ -1984,7 +2009,7 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
 <section id="answer">
   <div class="wrap">
     <div class="centre reveal">
-      <p class="k"><i>02</i> CAPTURE <span class="chip av">Available today</span></p>
+      <p class="k">CAPTURE <span class="chip av">Available today</span></p>
       <h2>Your phone answered, any hour.</h2>
       <p class="lede">Your line is answered around the clock, in your business's name, with the questions you approved.</p>
     </div>
@@ -2091,13 +2116,20 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
         <p>An invoice that goes overdue gets a polite reminder, then a firm one a week later if it stays unpaid, each released by a person before it goes. At three weeks it stops emailing your customer and tells you instead.</p>
         <p class="sold">It needs your written go-ahead to email your own customers, and your invoices recorded so it can see them age.</p>
       </div>
+      <!-- ONE STATUS PER ITEM, roadmap-config.js's (BD-F4, 2026-09-26). These
+           two read "In development" here while the Roadmap page said PLANNED
+           and BEING RESEARCHED, and the Brief said it "is being built", which
+           that file reserves for canonical work. Each chip is now the words
+           the Roadmap card shows for the entry's status, each line says what
+           the entry WOULD do, and scripts/check-consistency.js fails the day
+           a chip here disagrees with the file. -->
       <div class="svc">
-        <h4>Your Daily Business Brief <span class="chip dev">In development</span></h4>
-        <p>Is being built to condense calls, open leads, follow-ups, and urgent issues into one concise daily summary.</p>
+        <h4>Your Daily Business Brief <span class="chip dev">Planned</span></h4>
+        <p>Would condense calls, open leads, follow-ups, and urgent issues into one concise daily summary.</p>
       </div>
       <div class="svc">
-        <h4>Inbox Assistant <span class="chip dev">In development</span></h4>
-        <p>Shared business email gets organized: urgent messages flagged, replies drafted for approval, tasks extracted, a clear digest produced.</p>
+        <h4>Inbox Assistant <span class="chip dev">Being researched</span></h4>
+        <p>Would draft the routine replies, flag the ones that actually need you, and never send anything without you pressing send.</p>
       </div>
     </article>
 
@@ -2117,14 +2149,13 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
            "in development" chip understated it to the point of being false; and the
            description promised a routing behaviour nothing in the product does.
 
-           The roadmap page's approved treatment (fix plan A2) was to delete its
-           planned row rather than publish an "available" one, because a row marked
-           available needs a canonical capability slug the engine does not carry yet
-           (that is B11). So this entry carries no availability chip at all: it states
-           the narrow thing the module does and sends the reader to the page that owns
-           its price. -->
+           It then carried no chip at all while the engine had no canonical slug to
+           back an "available" row. That slug exists (canonical.ts review_engine,
+           available and sold alone), roadmap-config.js lists it as available, and
+           so it is "Available today" like every other live module (BD-F4,
+           2026-09-26). -->
       <div class="svc" data-addon="review_engine">
-        <h4>Review Engine</h4>
+        <h4>Review Engine <span class="chip av">Available today</span></h4>
         <p>Post-job review requests by text: one ask per finished job, with your own review link, and every request released by a person. Sold on the pricing page, on its own or inside The Works.</p>
       </div>
       <p class="fine2">The PULSE Business Scan also belongs to Grow; it leads the journey as the first station and is not repeated here.</p>
@@ -2324,7 +2355,7 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
 <section id="plans">
   <div class="wrap">
     <div class="section-head reveal">
-      <p class="k"><i>06</i> PLANS <span class="chip av">Published prices</span></p>
+      <p class="k">PLANS <span class="chip av">Published prices</span></p>
       <h2>One fee to start, then a monthly.</h2>
       <p class="lede">Every plan is a Launch &amp; Implementation fee to start, then a monthly, in Canadian dollars plus GST/HST. Lead Generation is offered by invitation and lives on the Performance Partnership, which is never the default. Every other add-on is its own sale, and all of them are in The Works. Enterprise is quoted per client.</p>
     </div>
@@ -2346,7 +2377,7 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
     <div class="steps">
       <div class="card reveal">
         <p class="k"><i>01</i> SCAN</p>
-        <p>Every engagement starts with the PULSE Business Scan. Takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
+        <p>The free PULSE Business Scan, if you want a read of your website first. Takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
       </div>
       <div class="card reveal">
         <p class="k"><i>02</i> TALK</p>

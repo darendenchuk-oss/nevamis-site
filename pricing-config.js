@@ -155,6 +155,12 @@
           + " to " + this.money(pl.monthlyRange[1])
         : "";
     },
+    /* The lowest and highest monthly a plan may be agreed at: its band where
+       it has `monthlyRange`, otherwise its one published monthly at both
+       ends. proposal.html honours an agreed ?quote= only inside these. */
+    monthlyBounds: function (pl) {
+      return Array.isArray(pl.monthlyRange) ? [pl.monthlyRange[0], pl.monthlyRange[1]] : [pl.monthly, pl.monthly];
+    },
     money: function (n) { return "C$" + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); },
     /* The lines every plan's `features` carries, in the first plan's order,
        so the pricing page prints them once and each card prints only what

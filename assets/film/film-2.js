@@ -46,6 +46,15 @@ try {
   renderer = new T.WebGLRenderer({ canvas: canvas, antialias: false, powerPreference: 'high-performance' });
 } catch (e) {
   document.body.classList.add('no3d');
+  /* NO FILM, SO THE PAGE READS TOP TO BOTTOM (BPH-1, 2026-09-26). Every
+     block is switched on here, and .copy is position:fixed at one resting
+     line: without the film to fade them in turn, all four sat on that line
+     at once, on top of each other and over the "Scan my business" button
+     (390x844 with WebGL unavailable). The static layout already exists for
+     reduced motion, .nv-rm, which stacks the blocks in the document under a
+     short hero strip; a browser that cannot draw the film gets the same
+     page as one that asked not to see it move. */
+  document.documentElement.classList.add('nv-rm');
   copyEls.forEach(function(c){ c.el.classList.add('on'); });
   return; /* nv-filmwait stays: the poster and .no3d are the same ground */
 }
