@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-NHxO6fsBxqioQB9zB5PRp7XXYHqbbBwXmRgjADcfi1c=' 'sha256-ufY6Puo+3Qh3H5YqUGDmHBoBaFTyKYkNh17WkfVTRDo='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-yTJCXiuyGgPQ4Sz2/wq6A7FU12X9/tPntWe9hHRkTe8=' 'sha256-nVcOAa2kEnfYizMAXYKXwmMPM6RRvoUZ+MG4568x6V4='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1451,8 +1451,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       var mNotice = T.cancellationNoticeDays == null ? 0 : T.cancellationNoticeDays;
       var mCancel = mNotice ? "on " + mNotice + " days notice" : "at any time";
       var mLock = T.priceLockMonths == null ? 12 : T.priceLockMonths;
-      /* NV_PRICING.launchPart, "From C$2,500 ..." for a fee that is a band,
-         for the same reason as monthlyBand above. */
+      /* NV_PRICING.launchPart, which puts "from" in front of a fee that is
+         a band, for the same reason as monthlyBand above. */
       set("planTerms", "One-time " + P.launchPart(plan).replace(/^From /, "from ") + "."
         + (plan.performanceNote ? " " + plan.performanceNote : "")
         + " Overage past your included minutes is the only other usage billing."

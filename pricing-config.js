@@ -139,14 +139,16 @@
       return this.launchPart(pl) + ", then " + this.money(pl.monthly) + " a month"
         + this.monthlyBand(pl) + ".";
     },
-    /* "From C$2,500 Launch & Implementation to start" for a plan whose fee
-       is a band, "C$1,500 Launch & Implementation to start" otherwise. */
+    /* The fee half of startLine(): "Launch & Implementation to start" after
+       the `launch` figure, with "From" in front when the plan has
+       `launchRange`. */
     launchPart: function (pl) {
       return (Array.isArray(pl.launchRange) ? "From " : "") + this.money(pl.launch)
         + " Launch & Implementation to start";
     },
-    /* " by default, inside a monthly band of C$250 to C$500" after the
-       monthly figure of a plan with `monthlyRange`, and nothing otherwise. */
+    /* What follows the monthly figure of a plan with `monthlyRange`: that it
+       is the default inside the band, and the band's two ends. Empty for a
+       plan without one. */
     monthlyBand: function (pl) {
       return Array.isArray(pl.monthlyRange)
         ? " by default, inside a monthly band of " + this.money(pl.monthlyRange[0])
