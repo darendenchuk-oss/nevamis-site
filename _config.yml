@@ -1,8 +1,8 @@
 # GitHub Pages (Jekyll) build configuration.
 # Sole purpose: keep internal working files out of the published site.
 # Everything not listed here is served verbatim at nevamis.ca.
-# ring.xml and pricing-config.js MUST stay published (phone routing and
-# live pricing depend on them).
+# ring.xml, missed-line.xml and pricing-config.js MUST stay published (phone
+# routing, the phone fallback and live pricing depend on them).
 exclude:
   - docs/
   - config/

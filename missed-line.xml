@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Pause length="1"/>
+  <Say>Sorry, nobody can take your call right now. Please try again later.</Say>
+  <Hangup/>
+</Response>
