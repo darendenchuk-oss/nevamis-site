@@ -1103,6 +1103,9 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     /* A negation beside the claim is not a denial of it. */
     "No timer, calls forward automatically at 5 PM.",
     "Forwarding has no timer, and it switches on at 6 PM.",
+    /* The negation governs "answer", not the switch: only a closed list of
+       words may sit between a negation and what it denies. */
+    "Calls you don't answer forward automatically at 6 PM.",
   ];
   const MUST_PASS = [
     "It never falls back to your voicemail.",
@@ -1132,7 +1135,7 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     "Forwarding does not switch on automatically at closing.",
     "You do not choose the hours it covers.",
     "It forwards automatically after four rings.",
-    "A call you miss forwards after 20 seconds.",
+    "It forwards automatically after 20 seconds.",
     "Nobody picks up after hours, so every call reaches Nevamis.",
     "How after-hours answering works.",
     /* Other products keep time honestly, and the rule is about forwarding. */
