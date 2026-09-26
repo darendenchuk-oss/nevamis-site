@@ -979,10 +979,10 @@ const NO_MECHANISM = [
       String.raw`\bonly\s+after[- ]hours\b`,
       String.raw`\b(?:choose|chooses|choosing|pick|picks|picking)\s+(?:the|your|its|their|which)\s+hours\b`,
       String.raw`\bany\s+schedule\b`,
-      String.raw`\b(?:on|to|by|with)\s+a\s+(?:schedule|timer)\b`,
+      String.raw`\b(?:forward\w*|calls?|coverage|answer\w*|line)\b[^.;]{0,40}?\b(?:on|to|by|with)\s+a\s+(?:schedule|timer)\b`,
       String.raw`\bscheduled\s+(?:forwarding|coverage|answering|hours)\b`,
       String.raw`\b(?:forwarding|coverage|answering)\s+(?:schedule|timer)\b`,
-      String.raw`\bby\s+the\s+(?:clock|hour)\b`,
+      String.raw`\bby\s+the\s+clock\b`,
       String.raw`\btime[- ]of[- ]day\s+(?:forwarding|routing|coverage|switching)\b`,
       String.raw`(?:\bforward\w*|\b(?:send|sends|sending|route|routes|routing)\s+(?:\w+\s+){0,2}?calls?\b|\bcalls?\s+(?:\w+\s+){0,3}?(?:sent|routed|forwarded|go|goes|reach|reaches|ring|rings)\b)[^.;:]{0,60}?\b(?:outside|after|before)\s+(?:of\s+)?(?:your\s+|its\s+|their\s+|normal\s+|regular\s+|the\s+)?(?:business|office|opening|working|shop)\s+hours\b`,
       String.raw`\bduring\s+the\s+day\b[^.;]{0,40}?\bnothing\s+(?:else\s+)?(?:is\s+|at\s+all\s+)?(?:different|changes)\b`,
@@ -1075,6 +1075,9 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     "A call you do not answer forwards automatically.",
     "Dial the all-calls code when you close and its off code when you open.",
     "Before you go live your agent is configured around your hours, services, prices, service area and rules.",
+    /* Other products keep time honestly, and the rule is about forwarding. */
+    "Invoice reminders go out on a schedule you approve.",
+    "An answering service bills by the hour.",
   ];
   for (const s of MUST_CATCH) if (!flagged(s)) {
     err("NO_MECHANISM fails its own example: it lets through \"" + s + "\". Fix the pattern in scripts/check-consistency.js so every MUST_CATCH line is caught.");

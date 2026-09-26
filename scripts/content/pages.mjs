@@ -278,7 +278,7 @@ export const PAGES = {
      forwarding-setup.ts) are no-answer, busy and unreachable, or every
      call, switched only by the owner dialling them. So a daytime call
      the owner misses reaches Nevamis too, and "evenings only" means
-     dialling the all-calls code at closing and its off code at opening.
+     switching on all-calls forwarding at closing and off at opening.
      The page now says exactly that, and guard 7k's NO_MECHANISM in
      scripts/check-consistency.js refuses a schedule claim anywhere. */
   'after-hours-answering.html': {
@@ -291,21 +291,23 @@ export const PAGES = {
       <p class="eyebrow mono">How it works</p>
       <h2>You keep your number. Your phone still rings first.</h2>
       <p>Nothing about your phone setup changes permanently, and your number stays exactly as
-        it is on every truck, card, and listing. You dial a forwarding code from your own
-        phone, and from then on a call you do not pick up, or one that comes in while your line
+        it is on every truck, card, and listing. You switch on forwarding with your phone
+        provider, usually by dialling a short code, and we walk you through it. From then on a
+        call you do not pick up, or one that comes in while your line
         is busy or your phone is off, goes to Nevamis. After hours, when nobody is picking up,
         that is every call. Forwarding follows whether you answer, not the clock, so a call you
         miss on a job during the day is answered too, and every call it answers counts toward
-        your plan's included minutes. Another code from your own phone switches it off
+        your plan's included minutes. You can switch forwarding off from your own phone
         whenever you want.</p>
     </div>
     <ol class="path-steps" role="list">
       <li class="pstep"><h3>Your phone rings first</h3><p>A call goes to Nevamis only when you
         do not answer, your line is busy, or your phone is off. Evenings, weekends, and holidays
-        are covered because nobody is there to pick up.</p></li>
+        are covered because nobody is there to pick up. A few providers only offer forwarding
+        every call, and setup tells you before you switch it on.</p></li>
       <li class="pstep"><h3>Or send every call, when you choose</h3><p>If you would rather your
-        phone stayed quiet at night, dial the all-calls code when you close and its off code
-        when you open. It changes only when you dial it: there is no timer to set.</p></li>
+        phone stayed quiet at night, switch on all-calls forwarding when you close and switch
+        it off when you open. It changes only when you change it: there is no timer to set.</p></li>
       <li class="pstep"><h3>It answers in seconds</h3><p>In your business's name and tone. If a
         caller asks whether they are talking to a person, it says plainly that it is an AI.</p></li>
       <li class="pstep"><h3>Urgent calls escalate</h3><p>Nevamis captures the urgent details

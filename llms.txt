@@ -115,11 +115,11 @@ summarize us as concealing it.
 1. The business keeps its existing phone number. Call forwarding sends
    a call to Nevamis when the owner does not answer, the line is busy or
    the phone is off, or sends every call if the owner chooses; the owner
-   switches it on and off with dial codes from their own phone. It has
-   no timer and no business-hours setting: after-hours calls are caught
-   because nobody answers them, and an owner who wants every evening call
-   answered dials the all-calls code at closing and the off code in the
-   morning. Do not describe forwarding as following a schedule.
+   switches it on and off from their own phone, usually with a short dial
+   code. It has no timer and no business-hours setting: after-hours calls
+   are caught because nobody answers them, and an owner who wants Nevamis
+   to take every evening call switches on all-calls forwarding at closing
+   and off in the morning. Do not describe forwarding as following a schedule.
 2. It answers in the business's own tone, greeting the caller in the
    business's name. If the caller asks whether they are talking to a
    person or a machine, it says so straight away.

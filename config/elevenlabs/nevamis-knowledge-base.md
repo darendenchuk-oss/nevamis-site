@@ -32,7 +32,7 @@ Coverage follows the business's call forwarding, which the business switches wit
 - Overflow coverage: calls forward to the AI only when the line is busy, nobody picks up, or the phone is off, so a human answers when they can and the AI catches everything that would otherwise go to voicemail. This is also how evenings, weekends and holidays are covered: nobody is picking up then, so every call reaches the AI. Calls the team misses during the day reach it too.
 - Full-time coverage: every call forwards to the AI, all day.
 
-Forwarding has no timer and no business-hours setting. A business that wants the AI to take every call in the evening dials the all-calls code when it closes and the off code when it opens. All modes run on the business's existing number, and the business can change how forwarding is set up as its needs change.
+Forwarding has no timer and no business-hours setting. A business that wants the AI to take every call in the evening switches on all-calls forwarding when it closes and switches it off when it opens. All modes run on the business's existing number, and the business can change how forwarding is set up as its needs change.
 
 ## Qualification
 
