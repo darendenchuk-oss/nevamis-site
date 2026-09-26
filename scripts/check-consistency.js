@@ -1169,8 +1169,11 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
   for (const { label, text } of units) {
     for (const { re, why, denial, name } of NO_MECHANISM) {
       if (!re.test(text)) continue;
-      for (const clause of judgedClauses(text)) {
-        if (!re.test(clause) || (denial && denial.test(clause))) continue;
+      /* One report per sentence: a line-cut fragment that fires inside a
+         joined clause that also fires is the same finding said twice. */
+      const hits = [...judgedClauses(text)].filter((c) => re.test(c) && !(denial && denial.test(c)));
+      for (const clause of hits) {
+        if (hits.some((h) => h !== clause && h.includes(clause))) continue;
         const key = label + "::" + clause;
         if (seen.has(key)) continue;
         seen.add(key);
