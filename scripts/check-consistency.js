@@ -1017,6 +1017,12 @@ const NO_MECHANISM = [
       String.raw`\b(?:takes?|taking|took)\s+over\s+(?:(?:at|from|after|by)\s+${CLOCK}|(?:every|each)\s+(?:night|evening|weekend)\b)`,
       String.raw`\b(?:forward\w*|answer\w*|cover\w*|calls?|line|Nevamis)\b[^.;]{0,40}?\bonly\s+(?:at\s+night|overnight|after\s+dark|(?:in\s+the\s+|on\s+)?(?:evenings?|nights|weekends)|when\s+you(?:'re|\s+are)\s+closed)\b`,
       String.raw`\b(?:forward\w*|answer\w*|cover\w*|calls?)\b[^.;]{0,40}?\b(?:evenings?|nights?|weekends?|at\s+night|overnight)\s+only\b`,
+      /* "After-hours coverage" named as a mode beside "Overflow coverage"
+         and "Full-time front line" (missed-calls.html, review of PR #39).
+         There are two modes, overflow and every call; evenings are caught
+         by the same no-answer forwarding. "After-hours answering", the
+         situation page's name, stays sayable. */
+      String.raw`\bafter[- ]hours\s+(?:coverage|mode|setting|option)\b`,
     ].join("|"), "i");
     const NEGATED = String.raw`(?:\bno|\bnot|\bnever|\bwithout|n't)\s+(?:(?:be|ever|run|runs|running|work|works|go|goes|follow|follows|use|uses|need|needs|have|has|set|choose|pick|decide|switch|switches|turn|turns|forward|forwards|take|takes|change|changes|on|over|to|by|with|at|a|an|any|the|its|your|which|what|itself)\s+){0,4}(?:schedule|timer|clock|automatically|hours)\b`;
     return { name: "forwarding on a schedule", re,
@@ -1093,6 +1099,7 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     "Calls forward automatically at closing time.",
     "Forwarding switches on at 6 PM.",
     "Nevamis answers calls at night only.",
+    "Evenings and weekends are when emergency work is decided. After-hours coverage catches it.",
     /* A negation beside the claim is not a denial of it. */
     "No timer, calls forward automatically at 5 PM.",
     "Forwarding has no timer, and it switches on at 6 PM.",
@@ -1127,6 +1134,7 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     "It forwards automatically after four rings.",
     "A call you miss forwards after 20 seconds.",
     "Nobody picks up after hours, so every call reaches Nevamis.",
+    "How after-hours answering works.",
     /* Other products keep time honestly, and the rule is about forwarding. */
     "Invoice reminders go out on a schedule you approve.",
     "An answering service bills by the hour.",
