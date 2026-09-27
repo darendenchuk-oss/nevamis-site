@@ -270,6 +270,24 @@ export const PAGES = {
     }),
   },
 
+  /* Until 2026-09-26 this said forwarding sent calls to Nevamis "outside
+     your business hours", that "during the day nothing is different",
+     and offered "You choose the hours: ... any schedule" and "Calls
+     forward automatically". Forwarding has no clock in it: the codes
+     the portal hands a client (nevamis-engine forwarding-codes.ts and
+     forwarding-setup.ts) are no-answer, busy and unreachable, or every
+     call, switched only by the owner dialling them. So a daytime call
+     the owner misses reaches Nevamis too, and "evenings only" means
+     switching on all-calls forwarding at closing and off at opening.
+     The page now says exactly that, and guard 7k's NO_MECHANISM in
+     scripts/check-consistency.js refuses a schedule claim anywhere. */
+  /* "Ask us for your provider's all-calls on and off codes" (review of PR
+     #39, 2026-09-26): no client surface prints them yet. The portal's
+     forwarding page builds the no-answer steps only, and the setup email's
+     undo line gives the erase-all code first, which also removes no-answer
+     forwarding. Told to "switch it off when you open", an owner using that
+     code would lose daytime missed-call answering. When the engine shows
+     allOn/allOff apart from eraseAll, this can point there instead. */
   'after-hours-answering.html': {
     h1: 'After-hours calls answered on your own number',
     lede: `Evenings, weekends, and holidays covered without hiring a night shift or paying a per-call answering service. Your number, your rules, answered in seconds.`,
@@ -278,16 +296,26 @@ export const PAGES = {
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow mono">How it works</p>
-      <h2>You keep your number. Forwarding does the rest.</h2>
-      <p>Nothing about your phone setup changes permanently. Call forwarding sends calls to
-        Nevamis outside your business hours, and during the day nothing is different. You can
-        switch it off from your own phone whenever you want.</p>
+      <h2>You keep your number. Your phone still rings first.</h2>
+      <p>Nothing about your phone setup changes permanently, and your number stays exactly as
+        it is on every truck, card, and listing. You switch on forwarding with your phone
+        provider, usually by dialling a short code, and we can walk you through it. From then on a
+        call you do not pick up, or one that comes in while your line
+        is busy or your phone is off, goes to Nevamis. After hours, when nobody is picking up,
+        that is every call. Forwarding follows whether you answer, not the clock, so a call you
+        miss on a job during the day is answered too, and every call it answers counts toward
+        your plan's included minutes. You can switch forwarding off from your own phone
+        whenever you want.</p>
     </div>
     <ol class="path-steps" role="list">
-      <li class="pstep"><h3>You choose the hours</h3><p>Evenings only, weekends, holidays, or
-        any schedule that matches how you actually work.</p></li>
-      <li class="pstep"><h3>Calls forward automatically</h3><p>Your existing number stays
-        exactly as it is on every truck, card, and listing.</p></li>
+      <li class="pstep"><h3>Your phone rings first</h3><p>A call goes to Nevamis only when you
+        do not answer, your line is busy, or your phone is off. Evenings, weekends, and holidays
+        are covered because nobody is there to pick up. A few providers only offer forwarding
+        every call, and setup tells you before you switch it on.</p></li>
+      <li class="pstep"><h3>Or send every call, when you choose</h3><p>If you would rather your
+        phone stayed quiet at night, ask us for your provider's all-calls on and off codes, then
+        dial one when you close and the other when you open. It changes only when you change
+        it: there is no timer to set.</p></li>
       <li class="pstep"><h3>It answers in seconds</h3><p>In your business's name and tone. If a
         caller asks whether they are talking to a person, it says plainly that it is an AI.</p></li>
       <li class="pstep"><h3>Urgent calls escalate</h3><p>Nevamis captures the urgent details
@@ -350,7 +378,9 @@ export const PAGES = {
     </div>
     <div class="proc">
       <div class="reveal"><h3>After hours</h3><p>Evenings and weekends are when emergency work
-        is decided. <a href="/after-hours-answering.html">After-hours coverage</a> catches it.</p></div>
+        is decided. Nobody is picking up then, so the same no-answer forwarding that catches a
+        call you miss on a job sends those evening and weekend calls to Nevamis.
+        <a href="/after-hours-answering.html">How after-hours answering works</a>.</p></div>
       <div class="reveal"><h3>On the tools</h3><p>You cannot answer mid-job. Overflow coverage
         picks up only when you do not.</p></div>
       <div class="reveal"><h3>Already on a call</h3><p>A busy signal is a lost caller. Overflow
