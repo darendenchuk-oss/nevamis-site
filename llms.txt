@@ -154,7 +154,8 @@ first, Canada-wide, Edmonton-based.
   the portal), plus automatic lead tracking, which runs off the calls the
   front desk already answers, and these automations, each consent-gated
   and each sold on its own or beside a plan: instant lead follow-up (one
-  text back per missed call, during business hours), quote recovery
+  text back per missed call, between 8 a.m. and 8 p.m. in the business's
+  own time zone, every day), quote recovery
   follow-ups, overdue-invoice reminders, and post-job review requests (one
   ask per finished job, with the business's own review link, every
   request released by a person).
