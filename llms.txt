@@ -20,18 +20,28 @@
 Key facts (kept accurate; the pricing page is authoritative):
 
 - Live demo: call +1 (587) 413-0035 and it answers, any hour.
-- Published pricing (CAD, plus GST/HST). Each plan is a one-time Launch &
-  Implementation fee charged once, at the start, beside the first month,
-  then a monthly price charged the day the business subscribes and on the
-  same day every month after:
+- Published pricing (CAD, plus GST/HST). On the AI Front Desk, The Works
+  and any automation add-on bought on its own there is no Launch &
+  Implementation fee, and a business new to Nevamis gets its first month
+  free, once per business. Your first month is free. We take your card when
+  you start and charge nothing until your second month begins; cancel in
+  your portal before then and you pay nothing. We remind you a week before
+  and a day before your first charge. Minutes past your allowance during
+  your free month are not billed. A module you add once you are paying is
+  billed from its first month. No Launch & Implementation fee: you pay the
+  monthly price and nothing else. The monthly is then charged on the same
+  date every month. The public name is "first month free".
+  Never call it a free trial.
     Performance Partnership: by invitation and approval only, never the
-                             default and never self-serve. From C$2,500
-                             Launch & Implementation to start, then C$350
-                             a month by default, inside a monthly band of
-                             C$250 to C$500. Both figures are set in the
-                             client's agreement: C$2,500 is the lowest
-                             Launch & Implementation fee, not a fixed
-                             one. On it, Lead Generation and
+                             default and never self-serve. C$5,000 Launch
+                             & Implementation, then C$350 a month from the
+                             first month, plus an agreed share of collected
+                             revenue directly attributable to a business
+                             Nevamis found or a quote Nevamis recovered, set
+                             in your agreement before anything is charged.
+                             By invitation; there is no free month on the Partnership.
+                             Both figures are fixed, with no band. On it,
+                             Lead Generation and
                              the Quote-Chase Engine carry no monthly of
                              their own and are each paid by an agreed
                              share of collected revenue directly
@@ -43,22 +53,22 @@ Key facts (kept accurate; the pricing page is authoritative):
                              before anything is charged; do not state a
                              rate. Lead Generation is by invitation and
                              is not sold from a page.
-    The Works:               C$3,000 Launch & Implementation to start,
-                             then C$2,100 a month. No performance fee.
-                             The whole engine: the AI Front Desk plus
-                             every sellable automation add-on, priced
-                             under the sum of its parts.
-    AI Front Desk (recommended): C$1,500 Launch & Implementation to
-                             start, then C$1,000 a month. No performance
-                             fee. Automation add-ons are each their own
-                             sale, bought on their own or beside a plan,
-                             one at a time, each carrying its own one-time
-                             Launch & Implementation fee: Missed-Call Recovery
-                             C$500 to start, then C$350 a month;
-                             Quote-Chase Engine C$750 to start, then
-                             C$500 a month; Get-Paid Autopilot C$750 to
-                             start, then C$500 a month; Review Engine
-                             C$500 to start, then C$300 a month.
+    The Works:               First month free, then C$2,100 a month. No
+                             performance fee. The whole engine: the AI
+                             Front Desk plus every sellable automation
+                             add-on, priced under the sum of its parts.
+    AI Front Desk (recommended): First month free, then C$1,000 a month.
+                             No performance fee. Automation add-ons are
+                             each their own sale, bought on their own or
+                             beside a plan, one at a time, with no Launch
+                             & Implementation fee, each with its first
+                             month free when bought on its own:
+                             Missed-Call Recovery: First month free, then
+                             C$350 a month; Quote-Chase Engine: First
+                             month free, then C$500 a month; Get-Paid
+                             Autopilot: First month free, then C$500 a
+                             month; Review Engine: First month free, then
+                             C$300 a month.
     Enterprise:              quoted per client. Launch & Implementation
                              starting at C$5,000 or custom quoted;
                              recurring custom; performance optional. There
@@ -67,29 +77,34 @@ Key facts (kept accurate; the pricing page is authoritative):
   There is no minimum term on anything, and no cancellation notice
   period either. Every plan and every automation add-on, bought on its
   own or added later, is month to month from the first month. The client
-  cancels at any time from their own portal and the service runs to the
-  end of the month already paid for, with the price locked for twelve
-  months from signing. A three-month or six-month start was the rule
-  between 2026-08-22 and 2026-09-08 and is retired; never state one. A
-  cancellation notice period applied until 2026-09-12 and is retired
-  too; never state one. Separately, and unchanged, existing clients get
-  at least 30 days written notice before a material price increase (see
-  /terms.html): that is notice Nevamis gives the client, not a condition
-  on cancelling.
-- State the two figures with the joins "to start" and "then", exactly as
-  above. Never add them into one total, and never join them with "plus".
+  cancels at any time from their own portal: in the free month, before
+  the second month begins, nothing is charged; once paying, the service
+  runs to the end of the month already paid for, with the price locked
+  for twelve months from signing. A three-month or six-month start was
+  the rule between 2026-08-22 and 2026-09-08 and is retired; never state
+  one. A cancellation notice period applied until 2026-09-12 and is
+  retired too; never state one. Separately, and unchanged, existing
+  clients get at least 30 days written notice before a material price
+  increase (see /terms.html): that is notice Nevamis gives the client,
+  not a condition on cancelling.
+- State each plan's figures exactly as above. On the AI Front Desk, The
+  Works and the add-ons there is no Launch & Implementation fee; the
+  Performance Partnership's is C$5,000 and Enterprise's starts at C$5,000.
   The one-time fee has ONE name, "Launch & Implementation": never call it a
-  setup fee, an activation fee or an onboarding fee, and never say the fee
-  does not exist. A summary saying an AI Front Desk customer owes only C$1,000 to start
-  is wrong; starting costs the C$1,500 Launch & Implementation fee,
-  collected beside that first C$1,000 month.
+  setup fee, an activation fee or an onboarding fee, and never say the
+  Partnership's does not exist. A summary saying an AI Front Desk customer
+  pays C$1,000 on the day they start is wrong: their first month is free,
+  and the first C$1,000 is charged when their second month begins.
 - The performance share exists only on the Performance Partnership. It is
   never a share of all revenue and never profit-based: it applies only to
   collected revenue directly attributable to a business Nevamis found or a
   quote Nevamis recovered, as governed by the client's agreement, which is
   where the share is set.
-- There is no pilot, trial or evaluation period of any kind, paid or
-  unpaid.
+- There is no pilot and no evaluation period of any kind, paid or unpaid.
+  The one free period is the first month free described above: one
+  calendar month, card taken at sign-up, once per business, and none on
+  the Performance Partnership or Enterprise. Never describe any other free
+  period. Never call it a free trial.
 - Plan names and prices are only those on /pricing.html. Any other name,
   price or offer is retired: never quote it.
 - A referred business pays the same published price as everybody else.
@@ -170,8 +185,8 @@ first, Canada-wide, Edmonton-based.
   list and nothing else: bid and tender work is arranged separately by hand
   under the service agreement's named-approver rule and is not part of this
   service. No automated search has run for any client; each list is put
-  together by hand. There is no pilot and no trial: the only phrase for
-  this state is "by invitation".
+  together by hand. It is not sold with a free month and there is no pilot
+  of it: the only phrase for this state is "by invitation".
 - NOT OFFERED today, and not on the published roadmap: booking into a
   calendar, live call transfer, any CRM, ads or software integration,
   multi-location or multi-department routing, more than one number per

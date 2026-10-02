@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-nkMt6GJ5AQx7Fj+PFMIJuj8Jmo92S/21cBzJAw8Ms8U=' 'sha256-ijb17BkqishcNJVFz6G9STxjtv7Ku+rPWP3vjcMUP3E='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-rKsJcGyAL+tsfSSkR7kg29Mkpe6ueZcoTLTMOOlFYzo=' 'sha256-/W3INJ9gj3ebkgu6S7jHtBPC+YjK2sKefB8IhnuFMuY='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1095,8 +1095,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            phone was 0.060 of this page's 0.060 CLS: the whole of it, in one
            shift, on the one document written to close a sale. -->
       <p class="plan-line" id="planIncludes">1,400 included AI minutes per month, about 470 to 700 typical calls. Additional minutes C$0.75 each.</p>
-      <p class="plan-line" id="planMonthly">C$1,000/month, charged the day you start and every month after.</p>
-      <p class="plan-line" id="planTerms">One-time C$1,500 Launch &amp; Implementation to start. Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.</p>
+      <p class="plan-line" id="planMonthly">C$1,000/month, charged from the day your second month begins and every month after.</p>
+      <p class="plan-line" id="planTerms">Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. No Launch &amp; Implementation fee: you pay the monthly price and nothing else. Minutes past your allowance during your free month are not billed. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.</p>
       <p class="plan-line" id="planAnnual"></p>
       <ul class="ticks" id="planFeatures">
         <li>One business phone line</li>
@@ -1157,7 +1157,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <li><b>You review it.</b> You hear it, push on it, and approve it before it takes a single real call.</li>
       <li><b>Tested against scripted callers.</b> We run written call scenarios at the live agent before a phone number is attached to it, so the first real caller is not the first test.</li>
       <li><b>Forwarding proven.</b> We place a real call to your line and confirm it lands, rather than assuming the carrier did what it was told.</li>
-      <li><b>Live, and cancellable whenever you want.</b> You are billed monthly from the day you start, with no minimum term. If the service is not earning its price, you cancel it yourself from the portal at any time, and the month you already paid for runs out normally.</li>
+      <li id="stepLive"><b>Live, and cancellable whenever you want.</b> <span id="stepLiveText">Your first month is free and you are billed monthly from the day your second month begins, with no minimum term. If the service is not earning its price, you cancel it yourself from the portal at any time, and the month you already paid for runs out normally.</span></li>
     </ol>
     <div class="noprint-cta">
       <a class="btn btn-primary btn-lg" href="https://app.nevamis.ca/signup?plan=pro" data-buy data-evt="plan_buy_click_pro">Start now</a>
@@ -1327,8 +1327,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          - anything else renders a visible "no plan named" state.
        Only a missing ?plan= still means the recommended plan, because a bare
        link is how the static copy has always been sent. */
+    /* `launch > 0` was part of this test until v7 (2026-10-02); every
+       module's fee is 0 now, and a module is sellable on its monthly. */
     var mod = plan ? null : (P.addOns || []).filter(function (a) {
-      return a.id === wanted && a.sellable === true && a.soldAlone === true && a.monthly > 0 && a.launch > 0;
+      return a.id === wanted && a.sellable === true && a.soldAlone === true && a.monthly > 0;
     })[0];
 
     /* THE TERM, stated once for a plan and a module alike. NO MINIMUM TERM,
@@ -1354,6 +1356,21 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var termSentence = "There is no minimum term: month to month from the first month, cancel " + mCancel
       + " from your own portal, with service running to the end of the month you already paid for."
       + " Your price is locked for " + mLock + " months.";
+    /* THE FREE MONTH (v7, 2026-10-02), in pricing-config.js freeMonth's own
+       words, for a plan or a module that carries one. `minutes` is false for
+       a module, which has no minute allowance. */
+    var FM = P.freeMonth || {};
+    function freeSentences(x, minutes) {
+      if (!(x.freeMonths > 0) || !FM.offer) return "";
+      return [FM.offer, FM.reminder, x.launch > 0 ? "" : FM.fee, minutes ? FM.usage : ""]
+        .filter(Boolean).join(" ") + " ";
+    }
+    /* When the monthly is first charged: the day you start, or the day the
+       second month begins after a free month. */
+    function firstCharge(x) {
+      return x.freeMonths > 0 ? ", charged from the day your second month begins and every month after."
+        : ", charged the day you start and every month after.";
+    }
 
     /* The static steps are the front desk's build (an agent, scripted test
        callers, forwarding proven), which is the wrong list for a module and
@@ -1404,14 +1421,17 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       }
       set("planIncludes", "Each automation is its own sale, on its own or beside a plan. This one is set up after a short call, not bought from this page.");
       set("planMonthly", P.publishedPricing
-        ? money(mod.launch) + " Launch & Implementation to start, then " + money(mod.monthly) + " a month, charged the day you start and every month after."
+        ? P.startLine(mod).replace(/\.$/, "") + firstCharge(mod)
         : "Your price is quoted per client, then it is charged the day you start and every month after.");
-      set("planTerms", termSentence);
+      set("planTerms", freeSentences(mod, false) + termSentence);
       hideFeatures();
       replaceSteps([
         ["Discovery.", "A short call about where the work is slipping, and what this module needs from you to run."],
         ["Set up.", "It is configured with your business name, your hours and the rules you approve, and nothing is switched on until you say so."],
-        ["Live, and cancellable whenever you want.", "You are billed monthly from the day you start, with no minimum term. If it is not earning its price, you cancel it yourself from the portal at any time, and the month you already paid for runs out normally."]
+        ["Live, and cancellable whenever you want.", (mod.freeMonths > 0
+          ? "Your first month is free and you are billed monthly from the day your second month begins, with no minimum term."
+          : "You are billed monthly from the day you start, with no minimum term.")
+          + " If it is not earning its price, you cancel it yourself from the portal at any time, and the month you already paid for runs out normally."]
       ]);
       return;
     }
@@ -1464,6 +1484,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         }
       }
       set("planName", plan.name.toUpperCase() + (plan.recommended ? " · " + (P.recommendedLabel || "RECOMMENDED") : ""));
+      /* The last step says when billing starts, and a plan with no free
+         month (the Partnership) starts it on day one (v7, 2026-10-02). */
+      if (!(plan.freeMonths > 0)) {
+        set("stepLiveText", "You are billed monthly from the first month, with no minimum term. If the service is not earning its price, you cancel it yourself from the portal at any time, and the month you already paid for runs out normally.");
+      }
       /* THE QUOTED AMOUNT, or the published plan price. ?quote= carries a
          per-client figure where one was agreed and always wins. Since the
          2026-08-15 evening directive the ladder is published again, so with
@@ -1502,7 +1527,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       }
 
       /* THE BUY PATH (F4, 2026-09-24). Checkout charges the plan's published
-         Launch & Implementation fee and monthly, nothing else, so "Start now"
+         figures (since v7, the monthly from the second month on a plan with a
+         free month), nothing else, so "Start now"
          may sit only under a price that IS that published monthly. Five
          conditions, each of them a way that button would contradict the box
          above it:
@@ -1559,20 +1585,27 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          are NV_PRICING.monthlyBand's, the part startLine() is built from,
          never typed here: this page is the one that splits the fee and the
          monthly onto two lines, so it cannot use startLine() whole. */
+      /* v7 (2026-10-02): NV_PRICING.monthlyBand adds "from the first month"
+         to a plan with no free month, and firstCharge() says when the monthly
+         is first charged. A quoted figure exists only where it equals the
+         published monthly (monthlyBounds), so it follows the same rule. */
       set("planMonthly", quoted > 0
-        ? money(quoted) + "/month, charged the day you start and every month after."
+        ? money(quoted) + "/month" + P.monthlyBand(plan) + firstCharge(plan)
         : (P.publishedPricing
-          ? money(plan.monthly) + "/month" + P.monthlyBand(plan) + ", charged the day you start and every month after."
+          ? money(plan.monthly) + "/month" + P.monthlyBand(plan) + firstCharge(plan)
           : "Your monthly amount is quoted per client, then it is charged the day you start and every month after."));
       /* The term sentence is termSentence, above, shared with the module
-         proposal so the two cannot drift apart. */
-      /* NV_PRICING.launchPart, which puts "from" in front of a fee that is
-         a band, for the same reason as monthlyBand above. */
-      set("planTerms", "One-time " + P.launchPart(plan).replace(/^From /, "from ") + "."
-        + (plan.performanceNote ? " " + plan.performanceNote : "")
-        + " Overage past your included minutes is the only other usage billing."
-        + " " + termSentence
-        + (plan.selfServe === false ? " This plan is offered by invitation and approval." : ""));
+         proposal so the two cannot drift apart. A plan with a Launch &
+         Implementation fee states it through NV_PRICING.launchPart, with its
+         performance clause; a plan with a free month states the free month
+         instead, in the config's words. */
+      set("planTerms", (plan.launch > 0
+          ? "One-time " + P.launchPart(plan) + " to start"
+            + (plan.performanceNote ? ", " + plan.performanceNote : "") + "."
+            + (plan.inviteNote ? " " + plan.inviteNote : "")
+            + " Overage past your included minutes is the only usage billing. "
+          : freeSentences(plan, true))
+        + termSentence);
 
       if (P.annual && P.annual.active && plan.annual) {
         set("planAnnual", "Or " + money(plan.annual) + " for the year: pay ten months, get twelve.");

@@ -826,8 +826,14 @@
   var NVP2 = window.NV_PRICING;
   if (PS && NVP2 && NVP2.approved && Array.isArray(NVP2.plans)) {
     var grp = function (n) { return Number(n).toLocaleString("en-CA"); };
+    /* NV_PRICING.startLine's sentence, without its full stop: "First month
+       free, then C$X a month" on a plan or module with a free month, and
+       the Partnership's fixed sentence (v7, 2026-10-02). A config without
+       the helper (a stale cached copy) falls back to the monthly alone
+       rather than to a fee that no longer exists. */
     var sentence = function (x) {
-      return "C$" + grp(x.launch) + " Launch & Implementation to start, then C$" + grp(x.monthly) + " a month";
+      return typeof NVP2.startLine === "function" ? NVP2.startLine(x).replace(/\.$/, "")
+        : "C$" + grp(x.monthly) + " a month";
     };
     var esc = function (s) {
       return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -839,8 +845,13 @@
         + (pl.recommended && NVP2.recommendedLabel ? ' <span class="chip rec">' + esc(NVP2.recommendedLabel) + "</span>" : "")
         + "</h3>";
       if (pl.selfServe === false) {
+        /* Still no figure on an invitation-only card: the share in words,
+           from its performanceNote clause, and its inviteNote (v7). The
+           pricing page states its figures. */
         html += '<p class="price">By invitation.</p>';
-        if (pl.performanceNote) html += "<p>" + esc(pl.performanceNote) + "</p>";
+        var share = String(pl.performanceNote || "").replace(/^plus /, "");
+        if (share) html += "<p>" + esc(share.charAt(0).toUpperCase() + share.slice(1)) + ".</p>";
+        if (pl.inviteNote) html += "<p>" + esc(pl.inviteNote) + "</p>";
       } else {
         html += '<p class="price">' + esc(sentence(pl)) + ".</p>";
         if (pl.bestFor) html += "<p>" + esc(pl.bestFor) + "</p>";
@@ -882,6 +893,12 @@
       html += '</ul><p class="fine2">'
         + (leftOut ? "Every other add-on is on the " : "Every plan and add-on, side by side, is on the ")
         + '<a class="more" href="/pricing.html">pricing page</a>.</p></div>';
+    }
+    /* The free month's terms, in the config's words (v7, 2026-10-02). The
+       fee sentence is left to the cards: beside the Partnership's card it
+       would read as true of every plan. */
+    if (NVP2.freeMonth && NVP2.freeMonth.offer) {
+      html += '<p class="fine2">' + esc(NVP2.freeMonth.offer) + (NVP2.freeMonth.reminder ? " " + esc(NVP2.freeMonth.reminder) : "") + "</p>";
     }
     if (NVP2.terms && NVP2.terms.note) {
       html += '<p class="fine2">' + esc(NVP2.terms.note)

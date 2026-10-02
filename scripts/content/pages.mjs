@@ -25,8 +25,12 @@ vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'pricing-config.js'), 'utf8')
 const NV = cfgSandbox.window.NV_PRICING || {};
 const MISSED_CALL = (NV.addOns || []).find((a) => a.id === 'missed_call_recovery');
 const FRONT_DESK = (NV.plans || []).find((p) => p.id === 'pro');
-if (!MISSED_CALL || !MISSED_CALL.sellable || !(MISSED_CALL.launch > 0) || !(MISSED_CALL.monthly > 0)) {
-  throw new Error('pages.mjs: pricing-config.js has no sellable missed_call_recovery add-on with a launch and a monthly; refusing to print its price.');
+/* A launch above zero was required here until v7 (2026-10-02). Every module's
+   Launch & Implementation fee is 0 now, and a module bought on its own starts
+   with a free month, so the price is the monthly, and the sentence below says
+   whichever of the three shapes the config carries. */
+if (!MISSED_CALL || !MISSED_CALL.sellable || !(MISSED_CALL.monthly > 0)) {
+  throw new Error('pages.mjs: pricing-config.js has no sellable missed_call_recovery add-on with a monthly; refusing to print its price.');
 }
 if (!FRONT_DESK || !(FRONT_DESK.includedMinutes > 0) || !(FRONT_DESK.overage > 0)) {
   throw new Error('pages.mjs: pricing-config.js has no "pro" plan with included minutes and an overage rate; refusing to print them.');
@@ -36,6 +40,12 @@ const cad = (n) => 'C$' + n.toLocaleString('en-US', {
   minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2,
 });
 const count = (n) => n.toLocaleString('en-US');
+/** What Missed-Call Recovery costs bought on its own, in the config's shape. */
+const MISSED_LINE = MISSED_CALL.launch > 0
+  ? `it is ${cad(MISSED_CALL.launch)} Launch &amp; Implementation, then ${cad(MISSED_CALL.monthly)} a month`
+  : MISSED_CALL.freeMonths > 0
+    ? `its first month is free, then it is ${cad(MISSED_CALL.monthly)} a month`
+    : `it is ${cad(MISSED_CALL.monthly)} a month`;
 
 /** The platform paragraph that sits under the hero CTAs on the four trade
     pages. It lived only in the generated HTML until 2026-08-27, so any run of
@@ -389,9 +399,8 @@ export const PAGES = {
         and flags the calls that genuinely need a person.</p></div>
       <div class="reveal"><h3>When you missed it anyway</h3><p>${MISSED_CALL.name} texts a caller
         you missed, once, during business hours, with your business name on it and a working
-        opt-out, on your written go-ahead. It hands over the moment they reply. On its own it is
-        ${cad(MISSED_CALL.launch)} Launch &amp; Implementation to start, then ${cad(MISSED_CALL.monthly)} a month,
-        plus applicable GST/HST.</p></div>
+        opt-out, on your written go-ahead. It hands over the moment they reply. Bought on its own,
+        ${MISSED_LINE}, plus applicable GST/HST.</p></div>
     </div>
   </div>
 </section>`,
@@ -415,13 +424,13 @@ export const PAGES = {
           <tr><th scope="row">Repeats the details back to the caller</th><td class="no">No</td><td class="yes">Yes, and says you will confirm the time</td></tr>
           <tr><th scope="row">Escalates an emergency</th><td class="no">No</td><td class="yes">By your rules</td></tr>
           <tr><th scope="row">Gives you a useful summary</th><td class="part">A recording</td><td class="yes">Name, number, need, outcome</td></tr>
-          <tr><th scope="row">Costs nothing</th><td class="yes">Yes</td><td class="part">A one-time Launch &amp; Implementation fee to start, then a monthly plan</td></tr>
+          <tr><th scope="row">Costs nothing</th><td class="yes">Yes</td><td class="part">Your first month is free on the AI Front Desk, then a monthly plan</td></tr>
         </tbody>
       </table>
     </div>
     <p class="foot-note reveal">Voicemail genuinely wins on price. The
-      question is what one recovered job a month is worth against a one-time
-      Launch &amp; Implementation fee to start, then the monthly plan you would be on.</p>
+      question is what one recovered job a month is worth against the monthly
+      plan you would be on once your free first month is over.</p>
   </div>
 </section>
 

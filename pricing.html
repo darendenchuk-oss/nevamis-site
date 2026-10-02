@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ucK4mdyWBHgDIvAS/VwLOqeLkk43CajHJ8e+zpZtDJ8=' 'sha256-iZ8OMWRMEJ9wbAyoYFGWaINwV1Lie6fGq/X9oUh5JTc=' 'sha256-2DrAI+HRw11Dal8zG+4dQ1MlRONFs0QWTUwRq2XgDJg=' 'sha256-L5hzxmuixfuveKyl6PKQA/GPSe3+FDaUzBXn34w3dFw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-SyV5AsABcnJoAbM0G9CC9DJdZL1hGRGEgkSV1VStCqg=' 'sha256-35byHrGXjocSers4ezJ8gerU9TUcyi1i3itls6WX9EA=' 'sha256-JF0+i31SfAj+vtFJdavAzUdE2VdQ6qkx13/rljK2OCc=' 'sha256-cJ01r8ce4Y5H4WCh4JYsheFVMTVP4mFJpBIivRslOZ0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pricing | Nevamis | Plans for Edmonton trades</title>
-<meta name="description" content="Published plans: a one-time Launch & Implementation fee to start, then The Works at C$2,100 or the AI Front Desk at C$1,000 a month. Lead Generation by invitation.">
+<meta name="description" content="Published plans: your first month free, then The Works at C$2,100 or the AI Front Desk at C$1,000 a month, with no Launch & Implementation fee. Lead Generation by invitation.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://nevamis.ca/pricing.html">
 <meta property="og:title" content="Pricing | Nevamis">
-<meta property="og:description" content="Published plans: a one-time Launch & Implementation fee to start, then The Works at C$2,100 or the AI Front Desk at C$1,000 a month. Lead Generation by invitation.">
+<meta property="og:description" content="Published plans: your first month free, then The Works at C$2,100 or the AI Front Desk at C$1,000 a month, with no Launch & Implementation fee. Lead Generation by invitation.">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -1012,7 +1012,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     "@id": "https://nevamis.ca/pricing.html",
     "url": "https://nevamis.ca/pricing.html",
     "name": "Pricing | Nevamis | Plans for Edmonton trades",
-    "description": "Published plans: a one-time Launch & Implementation fee to start, then The Works at C$2,100 or the AI Front Desk at C$1,000 a month. Lead Generation by invitation.",
+    "description": "Published plans: your first month free, then The Works at C$2,100 or the AI Front Desk at C$1,000 a month, with no Launch & Implementation fee. Lead Generation by invitation.",
     "isPartOf": {
       "@type": "WebSite",
       "name": "Nevamis",
@@ -1082,7 +1082,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            here pushed everything below it down 256px 745 ms after first
            paint, which was 0.093 of the page's 0.095 CLS. -->
       <div id="termsBanner" class="card band">
-        <h2>Launch &amp; Implementation to start. Then the monthly, every month.</h2>
+        <h2>First month free. Then the monthly, every month.</h2>
         <!-- THE ONE PLACE THE TERMS ARE STATED (2026-09-24, W6). The page used
              to say "month to month from the first month" seven times: here, in
              a term sentence on every plan card, under both Buy buttons and
@@ -1094,7 +1094,17 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              "There is no trial to convert out of" is gone from the end of the
              first paragraph: "trial" is a banned word on client surfaces even
              in a denial. -->
-        <p>Every plan starts with a one-time Launch &amp; Implementation fee: the discovery call, configuration, testing and go-live are real work and they are priced in the open, not hidden in the monthly. It is collected once, beside your first month. After that, your plan's monthly price is charged on the same day every month, and the only other recurring charges are any add-ons you choose and overage past your included minutes.</p>
+        <!-- THE FIRST MONTH FREE (v7, owner decision 2026-10-02). Until that
+             day this paragraph said every plan starts with a one-time Launch &
+             Implementation fee. The standard plans and every module carry none
+             now, and a new client's first month is free. Rendered from
+             P.freeMonthNote() in pricing-config.js, and guard 7a holds this
+             static copy equal to it. The Partnership, which keeps a fee and
+             has no free month, is stated in its own words on its card. -->
+        <p id="freeMonthNote">The Works, the AI Front Desk and any add-on bought on its own come with a first month free for a business new to Nevamis, once per business. Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. Minutes past your allowance during your free month are not billed. A module you add once you are paying is billed from its first month. No Launch &amp; Implementation fee: you pay the monthly price and nothing else.</p>
+        <p>After that, your plan's monthly price is charged on the same date every month, and the only other recurring charges are any add-ons you choose and overage past your included minutes.</p>
+        <!-- Rendered from P.partnerNote(), and held to it by guard 7a. -->
+        <p id="partnerNote">The Performance Partnership is the exception: C$5,000 Launch &amp; Implementation, then C$350 a month from the first month. By invitation; there is no free month on the Partnership.</p>
         <!-- THE TERM, and its whole history is a warning. Until 2026-08-25
              this paragraph ended "We do not ask for a term, and we do not
              need one." The v4 directive of 2026-08-22 made that false, and
@@ -1111,7 +1121,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              it from P.terms.note, and guard 7a holds this static copy equal to
              that note, so the no-script reading and the rendered one are the
              same words. -->
-        <p id="termsNote" class="fine2">There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch &amp; Implementation fee, charged once beside your first month, is the only commitment.</p>
+        <p id="termsNote" class="fine2">There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, and your price is locked for 12 months from signing. Cancel during your free month and you pay nothing; once you are paying, service runs to the end of the month you already paid for.</p>
         <p class="prose"><a href="/how-you-start.html">What happens before your line is answered</a> · <a href="/book.html">Book a call</a></p>
       </div>
       <!-- THE COVERAGE CHOOSER (2026-08-25). A price list asks a business to
@@ -1146,28 +1156,30 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            see accurate plans. Removed by the renderer only after a successful
            render. Validated against pricing-config.js by check-consistency.
 
-           It states BOTH halves of the offer, in the approved shape: the
-           one-time Launch & Implementation fee and the monthly, joined by
-           "to start" and "then", never "plus". Guard 7 requires the monthly
-           AND the launch figure while pricing is published, and fails a
-           first-month/then-per-month pair. -->
+           Each card states its plan's own startLine() sentence from the
+           config, verbatim: "First month free, then C$X a month" on a plan
+           with a free month, and the Partnership's fixed sentence, its
+           Launch & Implementation fee included, on the Partnership.
+           Guard 7 requires that sentence and the monthly while pricing is
+           published, refuses a Launch & Implementation figure on a plan whose
+           fee is 0, and fails a first-month/then-per-month pair. -->
       <div class="plans" id="plans"><div id="plansFallback">
         <div class="card">
           <h3>Performance Partnership &middot; C$350/month, by invitation</h3>
-          <p>Offered by invitation and approval, where Nevamis takes on substantially more of the acquisition risk; it is not the default and not self-serve. From C$2,500 Launch &amp; Implementation to start, then C$350 a month by default, inside a monthly band of C$250 to C$500. Both figures, the share and the attribution window are set in your agreement before anything is charged. It is the plan that carries the growth stack, and each item on it is a separate choice that changes what the plan costs: Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page; the Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement; Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch &amp; Implementation fee and their own monthly, at the prices listed below; Search Rankings is coming and is not sold. 250 included AI minutes · C$1.10 per extra minute.</p>
+          <p>Offered by invitation and approval, where Nevamis takes on substantially more of the acquisition risk; it is not the default and not self-serve. C$5,000 Launch &amp; Implementation, then C$350 a month from the first month, plus an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, set in your agreement before anything is charged. By invitation; there is no free month on the Partnership. It is the plan that carries the growth stack, and each item on it is a separate choice: Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page; the Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement; Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own monthly, at the prices listed below, billed from their first month; Search Rankings is coming and is not sold. 250 included AI minutes · C$1.10 per extra minute.</p>
           <p><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
         </div>
         <div class="card">
           <h3>The Works &middot; C$2,100/month</h3>
-          <p>C$3,000 Launch &amp; Implementation to start, then C$2,100 a month. The whole engine: the AI Front Desk plus every sellable automation (missed-call recovery, quote-chase, get-paid, review requests), priced under the sum of its parts. No performance fee. 1,400 included AI minutes · C$0.75 per extra minute.</p>
+          <p>First month free, then C$2,100 a month. The whole engine: the AI Front Desk plus every sellable automation (missed-call recovery, quote-chase, get-paid, review requests), priced under the sum of its parts. No performance fee. 1,400 included AI minutes · C$0.75 per extra minute.</p>
           <p><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
         </div>
         <div class="card">
           <h3>AI Front Desk &middot; C$1,000/month, recommended</h3>
-          <p>C$1,500 Launch &amp; Implementation to start, then C$1,000 a month. The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place. No performance fee. 1,400 included AI minutes · C$0.75 per extra minute.</p>
+          <p>First month free, then C$1,000 a month. The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place. No performance fee. 1,400 included AI minutes · C$0.75 per extra minute.</p>
           <p><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
         </div>
-        <p class="fine2 prose">The AI Front Desk is the same core system on every plan. Plans differ by which automations are included and, on the Partnership, whether Nevamis shares in the revenue it helps create. The one-time fee and the terms are set out in the band above. Enterprise (multi-location, custom integrations, custom data pipelines) is quoted per client: Launch &amp; Implementation starting at C$5,000 or custom quoted, recurring custom. Prices in Canadian dollars, plus applicable GST/HST. Questions: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
+        <p class="fine2 prose">The AI Front Desk is the same core system on every plan. Plans differ by which automations are included and, on the Partnership, whether Nevamis shares in the revenue it helps create. The first month free and the terms are set out in the band above. Enterprise (multi-location, custom integrations, custom data pipelines) is quoted per client: Launch &amp; Implementation starting at C$5,000 or custom quoted, recurring custom. Prices in Canadian dollars, plus applicable GST/HST. Questions: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
       </div></div>
       <!-- ENTERPRISE (fix plan A26, 2026-09-19). The rendered cards replace
            #plansFallback, and the fallback's closing paragraph was the only
@@ -1211,8 +1223,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <!-- ADD-ONS, v4 (2026-08-22): every automation is its own product.
            This list is HAND-TYPED HTML, not rendered from pricing-config.js:
            guard 7h in scripts/check-consistency.js reads each line's
-           "C$N/month" and "C$N Launch" against the config, so a price that
-           drifts fails the check. A module with sellable:false carries no
+           "C$N/month" and its startLine() sentence ("First month free, then
+           C$N a month" since v7) against the config, so a price that drifts
+           fails the check. A module with sellable:false carries no
            price and a "coming" label: it may be described, never sold, and
            nothing here may imply otherwise. Each sellable line leads with its
            monthly as a label (the shape guard 7h reads), then states the
@@ -1220,13 +1233,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            the retired two-number framing guard 7d refuses on every page. -->
       <div class="card reveal block-gap">
         <h3>Automation add-ons</h3>
-        <p>Each automation is its own product and its own sale: buy one on its own, or add it beside a plan, one at a time. The four sellable ones are already included in The Works. On the Performance Partnership they are the growth stack, and two of them are paid out of what they produce instead of a monthly: see the Partnership above.</p>
+        <p>Each automation is its own product and its own sale: buy one on its own, with your first month free, or add it beside a plan, one at a time. A module you add once you are paying is billed from its first month. The four sellable ones are already included in The Works. On the Performance Partnership they are the growth stack, and two of them are paid out of what they produce instead of a monthly: see the Partnership above.</p>
         <ul id="addOnList" class="node-list">
           <li>Lead Generation &middot; offered by invitation, not yet sellable from a page &middot; businesses that fit what you do, found for you, with the page each one came from and what came of it. Nobody on the list is contacted by us, and you decide every row.</li>
-          <li>Quote-Chase Engine &middot; C$500/month &middot; C$750 Launch &amp; Implementation to start, then C$500 a month &middot; every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.</li>
-          <li>Missed-Call Recovery &middot; C$350/month &middot; C$500 Launch &amp; Implementation to start, then C$350 a month &middot; a caller you missed gets one text back, during business hours, with your name on it and a working opt-out.</li>
-          <li>Get-Paid Autopilot &middot; C$500/month &middot; C$750 Launch &amp; Implementation to start, then C$500 a month &middot; overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead.</li>
-          <li>Review Engine &middot; C$300/month &middot; C$500 Launch &amp; Implementation to start, then C$300 a month &middot; one review request by text per finished job, with your own review link, every request released by a person.</li>
+          <li>Quote-Chase Engine &middot; C$500/month &middot; First month free, then C$500 a month &middot; every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.</li>
+          <li>Missed-Call Recovery &middot; C$350/month &middot; First month free, then C$350 a month &middot; a caller you missed gets one text back, during business hours, with your name on it and a working opt-out.</li>
+          <li>Get-Paid Autopilot &middot; C$500/month &middot; First month free, then C$500 a month &middot; overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead.</li>
+          <li>Review Engine &middot; C$300/month &middot; First month free, then C$300 a month &middot; one review request by text per finished job, with your own review link, every request released by a person.</li>
           <li>Search Rankings &middot; coming &middot; better search rankings for the work you want more of. Nothing is built for it yet, so it has no price and is not sold.</li>
           <li>Customer Reactivation &middot; coming &middot; a win-back campaign over your own past-customer list. Not sellable until it ships end to end.</li>
         </ul>
@@ -1243,11 +1256,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <li>Wrong numbers or spam that reach the AI consume usage, because the system handled them.</li>
           <li>A text or email alert after you pass 50%, 75%, 90% or 100% of your included minutes, with your running total on your portal's billing page.</li>
           <li>Past your included minutes, calls keep being answered and each extra minute is billed at your plan's per-minute rate, shown on its card above.</li>
+          <li>Minutes past your allowance during your free month are not billed.</li>
         </ul>
         <p id="taxNote" class="fine2">Prices in Canadian dollars, plus applicable GST/HST.</p>
         <!-- Lives in the page, not the shared footer: page-specific content in
              shared chrome gets destroyed the next time the chrome is synced. -->
-        <p class="mono fine2" id="pricingUpdated">pricing updated 2026-09-12</p>
+        <p class="mono fine2" id="pricingUpdated">pricing updated 2026-10-02</p>
       </div>
 
       <!-- Referral. Placed AFTER the plans on purpose: it is an offer to
@@ -1376,6 +1390,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      the term changes. It changed twice in eighteen days. */
   var termsNoteEl = document.getElementById("termsNote");
   if (termsNoteEl && P.terms && P.terms.note) termsNoteEl.textContent = P.terms.note;
+  /* The free month and the one plan without it (v7, 2026-10-02), from the
+     same config, so the band moves with the next decision. */
+  var fmNoteEl = document.getElementById("freeMonthNote");
+  var fmNote = typeof P.freeMonthNote === "function" ? P.freeMonthNote() : "";
+  if (fmNoteEl && fmNote) fmNoteEl.textContent = fmNote;
+  var ptNoteEl = document.getElementById("partnerNote");
+  var ptNote = typeof P.partnerNote === "function" ? P.partnerNote() : "";
+  if (ptNoteEl) { if (ptNote) ptNoteEl.textContent = ptNote; else ptNoteEl.hidden = true; }
   document.getElementById("minuteDef").textContent = P.usagePolicy.minuteDef;
   document.getElementById("taxNote").textContent = P.taxNote;
   var notes = document.getElementById("usageNotes");
@@ -1475,12 +1497,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            page, while "never the default" sat at the end of a fourteen-line
            paragraph. canonical.ts names the hazard: a published cheap monthly
            is read as the entry tier. So the headline is what the plan IS, the
-           words the homepage already heads it with, and its band is stated
-           under it in small type, from monthlyRange, never typed. */
+           words the homepage already heads it with. Its band sat under it
+           until 2026-10-02 (v7); the Partnership's figures are fixed now and
+           are stated on the line below, in its startLine() sentence. */
         h += '<div class="price price-invite">By invitation</div>';
-        if (Array.isArray(pl.monthlyRange)) {
-          h += '<div class="price-band">C$' + grp(pl.monthlyRange[0]) + " to C$" + grp(pl.monthlyRange[1]) + " a month</div>";
-        }
       } else {
         h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
       }
@@ -1502,13 +1522,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          button (startNote), rather than a third time here on every card.
          This line now carries only what differs by plan: the two figures,
          the performance sentence and the invitation status. */
-      /* P.startLine, not the pair typed here: the Partnership's figures are a
-         band, and this line printed them as one flat price for a month while
-         the same card went on to say its monthly is set in the agreement
-         (BD-4, 2026-09-25). */
+      /* P.startLine, not the pair typed here (BD-4, 2026-09-25). Since v7 it
+         reads "First month free, then C$X a month" on a plan with a free
+         month, and on the Partnership its whole fixed sentence, the agreed
+         share included (performanceNote is joined inside startLine now, so
+         it is not appended a second time). An invitation-only plan adds its
+         inviteNote. */
       h += '<div class="setup">' + P.startLine(pl).replace(/&/g, "&amp;")
-        + (pl.performanceNote ? " " + pl.performanceNote : "")
-        + (pl.selfServe === false ? " Offered by invitation and approval; never the default." : "")
+        + (pl.selfServe === false ? " " + (pl.inviteNote || "Offered by invitation and approval.") + " Never the default." : "")
         + "</div>";
     } else {
       h += '<div class="price price-quoted">Quoted per client</div>';
@@ -1685,8 +1706,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            invitation status where the plan is not self-serve. */
         "description": (P.publishedPricing
           ? P.startLine(pl)
-            + (pl.performanceNote ? " " + pl.performanceNote : "")
-            + (pl.selfServe === false ? " Offered by invitation and approval; never the default." : "") + " "
+            + (pl.selfServe === false ? " " + (pl.inviteNote || "Offered by invitation and approval.") + " Never the default." : "") + " "
           : "Quoted per client, then one monthly amount. ") + pl.bestFor,
         /* NO price and NO priceSpecification.price while pricing is
            unpublished. schema.org lets an Offer say what it INCLUDES without
@@ -1905,12 +1925,16 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        and the total is then labelled as the sum it is. */
     var priced = [];
     /* A plan's or a module's figures in NV_PRICING.startLine's words, not a
-       pair typed here, so a banded plan could never reach this list flat. */
+       pair typed here ("First month free, then C$X a month" since v7). */
     var figures = function (x) {
       return P.startLine(x).replace(/\.$/, "").replace(/&/g, "&amp;");
     };
-    var item = function (x, suffix) {
-      return { name: x.name + (suffix || ""), price: figures(x) };
+    /* A module ticked BESIDE a plan is priced at its monthly only. The free
+       month is the plan's here, and whether a module started together with
+       a plan shares it is set with you, not on this page. */
+    var monthlyOnly = function (x) { return "C$" + grp(x.monthly) + " a month"; };
+    var item = function (x, suffix, beside) {
+      return { name: x.name + (suffix || ""), price: beside ? monthlyOnly(x) : figures(x) };
     };
     var notes = [];
     if (alone) {
@@ -1918,7 +1942,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     } else {
       priced.push(item(chosen));
       if (useBundle) notes.push("every automation included, which is why it beats the pieces");
-      else mods.forEach(function (a) { priced.push(item(a)); });
+      else mods.forEach(function (a) { priced.push(item(a, "", true)); });
     }
     var many = priced.length > 1;
     var lines = priced.map(function (x) {
@@ -1939,8 +1963,18 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     h += '<p class="lbl">Your coverage</p>';
     h += '<ul class="node-list"><li>'
       + lines.join("</li><li>") + "</li></ul>";
-    h += '<p class="amount">' + (many ? "Together, C$" : "C$") + grp(launch)
-      + " Launch &amp; Implementation to start, then C$" + grp(monthly) + " a month" + taxClause() + "</p>";
+    /* v7 (2026-10-02): nothing the chooser can pick carries a Launch &
+       Implementation fee, so the total is the monthly, and the free month is
+       said in the config's words. A fee above zero would still be stated
+       first, in the approved join, rather than dropped. */
+    var beside = !alone && !useBundle && mods.length > 0;
+    var free = !beside && (alone ? mods : [chosen]).every(function (x) { return x.freeMonths > 0; });
+    var total = (launch > 0 ? "C$" + grp(launch) + " Launch &amp; Implementation, then " : free ? "first month free, then " : "")
+      + "C$" + grp(monthly) + " a month" + taxClause();
+    h += '<p class="amount">' + (many ? "Together: " + total : total.charAt(0).toUpperCase() + total.slice(1)) + "</p>";
+    if (free && P.freeMonth && P.freeMonth.offer) {
+      h += '<p class="fine2">' + P.freeMonth.offer + " " + (P.freeMonth.reminder || "") + "</p>";
+    }
     /* NO MINIMUM TERM, stated outright. A branch here printed a number of
        months "agreed up front" whenever pricing-config.js carried a term;
        minimumMonths has been 0 since the 2026-09-08 directive, so it was dead
@@ -1958,14 +1992,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          shape: there is no plan to charge, so nothing is charged at all. */
       h += " Nothing is bought or charged on this page. Create your account and we set it up with you"
         + " under your agreement. If you want the phone answered too, the "
-        + core.name + " is " + figures(core).replace(/^From /, "from ") + ".";
+        + core.name + " is " + figures(core).replace(/^First month free/, "first month free") + ".";
     } else if (mods.length) {
       /* The honest half of a chooser that is not a cart. */
       /* The core's figures are on its own line above; naming the plan is
          enough to say which of the lines checkout charges. */
-      h += " Checkout charges the " + chosen.name + " line only."
+      h += " Checkout takes the " + chosen.name + " line only"
+        + (chosen.freeMonths > 0 ? ", and its first month is free." : ".")
         + " The automations you ticked are recorded with your signup and set up with you under your agreement;"
-        + " their fees are not charged at checkout.";
+        + " they are not charged at checkout.";
     }
     h += "</p>";
     h += '<a class="btn btn-primary" data-evt="plan_buy_click" href="' + href

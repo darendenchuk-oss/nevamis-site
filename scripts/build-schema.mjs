@@ -127,18 +127,19 @@ const PLANS = NV.plans.map((p) => ({
   price: p.monthly,
   selfServe: p.selfServe,
   /* The whole offer, in the approved shape: an answer engine quotes this
-     verbatim, so it carries the one-time Launch & Implementation fee with
-     the rule joining it to the monthly, the performance sentence where the
-     plan has one, and the invitation status where the plan is not
-     self-serve. */
+     verbatim, so it carries the plan's startLine() sentence (since v7,
+     2026-10-02: "First month free, then C$X a month" on a plan with a free
+     month, and the Partnership's fixed sentence, its Launch &
+     Implementation fee and performance clause included), and the
+     invitation status where the plan is not self-serve. */
   /* NV.startLine, the sentence a plan's figures are stated in (see
      docs/PRICING-CONFIG.md for the surfaces that use it).
      This line typed its own pair and published the Partnership to answer
-     engines as one flat price while its figures are a band (BD-4,
-     2026-09-25). */
+     engines as one flat price while its figures were a band (BD-4,
+     2026-09-25). performanceNote is joined inside startLine since v7, so it
+     is not appended here a second time. */
   desc: NV.startLine(p)
-    + (p.performanceNote ? ` ${p.performanceNote}` : '')
-    + (p.selfServe === false ? ' Offered by invitation and approval; never the default.' : '')
+    + (p.selfServe === false ? ` ${p.inviteNote || 'Offered by invitation and approval.'} Never the default.` : '')
     /* Grouped, because it is read aloud and quoted verbatim: "1400 included
        AI minutes" is the one number on this line a person reads as a typo. */
     + ` ${p.includedMinutes.toLocaleString('en-CA')} included minutes. ${p.bestFor}`,
