@@ -212,8 +212,9 @@ test('every price promised to a crawler is visible to a buyer', async ({ page })
     name: el.querySelector('h3')?.textContent.trim(),
     /* The headline and the figure lines under it. Since BD-F3 (2026-09-26)
        the invitation card's headline is "By invitation" and its figures sit
-       in the band and fee lines below it, still on the card, still in front
-       of the buyer, which is what this test is about. */
+       in the fee line below it (and, until v7 retired it on 2026-10-02, a band
+       line), still on the card, still in front of the buyer, which is what
+       this test is about. */
     price: [...el.querySelectorAll('.price, .price-band, .setup')].map((n) => n.textContent).join(' ').replace(/\s+/g, ' ').trim(),
     href: el.querySelector('.buy a')?.getAttribute('href'),
   })));

@@ -16,6 +16,7 @@
    ============================================================ */
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
+import vm from 'node:vm';
 
 const PHONE = { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true };
 
@@ -42,58 +43,106 @@ function sentenceAt(text, i) {
   return text.slice(start, end < 0 ? text.length : end);
 }
 
-/* ---------- BD-4: the Partnership is a band, never a flat price ---------- */
+/* ---------- BD-4: the Partnership's figures, stated as the config states them ----------
 
-/* "C$2,500 Launch & Implementation to start, then C$350 a month" with no
-   "from" in front of it is the flat price the card printed. */
-const FLAT = /(?<!from )C\$2,500 Launch (?:&|and) Implementation to start, then C\$350 a month(?! by default)/i;
+   BD-4 (2026-09-25) was the Partnership printed as a flat price while its
+   figures were a band. RE-POINTED 2026-10-02 (v7): the owner fixed the
+   figures, C$5,000 Launch & Implementation, then C$350 a month from the first
+   month, and retired both bands, so the defect is now the other way round: a
+   band, a "from", or any retired figure still printed for it. The rules read
+   the config, so the next decision moves them with it. */
+const RETIRED_PARTNER = /from C\$2,500|C\$2,500 Launch|monthly band|C\$250 to C\$500|C\$2,500 to C\$10,000/i;
 
-test('BD-4: the rendered Partnership card says "from C$2,500" and its monthly band, never a flat price', async ({ page }) => {
+test('BD-4: the rendered Partnership card states its fixed figures and no band', async ({ page }) => {
   await page.goto('/pricing.html');
   const card = page.locator('#plans .plan').first();
   await expect(card.locator('h3')).toHaveText(/Performance Partnership/);
   const t = (await card.innerText()).replace(/\s+/g, ' ');
-  expect(t, 'the Launch & Implementation fee is a floor').toMatch(/from C\$2,500 Launch & Implementation/i);
-  expect(t, 'the monthly band is on the card').toContain('C$250 to C$500');
-  expect(t).not.toMatch(FLAT);
+  const pl = await page.evaluate(() => {
+    const P = window.NV_PRICING, p = P.plans.find((x) => x.selfServe === false);
+    return { line: P.startLine(p), invite: p.inviteNote, launch: p.launch };
+  });
+  expect(pl.launch, 'the Partnership carries a fee').toBeGreaterThan(0);
+  expect(t, 'the card states the startLine sentence').toContain(pl.line);
+  expect(t, 'the card says there is no free month on it').toContain(pl.invite);
+  expect(t).not.toMatch(RETIRED_PARTNER);
 });
 
-test('BD-4: no surface a crawler or an answer engine reads states the Partnership flat', () => {
+test('BD-4: no surface a crawler or an answer engine reads carries a retired Partnership figure', () => {
+  const w = {};
+  vm.runInNewContext(fs.readFileSync('pricing-config.js', 'utf8'), { window: w });
+  const P = w.NV_PRICING, partner = P.plans.find((x) => x.selfServe === false);
   for (const f of ['pricing.html', 'index.html', 'home.html', 'llms.txt']) {
     const raw = fs.readFileSync(f, 'utf8').replace(/&amp;/g, '&').replace(/\s+/g, ' ');
-    expect(raw, `${f} states the Partnership as a flat price`).not.toMatch(FLAT);
+    expect(raw, `${f} carries a retired Partnership figure`).not.toMatch(RETIRED_PARTNER);
   }
   const ld = fs.readFileSync('index.html', 'utf8').replace(/&amp;/g, '&');
-  expect(ld, 'the homepage structured data carries the band').toMatch(/From C\$2,500 Launch & Implementation to start, then C\$350 a month by default, inside a monthly band of C\$250 to C\$500/);
+  expect(ld, 'the homepage structured data carries the fixed sentence').toContain(P.startLine(partner));
 });
 
-/* The proposal is the one page that sets the fee and the monthly on separate
-   lines, so it builds a banded plan from NV_PRICING.launchPart/monthlyBand
-   rather than startLine. Rendered, for every banded plan in the config, the
-   way a named prospect reads it. */
-test('BD-4: the proposal for a banded plan states the fee as a floor and the monthly band, never flat', async ({ page }) => {
+/* The proposal is the one page that sets the start and the monthly on
+   separate lines, so it builds them from NV_PRICING.launchPart/monthlyBand
+   rather than startLine. Rendered for every plan, the way a named prospect
+   reads it: the Partnership states its fee and its monthly from the first
+   month; a plan with a free month states the free month in the config's
+   words, no fee, and its first charge when the second month begins. */
+test('BD-4: the proposal states each plan as the config does: the fee and month one, or the free month', async ({ page }) => {
   await page.goto('/pricing.html');
-  const banded = await page.evaluate(() => window.NV_PRICING.plans
-    .filter((p) => Array.isArray(p.monthlyRange) || Array.isArray(p.launchRange))
-    .map((p) => ({ id: p.id, name: p.name, launchRange: p.launchRange, monthlyRange: p.monthlyRange,
-      launch: p.launch, monthly: p.monthly })));
-  expect(banded.length, 'no banded plan in pricing-config.js, so this rule checks nothing').toBeGreaterThan(0);
+  const plans = await page.evaluate(() => window.NV_PRICING.plans.map((p) => ({ id: p.id, name: p.name,
+    launch: p.launch, monthly: p.monthly, freeMonths: p.freeMonths, inviteNote: p.inviteNote,
+    launchPart: window.NV_PRICING.launchPart(p) })));
+  const offer = await page.evaluate(() => window.NV_PRICING.freeMonth.offer);
   const money = (n) => 'C$' + Number(n).toLocaleString('en-CA');
-  for (const pl of banded) {
+  for (const pl of plans) {
     await page.goto('/proposal.html?plan=' + encodeURIComponent(pl.id));
-    await expect(page.locator('#planName')).toHaveText(pl.name.toUpperCase());
+    await expect(page.locator('#planName')).toContainText(pl.name.toUpperCase());
     const monthly = (await page.locator('#planMonthly').innerText()).replace(/\s+/g, ' ');
     const terms = (await page.locator('#planTerms').innerText()).replace(/\s+/g, ' ');
-    if (pl.monthlyRange) {
-      expect(monthly, `${pl.id}: the monthly is the default inside its band`)
-        .toContain(money(pl.monthly) + '/month by default, inside a monthly band of '
-          + money(pl.monthlyRange[0]) + ' to ' + money(pl.monthlyRange[1]));
-    }
-    if (pl.launchRange) {
-      expect(terms, `${pl.id}: the Launch & Implementation fee is a floor`)
-        .toContain('One-time from ' + money(pl.launch) + ' Launch & Implementation to start.');
+    expect(monthly + ' ' + terms, `${pl.id}: a retired Partnership figure`).not.toMatch(RETIRED_PARTNER);
+    if (pl.launch > 0) {
+      expect(monthly, `${pl.id}: the monthly from the first month`).toContain(money(pl.monthly) + '/month from the first month');
+      expect(terms, `${pl.id}: the fee, stated once at the start`).toContain('One-time ' + pl.launchPart + ' to start');
+      expect(terms, `${pl.id}: no free month`).toContain(pl.inviteNote);
+      expect(terms).not.toContain(offer);
+    } else {
+      expect(pl.freeMonths, `${pl.id}: a plan with no fee has a free month`).toBeGreaterThan(0);
+      expect(monthly, `${pl.id}: first charged when the second month begins`).toContain(money(pl.monthly) + '/month, charged from the day your second month begins');
+      expect(terms, `${pl.id}: the free month in the config's words`).toContain(offer);
+      expect(terms, `${pl.id}: no Launch & Implementation figure`).not.toMatch(/C\$[\d,]+ Launch/);
     }
   }
+});
+
+/* ---------- v7 (2026-10-02): the first month free, no fee on the standard plans ----------
+
+   The owner's decision of 2026-10-02: a new client's first month is free on
+   the AI Front Desk, The Works and any module bought on its own, with no
+   Launch & Implementation fee; the Partnership keeps a fee and has no free
+   month. Rendered, the way a buyer reads it, and read from the config so the
+   next decision moves the test with it. */
+test('v7: every plan card states its own sentence, and a plan with no fee states its first month free', async ({ page }) => {
+  await page.goto('/pricing.html');
+  await page.waitForSelector('#plans .plan');
+  const P = await page.evaluate(() => {
+    const N = window.NV_PRICING;
+    return { plans: N.plans.map((p) => ({ name: p.name, launch: p.launch, freeMonths: p.freeMonths, line: N.startLine(p) })),
+      note: N.freeMonthNote(), months: N.freeMonth.months };
+  });
+  expect(P.months, 'one calendar month').toBe(1);
+  const cards = page.locator('#plans .plan');
+  for (const [i, pl] of P.plans.entries()) {
+    const t = (await cards.nth(i).innerText()).replace(/\s+/g, ' ');
+    expect(t, `${pl.name} states its startLine sentence`).toContain(pl.line);
+    if (pl.launch > 0) {
+      expect(pl.freeMonths, `${pl.name}: a plan with a fee has no free month`).toBe(0);
+      continue;
+    }
+    expect(pl.freeMonths, `${pl.name}: a plan with no fee has the free month`).toBe(1);
+    expect(t, `${pl.name} names a Launch & Implementation figure`).not.toMatch(/C\$[\d,]+ Launch/);
+  }
+  await expect(page.locator('#freeMonthNote')).toHaveText(P.note);
+  const band = (await page.locator('#termsBanner').innerText()).replace(/\s+/g, ' ');
+  expect(band, 'the free month is never called a trial or counted in days').not.toMatch(/free trial|\b\d+[- ]days? free/i);
 });
 
 /* ---------- BD-1: nothing connects to a CRM outside Enterprise ---------- */
@@ -214,7 +263,9 @@ test('BP2: each "Your coverage" line reads as one line, and each price appears o
       expect(li.strongLines, `the name in "${li.text}" wraps into a column`).toBeLessThanOrEqual(1);
       if (li.name.length >= 12) expect(li.strongW, `the name in "${li.text}" is a squeezed column`).toBeGreaterThan(80);
     }
-    const prices = r.text.match(/C\$[\d,]+ Launch & Implementation to start, then C\$[\d,]+ a month/g) || [];
+    /* "First month free, then C$X a month" since v7; any figure "a month"
+       is the price, with or without the free-month lead. */
+    const prices = r.text.match(/(?:[Ff]irst month free, then )?C\$[\d,]+ a month/g) || [];
     expect(new Set(prices).size, `a price is stated twice: ${prices.join(' | ')}`).toBe(prices.length);
   };
   await leaks.nth(0).click();              /* the front desk alone */

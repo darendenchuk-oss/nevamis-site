@@ -88,8 +88,9 @@ test('the homepage plans strip renders every plan from the single source of trut
     /* Every figure the config charges anywhere: a plan's, an add-on's, or the
        Enterprise floor. A number on the retired list below that the config
        charges again today is not retired, and sweeping for it would fail the
-       correct page (C$750 was a retired monthly and is an add-on launch fee
-       now). */
+       correct page (C$750 was a retired monthly and an add-on launch fee from
+       v5 to v6; since v7, 2026-10-02, no add-on carries a fee and it is
+       retired outright). A fee of 0 adds nothing to the set. */
     const charged = new Set();
     for (const x of [...P.plans, ...(P.addOns || [])]) {
       for (const k of ['monthly', 'launch']) if (x[k]) charged.add(Number(x[k]));
@@ -97,7 +98,7 @@ test('the homepage plans strip renders every plan from the single source of trut
     if (P.enterprise && P.enterprise.launchFrom) charged.add(Number(P.enterprise.launchFrom));
     return {
       plans: P.plans.map((p) => ({
-        name: p.name, monthly: p.monthly, launch: p.launch,
+        name: p.name, monthly: p.monthly, launch: p.launch, freeMonths: p.freeMonths || 0,
         recommended: !!p.recommended, selfServe: p.selfServe !== false,
       })),
       recommendedLabel: P.recommendedLabel,
@@ -133,7 +134,13 @@ test('the homepage plans strip renders every plan from the single source of trut
        is the rule: the card states what this plan charges and puts no other
        figure beside it for a reader to add up. */
     await expect(card, `${plan.name} must state its monthly price`).toContainText(`C$${grp(plan.monthly)} a month`);
-    await expect(card, `${plan.name} must state its launch fee`).toContainText(`C$${grp(plan.launch)}`);
+    /* v7 (2026-10-02): a plan with a fee states it; a plan with none and a
+       free month says so, and names no Launch & Implementation figure. */
+    if (plan.launch > 0) await expect(card, `${plan.name} must state its launch fee`).toContainText(`C$${grp(plan.launch)}`);
+    else {
+      if (plan.freeMonths > 0) await expect(card, `${plan.name} must state its free month`).toContainText('First month free');
+      expect(text, `${plan.name} carries no Launch & Implementation fee`).not.toMatch(/C\$[\d,]+ Launch/);
+    }
     expect(figures(text).filter((n) => n !== plan.monthly && n !== plan.launch),
       `${plan.name} carries a figure the config does not charge for it`).toEqual([]);
   }

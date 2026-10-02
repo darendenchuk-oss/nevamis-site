@@ -44,7 +44,11 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
      coming back. */
   const monthly = page.locator('#planMonthly');
   await expect(monthly).toContainText(`C$${cfg.monthly.toLocaleString('en-CA')}/month`);
-  await expect(monthly).toContainText('charged the day you start');
+  /* "charged the day you start" until 2026-10-02 (v7): The Works starts with
+     a free month now, so its monthly is first charged when the second month
+     begins, and the old sentence is the false one. */
+  await expect(monthly).toContainText('charged from the day your second month begins');
+  await expect(monthly).not.toContainText('charged the day you start');
   await expect(monthly, 'the retired first-month framing must not return')
     .not.toContainText(/first month|from month two/i);
 
@@ -57,7 +61,15 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
      worse than failing: satisfying it meant putting a sentence back on the
      one document a buyer keeps that the commercial model had deliberately
      retired. What must be disclosed now is the fee itself. */
-  await expect(terms).toContainText(/Launch & Implementation/i);
+  /* RE-POINTED 2026-10-02 (v7): The Works carries no Launch &
+     Implementation fee and a new client's first month is free, so what must
+     be disclosed is the free month and the absence of the fee, in the
+     config's own words, and no fee figure may appear. */
+  const FM = await page.evaluate(() => window.NV_PRICING.freeMonth);
+  await expect(terms).toContainText(FM.offer);
+  await expect(terms).toContainText(FM.reminder);
+  await expect(terms).toContainText(FM.fee);
+  await expect(terms).not.toContainText(/C\$[\d,]+ Launch/);
   /* INVERTED 2026-08-22 (v4): a minimum term existed, three months on a plan
      alone and six with add-ons or The Works, so "no minimum term" flipped
      from a required disclosure to a retired sentence.
@@ -181,7 +193,10 @@ test('a retired or unknown plan id never quotes a retired price', async ({ page 
    call as its only action; everything read from the config, nothing typed. */
 test('a module sold on its own renders as itself, with its own pair and no buy button', async ({ page }) => {
   const P = pricing();
-  const alone = P.addOns.filter((a) => a.sellable && a.soldAlone && a.monthly > 0 && a.launch > 0);
+  /* `a.launch > 0` was part of this filter until v7 (2026-10-02): no module
+     carries a Launch & Implementation fee now, so it would have emptied the
+     set and proved nothing. */
+  const alone = P.addOns.filter((a) => a.sellable && a.soldAlone && a.monthly > 0);
   expect(alone.map((a) => a.id), 'the quote-chase case the finding names must be in the set').toContain('quote_chase');
   const cash = (n) => 'C$' + n.toLocaleString('en-CA');
   const desk = P.plans.find((p) => p.recommended);
@@ -190,7 +205,8 @@ test('a module sold on its own renders as itself, with its own pair and no buy b
     await expect(page.locator('#planName'), a.id).toHaveText(a.name.toUpperCase());
     await expect(page.locator('#planPrice'), a.id).toHaveText(cash(a.monthly) + '/month');
     await expect(page.locator('#planMonthly'), a.id)
-      .toContainText(cash(a.launch) + ' Launch & Implementation to start, then ' + cash(a.monthly) + ' a month');
+      .toContainText(P.startLine(a).replace(/\.$/, ''));
+    if (a.freeMonths > 0) await expect(page.locator('#planTerms'), a.id).toContainText(P.freeMonth.offer);
     await expect(page.locator('#summaryLine'), a.id).toHaveText(a.blurb);
     /* Whether a module (the automatic text-back above all) may be
        recommended is the owner's open item O24/O12, so the heading names
@@ -355,8 +371,11 @@ test('still reads as a complete proposal with no parameters and no JS', async ({
      re-adding it would have been the fix. It now asserts the terms that
      replaced it, which is the sentence a prospect must still read when the
      config never loads. */
-  expect(text).toContain('Launch & Implementation');
-  expect(text).toContain('charged the day you start');
+  /* v7 (2026-10-02): the static copy is the AI Front Desk's, which starts
+     with a free month and carries no Launch & Implementation fee. */
+  expect(text).toContain('Your first month is free');
+  expect(text).toContain('No Launch & Implementation fee');
+  expect(text).toContain('charged from the day your second month begins');
   expect(text).not.toMatch(/pilot|trial/i);
   expect(text).toContain('What happens next');
   expect(text).toContain('(587) 413-0035');
@@ -458,16 +477,17 @@ test('a plan the checkout does not sell as stated keeps the call and nothing els
     expectCallOnly(await ctas(page), `${pl.id} is by invitation`);
   }
 
-  /* An agreed figure is not what checkout charges, so a quoted proposal has
-     no signup link. Since BD-F1 an agreed figure exists only inside a banded
-     plan's own band, and a banded plan is agreed rather than bought, so the
-     quoted case is the banded one. A "quote" equal to a direct plan's
+  /* An agreed figure is not what checkout charges, so a quoted proposal had
+     no signup link. From BD-F1 to 2026-10-01 an agreed figure existed only
+     inside the Partnership's band. The band is retired (v7) and every plan has
+     one price, so a quote other than it is ignored everywhere: the
+     Partnership quoted off its price shows its published monthly, and stays
+     call-only because it is by invitation. A "quote" equal to a direct plan's
      published monthly IS the published price, and keeps its button. */
-  const banded = P.plans.find((p) => Array.isArray(p.monthlyRange));
-  const inside = banded.monthlyRange.find((m) => m !== banded.monthly);
-  await page.goto(`/proposal.html?plan=${banded.id}&quote=${inside}`);
-  await expect(page.locator('#planPrice')).toContainText('C$' + inside.toLocaleString('en-CA'));
-  expectCallOnly(await ctas(page), `${banded.id} quoted at ${inside}`);
+  const partner = byInvite[0];
+  await page.goto(`/proposal.html?plan=${partner.id}&quote=${partner.monthly + 50}`);
+  await expect(page.locator('#planPrice')).toContainText('C$' + partner.monthly.toLocaleString('en-CA'));
+  expectCallOnly(await ctas(page), `${partner.id} quoted off its price`);
   const pl = P.plans.find((p) => sellsDirect(P, p));
   await page.goto(`/proposal.html?plan=${pl.id}&quote=${pl.monthly}`);
   expect((await ctas(page)).signups.length, 'a quote equal to the published monthly is the published price').toBe(2);
@@ -479,15 +499,19 @@ test('a plan the checkout does not sell as stated keeps the call and nothing els
 
 /* BD-F1 (2026-09-26). The quote filter was one band over every plan's
    prices, so ?plan=growth&quote=<the Partnership's floor> printed The Works at
-   that floor above "This summary reflects published pricing". A quote is now
-   honoured only inside the named plan's OWN band, and a plan with no band has
-   exactly one price. */
-test("a quote is honoured only inside the named plan's own band", async ({ page }) => {
+   that floor above "This summary reflects published pricing". A quote was
+   then honoured only inside the named plan's OWN band. RE-POINTED 2026-10-02
+   (v7): the Partnership's band is retired too, so every plan has exactly one
+   price and a quote is honoured only when it IS that price. The figures that
+   were the band's ends (250 and 500) stay in the probes, as the retired
+   figures most likely to be pasted into a link. */
+test("a quote is honoured only when it is the named plan's own published price", async ({ page }) => {
   const P = pricing();
   const cash = (n) => 'C$' + n.toLocaleString('en-CA');
   const byId = (id) => P.plans.find((p) => p.id === id);
   const works = byId('growth'), desk = byId('pro'), partner = byId('starter');
-  const [lo, hi] = partner.monthlyRange;
+  expect(P.plans.some((p) => 'monthlyRange' in p || 'launchRange' in p), 'a band is back in pricing-config.js').toBe(false);
+  const [lo, hi] = [250, 500];
   /* The two links the finding names, derived: The Works at the band's floor,
      the front desk at its ceiling, and their mirror images. Each shows its
      own published price and never the quoted figure. */
@@ -498,12 +522,9 @@ test("a quote is honoured only inside the named plan's own band", async ({ page 
     expect(await page.locator('main').innerText(), `${pl.id} must never print ${cash(q)}/month`)
       .not.toContain(cash(q) + '/month');
   }
-  /* The Partnership: inside its band the agreed figure stands; outside it,
-     the published default. */
-  const insideQ = [400, lo, hi].find((n) => n >= lo && n <= hi && n !== partner.monthly);
-  await page.goto(`/proposal.html?plan=${partner.id}&quote=${insideQ}`);
-  await expect(page.locator('#planPrice')).toHaveText(cash(insideQ) + '/month');
-  for (const out of [hi + 100, lo - 1, desk.monthly, works.monthly]) {
+  /* The Partnership: what its band used to admit is ignored now too; its
+     published monthly stands. */
+  for (const out of [400, lo, hi, hi + 100, lo - 1, desk.monthly, works.monthly]) {
     await page.goto(`/proposal.html?plan=${partner.id}&quote=${out}`);
     await expect(page.locator('#planPrice'), `starter quote=${out}`).toHaveText(cash(partner.monthly) + '/month');
   }
