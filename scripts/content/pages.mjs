@@ -398,8 +398,9 @@ export const PAGES = {
       <div class="reveal"><h3>Nobody in the office</h3><p>Full-time front line answers everything
         and flags the calls that genuinely need a person.</p></div>
       <div class="reveal"><h3>When you missed it anyway</h3><p>${MISSED_CALL.name} texts a caller
-        you missed, once, during business hours, with your business name on it and a working
-        opt-out, on your written go-ahead. It hands over the moment they reply. Bought on its own,
+        you missed, once, with your business name on it and a working opt-out, on your written
+        go-ahead. It sends only between 8 a.m. and 8 p.m. your time, every day, and hands over
+        the moment they reply. Bought on its own,
         ${MISSED_LINE}, plus applicable GST/HST.</p></div>
     </div>
   </div>

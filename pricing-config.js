@@ -92,7 +92,7 @@
       {
         id: "missed_call_recovery", name: "Missed-Call Recovery",
         monthly: 350, launch: 0, freeMonths: 1, sellable: true, soldAlone: true,
-        blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out."
+        blurb: "A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out."
       },
       /* `partnership` is what this item costs on the Performance Partnership.
          Bought on its own, or beside any other plan, it is its own pair above. */
@@ -294,7 +294,7 @@
         bestFor: "The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts.",
         features: [
           "Everything in the AI Front Desk",
-          "Missed-Call Recovery: one text back to a caller you missed, during business hours, with your name on it and a working opt-out",
+          "Missed-Call Recovery: one text back to a caller you missed, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out",
           "Quote-Chase Engine: follow-up on every quiet estimate: day it stales, day 4, day 11, each touch approved by you",
           "Get-Paid Autopilot: overdue-invoice reminders, with the owner told at three weeks instead of a third email",
           "Review Engine: post-job review requests by text, one ask per finished job, with every request released by a person",

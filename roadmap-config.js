@@ -101,10 +101,10 @@ window.NV_ROADMAP = {
        Recovery since 2026-09-19, the name the pricing page sells it under;
        the slug stays the canonical capability key the engine gate reads. */
     { slug: "instant-lead-follow-up", name: "Missed-Call Recovery", pillar: "convert", status: "available", stage: "now",
-      desc: "A caller you missed gets one text back while the job is still winnable: during business hours, on your say-so, with your business name on it.",
+      desc: "A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, on your say-so and with your business name on it.",
       problem: "Leads contact several companies. The fastest response usually wins the job.",
       functions: ["Missed-call text back", "One text per missed call, ever", "Your identification and a working opt-out on every message", "Hands over the moment they reply or call back"],
-      outcome: "A missed caller hears from you while the job is still winnable.", cta: "/pricing.html" },
+      outcome: "A missed caller hears from you by text, with your business name on it.", cta: "/pricing.html" },
     { slug: "automatic-lead-tracking", name: "Automatic Lead Tracking", pillar: "operate", status: "available", stage: "now",
       desc: "Each call, text and form becomes a lead with its source and a status, so you can see what is sitting untouched and what each source is actually producing.",
       problem: "Leads live in texts, notebooks, and memory. Nobody can see what is pending.",
