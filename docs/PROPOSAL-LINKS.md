@@ -24,13 +24,13 @@ https://nevamis.ca/proposal.html?to=BUSINESS+NAME&plan=PLAN
 |---|---|---|
 | `to` | the business name | spaces become `+` or `%20`. Optional; without it the page still reads fine. |
 | `plan` | `starter`, `growth` or `pro`, or a module sold on its own: `quote_chase`, `get_paid`, `review_engine` or `missed_call_recovery` | defaults to `pro`, the recommended plan, when there is no `plan` at all. An id it does not recognise shows **NO PLAN NAMED** and no price, never a substitute plan: check the link before you send it. |
-| `quote` | an agreed monthly figure, digits only | optional, and only for the Performance Partnership, whose monthly is agreed inside its published band. A figure inside that band replaces the published monthly on the page; anything outside it is ignored and the published monthly is shown. The Works and the AI Front Desk have one price each, so a `quote` on them is ignored unless it is that price. A quoted proposal has no **Start now** button, because checkout charges the published price, not the agreed one. |
+| `quote` | a monthly figure, digits only | has no effect since 2026-10-02 (commercial model v7). The Performance Partnership's monthly used to be agreed inside a published band; its figures are fixed now, and every plan has one price, so a `quote` is ignored unless it is that price, and the published monthly is shown. |
 
 Those ids are the ones in `pricing-config.js`. They are not what the plans are
 called on the page: `starter` renders as **Performance Partnership**, `growth`
 as **The Works**, and `pro` as **AI Front Desk**. A module id renders that
 module under its own name (`quote_chase` is the **Quote-Chase Engine**), with
-its own Launch & Implementation fee and monthly from `pricing-config.js`, its
+its first month free and its monthly from `pricing-config.js` (no module carries a Launch & Implementation fee since 2026-10-02), its
 description from the same file, and **Book the next call** as the only action:
 checkout has no live price for a module on its own yet, so a module is started
 after a call. Only modules marked sellable and sold on their own work here;
@@ -86,10 +86,15 @@ shows **Book the next call** alone, because checkout could not charge what the
 page states. The demo number to hear it
 again is at the end either way.
 
-Under the price it states the monthly, the one-time Launch & Implementation fee
-charged once to start, and the terms: *no minimum term, month to month from the
-first month, cancel any time from your own portal, service runs to the end of
-the month you already paid for, and your price is locked for 12 months.* It
+Under the price it states when the monthly is first charged (from the day the
+second month begins on a plan with a free month, from the first month on the
+Performance Partnership), then the first month free in the shared wording
+(*your first month is free; we take your card when you start and charge nothing
+until your second month begins*) with no Launch & Implementation fee, or, on the
+Partnership, its C$5,000 Launch & Implementation fee and agreed share, and the
+terms: *no minimum term, month to month from the first month, cancel any time
+from your own portal, service runs to the end of the month you already paid
+for, and your price is locked for 12 months.* It
 quotes no annual figure: an annual option exists in the config but is switched
 off.
 
@@ -108,7 +113,7 @@ background. Good for anyone who wants to show a partner.
 
 > Hi Mike, good talking. Here is the summary of what we went through:
 > https://nevamis.ca/proposal.html?to=Cedarview+Electric&plan=growth
-> A one-time Launch & Implementation fee to start, then one monthly price, no minimum term, cancel any time.
+> Your first month is free, then one monthly price, with no Launch & Implementation fee, no minimum term, cancel any time.
 > You can start from that page when you are ready, or we can talk it through first.
 > The demo line is (587) 413-0035 any time you want to hear it again.
 

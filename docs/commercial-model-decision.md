@@ -5,10 +5,16 @@
 > 2026-07-23 and is retired, along with the paid C$150 pilot that briefly
 > replaced it, the founding waiver, the setup fee, Pay As You Go, annual prepay,
 > and the C$249 / C$449 / C$849 ladder quoted further down. The current model
-> (v4, owner directive 2026-08-22) is a one-time Launch & Implementation fee
-> to start, then a monthly price per plan, with no pilot and no trial at any
-> price. pricing-config.js and the engine's src/domain/canonical.ts are the
-> source of truth; no figure in this file may be quoted.
+> (v7, owner decision 2026-10-02): a new client's first month is free on the AI
+> Front Desk, The Works and any module bought on its own, with no Launch &
+> Implementation fee; the Performance Partnership, by invitation, is C$5,000
+> Launch & Implementation, then C$350 a month from the first month, and there is no free month on the Partnership.
+> The first month free is not Model B below returning: it is the first calendar
+> month of an ordinary subscription, card taken at sign-up, billing itself from
+> the second month unless cancelled first, once per business, decided by the
+> owner as its own commercial decision. There is no pilot at any price.
+> pricing-config.js and the engine's src/domain/canonical.ts are the source of
+> truth; no figure in this file may be quoted.
 >
 > Several other files in this repo used to point HERE for "the current model".
 > They have been repointed at pricing-config.js, which is the only file a guard
@@ -63,8 +69,9 @@ See pricing-config.js. Market context (2026): DIY AI receptionists US$25–199/m
 US$235+. Nevamis prices as done-for-you service above DIY, below/near human
 services. The ladder approved on this date was **After Hours C$249/mo · Growth
 C$449/mo · Scale from C$849/mo**, overages 1.10/0.90/0.75 per minute; every one
-of those figures and both of those plan names are retired. The current ladder is
-Core C$250/month · Growth C$500/month · Pro C$1,000/month, same overage rates.
+of those figures and both of those plan names are retired. The ladder that
+replaced it, Core C$250/month · Growth C$500/month · Pro C$1,000/month, is
+retired too; pricing-config.js carries the current one.
 The point of difference that survives all of it: most competitors in that list
 charge to set up, and Nevamis has no setup fee, no activation fee and no
 onboarding fee at any tier.

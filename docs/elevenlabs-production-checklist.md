@@ -23,8 +23,8 @@ Every box must be ticked before any production change. No exceptions, no partial
 
 - [ ] All P0 simulation tests pass. A single P0 failure blocks activation.
 - [ ] P1 pass threshold met per the test plan.
-- [ ] Pricing answers match nevamis.ca exactly: plan names (Core, Growth, Pro), ONE monthly price per plan, included minutes, overage rates, month-to-month terms. No drift, no rounding, no improvisation, and no second figure of any kind: a first-month amount quoted beside a recurring one is a failure even when both numbers are right.
-- [ ] No retired offer is made, at any price or under any name. There is no setup fee, activation fee or onboarding fee, no 7-day pilot, no trial and no evaluation period. A caller who asks for one is told plainly that it is retired and given the current terms (one price, cancel any time) rather than a hedge, a substitute discount, or a promise to check.
+- [ ] Pricing answers match nevamis.ca exactly: plan names (The Works, AI Front Desk, Performance Partnership), each plan's figures as pricing-config.js states them (the first month free, then the monthly, on The Works and the AI Front Desk; five thousand dollars Launch and Implementation, then three hundred and fifty dollars a month from the first month, on the Partnership), included minutes, overage rates, month-to-month terms. No drift, no rounding, no improvisation. (Updated 2026-10-02 for commercial model v7; until then this line named the retired Core, Growth and Pro plans.)
+- [ ] No retired offer is made, at any price or under any name. There is no setup fee, activation fee or onboarding fee, no 7-day pilot and no evaluation period, and the first month free is the only free period. A caller who asks for a retired one is told plainly that it is retired and given the current terms rather than a hedge, a substitute discount, or a promise to check.
 - [ ] Unknown integration questions produce no false claims. The agent says it cannot confirm the specific integration and that Daren verifies compatibility on the strategy call. Never a false yes.
 
 ### Booking verification
