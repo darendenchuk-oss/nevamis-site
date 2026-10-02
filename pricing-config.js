@@ -37,9 +37,9 @@
   window.NV_PRICING = {
     approved: true,
     currency: "CAD",
-    lastUpdated: "2026-09-12",
+    lastUpdated: "2026-10-02",
     taxNote: "Prices in Canadian dollars, plus applicable GST/HST.",
-    commercialModel: "V6-growth-stack",
+    commercialModel: "V7-first-month-free",
     /* Whether a visitor may complete a purchase without talking to anyone.
        Mirrors the engine's checkout gate; neither side relies on the other. */
     sellable: true,
@@ -53,7 +53,26 @@
       /* Branch on the value; never fall back to `|| 30`. */
       cancellationNoticeDays: 0,
       priceLockMonths: 12,
-      note: "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch & Implementation fee, charged once beside your first month, is the only commitment."
+      note: "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, and your price is locked for 12 months from signing. Cancel during your free month and you pay nothing; once you are paying, service runs to the end of the month you already paid for."
+    },
+    /* THE FIRST MONTH FREE, mirroring CANONICAL.pricing.freeMonth. Which
+       plans and add-ons carry it is each one's own `freeMonths`; these are
+       the terms every free month is held to, and the sentences every page
+       states it in. The public name is "first month free". */
+    freeMonth: {
+      months: 1,
+      cardRequired: true,
+      autoConverts: true,
+      reminderDaysBefore: [7, 1],
+      overageIncluded: true,
+      newClientsOnly: true,
+      effective: "2026-10-02",
+      offer: "Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing.",
+      reminder: "We remind you a week before and a day before your first charge.",
+      usage: "Minutes past your allowance during your free month are not billed.",
+      modules: "A module you add once you are paying is billed from its first month.",
+      once: "for a business new to Nevamis, once per business",
+      fee: "No Launch & Implementation fee: you pay the monthly price and nothing else."
     },
     /* Enterprise is quoted per client, so it is not a plans[] entry.
        `launchFrom` is a floor ("starting at"), never a price. */
@@ -71,25 +90,25 @@
     addOns: [
       {
         id: "missed_call_recovery", name: "Missed-Call Recovery",
-        monthly: 350, launch: 500, sellable: true, soldAlone: true,
+        monthly: 350, launch: 0, freeMonths: 1, sellable: true, soldAlone: true,
         blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out."
       },
       /* `partnership` is what this item costs on the Performance Partnership.
          Bought on its own, or beside any other plan, it is its own pair above. */
       {
         id: "quote_chase", name: "Quote-Chase Engine",
-        monthly: 500, launch: 750, sellable: true, soldAlone: true,
+        monthly: 500, launch: 0, freeMonths: 1, sellable: true, soldAlone: true,
         partnership: { launch: 0, monthly: 0, attributableTo: "a quote Nevamis recovered" },
         blurb: "Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you."
       },
       {
         id: "get_paid", name: "Get-Paid Autopilot",
-        monthly: 500, launch: 750, sellable: true, soldAlone: true,
+        monthly: 500, launch: 0, freeMonths: 1, sellable: true, soldAlone: true,
         blurb: "Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks YOU get told instead, because past that point the judgment call belongs to a person."
       },
       {
         id: "review_engine", name: "Review Engine",
-        monthly: 300, launch: 500, sellable: true, soldAlone: true,
+        monthly: 300, launch: 0, freeMonths: 1, sellable: true, soldAlone: true,
         blurb: "Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person."
       },
       /* Lead Generation is offered by invitation on the Performance Partnership
@@ -98,19 +117,19 @@
          never more. */
       {
         id: "lead_generation", name: "Lead Generation",
-        monthly: 0, launch: 0, sellable: false, soldAlone: false,
+        monthly: 0, launch: 0, freeMonths: 0, sellable: false, soldAlone: false,
         partnership: { launch: 0, monthly: 0, attributableTo: "a business Nevamis found" },
         blurb: "Businesses that fit what you do, found for you, with the page each one came from and what came of it. Offered by invitation, under your own agreement, and not yet sellable from a page."
       },
       /* Listed as coming. It carries no price and is never sold. */
       {
         id: "seo_rankings", name: "Search Rankings",
-        monthly: 0, launch: 0, sellable: false, soldAlone: false,
+        monthly: 0, launch: 0, freeMonths: 0, sellable: false, soldAlone: false,
         blurb: "Better search rankings for the work you want more of. Coming, and not built yet."
       },
       {
         id: "reactivation", name: "Customer Reactivation",
-        perCampaign: 2000, sellable: false, soldAlone: false,
+        perCampaign: 2000, freeMonths: 0, sellable: false, soldAlone: false,
         blurb: "A win-back campaign over your own past-customer list, inside the consent rules. Coming, and not sellable until it ships end to end."
       }
     ],
@@ -127,39 +146,60 @@
       }
       return { launch: a.launch || 0, monthly: a.monthly || 0, attributableTo: null };
     },
-    /* A plan's two figures as the one approved sentence, in plain text (a
-       page that writes it into HTML escapes it), so a plan whose figures are
-       a band cannot be printed as a flat price on one surface and a band on
-       another: with `launchRange` the fee reads "From", and with
-       `monthlyRange` the monthly reads as the default inside its published
-       band. It is built from launchPart() and monthlyBand() below, and a page
-       that sets the fee and the monthly on separate lines (proposal.html)
-       uses those two parts instead of typing its own. */
+    /* A plan's or an add-on's figures as the one approved sentence, in plain
+       text (a page that writes it into HTML escapes it). It is built from
+       launchPart() and monthlyBand() below, plus the plan's performanceNote,
+       and a page that sets the start and the monthly on separate lines
+       (proposal.html) uses those parts instead of typing its own.
+         a fee of 0 and a free month:  "First month free, then <monthly> a month."
+         a fee and no free month:      "<launch> Launch & Implementation, then
+                                        <monthly> a month from the first month,
+                                        <performanceNote>." */
     startLine: function (pl) {
-      return this.launchPart(pl) + ", then " + this.money(pl.monthly) + " a month"
-        + this.monthlyBand(pl) + ".";
+      var lp = this.launchPart(pl);
+      return (lp ? lp + ", then " : "") + this.money(pl.monthly) + " a month"
+        + this.monthlyBand(pl) + (pl.performanceNote ? ", " + pl.performanceNote : "") + ".";
     },
-    /* The fee half of startLine(): "Launch & Implementation to start" after
-       the `launch` figure, with "From" in front when the plan has
-       `launchRange`. */
+    /* The start of startLine(): the Launch & Implementation fee where there
+       is one, otherwise "First month free" where the plan or add-on carries
+       a free month, otherwise nothing. A fee of 0 prints no fee part. */
     launchPart: function (pl) {
-      return (Array.isArray(pl.launchRange) ? "From " : "") + this.money(pl.launch)
-        + " Launch & Implementation to start";
+      if (pl.launch > 0) return this.money(pl.launch) + " Launch & Implementation";
+      return pl.freeMonths > 0 ? "First month free" : "";
     },
-    /* What follows the monthly figure of a plan with `monthlyRange`: that it
-       is the default inside the band, and the band's two ends. Empty for a
-       plan without one. */
+    /* What follows the monthly figure: " from the first month" where the
+       monthly is charged from month one (no free month), else nothing. The
+       name is from the v6 bands it used to print; there are no bands now. */
     monthlyBand: function (pl) {
-      return Array.isArray(pl.monthlyRange)
-        ? " by default, inside a monthly band of " + this.money(pl.monthlyRange[0])
-          + " to " + this.money(pl.monthlyRange[1])
-        : "";
+      return pl.freeMonths > 0 ? "" : " from the first month";
     },
-    /* The lowest and highest monthly a plan may be agreed at: its band where
-       it has `monthlyRange`, otherwise its one published monthly at both
-       ends. proposal.html honours an agreed ?quote= only inside these. */
+    /* The lowest and highest monthly a plan may be quoted at. There are no
+       bands since v7, so both ends are the one published monthly, and
+       proposal.html honours an agreed ?quote= only inside these. */
     monthlyBounds: function (pl) {
-      return Array.isArray(pl.monthlyRange) ? [pl.monthlyRange[0], pl.monthlyRange[1]] : [pl.monthly, pl.monthly];
+      return [pl.monthly, pl.monthly];
+    },
+    /* The free month in one paragraph, for the pricing page's terms band:
+       which offers carry it (every plan with `freeMonths`, and any add-on
+       bought on its own), then its terms in `freeMonth`'s own words. */
+    freeMonthNote: function () {
+      var fm = this.freeMonth || {};
+      var names = (this.plans || []).filter(function (p) { return p.freeMonths > 0; })
+        .map(function (p) { return /^The /.test(p.name) ? p.name : "the " + p.name; });
+      if (!names.length || !fm.offer) return "";
+      var who = names.join(", ") + " and any add-on bought on its own";
+      return who.charAt(0).toUpperCase() + who.slice(1) + " come with a first month free " + fm.once + ". "
+        + [fm.offer, fm.reminder, fm.usage, fm.modules, fm.fee].join(" ");
+    },
+    /* The one plan that keeps a Launch & Implementation fee and has no free
+       month (the Partnership), in one line for the terms band, so the band
+       can say where the free month stops without typing a figure. Empty when
+       every plan has a free month. */
+    partnerNote: function () {
+      var pl = (this.plans || []).filter(function (p) { return p.launch > 0 && !(p.freeMonths > 0); })[0];
+      if (!pl) return "";
+      return "The " + pl.name + " is the exception: " + this.launchPart(pl) + ", then " + this.money(pl.monthly)
+        + " a month" + this.monthlyBand(pl) + ". " + (pl.inviteNote || "");
     },
     money: function (n) { return "C$" + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); },
     /* The lines every plan's `features` carries, in the first plan's order,
@@ -206,41 +246,47 @@
         "Failed calls that never connect are not counted.",
         "Wrong numbers or spam that reach the AI consume usage, because the system handled them.",
         "A text or email alert after you pass 50%, 75%, 90% or 100% of your included minutes, with your running total on your portal's billing page.",
-        "Past your included minutes, calls keep being answered and each extra minute is billed at your plan's per-minute rate, shown on its card above."
+        "Past your included minutes, calls keep being answered and each extra minute is billed at your plan's per-minute rate, shown on its card above.",
+        "Minutes past your allowance during your free month are not billed."
       ]
     },
-    /* `monthly` recurs; `launch` is charged once, at the start, beside the
-       first month and never instead of it. There is deliberately no `setup`
-       key. `performanceNote` is the approved wording for a plan's
-       performance component, or null. `launchRange` and `monthlyRange`,
-       where a plan has them, are the bands its figures are agreed within,
-       and `launch` and `monthly` are then the defaults inside them; state
-       such a plan through startLine(), never as a flat pair. Order is
-       display order: every renderer walks this array in order. */
+    /* `monthly` recurs; `launch` is the one-time Launch & Implementation fee,
+       charged once at the start and never instead of a month, and it is 0 on
+       every plan but the Partnership. `freeMonths` is 1 where a new client's
+       first month is free (see `freeMonth`), 0 where the monthly is charged
+       from the first month. There is deliberately no `setup` key, and no
+       band: the Partnership's figures are fixed since v7. `performanceNote`
+       is the approved clause for a plan's performance component, joined into
+       startLine() after the monthly, or null. `inviteNote` is what an
+       invitation-only plan says about being one. Keep the numeric fields
+       directly after `id` and `name`: the engine's cross-repo parser reads
+       the 400 characters after each `id: "..."`. Order is display order:
+       every renderer walks this array in order. */
     plans: [
       {
         /* By invitation. `selfServe: false`: never presented as the default,
            and checkout refuses it without an approval. */
         id: "starter", name: "Performance Partnership",
-        monthly: 350, monthlyRange: [250, 500], launch: 2500, launchRange: [2500, 10000], includedMinutes: 250,
+        monthly: 350, launch: 5000, freeMonths: 0, includedMinutes: 250,
         callRange: "80 to 125 typical calls", overage: 1.10,
         selfServe: false,
-        performanceNote: "Lower fixed cost. Lead Generation, offered by invitation, and the Quote-Chase Engine are each paid on it by an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, subject to your agreement. Its Launch & Implementation fee and its monthly, the share, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged.",
+        performanceNote: "plus an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, set in your agreement before anything is charged",
+        inviteNote: "By invitation; there is no free month on the Partnership.",
         /* Names the items that can be added on this plan. The figures live on
            the add-ons above and the share in the executed agreement. */
-        bestFor: "A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
+        bestFor: "A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose. Its Launch & Implementation fee and its monthly are fixed; what the items you choose change is the agreed share and the monthly of each item you add. Not suitable for every business, and never the default.",
         features: [
           "One business phone line",
           /* The agreed-share sentence lives once, in performanceNote. */
-          "The growth stack, each item added on its own: Lead Generation (offered by invitation) and the Quote-Chase Engine, paid on this plan's agreed-share terms, and Missed-Call Recovery, Get-Paid Autopilot and Review Engine, each with its own listed Launch & Implementation fee and monthly. Search Rankings is coming and is not sold."
+          "The growth stack, each item added on its own: Lead Generation (offered by invitation) and the Quote-Chase Engine, paid on this plan's agreed-share terms, and Missed-Call Recovery, Get-Paid Autopilot and Review Engine, each at its own listed monthly, billed from its first month. Search Rankings is coming and is not sold."
         ].concat(EVERY_PLAN)
       },
       {
         id: "growth", name: "The Works",
+        monthly: 2100, launch: 0, freeMonths: 1, includedMinutes: 1400,
         /* The bundle: every sellable automation included, as a flag so no
            renderer has to know which key means "the bundle". */
         includesAutomations: true,
-        monthly: 2100, launch: 3000, includedMinutes: 1400,
         callRange: "470 to 700 typical calls", overage: 0.75,
         selfServe: true,
         performanceNote: null,
@@ -256,7 +302,7 @@
       },
       {
         id: "pro", name: "AI Front Desk", recommended: true,
-        monthly: 1000, launch: 1500, includedMinutes: 1400,
+        monthly: 1000, launch: 0, freeMonths: 1, includedMinutes: 1400,
         callRange: "470 to 700 typical calls", overage: 0.75,
         selfServe: true,
         performanceNote: null,

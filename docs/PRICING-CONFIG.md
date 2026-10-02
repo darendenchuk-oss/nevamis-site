@@ -22,9 +22,10 @@ plan's `monthly` or `launch` differs from canonical, when a plan declares a
 this file, in the same train.
 
 The engine's parser reads each plan as the 400 characters after its
-`id: "..."`, and it matches `monthly:` and `launch:` inside that window. Keep
-those two keys close to the `id`; a long comment between them makes the parser
-read nothing, and it then reports the wrong number of plans.
+`id: "..."`, and it matches `monthly:`, `launch:` and (since v7) `freeMonths:`
+inside that window. Keep those keys directly after `id` and `name`, numeric
+fields first, in every plan and add-on; a long comment between them makes the
+parser read nothing, and it then reports the wrong number of plans.
 
 ## The rules the data encodes
 
@@ -32,14 +33,29 @@ read nothing, and it then reports the wrong number of plans.
   `scripts/check-consistency.js` fails where a page's static fallback text
   differs from this file.
 - **`launch`, never `setup`.** The one-time Launch & Implementation fee is
-  charged once, beside the first month, never instead of it. The approved
-  sentence joins the two figures with "to start" and "then", never "plus", "+"
-  or "and". The fee has one name; the older names for it are retired
-  vocabulary, listed in the engine's canonical record, and may only be
-  denied, never used. The engine treats the presence of a `setup` key as a
+  charged once, at the start, never instead of a month. Since commercial
+  model v7 (owner decision 2026-10-02) it is 0 on the AI Front Desk, The Works
+  and every module, and only the Performance Partnership carries one. A fee
+  of 0 prints no fee part anywhere (`launchPart()` returns the free-month
+  clause or nothing). The fee has one name; the older names for it are
+  retired vocabulary, listed in the engine's canonical record, and may only
+  be denied, never used. The engine treats the presence of a `setup` key as a
   defect.
+- **`freeMonths` and `freeMonth`.** `freeMonths` is 1 on every plan and
+  module a new client may start with a free month (the AI Front Desk, The
+  Works, and the four modules sold alone) and 0 everywhere else, the
+  Partnership included. `freeMonth` mirrors `CANONICAL.pricing.freeMonth`:
+  one calendar month, card required, converts itself, reminders 7 and 1 days
+  before the first charge, minutes past the allowance not billed, new clients
+  only, effective 2026-10-02. It also carries the shared sentences the engine
+  uses word for word (`offer`, `reminder`, `usage`, `modules`, `fee`), so a
+  page that states the free month states it in those words; `freeMonthNote()`
+  joins them into the pricing page's paragraph, and `partnerNote()` states the
+  one plan without it. The public name is "first month free", never "free
+  trial", and `scripts/check-consistency.js` guard 7o refuses any other free
+  period.
 - **No minimum term.** `terms.minimumMonths` is 0 (owner directive
-  2026-09-08). Every sentence about the term is derived from that one number,
+  2026-09-08). Every sentence about the minimum term is derived from that one number,
   so re-introducing a term is a one-figure change here. A shape that needs a
   second number is a new decision and a new field.
 - **No notice period.** `terms.cancellationNoticeDays` is 0 (owner directive
@@ -66,25 +82,32 @@ read nothing, and it then reports the wrong number of plans.
   is live.
 - **`selfServe: false`** marks an invitation-only plan (the Partnership). No
   surface may present it as the default, and checkout refuses it without an
-  approval. `monthlyRange` is the published band its monthly sits in, and
-  `launchRange` the band its Launch & Implementation fee sits in (canonical
-  `recurringMonthlyRange` and `launchFeeOverrideRange`). `monthly` and
-  `launch` are then the defaults inside those bands, not a price list, so a
-  surface that prints the Partnership as a flat "C$2,500 ... then C$350 a
-  month" is wrong even though both numbers are real (finding BD-4,
-  2026-09-25). A plan's figures are stated through
-  `NV_PRICING.startLine(plan)`, which reads "From" and the band off these two
-  fields: the pricing cards and their static fallback, the Offer JSON-LD on
-  `pricing.html`, the plan chooser's lines, `scripts/build-schema.mjs` (the
-  homepage JSON-LD) and `llms.txt`. `proposal.html` sets the fee and the
-  monthly on separate lines, so it uses the two parts `startLine` is built
-  from, `NV_PRICING.launchPart(plan)` and `NV_PRICING.monthlyBand(plan)`.
-  The chooser's add-on lines go through `startLine` too; an add-on has no
-  band, so they read as a flat pair, which is true of them.
-  `scripts/check-consistency.js` holds `llms.txt` and the `pricing.html`
-  fallback to `startLine`'s sentence and requires `proposal.html` to take
-  the two parts rather than type its own; `tests/site-truth.spec.js` renders
-  the proposal for each banded plan.
+  approval. `inviteNote` is what it says about being one.
+- **No bands since v7.** The Partnership carried `monthlyRange` and
+  `launchRange` (canonical `recurringMonthlyRange` and
+  `launchFeeOverrideRange`) from v5 to v6. The owner fixed its figures on
+  2026-10-02, C$5,000 Launch & Implementation, then C$350 a month from the
+  first month, and both fields are deleted; guard 7o fails a plan that
+  carries either, and the engine reads a band on the site as a finding.
+- **`startLine(plan)` is the one sentence a plan's or module's figures are
+  stated in.** A plan with a free month reads "First month free, then
+  <monthly> a month."; the Partnership reads "<launch> Launch &
+  Implementation, then <monthly> a month from the first month, plus an
+  agreed share of collected revenue directly attributable to a business
+  Nevamis found or a quote Nevamis recovered, set in your agreement before
+  anything is charged.", the shared wording the engine uses, with the
+  Partnership's `performanceNote` joined inside it (so no renderer appends it
+  a second time). It is built from `launchPart()` (the fee, or "First month
+  free", or nothing) and `monthlyBand()` (" from the first month" where the
+  monthly is charged from month one; the name is from the bands it used to
+  print). Surfaces that use it: the pricing cards and their static fallback,
+  the Offer JSON-LD on `pricing.html`, the plan chooser's lines,
+  `scripts/build-schema.mjs` (the homepage JSON-LD), the homepage plans strip
+  in `site.js`, `llms.txt` and `scripts/content/pages.mjs`. `proposal.html`
+  sets the start and the monthly on separate lines, so it uses the two parts
+  rather than typing its own. `scripts/check-consistency.js` holds `llms.txt`,
+  the add-on list and the `pricing.html` fallback to `startLine`'s sentence
+  and requires `proposal.html` to take the two parts.
 - **`recommendedLabel`** is a recommendation, never a claim about what other
   businesses chose. There are no clients yet to count.
 
@@ -98,6 +121,9 @@ read nothing, and it then reports the wrong number of plans.
   record for that item; this file cannot derive across repositories, so it
   mirrors today's answer, and the site may say less than the engine, never
   more.
+- Every sellable module has `launch: 0` and `freeMonths: 1` since v7: bought
+  on its own, its first month is free; added to a plan the client already
+  pays for, it is billed from its first month (`freeMonth.modules`).
 - Lead Generation has no standalone pair (`monthly` and `launch` are 0 and
   `soldAlone` is false): it is offered by invitation on the Performance
   Partnership only. Bid and tender work is arranged by hand under the service
@@ -145,6 +171,8 @@ per threshold on the dot.
 ## Referral, founding client, annual
 
 `referral` mirrors `CANONICAL.referral`; the referrer's free month is earned on
-the referred business's first paid invoice, and the engine validates it.
+the referred business's first paid invoice, and the engine validates it. Since
+v7 that first paid invoice comes after the referred business's own free month;
+the referral sentences stay true as written, so they did not change.
 `foundingClient` and `annual` are inactive records kept so a renderer that
 reads them gets `active: false` rather than `undefined`.
