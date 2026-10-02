@@ -55,7 +55,7 @@ parser read nothing, and it then reports the wrong number of plans.
   trial", and `scripts/check-consistency.js` guard 7o refuses any other free
   period.
 - **No minimum term.** `terms.minimumMonths` is 0 (owner directive
-  2026-09-08). Every sentence about the minimum term is derived from that one number,
+  2026-09-08). Every sentence about it is derived from that one number,
   so re-introducing a term is a one-figure change here. A shape that needs a
   second number is a new decision and a new field.
 - **No notice period.** `terms.cancellationNoticeDays` is 0 (owner directive

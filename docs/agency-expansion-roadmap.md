@@ -4,12 +4,15 @@
 > Noted 2026-08-10. They are unapproved guesses for products that do not exist
 > yet (CAPTURE+, CONVERT, OPERATE, GROW, OPTIMIZE, PARTNERSHIP) and no figure in
 > them has been offered to anyone. The one row that IS live, CAPTURE, is the
-> receptionist family, sold since the 2026-08-22 v4 directive as a one-time
-> Launch & Implementation fee to start, then a monthly price:
-> The Works C$3,000 to start, then C$2,100/month (1,400 minutes, C$0.75/min overage);
-> AI Front Desk C$1,500 to start, then C$1,000/month (1,400 minutes, C$0.75/min overage);
-> Performance Partnership (invite-only) from C$2,500 to start, then C$350/month plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 minutes, C$1.10/min overage).
-> No pilot and no trial at any price. `pricing-config.js` and the engine's
+> receptionist family, sold since commercial model v7 (owner decision
+> 2026-10-02) as a monthly price, month to month from the first month:
+> The Works C$2,100/month (1,400 minutes, C$0.75/min overage);
+> AI Front Desk C$1,000/month (1,400 minutes, C$0.75/min overage);
+> neither carries a Launch & Implementation fee, and a new client's first month is free.
+> Performance Partnership (by invitation) C$5,000 Launch & Implementation, then C$350/month from the
+> first month, plus an agreed share of collected revenue directly attributable to a business Nevamis
+> found or a quote Nevamis recovered, set in the agreement (250 minutes, C$1.10/min overage); no free month.
+> There is no pilot. `pricing-config.js` and the engine's
 > src/domain/canonical.ts are the source of truth. The C$249 in the OPERATE row is a draft monthly for a
 > different product; it is NOT the retired C$249 receptionist tier, which is
 > dead. Nothing in this table may be quoted to a prospect, and a setup fee for

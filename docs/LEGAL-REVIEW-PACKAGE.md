@@ -1,12 +1,17 @@
 # LEGAL REVIEW PACKAGE
 
 > **THE COMMERCIAL MODEL, STATED UP FRONT so counsel does not have to reach
-> the pricing section to learn it.** Since 2026-08-09 Nevamis sells ONE
-> recurring price per plan, charged the day the client subscribes and every
-> month after: Core C$250/month, Growth C$500/month, Pro C$1,000/month, CAD
-> plus GST/HST. There is no setup fee, activation fee, onboarding fee,
-> implementation fee or launch charge, no money-back guarantee, and no pilot
-> or trial at any price. Month to month, cancel any time from the portal.
+> the pricing section to learn it.** Since 2026-10-02 (commercial model v7,
+> owner decision) Nevamis sells a monthly price, month to month from the first
+> month, CAD plus GST/HST: The Works C$2,100/month and the AI Front Desk
+> C$1,000/month, with no Launch & Implementation fee, and the first month free
+> for a business new to Nevamis (the card is taken at sign-up and charged from
+> the second month unless cancelled in the portal first). The Performance
+> Partnership, by invitation, is C$5,000 Launch & Implementation, then
+> C$350/month from the first month, with no free month, plus an agreed share
+> set in its agreement. No money-back guarantee and no pilot. Month to month,
+> cancel any time from the portal. The terms that state this (v3.0) are
+> drafted and await counsel's reading.
 > Every other commercial shape named anywhere below - the C$249 / C$449 /
 > C$849 ladder, the Pay As You Go C$49/month tier, annual prepay, the free
 > seven-day pilot, its C$150 paid replacement, the setup fee and the

@@ -86,13 +86,13 @@ shows **Book the next call** alone, because checkout could not charge what the
 page states. The demo number to hear it
 again is at the end either way.
 
-Under the price it states when the monthly is first charged (from the day the
-second month begins on a plan with a free month, from the first month on the
-Performance Partnership), then the first month free in the shared wording
-(*your first month is free; we take your card when you start and charge nothing
-until your second month begins*) with no Launch & Implementation fee, or, on the
-Partnership, its C$5,000 Launch & Implementation fee and agreed share, and the
-terms: *no minimum term, month to month from the first month, cancel any time
+Under the price it states when the monthly is first charged. On a plan with a
+free month that is the day the second month begins, and the page then states
+the first month free in the shared wording (*your first month is free; we take
+your card when you start and charge nothing until your second month begins*)
+with no Launch & Implementation fee. On the Performance Partnership it is the
+first month, and the page states its C$5,000 Launch & Implementation fee and
+agreed share instead. Then the terms: *no minimum term, month to month from the first month, cancel any time
 from your own portal, service runs to the end of the month you already paid
 for, and your price is locked for 12 months.* It
 quotes no annual figure: an annual option exists in the config but is switched

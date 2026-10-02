@@ -1,15 +1,18 @@
 # NEVAMIS — what may be said, and what may not
 
 > **PRICING, STATED FIRST, because this is the file every line of copy is
-> checked against.** Since 2026-08-09 there is ONE recurring price per plan,
-> charged the day the client subscribes and every month after: Core
-> C$250/month, Growth C$500/month, Pro C$1,000/month, with 250 / 600 / 1,400
-> included minutes and C$1.10 / C$0.90 / C$0.75 overage. No setup fee, no
-> activation fee, no pilot and no trial at any price. Any other figure that
-> appears below - C$850, C$150, C$249, C$449, C$849, C$49 - is RETIRED and
+> checked against.** Since 2026-10-02 (commercial model v7) the prices are
+> monthly, month to month from the first month: The Works C$2,100/month and
+> the AI Front Desk C$1,000/month, each with 1,400 included minutes and C$0.75
+> overage, no Launch & Implementation fee, and the first month free for a
+> business new to Nevamis; the Performance Partnership, by invitation,
+> C$5,000 Launch & Implementation, then C$350/month, with 250 minutes and
+> C$1.10 overage and no free month. There is no free period but that first
+> month, and no pilot. Any other figure that appears below - C$850, C$150, C$249,
+> C$449, C$849, C$49, and the Core and Growth monthlies - is RETIRED and
 > appears only as the subject of a defect or a correction, never as something
 > quotable. `pricing-config.js` is the source of truth. Banner added
-> 2026-08-10.
+> 2026-08-10, restated for v7 on 2026-10-02.
 
 The factual floor under the cinematic system, the website and the film. Every
 line of new copy and every frame of the film is checked against this file.
@@ -86,7 +89,7 @@ of date.
 
 ### The other refusals
 
-No trial or pilot. No external integrations. No multi-line, multi-location or
+No free period but a new client's first month, and no pilot. No external integrations. No multi-line, multi-location or
 department routing. No transcripts in the portal. No outbound to callers.
 Each is refused with the provisioning path that makes it impossible.
 
