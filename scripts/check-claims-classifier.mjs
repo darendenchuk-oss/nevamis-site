@@ -165,9 +165,10 @@ const MUST_NOT_FIRE = [
   ["the free-month offer, verbatim",
     "Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing."],
   ["the reminder promise, verbatim", "We remind you a week before and a day before your first charge."],
-  ["the fee sentence, verbatim", "No Launch & Implementation fee: you pay the monthly price and nothing else."],
+  ["the fee sentence, verbatim", "No Launch & Implementation fee: nothing to pay up front, only your monthly price."],
   ["the usage sentence, verbatim", "Minutes past your allowance during your free month are not billed."],
   ["the modules sentence, verbatim", "A module you add once you are paying is billed from its first month."],
+  ["the sign-up module sentence, verbatim", "A module you start with at sign-up, beside a plan, is part of your first month and free with it."],
   ["the Partnership sentence, verbatim",
     "C$5,000 Launch & Implementation, then C$350 a month from the first month, plus an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, set in your agreement before anything is charged. By invitation; there is no free month on the Partnership."],
   ["the fee denied everywhere it is absent, with the Partnership excepted",
@@ -180,7 +181,7 @@ const MUST_NOT_FIRE = [
   ["a retired fee recorded as retired", "The C$1,500 Launch & Implementation fee on the AI Front Desk was retired on 2026-10-02."],
 
   ["proposal.html: PLAN_TERMS, the sentence the whole model rests on",
-    "Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. No Launch & Implementation fee: you pay the monthly price and nothing else. No minimum term."],
+    "Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. No Launch & Implementation fee: nothing to pay up front, only your monthly price. No minimum term."],
 
   /* FLIPPED BACK 2026-10-02 (v7), from MUST FIRE: each denies a Launch &
      Implementation fee, which the standard plans and modules no longer

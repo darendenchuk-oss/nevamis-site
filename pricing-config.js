@@ -70,9 +70,10 @@
       offer: "Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing.",
       reminder: "We remind you a week before and a day before your first charge.",
       usage: "Minutes past your allowance during your free month are not billed.",
+      withPlan: "A module you start with at sign-up, beside a plan, is part of your first month and free with it.",
       modules: "A module you add once you are paying is billed from its first month.",
       once: "for a business new to Nevamis, once per business",
-      fee: "No Launch & Implementation fee: you pay the monthly price and nothing else."
+      fee: "No Launch & Implementation fee: nothing to pay up front, only your monthly price."
     },
     /* Enterprise is quoted per client, so it is not a plans[] entry.
        `launchFrom` is a floor ("starting at"), never a price. */
@@ -189,7 +190,7 @@
       if (!names.length || !fm.offer) return "";
       var who = names.join(", ") + " and any add-on bought on its own";
       return who.charAt(0).toUpperCase() + who.slice(1) + " come with a first month free " + fm.once + ". "
-        + [fm.offer, fm.reminder, fm.usage, fm.modules, fm.fee].join(" ");
+        + [fm.offer, fm.reminder, fm.usage, fm.withPlan, fm.modules, fm.fee].filter(Boolean).join(" ");
     },
     /* The one plan that keeps a Launch & Implementation fee and has no free
        month (the Partnership), in one line for the terms band, so the band

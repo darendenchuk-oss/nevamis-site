@@ -48,7 +48,7 @@ parser read nothing, and it then reports the wrong number of plans.
   one calendar month, card required, converts itself, reminders 7 and 1 days
   before the first charge, minutes past the allowance not billed, new clients
   only, effective 2026-10-02. It also carries the shared sentences the engine
-  uses word for word (`offer`, `reminder`, `usage`, `modules`, `fee`), so a
+  uses word for word (`offer`, `reminder`, `usage`, `withPlan`, `modules`, `fee`), so a
   page that states the free month states it in those words; `freeMonthNote()`
   joins them into the pricing page's paragraph, and `partnerNote()` states the
   one plan without it. The public name is "first month free", never "free
@@ -122,8 +122,11 @@ parser read nothing, and it then reports the wrong number of plans.
   mirrors today's answer, and the site may say less than the engine, never
   more.
 - Every sellable module has `launch: 0` and `freeMonths: 1` since v7: bought
-  on its own, its first month is free; added to a plan the client already
-  pays for, it is billed from its first month (`freeMonth.modules`).
+  on its own, its first month is free; started by a new client at sign-up
+  beside a plan, it is part of that first month and free with it
+  (`freeMonth.withPlan`, decided 2026-10-02 under the owner's "a month for
+  free to all clients"); added to a plan the client already pays for, it is
+  billed from its first month (`freeMonth.modules`).
 - Lead Generation has no standalone pair (`monthly` and `launch` are 0 and
   `soldAlone` is false): it is offered by invitation on the Performance
   Partnership only. Bid and tender work is arranged by hand under the service

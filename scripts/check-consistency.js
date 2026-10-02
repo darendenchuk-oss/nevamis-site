@@ -873,7 +873,7 @@ for (const p of contentPages) {
     /* The free month's terms, in the config's words: an answer engine asked
        "is there a free trial" quotes this file. */
     const fm = cfg.freeMonth || {};
-    for (const k of ["offer", "reminder", "usage", "modules", "fee"]) {
+    for (const k of ["offer", "reminder", "usage", "withPlan", "modules", "fee"]) {
       if (!fm[k]) err("pricing-config.js: freeMonth." + k + " is missing, so llms.txt's statement of the free month cannot be checked");
       else if (!flat.includes(fm[k])) err('llms.txt: must state the free month\'s ' + k + ' sentence from pricing-config.js: "' + fm[k] + '"');
     }
@@ -1797,7 +1797,7 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
        free month's minutes, in the shared wording the engine uses, then the
        term as before. What this pin must never bless again is a launch fee
        on the default plan, or a free period of any other shape. */
-    const PLAN_TERMS = "Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. No Launch & Implementation fee: you pay the monthly price and nothing else. Minutes past your allowance during your free month are not billed. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.";
+    const PLAN_TERMS = "Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. No Launch & Implementation fee: nothing to pay up front, only your monthly price. Minutes past your allowance during your free month are not billed. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.";
     /* INVERTED TWICE with the model, most recently 2026-08-15 (evening):
        published pricing is back, so the static line a prospect reads with
        scripts blocked states the default plan's monthly. A real quote from

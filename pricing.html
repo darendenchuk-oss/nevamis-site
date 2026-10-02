@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-SyV5AsABcnJoAbM0G9CC9DJdZL1hGRGEgkSV1VStCqg=' 'sha256-35byHrGXjocSers4ezJ8gerU9TUcyi1i3itls6WX9EA=' 'sha256-JF0+i31SfAj+vtFJdavAzUdE2VdQ6qkx13/rljK2OCc=' 'sha256-cJ01r8ce4Y5H4WCh4JYsheFVMTVP4mFJpBIivRslOZ0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-SyV5AsABcnJoAbM0G9CC9DJdZL1hGRGEgkSV1VStCqg=' 'sha256-35byHrGXjocSers4ezJ8gerU9TUcyi1i3itls6WX9EA=' 'sha256-OvZOyU25hx86n0j+7xqgn2t2v5ZtNDt2T1kg2sq09Ic=' 'sha256-CNnNkQjnOKGVfcOtWDoNs250RmMP/H9WaBekL5odVco='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1101,7 +1101,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              P.freeMonthNote() in pricing-config.js, and guard 7a holds this
              static copy equal to it. The Partnership, which keeps a fee and
              has no free month, is stated in its own words on its card. -->
-        <p id="freeMonthNote">The Works, the AI Front Desk and any add-on bought on its own come with a first month free for a business new to Nevamis, once per business. Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. Minutes past your allowance during your free month are not billed. A module you add once you are paying is billed from its first month. No Launch &amp; Implementation fee: you pay the monthly price and nothing else.</p>
+        <p id="freeMonthNote">The Works, the AI Front Desk and any add-on bought on its own come with a first month free for a business new to Nevamis, once per business. Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. Minutes past your allowance during your free month are not billed. A module you start with at sign-up, beside a plan, is part of your first month and free with it. A module you add once you are paying is billed from its first month. No Launch &amp; Implementation fee: nothing to pay up front, only your monthly price.</p>
         <p>After that, your plan's monthly price is charged on the same date every month, and the only other recurring charges are any add-ons you choose and overage past your included minutes.</p>
         <!-- Rendered from P.partnerNote(), and held to it by guard 7a. -->
         <p id="partnerNote">The Performance Partnership is the exception: C$5,000 Launch &amp; Implementation, then C$350 a month from the first month. By invitation; there is no free month on the Partnership.</p>
@@ -1233,7 +1233,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            the retired two-number framing guard 7d refuses on every page. -->
       <div class="card reveal block-gap">
         <h3>Automation add-ons</h3>
-        <p>Each automation is its own product and its own sale: buy one on its own, with your first month free, or add it beside a plan, one at a time. A module you add once you are paying is billed from its first month. The four sellable ones are already included in The Works. On the Performance Partnership they are the growth stack, and two of them are paid out of what they produce instead of a monthly: see the Partnership above.</p>
+        <p>Each automation is its own product and its own sale: buy one on its own, with your first month free, or add it beside a plan, one at a time. A module you start with at sign-up, beside a plan, is part of your first month and free with it. A module you add once you are paying is billed from its first month. The four sellable ones are already included in The Works. On the Performance Partnership they are the growth stack, and two of them are paid out of what they produce instead of a monthly: see the Partnership above.</p>
         <ul id="addOnList" class="node-list">
           <li>Lead Generation &middot; offered by invitation, not yet sellable from a page &middot; businesses that fit what you do, found for you, with the page each one came from and what came of it. Nobody on the list is contacted by us, and you decide every row.</li>
           <li>Quote-Chase Engine &middot; C$500/month &middot; First month free, then C$500 a month &middot; every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.</li>
@@ -1929,12 +1929,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var figures = function (x) {
       return P.startLine(x).replace(/\.$/, "").replace(/&/g, "&amp;");
     };
-    /* A module ticked BESIDE a plan is priced at its monthly only. The free
-       month is the plan's here, and whether a module started together with
-       a plan shares it is set with you, not on this page. */
-    var monthlyOnly = function (x) { return "C$" + grp(x.monthly) + " a month"; };
-    var item = function (x, suffix, beside) {
-      return { name: x.name + (suffix || ""), price: beside ? monthlyOnly(x) : figures(x) };
+    /* A module a new client starts with at sign-up, beside a plan, is part
+       of the first month and free with it (decided 2026-10-02), so a module
+       line reads like a plan line: its own startLine() sentence. */
+    var item = function (x, suffix) {
+      return { name: x.name + (suffix || ""), price: figures(x) };
     };
     var notes = [];
     if (alone) {
@@ -1942,7 +1941,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     } else {
       priced.push(item(chosen));
       if (useBundle) notes.push("every automation included, which is why it beats the pieces");
-      else mods.forEach(function (a) { priced.push(item(a, "", true)); });
+      else mods.forEach(function (a) { priced.push(item(a)); });
     }
     var many = priced.length > 1;
     var lines = priced.map(function (x) {
@@ -1965,15 +1964,17 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       + lines.join("</li><li>") + "</li></ul>";
     /* v7 (2026-10-02): nothing the chooser can pick carries a Launch &
        Implementation fee, so the total is the monthly, and the free month is
-       said in the config's words. A fee above zero would still be stated
-       first, in the approved join, rather than dropped. */
-    var beside = !alone && !useBundle && mods.length > 0;
-    var free = !beside && (alone ? mods : [chosen]).every(function (x) { return x.freeMonths > 0; });
+       said in the config's words: for a plan, for modules bought on their
+       own, and for modules started beside a plan, which are part of the first
+       month. A fee above zero would still be stated first, in the approved
+       join, rather than dropped. */
+    var free = (alone ? mods : [chosen].concat(mods)).every(function (x) { return x.freeMonths > 0; });
     var total = (launch > 0 ? "C$" + grp(launch) + " Launch &amp; Implementation, then " : free ? "first month free, then " : "")
       + "C$" + grp(monthly) + " a month" + taxClause();
     h += '<p class="amount">' + (many ? "Together: " + total : total.charAt(0).toUpperCase() + total.slice(1)) + "</p>";
     if (free && P.freeMonth && P.freeMonth.offer) {
-      h += '<p class="fine2">' + P.freeMonth.offer + " " + (P.freeMonth.reminder || "") + "</p>";
+      h += '<p class="fine2">' + P.freeMonth.offer + " " + (P.freeMonth.reminder || "")
+        + (!alone && !useBundle && mods.length && P.freeMonth.withPlan ? " " + P.freeMonth.withPlan : "") + "</p>";
     }
     /* NO MINIMUM TERM, stated outright. A branch here printed a number of
        months "agreed up front" whenever pricing-config.js carried a term;
@@ -1997,8 +1998,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       /* The honest half of a chooser that is not a cart. */
       /* The core's figures are on its own line above; naming the plan is
          enough to say which of the lines checkout charges. */
-      h += " Checkout takes the " + chosen.name + " line only"
-        + (chosen.freeMonths > 0 ? ", and its first month is free." : ".")
+      h += " Checkout takes the " + chosen.name + " line only."
         + " The automations you ticked are recorded with your signup and set up with you under your agreement;"
         + " they are not charged at checkout.";
     }

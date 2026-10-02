@@ -151,8 +151,8 @@ export const ADDITIVE = [
 /* DENIALS OF THE LAUNCH FEE WHERE ONE EXISTS. Added 2026-08-15 (evening),
    when every plan carried a Launch & Implementation fee and any denial of it
    was false. RE-POINTED 2026-10-02 (v7, owner decision): the standard plans
-   and every module carry NO fee now, so "No Launch & Implementation fee: you
-   pay the monthly price and nothing else" is the approved sentence about
+   and every module carry NO fee now, so "No Launch & Implementation fee:
+   nothing to pay up front, only your monthly price." is the approved sentence about
    them, and a bare denial is TRUE. What stays false is denying the fee of
    the two offers that still carry one: the Performance Partnership (C$5,000
    to start) and Enterprise (starting at C$5,000). So each pattern now needs

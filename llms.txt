@@ -27,10 +27,12 @@ Key facts (kept accurate; the pricing page is authoritative):
   you start and charge nothing until your second month begins; cancel in
   your portal before then and you pay nothing. We remind you a week before
   and a day before your first charge. Minutes past your allowance during
-  your free month are not billed. A module you add once you are paying is
-  billed from its first month. No Launch & Implementation fee: you pay the
-  monthly price and nothing else. The monthly is then charged on the same
-  date every month. The public name is "first month free".
+  your free month are not billed. A module you start with at sign-up,
+  beside a plan, is part of your first month and free with it. A module you
+  add once you are paying is billed from its first month. No Launch &
+  Implementation fee: nothing to pay up front, only your monthly price. The
+  monthly is then charged on the same date every month. The public name is
+  "first month free".
   Never call it a free trial.
     Performance Partnership: by invitation and approval only, never the
                              default and never self-serve. C$5,000 Launch
@@ -61,8 +63,9 @@ Key facts (kept accurate; the pricing page is authoritative):
                              No performance fee. Automation add-ons are
                              each their own sale, bought on their own or
                              beside a plan, one at a time, with no Launch
-                             & Implementation fee, each with its first
-                             month free when bought on its own:
+                             & Implementation fee, each free in a new
+                             client's first month, bought on its own or
+                             started beside a plan at sign-up:
                              Missed-Call Recovery: First month free, then
                              C$350 a month; Quote-Chase Engine: First
                              month free, then C$500 a month; Get-Paid
