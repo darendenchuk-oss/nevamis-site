@@ -80,7 +80,11 @@ export const DENIAL = [
   /* Added with guard 7d. A page that answers "is there a trial?" with "no,
      and here is why" is the correct handling of a retired offer, and it needs
      to be able to name what it is refusing. */
-  /\bwe don't\b/i, /\bno pilot\b/i, /\bno trial\b/i, /\bnot offered\b/i, /\bused to\b/i,
+  /* "no trial" was a denial here until 2026-10-02 (v7). A new client's first
+     month is free now, so "there is no trial" reads to a buyer as "there is
+     no free period", which is false: it moved to FALSE_FREE_DENIALS below
+     and may no longer excuse anything. Do not re-add it. */
+  /\bwe don't\b/i, /\bno pilot\b/i, /\bnot offered\b/i, /\bused to\b/i,
   /* "No setup fee" remains a legal DENIAL OF RETIRED VOCABULARY: "setup fee",
      "activation fee" and "onboarding fee" are retired NAMES, and a surface may
      still say the one-time fee is not called that. Before these entries
@@ -144,24 +148,118 @@ export const ADDITIVE = [
        as words on purpose, so the digit form alone guards nothing there
      - bare $ as well as C$ - /\bC\$\s?850\b/ let plain "$850" walk through,
        which is the exact form ai-assistant/SALES_PITCH.md uses. */
-/* DENIALS OF THE LAUNCH FEE, added 2026-08-15 (evening). These are the
-   inversion of the 2026-08-09 model: the one-time Launch & Implementation
-   fee is real and published, so a surface that DENIES it — "no
-   implementation fee", "no launch charge", "one recurring monthly price",
-   "nothing charged to start" — is making the new false claim. Kept as their
-   own list because offendingClause() refuses every excuse for them: the
-   pattern IS a denial, so the denial allowlist would launder every
-   occurrence, and it has no finite verb, so the fragment rule would launder
-   the rest. Only a quoted caller question is excused, where the guard allows
-   questions at all. The negative lookbehinds keep the fee's own NAME safe:
-   "never call the Launch & Implementation fee a setup fee" must not fire. */
+/* DENIALS OF THE LAUNCH FEE WHERE ONE EXISTS. Added 2026-08-15 (evening),
+   when every plan carried a Launch & Implementation fee and any denial of it
+   was false. RE-POINTED 2026-10-02 (v7, owner decision): the standard plans
+   and every module carry NO fee now, so "No Launch & Implementation fee: you
+   pay the monthly price and nothing else" is the approved sentence about
+   them, and a bare denial is TRUE. What stays false is denying the fee of
+   the two offers that still carry one: the Performance Partnership (C$5,000
+   to start) and Enterprise (starting at C$5,000). So each pattern now needs
+   the carrier's name and the denial in the same sentence, in either order,
+   with nothing between them that turns the sentence ("except the
+   Partnership", "unlike the Partnership", ", and the Partnership carries").
+
+   Still their own list, because offendingClause() refuses every excuse for
+   them: the pattern IS a denial, so the denial allowlist would launder every
+   occurrence. Only a quoted caller question is excused, where the guard
+   allows questions at all. The negative lookbehinds keep the fee's own NAME
+   safe: "never call the Launch & Implementation fee a setup fee" must not
+   fire. */
+const FEE_CARRIER = String.raw`(?:Performance\s+)?Partnership|Enterprise`;
+const FEE_DENIAL = String.raw`(?:no|without\s+(?:a|any))\s+(?:(?:one-time\s+)?launch\s+(?:&|and)\s+implementation|(?<!launch & )(?<!launch and )implementation|launch|one-time)[- ](?:fee|charge)s?`
+  + String.raw`|nothing\s+(?:is\s+)?charged\s+(?:to\s+(?:start|begin)|before|up\s?front)`
+  + String.raw`|nothing\s+to\s+pay\s+(?:before|up\s?front|to\s+start|to\s+begin)`
+  + String.raw`|one\s+recurring\s+(?:monthly\s+)?price`;
+/* What may stand between the two without the sentence still being about the
+   carrier: a turn ("except", "unlike", "but"), a new clause (", and"), or a
+   semicolon. */
+const TURN = String.raw`\bexcept\b|\bunlike\b|\bbut\b|\bother than\b|\bapart from\b|\bbesides\b|\bonly\b|\bwhereas\b|\bwhile\b|,\s*(?:and|so)\b|;`;
+const BETWEEN = String.raw`(?:(?!${TURN})[^.!?:]){0,120}?`;
 export const FALSE_DENIALS = [
-  /\bno (?:(?<!launch & )(?<!launch and )implementation|launch)[- ](?:fee|charge)s?\b/i,
-  /\bno launch (?:&|and) implementation fee\b/i,
-  /\b(?:no|never)\b[^.;:!?]{0,160}?\b(?:fee|charge)s?,[^.;:!?]{0,120}?\b(?:(?<!launch & )(?<!launch and )implementation|launch)[- ](?:fee|charge)s?\b/i,
-  /\bone recurring (?:monthly )?price\b/i,
-  /\bnothing (?:is )?charged (?:to (?:start|begin)|before|up ?front)\b/i,
-  /\bnothing to pay (?:before|up ?front|to start|to begin)\b/i,
+  /* "The Performance Partnership has no Launch & Implementation fee." */
+  new RegExp(String.raw`(?<!\b(?:except|unlike|other than|apart from|besides|only|but)\s+(?:for\s+)?(?:the\s+)?)\b(?:${FEE_CARRIER})\b${BETWEEN}\b(?:${FEE_DENIAL})\b`, "i"),
+  /* "There is no launch fee on the Partnership." */
+  new RegExp(String.raw`\b(?:${FEE_DENIAL})\b${BETWEEN}\b(?:${FEE_CARRIER})\b`, "i"),
+];
+
+/* A LAUNCH FEE ON A STANDARD PLAN OR A MODULE, added 2026-10-02 (v7). The
+   AI Front Desk, The Works and every module carry no Launch & Implementation
+   fee, so each of the fees they carried until that day is a retired figure
+   when it is written as a Launch & Implementation fee: C$1,500 (the AI Front
+   Desk), C$3,000 (The Works), C$500 and C$750 (the modules), and the
+   Partnership's retired band, C$2,500 to C$10,000. The same figures stay
+   legal as anything else (C$500 is a live module monthly). Written and
+   spoken, because config/elevenlabs/ feeds a voice agent that says prices as
+   words. The shapes that say a module or every plan has a fee of its own are
+   caught without a figure. scripts/check-consistency.js guard 7o adds the
+   derived half: any figure written as a Launch & Implementation fee must be
+   a fee pricing-config.js charges. */
+const RETIRED_FEE = String.raw`(?:C\$|\$)\s?(?:500|750|1,?500|2,?500|3,?000|10,?000)(?![\d,])`;
+const RETIRED_FEE_SPOKEN = String.raw`(?<!twenty[- ])(?<!thirty[- ])(?<!forty[- ])(?<!fifty[- ])(?<!sixty[- ])(?<!seventy[- ])(?<!eighty[- ])(?<!ninety[- ])\b(?:fifteen hundred|one thousand(?: and)? five hundred|three thousand|twenty[- ]five hundred|two thousand(?: and)? five hundred|five hundred|seven hundred and fifty|seven fifty|ten thousand)(?:\s+dollars)?`;
+export const RETIRED_LAUNCH_FEES = [
+  new RegExp(String.raw`(?:\bfrom\s+)?${RETIRED_FEE}\s+(?:one-time\s+)?Launch\s+(?:&|&amp;|and)\s+Implementation\b`, "i"),
+  new RegExp(String.raw`\bLaunch\s+(?:&|&amp;|and)\s+Implementation(?:\s+fee)?\s+(?:of|is|at|from|starting at)\s+${RETIRED_FEE}`, "i"),
+  new RegExp(String.raw`${RETIRED_FEE_SPOKEN}\s+(?:one-time\s+)?Launch\s+(?:and|&)\s+Implementation\b`, "i"),
+  /* The retired Partnership bands, fee and monthly. */
+  /(?:C\$|\$)\s?2,?500\s*(?:to|-|–)\s*(?:C\$|\$)?\s?10,?000\b/i,
+  /(?:C\$|\$)\s?250\s*(?:to|-|–)\s*(?:C\$|\$)?\s?500\b/i,
+  /\bmonthly band\b/i,
+  /* A module or every plan carrying a fee of its own. */
+  /\b(?:its|their) own (?:one-time )?Launch (?:&|and) Implementation fee\b/i,
+  /\b(?:each|every) (?:automation )?(?:add-on|module|automation)\b[^.;!?]{0,80}?\b(?:carries|has|with|adds)\b[^.;!?]{0,30}?\bLaunch (?:&|and) Implementation fee\b/i,
+  /\bevery plan (?:starts with|is|carries|has|begins with)\b[^.;!?]{0,40}?\bLaunch (?:&|and) Implementation\b/i,
+];
+
+/* THE FREE PERIOD, as canonical defines it, added 2026-10-02 (v7). There is
+   exactly one: a new client's first CALENDAR month on the AI Front Desk, The
+   Works or a module bought on its own, card taken at sign-up. Anything else
+   said about a free period is false: another length ("14 days free", "free
+   for 30 days", "two months free"), "no card required", a free month on the
+   Performance Partnership or Enterprise (neither has one), or a free month
+   for a module added to an account that is already paying. "Free trial"
+   stays banned outright in check-consistency.js; the public name is "first
+   month free". Judged by the ordinary clause classifier, so "there is no free
+   month on the Partnership" (the approved sentence) is a denial and passes. */
+const NUM = String.raw`(?:\d+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fourteen|fifteen|twenty|thirty|forty[- ]five|sixty|ninety)`;
+const FREE_MONTH = String.raw`(?:first month (?:is )?free|free (?:first )?month|first month free|month (?:for )?free)`;
+export const FREE_PERIOD_OFF_CANONICAL = [
+  /* Days or weeks. */
+  new RegExp(String.raw`\b(?:${NUM}|a|one)[- ](?:day|week)s?[- ](?:free|trial)\b`, "i"),
+  new RegExp(String.raw`\bfree for (?:the first )?(?:${NUM}|a|an|one)\s+(?:days?|weeks?|fortnight)\b`, "i"),
+  new RegExp(String.raw`\b(?:first )?(?:${NUM}|a|one)\s+(?:days?|weeks?)\s+(?:are\s+|is\s+)?(?:free|on us)\b`, "i"),
+  /* More than one month. */
+  new RegExp(String.raw`\b(?:first\s+)?(?!(?:one|1)\b)${NUM}\s+(?:free\s+months|months\s+(?:are\s+)?free|months\s+for\s+free|months\s+on\s+us)\b`, "i"),
+  new RegExp(String.raw`\bfree for (?:the first )?(?!(?:one|1)\b)${NUM}\s+months\b`, "i"),
+  /\btrial (?:period|month)\b/i,
+  /\bfree trial\b/i,
+  /* The card is taken at sign-up. */
+  /\bno (?:credit )?card (?:is )?(?:required|needed)\b/i,
+  /\bwithout (?:a|your|any) (?:credit )?card\b/i,
+  /* A free month on an offer that has none. */
+  new RegExp(String.raw`(?<!\b(?:except|unlike|other than|apart from|besides|but)\s+(?:for\s+)?(?:the\s+)?)\b(?:${FEE_CARRIER})\b(?:(?!${TURN}|\bno\b|\bnot\b|\bnever\b|\bwithout\b)[^.!?:]){0,100}?\b${FREE_MONTH}\b`, "i"),
+  new RegExp(String.raw`(?<!\b(?:no|not a|not any|without a|never a)\s+)\b${FREE_MONTH}\b(?:(?!${TURN}|\bnot\b)[^.!?:]){0,60}?\b(?:on|for|with|of)\s+(?:the\s+)?(?:${FEE_CARRIER})\b`, "i"),
+  /* A module added to a paying account starts paying at once. */
+  new RegExp(String.raw`\b(?:module|add-on|automation)s?\b[^.;!?]{0,60}?\b(?:once|after|while) you(?:'re| are) (?:already )?paying\b[^.;!?]{0,60}?\b(?:${FREE_MONTH}|free)\b`, "i"),
+];
+
+/* DENIALS OF THE FREE MONTH, added 2026-10-02 (v7). "There is no trial",
+   "no pilot, no trial", "no trial to convert out of" were the correct
+   sentences from 2026-08-09 to 2026-10-01, when nothing was free. A new
+   client's first month is free now, so each of them tells a buyer there is
+   no free period, which is false. Judged like FALSE_DENIALS, with no
+   excuses (the pattern is itself a denial). The approved denials that name
+   where there is no free month ("there is no free month on the
+   Partnership") are kept out of the pattern by its lookahead. */
+export const FALSE_FREE_DENIALS = [
+  /\bno trial\b/i,
+  new RegExp(String.raw`(?<!\b(?:${FEE_CARRIER})\b[^.;!?]{0,60})\bno free (?:first )?(?:month|period)\b(?!\s+(?:on|for|with)\s+(?:the\s+|a\s+|any\s+)?(?:${FEE_CARRIER}|module|add-on|returning|business))`, "i"),
+  /\bnothing (?:is )?free\b/i,
+  /* "Charged the day you start" was the v6 truth for every plan. A new client
+     on a plan or module with a free month is first charged when the second
+     month begins, so the sentence is false unless it is about an offer that
+     has no free month (the Partnership, Enterprise) or a quoted figure. */
+  new RegExp(String.raw`(?<!\b(?:${FEE_CARRIER}|quoted)\b[^.!?]{0,200})\b(?:charged|billed)\b[^.;!?]{0,30}?\b(?:(?:from |on )?the day (?:you|they) (?:start|sign up|subscribe)|from day one)\b(?![^.!?]{0,200}\b(?:${FEE_CARRIER})\b)`, "i"),
 ];
 
 export const RETIRED_OFFERS = [
@@ -226,6 +324,13 @@ export const RETIRED_OFFERS = [
      in FALSE_DENIALS below and are spread in here so every guard sweeps
      them. */
   ...FALSE_DENIALS,
+
+  /* v7 (2026-10-02): a launch fee on a standard plan or a module, any free
+     period other than the one canonical defines, and a denial of the free
+     month. Each list says why above. */
+  ...RETIRED_LAUNCH_FEES,
+  ...FREE_PERIOD_OFF_CANONICAL,
+  ...FALSE_FREE_DENIALS,
 
   /* A TERM THAT EXISTS. There has been no minimum term on anything since
      2026-09-08 (owner decision): every plan and module is month to month from
@@ -445,7 +550,7 @@ export function offendingClause(text, re, { allowQuestions = false } = {}) {
      no finite verb ("no implementation fee"), so the fragment rule would
      launder the rest. Only a quoted caller question is excused, where the
      guard allows questions at all. */
-  const falseDenial = FALSE_DENIALS.includes(re);
+  const falseDenial = FALSE_DENIALS.includes(re) || FALSE_FREE_DENIALS.includes(re);
 
   for (const sentence of splitSentences(text)) {
     if (!re.test(sentence)) continue;

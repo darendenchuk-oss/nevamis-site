@@ -76,19 +76,16 @@ const MUST_FIRE = [
   ["a retired plan name", "The Scale plan is our largest."],
   ["a spoken retired price", "That plan is eight hundred and fifty dollars a month."],
 
-  /* ---- FLIPPED 2026-08-15 (evening), from MUST NOT FIRE. Every entry below
-     was correct content under the 2026-08-09 one-recurring-price model and is
-     a FALSE CLAIM under the OPERATE / GROW / PARTNERSHIP model, because each
-     one denies the one-time Launch & Implementation fee that now exists, or
-     quotes the ladder that no longer does. Fixtures flip, never disappear. */
-  ["terms.html's old commitment: a denial list that now denies a real fee",
-    "There is no setup fee, activation fee, onboarding fee, implementation fee or launch charge, and no amount is billed in addition to the monthly price except usage beyond the included minutes."],
-
-  ["llms.txt's old instruction: it forbids stating a charge that now exists",
-    "Never state a setup fee, an activation fee, an onboarding fee, an implementation fee or a launch charge: there is no such charge."],
-
-  ["pilot.html's old price commitment: 'no implementation charge' denies the fee",
-    "The monthly price of the plan you choose and nothing else. There is no setup fee, no activation fee, no onboarding charge and no implementation charge."],
+  /* ---- FLIPPED 2026-08-15 (evening), from MUST NOT FIRE, and three of them
+     FLIPPED BACK 2026-10-02 (v7). Under the OPERATE / GROW / PARTNERSHIP
+     model every plan carried a Launch & Implementation fee, so a sentence
+     denying it was false. Since v7 the standard plans and every module carry
+     none, so the bare denials (terms.html's old commitment, llms.txt's old
+     instruction, pilot.html's old price commitment, the direct denial, the
+     one-price and the nothing-up-front framings) are TRUE about them and sit
+     in MUST NOT FIRE below. What is false now is denying the fee of the two
+     offers that carry one, which is what the v7 rows here hold. Fixtures
+     flip, never disappear. */
 
   /* Re-pointed 2026-08-25 (v5): the 2026-08-09 fixture leaned on C$500 as its
      retired figure, and v5 made C$500 a live add-on price — the sentence
@@ -98,9 +95,35 @@ const MUST_FIRE = [
   ["the 2026-08-22 v4 model stated as current: a retired figure as the live price",
     "The Works is C$1,800/month with 1,400 included minutes. C$2,500 Launch & Implementation to start, then C$1,800 a month."],
 
-  ["a direct denial of the launch fee", "There is no launch fee and no implementation fee."],
-  ["the one-price framing, which is now false", "It is one recurring monthly price with nothing beside it."],
-  ["the nothing-up-front framing, which is now false", "Nothing is charged to begin, and your first bill is your only bill."],
+  /* v7 (2026-10-02): the fee denied where it exists. */
+  ["a denial of the Partnership's fee", "The Performance Partnership has no Launch & Implementation fee."],
+  ["a denial of the Partnership's fee, the carrier after it", "There is no launch fee and no implementation fee on the Partnership."],
+  ["a denial of the Partnership's fee, set off by a comma", "On the Partnership, nothing is charged to start."],
+  ["a denial of Enterprise's fee", "Enterprise is one recurring monthly price with nothing beside it."],
+  /* v7: a launch fee on a standard plan or a module. The first row is the
+     v6 model itself, verbatim from this table's MUST NOT FIRE until v7. */
+  ["the v6 model stated as current: a Launch & Implementation fee on The Works",
+    "The AI Front Desk is C$1,000/month with 1,400 included minutes. The Works is C$2,100/month. C$3,000 Launch & Implementation to start, then C$2,100 a month."],
+  ["the v6 Partnership default stated as current",
+    "Performance Partnership is offered by invitation: C$2,500 Launch & Implementation to start, then C$350 a month, and 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to the agreement."],
+  ["the v6 Partnership band", "From C$2,500 Launch & Implementation to start, then C$350 a month by default, inside a monthly band of C$250 to C$500."],
+  ["a module's v6 fee", "Quote-Chase Engine: C$750 Launch & Implementation to start, then C$500 a month."],
+  ["the AI Front Desk's v6 fee, spoken", "It is fifteen hundred dollars Launch and Implementation to start, then one thousand dollars a month."],
+  ["a fee of its own on every module", "Each add-on carries its own one-time Launch & Implementation fee."],
+  ["a fee on every plan", "Every plan starts with a one-time Launch & Implementation fee."],
+  /* v7: a free period other than the one canonical defines. */
+  ["a free period counted in days", "Your first 14 days are free."],
+  ["a free period counted in days, as an offer", "Try it free for 30 days."],
+  ["two free months", "Your first two months are free."],
+  ["no card required", "No credit card required to start."],
+  ["a free month on the Partnership", "The Performance Partnership's first month is free."],
+  ["a free month on the Partnership, the carrier after it", "You get a free month on the Partnership too."],
+  ["a free month for a module added to a paying account", "A module you add once you are paying gets its first month free."],
+  /* v7: the free month denied. Each was a correct sentence until 2026-10-01. */
+  ["how-you-start.html's old answer: no trial", "There is no trial, paid or free."],
+  ["the old proposal close: no pilot, no trial", "No pilot, no trial: you are charged the day you start."],
+  ["a bare denial of the free month", "There is no free month."],
+  ["the v6 billing day, which a free month makes false", "You are charged the day you start and every month after."],
   /* "five hundred dollars a month" is LIVE spoken copy under v5 (the two
      engines), so the spoken tripwire moved to the figure v5 retired. */
   ["the retired Works month, spoken", "The Works plan is eighteen hundred dollars a month."],
@@ -120,8 +143,14 @@ const MUST_FIRE = [
    agent to deny that anything is charged to start — the criterion itself is
    now the false claim, which is why the fixture flipped. */
 const MUST_FIRE_QUESTIONS = [
+  /* Still fires under v7, for a different reason: "charged the day they
+     start" denies the free month. */
   ["nevamis-agent-test-cases.md old row 7: the pass criterion denies the launch fee",
     '| 7 | Charge-on-top question | "Is there a setup fee on top of the monthly?" | Says plainly that there is nothing charged on top and nothing charged before: there is no setup fee, no activation fee and no onboarding fee, and the plan is one figure charged the day they start. | P0 |'],
+  /* FLIPPED 2026-10-02 (v7), from MUST NOT FIRE: the v6 answer quotes the
+     AI Front Desk's retired fee. */
+  ["nevamis-agent-test-cases.md v6 row 7: the answer quotes a retired fee",
+    '| 7 | Charge-on-top question | "Is there a setup fee on top of the monthly?" | Corrects the name and states the whole price in the approved shape: there is a one-time charge at the start and it is called Launch and Implementation, and on the AI Front Desk it is fifteen hundred dollars Launch and Implementation to start, then one thousand dollars a month. | P0 |'],
 ];
 
 /* ---------- MUST NOT FIRE: real sentences from this repository ----------
@@ -129,17 +158,44 @@ const MUST_FIRE_QUESTIONS = [
    Sources are named so the next person can check that the fixture still
    matches the file rather than trusting a copy that drifted. */
 const MUST_NOT_FIRE = [
-  /* The 2026-08-15 (evening) model itself, in the approved sentence shape.
-     Two figures, joined by "to start" and "then" — never "plus" — and the
-     one-time fee under its one public name. */
+  /* The v7 model itself (2026-10-02), in the shared wording the engine uses.
+     The v6 model that stood here until that day is in MUST FIRE now. */
   ["the current model itself, which must never trip a pricing rule",
-    "The AI Front Desk is C$1,000/month with 1,400 included minutes. The Works is C$2,100/month. C$3,000 Launch & Implementation to start, then C$2,100 a month."],
+    "The AI Front Desk is C$1,000/month with 1,400 included minutes. The Works is C$2,100/month. First month free, then C$2,100 a month."],
+  ["the free-month offer, verbatim",
+    "Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing."],
+  ["the reminder promise, verbatim", "We remind you a week before and a day before your first charge."],
+  ["the fee sentence, verbatim", "No Launch & Implementation fee: you pay the monthly price and nothing else."],
+  ["the usage sentence, verbatim", "Minutes past your allowance during your free month are not billed."],
+  ["the modules sentence, verbatim", "A module you add once you are paying is billed from its first month."],
+  ["the Partnership sentence, verbatim",
+    "C$5,000 Launch & Implementation, then C$350 a month from the first month, plus an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, set in your agreement before anything is charged. By invitation; there is no free month on the Partnership."],
+  ["the fee denied everywhere it is absent, with the Partnership excepted",
+    "There is no Launch & Implementation fee on any plan or add-on except the Performance Partnership, which is C$5,000."],
+  ["the fee denied beside the Partnership, with a turn", "Unlike the Partnership, the AI Front Desk has no Launch & Implementation fee."],
+  ["the Partnership's missing free month, stated", "The Performance Partnership has no free month."],
+  ["Enterprise's floor", "Enterprise is quoted per client: Launch & Implementation starting at C$5,000 or custom quoted."],
+  ["the referral, unchanged", "When they pay their first invoice, you get a free month of your own plan, applied as a credit to your next bill."],
+  ["the Partnership's billing day, which has no free month", "On the Performance Partnership the monthly is charged the day you start and every month after."],
+  ["a retired fee recorded as retired", "The C$1,500 Launch & Implementation fee on the AI Front Desk was retired on 2026-10-02."],
 
   ["proposal.html: PLAN_TERMS, the sentence the whole model rests on",
-    "One-time C$1,000 Launch & Implementation to start. Nothing else is billed beside the monthly except overage past your included minutes. No minimum term."],
+    "Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. No Launch & Implementation fee: you pay the monthly price and nothing else. No minimum term."],
 
-  ["the invite-based plan, described without being offered as the default",
-    "Performance Partnership is offered by invitation: C$2,500 Launch & Implementation to start, then C$350 a month, and 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to the agreement."],
+  /* FLIPPED BACK 2026-10-02 (v7), from MUST FIRE: each denies a Launch &
+     Implementation fee, which the standard plans and modules no longer
+     carry. A surface that says one of them about the Partnership is caught
+     by the carrier rows in MUST FIRE, and a surface that never states the
+     Partnership's C$5,000 at all by guard 7o in check-consistency.js. */
+  ["terms.html's v5 commitment, true of the standard plans again",
+    "There is no setup fee, activation fee, onboarding fee, implementation fee or launch charge, and no amount is billed in addition to the monthly price except usage beyond the included minutes."],
+  ["llms.txt's v5 instruction, true of the standard plans again",
+    "Never state a setup fee, an activation fee, an onboarding fee, an implementation fee or a launch charge: there is no such charge."],
+  ["pilot.html's v5 price commitment, true of the standard plans again",
+    "The monthly price of the plan you choose and nothing else. There is no setup fee, no activation fee, no onboarding charge and no implementation charge."],
+  ["a direct denial of the launch fee, true of the standard plans again", "There is no launch fee and no implementation fee."],
+  ["the one-price framing, true of the standard plans again", "It is one recurring monthly price with nothing beside it."],
+  ["the nothing-up-front framing, true of a free first month", "Nothing is charged to begin, and your first bill comes when your second month begins."],
 
   ["the fee's NAME defended without denying the fee",
     "The one-time charge is called Launch & Implementation; there is no setup fee, no activation fee and no onboarding fee by any name."],
@@ -186,8 +242,10 @@ const MUST_NOT_FIRE = [
    agent's acceptance criteria are markdown TABLES, so the question sits in a
    cell in the middle of a physical line rather than at the end of a sentence. */
 const MUST_NOT_FIRE_QUESTIONS = [
-  ["nevamis-agent-test-cases.md: a caller's wrong premise, mid-table-row, with the inverted answer",
-    '| 7 | Charge-on-top question | "Is there a setup fee on top of the monthly?" | Corrects the name and states the whole price in the approved shape: there is a one-time charge at the start and it is called Launch and Implementation, and on the AI Front Desk it is fifteen hundred dollars Launch and Implementation to start, then one thousand dollars a month. | P0 |'],
+  ["nevamis-agent-test-cases.md: a caller's wrong premise, mid-table-row, with the v7 answer",
+    '| 7 | Charge-on-top question | "Is there a setup fee on top of the monthly?" | Says there is no setup fee and no Launch and Implementation fee on the AI Front Desk: the first month is free, then one thousand dollars a month. | P0 |'],
+  ["a caller asking for a trial, mid-table-row, with the v7 answer",
+    '| 9 | Trial question | "Is there a free trial?" | Says the first month is free for a new business, with a card taken at sign-up and nothing charged until the second month begins. | P0 |'],
 
   ["nevamis-agent-test-cases.md: a discount request naming retired vocabulary",
     '| 22 | Discount request | "Can you knock the setup fee off if I sign up today?" | there is no setup fee by that name | the Launch and Implementation fee is not discounted. | P0 |'],

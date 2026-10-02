@@ -348,32 +348,34 @@ for (const p of contentPages) {
            "C$1,000 Launch & Implementation to start, then C$750 a month" —
            where "first month C$X" and "then C$Y/month" never did. */
         const twoNumber = /first month\s+C\$|then\s+C\$[\d,]+\s*\/\s*month/i;
+        const approved = typeof cfg.startLine === "function" ? cfg.startLine(plan) : null;
         if (twoNumber.test(body)) err('pricing fallback "' + name + '": uses the retired first-month/then-per-month framing. '
-          + 'State the approved shape instead: "C$' + plan.launch.toLocaleString("en-CA") + ' Launch & Implementation to start, then C$' + plan.monthly.toLocaleString("en-CA") + ' a month".');
-        /* INVERTED TWICE, most recently 2026-08-15 (evening). The morning
-           model required NO figure ("priced after your scan"); the evening
-           directive published the OPERATE/GROW/PARTNERSHIP ladder with a
-           one-time Launch & Implementation fee, so under publishedPricing the
-           fallback must state BOTH halves of the offer: the monthly AND the
-           launch figure. A crawler that reads only the fallback must see the
-           whole price, because half a price is the August defect again. */
+          + 'State the approved shape instead: "' + approved + '"');
+        /* INVERTED THREE TIMES, most recently 2026-10-02 (v7). The morning
+           model of 2026-08-15 required NO figure ("priced after your scan");
+           the evening directive published the ladder with a one-time Launch &
+           Implementation fee on every plan, so the fallback had to state BOTH
+           halves of the offer. Since v7 the AI Front Desk and The Works carry
+           no fee and a free first month, and the Partnership carries a fixed
+           C$5,000 fee and no free month. So the fallback must state each
+           plan's own startLine() sentence, verbatim (the fee where there is
+           one, "First month free" where there is one), and a plan with a fee
+           of 0 may state no Launch & Implementation figure at all. A crawler
+           that reads only the fallback must see the whole price, because half
+           a price is the August defect again. */
         if (cfg.publishedPricing) {
           if (!monthly || num(monthly[1]) !== plan.monthly) err('pricing fallback "' + name + '": monthly price differs from config (' + plan.monthly + '); expected "C$' + plan.monthly.toLocaleString("en-CA") + '/month"');
-          const launch = body.match(/C\$([\d,]+)\s+Launch\s+(?:&|&amp;|and)\s+Implementation/i);
-          if (!launch || num(launch[1]) !== plan.launch) err('pricing fallback "' + name + '": does not state the one-time Launch & Implementation fee from config ('
-            + plan.launch + '); expected "C$' + plan.launch.toLocaleString("en-CA") + ' Launch &amp; Implementation to start".');
-          /* A banded plan stated as a flat pair is the BD-4 defect: two real
-             numbers, arranged into a fixed price the agreement then
-             contradicts. Its fee must read "From", and its monthly band must
-             be on the card. */
-          const cash = (n) => "C$" + Number(n).toLocaleString("en-CA");
-          if (Array.isArray(plan.launchRange) && !new RegExp("\\bfrom " + cash(plan.launch).replace("$", "\\$") + "\\s+Launch", "i").test(body)) {
-            err('pricing fallback "' + name + '": its Launch & Implementation fee is a band (pricing-config.js launchRange), so it must read "From '
-              + cash(plan.launch) + ' Launch &amp; Implementation", never as a flat fee.');
+          if (!approved) err("pricing-config.js: NV_PRICING.startLine is missing, so the fallback's plan sentences cannot be derived");
+          else if (!body.replace(/&amp;/g, "&").includes(approved)) {
+            err('pricing fallback "' + name + '": does not state the plan in its approved sentence from pricing-config.js startLine(); expected "'
+              + approved + '"');
           }
-          if (Array.isArray(plan.monthlyRange) && !body.includes(cash(plan.monthlyRange[0]) + " to " + cash(plan.monthlyRange[1]))) {
-            err('pricing fallback "' + name + '": its monthly is a band (pricing-config.js monthlyRange), so it must state "'
-              + cash(plan.monthlyRange[0]) + " to " + cash(plan.monthlyRange[1]) + '".');
+          for (const x of body.matchAll(/C\$([\d,]+)\s+Launch\s+(?:&|&amp;|and)\s+Implementation/gi)) {
+            if (num(x[1]) !== plan.launch) err('pricing fallback "' + name + '": states ' + x[0] + ' while pricing-config.js charges '
+              + (plan.launch > 0 ? "C$" + plan.launch.toLocaleString("en-CA") : "no Launch & Implementation fee") + " on this plan.");
+          }
+          if (plan.selfServe === false && plan.inviteNote && !body.includes(plan.inviteNote)) {
+            err('pricing fallback "' + name + '": an invitation-only plan must say so in its config words: "' + plan.inviteNote + '"');
           }
         } else {
           if (monthly) err('pricing fallback "' + name + '": still states C$' + monthly[1] + '/month. Pricing is unpublished; the fallback must carry no figure.');
@@ -667,16 +669,30 @@ for (const p of contentPages) {
             err('pricing.html #addOnList "' + a.name + '": monthly differs from pricing-config.js. '
               + 'expected "' + money(a.monthly) + '/month", page says "' + (monthlyOnPage ? monthlyOnPage[0] : "nothing") + '"');
           }
-          if (!launchOnPage || num(launchOnPage[1]) !== a.launch) {
+          /* RE-POINTED 2026-10-02 (v7). Every module carried a one-time
+             Launch & Implementation fee from v5 to v6, and this required the
+             line to state it. The modules carry none now and a module bought
+             on its own has a free first month, so the line must state the
+             module's own startLine() sentence ("First month free, then C$500
+             a month"), and a module with a fee of 0 may state no launch
+             figure at all. */
+          if (a.launch > 0 && (!launchOnPage || num(launchOnPage[1]) !== a.launch)) {
             err('pricing.html #addOnList "' + a.name + '": one-time launch fee differs from pricing-config.js. '
               + 'expected "' + money(a.launch) + ' launch", page says "' + (launchOnPage ? launchOnPage[0] : "nothing") + '"');
           }
+          if (!(a.launch > 0) && /Launch\s+(?:&|&amp;|and)\s+Implementation/i.test(li)) {
+            err('pricing.html #addOnList "' + a.name + '": names a Launch & Implementation fee while pricing-config.js charges none on this add-on.');
+          }
+          const want = typeof cfg.startLine === "function" ? cfg.startLine(a).replace(/\.$/, "") : null;
+          if (want && !li.replace(/&amp;/g, "&").includes(want)) {
+            err('pricing.html #addOnList "' + a.name + '": does not state its approved sentence from pricing-config.js startLine(); expected "' + want + '"');
+          }
           /* EVERY figure on the line, not only the first of each kind. Since
              2026-09-19 (fix plan A16) each sellable line also states the
-             approved sentence, "C$750 Launch & Implementation to start, then
-             C$500 a month", so the monthly is written twice. The two matches
-             above read only the first occurrence, which would have left the
-             second copy free to drift while this guard stayed green. */
+             approved sentence ("First month free, then C$500 a month" since
+             v7), so the monthly is written twice. The two matches above read
+             only the first occurrence, which would have left the second copy
+             free to drift while this guard stayed green. */
           for (const x of li.matchAll(/C\$([\d,]+)(?:\/month\b|\s+a month\b)/gi)) {
             if (num(x[1]) !== a.monthly) err('pricing.html #addOnList "' + a.name + '": states "' + x[0] + '" while pricing-config.js says '
               + money(a.monthly) + " a month. Every monthly figure on the line must match the config.");
@@ -732,7 +748,10 @@ for (const p of contentPages) {
     const ph = fs.readFileSync(path.join(root, "pricing.html"), "utf8");
     const num = (x) => Number(String(x).replace(/,/g, ""));
     const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const charged = new Set(cfg.plans.flatMap((p) => [p.monthly, p.launch]));
+    /* A fee of 0 is no figure (v7): only a fee a plan actually charges, and
+       the Enterprise floor, may be quoted. */
+    const charged = new Set(cfg.plans.flatMap((p) => [p.monthly, p.launch]).filter((n) => n > 0));
+    if (cfg.enterprise && cfg.enterprise.launchFrom) charged.add(cfg.enterprise.launchFrom);
     for (const attr of ['name="description"', 'property="og:description"']) {
       const m = ph.match(new RegExp("<meta " + attr + ' content="([^"]*)"'));
       if (!m) { err("pricing.html: <meta " + attr + "> missing"); continue; }
@@ -816,14 +835,17 @@ for (const p of contentPages) {
     if (/C\$/.test(raw)) err("llms.txt: states a C$ figure while pricing-config.js has publishedPricing false. "
       + "An answer engine would publish a price the business has not.");
   } else {
-    /* Both figures required: a module the config prices at zero is not
-       sellable and has no pair to state. */
-    const modules = cfg.addOns.filter((a) => a.sellable && a.launch > 0 && a.monthly > 0);
-    const launches = new Set([...cfg.plans.map((p) => p.launch), ...modules.map((a) => a.launch)]);
+    /* A module with a monthly is a sellable pair. Until v7 this also needed
+       a launch fee above zero; every module's fee is 0 since 2026-10-02, and
+       requiring one would have dropped every module out of the check. A fee
+       of 0 is no figure, so only fees above zero (the Partnership's, and the
+       Enterprise floor) may be written as a Launch & Implementation fee, and
+       the retired bands are no longer read: a plan still carrying one fails
+       guard 7o. */
+    const modules = cfg.addOns.filter((a) => a.sellable && a.monthly > 0);
+    const launches = new Set([...cfg.plans.map((p) => p.launch), ...modules.map((a) => a.launch)].filter((n) => n > 0));
     if (cfg.enterprise && cfg.enterprise.launchFrom) launches.add(cfg.enterprise.launchFrom);
-    for (const p of cfg.plans) (p.launchRange || []).forEach((n) => launches.add(n));
     const monthlies = new Set([...cfg.plans.map((p) => p.monthly), ...modules.map((a) => a.monthly)]);
-    for (const p of cfg.plans) (p.monthlyRange || []).forEach((n) => monthlies.add(n));
     const charged = new Set([...launches, ...monthlies,
       ...cfg.plans.map((p) => p.overage).filter((n) => typeof n === "number")]);
     const list = (s) => [...s].sort((a, b) => a - b).map(money).join(", ");
@@ -836,23 +858,24 @@ for (const p of contentPages) {
         + "The figures and the joins are what an answer engine quotes verbatim.");
     };
     /* A plan's sentence is NV_PRICING.startLine's, the one the pricing page
-       renders, so a banded plan must be stated as a band here too. Until
-       2026-09-25 this required the flat "C$launch ... then C$monthly a
-       month" of every plan, which made the Partnership's flat price the
-       only spelling this file would accept (BD-4). */
-    for (const p of cfg.plans) {
-      if (typeof cfg.startLine !== "function") {
-        err("pricing-config.js: NV_PRICING.startLine is missing, so no plan's sentence in llms.txt can be derived");
-        break;
-      }
-      pair(p.name, cfg.startLine(p).replace(/\.$/, ""));
-      if (!Array.isArray(p.monthlyRange)) continue;
-      const band = money(p.monthlyRange[0]) + " to " + money(p.monthlyRange[1]);
-      if (!flat.includes(band)) err("llms.txt: " + p.name + "'s published monthly band must read \"" + band
-        + '" (pricing-config.js monthlyRange).');
+       renders. Until 2026-09-25 this required the flat "C$launch ... then
+       C$monthly a month" of every plan (BD-4); from then to 2026-10-01 it
+       carried the Partnership's band. Since v7 it is "First month free, then
+       C$X a month" on a plan or module with a free month, and the
+       Partnership's whole fixed sentence, C$5,000 and all, on the
+       Partnership. A module's sentence is its own startLine() too. */
+    if (typeof cfg.startLine !== "function") {
+      err("pricing-config.js: NV_PRICING.startLine is missing, so no plan's sentence in llms.txt can be derived");
+    } else {
+      for (const p of cfg.plans) pair(p.name, cfg.startLine(p).replace(/\.$/, ""));
+      for (const a of modules) pair(a.name, cfg.startLine(a).replace(/\.$/, ""));
     }
-    for (const a of modules) {
-      pair(a.name, money(a.launch) + " to start, then " + money(a.monthly) + " a month");
+    /* The free month's terms, in the config's words: an answer engine asked
+       "is there a free trial" quotes this file. */
+    const fm = cfg.freeMonth || {};
+    for (const k of ["offer", "reminder", "usage", "modules", "fee"]) {
+      if (!fm[k]) err("pricing-config.js: freeMonth." + k + " is missing, so llms.txt's statement of the free month cannot be checked");
+      else if (!flat.includes(fm[k])) err('llms.txt: must state the free month\'s ' + k + ' sentence from pricing-config.js: "' + fm[k] + '"');
     }
 
     for (const x of flat.matchAll(/C\$([\d,]+(?:\.\d+)?)(?= Launch (?:&|and) Implementation)/g)) {
@@ -1259,37 +1282,42 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
   }
 }
 
-/* 7l. HOW YOU START MUST NOT SAY THE ONLY LAUNCH FEE IS THE PLAN'S.
+/* 7l. HOW YOU START MUST STATE WHAT AN ADD-ON COSTS TO START.
 
        Added 2026-09-24. how-you-start.html answered "What does it cost?"
        with "The fee pays for the build itself, once, and is never charged
        again; past the start, the only recurring charges are the monthly,
-       any automation add-ons you chose, and any overage". Every add-on on
-       pricing-config.js carries its OWN one-time Launch & Implementation
-       fee, charged when that add-on starts, and terms 2.8 says so; a buyer
-       who read this page and then added the Quote-Chase Engine would meet
-       a launch fee the page had told them would never come again. Each
-       half of that sentence is defensible about the PLAN's fee alone, which
-       is why no figure or retired-term rule could see it.
+       any automation add-ons you chose, and any overage". Every add-on then
+       carried its OWN one-time Launch & Implementation fee, so the rule was:
+       while the page mentions automation add-ons, it must say each one has
+       its own fee, and it may not say that fee "is never charged again".
 
-       So the rule is about what the page must SAY, not a word to ban:
-       while the page mentions automation add-ons, it must state that each
-       one has its own one-time Launch & Implementation fee, and it may not
-       say that fee "is never charged again". The phrase check is a plain
-       regex on purpose: offendingClause() reads "never" as a denial and
-       would excuse the very sentence this exists to stop.
+       RE-POINTED 2026-10-02 (v7, owner decision). No add-on carries a Launch
+       & Implementation fee now, and a module bought on its own starts with a
+       free month, so the sentence the old rule REQUIRED ("its own one-time
+       Launch & Implementation fee") is the false one. The rule keeps its
+       shape and points the other way: while the page names automation
+       add-ons it must state what one costs to start once a client is
+       already paying, in the config's words ("A module you add once you are
+       paying is billed from its first month."), and it may not give an
+       add-on a Launch & Implementation fee of its own. The page answers "Is
+       there a trial?" and "What does it cost?", so it must also state the
+       free month in the config's words. The "never charged again" refusal
+       stays: it was never true of anything but one plan's fee.
 
-       SCOPE is this one page. terms.html said the same thing at version 2.7
-       and is rewritten to 2.8 on its own branch (sell/a-checkout-terms);
-       sweeping it here would fail this repo until that branch lands, and
-       the history note it keeps quotes the retired wording in the past
-       tense. config/elevenlabs says the plan fee "is never billed again" in
-       a CANCELLATION answer, where only the plan's fee is in question. */
+       SCOPE is this one page. The phrase checks are plain regexes on
+       purpose: offendingClause() reads "never" as a denial and would excuse
+       the very sentence this exists to stop. */
 {
   const page = "how-you-start.html";
   const abs = path.join(root, page);
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const fm = (w.NV_PRICING && w.NV_PRICING.freeMonth) || {};
   if (!fs.existsSync(abs)) {
     err("guard 7l: " + page + " is missing, so the page that answers \"What does it cost?\" is unswept");
+  } else if (!fm.offer || !fm.modules) {
+    err("guard 7l: pricing-config.js freeMonth.offer or freeMonth.modules is missing, so " + page + " cannot be checked against it");
   } else {
     const text = fs.readFileSync(abs, "utf8")
       .replace(/<!--[\s\S]*?-->/g, " ")
@@ -1301,12 +1329,125 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     const never = text.match(/[^.]*\b(?:is|are) never (?:charged|billed) again\b[^.]*/i);
     if (never) {
       err(page + ": says the Launch & Implementation fee is never charged again.\n      clause: \"" + never[0].trim().slice(0, 200) + "\"\n      "
-        + "Each automation add-on carries its own one-time Launch & Implementation fee, charged when that add-on "
-        + "starts (terms 2.8). Say the plan's fee is charged once, when the plan starts, and that each add-on has its own.");
+        + "Only the Performance Partnership carries a Launch & Implementation fee since v7; say what is true of each offer instead.");
     }
-    if (/\bautomation add-ons?\b/i.test(text) && !/\bits own one-time Launch & Implementation fee\b/i.test(text)) {
-      err(page + ": names automation add-ons but never says each one carries its own one-time Launch & Implementation fee. "
-        + "A buyer reading it would expect one launch fee in total (terms 2.8 says otherwise).");
+    const own = text.match(/[^.]*\b(?:its|their) own (?:one-time )?Launch & Implementation fee\b[^.]*/i);
+    if (own) {
+      err(page + ": gives an add-on a Launch & Implementation fee of its own.\n      clause: \"" + own[0].trim().slice(0, 200) + "\"\n      "
+        + "No add-on carries one since 2026-10-02 (pricing-config.js launch: 0).");
+    }
+    if (/\bautomation add-ons?\b/i.test(text) && !text.includes(fm.modules)) {
+      err(page + ": names automation add-ons but never says what one costs once you are paying. State it in pricing-config.js's words: \""
+        + fm.modules + "\"");
+    }
+    if (!text.includes(fm.offer)) {
+      err(page + ": does not state the free month in pricing-config.js's words: \"" + fm.offer + "\"");
+    }
+  }
+}
+
+/* 7o. COMMERCIAL MODEL v7 ON EVERY SURFACE THAT QUOTES IT (2026-10-02).
+
+       The owner's decision of 2026-10-02: a new client's first month is free
+       on the AI Front Desk, The Works and any module bought on its own; no
+       Launch & Implementation fee on any of them; the Performance
+       Partnership, by invitation, is a fixed C$5,000 Launch &
+       Implementation, then C$350 a month from the first month, with no free
+       month and no band. The guards above hold the pricing page's lists and
+       llms.txt to pricing-config.js; this one holds the shape of the model
+       everywhere a buyer or a caller meets it: every published page (body
+       copy and JSON-LD), llms.txt, and config/elevenlabs/. Everything is
+       DERIVED from pricing-config.js, so the next decision moves this guard
+       with the config.
+
+         bands    no plan may carry launchRange or monthlyRange: the
+                  Partnership's figures are fixed, and the engine reads a band
+                  on the site as a finding.
+         free     every plan's and sellable add-on's freeMonths is 0 or
+                  freeMonth.months, freeMonth.months is 1, and no
+                  invitation-only plan carries one.
+         fees     every figure written as a Launch & Implementation fee is a
+                  fee the config charges (a launch above 0, or the Enterprise
+                  floor). A clause that records a retired fee as retired
+                  passes, judged by the shared classifier.
+         C$5,000  every sentence that names the Partnership together with a
+                  Launch & Implementation fee states the Partnership's own
+                  figure, written or spoken, and pricing.html and llms.txt
+                  each carry one. A sentence recording history is exempt. */
+{
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const cfg = w.NV_PRICING;
+  if (!cfg || !Array.isArray(cfg.plans) || !Array.isArray(cfg.addOns)) {
+    err("guard 7o: pricing-config.js NV_PRICING.plans or .addOns not found, so the v7 model is unchecked");
+  } else {
+    const money = (n) => "C$" + Number(n).toLocaleString("en-CA");
+    const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    for (const p of cfg.plans) {
+      for (const k of ["launchRange", "monthlyRange"]) {
+        if (k in p) err("pricing-config.js " + p.id + ": carries " + k + ". The Partnership's figures are fixed since 2026-10-02 and the bands are retired; delete the field.");
+      }
+    }
+    const fm = cfg.freeMonth || {};
+    if (fm.months !== 1) err("pricing-config.js freeMonth.months is " + fm.months + "; the owner's decision is one calendar month.");
+    for (const x of [...cfg.plans, ...cfg.addOns.filter((a) => a.sellable)]) {
+      const n = x.freeMonths;
+      if (n !== 0 && n !== fm.months) err("pricing-config.js " + x.id + ": freeMonths is " + n + "; a free period is freeMonth.months (" + fm.months + ") or nothing.");
+      if (x.selfServe === false && n > 0) err("pricing-config.js " + x.id + ": an invitation-only plan carries a free month. The Partnership has none.");
+    }
+    const partner = cfg.plans.find((p) => p.selfServe === false && p.launch > 0);
+    const fees = new Set([...cfg.plans, ...cfg.addOns].map((x) => x.launch).filter((n) => n > 0));
+    if (cfg.enterprise && cfg.enterprise.launchFrom) fees.add(cfg.enterprise.launchFrom);
+    const readable = (s) => s
+      .replace(/<!--[\s\S]*?-->/g, " ")
+      .replace(/<script\b(?![^>]*application\/ld\+json)[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&amp;/g, "&").replace(/&rsquo;/g, "'").replace(/&middot;/g, "·")
+      .replace(/[ \t]+/g, " ");
+    const surfaces = [
+      ...contentPages.map((f) => ({ label: f, text: readable(fs.readFileSync(path.join(root, f), "utf8")) })),
+      { label: "llms.txt", text: fs.readFileSync(path.join(root, "llms.txt"), "utf8") },
+      ...walk(path.join(root, "config", "elevenlabs")).map((f) => ({
+        label: path.relative(root, f).replace(/\\/g, "/"), text: fs.readFileSync(f, "utf8"), questions: true })),
+    ];
+    const FEE_AFTER = /(?:C\$|\$)\s?([\d,]+)\s+(?:one-time\s+)?Launch\s+(?:&|and)\s+Implementation\b/gi;
+    const FEE_BEFORE = /\bLaunch\s+(?:&|and)\s+Implementation(?:\s+fee)?\s+(?:of|is|at|from|starting at)\s+(?:C\$|\$)\s?([\d,]+)/gi;
+    const spokenPartner = partner ? (() => {
+      const th = Math.floor(partner.launch / 1000), ONES = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+      return partner.launch % 1000 === 0 && th <= 10 ? ONES[th] + " thousand dollars" : null;
+    })() : null;
+    for (const { label, text, questions } of surfaces) {
+      for (const re of [FEE_AFTER, FEE_BEFORE]) {
+        for (const m of text.matchAll(re)) {
+          const n = Number(m[1].replace(/,/g, ""));
+          if (fees.has(n)) continue;
+          const one = new RegExp(re === FEE_AFTER
+            ? "(?:C\\$|\\$)\\s?" + esc(m[1]) + "\\s+(?:one-time\\s+)?Launch\\s+(?:&|and)\\s+Implementation\\b"
+            : "\\bLaunch\\s+(?:&|and)\\s+Implementation(?:\\s+fee)?\\s+(?:of|is|at|from|starting at)\\s+(?:C\\$|\\$)\\s?" + esc(m[1]) + "(?![\\d,])", "i");
+          const clause = offendingClause(text, one, { allowQuestions: !!questions });
+          if (clause) err(label + ": states " + m[0].trim() + " as a Launch & Implementation fee.\n      clause: \"" + clause.slice(0, 180) + "\"\n      "
+            + "pricing-config.js charges " + [...fees].sort((a, b) => a - b).map(money).join(", ")
+            + " (the Partnership's fee and the Enterprise floor); the AI Front Desk, The Works and every module carry none since 2026-10-02.");
+        }
+      }
+      if (!partner) continue;
+      const sentences = text.replace(/\s+/g, " ").split(/(?<=[.!?])\s+|\s\|\s/);
+      let states = false;
+      for (const sen of sentences) {
+        if (!/\bPartnership\b/.test(sen) || !/\bLaunch (?:&|and) Implementation\b/i.test(sen)) continue;
+        const has = sen.includes(money(partner.launch)) || sen.includes("$" + Number(partner.launch).toLocaleString("en-CA"))
+          || (spokenPartner && sen.toLowerCase().includes(spokenPartner));
+        if (has) { states = true; continue; }
+        if (DENIAL.some((d) => d.test(sen))) continue;
+        if (questions && /\?["')\]]*\s*$/.test(sen.trim())) continue;
+        err(label + ": names the " + partner.name + " and a Launch & Implementation fee without stating it.\n      sentence: \""
+          + sen.trim().slice(0, 200) + "\"\n      The Partnership's fee is fixed at " + money(partner.launch)
+          + " (pricing-config.js); say it wherever the fee is named.");
+      }
+      if ((label === "pricing.html" || label === "llms.txt") && !states) {
+        err(label + ": never states the " + partner.name + "'s " + money(partner.launch) + " Launch & Implementation fee.");
+      }
     }
   }
 }
@@ -1593,6 +1734,14 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
        term, a missing block would mean those lines are said nowhere. */
     if (cfg.terms && cfg.terms.note) eq("pricing.html", "termsNote", flat(textOf(ph, "termsNote")), cfg.terms.note);
     else err("pricing-config.js: terms.note missing, so #termsNote on pricing.html has nothing to render");
+    /* The free month (v7, 2026-10-02): the terms band states it once, in
+       freeMonth's own sentences, and the static copy is held to the
+       renderer's paragraph like the term note above. */
+    const fmNote = typeof cfg.freeMonthNote === "function" ? cfg.freeMonthNote() : "";
+    if (fmNote) eq("pricing.html", "freeMonthNote", flat(textOf(ph, "freeMonthNote")), fmNote);
+    else err("pricing-config.js: freeMonthNote() is missing or empty, so #freeMonthNote on pricing.html has nothing to render");
+    const ptNote = typeof cfg.partnerNote === "function" ? cfg.partnerNote() : "";
+    if (ptNote) eq("pricing.html", "partnerNote", flat(textOf(ph, "partnerNote")), ptNote);
     const shared = typeof cfg.sharedFeatures === "function" ? cfg.sharedFeatures() : null;
     const everyPlan = items(textOf(ph, "everyPlan"));
     if (!shared || !shared.length) err("pricing-config.js: sharedFeatures() is missing or empty, so pricing.html has no list of what every plan includes");
@@ -1642,14 +1791,24 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
        removed the notice period as well, so the pin no longer carries "30
        days notice" either. A notice period is now as false as a minimum
        term, and "cancel any time" is literally true. */
-    const PLAN_TERMS = "One-time C$1,500 Launch & Implementation to start. Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.";
+    /* REWRITTEN 2026-10-02 (v7): the AI Front Desk carries no Launch &
+       Implementation fee and a new client's first month is free, so the pin
+       states the free month, its reminders, the absence of the fee and the
+       free month's minutes, in the shared wording the engine uses, then the
+       term as before. What this pin must never bless again is a launch fee
+       on the default plan, or a free period of any other shape. */
+    const PLAN_TERMS = "Your first month is free. We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. No Launch & Implementation fee: you pay the monthly price and nothing else. Minutes past your allowance during your free month are not billed. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.";
     /* INVERTED TWICE with the model, most recently 2026-08-15 (evening):
        published pricing is back, so the static line a prospect reads with
        scripts blocked states the default plan's monthly. A real quote from
        ?quote= still overrides it at render time. */
+    /* v7: a plan with a free month is first charged when the second month
+       begins, so the static line says that rather than "the day you start". */
     eq("proposal.html", "planMonthly", flat(textOf(pr, "planMonthly")),
       cfg.publishedPricing
-        ? money(dflt.monthly) + "/month, charged the day you start and every month after."
+        ? money(dflt.monthly) + "/month" + cfg.monthlyBand(dflt)
+          + (dflt.freeMonths > 0 ? ", charged from the day your second month begins and every month after."
+            : ", charged the day you start and every month after.")
         : "Your monthly amount is quoted per client, then it is charged the day you start and every month after.");
     eq("proposal.html", "planTerms", flat(textOf(pr, "planTerms")), PLAN_TERMS);
     eq("proposal.html", "planName", flat(textOf(pr, "planName")), dflt.name.toUpperCase());
@@ -1747,9 +1906,9 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
       if (clause) {
         err(`${label}: ${b} names the one-time charge with retired vocabulary or joins it additively.\n      clause: "${clause}"\n      `
           + `"Setup fee", "activation fee" and "onboarding fee" are retired names. The one-time charge is `
-          + `called "Launch & Implementation", and it is joined to the monthly with the approved shape `
-          + `"C$X Launch & Implementation to start, then C$Y a month" — never with "plus", "+" or "and". `
-          + `A denial of a retired name ("no setup fee") is allowed; a denial of the launch fee is not.`);
+          + `called "Launch & Implementation", and since 2026-10-02 only the Performance Partnership carries `
+          + `one ("C$5,000 Launch & Implementation, then C$350 a month from the first month"). A denial of a `
+          + `retired name ("no setup fee") is allowed; a denial of the Partnership's fee is not.`);
       }
     }
   }
@@ -1805,12 +1964,13 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     for (const b of RETIRED_OFFERS) {
       const clause = offendingClause(text, b);
       if (clause) {
-        err(`${label}: states a retired commercial term ${b}.\n      clause: "${clause}"\n      The approved model is a one-time `
-          + `Launch & Implementation fee to start, then the plan's monthly price, with nothing else billed `
-          + `beside the monthly except overage. No pilot, no trial, and never a denial of the launch fee `
-          + `("no implementation fee", "one recurring monthly price" and "nothing charged to start" are the `
-          + `new false claims). A CLAUSE that denies a retired offer is allowed; extend DENIAL rather than `
-          + `dropping the pattern. Note the scope: a denial in a NEIGHBOURING clause no longer excuses this one.`);
+        err(`${label}: states a retired commercial term ${b}.\n      clause: "${clause}"\n      The approved model (v7, `
+          + `2026-10-02): a new client's first month is free on the AI Front Desk, The Works and any module bought `
+          + `on its own, with no Launch & Implementation fee; the Performance Partnership, by invitation, is C$5,000 `
+          + `Launch & Implementation, then C$350 a month from the first month, with no free month. No pilot, no `
+          + `other free period, no "free trial", and never a denial of the free month or of the Partnership's fee. `
+          + `A CLAUSE that denies a retired offer is allowed; extend DENIAL rather than dropping the pattern. Note `
+          + `the scope: a denial in a NEIGHBOURING clause no longer excuses this one.`);
       }
     }
   }
@@ -1875,9 +2035,11 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
       const clause = offersHere(text, b);
       if (clause) {
         err(`${label}: a spoken-agent surface states a retired commercial term ${b} as live.\n      clause: "${clause}"\n      `
-          + `The approved model is a one-time Launch & Implementation fee to start, then the plan's monthly `
-          + `price, spoken with the approved joins ("to start", "then") and never as an addition. No pilot, `
-          + `no trial, no retired figure, and never a denial of the launch fee. This file instructs or grades `
+          + `The approved model (v7): the first month free on the AI Front Desk, The Works and any module bought `
+          + `on its own, then the monthly, with no Launch & Implementation fee; the Partnership is five thousand `
+          + `dollars Launch and Implementation, then three hundred and fifty dollars a month from the first month. `
+          + `No pilot, no other free period, no retired figure, and never a denial of the free month or of the `
+          + `Partnership's fee. This file instructs or grades `
           + `the agent that answers the demo line, so a retired offer here reaches a prospect out loud. A `
           + `CLAUSE that denies a retired offer is allowed, and so is a quoted caller question; extend DENIAL `
           + `rather than dropping the pattern.`);
@@ -1888,8 +2050,8 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
       if (clause) {
         err(`${label}: a spoken-agent surface uses retired fee vocabulary or an additive join (${b}).\n      clause: "${clause}"\n      `
           + `"Setup fee", "activation fee" and "onboarding fee" are retired names. The one-time charge is `
-          + `"Launch & Implementation", spoken as "one thousand dollars Launch and Implementation to start, `
-          + `then seven hundred and fifty dollars a month" — never joined with "plus" or "on top".`);
+          + `"Launch & Implementation", and only the Partnership carries one: "five thousand dollars Launch and `
+          + `Implementation, then three hundred and fifty dollars a month from the first month".`);
       }
     }
   }
@@ -2071,9 +2233,10 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
       const clause = offendingClause(text, b);
       if (clause) {
         err(`${label}: states a retired commercial term ${b} with no superseded banner.\n      clause: "${clause}"\n      `
-          + `Either correct the clause to the current model (a one-time Launch & Implementation fee to `
-          + `start, then the plan's monthly price, nothing else billed beside the monthly except overage, `
-          + `no pilot at any price), or - if the file is a record of what USED to be true and the figure `
+          + `Either correct the clause to the current model (v7: the first month free and no Launch & `
+          + `Implementation fee on the AI Front Desk, The Works and every module; the Partnership at C$5,000 `
+          + `Launch & Implementation, then C$350 a month from the first month; no pilot at any price), or - if `
+          + `the file is a record of what USED to be true and the figure `
           + `must stay - add a dated banner in the first lines saying so, the way docs/ideas/*, `
           + `docs/payment-flow.md and PRELAUNCH.md already do. Do not delete the history.`);
       }
@@ -2156,10 +2319,17 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
        prompt must NAME the fee instead, and a denial of it is the new wrong
        thing. `p.setup === undefined` still gates it: the presence of a
        `setup` key anywhere would be its own cross-repo failure. */
+    /* RE-POINTED 2026-10-02 (v7). The fee is named only where a plan still
+       carries one (the Performance Partnership), and the free month must be
+       named, because "can I try it first?" is the question the demo line
+       hears most and its answer changed that day. */
     const noSetupKey = w.NV_PRICING.plans.every((p) => p.setup === undefined);
     if (noSetupKey && w.NV_PRICING.publishedPricing) {
+      const anyFee = w.NV_PRICING.plans.some((p) => p.launch > 0);
       const naysLaunch = /launch (?:and|&) implementation/.test(spoken);
-      if (!naysLaunch) wait("demo.md: the one-time Launch & Implementation fee is never named. The agent must state it in the approved shape (\"one thousand dollars Launch and Implementation to start, then seven hundred and fifty dollars a month\"), never call it a setup, activation or onboarding fee, and never deny it.");
+      if (anyFee && !naysLaunch) wait("demo.md: the Performance Partnership's Launch & Implementation fee is never named. The agent must state it (\"five thousand dollars Launch and Implementation, then three hundred and fifty dollars a month from the first month\"), never call it a setup, activation or onboarding fee, and never deny it.");
+      const anyFree = w.NV_PRICING.plans.some((p) => p.freeMonths > 0);
+      if (anyFree && !/first month (?:is )?free|free first month/.test(spoken)) wait("demo.md: the first month free is never named. A new business's first month is free on the AI Front Desk, The Works and any module bought on its own (pricing-config.js freeMonth).");
     }
     const RETIRED_SPOKEN = [
       "five hundred dollars one-time setup", "seven hundred and fifty dollars setup",
@@ -2179,9 +2349,22 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
          now. */
       "seven hundred and fifty dollars a month", "seven hundred and fifty a month", "seven fifty a month",
       "operate plan", "grow plan",
-      /* Denials of the launch fee, which are the new false claims. */
-      "no implementation fee", "no launch fee", "no launch charge",
-      "one recurring monthly price", "nothing charged to start",
+      /* Denials of the launch fee stood here from 2026-08-15 (evening) to
+         2026-10-01 ("no implementation fee", "no launch fee", "no launch
+         charge", "one recurring monthly price", "nothing charged to start"):
+         every plan carried a fee then. Since v7 (2026-10-02) the standard
+         plans and modules carry none and a new client's first month is free,
+         so each of those is TRUE of them, and they left this list. What is
+         false now: the retired fees, spoken; any free period but one month;
+         and a denial of the free month. The Partnership's own fee is held by
+         the per-plan launch check below. */
+      "fifteen hundred dollars launch", "one thousand five hundred dollars launch",
+      "three thousand dollars launch", "twenty-five hundred dollars launch",
+      "two thousand five hundred dollars launch", "two thousand and five hundred dollars launch",
+      "ten thousand dollars", "monthly band",
+      "fourteen days free", "thirty days free", "free for thirty days", "free for fourteen days",
+      "two months free", "two free months", "no card required", "no credit card",
+      "no trial", "there is no trial",
     ];
     /* Classified per PARAGRAPH here, not per sentence as everywhere else, and
        the difference is deliberate. demo.md is hard-wrapped prose: its
@@ -2197,7 +2380,7 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
       .some((para) => re.test(para) && !DENIAL.some((d) => d.test(para)));
     for (const phrase of RETIRED_SPOKEN) {
       if (saysRetired(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"))) {
-        wait(`demo.md: still says a retired commercial term out loud ("${phrase}"). One monthly price, nothing beside it, no pilot and no trial.`);
+        wait(`demo.md: still says a retired commercial term out loud ("${phrase}"). The first month free, then the monthly, on the AI Front Desk, The Works and any module bought on its own; the Partnership at five thousand dollars Launch and Implementation; no pilot.`);
       }
     }
 
@@ -2206,7 +2389,8 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
          Implementation fee is part of the published offer, so a prompt that
          never speaks it is quoting half a price. Same dollarForms tolerance
          as the monthly, because it is said the same way. */
-      const checks = [["monthly", dollarForms(plan.monthly)], ["launch", dollarForms(plan.launch)], ["overage", centForms(plan.overage)]];
+      /* A fee of 0 is not spoken (v7): only the Partnership's is. */
+      const checks = [["monthly", dollarForms(plan.monthly)], ...(plan.launch > 0 ? [["launch", dollarForms(plan.launch)]] : []), ["overage", centForms(plan.overage)]];
       for (const [label, forms] of checks) {
         if (!forms.some((f) => spoken.includes(f)))
           wait(`demo.md: ${plan.name} ${label} (${plan[label]}) is never spoken; say one of: ${forms.join(" / ")}`);
@@ -2251,7 +2435,10 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
        whole-file scan would fail the sentence doing that work. $500 joined
        2026-08-15 (evening) with Growth's reprice to Grow at $750. */
     /* $750 joined 2026-08-22 (v4) with Grow's retirement into The Works. */
-    const RETIRED_FIGURES = ["$150", "$850", "$249", "$449", "$849", "$49", "$500", "$750"];
+    /* v7 (2026-10-02): the retired Launch & Implementation fees join, in
+       both spellings. $500 and $750 were already here as monthlies. */
+    const RETIRED_FIGURES = ["$150", "$850", "$249", "$449", "$849", "$49", "$500", "$750",
+      "$1,500", "$1500", "$3,000", "$3000", "$2,500", "$2500", "$10,000", "$10000"];
     for (const plan of w.NV_PRICING.plans) {
       const row = md.split(/\r?\n/).find((l) => /^\|/.test(l) && l.includes("| " + plan.name + " |"));
       if (!row) { err(`PLAYBOOK.md: no tier row for "${plan.name}"`); continue; }
@@ -2259,12 +2446,15 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
       if (!has(money(plan.monthly))) err(`PLAYBOOK.md "${plan.name}": monthly is not $${plan.monthly} as in pricing-config.js`);
       /* The launch fee is part of the offer the founder quotes, so a row
          without it is a row that quotes half a price. */
-      if (!has(money(plan.launch))) err(`PLAYBOOK.md "${plan.name}": the one-time Launch & Implementation fee is not $${plan.launch} as in pricing-config.js`);
+      /* v7: a plan with no fee and a free month says so in the row; the
+         Partnership's row carries its fee. */
+      if (plan.launch > 0 && !has(money(plan.launch))) err(`PLAYBOOK.md "${plan.name}": the one-time Launch & Implementation fee is not $${plan.launch} as in pricing-config.js`);
+      if (!(plan.launch > 0) && plan.freeMonths > 0 && !/first month free|free first month/i.test(row)) err(`PLAYBOOK.md "${plan.name}": the row does not say "first month free" (pricing-config.js freeMonths ${plan.freeMonths}, no Launch & Implementation fee)`);
       if (!new RegExp(`\\|\\s*${plan.includedMinutes}\\s*\\|`).test(row)) err(`PLAYBOOK.md "${plan.name}": included minutes are not ${plan.includedMinutes}`);
       if (!row.includes("$" + plan.overage.toFixed(2))) err(`PLAYBOOK.md "${plan.name}": overage is not $${plan.overage.toFixed(2)}/min`);
       for (const fig of RETIRED_FIGURES) {
         if (row.includes(fig)) err(`PLAYBOOK.md "${plan.name}": the tier row still quotes the retired figure ${fig}. `
-          + `The plan is $${plan.launch} Launch & Implementation to start, then $${plan.monthly} a month.`);
+          + `The plan is: ${w.NV_PRICING.startLine(plan)}`);
       }
     }
     /* The columns themselves, not just their contents. INVERTED 2026-08-15
@@ -2562,7 +2752,7 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
        its own: the ids proposal.html renders as a module, by the same rule it
        uses. They may be sent; they are not required to be. */
     const moduleIds = new Set((w.NV_PRICING?.addOns ?? [])
-      .filter((a) => a.sellable === true && a.soldAlone === true && a.monthly > 0 && a.launch > 0).map((a) => a.id));
+      .filter((a) => a.sellable === true && a.soldAlone === true && a.monthly > 0).map((a) => a.id));
     const doc = fs.readFileSync(docPath, "utf8");
 
     const urls = [...doc.matchAll(/proposal\.html\?[^\s)`"']*/g)].map((m) => m[0]);
