@@ -363,6 +363,12 @@ const CLUSTERS = [
 const hubMeta = byFile['solutions.html'];
 const hubDesc = 'Lead Generation by invitation, Quote Recovery and the AI Front Desk, by trade, by situation, and compared to voicemail and answering services.';
 
+/* The front desk card on the hub said it "takes the job, the address and
+   the time the caller wants", with no word about who confirms, until
+   2026-10-03 (audit PRICING-9): a card read on its own is read as a booking.
+   scripts/content/claim-rules.mjs judges the hub with the generated pages.
+   Notes like this one stay in this source, not in the HTML it writes: the
+   shipped page source is buyer-facing. */
 const hubHtml =
   head({
     title: `${hubMeta.title} | Nevamis`, description: hubDesc, canonical: `${SITE}/solutions.html`,
@@ -410,10 +416,7 @@ const hubHtml =
        (canonical availability private_pilot, roadmap-config.js private_pilot),
        which is a narrower claim than available and must read as one: a few
        businesses, their own agreement, the list built by hand from public
-       pages, and nobody on it contacted. Never the word "pilot". The front
-       desk card said it "takes the job, the address and the time the caller
-       wants" with no word about who confirms until 2026-10-03 (audit
-       PRICING-9): a card read on its own is read as a booking. -->
+       pages, and nobody on it contacted. Never the word "pilot". -->
   <section class="tight">
     <div class="wrap">
       <div class="section-head reveal">

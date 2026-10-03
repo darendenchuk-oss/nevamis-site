@@ -59,6 +59,10 @@ import { stripJsComments, jsStringLiterals, renderedProse } from '../lib/rendere
    exclamation mark before it to the next one after), and a sentence it
    matches is not a finding: it is how a rule says "only when the same
    sentence does not also say X". */
+/** "the time the caller wants" and every way of saying the caller gets to
+ *  pick it, as a regex source shared by caller-wants-time and
+ *  time-without-confirm (PRICING-9). */
+const CALLER_TIME = String.raw`\b(?:times?|time window|window|slots?) (?:the caller|they|callers?) (?:wants?|asks? for|asked for|needs?|needed|would like|picks?|picked|choos(?:e|es)|chose|prefers?|preferred)\b`;
 export const CLAIM_RULES = [
   { id: 'summary-field',
     re: /\b(?:marked|noted|recorded|flagged|logged) on (?:the|your|each) summary\b/i,
@@ -92,7 +96,7 @@ export const CLAIM_RULES = [
     why: 'nothing measured it (owner rule: no unproven claim). Hedge it to what is true, or drop it' },
   { id: 'books-or-hands-off',
     re: /\b(?:offering|offers?) (?:available |open )?slots\b|\bcalendar has openings\b|\bI can do (?:mon|tues|wednes|thurs|fri|satur|sun)day\b|\b(?:alerting|paging|calling) the on-call\b|\bbooks? (?:the|your|a|an) (?:job|appointment|assessment|visit|slot)\b/i,
-    why: 'a client agent has no calendar and no booking tool, and nothing hands a call to a person (owner decision B1; agent-draft.ts BOOKING, elevenlabs-provision.ts end_call only). It takes the time the caller wants and your team confirms it' },
+    why: 'a client agent has no calendar and no booking tool, and nothing hands a call to a person (owner decision B1; agent-draft.ts BOOKING, elevenlabs-provision.ts end_call only). It captures the times that suit the caller and your team confirms one' },
   { id: 'competitor-result',
     re: /\b(?:stop|stops|keep|keeps|prevent|prevents)\b[^.;?!]{0,40}\b(?:reaching|going to|calling|choosing) (?:your |a )?competitors?\b/i,
     why: 'no record shows an answered call keeps a caller from a competitor (owner rule: no unproven result)' },
@@ -138,16 +142,25 @@ export const CLAIM_RULES = [
      time "they want", and any sentence that names the caller's times says
      in the same sentence that you confirm them. "Take down" is caught too:
      "takes the job down" reads the same way out of context, and "writes
-     the job down" says the same thing without it. */
+     the job down" says the same thing without it.
+     Widened on 2026-10-03 (review of PR #50): "accepts the job" and "takes
+     bookings" read as a booking the same way, "the time the caller picks"
+     and "the slot they choose" the same way as "the time they want", and a
+     negated confirm ("you never need to confirm") excused a sentence that
+     says nobody confirms. Each is now a MUST_FIRE line. The verbs for what
+     a caller wants are one list, shared by both rules that name them. */
   { id: 'takes-the-job',
-    re: /\bt(?:ake|akes|aking|aken|ook)\b(?: down)? (?:the|a|an|your|every|each) (?:jobs?|slot|booking|appointment|times?(?! to\b))\b|\bjobs? to take\b/i,
+    re: /\b(?:t(?:ake|akes|aking|aken|ook)|accept(?:s|ed|ing)?)\b(?: down)? (?:the|a|an|your|every|each) (?:jobs?|slots?|bookings?|appointments?|times?(?! to\b))\b|\b(?:t(?:ake|akes|aking|aken|ook)|accept(?:s|ed|ing)?) (?:bookings|appointments|jobs|slots)\b|\bjobs? to take\b/i,
     why: 'reads as accepting a booking, and a client agent books nothing (agent-draft.ts BOOKING; end_call only). Say it writes the job down, or captures the request and the times that suit, and you confirm (audit PRICING-9)' },
   { id: 'caller-wants-time',
-    re: /\b(?:times?|time window|window|slots?) (?:the caller|they|callers?) (?:wants?|asks? for|asked for|needs?|needed|would like)\b|\b(?:times?|slots?|window) wanted\b/i,
+    re: new RegExp(`${CALLER_TIME}|\\b(?:times?|slots?|window) wanted\\b`, 'i'),
     why: '"the time they want" reads as the time they get, even beside "you confirm"; say "the times that suit them" (how-you-start.html; tests/live-buyer-truth.spec.js PRICING-9)' },
   { id: 'time-without-confirm',
-    re: /\b(?:times?|time window|window|slots?) (?:that )?suits?\b|\b(?:times?|time window|window|slots?) (?:the caller|they|callers?) (?:wants?|asks? for|asked for|needs?|needed|would like)\b/i,
-    unless: /\byou\b[^.?!]{0,40}\bconfirm|\bconfirmed by\b/i,
+    re: new RegExp(`\\b(?:times?|time window|window|slots?) (?:that )?suits?\\b|${CALLER_TIME}`, 'i'),
+    /* Excused only by a confirm that is not denied: a negation in the same
+       clause before "confirm" ("you never need to confirm", "not confirmed
+       by anyone") leaves the sentence a finding. */
+    unless: /^(?![^]*\b(?:never|not|no|without|nobody|don'?t|doesn'?t|won'?t|needn'?t)\b[^.?!,;]{0,30}\bconfirm)[^]*(?:\byou\b[^.?!]{0,40}\bconfirm|\bconfirmed by\b)/i,
     why: 'names the times a caller asked for without saying you confirm them, so it reads as booked; say so in the same sentence ("for you to confirm", "and you confirm the slot") (audit PRICING-9)' },
   /* Page-scoped. On the after-hours page the owner's own phone rings first,
      so a speed counted from the caller's first ring is not what happens
@@ -242,6 +255,16 @@ export const MUST_FIRE = [
   ['time-without-confirm', 'Taken down with the time they want, without interrupting anyone.'],
   ['time-without-confirm', 'Answers your line when you cannot, captures the job, the address and the times that suit the caller, and texts you the summary.'],
   ['time-without-confirm', 'It captures the request and the times that suit them. Then you confirm the slot.'],
+  /* The review of PR #50: a negated confirm, and the next wordings of a
+     booking. */
+  ['time-without-confirm', 'It books the times that suit them, and you never need to confirm.'],
+  ['time-without-confirm', 'The times that suit the caller are captured, with no need for you to confirm.'],
+  ['time-without-confirm', 'The times that suit them are not confirmed by anyone.'],
+  ['takes-the-job', 'Takes bookings around the clock.'],
+  ['takes-the-job', 'It accepts the job and the time the caller picks.'],
+  ['caller-wants-time', 'It accepts the job and the time the caller picks.'],
+  ['caller-wants-time', 'Callers get the slot they choose.'],
+  ['caller-wants-time', 'It notes the window they prefer, for you to confirm.'],
   ['question-builder', 'Commercial vs residential . Asked when you approve the question, with the answer in the call recording in your portal.'],
   ['question-builder', 'Maintenance plans . Asked about when you approve the question.'],
   ['speed-where-the-phone-rings-first', 'Your number, your rules, answered in seconds.', 'after-hours-answering.html'],
@@ -256,6 +279,8 @@ export const MUST_PASS = [
   'It writes down the job and the times that suit the caller, for you to confirm.',
   'Everything else is captured with the times that suit the caller, for you to confirm.',
   'It does not book into your calendar. It takes the request and the times that suit; you confirm',
+  'There is no minimum term, and it captures the times that suit the caller, for you to confirm.',
+  'The times that suit them, with no booking made, are captured for you to confirm.',
   'Writes the job down in full',
   'When the call is urgent work you take, Nevamis captures the urgent details and alerts your team.',
   'Take the time to compare both.',
