@@ -6,7 +6,13 @@
    requests fonts from a font provider. The ElevenLabs widget breaks all three
    unless talk.js and the /talk/ policy stop it: left alone it fingerprints the
    device with FingerprintJS, keeps the visitorId in localStorage, sends it to
-   ElevenLabs as user_id, and @imports Inter from Google Fonts.
+   ElevenLabs as user_id (run against main before the fix, this test saw
+   {"elevenlabs_convai_user_id": "<32 hex>"} stored and the same value sent),
+   and its stylesheet carries an @import of Inter from Google Fonts. In
+   0.18.2 that import sits after a rule in the same <style>, so the browser
+   drops it and no request is made even when the policy allows the host; the
+   font assertion below is the net for a widget version that moves it first.
+   The policy itself is held by scripts/check-legal-truth.mjs.
 
    This drives the REAL pinned widget through a real call start, with nothing
    leaving the machine: the agent's widget config is answered here, every

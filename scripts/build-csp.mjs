@@ -74,14 +74,17 @@ const BASE = {
 const TALK = {
   'script-src': ["'self'", 'blob:',
     'https://cdn.jsdelivr.net/npm/@alexanderolsen/libsamplerate-js@2.1.2/dist/libsamplerate.worklet.js'],
-  /* NO FONT PROVIDER, ON PURPOSE. The widget's stylesheet opens with
+  /* NO FONT PROVIDER, ON PURPOSE. The widget's stylesheet carries
      @import "https://fonts.googleapis.com/css2?family=Inter...", and this
      policy used to allow it (style-src fonts.googleapis.com, font-src
-     fonts.gstatic.com), so every browser call fetched Inter from Google while
-     nevamis.ca/privacy said no page sends a request to any font provider.
-     Blocking the import costs nothing visible: the widget's own font stack
-     falls back to the visitor's system sans. Allowing a font host here again
-     means changing the privacy page in the same commit, and
+     fonts.gstatic.com) while nevamis.ca/privacy said no page requests fonts
+     from any font provider (audit finding LEGAL-11). In 0.18.2 the import
+     happens to sit after a rule inside the same <style>, so the browser drops
+     it and no request was observed even with the hosts allowed; the next
+     widget version may not be so lucky, and the policy is what the privacy
+     page's promise should rest on. Without the import the widget's own font
+     stack falls back to the visitor's system sans. Allowing a font host here
+     again means changing the privacy page in the same commit, and
      scripts/check-legal-truth.mjs fails until it does. */
   'style-src': ["'self'", "'unsafe-inline'"],
   'img-src': ["'self'", 'data:', 'blob:', 'https://storage.googleapis.com/eleven-public-cdn/'],
