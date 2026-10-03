@@ -74,10 +74,19 @@ test('homepage publishes Organization, Service, FAQ and resolvable @id links', a
   const service = schema.find((s) => s['@type'] === 'Service');
   const ids = schema.map((s) => s['@id']).filter(Boolean);
   expect(ids, 'Service.provider must resolve').toContain(service.provider['@id']);
-  expect(service.offers.length, 'all three plans should be listed').toBe(3);
+  /* Every plan and every module sold on its own (audit MACHINE-17,
+     2026-10-03). Each Offer's price is its two components, never a single
+     `price`: the monthly alone was the figure a parser read as the whole
+     cost. tests/machine-surfaces.spec.js checks every figure against
+     pricing-config.js; this holds the shape. */
+  expect(service.offers.filter((o) => o.category === 'Plan').length, 'all three plans should be listed').toBe(3);
+  expect(service.offers.filter((o) => o.category === 'Module sold on its own').length, 'every module sold alone has an Offer').toBeGreaterThan(0);
   for (const o of service.offers) {
     expect(o.priceCurrency).toBe('CAD');
-    expect(Number(o.price)).toBeGreaterThan(0);
+    expect(o.price, `${o.name} has no single price`).toBeUndefined();
+    const parts = o.priceSpecification.priceComponent;
+    expect(parts.map((c) => c.name)).toEqual(['Launch & Implementation', 'Monthly']);
+    for (const c of parts) expect(Number(c.price ?? c.minPrice)).toBeGreaterThan(0);
   }
 
   // FAQ markup must mirror the visible FAQ, not a separate hand-written list

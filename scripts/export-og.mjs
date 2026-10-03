@@ -14,6 +14,23 @@
    toolchain on this machine and Playwright is already a devDependency.
    deviceScaleFactor is 1 deliberately: 1200x630 is the size Open Graph
    wants, and a 2x export is a 4x file for pixels nobody sees.
+
+   THE SITE'S OWN TYPEFACES (2026-10-03, audit COMPLETENESS-8). The card was
+   set in Georgia and Courier New, so every shared link looked like a
+   different company from the page it opened. It now names Bricolage
+   Grotesque, Atkinson Hyperlegible and Spline Sans Mono, the three families
+   the site serves. setContent gives the page no origin from which
+   assets/fonts/*.woff2 could load, so the latin files are inlined below as
+   data: URIs. And the export REFUSES rather than falls back: if a family the
+   SVG names did not load, Chromium would quietly paint the next name in the
+   font-family list, and the PNG every link preview shows would be in the
+   wrong face with nothing saying so.
+
+   The card's words are also its alt text: scripts/lib/og-card.mjs reads the
+   SVG, and scripts/build-schema.mjs writes og:image:alt and
+   twitter:image:alt into every page from it. After editing the SVG, run this
+   script AND the build chain (npm run build), so the image and the text that
+   describes it change together.
    ============================================================ */
 import { chromium } from '@playwright/test';
 import fs from 'node:fs';
@@ -27,14 +44,40 @@ const OUT = path.join(root, 'assets', 'og-default.png');
 const svg = fs.readFileSync(SRC, 'utf8');
 const W = 1200, H = 630;
 
+/* The latin subset of each family is enough: every glyph on the card is in
+   it, and the check below proves the face is in use rather than assuming. */
+const FACES = [
+  { family: 'Bricolage Grotesque', weight: '200 800', file: 'bricolage-grotesque-variable-latin.woff2' },
+  { family: 'Atkinson Hyperlegible', weight: '400', file: 'atkinson-hyperlegible-400-latin.woff2' },
+  { family: 'Atkinson Hyperlegible', weight: '700', file: 'atkinson-hyperlegible-700-latin.woff2' },
+  { family: 'Spline Sans Mono', weight: '300 700', file: 'spline-sans-mono-variable-latin.woff2' },
+];
+const faceCss = FACES.map((f) => {
+  const b64 = fs.readFileSync(path.join(root, 'assets', 'fonts', f.file)).toString('base64');
+  return `@font-face{font-family:'${f.family}';font-weight:${f.weight};src:url(data:font/woff2;base64,${b64}) format('woff2')}`;
+}).join('');
+
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
 /* setContent, not file://, so the SVG is laid out at exactly the card size
    with no scrollbar and no default body margin eating eight pixels of it. */
 await page.setContent(
-  `<style>html,body{margin:0;padding:0;background:#02080D}svg{display:block}</style>${svg}`,
+  `<style>${faceCss}html,body{margin:0;padding:0;background:#02080D}svg{display:block}</style>${svg}`,
   { waitUntil: 'load' });
-await page.evaluateHandle('document.fonts.ready');
+/* Each family the SVG names first in a font-family list must be loaded and
+   in use. document.fonts.ready resolves when loading settles, including when
+   it settled on nothing, so it proves nothing on its own. */
+const named = [...new Set([...svg.matchAll(/font-family="'([^']+)'/g)].map((m) => m[1]))];
+const missing = await page.evaluate(async (families) => {
+  await document.fonts.ready;
+  const loaded = new Set([...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/["']/g, '')));
+  return families.filter((f) => !loaded.has(f));
+}, named);
+if (missing.length) {
+  await browser.close();
+  console.error(`refusing to export: the card names ${missing.join(', ')}, which did not load, so the PNG would be in a fallback face.`);
+  process.exit(1);
+}
 await page.screenshot({ path: OUT, clip: { x: 0, y: 0, width: W, height: H } });
 await browser.close();
 

@@ -15,14 +15,17 @@
    JSON-LD blocks are data, not script, and need no hash.
 
    This is the LAST page builder before promote.mjs, because every earlier one
-   can change an inline script:
+   can change an inline script (`npm run build` runs exactly this list):
      python scripts/film/compose.py        (home.html)
      node scripts/build-content.mjs
      node scripts/build-pages.mjs
      node scripts/build-schema.mjs
-     node scripts/build-search-index.mjs
      node scripts/build-csp.mjs            <- here
      node scripts/promote.mjs              (index.html from home.html)
+     node scripts/build-search-index.mjs   (reads the finished pages,
+                                            index.html included)
+     node scripts/gen-sitemap.mjs          (always last: it hashes the
+                                            finished pages; see its header)
 
    node scripts/build-csp.mjs --check  exits 1 when any page's policy is missing
    or stale, which is what happens when someone edits an inline script and does

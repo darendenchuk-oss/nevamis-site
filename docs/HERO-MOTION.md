@@ -47,7 +47,7 @@ assets/motion/
   tokens.js        durations, easings, reduced-motion and pointer checks
   main.js          wires the modules below; every init is guarded
   cursor.js        the custom cursor
-  sonar.js, scroll.js, search.js, ...   the secondary-page flourishes
+  sonar.js, scroll.js, voice.js, ...    the secondary-page flourishes
 ```
 
 The site stays plain HTML on GitHub Pages and deploys with a single push.

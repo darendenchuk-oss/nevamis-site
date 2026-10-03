@@ -1,11 +1,11 @@
-<!-- commercial-truth: CURRENT_CANONICAL — live agent material, stated to the 2026-08-22 v4 add-on model (Launch & Implementation fee, The Works / AI Front Desk / Performance Partnership); checked against src/domain/canonical.ts on every consistency run. -->
+<!-- commercial-truth: CURRENT_CANONICAL — live agent material, stated to the commercial model pricing-config.js carries (revised 2026-10-03: the Partnership as a fee floor and a monthly band with its share set in the agreement and never a rate, and every module sold on its own with its own two figures; Launch & Implementation fee, The Works / AI Front Desk / Performance Partnership); checked against src/domain/canonical.ts on every consistency run. -->
 # Nevamis Client Support Knowledge Base (JOB B)
 
 This is the reference knowledge base for the Nevamis Client Support Agent (Job B), which supports EXISTING Nevamis paying clients. It is separate from the public sales knowledge base (nevamis-knowledge-base.md, Job A) and from any single client's receptionist configuration (Job C). The support agent answers ONLY from this document plus account facts returned by verified tools. Everything here is a DRAFT and must be approved by Daren before the agent uses it. All prices are in Canadian dollars (CAD) plus applicable tax.
 
 ## Who this agent serves
 
-This agent serves people who are already Nevamis clients: trades and local service-business owners (plumbing first, then HVAC, electrical, restoration, and similar) who already pay for the AI Front Desk, plus the staff those owners have authorized on their account. It does not sell, does not run demos, and does not onboard new prospects; anyone who is not yet a client is directed to the sales path (the demo line and strategy call).
+This agent serves people who are already Nevamis clients: trades and local service-business owners (plumbing first, then HVAC, electrical, restoration, and similar) who already pay for a Nevamis plan, or for a module bought on its own, plus the staff those owners have authorized on their account. It does not sell, does not run demos, and does not onboard new prospects; anyone who is not yet a client is directed to the sales path (the demo line and strategy call).
 
 ## The isolation rule, in plain terms
 
@@ -28,7 +28,7 @@ Caller-ID, a spoken name, and a recited email do NOT prove identity, because all
 
 ## What always goes to a human (the agent never does these itself)
 
-- Changing call routing, forwarding rules, transfer numbers, or assistant behaviour/scripts.
+- Changing call forwarding, the numbers summaries and alerts go to, or assistant behaviour/scripts.
 - Any billing action: plan change, payment method, refund, credit, or dispute.
 - Cancellation, pause, or suspension of service.
 - Deleting any data, call recordings, transcripts, or the account.
@@ -55,12 +55,17 @@ All escalations tell the caller what happens next and that the follow-up comes t
 
 The support agent may state published pricing as general information but never quotes a custom price, discount, credit, or change. Any pricing change is a billing action and goes to a human.
 
-- The Works: C$3,000 Launch & Implementation to start, then C$2,100 a month. No performance fee. The AI Front Desk plus every sellable automation add-on. 1,400 connected AI minutes, overage C$0.75/minute.
-- AI Front Desk (recommended): C$1,500 Launch & Implementation to start, then C$1,000 a month. No performance fee. 1,400 connected AI minutes, overage C$0.75/minute. Automation add-ons join one at a time, each its own price: missed-call text-back C$350/month, quote follow-up C$500/month, invoice reminders C$500/month, review requests C$300/month.
-- Performance Partnership (by invitation and approval only, never presented as the default): from C$2,500 Launch & Implementation to start, then C$350 a month, plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities, subject to the client's agreement. 250 minutes, overage C$1.10/minute.
+- The Works: C$3,000 Launch & Implementation to start, then C$2,100 a month. No performance share. The AI Front Desk plus every module sold today. 1,400 connected AI minutes, overage C$0.75/minute.
+- AI Front Desk (recommended): C$1,500 Launch & Implementation to start, then C$1,000 a month. No performance share. 1,400 connected AI minutes, overage C$0.75/minute.
+- Performance Partnership (by invitation and approval only, never presented as the default): From C$2,500 Launch & Implementation to start, then C$350 a month by default, inside a monthly band of C$250 to C$500. Both figures are set in the client's agreement. On it, Lead Generation and the Quote-Chase Engine are each paid by an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered; the share, the attribution window and what counts as eligible revenue are set in that agreement, and the support agent never states the share as a rate or a percentage. 250 minutes, overage C$1.10/minute.
+- Modules, each sold on its own or added to a plan one at a time, each with its own two figures (The Works already includes all four, and on the Performance Partnership the Quote-Chase Engine is paid by the agreed share instead):
+  - Missed-Call Recovery: C$500 Launch & Implementation to start, then C$350 a month.
+  - Quote-Chase Engine: C$750 Launch & Implementation to start, then C$500 a month.
+  - Get-Paid Autopilot: C$750 Launch & Implementation to start, then C$500 a month.
+  - Review Engine: C$500 Launch & Implementation to start, then C$300 a month.
 - Enterprise is quoted per client: Launch & Implementation starting at C$5,000 or custom quoted, recurring custom, performance optional. There is no universal Enterprise monthly price, so never state one.
 
-Prices are CAD plus applicable tax, with no minimum term: every plan and every add-on, bought on its own or added later, is month to month from the first month, cancelled at any time from the client's own portal with no notice period, the service running to the end of the month already paid for, with the price locked for twelve months from signing. The one-time Launch & Implementation fee is charged once, at the start, beside the first month, and never again; the monthly recurs on the day the client subscribed. The fee has one name; never call the Launch & Implementation fee a setup fee, an activation fee or an onboarding fee, and never deny that it exists. The performance fee, where a plan carries one, is never "a percent of all revenue" and never profit-based; the client's executed agreement governs it, and questions about what it covers go to a human with the agreement in front of them. A client who was quoted a single all-in monthly with nothing beside it, or who was quoted the retired figures of C$850 for Pro or C$500 for Growth or C$750 for Grow, was quoted a retired model; the agent does not argue the history on the line, it states the current figures in the approved shape ("C$1,500 Launch & Implementation to start, then C$1,000 a month") and routes any billing question to a human.
+Prices are CAD plus applicable tax, with no minimum term: every plan and every add-on, bought on its own or added later, is month to month from the first month, cancelled at any time from the client's own portal with no notice period, the service running to the end of the month already paid for, with the price locked for twelve months from signing. The one-time Launch & Implementation fee is charged once, at the start, beside the first month, and never again; the monthly recurs on the day the client subscribed. The fee has one name; never call the Launch & Implementation fee a setup fee, an activation fee or an onboarding fee, and never deny that it exists. The performance share, which only the Performance Partnership carries, is never "a percent of all revenue" and never profit-based; the client's executed agreement governs it and states its rate, and questions about the rate or what it covers go to a human with the agreement in front of them. A client who was quoted a single all-in monthly with nothing beside it, or who was quoted the retired figures of C$850 for Pro or C$500 for Growth or C$750 for Grow, was quoted a retired model; the agent does not argue the history on the line, it states the current figures in the approved shape ("C$1,500 Launch & Implementation to start, then C$1,000 a month") and routes any billing question to a human.
 
 ## What the support agent cannot or does not do
 

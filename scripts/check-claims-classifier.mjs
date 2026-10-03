@@ -112,6 +112,9 @@ const MUST_FIRE = [
     "The build takes days, not weeks: your line is answered inside the first week. The term is for the results window, which runs across a season of quotes and invoices."],
   ["a retired minimum, with its length", "Every plan has a minimum term of three months."],
   ["the retired minimum, as the call scripts said it", "It is a 6-month commitment, then month to month."],
+  /* C$750 is a launch fee today and never a monthly: its monthly reading,
+     spoken, stays retired (2026-10-03). */
+  ["Grow's retired month, spoken", "Grow is seven hundred and fifty dollars a month."],
 ];
 
 /* Judged WITH the question exemption, and must fire anyway: the offence is in
@@ -180,6 +183,11 @@ const MUST_NOT_FIRE = [
   ["the term, stated as month to month", "The term is month to month, and you can cancel from your portal at any time."],
   ["the term runs month-to-month", "The term runs month-to-month from the first month."],
   ["the term, stated as monthly", "The term is monthly: cancel from your own portal whenever you like."],
+  /* The live module prices, spoken as the demo agent says them (audit
+     MACHINE-12, 2026-10-03): until then the spoken retired list still held
+     "five hundred a month" and "seven hundred and fifty dollars", both live. */
+  ["a module's live price, spoken", "The Quote-Chase Engine is seven hundred and fifty dollars Launch and Implementation to start, then five hundred dollars a month."],
+  ["Review Engine, spoken", "Review Engine is five hundred dollars Launch and Implementation to start, then three hundred dollars a month."],
 ];
 
 /* Quoted caller questions, judged only where the guard allows them (7e). The
