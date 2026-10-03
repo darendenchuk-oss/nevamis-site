@@ -124,8 +124,8 @@ export const CLAIM_RULES = [
   /* THE TIME A CALLER ASKS FOR IS A REQUEST, NOT AN APPOINTMENT (audit
      PRICING-9, 2026-10-03). These pages said the agent "takes the job and
      the time the caller wants", or a close wording, in eight places in
-     pages.mjs alone, plus the hub card and demo.html, and the hub, demo.html
-     and the trade pages said it with no word about who confirms. A buyer, and an
+     pages.mjs alone, plus the hub card and demo.html, and half of them
+     said it with no word about who confirms. A buyer, and an
      answer engine quoting one sentence, reads "takes the job" as accepting a
      booking and "the time they want" as the time they get. A client agent
      books nothing: it has end_call and no calendar (engine agent-draft.ts
