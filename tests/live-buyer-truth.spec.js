@@ -431,7 +431,12 @@ test('PRICING-14: an add-on with no blurb still renders, and the plan cards stil
   await page.goto('/pricing.html');
   await expect(page.locator('#plansFallback')).toHaveCount(0);
   expect(await page.locator('#plans > *').count()).toBeGreaterThan(0);
-  await expect(page.locator('#addOnList > li', { hasText: 'Get-Paid Autopilot' })).toContainText('C$500/month');
+  /* Rendered, not the static copy left in place: only the render writes the
+     per-item event name, and only the static copy carries the missing blurb. */
+  const row = page.locator('#addOnList > li', { hasText: 'Get-Paid Autopilot' });
+  await expect(row).toContainText('C$500/month');
+  await expect(row).not.toContainText('overdue invoices');
+  await expect(row.locator('a')).toHaveAttribute('data-evt', 'plan_buy_click_get_paid');
   await ctx.close();
 });
 
