@@ -113,8 +113,16 @@ window.NV_ROADMAP = {
       problem: "Quotes are sent and forgotten. Interested customers drift away.",
       functions: ["Quiet-quote detection on your threshold", "Three approved follow-ups per quote: the day it goes stale, day four and day eleven", "Your identification on every message", "Recovered value reported against the quotes that came back"],
       outcome: "Recovered revenue that was already almost won.", cta: "/pricing.html" },
-    { slug: "ai-front-desk", name: "AI Front Desk", pillar: "capture", status: "available", stage: "now",
-      desc: "Answers your line 24/7, qualifies the caller, captures the request and the times that suit them, and sends you the details. You confirm the slot.",
+    /* "AI Front Desk" until v7. Since owner amendment #67 that is the name
+       of the largest of three sizes (Front Desk Starter, Front Desk Plus,
+       AI Front Desk), so the capability is the front desk (decision #17),
+       and the card says once that it comes in sizes with the same
+       receptionist (audit PLATFORM-9). The slug stays: it is the canonical
+       capability key the engine's readiness gate reads. No price and no
+       first month free here: the sizes' prices are on the pricing page, and
+       the free month is said only behind the gate free-month.js controls. */
+    { slug: "ai-front-desk", name: "Front Desk", pillar: "capture", status: "available", stage: "now",
+      desc: "Answers your line 24/7, qualifies the caller, captures the request and the times that suit them, and sends you the details. You confirm the slot. It comes in three sizes, the same receptionist in each, differing only in the minutes included and the rate for each minute past them.",
       outcome: "Calls you cannot take are answered instead of going to voicemail.", cta: "/how-you-start.html" },
     /* Described the way DC#54 (2026-09-18) requires: the public website only,
        and modelled ranges rather than measurements (engine scan/page.tsx).

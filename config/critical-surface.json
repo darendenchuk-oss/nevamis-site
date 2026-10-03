@@ -106,6 +106,9 @@
       "phone:+15874130035",
       "tel:+15874130035"
     ],
+    "free-month.js": [
+      "https://app.nevamis.ca/api/free-month"
+    ],
     "home.html": [
       "email:sales@nevamis.ca",
       "https://app.nevamis.ca/",

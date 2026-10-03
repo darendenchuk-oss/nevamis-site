@@ -4,7 +4,9 @@
 **Agent:** Nevamis Demo Receptionist (`agent_9101ky43tys1fswstde818j7j8wt`)
 **Auditor scope:** configuration, prompt, tools, privacy posture, and behaviour gaps versus the published website. This document describes the agent as it existed on the audit date. It does not claim any upgrade has been applied; production changes require passing tests and owner approval.
 
-> **Historical record — the "published" column is the site of 2026-07-23, not the site today.** The commercial model has changed twice since: the C$249 / C$449 / C$849 ladder, the plan names After Hours and Scale, the setup fees, and the free 7-day live pilot named below are all retired. Since 2026-08-09 the published model is one recurring price per plan (Core C$250/month, Growth C$500/month, Pro C$1,000/month), nothing charged beside it, and no pilot or trial at any price. The gaps this audit found are still the gaps it found; do not read its right-hand column as what the site says now, and never brief an agent from it. Source of truth: pricing-config.js.
+<!-- commercial-truth: HISTORICAL_REFERENCE_ALLOWED. An audit of the demo agent as it stood on 2026-07-23, compared with the site of that day; the prices, plans and pilot in its published column are that day's, and none of them is an offer. -->
+
+> **Record of 2026-07-23. Not a description of today: the "published" column is the site of 2026-07-23.** The commercial model has been superseded several times since, most recently by commercial model v7 (owner decision 2026-10-02): the C$249 / C$449 / C$849 ladder, the plan names After Hours and Scale, the setup fees, the free 7-day live pilot named below, and the Core / Growth / Pro ladder that followed them are all retired. The gaps this audit found are still the gaps it found; do not read its right-hand column as what the site says now, and never brief an agent from it. What Nevamis sells today is in pricing-config.js and the engine's src/domain/canonical.ts.
 
 ---
 

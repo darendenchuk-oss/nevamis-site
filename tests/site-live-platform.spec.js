@@ -381,9 +381,11 @@ test('CHECK-RUNNER-7: every search description is 160 characters or fewer', () =
 test('COMING-2: the Roadmap a buyer meets runs Lead Generation, Quote Recovery, then the front desk', async ({ page }) => {
   await page.goto('/coming-soon.html');
   const names = await page.$$eval('.svc-grid .svc h3', (hs) => hs.map((h) => h.textContent.trim()));
-  expect(names.slice(0, 3)).toEqual(['Lead Generation', 'Quote Recovery', 'AI Front Desk']);
+  /* "Front Desk" since v7: "AI Front Desk" is the largest size's name now
+     (owner amendment #67), and the card is the capability (PLATFORM-9). */
+  expect(names.slice(0, 3)).toEqual(['Lead Generation', 'Quote Recovery', 'Front Desk']);
   const now = await page.$$eval('#gridNow .svc h3', (hs) => hs.map((h) => h.textContent.trim()));
-  expect(now.slice(0, 2), 'the LIVE TODAY shelf opens with Quote Recovery, then the front desk').toEqual(['Quote Recovery', 'AI Front Desk']);
+  expect(now.slice(0, 2), 'the LIVE TODAY shelf opens with Quote Recovery, then the front desk').toEqual(['Quote Recovery', 'Front Desk']);
 });
 
 test('PLATFORM-3/8: the rendered Roadmap carries Search Rankings as COMING and no empty outcome line', async ({ page }) => {

@@ -6,6 +6,8 @@
    ============================================================ */
 
 import { test, expect } from '@playwright/test';
+import fs from 'node:fs';
+import vm from 'node:vm';
 
 const PUBLIC_PAGES = [
   '/', '/pricing.html', '/how-you-start.html', '/demo.html', '/book.html',
@@ -79,14 +81,25 @@ test('homepage publishes Organization, Service, FAQ and resolvable @id links', a
      `price`: the monthly alone was the figure a parser read as the whole
      cost. tests/machine-surfaces.spec.js checks every figure against
      pricing-config.js; this holds the shape. */
-  expect(service.offers.filter((o) => o.category === 'Plan').length, 'all three plans should be listed').toBe(3);
+  /* Every plan in the config, not a literal: amendment #67 (v7) made it
+     five, with Front Desk Starter and Front Desk Plus. */
+  const planCount = (() => {
+    const sandbox = { window: {} };
+    vm.runInNewContext(fs.readFileSync('pricing-config.js', 'utf8'), sandbox, { timeout: 1000 });
+    return sandbox.window.NV_PRICING.plans.length;
+  })();
+  expect(service.offers.filter((o) => o.category === 'Plan').length, 'every plan should be listed').toBe(planCount);
   expect(service.offers.filter((o) => o.category === 'Module sold on its own').length, 'every module sold alone has an Offer').toBeGreaterThan(0);
   for (const o of service.offers) {
     expect(o.priceCurrency).toBe('CAD');
     expect(o.price, `${o.name} has no single price`).toBeUndefined();
     const parts = o.priceSpecification.priceComponent;
     expect(parts.map((c) => c.name)).toEqual(['Launch & Implementation', 'Monthly']);
-    for (const c of parts) expect(Number(c.price ?? c.minPrice)).toBeGreaterThan(0);
+    /* The monthly is always a figure. The Launch & Implementation component
+       is a figure too, and 0 where the item carries none (v7: every item but
+       the Partnership), never missing: a parser that finds 0 knows. */
+    expect(Number(parts[1].price ?? parts[1].minPrice)).toBeGreaterThan(0);
+    expect(Number.isFinite(Number(parts[0].price ?? parts[0].minPrice)), `${o.name}: the fee component is a number`).toBe(true);
   }
 
   // FAQ markup must mirror the visible FAQ, not a separate hand-written list
@@ -155,7 +168,7 @@ test('pricing publishes a parseable price table for answer engines', async ({ pa
   const agg = product.offers;
   expect(agg['@type']).toBe('AggregateOffer');
   expect(agg.priceCurrency).toBe('CAD');
-  expect(Number(agg.offerCount)).toBe(3);   // Core, Growth, Pro
+  expect(Number(agg.offerCount)).toBe(await page.evaluate(() => window.NV_PRICING.plans.length));
 
   // prices must match the config, never a hardcoded copy
   const cfg = await page.evaluate(() => ({
@@ -196,8 +209,10 @@ test('pricing publishes a parseable price table for answer engines', async ({ pa
      through v4; v5 (owner-authored, 2026-08-24) made 350 the published
      default, and the C$250-500 band's floor is an agreement matter, not an
      offer. Since A26 the floor is the cheapest plan a buyer can actually
-     check out on, which is the AI Front Desk at C$1,000. */
-  expect(Number(agg.lowPrice)).toBe(1000);
+     check out on, which was the AI Front Desk at C$1,000 until v7 (owner
+     amendment #67, 2026-10-03, held for counsel) added Front Desk Starter at
+     C$250. */
+  expect(Number(agg.lowPrice)).toBe(250);
 });
 
 test('every price promised to a crawler is visible to a buyer', async ({ page }) => {
