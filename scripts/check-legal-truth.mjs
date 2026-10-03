@@ -490,7 +490,12 @@ const COUNT_WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven:
   if (!Number.isInteger(N) || N <= 0) fail('terms-v7', 'pricing-config.js has no freeMonth.firstClients, so the Terms cap cannot be checked.');
   else if (!tiers.length) fail('terms-v7', 'pricing-config.js NV_PRICING.frontDeskTiers() returns no sizes, so the Terms cannot be checked for them.');
   else {
-    const terms = sentencesOf(textOf(mainOf(read('terms.html'))));
+    /* The body, without the change history: the history restates what each
+       version changed, so a rule the history alone satisfied would pass a
+       body that had dropped the clause. */
+    const sections = sectionsOf(read('terms.html'));
+    const terms = sections.filter((s) => !/^change history$/i.test(s.heading)).flatMap((s) => sentencesOf(s.text));
+    const billing = sections.filter((s) => /\bbilling\b/i.test(s.heading)).flatMap((s) => sentencesOf(s.text));
     const freeSentences = terms.filter((s) => FREE_MONTH.test(s));
     const CLIENT = '(?:clients?|customers?|businesses|business|buyers?)';
     const capRe = new RegExp(`\\bfirst (?:${N}|${Object.keys(COUNT_WORDS).filter((w) => COUNT_WORDS[w] === N).join('|')}) ${CLIENT}\\b`, 'i');
@@ -509,9 +514,9 @@ const COUNT_WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven:
     for (const t of tiers) {
       if (!terms.some((s) => s.includes(t.name))) fail('terms-v7', `terms.html never names ${t.name}, a Front Desk size pricing-config.js sells (amendment #67).`);
     }
-    if (!terms.some((s) => /\bBuy now\b/.test(s) && /\bcharged from (?:the day (?:the|your) subscription starts|its first (?:day|month))\b/i.test(s))) {
-      fail('terms-v7', 'terms.html has no sentence saying a Buy now purchase is charged from the start. A sale with no free month '
-        + 'is the commonest one after the first places are given, and the billing section must say when it is charged.');
+    if (!billing.some((s) => /\bBuy now\b/.test(s) && /\bcharged from (?:the day (?:the|your) subscription starts|its first (?:day|month))\b/i.test(s))) {
+      fail('terms-v7', 'terms.html\'s billing section has no sentence saying a Buy now purchase is charged from the start. A sale '
+        + 'with no free month is the commonest one after the first places are given, and the billing section must say when it is charged.');
     }
     const BILLED_MINUTES = /\b(?:overage|minutes?)\b[^.;]{0,80}?\b(?:is|are|will be|gets?|get)\s+(?:billed|invoiced)\b|\b(?:bill|invoice)s?\s+(?:you\s+)?(?:for\s+)?(?:overage|(?:extra\s+)?minutes)\b/i;
     for (const s of terms) {
