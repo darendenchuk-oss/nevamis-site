@@ -171,7 +171,7 @@ function priceSpecFor(item) {
         description: `From ${NV.money(item.launch)}, set in the client's agreement. Charged once, at the start, beside the first month.` }
     : item.launch > 0
       ? { price: money(item.launch), description: 'Charged once, at the start, beside the first month. Never recurring.' }
-      : { price: money(0), description: 'None: this item has no Launch & Implementation fee.' };
+      : { price: money(0), description: 'None: this item is priced as its monthly alone.' };
   const monthly = Array.isArray(item.monthlyRange)
     ? { minPrice: money(item.monthlyRange[0]), maxPrice: money(item.monthlyRange[1]),
         description: `${NV.money(item.monthly)} a month${NV.monthlyBand(item)}, set in the client's agreement.` }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-eOYVXoy4csfg4ekRbBFNF0YtAiRgcNecBtjNPkdOVr0=' 'sha256-ZjwB0n7c2MbtDFI8Aw7kKj4seYFE+Wv0pJeE+TwqNPQ=' 'sha256-JXqBjJZcnb6A53xDi4AUWLiyjToNB2HEuNrbMI/S+6c=' 'sha256-laZYsqKpVJKVr/E+iPK3GpwRZ6hiJ9BJcU7xAR4RjHQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-hf+oqoMTcdZSCY8sI4Mjo/3yLid4i3rKBxE1ivU53JA=' 'sha256-12+gr7yAJKEn0cefhcygwaZPAGX4QUYeYracHCgq5kc=' 'sha256-JXqBjJZcnb6A53xDi4AUWLiyjToNB2HEuNrbMI/S+6c=' 'sha256-laZYsqKpVJKVr/E+iPK3GpwRZ6hiJ9BJcU7xAR4RjHQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1797,9 +1797,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        a whole allowlisted name, which keeps the engine's drift guard readable,
        and it doubles as the fallback: a plan with no id keeps the bare name,
        which is allowlisted and lands in the same funnel stage. */
+    /* The engine's events allowlist takes letters, digits and underscores
+       in the suffix, so a hyphenated plan id (front-desk-starter, v7) is
+       sent with underscores; the plan's identity is unchanged. */
     ["plan_quote_click", "plan_buy_click"].forEach(function (base) {
       var cta = d.querySelector('.buy a[data-evt="' + base + '"]');
-      if (cta && pl.id) cta.setAttribute("data-evt", base + "_" + pl.id);
+      if (cta && pl.id) cta.setAttribute("data-evt", base + "_" + String(pl.id).replace(/-/g, "_"));
     });
     d.querySelector("h3").textContent = pl.name;
     var lis = d.querySelectorAll("li");

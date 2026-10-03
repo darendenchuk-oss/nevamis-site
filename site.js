@@ -872,9 +872,10 @@
       c += '<ul class="node-list">';
       sizes.forEach(function (s) {
         c += "<li><span><strong>" + esc(s.name) + "</strong>"
-          + (s.recommended && NVP2.recommendedLabel ? ' <span class="chip rec">' + esc(NVP2.recommendedLabel) + "</span>" : "")
           + ": " + grp(s.includedMinutes) + " included minutes, " + esc(sentence(s))
-          + ", C$" + s.overage.toFixed(2) + " per extra minute.</span></li>";
+          + ", C$" + s.overage.toFixed(2) + " per extra minute."
+          + (s.recommended && NVP2.recommendedLabel ? ' <span class="chip rec">' + esc(NVP2.recommendedLabel) + "</span>" : "")
+          + "</span></li>";
       });
       c += "</ul><p>No performance fee.</p></div>";
       return c;
