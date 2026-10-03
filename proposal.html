@@ -1057,9 +1057,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </head>
 <body class="doc-page">
 <!-- The skip link every other page carries (CHECK-RUNNER-10, 2026-10-03).
-     This page has no site navigation, but it opens on a header block a
-     keyboard or screen-reader user has to pass to reach the plan, and the
-     .skip style above was already here waiting for it. -->
+     This page has no site navigation before <main>, so here it lands at the
+     top of the document; it is kept so the keyboard contract is the same on
+     every page a prospect can be sent, and the .skip style above was already
+     here without the link it was written for. -->
 <a class="skip" href="#main">Skip to content</a>
 <main class="prop" id="main">
   <div class="prop-head">
