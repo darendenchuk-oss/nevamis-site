@@ -242,6 +242,33 @@ test('BOOK-3: no buyer page says every figure is published, and book.html names 
   expect(sentence, 'never a rate').not.toMatch(/\d+(?:\.\d+)?\s*(?:%|per ?cent)/i);
 });
 
+test('BOOK-3: book.html never calls the monthly the whole price beside overage, and puts overage only on the plans with minutes', () => {
+  const costs = read('book.html').match(/<h3>What it costs<\/h3><p>([\s\S]*?)<\/p>/);
+  expect(costs, 'book.html keeps its What it costs card').toBeTruthy();
+  const sentence = flat(decode(costs[1])).split(/(?<=\.)\s+/).find((s) => /\bmodule bought on its own\b/.test(s));
+  expect(sentence, 'the card names a module bought on its own').toBeTruthy();
+  expect(sentence, 'a monthly with overage is not the whole price').not.toMatch(/\bwhole price\b/);
+  expect(sentence).toMatch(/\ball you pay to start\b/);
+  /* A module bought on its own has no included minutes, so the overage is
+     said of the plans that carry them, not of every item in the list. */
+  expect(sentence).toMatch(/\boverage past the included minutes on the plans that include minutes\b/);
+});
+
+test('analytics: the free-month card on how-you-start books under a name of its own on that page, never the hero\'s', () => {
+  const html = read('how-you-start.html');
+  const card = gatedElements(html).find((g) => /\bid="hysFreeMonth"/.test(g.whole));
+  expect(card, 'how-you-start keeps #hysFreeMonth').toBeTruthy();
+  const evts = [...card.whole.matchAll(/data-evt="([^"]+)"/g)].map((m) => m[1]);
+  expect(evts, 'the card has one tracked Book a call').toHaveLength(1);
+  const [evt] = evts;
+  expect(evt, 'a click from the card is not counted as a click in the hero').not.toBe('hero_book_call_click');
+  /* Allowlisted by the engine on master and on sell/v7-integration
+     (src/app/api/events/route.ts): an unknown name is dropped silently. */
+  expect(['pricing_book_call_click']).toContain(evt);
+  const outside = html.slice(0, card.start) + html.slice(card.end);
+  expect(outside.match(new RegExp('data-evt="' + evt + '"', 'g')), 'the name fires nowhere else on the page').toBeNull();
+});
+
 test('LEGAL-18: how-you-start calls the Partnership the one PUBLISHED plan with a fee, and names Enterprise\'s floor', () => {
   const text = flat(readable(read('how-you-start.html')));
   expect(text).not.toMatch(/\bthe one plan with a Launch & Implementation fee\b/);
@@ -425,11 +452,13 @@ test('PROPOSAL-2: the Front Desk sizes render by their own ids, with minutes and
   await ctx.close();
 });
 
-test('PROPOSAL-2: ?plan=starter and ?plan=after-hours render the Partnership, its fee in one sentence with its share', async ({ browser }) => {
+test('PROPOSAL-2: ?plan=starter, after-hours and after_hours render the Partnership, its fee in one sentence with its share', async ({ browser }) => {
   const ctx = await browser.newContext();
   await engine(ctx, json(200, { open: false, cap: CAP }));
   const page = await ctx.newPage();
-  for (const qs of ['starter', 'after-hours']) {
+  /* after_hours: underscores become hyphens BEFORE the legacy map is read,
+     the same spelling rule as front_desk_plus. */
+  for (const qs of ['starter', 'after-hours', 'after_hours']) {
     await page.goto('/proposal.html?plan=' + qs);
     await expect(page.locator('#planName'), qs).toHaveText(PARTNER.name.toUpperCase());
     const terms = flat(await page.locator('#planTerms').innerText());

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-UKIFsbcpF6bjvmdbzhdQdRkC4ubbVibiysAMgMoHaNY=' 'sha256-YBkiUbLgDvqle/MhJU7mlzsDYrr9x/+Y7gZVAOCu5JA='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-Qo57JfmIoBBM4giB4AqfEryZdNT9mKuJAaeUgnnu3hg=' 'sha256-YWkrFm1HVpPVhGuEHZ38BRe04VBVcyzPy6vSvw/obPo='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1383,11 +1383,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        has. tests/v7-booked.spec.js holds both. */
     var LEGACY = { "after-hours": "starter", "scale": "pro" };
     var wanted = clean(q.get("plan"), 24).toLowerCase() || "pro";
-    wanted = LEGACY[wanted] || wanted;
-    /* A plan id written with underscores ("front_desk_plus") is the same
-       plan, as the engine's normalizePlanKey reads it. Module ids keep their
-       underscores, so this is tried for plans only. */
-    var plan = (P.plans || []).filter(function (p) { return p.id === wanted || p.id === wanted.replace(/_/g, "-"); })[0];
+    /* A plan id written with underscores ("front_desk_plus", "after_hours")
+       is the same plan, as the engine's normalizePlanKey reads it, so the
+       underscores become hyphens BEFORE the legacy map is read: one spelling
+       rule for every plan id, legacy or current. Module ids keep their
+       underscores, so `wanted` itself is left as typed for the module
+       lookup below and only `planKey` is normalised. */
+    var planKey = wanted.replace(/_/g, "-");
+    planKey = LEGACY[planKey] || planKey;
+    var plan = (P.plans || []).filter(function (p) { return p.id === planKey; })[0];
     /* Pay As You Go was retired on 2026-08-06 and removed on 2026-08-07.
 
        A branch here used to render it straight from its old record with NO

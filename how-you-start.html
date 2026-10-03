@@ -1172,7 +1172,16 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <p class="fm-offer" data-nv-free-month-offer></p>
         <p>Ask for it on the call: if a place is still open, we reserve one for your business, on <span id="hysFreeMonthWho">Front Desk Starter, Front Desk Plus, the AI Front Desk, The Works or a module bought on its own</span>. The Performance Partnership is not included.</p>
         <p class="fine2" data-nv-free-month-note></p>
-        <div class="fm-cta"><a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a call</a></div>
+        <!-- Not hero_book_call_click: the hero and the mid-page CTA already
+             send that, and a click from this card has to be countable on its
+             own to show whether the offer leads to bookings. A name of its
+             own needs the engine allowlist first (src/app/api/events/route.ts,
+             not this repo), so it borrows pricing_book_call_click, allowlisted
+             on master and on sell/v7-integration and counted as booking
+             intent. It fires nowhere else on this page, and the event's page
+             field tells it from pricing.html's closing CTA.
+             tests/v7-booked.spec.js holds it. -->
+        <div class="fm-cta"><a class="btn btn-primary" href="/book.html" data-evt="pricing_book_call_click">Book a call</a></div>
       </div>
 
       <!-- This block promised the first five businesses a waived setup fee.
