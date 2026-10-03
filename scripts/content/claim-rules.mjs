@@ -98,6 +98,19 @@ export const CLAIM_RULES = [
   { id: 'banned-buyer-word',
     re: /\btrials?\b|\bpilots?\b|\bfree period\b|\bdiscount(?:s|ed)?\b/i,
     why: 'banned on every client and buyer surface, even in the negative (owner rule); say what is true, for example "no minimum term"' },
+  /* The next three came from the review of PR #42 (2026-10-03): each was a
+     sentence this leaf itself wrote, true for some clients and stated as if
+     true for all. A hedge ("often", "can be") is what lets the sentence
+     through, so the rule fires on the unhedged form only. */
+  { id: 'dial-code-only',
+    re: /(?<!\b(?:often|sometimes) )\bby dialling\b|\b(?:just|simply) dial\b/i,
+    why: 'not every line has dial codes: a hosted business line usually sets forwarding in the provider\'s admin portal, and Shaw home phone in My Shaw (engine src/domain/forwarding-codes.ts); overflow is also three codes, not one. Say "often by dialling short codes, or in your provider\'s portal"' },
+  { id: 'confirm-time-promise',
+    re: /\b(?:team|office|someone|person|they)\b[^.;?!]{0,25}\bwill confirm (?:the|a|an|any)\b[^.;?!]{0,15}\btimes?\b/i,
+    why: 'only a client with a booking link has the agent say a person will confirm the time; with none it takes a complete message and says the business will get back to them in general terms (engine src/domain/agent-draft.ts, BOOKING). Say "your team will get back to them"' },
+  { id: 'question-builder',
+    re: /\bwe set it up to ask\b|\bqualified the way you would\b|\basks? your (?:qualifying )?questions\b|(?<!\bcan be )\basked\b[^.;?!]{0,40}\bwhen you approve\b/i,
+    why: 'the client agent\'s prompt has no qualifying-questions field: it takes hours, services, area, the approved FAQ and a booking link, and captures name, callback number, job, location and urgency "in a question or two" (engine src/domain/agent-draft.ts, buildClientAgentPrompt). A trade question rides in only as approved text. Say what it asks, and that it "can be set up to ask" more' },
   /* Page-scoped. On the after-hours page the owner's own phone rings first,
      so a speed counted from the caller's first ring is not what happens
      there; and the demo page's speed line was the one place the audit found
@@ -160,22 +173,36 @@ export const MUST_FIRE = [
   ['competitor-assertion', 'Live answering services use real people and charge per call or minute.'],
   ['banned-buyer-word', 'There is no trial and no minimum term.'],
   ['banned-buyer-word', 'No pilot, no free period, no discount.'],
+  ['dial-code-only', 'You set the mode by dialling a short code on your phone, and we can walk you through it.'],
+  ['dial-code-only', 'To switch it on, just dial *72 and your number.'],
+  ['confirm-time-promise', 'It takes the job and any time they ask for, confirms their callback number, and tells them your team will confirm the time.'],
+  ['confirm-time-promise', 'Yes, and says your team will confirm any time they asked for'],
+  ['confirm-time-promise', "I've noted tomorrow between eight and ten, and someone from the office will confirm the exact time."],
+  ['question-builder', 'We set it up to ask what you would ask, such as what stopped working.'],
+  ['question-builder', 'Qualified the way you would'],
+  ['question-builder', 'Asks your qualifying questions'],
+  ['question-builder', 'Commercial vs residential . Asked when you approve the question, with the answer in the call recording in your portal.'],
+  ['question-builder', 'Maintenance plans . Asked about when you approve the question.'],
   ['speed-where-the-phone-rings-first', 'Your number, your rules, answered in seconds.', 'after-hours-answering.html'],
   ['speed-where-the-phone-rings-first', 'It answers in seconds, any hour. Try to stump it.', 'demo.html'],
 ];
 
 export const MUST_PASS = [
-  'Asked when you approve the question, with the answer in the call recording in your portal, so you can handle each your own way.',
+  'Can be asked when you approve the question, with the answer in the call recording in your portal, so you can handle each your own way.',
+  'It asks about the job, where it is and how urgent it is, and it can be set up to ask what you would ask, such as what stopped working.',
+  'Asks about the job, where it is, and how urgent',
   'The window they need captured on the call and in your portal, so you confirm the slot.',
   'If a caller describes a fire or a shock hazard, it tells them to hang up and call 9-1-1 before anything else.',
   'When the call is urgent work you take, Nevamis captures the urgent details and alerts your team, with the summary flagged urgent and sent straight to your phone.',
   'Captures the urgent details and alerts your team, by the rules you set',
   'Takes a message and flags it for you',
   '1,400 minutes included on the AI Front Desk, then C$0.75 a minute, and calls keep being answered',
-  'You set the mode by dialling a short code on your phone, and we can walk you through it.',
+  "You set the mode with your phone provider, often by dialling short codes on your phone, or in your provider's portal for a hosted business line, and we can walk you through it.",
+  'You switch on forwarding with your phone provider, often by dialling a short code, and we can walk you through it.',
   'Call (587) 413-0035 and hear the same voice your own line would use.',
-  'Yes, and says your team will confirm any time they asked for',
-  'It takes the job and any time they ask for, confirms their callback number, and tells them your team will confirm the time.',
+  'Yes, and says your team will get back to them',
+  'It takes the job and any time they ask for, confirms their callback number, and tells them your team will get back to them.',
+  'The window they need captured on the call and in your portal, so you confirm the slot, and the assessment slot is confirmed by a person on your side.',
   'The AI Front Desk has two forwarding modes. Overflow sends it the calls you do not answer.',
   'With overflow forwarding, the front desk picks up only when you do not.',
   'An unanswered call can be a customer who rings the next name on the list.',
@@ -190,7 +217,7 @@ export const MUST_PASS = [
   'No minimum term. Here is exactly what is built and tested before your line is answered.',
   'Every answered call is in your portal with its summary and recording.',
   'Book a 15-min call',
-  "I've noted tomorrow between eight and ten, and someone from the office will confirm the exact time.",
+  "I've noted tomorrow between eight and ten, and someone from the office will get back to you about it.",
   'Nevamis picks up in your business\'s tone, day or night, while you stay on the tools.',
   /* Not on the two scoped pages, so not a finding: the claims ledger keeps
      "It answers in seconds" (CLM-02) for the pages where it is true. */

@@ -87,8 +87,20 @@ export const PROOF_BLOCK = `
    purpose: trade_pricing_click already fires from "Compare plans" above, and
    one name from two placements on a page is what tests/analytics.spec.js
    refuses. hero_book_call_click is one of the three names that test lets fire
-   from several placements. */
-const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours }) => `
+   from several placements.
+
+   Two of its sentences were tightened on 2026-10-03 (review of PR #42).
+   "Qualified the way you would" over "We set it up to ask what you would ask"
+   read as a question builder. There is none: the client agent's prompt takes
+   hours, services, area, the approved FAQ and a booking link, and tells it to
+   capture the name, callback number, job, location and urgency "in a question
+   or two" (engine src/domain/agent-draft.ts, buildClientAgentPrompt). A trade
+   question can only ride in as approved text, so the copy says what it asks
+   and that it CAN be set up to ask more. "Tells them your team will confirm
+   the time" is said only by a client with a booking link; with none, the
+   agent takes a complete message and says the business will get back to them
+   in general terms. "Will get back to them" is true on both. */
+const tradeBody =({ trade, urgency, jobs, whenItRings, questions, afterHours }) => `
 <section class="tight">
   <div class="wrap">
     <div class="section-head reveal">
@@ -101,10 +113,10 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
     <div class="proc">
       <div class="reveal"><h3>Answered in seconds</h3><p>Nevamis picks up in your
         business's tone, day or night, while you stay on the tools.</p></div>
-      <div class="reveal"><h3>Qualified the way you would</h3><p>${questions}</p></div>
+      <div class="reveal"><h3>Asks what the job needs</h3><p>${questions}</p></div>
       <div class="reveal"><h3>Written down, not lost</h3><p>It takes the job and any time
-        they ask for, confirms their callback number, and tells them your team will confirm
-        the time.</p></div>
+        they ask for, confirms their callback number, and tells them your team will get back
+        to them.</p></div>
     </div>
   </div>
 </section>
@@ -170,7 +182,8 @@ export const PAGES = {
     body: tradeBody({
       trade: 'electrical work',
       whenItRings: 'The phone rings when both your hands are in a panel.',
-      questions: `We set it up to ask what you would ask, such as what stopped working,
+      questions: `It asks about the job, where it is and how urgent it is, and it can be set up to
+        ask what you would ask, such as what stopped working,
         whether anything is sparking, heating, or smells like burning, whether the breaker has
         been reset, the service address, and when they can be home.`,
       urgency: 'A burning smell is not a next-Tuesday call.',
@@ -210,7 +223,8 @@ export const PAGES = {
       /* "Your busiest calls arrive at the worst possible hour" until
          2026-10-03: a measurement nobody made (audit TRADES-5). */
       whenItRings: 'A no-heat call does not wait for opening hours.',
-      questions: `We set it up to ask what you would ask, such as whether there is heat at
+      questions: `It asks about the job, where it is and how urgent it is, and it can be set up to
+        ask what you would ask, such as whether there is heat at
         all, what the thermostat reads, the age and type of the system, whether anyone
         vulnerable is in the home, the address, and what times work for them.`,
       urgency: 'No heat with a newborn in the house is a different call.',
@@ -232,10 +246,10 @@ export const PAGES = {
       jobs: [
         { t: 'No-heat and no-cool calls', d: 'Triaged by your emergency criteria, not a generic script.' },
         { t: 'Seasonal tune-ups', d: 'Taken down with the time they want, without interrupting anyone.' },
-        { t: 'Maintenance plans', d: 'Asked about when you approve the question, with the answer in the call recording in your portal.' },
+        { t: 'Maintenance plans', d: 'Can be asked about when you approve the question, with the answer in the call recording in your portal.' },
         { t: 'Equipment questions', d: 'Answered from your approved FAQ, or taken as a message.' },
         { t: 'Diagnostic fee', d: 'Quoted as you wrote it and never estimated.' },
-        { t: 'Commercial vs residential', d: 'Asked when you approve the question, with the answer in the call recording in your portal, so you can handle each your own way.' },
+        { t: 'Commercial vs residential', d: 'Can be asked when you approve the question, with the answer in the call recording in your portal, so you can handle each your own way.' },
       ],
     }),
   },
@@ -248,7 +262,8 @@ export const PAGES = {
     body: tradeBody({
       trade: 'plumbing',
       whenItRings: 'Water damage does not leave a voicemail and wait.',
-      questions: `We set it up to ask what you would ask, such as whether water is actively
+      questions: `It asks about the job, where it is and how urgent it is, and it can be set up to
+        ask what you would ask, such as whether water is actively
         running, whether they have found the shut-off, what is affected, how long it has been
         happening, the address, and access details.`,
       urgency: 'Active flooding gets treated as active flooding.',
@@ -264,7 +279,7 @@ export const PAGES = {
         { t: 'Hot water tanks', d: 'Age, type, and symptoms captured before anyone drives out.' },
         { t: 'Renovation quotes', d: 'Captured as leads rather than lost to voicemail.' },
         { t: 'Trip and diagnostic fees', d: 'Quoted as you approved them and never estimated.' },
-        { t: 'Property managers', d: 'Asked who they manage for when you approve the question, with the answer in the call recording in your portal.' },
+        { t: 'Property managers', d: 'Can be asked who they manage for when you approve the question, with the answer in the call recording in your portal.' },
       ],
     }),
   },
@@ -281,7 +296,8 @@ export const PAGES = {
     body: tradeBody({
       trade: 'restoration and property services',
       whenItRings: 'The call comes in at the worst moment of someone\'s week.',
-      questions: `We set it up to ask what you would ask, such as what happened, when it
+      questions: `It asks about the job, where it is and how urgent it is, and it can be set up to
+        ask what you would ask, such as what happened, when it
         started, how much area is affected, whether the source is stopped, whether insurance is
         involved, and who is on site.`,
       urgency: 'Active loss is flagged urgent, not queued.',
@@ -303,7 +319,7 @@ export const PAGES = {
         { t: 'Insurance questions', d: 'Answered only within what you approve, otherwise taken as a message.' },
         { t: 'Emergency alerts', d: 'For the calls you count as urgent, Nevamis captures the urgent details and alerts your team.' },
         { t: 'Assessment requests', d: 'The window they need captured on the call and in your portal, so you confirm the slot.' },
-        { t: 'Property managers and adjusters', d: 'Asked when you approve the question, with the answer in the call recording in your portal.' },
+        { t: 'Property managers and adjusters', d: 'Can be asked when you approve the question, with the answer in the call recording in your portal.' },
       ],
     }),
   },
@@ -437,7 +453,9 @@ export const PAGES = {
       <h2>Where the calls go, and what catches each one.</h2>
       <p>The AI Front Desk has two forwarding modes. Overflow sends it the calls you do not
         answer, including when your line is busy or your phone is off. Full-time sends it every
-        call. You set the mode by dialling a short code on your phone, and we can walk you through it.</p>
+        call. You set the mode with your phone provider, often by dialling short codes on your
+        phone, or in your provider's portal for a hosted business line, and we can walk you
+        through it.</p>
     </div>
     <div class="proc">
       <div class="reveal"><h3>After hours</h3><p>Nobody is picking up in the evenings or at
@@ -494,9 +512,9 @@ export const PAGES = {
       <table class="compare">
         <thead><tr><th scope="col">On a call you miss</th><th scope="col">Voicemail</th><th scope="col">Nevamis</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Asks your qualifying questions</th><td class="no">No</td><td class="yes">Yes</td></tr>
+          <tr><th scope="row">Asks about the job, where it is, and how urgent</th><td class="no">No</td><td class="yes">Yes</td></tr>
           <tr><th scope="row">Takes the job down in full</th><td class="no">No</td><td class="yes">Yes</td></tr>
-          <tr><th scope="row">Confirms the callback number</th><td class="no">No</td><td class="yes">Yes, and says your team will confirm any time they asked for</td></tr>
+          <tr><th scope="row">Confirms the callback number</th><td class="no">No</td><td class="yes">Yes, and says your team will get back to them</td></tr>
           <tr><th scope="row">Flags an emergency to you</th><td class="no">No</td><td class="yes">Captures the urgent details and alerts your team, by the rules you set</td></tr>
           <tr><th scope="row">Gives you a useful summary</th><td class="part">A recording</td><td class="yes">Who called, what they wanted, the callback number, urgency, outcome and next step</td></tr>
           <tr><th scope="row">Costs nothing</th><td class="yes">Yes</td><td class="part">A one-time Launch &amp; Implementation fee to start, then a monthly plan</td></tr>
