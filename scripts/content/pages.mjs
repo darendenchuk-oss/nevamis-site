@@ -60,7 +60,15 @@ export const TRADE_HERO_PROOF = `      <p class="proof">The phone is one part of
     all. They share the voice (fix plan A6). They do NOT share the language
     model: the demo line runs its own and a client's agent is created with
     another (engine src/lib/elevenlabs-provision.ts), so "the same voice and
-    the same model", which this said until 2026-09-23, was false. */
+    the same model", which this said until 2026-09-23, was false.
+
+    "On your line it takes the job and the time the caller wants" until
+    2026-10-03 (audit PRICING-9). "Takes the job" reads as accepting a
+    booking and "the time they want" as the time they get, and a client
+    agent books nothing. The words are how-you-start.html's: it captures the
+    request and the times that suit, and you confirm. This block closes ten
+    pages, and claim-rules.mjs (takes-the-job, caller-wants-time,
+    time-without-confirm) holds every page here to the same words. */
 export const PROOF_BLOCK = `
 <section class="tight">
   <div class="wrap">
@@ -70,7 +78,7 @@ export const PROOF_BLOCK = `
       <p>The fastest way to know whether this is good enough for your customers is to
         be a customer. The demo line runs on the same voice your line
         would. It answers for Nevamis, so it can set up a call with us. On your line it
-        takes the job and the time the caller wants, and you confirm the slot.</p>
+        captures the request and the times that suit the caller, and you confirm the slot.</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer ${DEMO}</a>
@@ -99,8 +107,13 @@ export const PROOF_BLOCK = `
    and that it CAN be set up to ask more. "Tells them your team will confirm
    the time" is said only by a client with a booking link; with none, the
    agent takes a complete message and says the business will get back to them
-   in general terms. "Will get back to them" is true on both. */
-const tradeBody =({ trade, urgency, jobs, whenItRings, questions, afterHours }) => `
+   in general terms. "Will get back to them" is true on both.
+
+   "It takes the job and any time they ask for" opened "Written down, not
+   lost" until the same day's polish pass (audit PRICING-9): the time with no
+   word about who confirms it reads as booked. It now writes the job down,
+   and the times that suit the caller are for you to confirm. */
+const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours }) => `
 <section class="tight">
   <div class="wrap">
     <div class="section-head reveal">
@@ -114,9 +127,9 @@ const tradeBody =({ trade, urgency, jobs, whenItRings, questions, afterHours }) 
       <div class="reveal"><h3>Answered in seconds</h3><p>Nevamis picks up in your
         business's tone, day or night, while you stay on the tools.</p></div>
       <div class="reveal"><h3>Asks what the job needs</h3><p>${questions}</p></div>
-      <div class="reveal"><h3>Written down, not lost</h3><p>It takes the job and any time
-        they ask for, confirms their callback number, and tells them your team will get back
-        to them.</p></div>
+      <div class="reveal"><h3>Written down, not lost</h3><p>It writes down the job and the
+        times that suit the caller, for you to confirm. It confirms their callback number and
+        tells them your team will get back to them.</p></div>
     </div>
   </div>
 </section>
@@ -178,7 +191,7 @@ export const PAGES = {
     description: 'Panel upgrades, dead circuits and emergency calls answered on your existing line, qualified, and texted to you while your crew stays on the tools.',
     heroProof: TRADE_HERO_PROOF,
     h1: 'Your line answered while the crew is on the tools',
-    lede: `Panel upgrades, dead circuits, and emergency calls answered while your crew is on the tools. Nevamis picks up your existing line 24/7, qualifies the caller, takes the job details, and texts them to you.`,
+    lede: `Panel upgrades, dead circuits, and emergency calls answered while your crew is on the tools. Nevamis picks up your existing line 24/7, qualifies the caller, writes down the job details, and texts them to you.`,
     body: tradeBody({
       trade: 'electrical work',
       whenItRings: 'The phone rings when both your hands are in a panel.',
@@ -217,7 +230,7 @@ export const PAGES = {
     description: 'No-heat calls answered around the clock on your own line, triaged by your emergency rules, and the summary sent to you within seconds.',
     heroProof: TRADE_HERO_PROOF,
     h1: 'The 11 PM no-heat call, answered',
-    lede: `A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, takes the job down, and sends you the summary.`,
+    lede: `A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, writes the job down, and sends you the summary.`,
     body: tradeBody({
       trade: 'heating and cooling',
       /* "Your busiest calls arrive at the worst possible hour" until
@@ -231,7 +244,7 @@ export const PAGES = {
       afterHours: `You define what an emergency means for your business: a temperature
         threshold, no heat at all, or vulnerable occupants. Calls that meet it are handled as
         emergencies: Nevamis captures the urgent details and alerts your team. Everything else
-        is captured with the time the caller wants, for you to confirm.`,
+        is captured with the times that suit the caller, for you to confirm.`,
       /* THE SUMMARY HAS NO ACCOUNT-TYPE FIELD. Two of these said "marked on
          the summary" (plan holders, and "Commercial vs residential: Asked on
          every call and marked on the summary") until 2026-10-03. The text and
@@ -245,7 +258,7 @@ export const PAGES = {
          recording in the portal (audit TRADES-1). */
       jobs: [
         { t: 'No-heat and no-cool calls', d: 'Triaged by your emergency criteria, not a generic script.' },
-        { t: 'Seasonal tune-ups', d: 'Taken down with the time they want, without interrupting anyone.' },
+        { t: 'Seasonal tune-ups', d: 'Written down with the times that suit them, for you to confirm.' },
         { t: 'Maintenance plans', d: 'Can be asked about when you approve the question, with the answer in the call recording in your portal.' },
         { t: 'Equipment questions', d: 'Answered from your approved FAQ, or taken as a message.' },
         { t: 'Diagnostic fee', d: 'Quoted as you wrote it and never estimated.' },
@@ -318,7 +331,7 @@ export const PAGES = {
         { t: 'Fire and smoke', d: 'A fire still burning gets the 9-1-1 advice first. After it is out, questions are answered from your approved FAQ, not improvised.' },
         { t: 'Insurance questions', d: 'Answered only within what you approve, otherwise taken as a message.' },
         { t: 'Emergency alerts', d: 'For the calls you count as urgent, Nevamis captures the urgent details and alerts your team.' },
-        { t: 'Assessment requests', d: 'The window they need captured on the call and in your portal, so you confirm the slot.' },
+        { t: 'Assessment requests', d: 'The times that suit them are captured on the call and in your portal, so you confirm the slot.' },
         { t: 'Property managers and adjusters', d: 'Can be asked when you approve the question, with the answer in the call recording in your portal.' },
       ],
     }),
@@ -388,7 +401,7 @@ export const PAGES = {
            has open" until 2026-08-09. No agent touches a calendar; the honest
            step is the structured lead and how fast it reaches you. -->
       <li class="pstep"><h3>Routine calls get captured</h3><p>Name, number, the job, and the
-        time window they want, ready for you to confirm.</p></li>
+        times that suit them, ready for you to confirm.</p></li>
       <li class="pstep"><h3>You read it in the morning</h3><p>Each call it answers reaches you
         as a summary: who called, what they wanted, the callback number, how urgent it is, the
         outcome and what they were told.</p></li>
@@ -481,7 +494,7 @@ export const PAGES = {
   },
 
   'vs-voicemail.html': {
-    description: 'Voicemail is free and better than nothing. It does not qualify anyone or take a job down. An honest comparison, including when voicemail wins.',
+    description: 'Voicemail is free and better than nothing. It does not qualify anyone or write a job down. An honest comparison, including when voicemail wins.',
     heroProof: `      <p class="proof">This comparison is about the phone. The phone is one part of Nevamis. Nevamis also offers Lead Generation, by invitation, and Quote Recovery for the quotes you already sent, which tells you which quotes came back and what they were worth.</p>`,
     /* The h1 (and content-map.json's title, which is the <title>, og:title
        and every card that links here) led with "AI receptionist" until
@@ -491,7 +504,7 @@ export const PAGES = {
     h1: 'Nevamis vs voicemail',
     /* "...or stop a caller reaching your competitor" until 2026-10-03: a
        retention result no record shows (audit COMPARE-11). */
-    lede: `Voicemail is free and it is better than nothing. It also does not qualify anyone or take a job down, and a caller who hears the beep can just ring the next number. Here is the honest comparison.`,
+    lede: `Voicemail is free and it is better than nothing. It also does not qualify anyone or write a job down, and a caller who hears the beep can just ring the next number. Here is the honest comparison.`,
     /* Three rows changed on 2026-10-03, each to what the client agent's
        prompt (engine src/domain/agent-draft.ts) does:
        - "Answers immediately | No | Yes" is gone. With no-answer forwarding
@@ -513,7 +526,7 @@ export const PAGES = {
         <thead><tr><th scope="col">On a call you miss</th><th scope="col">Voicemail</th><th scope="col">Nevamis</th></tr></thead>
         <tbody>
           <tr><th scope="row">Asks about the job, where it is, and how urgent</th><td class="no">No</td><td class="yes">Yes</td></tr>
-          <tr><th scope="row">Takes the job down in full</th><td class="no">No</td><td class="yes">Yes</td></tr>
+          <tr><th scope="row">Writes the job down in full</th><td class="no">No</td><td class="yes">Yes</td></tr>
           <tr><th scope="row">Confirms the callback number</th><td class="no">No</td><td class="yes">Yes, and says your team will get back to them</td></tr>
           <tr><th scope="row">Flags an emergency to you</th><td class="no">No</td><td class="yes">Captures the urgent details and alerts your team, by the rules you set</td></tr>
           <tr><th scope="row">Gives you a useful summary</th><td class="part">A recording</td><td class="yes">Who called, what they wanted, the callback number, urgency, outcome and next step</td></tr>
@@ -599,7 +612,7 @@ export const PAGES = {
         need that all the time. Nevamis is built to know its limits: for anything outside the rules
         you approved, it takes a message rather than guessing. If most of your calls
         are genuinely unpredictable, hire the person. If most are the same twenty questions and a
-        job to take down, this does that part, inside the minutes your plan includes.</p>
+        job to write down, this does that part, inside the minutes your plan includes.</p>
     </div>
   </div>
 </section>`,

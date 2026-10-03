@@ -54,7 +54,15 @@ import { stripJsComments, jsStringLiterals, renderedProse } from '../lib/rendere
    a rule never fires on a code comment and always fires on a meta
    description or a JSON-LD description, which are the sentences a search
    result and an answer engine quote. `pages`, where present, limits a rule
-   to the pages it is about. */
+   to the pages it is about. `unless`, where present, is judged against the
+   sentence each match sits in (from the last full stop, question or
+   exclamation mark before it to the next one after), and a sentence it
+   matches is not a finding: it is how a rule says "only when the same
+   sentence does not also say X". */
+/** "the time the caller wants" and every way of saying the caller gets to
+ *  pick it, as a regex source shared by caller-wants-time and
+ *  time-without-confirm (PRICING-9). */
+const CALLER_TIME = String.raw`\b(?:times?|time window|window|slots?) (?:the caller|they|callers?) (?:wants?|asks? for|asked for|needs?|needed|would like|picks?|picked|choos(?:e|es)|chose|prefers?|preferred)\b`;
 export const CLAIM_RULES = [
   { id: 'summary-field',
     re: /\b(?:marked|noted|recorded|flagged|logged) on (?:the|your|each) summary\b/i,
@@ -88,7 +96,7 @@ export const CLAIM_RULES = [
     why: 'nothing measured it (owner rule: no unproven claim). Hedge it to what is true, or drop it' },
   { id: 'books-or-hands-off',
     re: /\b(?:offering|offers?) (?:available |open )?slots\b|\bcalendar has openings\b|\bI can do (?:mon|tues|wednes|thurs|fri|satur|sun)day\b|\b(?:alerting|paging|calling) the on-call\b|\bbooks? (?:the|your|a|an) (?:job|appointment|assessment|visit|slot)\b/i,
-    why: 'a client agent has no calendar and no booking tool, and nothing hands a call to a person (owner decision B1; agent-draft.ts BOOKING, elevenlabs-provision.ts end_call only). It takes the time the caller wants and your team confirms it' },
+    why: 'a client agent has no calendar and no booking tool, and nothing hands a call to a person (owner decision B1; agent-draft.ts BOOKING, elevenlabs-provision.ts end_call only). It captures the times that suit the caller and your team confirms one' },
   { id: 'competitor-result',
     re: /\b(?:stop|stops|keep|keeps|prevent|prevents)\b[^.;?!]{0,40}\b(?:reaching|going to|calling|choosing) (?:your |a )?competitors?\b/i,
     why: 'no record shows an answered call keeps a caller from a competitor (owner rule: no unproven result)' },
@@ -102,15 +110,58 @@ export const CLAIM_RULES = [
      sentence this leaf itself wrote, true for some clients and stated as if
      true for all. A hedge ("often", "can be") is what lets the sentence
      through, so the rule fires on the unhedged form only. */
+  /* Each of the three was widened on 2026-10-03 (review of PR #42, polish
+     leaf): as first written each caught its own example and missed the next
+     wording of it. "by dialing" (the US spelling), "Your team confirms the
+     time", "A person will confirm your appointment time" and "Asks the
+     qualifying questions you approved" all passed, and the last is the very
+     sentence that leaf's PR named as false. Each is now a MUST_FIRE line. */
   { id: 'dial-code-only',
-    re: /(?<!\b(?:often|sometimes) )\bby dialling\b|\b(?:just|simply) dial\b/i,
+    re: /(?<!\b(?:often|sometimes) )\bby diall?ing\b|\b(?:just|simply) diall?(?:ing)?\b/i,
     why: 'not every line has dial codes: a hosted business line usually sets forwarding in the provider\'s admin portal, and Shaw home phone in My Shaw (engine src/domain/forwarding-codes.ts); overflow is also three codes, not one. Say "often by dialling short codes, or in your provider\'s portal"' },
   { id: 'confirm-time-promise',
-    re: /\b(?:team|office|someone|person|they)\b[^.;?!]{0,25}\bwill confirm (?:the|a|an|any)\b[^.;?!]{0,15}\btimes?\b/i,
+    re: /\b(?:team|office|someone|person|they|we)\b[^.;?!]{0,25}\bconfirms? (?:the|a|an|any|your|their)\b[^.;?!]{0,20}\b(?:times?|appointment|slot|window)\b/i,
     why: 'only a client with a booking link has the agent say a person will confirm the time; with none it takes a complete message and says the business will get back to them in general terms (engine src/domain/agent-draft.ts, BOOKING). Say "your team will get back to them"' },
   { id: 'question-builder',
-    re: /\bwe set it up to ask\b|\bqualified the way you would\b|\basks? your (?:qualifying )?questions\b|(?<!\bcan be )\basked\b[^.;?!]{0,40}\bwhen you approve\b/i,
+    re: /\bwe set it up to ask\b|\bqualified the way you would\b|\basks? (?:the|your)(?: own)? (?:qualifying |screening )?questions\b|(?<!\bcan be )\basked\b[^.;?!]{0,40}\bwhen you approve\b/i,
     why: 'the client agent\'s prompt has no qualifying-questions field: it takes hours, services, area, the approved FAQ and a booking link, and captures name, callback number, job, location and urgency "in a question or two" (engine src/domain/agent-draft.ts, buildClientAgentPrompt). A trade question rides in only as approved text. Say what it asks, and that it "can be set up to ask" more' },
+  /* THE TIME A CALLER ASKS FOR IS A REQUEST, NOT AN APPOINTMENT (audit
+     PRICING-9, 2026-10-03). These pages said the agent "takes the job and
+     the time the caller wants", or a close wording, in eight places in
+     pages.mjs alone, plus the hub card and demo.html, and half of them
+     said it with no word about who confirms. A buyer, and an
+     answer engine quoting one sentence, reads "takes the job" as accepting a
+     booking and "the time they want" as the time they get. A client agent
+     books nothing: it has end_call and no calendar (engine agent-draft.ts
+     BOOKING, elevenlabs-provision.ts), and how-you-start.html says "It does
+     not book into your calendar. It takes the request and the times that
+     suit; you confirm". The site's words for it, the same ones
+     pricing.html's Product description and tests/live-buyer-truth.spec.js
+     hold, are "captures the request and the times that suit", so three
+     rules: no "take" with the job (or the time) as its object, never the
+     time "they want", and any sentence that names the caller's times says
+     in the same sentence that you confirm them. "Take down" is caught too:
+     "takes the job down" reads the same way out of context, and "writes
+     the job down" says the same thing without it.
+     Widened on 2026-10-03 (review of PR #50): "accepts the job" and "takes
+     bookings" read as a booking the same way, "the time the caller picks"
+     and "the slot they choose" the same way as "the time they want", and a
+     negated confirm ("you never need to confirm") excused a sentence that
+     says nobody confirms. Each is now a MUST_FIRE line. The verbs for what
+     a caller wants are one list, shared by both rules that name them. */
+  { id: 'takes-the-job',
+    re: /\b(?:t(?:ake|akes|aking|aken|ook)|accept(?:s|ed|ing)?)\b(?: down)? (?:the|a|an|your|every|each) (?:jobs?|slots?|bookings?|appointments?|times?(?! to\b))\b|\b(?:t(?:ake|akes|aking|aken|ook)|accept(?:s|ed|ing)?) (?:bookings|appointments|jobs|slots)\b|\bjobs? to take\b/i,
+    why: 'reads as accepting a booking, and a client agent books nothing (agent-draft.ts BOOKING; end_call only). Say it writes the job down, or captures the request and the times that suit, and you confirm (audit PRICING-9)' },
+  { id: 'caller-wants-time',
+    re: new RegExp(`${CALLER_TIME}|\\b(?:times?|slots?|window) wanted\\b`, 'i'),
+    why: '"the time they want" reads as the time they get, even beside "you confirm"; say "the times that suit them" (how-you-start.html; tests/live-buyer-truth.spec.js PRICING-9)' },
+  { id: 'time-without-confirm',
+    re: new RegExp(`\\b(?:times?|time window|window|slots?) (?:that )?suits?\\b|${CALLER_TIME}`, 'i'),
+    /* Excused only by a confirm that is not denied: a negation in the same
+       clause before "confirm" ("you never need to confirm", "not confirmed
+       by anyone") leaves the sentence a finding. */
+    unless: /^(?![^]*\b(?:never|not|no|without|nobody|don'?t|doesn'?t|won'?t|needn'?t)\b[^.?!,;]{0,30}\bconfirm)[^]*(?:\byou\b[^.?!]{0,40}\bconfirm|\bconfirmed by\b)/i,
+    why: 'names the times a caller asked for without saying you confirm them, so it reads as booked; say so in the same sentence ("for you to confirm", "and you confirm the slot") (audit PRICING-9)' },
   /* Page-scoped. On the after-hours page the owner's own phone rings first,
      so a speed counted from the caller's first ring is not what happens
      there; and the demo page's speed line was the one place the audit found
@@ -175,12 +226,45 @@ export const MUST_FIRE = [
   ['banned-buyer-word', 'No pilot, no free period, no discount.'],
   ['dial-code-only', 'You set the mode by dialling a short code on your phone, and we can walk you through it.'],
   ['dial-code-only', 'To switch it on, just dial *72 and your number.'],
+  ['dial-code-only', 'You set it up by dialing a short code on your phone.'],
+  ['dial-code-only', 'Simply dialing *72 switches it on.'],
   ['confirm-time-promise', 'It takes the job and any time they ask for, confirms their callback number, and tells them your team will confirm the time.'],
   ['confirm-time-promise', 'Yes, and says your team will confirm any time they asked for'],
   ['confirm-time-promise', "I've noted tomorrow between eight and ten, and someone from the office will confirm the exact time."],
+  ['confirm-time-promise', 'Your team confirms the time.'],
+  ['confirm-time-promise', 'A person will confirm your appointment time.'],
   ['question-builder', 'We set it up to ask what you would ask, such as what stopped working.'],
   ['question-builder', 'Qualified the way you would'],
   ['question-builder', 'Asks your qualifying questions'],
+  ['question-builder', 'Asks the qualifying questions you approved'],
+  ['question-builder', 'It asks the questions you approve on each call.'],
+  /* PRICING-9: the audit's own quote, each place these pages said it, and
+     the next way of saying it. */
+  ['takes-the-job', 'A configured voice agent that answers a business phone line 24/7, qualifies the caller, takes the job and the time they want, and sends the owner a summary of every call within seconds.'],
+  ['takes-the-job', 'On your line it takes the job and the time the caller wants, and you confirm the slot.'],
+  ['takes-the-job', 'It takes the job and any time they ask for, confirms their callback number, and tells them your team will get back to them.'],
+  ['takes-the-job', 'Nevamis picks up your existing line 24/7, qualifies the caller, takes the job details, and texts them to you.'],
+  ['takes-the-job', 'Takes the job down in full'],
+  ['takes-the-job', 'It also does not qualify anyone or take a job down.'],
+  ['takes-the-job', 'If most are the same twenty questions and a job to take down, this does that part.'],
+  ['takes-the-job', 'It takes the slot they asked for.'],
+  ['caller-wants-time', 'Everything else is captured with the time the caller wants, for you to confirm.'],
+  ['caller-wants-time', 'Name, number, the job, and the time window they want, ready for you to confirm.'],
+  ['caller-wants-time', 'The window they need captured on the call and in your portal, so you confirm the slot.'],
+  ['caller-wants-time', 'It takes the job and the time wanted for the owner to confirm.'],
+  ['time-without-confirm', 'Taken down with the time they want, without interrupting anyone.'],
+  ['time-without-confirm', 'Answers your line when you cannot, captures the job, the address and the times that suit the caller, and texts you the summary.'],
+  ['time-without-confirm', 'It captures the request and the times that suit them. Then you confirm the slot.'],
+  /* The review of PR #50: a negated confirm, and the next wordings of a
+     booking. */
+  ['time-without-confirm', 'It books the times that suit them, and you never need to confirm.'],
+  ['time-without-confirm', 'The times that suit the caller are captured, with no need for you to confirm.'],
+  ['time-without-confirm', 'The times that suit them are not confirmed by anyone.'],
+  ['takes-the-job', 'Takes bookings around the clock.'],
+  ['takes-the-job', 'It accepts the job and the time the caller picks.'],
+  ['caller-wants-time', 'It accepts the job and the time the caller picks.'],
+  ['caller-wants-time', 'Callers get the slot they choose.'],
+  ['caller-wants-time', 'It notes the window they prefer, for you to confirm.'],
   ['question-builder', 'Commercial vs residential . Asked when you approve the question, with the answer in the call recording in your portal.'],
   ['question-builder', 'Maintenance plans . Asked about when you approve the question.'],
   ['speed-where-the-phone-rings-first', 'Your number, your rules, answered in seconds.', 'after-hours-answering.html'],
@@ -191,7 +275,17 @@ export const MUST_PASS = [
   'Can be asked when you approve the question, with the answer in the call recording in your portal, so you can handle each your own way.',
   'It asks about the job, where it is and how urgent it is, and it can be set up to ask what you would ask, such as what stopped working.',
   'Asks about the job, where it is, and how urgent',
-  'The window they need captured on the call and in your portal, so you confirm the slot.',
+  'The times that suit them are captured on the call and in your portal, so you confirm the slot.',
+  'It writes down the job and the times that suit the caller, for you to confirm.',
+  'Everything else is captured with the times that suit the caller, for you to confirm.',
+  'It does not book into your calendar. It takes the request and the times that suit; you confirm',
+  /* A negation in another clause does not deny the confirm. */
+  'It notes the times that suit them, with no booking made, for you to confirm.',
+  'Writes the job down in full',
+  'When the call is urgent work you take, Nevamis captures the urgent details and alerts your team.',
+  'Take the time to compare both.',
+  'And the calls you cannot take.',
+  'You switch it on with your provider, often by dialing a short code.',
   'If a caller describes a fire or a shock hazard, it tells them to hang up and call 9-1-1 before anything else.',
   'When the call is urgent work you take, Nevamis captures the urgent details and alerts your team, with the summary flagged urgent and sent straight to your phone.',
   'Captures the urgent details and alerts your team, by the rules you set',
@@ -201,8 +295,9 @@ export const MUST_PASS = [
   'You switch on forwarding with your phone provider, often by dialling a short code, and we can walk you through it.',
   'Call (587) 413-0035 and hear the same voice your own line would use.',
   'Yes, and says your team will get back to them',
-  'It takes the job and any time they ask for, confirms their callback number, and tells them your team will get back to them.',
-  'The window they need captured on the call and in your portal, so you confirm the slot, and the assessment slot is confirmed by a person on your side.',
+  'It confirms their callback number and tells them your team will get back to them.',
+  'The times that suit them are captured on the call and in your portal, and the assessment slot is confirmed by a person on your side.',
+  'It asks about the job, where it is and how urgent it is.',
   'The AI Front Desk has two forwarding modes. Overflow sends it the calls you do not answer.',
   'With overflow forwarding, the front desk picks up only when you do not.',
   'An unanswered call can be a customer who rings the next name on the list.',
@@ -210,7 +305,7 @@ export const MUST_PASS = [
   'A caller who hears a busy signal may not try again.',
   'We read public pages and list businesses of the kind you want more of.',
   'Quoted as you wrote it and never estimated.',
-  'Voicemail is free and it is better than nothing. It also does not qualify anyone or take a job down, and a caller who hears the beep can just ring the next number.',
+  'Voicemail is free and it is better than nothing. It also does not qualify anyone or write a job down, and a caller who hears the beep can just ring the next number.',
   'Does a call at 2 AM cost more?',
   'Is it per call or per minute, and is there a monthly minimum?',
   'A live answering service puts a person on your line, and people are good at things software is not.',
@@ -250,13 +345,26 @@ export function renderedText(html) {
 
 const ruleApplies = (rule, file) => !rule.pages || !file || rule.pages.includes(file);
 
-/** Every rule a piece of text breaks, as [{ id, why, excerpt }]. */
+/** The sentence a match at [start, end) sits in. A semicolon does not end
+ *  it: "the times that suit; you confirm" is one sentence (how-you-start.html). */
+function sentenceAround(text, start, end) {
+  const before = Math.max(text.lastIndexOf('.', start - 1), text.lastIndexOf('?', start - 1), text.lastIndexOf('!', start - 1));
+  const after = text.slice(end).search(/[.?!]/);
+  return text.slice(before + 1, after < 0 ? text.length : end + after);
+}
+
+/** Every rule a piece of text breaks, as [{ id, why, excerpt }]. A rule is
+ *  reported once, at its first match its `unless` does not excuse. */
 export function claimFindings(text, file) {
   const out = [];
   for (const rule of CLAIM_RULES) {
     if (!ruleApplies(rule, file)) continue;
-    const m = rule.re.exec(text);
-    if (m) out.push({ id: rule.id, why: rule.why, excerpt: text.slice(Math.max(0, m.index - 50), m.index + m[0].length + 50).trim() });
+    const every = new RegExp(rule.re.source, rule.re.flags.replace('g', '') + 'g');
+    for (const m of text.matchAll(every)) {
+      if (rule.unless && rule.unless.test(sentenceAround(text, m.index, m.index + m[0].length))) continue;
+      out.push({ id: rule.id, why: rule.why, excerpt: text.slice(Math.max(0, m.index - 50), m.index + m[0].length + 50).trim() });
+      break;
+    }
   }
   return out;
 }
@@ -293,6 +401,23 @@ export function structureFindings(file, html) {
   for (const m of html.matchAll(/<meta (?:name="description"|property="og:description") content="([^"]*)"/gi)) {
     const d = decode(m[1]).trim();
     if (!/[.?!]$/.test(d)) say('cut-description', 'the description stops mid-sentence (the 155-character lede fallback); give the page its own description in pages.mjs', d);
+    /* 1c. AND IT FITS (CHECK-RUNNER-7). A search result shows about 160
+          characters of a description and cuts the rest, so a longer one
+          ends mid-sentence where a buyer reads it anyway. */
+    if (d.length > 160) say('long-description', `the description is ${d.length} characters; a search result cuts it at about 160 (audit CHECK-RUNNER-7)`, d);
+  }
+
+  /* 1d. A SHARED LINK NAMES ITS PAGE (MACHINE-25). og:url, og:type and
+        og:site_name were missing on five pages on 2026-10-03, so a link
+        shared from one carried no canonical address or site name. Every page
+        here carries all three, and og:url is the page's own canonical. */
+  const metaProp = (p) => (html.match(new RegExp(`<meta property="${p}" content="([^"]*)"`, 'i')) || [])[1];
+  const canonical = (html.match(/<link rel="canonical" href="([^"]*)"/i) || [])[1];
+  for (const p of ['og:url', 'og:type', 'og:site_name']) {
+    if (!metaProp(p)) say('og-meta', `carries no ${p}; a shared link needs it (audit MACHINE-25)`, file);
+  }
+  if (metaProp('og:url') && canonical && metaProp('og:url') !== canonical) {
+    say('og-meta', 'og:url is not the page\'s canonical address (audit MACHINE-25)', `${metaProp('og:url')} vs ${canonical}`);
   }
 
   /* 2. THE OTHER COLUMN ASKS (COMPARE-5). On a compare table whose middle
@@ -376,6 +501,28 @@ export function orphanAssetFindings(root) {
     .map((rel) => ({ id: 'orphan-asset', why: 'published at a stable URL and referred to by nothing served; delete it (git history keeps it) or reference it', excerpt: rel }));
 }
 
+/* ---------- content-map.json ----------
+   Every string a reader of /content-map.json sees, not only the five keys a
+   page renders: the file is served publicly (MACHINE-19 found the
+   how-you-start blurb saying "trial" there), so a "query", a new key or the
+   top-level comment is read as much as a blurb is. Only the addresses and
+   the cluster names are skipped, which are identifiers, not copy. */
+const IDENTIFIERS = new Set(['file', 'url', 'cluster', 'site', 'priority']);
+
+export function contentMapFindings(map) {
+  const out = [];
+  const rows = [{ ...map, pages: undefined, file: 'top level' }, ...(map.pages || [])];
+  for (const row of rows) {
+    for (const key of Object.keys(row)) {
+      if (IDENTIFIERS.has(key) || typeof row[key] !== 'string') continue;
+      const where = `content-map.json (${row.file} ${key})`;
+      for (const f of claimFindings(row[key])) out.push({ file: where, ...f });
+      if (/title/i.test(key) && AI_LED.test(row[key])) out.push({ file: where, id: 'ai-led-title', why: 'a title leads with "AI" (owner rule; decision #17)', excerpt: row[key] });
+    }
+  }
+  return out;
+}
+
 /* ---------- the rules' own examples, checked on every run ---------- */
 export function selfTestFindings() {
   const out = [];
@@ -389,7 +536,9 @@ export function selfTestFindings() {
     if (hits.length) out.push(`rule ${hits[0].id} fires on a true sentence: "${sentence}"`);
   }
   /* The structural rules, on the smallest page each one is about. */
-  const page = (title, h1, td, crumb = 2) => `<title>${title}</title><meta property="og:title" content="${title}"><h1>${h1}</h1>`
+  const OG = '<link rel="canonical" href="https://nevamis.ca/x.html"><meta property="og:type" content="website">'
+    + '<meta property="og:url" content="https://nevamis.ca/x.html"><meta property="og:site_name" content="Nevamis">';
+  const page = (title, h1, td, crumb = 2) => `<title>${title}</title><meta property="og:title" content="${title}">${OG}<h1>${h1}</h1>`
     + `<p class="crumb"><a href="/">Home</a> / X</p>`
     + `<script type="application/ld+json">${JSON.stringify([{ '@type': 'BreadcrumbList', itemListElement: [{ name: 'Home' }, { name: 'X' }] }, { '@type': 'WebPage' }].concat(crumb > 2 ? [{ '@type': 'BreadcrumbList', itemListElement: [] }] : []))}</script>`
     + `<table class="compare"><thead><tr><th scope="col">Ask about</th><th scope="col">Live answering service</th><th scope="col">Nevamis</th></tr></thead>`
@@ -402,6 +551,14 @@ export function selfTestFindings() {
   if (!ids(page('Nevamis vs Voicemail', 'Nevamis vs voicemail', '<td class="part">Per call or per minute</td>')).includes('competitor-column-asserts')) out.push('competitor-column-asserts no longer catches an asserted cell');
   if (!ids(page('Nevamis vs Voicemail', 'Nevamis vs voicemail', '<td class="ask">Is it per call?</td>', 3)).includes('breadcrumb-count')) out.push('breadcrumb-count no longer catches a second BreadcrumbList');
   if (!ids(clean + '<meta name="description" content="Your number, your rules, answered when you do">').includes('cut-description')) out.push('cut-description no longer catches a description cut mid-sentence');
+  /* content-map.json: a key no page renders is still read at /content-map.json. */
+  const mapIds = (row) => contentMapFindings({ _comment: 'Source of the page set.', pages: [{ file: 'x.html', url: '/x.html', cluster: 'trade', ...row }] }).map((f) => f.id);
+  if (mapIds({ blurb: 'Answered while you work.', query: 'answering service' }).length) out.push('contentMapFindings fires on a clean row');
+  if (!mapIds({ query: 'answering service free trial' }).includes('banned-buyer-word')) out.push('contentMapFindings no longer reads a key no page renders (MACHINE-19)');
+  if (!contentMapFindings({ _comment: 'No pilot here.', pages: [] }).some((f) => f.id === 'banned-buyer-word')) out.push('contentMapFindings no longer reads the top-level comment');
+  if (!ids(clean + `<meta name="description" content="${'A sentence that runs on. '.repeat(7)}">`).includes('long-description')) out.push('long-description no longer catches a description over 160 characters');
+  if (!ids(clean.replace('<meta property="og:site_name" content="Nevamis">', '')).includes('og-meta')) out.push('og-meta no longer catches a page with no og:site_name');
+  if (!ids(clean.replace('content="https://nevamis.ca/x.html">', 'content="https://nevamis.ca/y.html">')).includes('og-meta')) out.push('og-meta no longer catches an og:url that is not the canonical');
   return out;
 }
 
@@ -429,13 +586,7 @@ export function contentClaimFindings(root, pages) {
     for (const f of claimFindings(prose, 'motion.js')) findings.push({ file: 'motion.js', ...f });
   }
   const map = JSON.parse(fs.readFileSync(path.join(root, 'content-map.json'), 'utf8'));
-  for (const row of map.pages) {
-    for (const key of ['nav', 'title', 'hubTitle', 'blurb', 'hubBlurb']) {
-      if (typeof row[key] !== 'string') continue;
-      for (const f of claimFindings(row[key])) findings.push({ file: `content-map.json (${row.file} ${key})`, ...f });
-      if (/title/i.test(key) && AI_LED.test(row[key])) findings.push({ file: `content-map.json (${row.file} ${key})`, id: 'ai-led-title', why: 'a title leads with "AI" (owner rule; decision #17)', excerpt: row[key] });
-    }
-  }
+  findings.push(...contentMapFindings(map));
   for (const f of orphanAssetFindings(root)) findings.push({ file: f.excerpt, ...f });
   return findings;
 }

@@ -363,6 +363,12 @@ const CLUSTERS = [
 const hubMeta = byFile['solutions.html'];
 const hubDesc = 'Lead Generation by invitation, Quote Recovery and the AI Front Desk, by trade, by situation, and compared to voicemail and answering services.';
 
+/* The front desk card on the hub said it "takes the job, the address and
+   the time the caller wants", with no word about who confirms, until
+   2026-10-03 (audit PRICING-9): a card read on its own is read as a booking.
+   scripts/content/claim-rules.mjs judges the hub with the generated pages.
+   Notes like this one stay in this source, not in the HTML it writes: the
+   shipped page source is buyer-facing. */
 const hubHtml =
   head({
     title: `${hubMeta.title} | Nevamis`, description: hubDesc, canonical: `${SITE}/solutions.html`,
@@ -420,7 +426,7 @@ const hubHtml =
       <div class="related reveal">
         <a href="/book.html" data-evt="solutions_leadgen_click"><strong>Lead Generation (by invitation)</strong><span>Offered by invitation, under your own agreement, and put together by hand. A person here reads public pages and builds you a list of the businesses that fit the work you want, with the page each row came from and the day it was read. You decide every row, and nobody on the list is contacted by us.</span></a>
         <a href="/pricing.html" data-evt="solutions_recovery_click"><strong>Quote Recovery</strong><span>The quotes you sent and never heard back about, followed up for you: the day a quote goes quiet, again four days on, and again eleven days on. Each email carries your name and needs your approval before it goes. On the pricing page it is the Quote-Chase Engine.</span></a>
-        <a href="/missed-calls.html"><strong>The AI Front Desk</strong><span>Answers your line when you cannot, takes the job, the address and the time the caller wants, and texts you the summary. Start with what a missed call costs you.</span></a>
+        <a href="/missed-calls.html"><strong>The AI Front Desk</strong><span>Answers your line when you cannot and writes down the job, the address and the times that suit the caller, for you to confirm. Each call it answers reaches you as a summary. Start with what a missed call costs you.</span></a>
         <a href="https://app.nevamis.ca/scan" data-evt="solutions_scan_click"><strong>Scan my website</strong><span>PULSE reads only what is public on your own website and quotes what it found. Where it puts a figure on something, the figure is a modelled range, not a measurement. No email required.</span></a>
       </div>
     </div>
