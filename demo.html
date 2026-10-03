@@ -8,20 +8,15 @@
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Demo | Hear the AI Front Desk answer | Nevamis | (587) 413-0035</title>
-<meta name="description" content="Call (587) 413-0035 and hear the same voice and model your own line would run on. It answers for Nevamis, so ask it anything about the service and try to stump it.">
+<meta name="description" content="Call (587) 413-0035 and hear the same voice your own line would use. It answers for Nevamis, so ask it anything about the service and try to stump it.">
 <link rel="canonical" href="https://nevamis.ca/demo.html">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="Call the Nevamis demo line | (587) 413-0035">
-<meta property="og:description" content="It answers in seconds, any hour. Try to stump it.">
+<meta property="og:description" content="It answers any hour, in the same voice your own line would use. Ask it anything and try to stump it.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nevamis.ca/demo.html">
 <meta property="og:site_name" content="Nevamis">
 <meta property="og:locale" content="en_CA">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
- {"@type":"ListItem","position":1,"name":"Home","item":"https://nevamis.ca/"},
- {"@type":"ListItem","position":2,"name":"Demo","item":"https://nevamis.ca/demo.html"}]}
-</script>
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -986,7 +981,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     "@id": "https://nevamis.ca/demo.html",
     "url": "https://nevamis.ca/demo.html",
     "name": "Demo | Hear the AI Front Desk answer | Nevamis | (587) 413-0035",
-    "description": "Call (587) 413-0035 and hear the same voice and model your own line would run on. It answers for Nevamis, so ask it anything about the service and try to stump it.",
+    "description": "Call (587) 413-0035 and hear the same voice your own line would use. It answers for Nevamis, so ask it anything about the service and try to stump it.",
     "isPartOf": {
       "@type": "WebSite",
       "name": "Nevamis",
@@ -1051,7 +1046,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              Nevamis and says so, it is a sales line and not a trades line
              (engine docs/agent-prompts/demo.md:132, 235), and the caller who
              follows the old instruction gets a sales conversation. B10(a). -->
-        <p class="proof fine2">It answers in seconds. Ask it straight out whether you are talking to a person and it will tell you, without hedging. Then ask it anything about what Nevamis does and see whether it holds up.</p>
+        <p class="proof fine2">Ask it straight out whether you are talking to a person and it will tell you, without hedging. Then ask it anything about what Nevamis does and see whether it holds up.</p>
       </div>
     </div>
   </section>
@@ -1063,7 +1058,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2>Three ways to push it.</h2>
       </div>
       <div class="proc">
-        <div class="reveal"><h3>Ask how it would work for you</h3><p>Ask what happens to your current number. It should explain call forwarding in plain words, without jargon, and tell you what it takes down on every call.</p></div>
+        <div class="reveal"><h3>Ask how it would work for you</h3><p>Ask what happens to your current number. It should explain call forwarding in plain words, without jargon, and tell you what it takes down on a call.</p></div>
         <div class="reveal"><h3>Change your mind mid-call</h3><p>Give a detail, then change it halfway through. A real receptionist keeps up. So should this.</p></div>
         <div class="reveal"><h3>Ask something it should not answer</h3><p>Push for a price it has not been given. It should hold the line without making things up.</p></div>
       </div>
@@ -1130,11 +1125,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           </div>
           <div class="line agent">
             <span class="who mono">Cedarview AI</span>
-            <p>Thanks. I've noted tomorrow between eight and ten, and someone from the office will confirm the exact time. I have your number if anything changes.</p>
+            <p>Thanks. I've noted tomorrow between eight and ten, and someone from the office will confirm the exact time. Is 780-555-0142 the best number to reach you?</p>
           </div>
           <div class="line caller">
             <span class="who mono">Caller</span>
-            <p>Great, thank you.</p>
+            <p>Yes, that's the one. Thank you.</p>
           </div>
           <div class="line agent">
             <span class="who mono">Cedarview AI</span>
@@ -1143,12 +1138,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <p class="foot-note">Illustrative call, fictional company.</p>
         </div>
         <div class="owner-card reveal">
-          <h3>After every call, you get a text and an email like this</h3>
+          <!-- The card said "Your format, destination, and level of detail are
+               configured with you" until 2026-10-03, and its text read like a
+               free-form note with the quoted fee and a "yours to confirm" line.
+               Only the destination is the client's: the text and the email have
+               one fixed shape (nevamis-engine src/domain/client-notify.ts,
+               callSummarySms): who called, what they wanted, the callback number,
+               the outcome, what the caller was told, and the portal link, with
+               URGENT in front when it is. So the example is now that shape, and
+               the agent above confirms the callback number, which is the one
+               thing the client agent's prompt has it read back. -->
+          <h3>After a call, you get a text and an email like this</h3>
           <div class="sms" role="img" aria-label="Example text message summary sent to the business owner">
-            <span class="mono">Nevamis summary · 8:42 PM</span>
-            New job request: dead kitchen outlets, breaker already reset, no sparks or burning smell. Wants tomorrow 8 to 10 AM, yours to confirm. $95 service call quoted from your price sheet. 114 Cedar Lane. Callback: 780-555-0142.
+            <span class="mono">Text from Nevamis · 8:42 PM</span>
+            A caller just called Cedarview Electric. Dead kitchen outlets at 114 Cedar Lane, breaker already reset, no sparks or burning smell. Call back: 780-555-0142. We told them: someone from the office will confirm a time tomorrow between 8 and 10 AM. Full call and recording in your portal.
           </div>
-          <p class="note">Example summary for the illustrative call. Your format, destination, and level of detail are configured with you.</p>
+          <p class="note">Example summary for the illustrative call. Every summary carries who called, what they wanted, the callback number, how urgent it is, the outcome and what the caller was told. You choose the phone and email it goes to.</p>
           <div class="midcta">
             <a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
           </div>

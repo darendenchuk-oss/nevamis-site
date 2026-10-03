@@ -8,12 +8,23 @@
 
    Pages are written whole each time, so the copy in pages.mjs is the
    single source of truth and hand edits to the output get overwritten.
+
+   THE BUILD REFUSES A FALSE CLAIM (2026-10-03). Every page is composed in
+   memory first and judged by scripts/content/claim-rules.mjs: the claims
+   the 2026-10-03 audit found these pages making about the front desk (a
+   summary field that does not exist, an escalation nobody can configure, a
+   cap no client can choose, unmeasured absolutes, an AI-led title), the
+   structured data each page must carry, and the assets this layer must not
+   leave published. If anything breaks a rule, nothing is written and the
+   build exits non-zero. CI runs this file on every pull request through
+   check-generator-drift.mjs, so the rule holds in review, not only here.
    ============================================================ */
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PAGES, PROOF_BLOCK } from './content/pages.mjs';
+import { contentClaimFindings, formatFindings } from './content/claim-rules.mjs';
 import { headCssBlock, readCssSources } from './lib/inline-css.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -30,7 +41,39 @@ const byFile = Object.fromEntries(map.pages.map((p) => [p.file, p]));
    of what a head contains. There is now one idea. */
 const CSS_BLOCK = headCssBlock(readCssSources(fs, path, root));
 
-function head({ title, ogTitle, description, canonical }) {
+/* STRUCTURED DATA FOR EVERY PAGE THIS FILE WRITES (audit MACHINE-24,
+   2026-10-03). The nine pages and the hub carried no JSON-LD at all, while
+   build-schema.mjs gives the hand-written pages a BreadcrumbList and a typed
+   page node. These pages are written whole, so their block is written here,
+   between the same generated:schema markers build-schema.mjs uses, from the
+   same values the page itself shows: the breadcrumb is the visible crumb
+   ("Home / Solutions / <nav>"), the name is the <title>, the description is
+   the meta description. claim-rules.mjs checks the breadcrumb against the
+   visible trail, so the two cannot drift apart. */
+function schemaBlock({ title, description, url, trail, type = 'WebPage' }) {
+  const json = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: trail.map((t, i) => ({ '@type': 'ListItem', position: i + 1, name: t.name, item: `${SITE}${t.url}` })),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': type,
+      '@id': url,
+      url,
+      name: title,
+      description,
+      isPartOf: { '@type': 'WebSite', name: 'Nevamis', url: `${SITE}/` },
+      about: { '@id': `${SITE}/#service` },
+      publisher: { '@id': `${SITE}/#organization` },
+      inLanguage: 'en-CA',
+    },
+  ];
+  return `<!-- generated:schema -->\n<script type="application/ld+json">\n${JSON.stringify(json, null, 2)}\n</script>\n<!-- /generated:schema -->`;
+}
+
+function head({ title, ogTitle, description, canonical, schema }) {
   return `<!doctype html>
 <html lang="en-CA" class="no-js">
 <head>
@@ -197,7 +240,12 @@ ${CSS_BLOCK}
     table.compare th,table.compare td{padding:10px 5px}
     table.compare thead th{letter-spacing:.05em}
   }
+  /* A question for the buyer to put to the other service, not a verdict on
+     it, so it carries no tick, cross or warning colour: the body ink, read
+     as a question (vs-answering-service.html, 2026-10-03). */
+  td.ask{color:var(--ink-2)}
 </style>
+${schema}
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -252,7 +300,8 @@ function relatedFor(file) {
 </section>`;
 }
 
-let built = 0;
+/* Composed here, judged below, and only then written. */
+const out = {};
 for (const [file, content] of Object.entries(PAGES)) {
   const meta = byFile[file];
   if (!meta) { console.warn(`skip ${file}: not in content-map.json`); continue; }
@@ -271,7 +320,13 @@ for (const [file, content] of Object.entries(PAGES)) {
   const description = content.description || content.lede.replace(/\s+/g, ' ').trim().slice(0, 155);
 
   const html =
-    head({ title, ogTitle: `${meta.title} | Nevamis`, description, canonical: `${SITE}${meta.url}` }) +
+    head({
+      title, ogTitle: `${meta.title} | Nevamis`, description, canonical: `${SITE}${meta.url}`,
+      schema: schemaBlock({
+        title, description, url: `${SITE}${meta.url}`,
+        trail: [{ name: 'Home', url: '/' }, { name: 'Solutions', url: '/solutions.html' }, { name: meta.nav, url: meta.url }],
+      }),
+    }) +
     `
 <main id="main">
   <section class="page-hero">
@@ -293,9 +348,7 @@ ${relatedFor(file)}
 </main>
 ` + tail();
 
-  fs.writeFileSync(path.join(root, file), html);
-  built++;
-  console.log(`${file}: built (${description.length}-char description)`);
+  out[file] = html;
 }
 
 // ---------------------------------------------------------------
@@ -311,7 +364,15 @@ const hubMeta = byFile['solutions.html'];
 const hubDesc = 'Lead Generation by invitation, Quote Recovery and the AI Front Desk, by trade, by situation, and compared to voicemail and answering services.';
 
 const hubHtml =
-  head({ title: `${hubMeta.title} | Nevamis`, description: hubDesc, canonical: `${SITE}/solutions.html` }) +
+  head({
+    title: `${hubMeta.title} | Nevamis`, description: hubDesc, canonical: `${SITE}/solutions.html`,
+    /* A CollectionPage: the hub is a list of the pages under it. */
+    schema: schemaBlock({
+      title: `${hubMeta.title} | Nevamis`, description: hubDesc, url: `${SITE}/solutions.html`,
+      trail: [{ name: 'Home', url: '/' }, { name: 'Solutions', url: '/solutions.html' }],
+      type: 'CollectionPage',
+    }),
+  }) +
   `
 <main id="main">
   <section class="page-hero">
@@ -383,7 +444,23 @@ ${PROOF_BLOCK}
 </main>
 ` + tail();
 
-fs.writeFileSync(path.join(root, 'solutions.html'), hubHtml);
-console.log('solutions.html: built (hub)');
+out['solutions.html'] = hubHtml;
 
-console.log(`\n${built + 1} pages generated. Now run:\n  node scripts/build-pages.mjs\n  node scripts/build-schema.mjs\n  node scripts/gen-sitemap.mjs\n  node scripts/promote.mjs`);
+/* ---------------------------------------------------------------
+   Judge everything before writing anything. A refusal leaves every
+   committed page as it was, so a failed build never ships half.
+   --------------------------------------------------------------- */
+const findings = contentClaimFindings(root, out);
+if (findings.length) {
+  console.error(`build-content: refusing to write. ${findings.length} finding(s) from scripts/content/claim-rules.mjs:\n`
+    + formatFindings(findings)
+    + '\n\nFix the copy in scripts/content/pages.mjs, content-map.json or demo.html. Weaken a rule only with'
+    + '\nthe engine fact that makes the claim true, and move its example from MUST_FIRE to MUST_PASS.');
+  process.exit(1);
+}
+for (const [file, html] of Object.entries(out)) {
+  fs.writeFileSync(path.join(root, file), html);
+  console.log(`${file}: built`);
+}
+
+console.log(`\n${Object.keys(out).length} pages generated. Now run:\n  node scripts/build-pages.mjs\n  node scripts/build-schema.mjs\n  node scripts/gen-sitemap.mjs\n  node scripts/promote.mjs`);
