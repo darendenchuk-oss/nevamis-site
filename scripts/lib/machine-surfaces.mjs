@@ -101,10 +101,85 @@ const NEG = /\b(?:not|never|no|cannot|nothing|none|nor|neither|fail|fails|failur
      booking, a confirmation or a transfer comes back", "v1 graded a client
      agent on booking into a calendar"). A comma list stays one object, so
      the clause edges for a verdict are the sentence marks and a comma that
-     opens a new clause (", and", ", so", ", as"), never a bare list comma. */
-const DENIAL_WORD = /\b(?:no|never|not|cannot|nor|neither|none|nothing|isn't|doesn't|don't|won't|can't)\b(?!\s+(?:just|only|merely|simply|forget|forgets|forgetting|fail|fails|failing|hesitate|neglect|neglects|skip|skips|miss|misses|missing|omit|omits|stop|stops)\b)/gi;
-const DENIAL_EDGE = /[.;|,:]|\b(?:and|but|yet|however|though|although|instead|while|whereas|so|then|because)\b/i;
+     opens a new clause (", and", ", so", ", as"), never a bare list comma.
+
+   AND IT MUST GOVERN IT GRAMMATICALLY (polish-machine fix-up review,
+   2026-10-03). Sharing the claim's clause was still not enough: "No more
+   missed calls for salons.", "No contract needed for dental clinics.",
+   "There is no doubt the front desk books the job.", "Callers never wait as
+   the front desk books the job." and "Not a problem - it transfers callers
+   to Daren." all passed, because the denial stood on a word of its own
+   ("calls", "contract", "doubt", "wait", "problem") and only shared the
+   claim's clause. A denial in front of the claim now withdraws it only when
+   it governs it:
+   - DIRECTLY: nothing but auxiliaries, determiners and a few adverbs and
+     adjectives stand between them ("does not transfer", "there is no live
+     transfer", "no calendar to connect");
+   - through a VERB THAT TAKES THE CLAIM as its object or complement ("never
+     says the job is booked", "does not send callers confirmations", "never
+     offers a transfer", "is not built for salons"), up to the clause's edge
+     or to a "for" after the verb's own object ("never offers a contract
+     for salons" still serves salons); or
+   - across "or"/"nor", which a negation distributes over ("never argues or
+     transfers", "neither books nor confirms"): the words after the last
+     "or" must govern the claim directly.
+   Any other word between them is the denial's own object, and the claim
+   stands. A dash, "as" and "since" are clause edges too.
+
+   A verdict in front of the claim ends its object at a coordinated
+   predicate: "It bans hold music and transfers the caller to Daren.",
+   "The prompt forbids voicemail, requires a transfer to Daren." ("and" or
+   a comma, then a verb in -s with its own object: "transfers the", "puts
+   the", "requires a"). A bare list stays one object ("forbids holds and
+   transfers.", "a booking, a confirmation or a transfer").
+
+   A verdict that closes a NEGATED claim makes it required, not forbidden:
+   "Failing to transfer the caller to Daren is a FAIL." and "Not
+   transferring the caller is a FAIL." grade the transfer as the passing
+   behaviour, so they are claims. And "or it is a FAIL" opens a clause of
+   its own: "Must transfer the caller to Daren or it is a FAIL." (A bare
+   "or" is not an edge after the claim: "books into a calendar, sends
+   callers a confirmation or reminder, or puts a call through to a person
+   is a P0 failure" is one subject with one verdict.) */
+const DENIAL_WORD = /\b(?:no|never|not|cannot|nor|neither|none|nothing|isn't|doesn't|don't|won't|can't)\b(?!\s+(?:just|only|merely|simply|forget|forgets|forgetting|forgot|fail|fails|failing|failed|hesitate|hesitates|hesitating|hesitated|neglect|neglects|neglecting|skip|skips|skipping|miss|misses|missing|missed|omit|omits|omitting|stop|stops|stopping)\b)/gi;
+const DENIAL_EDGE = /[.;|,:–—]|\s-\s|\b(?:and|but|yet|however|though|although|instead|while|whereas|so|then|because|as|since)\b/i;
 const DENIAL_AFTER = /^\s+(?:nothing|none|no)\b/i;
+/* Words that may stand between a denial and the claim it governs directly. */
+const DENIAL_GAP = /^(?:is|are|was|were|be|been|being|am|do|does|did|will|would|can|could|should|shall|may|might|must|has|have|had|ever|even|yet|also|always|directly|itself|actually|really|currently|a|an|the|any|its|their|your|our|his|her|this|that|these|those|one|single|to|live|real|actual|direct|warm|automatic|phone|human)$/i;
+/* Verbs whose object or complement is the claim: a denial on the verb
+   denies what it says, offers, sends or is built for. */
+const GOVERNING = "say tell offer promise describe state claim imply mention suggest announce pretend send give list present grade need use build make design mean sell market serve include perform attempt try set wire exist happen support handle work go agree confirm confuse mistake book transfer schedule connect put";
+const IRREGULAR = "said told sent gave given built made designed meant sold went put set";
+/* Every inflection of each verb: says, offered, offering, implies, ... */
+const DENIAL_GOVERNS = new Set(IRREGULAR.split(" ").concat(GOVERNING.split(" ").flatMap((v) => {
+  const e = v.endsWith("e") ? v.slice(0, -1) : v;
+  const y = /[^aeiou]y$/.test(v) ? v.slice(0, -1) : null;
+  return [v, `${v}s`, `${v}es`, `${e}ed`, `${e}ing`, `${v}ing`, ...(y ? [`${y}ies`, `${y}ied`] : [])];
+})));
+const governsDirectly = (words) => words.every((w) => DENIAL_GAP.test(w));
+
+/** A denial word in front of the claim at `at`, within 40 characters, in
+    the claim's own clause, that governs it (see above). */
+function deniedBefore(u, at) {
+  const head = u.slice(0, at);
+  for (const d of head.matchAll(DENIAL_WORD)) {
+    const between = head.slice(d.index + d[0].length);
+    if (between.length > 40 || DENIAL_EDGE.test(between)) continue;
+    const words = between.split(/[^\w'-]+/).filter(Boolean);
+    const first = words.findIndex((w) => !DENIAL_GAP.test(w));
+    if (first < 0) return true;
+    /* The verb's object ends at "for": "is not built for salons" denies
+       the audience, "never offers a contract for salons" does not. */
+    const rest = words.slice(first + 1).map((w) => w.toLowerCase());
+    const forAt = rest.indexOf("for");
+    const objectEnds = forAt > 0 && !governsDirectly(rest.slice(0, forAt));
+    if (DENIAL_GOVERNS.has(words[first].toLowerCase()) && !objectEnds) return true;
+    const lower = words.map((w) => w.toLowerCase());
+    const last = Math.max(lower.lastIndexOf("or"), lower.lastIndexOf("nor"));
+    if (last >= 0 && governsDirectly(words.slice(last + 1))) return true;
+  }
+  return false;
+}
 /* A verdict in front of the claim that takes the claim as its object: a verb
    or a changelog line, whose object runs to the end of its clause. */
 const VERDICT_BEFORE = /\bfails this file if\b|\b(?:forbids?|forbidding|bans?|banning)\b|\bv\d+\s+(?:of this \w+\s+)?(?:told|graded|carried|said|set|had|listed)\b|\bRows?\s+\d+(?:(?:,\s*|\s+and\s+)\d+)*\s+(?:told|graded|carried|said|set|had|listed)\b|\b(?:(?:is|are)\s+(?:an?\s+)?(?:[\w-]+\s+){0,2}failures?|is\s+a\s+FAIL),?\s+and\s+so\s+(?:is|are)\b/gi;
@@ -117,33 +192,47 @@ const VERDICT_ADJ = /\b(?:retired|banned|forbidden)\s+(?:[\w-]+\s+)?$/i;
 const VERDICT_AFTER = /\bFAIL\b|\b(?:is|are)\s+(?:an?\s+)?(?:[\w-]+\s+){0,2}failures?\b|\b(?:is|are|was|were)\s+(?:forbidden|banned|retired)\b|\bwhich\s+(?:[\w-]+\s+){0,3}(?:forbids|bans)\b|\bfails this file\b/;
 /* Where a verdict's clause ends. A bare comma is a list, not an edge. */
 const VERDICT_EDGE = /[.;|]|,\s*(?:and|but|so|as|because|since|while|whereas|then|yet|though|although)\b|\band\s+(?:it|they|we|you|he|she|the (?:agent|assistant|front desk|line|demo line))\b|\b(?:so|because|since|whereas|while)\b/i;
+/* In front of the claim, a verdict's object also ends at a coordinated
+   predicate: "and" or a comma, then a verb in -s that takes its own object
+   ("and transfers the caller", ", requires a transfer"). */
+const VERDICT_EDGE_BEFORE = new RegExp(`${VERDICT_EDGE.source}|(?:,|\\band)\\s+(?:also\\s+|then\\s+|instead\\s+)?(?!(?:a|an|the|any|its|this|that|no)\\b)[a-z]+s\\s+(?:the|a|an|any|them|you|him|her|it|its|their|your|callers?|calls?|people|anyone|someone|to|through|back)\\b`, "i");
 /* After the claim a bare "as" opens a new clause too ("..., as the old
    voicemail is retired"); in front of it "as" belongs to a changelog's own
-   object ("set false or banned answers as the pass: ..."). */
-const VERDICT_EDGE_AFTER = new RegExp(`${VERDICT_EDGE.source}|\\bas\\b|:`, "i");
+   object ("set false or banned answers as the pass: ..."). So does an "or"
+   that opens a clause ("... or it is a FAIL"). */
+const VERDICT_EDGE_AFTER = new RegExp(`${VERDICT_EDGE.source}|\\bas\\b|:|\\bor\\s+(?:else\\b|(?:it|this|that|the\\s+(?:run|test|row))\\s+(?:is|was|fails)\\b)`, "i");
+/* A claim the clause negates in front ("failing to transfer"): a verdict
+   closing it grades the claim as REQUIRED. */
+const failedBefore = (head) => /\b(?:fail(?:s|ed|ing|ure)?|refus(?:e|es|ed|ing)|neglect(?:s|ed|ing)?|omit(?:s|ted|ting)?)\s+to\s+(?:[\w-]+\s+){0,1}$/i.test(head);
 
-/** A denial word whose clause reaches the claim at `at`, within 40
-    characters of it. */
-function deniedBefore(u, at) {
-  const head = u.slice(0, at);
-  for (const d of head.matchAll(DENIAL_WORD)) {
-    const between = head.slice(d.index + d[0].length);
-    if (between.length <= 40 && !DENIAL_EDGE.test(between)) return true;
-  }
-  return false;
-}
-/** A verdict that governs the claim spanning [at, end) of unit `u`. */
-function judged(u, at, end) {
-  const head = u.slice(0, at);
-  if (VERDICT_ADJ.test(head)) return true;
-  for (const v of head.matchAll(VERDICT_BEFORE)) {
-    if (!VERDICT_EDGE.test(head.slice(v.index + v[0].length))) return true;
-  }
+/** A verdict closing the claim's clause after it. */
+function closedByVerdict(u, end) {
   const tail = u.slice(end);
   const edge = tail.search(VERDICT_EDGE_AFTER);
   return VERDICT_AFTER.test(edge < 0 ? tail : tail.slice(0, edge));
 }
-const deniedAt = (u, at, end) => deniedBefore(u, at) || DENIAL_AFTER.test(u.slice(end)) || judged(u, at, end);
+/** A verdict in front that governs the claim at `at` as its object. The
+    edge is searched past the claim's start, because the coordinated
+    predicate is often the claim itself ("and transfers the caller"); only
+    an edge that begins before the claim ends the verdict's object. */
+function judgedBefore(u, at) {
+  const head = u.slice(0, at);
+  if (VERDICT_ADJ.test(head)) return true;
+  for (const v of head.matchAll(VERDICT_BEFORE)) {
+    const from = v.index + v[0].length;
+    const edge = u.slice(from, at + 60).search(VERDICT_EDGE_BEFORE);
+    if (edge < 0 || edge >= at - from) return true;
+  }
+  return false;
+}
+/* A claim is withdrawn by a denial or a verdict that governs it, unless a
+   verdict closes a negated claim: "Not transferring the caller is a FAIL"
+   requires the transfer. */
+const deniedAt = (u, at, end) => {
+  const negated = deniedBefore(u, at) || failedBefore(u.slice(0, at));
+  if (closedByVerdict(u, end)) return !negated;
+  return negated || DENIAL_AFTER.test(u.slice(end)) || judgedBefore(u, at);
+};
 /* The excuse for a rule whose claim word is the match itself (no key), or
    is each `key` inside the match: every one must be denied or judged. */
 const deniedClaim = (key) => (u, m) => {
@@ -371,6 +460,28 @@ export const AGENT_FIXTURES = {
     ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | Voicemail is a failure, so the agent transfers callers to the owner. | ok | P1 |"],
     ["nevamis-knowledge-base.md", "The retired voicemail script says the receptionist books jobs."],
     ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | The prompt forbids arguing and the agent transfers the caller. | ok | P1 |"],
+    /* A verdict whose object ends at a coordinated predicate, a denial that
+       stands on a word of its own, and a verdict that closes a NEGATED
+       claim (polish-machine fix-up review, 2026-10-03). Each passed. */
+    ["nevamis-knowledge-base.md", "It bans hold music and transfers the caller to Daren."],
+    ["nevamis-knowledge-base.md", "Our policy forbids voicemail and puts the caller through to Daren."],
+    ["nevamis-knowledge-base.md", "The prompt forbids voicemail and requires a transfer."],
+    ["nevamis-knowledge-base.md", "The prompt forbids voicemail, requires a transfer to Daren."],
+    ["nevamis-knowledge-base.md", "No more missed calls for salons."],
+    ["nevamis-knowledge-base.md", "No contract needed for dental clinics."],
+    ["nevamis-knowledge-base.md", "There is no wait for dental clinics."],
+    ["nevamis-knowledge-base.md", "Never offers a contract for salons."],
+    ["nevamis-knowledge-base.md", "There is no doubt the front desk books the job."],
+    ["nevamis-knowledge-base.md", "Callers never wait as the front desk books the job."],
+    ["nevamis-knowledge-base.md", "No caller waits since the agent transfers them."],
+    ["nevamis-knowledge-base.md", "No voicemail - the agent transfers the call."],
+    ["nevamis-knowledge-base.md", "Not a problem — it transfers callers to Daren."],
+    ["nevamis-knowledge-base.md", "Not a problem – it transfers callers to Daren."],
+    ["nevamis-knowledge-base.md", "Never hesitates to transfer the caller to Daren."],
+    ["nevamis-knowledge-base.md", "Never hesitating to transfer the caller to Daren."],
+    ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | Failing to transfer the caller to Daren is a FAIL. | ok | P1 |"],
+    ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | Must transfer the caller to Daren or it is a FAIL. | ok | P1 |"],
+    ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | Not transferring the caller to Daren is a FAIL. | ok | P1 |"],
   ],
   /* [file, text] that MUST pass: the true sentences each rule sits beside. */
   mustPass: [
@@ -400,6 +511,16 @@ export const AGENT_FIXTURES = {
     ["vertical-plumbing-agent-template.md", "The retired booking tool is gone: there is no calendar to connect."],
     /* A denial per claim across a list, and "or" carrying one denial. */
     ["vertical-plumbing-agent-template.md", "You have no calendar: never say a time is available, never say the job is booked or confirmed, and never say a confirmation text is on its way."],
+    /* A denial that governs its claim directly, through a verb that takes
+       it, or across "or"; a verdict on a bare list. */
+    ["nevamis-knowledge-base.md", "We do not serve salons."],
+    ["nevamis-knowledge-base.md", "Nevamis is not built for dental clinics."],
+    ["nevamis-knowledge-base.md", "There is no live transfer on this line."],
+    ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | Never argues or transfers the caller. | ok | P1 |"],
+    ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | The prompt forbids holds and transfers. | ok | P1 |"],
+    ["nevamis-knowledge-base.md", "A client's front desk does not book into a calendar and sends the caller no confirmation."],
+    ["plumbing-agent-test-scenarios.md", "| 9 | x | \"q\" | Never agrees that the job is booked or the time confirmed. | ok | P0 | Sim |"],
+    ["plumbing-agent-test-scenarios.md", "In any scenario, telling a caller a job is booked, or that they are being put through to someone, is an automatic failure of that run."],
   ],
 };
 
