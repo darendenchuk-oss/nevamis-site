@@ -166,6 +166,14 @@ if (/font provider/i.test(privacyText)) {
    sends microphone audio to ElevenLabs and is recorded, and the privacy page
    has to say so where it describes the demo, not only in the fine print of
    the call page itself.
+
+   The fixed user-id (section 1) stops the widget fingerprinting the device
+   and storing an ID for it. It does not make the visitor anonymous: a browser
+   call is a live connection to ElevenLabs, so ElevenLabs receives the
+   visitor's IP address, as do the hosts that serve the widget's images and
+   audio component. So the section must name the IP address, and it may never
+   promise the call "does not identify" the visitor or the device, which no
+   network connection can promise.
    ===================================================================== */
 if (PUBLISHED.includes('talk/index.html')) {
   const demo = sectionsOf(privacyHtml).find((s) => /\bdemo\b/i.test(s.heading));
@@ -175,6 +183,16 @@ if (PUBLISHED.includes('talk/index.html')) {
     for (const [re, what] of [[/\bbrowser\b/i, 'the browser call'], [/\bmicrophone\b/i, 'the microphone'],
       [/\bElevenLabs\b/, 'ElevenLabs, which receives the audio'], [/\brecorded\b/i, 'that the call is recorded']]) {
       if (!re.test(demo.text)) fail('demo-section', `privacy.html's demo section does not mention ${what}.`);
+    }
+    if (!/\bIP address/i.test(demo.text)) {
+      fail('demo-section', 'privacy.html\'s demo section does not say that ElevenLabs receives the caller\'s IP address. '
+        + 'A browser call is a live connection to ElevenLabs; the fixed label stops fingerprinting, not that.');
+    }
+    const overclaim = demo.text.match(/\b(?:does not|doesn't|never|cannot|won't|will not)\s+(?:\w+\s+){0,2}identify\b[^.]*/i)
+      || demo.text.match(/\banonymous(?:ly)?\b[^.]*/i);
+    if (overclaim) {
+      fail('demo-section', `privacy.html's demo section says "${overclaim[0].trim()}". ElevenLabs receives the caller's IP address, `
+        + 'so say what the fixed label guarantees (no fingerprint, no stored ID), not that the call identifies no one.');
     }
   }
 }
