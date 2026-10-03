@@ -518,15 +518,38 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
       <p class="kick">Plans</p>
       <h3>Plans</h3>
       <p class="intro">Prices in Canadian dollars, plus applicable GST/HST.</p>
+      <!-- COMMERCIAL MODEL v7 (owner amendments #66 and #67, held for counsel
+           under decision #69). Every price line below is a data-plan-price
+           slot that site.js fills from pricing-config.js with the plan's
+           startLine(), so this pane types no figure. The Partnership's slot
+           is keyed "starter", which is the Partnership's own key in the
+           engine and the config; the two smaller Front Desk sizes are keyed
+           front-desk-starter and front-desk-plus, and must never reuse
+           "starter". The Partnership's line used to say its monthly was set
+           in the agreement: since v7 its fee and its monthly are fixed, and
+           only the share is agreed. The three sizes sit together, smallest
+           first, the way the plans strip and the pricing page order them
+           (frontDeskTiers()); their minutes and per-minute rates are in the
+           strip below, which renders them from the same records. -->
       <div class="svc">
         <h4>Performance Partnership</h4>
-        <p class="price">By invitation. The monthly, the share, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged.</p>
-        <p>A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. Not suitable for every business, and never the default.</p>
+        <p class="price" data-plan-price="starter">By invitation.</p>
+        <p>A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. Its fee to start and its monthly are fixed and on the pricing page, and the share is set in your agreement before anything is charged. Not suitable for every business, and never the default.</p>
       </div>
       <div class="svc">
         <h4>The Works</h4>
         <p class="price" data-plan-price="growth">See the plans below.</p>
         <p>The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts.</p>
+      </div>
+      <div class="svc">
+        <h4>Front Desk Starter</h4>
+        <p class="price" data-plan-price="front-desk-starter">See the plans below.</p>
+        <p>A lighter phone: the same receptionist as the AI Front Desk, answering 24/7, sized for fewer calls.</p>
+      </div>
+      <div class="svc">
+        <h4>Front Desk Plus</h4>
+        <p class="price" data-plan-price="front-desk-plus">See the plans below.</p>
+        <p>A busier phone that does not yet need the full allowance: the same receptionist, answering 24/7, with more minutes than Front Desk Starter.</p>
       </div>
       <div class="svc">
         <h4>AI Front Desk <span class="chip rec">RECOMMENDED</span></h4>
@@ -544,7 +567,7 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
         <p class="price" data-plan-price="enterprise">See the plans below.</p>
         <p>Multi-location, custom integrations, custom data pipelines and advanced deployments are custom work, scoped and quoted per client from what a scan of the business finds. None of them comes with the other plans.</p>
       </div>
-      <p class="fine2">The build takes days, not weeks: your line is answered inside the first week. There is no minimum term: month to month from the first month, cancelled from your own portal at any time.</p>
+      <p class="fine2">The three Front Desk sizes, The Works and every add-on are priced as a monthly alone. The build takes days, not weeks: your line is answered inside the first week. There is no minimum term: month to month from the first month, cancelled from your own portal at any time.</p>
     </article>
 
     <article class="pane-doc" id="doc-nodes">

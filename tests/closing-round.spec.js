@@ -220,7 +220,20 @@ test('BD-F3: the first pricing card is headed "By invitation", not a C$ figure, 
   expect(biggest.text).not.toMatch(/C\$/);
   const t = (await page.locator('#plans .plan').first().innerText()).replace(/\s+/g, ' ');
   const cash = (n) => 'C$' + n.toLocaleString('en-CA');
-  expect(t, 'the band is still on the card').toContain(cash(first.monthlyRange[0]) + ' to ' + cash(first.monthlyRange[1]));
+  /* Re-pointed 2026-10-03 (v7, ported from draft PR #41 and corrected to
+     owner amendment #66). The card used to carry the Partnership's monthly
+     band under its headline. Its figures are fixed now, so the card must
+     state them, the Launch & Implementation fee and the monthly, in
+     startLine()'s words, under the same "By invitation" headline, and carry
+     no band. No plan card says the first month is free: that is given to the
+     first freeMonth.firstClients businesses on a booked call, never by the
+     Buy now a card leads to, and only free-month.js may say it. */
+  expect(t, 'the fixed figures are on the card').toContain(P.startLine(first).replace(/\.$/, ''));
+  expect(t, 'the Partnership states its fee').toContain(cash(first.launch) + ' Launch & Implementation');
+  expect(t, 'the card says it is by invitation').toContain(first.inviteNote);
+  expect(t, 'no band on the card').not.toMatch(/monthly band| to C\$\d/);
+  const cards = await page.$$eval('#plans .plan', (cs) => cs.map((c) => c.innerText.replace(/\s+/g, ' ')));
+  for (const c of cards) expect(c, 'a plan card offers a free month to every buyer').not.toMatch(/free\s+(?:first\s+)?months?|first\s+month\s+(?:is\s+)?free|months?\s+free/i);
   /* The buyable plans keep their monthly as the headline. */
   for (const [i, pl] of P.plans.entries()) {
     if (pl.selfServe === false) continue;
