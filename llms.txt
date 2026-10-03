@@ -89,9 +89,10 @@ Key facts (kept accurate; the pricing page is authoritative):
   collected revenue directly attributable to a business Nevamis found or a
   quote Nevamis recovered, as governed by the client's agreement, which is
   where the share is set.
-- Every client starts on a normal monthly subscription at the published
-  price, with no minimum term. Nothing comes before it: no evaluation
-  period and no reduced-price start of any kind.
+- Every client starts on a normal monthly subscription from the first
+  month, at the figures its plan sets above, with no minimum term. Nothing
+  comes before it: no evaluation period and no reduced-price start of any
+  kind.
 - Plan names and prices are only those on /pricing.html. Any other name,
   price or offer is retired: never quote it.
 - A referred business pays the same published price as everybody else.
