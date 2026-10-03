@@ -700,8 +700,14 @@ export const PAGES = {
        config's frontDeskTiers(), smallest first, each with its minutes,
        monthly and per-minute rate, and says what the product does at the
        limit: calls keep being answered, the email at 100% names the rate
-       and the next size (pricing-config.js usagePolicy, the engine's
-       overLimitSuggestion), and nothing changes the plan but the client. */
+       and the next size (pricing-config.js usagePolicy), and nothing
+       changes the plan but the client. The engine half of that email is
+       v7 engine leaf L5 (usage-upgrade-email: src/domain/upgrade-
+       suggestion.ts over canonical.ts nextTierUp(), appended to the 100%
+       message in usage-policy.ts). On sell/v7-integration nextTierUp()
+       exists but has no caller and the 100% email does not yet name the
+       next size, so this sentence is true only once L5 lands: L5 is a
+       hard precondition for v7 go-live. */
     body: `
 <section class="tight">
   <div class="wrap">
