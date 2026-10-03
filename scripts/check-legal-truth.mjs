@@ -211,13 +211,19 @@ if (PUBLISHED.includes('talk/index.html')) {
    ===================================================================== */
 {
   const code = stripJsComments(siteJs);
+  /* Only the sentence that says what is counted can make the promise. The
+     word "scroll" elsewhere on the page (the booking calendar loads when you
+     scroll to it) says nothing about counting, and an earlier version of this
+     rule, which read the whole page, passed on it. */
+  const counting = sentencesOf(privacyText).filter((s) => /\bwe count\b/i.test(s)).join(' ');
+  if (!counting) fail('counting', 'privacy.html no longer has a sentence saying what "we count", so this rule has nothing to hold to the code.');
   const FAMILIES = [
     [/nvTrack\(\s*["'](?:scroll_depth_|section_reached_)/, /\bscroll/i, 'how far down a page a visitor scrolls (scroll_depth_*, section_reached_*)'],
     [/data-evt/, /button clicks/i, 'button clicks (data-evt)'],
     [/landing_page_view|nvSend\(/, /page views/i, 'page views'],
   ];
   for (const [sent, said, what] of FAMILIES) {
-    if (sent.test(code) && !said.test(privacyText)) fail('counting', `site.js counts ${what}, and privacy.html does not say so.`);
+    if (counting && sent.test(code) && !said.test(counting)) fail('counting', `site.js counts ${what}, and privacy.html's sentence about what we count does not say so.`);
   }
 }
 
