@@ -194,3 +194,9 @@ owner says publish; the branch is `sell/v7-site`.
   `../ai-assistant/PLAYBOOK.md` tier table moves to v7 in the same step
   (guard 9 says what it must carry), not before: until then it is what he
   quotes on calls against the live site.
+  v7 is not published before the engine sends the email the last
+  `usagePolicy` note promises (the one naming the next Front Desk size and
+  what it costs, ENGINE-SPEC section 5, BACKLOG leaf v7-l5-usage-email):
+  until that leaf is merged into the engine that will be live, the note
+  describes an email nobody sends. Both `freeMonth.effective` values (here
+  and canonical's) are re-stamped together; they are kept equal until then.

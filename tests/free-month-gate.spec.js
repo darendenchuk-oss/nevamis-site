@@ -229,8 +229,17 @@ test('the three Front Desk sizes sit side by side under one heading, minutes fir
   /* 150 calls of 2.5 minutes is 375 minutes: Front Desk Plus covers it and
      Front Desk Starter does not. */
   await expect(page.locator('#rcResult .pick')).toHaveText('Front Desk Plus · ' + P.startLine(tiers[1]).replace(/\.$/, ''));
+  /* The pick is coverage-first, and where a smaller size plus its extra
+     minutes costs less, the Why line says so with both totals (review of
+     PR #53): 375 minutes on Front Desk Starter is C$250 + 175 x C$1.10. */
+  const why = page.locator('#rcResult p');
+  await expect(why).toContainText('Front Desk Starter with its extra minutes would come to about C$442.50 a month, less than Front Desk Plus\'s C$500.00');
+  await page.fill('#rcVol', '400');
+  await expect(page.locator('#rcResult .pick')).toHaveText('AI Front Desk · ' + P.startLine(tiers[2]).replace(/\.$/, ''));
+  await expect(why).toContainText('Front Desk Plus with its extra minutes would come to about C$927.50 a month, less than AI Front Desk\'s C$1,000.00');
   await page.fill('#rcVol', '60');
   await expect(page.locator('#rcResult .pick')).toHaveText('Front Desk Starter · ' + P.startLine(tiers[0]).replace(/\.$/, ''));
+  await expect(why).not.toContainText('less than');
   /* The structured data's floor is the smallest self-serve monthly. */
   const product = await page.evaluate(() => [...document.querySelectorAll('script[type="application/ld+json"]')]
     .map((s) => { try { return JSON.parse(s.textContent); } catch { return null; } })

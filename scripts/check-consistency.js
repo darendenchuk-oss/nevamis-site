@@ -1655,6 +1655,15 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     const ptNote = typeof cfg.partnerNote === "function" ? cfg.partnerNote() : null;
     if (ptNote === null) err("pricing-config.js: partnerNote() is missing, so #partnerNote on pricing.html has nothing to render");
     else if (ptNote) eq("pricing.html", "partnerNote", flat(textOf(ph, "partnerNote")), ptNote);
+    /* The same page quotes Enterprise's Launch & Implementation from a
+       floor, so a note calling one plan "the one plan with" a fee must also
+       name Enterprise and its floor, or a buyer reads the two as a
+       contradiction (review of PR #53). */
+    if (ptNote && cfg.enterprise && cfg.enterprise.launchFrom) {
+      const entFloor = typeof cfg.money === "function" ? cfg.money(cfg.enterprise.launchFrom) : String(cfg.enterprise.launchFrom);
+      if (/the one (?:published )?plan with/i.test(ptNote) && !(ptNote.includes(cfg.enterprise.name) && ptNote.includes(entFloor)))
+        err("pricing-config.js partnerNote() says \"" + ptNote + "\" while pricing.html quotes " + cfg.enterprise.name + "'s Launch & Implementation from " + entFloor + "; name " + cfg.enterprise.name + " and its floor beside it");
+    }
     const shared = typeof cfg.sharedFeatures === "function" ? cfg.sharedFeatures() : null;
     const everyPlan = items(textOf(ph, "everyPlan"));
     if (!shared || !shared.length) err("pricing-config.js: sharedFeatures() is missing or empty, so pricing.html has no list of what every plan includes");

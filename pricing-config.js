@@ -76,7 +76,9 @@
       newClientsOnly: true,
       firstClients: 10,
       grantedVia: "booked_call",
-      effective: "2026-10-03"
+      /* The engine's canonical freeMonth.effective, kept equal to it; the
+         publish step re-stamps both to the publish date together. */
+      effective: "2026-10-02"
     },
     /* Enterprise is quoted per client, so it is not a plans[] entry.
        `launchFrom` is a floor ("starting at"), never a price. */
@@ -209,8 +211,15 @@
       var self = this;
       var pl = (this.plans || []).filter(function (p) { return p.launch > 0; });
       if (pl.length !== 1) return pl.map(function (p) { return p.name + ": " + self.launchPart(p) + "."; }).join(" ");
-      return "The " + pl[0].name + " is the one plan with a Launch & Implementation fee: " + this.launchPart(pl[0]) + "."
-        + (pl[0].inviteNote ? " " + pl[0].inviteNote : "");
+      /* "Published plan", and Enterprise's floor said beside it: Enterprise
+         is not a plans[] entry, but the same page quotes its Launch &
+         Implementation from a floor, so "the one plan" alone reads as a
+         contradiction. */
+      var ent = this.enterprise && this.enterprise.launchFrom
+        ? " " + this.enterprise.name + " is quoted per client, its Launch & Implementation starting at " + this.money(this.enterprise.launchFrom) + "."
+        : "";
+      return "The " + pl[0].name + " is the one published plan with a Launch & Implementation fee: " + this.launchPart(pl[0]) + "."
+        + (pl[0].inviteNote ? " " + pl[0].inviteNote : "") + ent;
     },
     /* The AI Front Desk and every plan that is a size of it (`tierOf`),
        smallest first, as the engine's frontDeskTiers() orders them. Every

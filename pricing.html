@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-sd0nCgUuPEdqHVkqr1/xVg1JfRcUQ8l9DNGRvzSW2SA=' 'sha256-W7cy57qtNjLnJSbKotVFrB3tK3p1kLNLUrG7GgPYaAE=' 'sha256-JXqBjJZcnb6A53xDi4AUWLiyjToNB2HEuNrbMI/S+6c=' 'sha256-laZYsqKpVJKVr/E+iPK3GpwRZ6hiJ9BJcU7xAR4RjHQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-oZ8b+7i4aD8XUqIPM8BktJ7zpxeAf9yzbfTWiOzU4/o=' 'sha256-/iVOqbDuklEOEnTRQmSyPs84fMVEC0l+Bf7p+7YGXo0=' 'sha256-JXqBjJZcnb6A53xDi4AUWLiyjToNB2HEuNrbMI/S+6c=' 'sha256-laZYsqKpVJKVr/E+iPK3GpwRZ6hiJ9BJcU7xAR4RjHQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1140,7 +1140,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              open. The Partnership's fee is #partnerNote, rendered from
              P.partnerNote() and held to it by guard 7a. -->
         <p>The Works, the three Front Desk sizes and every add-on are priced as a monthly alone: the discovery call, configuration, testing and go-live are part of it. Buy now charges your plan's first month the day you start, and the same date every month after. The only other recurring charges are the monthly of any add-on you choose, overage past your included minutes and, on the Performance Partnership, offered by invitation, the agreed share of attributable collected revenue set in your agreement.</p>
-        <p id="partnerNote">The Performance Partnership is the one plan with a Launch &amp; Implementation fee: C$5,000 Launch &amp; Implementation to start. Offered by invitation and approval.</p>
+        <p id="partnerNote">The Performance Partnership is the one published plan with a Launch &amp; Implementation fee: C$5,000 Launch &amp; Implementation to start. Offered by invitation and approval. Enterprise is quoted per client, its Launch &amp; Implementation starting at C$5,000.</p>
         <!-- THE TERM, and its whole history is a warning. Until 2026-08-25
              this paragraph ended "We do not ask for a term, and we do not
              need one." The v4 directive of 2026-08-22 made that false, and
@@ -1829,7 +1829,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     entEl.hidden = false;
   }
   /* recommender */
-  /* Picks the cheapest SELF-SERVE plan whose included minutes cover the
+  /* Picks the smallest SELF-SERVE plan whose included minutes cover the
      estimate, and nothing else. It used to route on locations, departments
      and a "CRM/automation connection", which are not differences between
      these plans and in one case not a thing the product does; a recommender
@@ -1861,7 +1861,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     document.querySelector("#rcResult .pick").textContent = pick.name + " · " + P.startLine(pick).replace(/\.$/, "");
     var twins = ladder.filter(function (p) { return p !== pick && p.includedMinutes === pick.includedMinutes; });
     var note = twins.length ? twins.map(function (p) { return p.name; }).join(" and ") + " carries the same minutes and adds automations, so choose between them for the automations, not for the minutes. " : "";
-    document.querySelector("#rcResult p").textContent = "Why: " + why + ". " + note + "Your real average shows up in the portal from your first week of calls, and you can change plan yourself from there.";
+    /* The pick is coverage-first: the smallest plan whose included minutes
+       cover the estimate. A smaller size plus its extra minutes can cost
+       less than that (1,000 minutes on Front Desk Plus is C$927.50, under
+       the AI Front Desk's C$1,000), so when one does, the Why line says
+       so with its total and never leaves the dearer pick unexplained. */
+    var totalAt = function (p) { return Math.round((p.monthly + Math.max(0, est - p.includedMinutes) * p.overage) * 100) / 100; };
+    var cheapest = ladder.slice().sort(function (a, b) { return totalAt(a) - totalAt(b); })[0];
+    var cheaper = cheapest && cheapest !== pick && totalAt(cheapest) < totalAt(pick)
+      ? "At this estimate, " + cheapest.name + " with its extra minutes would come to about C$" + totalAt(cheapest).toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        + " a month, less than " + pick.name + "'s C$" + totalAt(pick).toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        + ": this pick is the size whose minutes cover you, not the lowest total. "
+      : "";
+    document.querySelector("#rcResult p").textContent = "Why: " + why + ". " + note + cheaper + "Your real average shows up in the portal from your first week of calls, and you can change plan yourself from there.";
   }
   ["rcVol", "rcLen"].forEach(function (id) {
     document.getElementById(id).addEventListener("input", recommend);
