@@ -142,7 +142,7 @@ const NEG = /\b(?:not|never|no|cannot|nothing|none|nor|neither|fail|fails|failur
    callers a confirmation or reminder, or puts a call through to a person
    is a P0 failure" is one subject with one verdict.) */
 const DENIAL_WORD = /\b(?:no|never|not|cannot|nor|neither|none|nothing|isn't|doesn't|don't|won't|can't)\b(?!\s+(?:just|only|merely|simply|forget|forgets|forgetting|forgot|fail|fails|failing|failed|hesitate|hesitates|hesitating|hesitated|neglect|neglects|neglecting|skip|skips|skipping|miss|misses|missing|missed|omit|omits|omitting|stop|stops|stopping)\b)/gi;
-const DENIAL_EDGE = /[.;|,:–—]|\s-\s|\b(?:and|but|yet|however|though|although|instead|while|whereas|so|then|because|as|since)\b/i;
+const DENIAL_EDGE = /[.;|,:\u2013\u2014]|\s-\s|\b(?:and|but|yet|however|though|although|instead|while|whereas|so|then|because|as|since)\b/i;
 const DENIAL_AFTER = /^\s+(?:nothing|none|no)\b/i;
 /* Words that may stand between a denial and the claim it governs directly. */
 const DENIAL_GAP = /^(?:is|are|was|were|be|been|being|am|do|does|did|will|would|can|could|should|shall|may|might|must|has|have|had|ever|even|yet|also|always|directly|itself|actually|really|currently|a|an|the|any|its|their|your|our|his|her|this|that|these|those|one|single|to|live|real|actual|direct|warm|automatic|phone|human)$/i;
@@ -475,8 +475,8 @@ export const AGENT_FIXTURES = {
     ["nevamis-knowledge-base.md", "Callers never wait as the front desk books the job."],
     ["nevamis-knowledge-base.md", "No caller waits since the agent transfers them."],
     ["nevamis-knowledge-base.md", "No voicemail - the agent transfers the call."],
-    ["nevamis-knowledge-base.md", "Not a problem — it transfers callers to Daren."],
-    ["nevamis-knowledge-base.md", "Not a problem – it transfers callers to Daren."],
+    ["nevamis-knowledge-base.md", "Not a problem \u2014 it transfers callers to Daren."],
+    ["nevamis-knowledge-base.md", "Not a problem \u2013 it transfers callers to Daren."],
     ["nevamis-knowledge-base.md", "Never hesitates to transfer the caller to Daren."],
     ["nevamis-knowledge-base.md", "Never hesitating to transfer the caller to Daren."],
     ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | Failing to transfer the caller to Daren is a FAIL. | ok | P1 |"],
