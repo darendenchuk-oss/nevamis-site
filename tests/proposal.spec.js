@@ -57,7 +57,12 @@ test('quotes the approved price list, never hardcoded numbers', async ({ page })
      worse than failing: satisfying it meant putting a sentence back on the
      one document a buyer keeps that the commercial model had deliberately
      retired. What must be disclosed now is the fee itself. */
-  await expect(terms).toContainText(/Launch & Implementation/i);
+  /* v7 (2026-10-03): only the Performance Partnership carries the fee, so
+     the line names it exactly where the plan does, in launchPart()'s words,
+     and a plan without one is never given a fee or a "One-time ." stub. */
+  const growth = (await page.evaluate(() => window.NV_PRICING.plans.find((p) => p.id === 'growth')));
+  if (growth.launch > 0) await expect(terms).toContainText(/Launch & Implementation/i);
+  else await expect(terms).not.toContainText(/One-time|Launch & Implementation/i);
   /* INVERTED 2026-08-22 (v4): a minimum term existed, three months on a plan
      alone and six with add-ons or The Works, so "no minimum term" flipped
      from a required disclosure to a retired sentence.
@@ -181,7 +186,11 @@ test('a retired or unknown plan id never quotes a retired price', async ({ page 
    call as its only action; everything read from the config, nothing typed. */
 test('a module sold on its own renders as itself, with its own pair and no buy button', async ({ page }) => {
   const P = pricing();
-  const alone = P.addOns.filter((a) => a.sellable && a.soldAlone && a.monthly > 0 && a.launch > 0);
+  /* `a.launch > 0` was in this filter until v7 (2026-10-03), when every
+     module's fee went to 0: the set went empty and the page's own copy of
+     the filter refused every module. The pair is startLine()'s now, the
+     monthly alone, with the fee first only where one returns. */
+  const alone = P.addOns.filter((a) => a.sellable && a.soldAlone && a.monthly > 0);
   expect(alone.map((a) => a.id), 'the quote-chase case the finding names must be in the set').toContain('quote_chase');
   const cash = (n) => 'C$' + n.toLocaleString('en-CA');
   const desk = P.plans.find((p) => p.recommended);
@@ -190,7 +199,7 @@ test('a module sold on its own renders as itself, with its own pair and no buy b
     await expect(page.locator('#planName'), a.id).toHaveText(a.name.toUpperCase());
     await expect(page.locator('#planPrice'), a.id).toHaveText(cash(a.monthly) + '/month');
     await expect(page.locator('#planMonthly'), a.id)
-      .toContainText(cash(a.launch) + ' Launch & Implementation to start, then ' + cash(a.monthly) + ' a month');
+      .toHaveText(P.startLine(a).replace(/\.$/, '') + ', charged the day you start and every month after.');
     await expect(page.locator('#summaryLine'), a.id).toHaveText(a.blurb);
     /* Whether a module (the automatic text-back above all) may be
        recommended is the owner's open item O24/O12, so the heading names
@@ -355,8 +364,12 @@ test('still reads as a complete proposal with no parameters and no JS', async ({
      re-adding it would have been the fix. It now asserts the terms that
      replaced it, which is the sentence a prospect must still read when the
      config never loads. */
-  expect(text).toContain('Launch & Implementation');
+  /* 'Launch & Implementation' was asserted here until v7 (2026-10-03), when
+     the static plan, the AI Front Desk, stopped carrying the fee; what a
+     scripts-off reader must still be told is when the monthly is charged
+     and that there is no minimum term. */
   expect(text).toContain('charged the day you start');
+  expect(text).toMatch(/no minimum term/i);
   expect(text).not.toMatch(/pilot|trial/i);
   expect(text).toContain('What happens next');
   expect(text).toContain('(587) 413-0035');
@@ -438,7 +451,9 @@ test('a plan the checkout sells at the stated price can be bought from the propo
         .toBe('https://app.nevamis.ca/signup?plan=' + encodeURIComponent(pl.id));
       /* The family the engine counts as purchase intent; a name outside it is
          dropped silently, which looks exactly like nobody clicking. */
-      expect(s.evt).toBe('plan_buy_click_' + pl.id);
+      /* The id with hyphens as underscores (v7's front-desk-* sizes), as
+         the pricing page writes it; the href keeps the id as it is. */
+      expect(s.evt).toBe('plan_buy_click_' + pl.id.replace(/-/g, '_'));
       expect(s.evt).toMatch(/^plan_buy_click_[a-z0-9_]{1,24}$/);
     }
     /* The call stays, as the second action, in both places. */
@@ -463,11 +478,22 @@ test('a plan the checkout does not sell as stated keeps the call and nothing els
      plan's own band, and a banded plan is agreed rather than bought, so the
      quoted case is the banded one. A "quote" equal to a direct plan's
      published monthly IS the published price, and keeps its button. */
+  /* v7 (2026-10-03) fixed the Partnership's figures and retired the bands,
+     so no plan can be agreed at another figure today. The banded case runs
+     while a band exists; without one, a quote off the invitation plan's
+     monthly is ignored, its published monthly stands, and it keeps the call. */
   const banded = P.plans.find((p) => Array.isArray(p.monthlyRange));
-  const inside = banded.monthlyRange.find((m) => m !== banded.monthly);
-  await page.goto(`/proposal.html?plan=${banded.id}&quote=${inside}`);
-  await expect(page.locator('#planPrice')).toContainText('C$' + inside.toLocaleString('en-CA'));
-  expectCallOnly(await ctas(page), `${banded.id} quoted at ${inside}`);
+  if (banded) {
+    const inside = banded.monthlyRange.find((m) => m !== banded.monthly);
+    await page.goto(`/proposal.html?plan=${banded.id}&quote=${inside}`);
+    await expect(page.locator('#planPrice')).toContainText('C$' + inside.toLocaleString('en-CA'));
+    expectCallOnly(await ctas(page), `${banded.id} quoted at ${inside}`);
+  } else {
+    const inv = byInvite[0];
+    await page.goto(`/proposal.html?plan=${inv.id}&quote=${inv.monthly + 50}`);
+    await expect(page.locator('#planPrice')).toHaveText('C$' + inv.monthly.toLocaleString('en-CA') + '/month');
+    expectCallOnly(await ctas(page), `${inv.id} with an ignored quote`);
+  }
   const pl = P.plans.find((p) => sellsDirect(P, p));
   await page.goto(`/proposal.html?plan=${pl.id}&quote=${pl.monthly}`);
   expect((await ctas(page)).signups.length, 'a quote equal to the published monthly is the published price').toBe(2);
@@ -487,7 +513,13 @@ test("a quote is honoured only inside the named plan's own band", async ({ page 
   const cash = (n) => 'C$' + n.toLocaleString('en-CA');
   const byId = (id) => P.plans.find((p) => p.id === id);
   const works = byId('growth'), desk = byId('pro'), partner = byId('starter');
-  const [lo, hi] = partner.monthlyRange;
+  /* v7 (2026-10-03) retired the Partnership's band: its monthly is one
+     figure, so the band it may be agreed in is that figure at both ends
+     (NV_PRICING.monthlyBounds), and the probes below are taken around it. */
+  const [lo, hi] = P.monthlyBounds(partner).every((n) => n === partner.monthly)
+    ? [partner.monthly - 100, partner.monthly + 150]
+    : P.monthlyBounds(partner);
+  const banded = Array.isArray(partner.monthlyRange);
   /* The two links the finding names, derived: The Works at the band's floor,
      the front desk at its ceiling, and their mirror images. Each shows its
      own published price and never the quoted figure. */
@@ -500,9 +532,10 @@ test("a quote is honoured only inside the named plan's own band", async ({ page 
   }
   /* The Partnership: inside its band the agreed figure stands; outside it,
      the published default. */
+  /* With no band (v7), every figure but the published one is outside it. */
   const insideQ = [400, lo, hi].find((n) => n >= lo && n <= hi && n !== partner.monthly);
   await page.goto(`/proposal.html?plan=${partner.id}&quote=${insideQ}`);
-  await expect(page.locator('#planPrice')).toHaveText(cash(insideQ) + '/month');
+  await expect(page.locator('#planPrice')).toHaveText(cash(banded ? insideQ : partner.monthly) + '/month');
   for (const out of [hi + 100, lo - 1, desk.monthly, works.monthly]) {
     await page.goto(`/proposal.html?plan=${partner.id}&quote=${out}`);
     await expect(page.locator('#planPrice'), `starter quote=${out}`).toHaveText(cash(partner.monthly) + '/month');
