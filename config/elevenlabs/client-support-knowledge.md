@@ -58,7 +58,7 @@ The support agent may state published pricing as general information but never q
 - The Works: C$3,000 Launch & Implementation to start, then C$2,100 a month. No performance share. The AI Front Desk plus every module sold today. 1,400 connected AI minutes, overage C$0.75/minute.
 - AI Front Desk (recommended): C$1,500 Launch & Implementation to start, then C$1,000 a month. No performance share. 1,400 connected AI minutes, overage C$0.75/minute.
 - Performance Partnership (by invitation and approval only, never presented as the default): From C$2,500 Launch & Implementation to start, then C$350 a month by default, inside a monthly band of C$250 to C$500. Both figures are set in the client's agreement. On it, Lead Generation and the Quote-Chase Engine are each paid by an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered; the share, the attribution window and what counts as eligible revenue are set in that agreement, and the support agent never states the share as a rate or a percentage. 250 minutes, overage C$1.10/minute.
-- Modules, each sold on its own or beside any plan, each with its own two figures:
+- Modules, each sold on its own or added to a plan one at a time, each with its own two figures (The Works already includes all four, and on the Performance Partnership the Quote-Chase Engine is paid by the agreed share instead):
   - Missed-Call Recovery: C$500 Launch & Implementation to start, then C$350 a month.
   - Quote-Chase Engine: C$750 Launch & Implementation to start, then C$500 a month.
   - Get-Paid Autopilot: C$750 Launch & Implementation to start, then C$500 a month.

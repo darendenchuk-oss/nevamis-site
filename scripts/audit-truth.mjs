@@ -4,7 +4,7 @@
    What it checks:
      1. Every price/number on every page against pricing-config.js
      2. Phone numbers: one demo line everywhere, no strays
-     3. Email addresses: one contact address, no strays
+     3. Email addresses: the sales contact and the addresses pricing-config.js publishes, no strays
      4. Claim words that assert traction Nevamis does not have
      5. Absolute internal links that hardcode the domain (break on preview)
      6. Pages missing from sitemap.xml that are indexable  */

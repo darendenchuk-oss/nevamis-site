@@ -225,7 +225,7 @@ const MODULES = (NV.addOns || [])
       name: a.name,
       selfServe: true,
       spec: priceSpecFor(a),
-      desc: `${NV.startLine(a)} Sold on its own or beside any plan, month to month. ${a.blurb}`,
+      desc: `${NV.startLine(a)} Sold on its own, month to month, with no plan required. ${a.blurb}`,
     };
   });
 if (!MODULES.length) {
