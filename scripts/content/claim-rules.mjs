@@ -123,8 +123,9 @@ export const CLAIM_RULES = [
     why: 'the client agent\'s prompt has no qualifying-questions field: it takes hours, services, area, the approved FAQ and a booking link, and captures name, callback number, job, location and urgency "in a question or two" (engine src/domain/agent-draft.ts, buildClientAgentPrompt). A trade question rides in only as approved text. Say what it asks, and that it "can be set up to ask" more' },
   /* THE TIME A CALLER ASKS FOR IS A REQUEST, NOT AN APPOINTMENT (audit
      PRICING-9, 2026-10-03). These pages said the agent "takes the job and
-     the time the caller wants" in eight places, and the hub, demo.html and
-     the trade pages said it with no word about who confirms. A buyer, and an
+     the time the caller wants", or a close wording, in eight places in
+     pages.mjs alone, plus the hub card and demo.html, and the hub, demo.html
+     and the trade pages said it with no word about who confirms. A buyer, and an
      answer engine quoting one sentence, reads "takes the job" as accepting a
      booking and "the time they want" as the time they get. A client agent
      books nothing: it has end_call and no calendar (engine agent-draft.ts
