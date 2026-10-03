@@ -95,12 +95,22 @@ test('the homepage plans strip renders every plan from the single source of trut
       for (const k of ['monthly', 'launch']) if (x[k]) charged.add(Number(x[k]));
     }
     if (P.enterprise && P.enterprise.launchFrom) charged.add(Number(P.enterprise.launchFrom));
+    /* The Front Desk sizes (v7, owner amendment #67) share one card, so the
+       cards are the other plans in order with that card where the first
+       size falls. */
+    const sizes = typeof P.frontDeskTiers === 'function' ? P.frontDeskTiers() : [];
+    const sizeIds = sizes.length > 1 ? sizes.map((s) => s.id) : [];
     return {
-      plans: P.plans.map((p) => ({
+      plans: P.plans.filter((p) => !sizeIds.includes(p.id)).map((p) => ({
         name: p.name, monthly: p.monthly, launch: p.launch,
         recommended: !!p.recommended, selfServe: p.selfServe !== false,
       })),
+      sizes: sizeIds.length ? sizes.map((p) => ({
+        name: p.name, monthly: p.monthly, minutes: p.includedMinutes, overage: p.overage,
+      })) : [],
+      sizesAt: sizeIds.length ? P.plans.filter((p, i) => !sizeIds.includes(p.id) && i < P.plans.findIndex((x) => sizeIds.includes(x.id))).length : -1,
       recommendedLabel: P.recommendedLabel,
+      recommendedName: (P.plans.find((p) => p.recommended) || {}).name,
       annualActive: !!(P.annual && P.annual.active),
       charged: [...charged],
       /* 150 and 850 joined the list on 2026-08-09 with the paid pilot and the
@@ -112,11 +122,28 @@ test('the homepage plans strip renders every plan from the single source of trut
   });
 
   const cards = page.locator('#plansStrip .plan-row .card');
-  await expect(cards).toHaveCount(cfg.plans.length);
+  await expect(cards).toHaveCount(cfg.plans.length + (cfg.sizes.length ? 1 : 0));
 
   const grp = (n) => Number(n).toLocaleString('en-CA');
-  const figures = (s) => [...s.matchAll(/C\$([\d,]+)/g)].map((m) => Number(m[1].replace(/,/g, '')));
-  for (const [i, plan] of cfg.plans.entries()) {
+  const figures = (s) => [...s.matchAll(/C\$([\d,]+(?:\.\d+)?)/g)].map((m) => Number(m[1].replace(/,/g, '')));
+  if (cfg.sizes.length) {
+    /* One card, every size smallest first, minutes leading each line, and
+       no figure but each size's own monthly and overage. */
+    const card = cards.nth(cfg.sizesAt);
+    await expect(card).toContainText('Same receptionist, answers 24/7');
+    const text = await card.innerText();
+    let at = -1;
+    for (const s of cfg.sizes) {
+      const line = `${s.name}: ${grp(s.minutes)} included minutes, C$${grp(s.monthly)} a month, C$${s.overage.toFixed(2)} per extra minute.`;
+      expect(text, `the sizes card states ${s.name} as "${line}"`).toContain(line);
+      expect(text.indexOf(line), 'the sizes run smallest first').toBeGreaterThan(at);
+      at = text.indexOf(line);
+    }
+    const allowed = new Set(cfg.sizes.flatMap((s) => [s.monthly, s.overage]));
+    expect(figures(text).filter((n) => !allowed.has(n)), 'the sizes card carries a figure no size charges').toEqual([]);
+  }
+  for (const [j, plan] of cfg.plans.entries()) {
+    const i = cfg.sizes.length && j >= cfg.sizesAt ? j + 1 : j;
     const card = cards.nth(i);
     await expect(card).toContainText(plan.name);
     const text = await card.innerText();
@@ -133,7 +160,8 @@ test('the homepage plans strip renders every plan from the single source of trut
        is the rule: the card states what this plan charges and puts no other
        figure beside it for a reader to add up. */
     await expect(card, `${plan.name} must state its monthly price`).toContainText(`C$${grp(plan.monthly)} a month`);
-    await expect(card, `${plan.name} must state its launch fee`).toContainText(`C$${grp(plan.launch)}`);
+    /* A fee only where the plan carries one (v7: none on a self-serve plan). */
+    if (plan.launch > 0) await expect(card, `${plan.name} must state its launch fee`).toContainText(`C$${grp(plan.launch)}`);
     expect(figures(text).filter((n) => n !== plan.monthly && n !== plan.launch),
       `${plan.name} carries a figure the config does not charge for it`).toEqual([]);
   }
@@ -143,9 +171,14 @@ test('the homepage plans strip renders every plan from the single source of trut
      from the single source of truth without insisting on any claim, and the
      card is found by the FLAG, not by a plan name that can be renamed. */
   expect(cfg.recommendedLabel, 'pricing-config must define recommendedLabel').toBeTruthy();
-  const recIndex = cfg.plans.findIndex((p) => p.recommended);
-  expect(recIndex, 'a plan must be marked recommended').toBeGreaterThanOrEqual(0);
-  await expect(cards.nth(recIndex)).toContainText(cfg.recommendedLabel);
+  /* One badge, beside the recommended plan's own name: on its card, or on
+     its line in the sizes card when it is a Front Desk size (v7). */
+  expect(cfg.recommendedName, 'a plan must be marked recommended').toBeTruthy();
+  const badges = await page.evaluate(() => [...document.querySelectorAll('#plansStrip .chip.rec')]
+    .map((c) => ({ text: c.textContent.trim(), around: (c.closest('li') || c.closest('h3') || c).textContent })));
+  expect(badges.length, 'exactly one recommended badge').toBe(1);
+  expect(badges[0].text).toBe(cfg.recommendedLabel);
+  expect(badges[0].around, 'the badge sits beside the recommended plan').toContain(cfg.recommendedName);
 
   /* Annual prepay is suspended. Advertising "two months free" against a yearly
      figure nobody approved is inventing a price. */

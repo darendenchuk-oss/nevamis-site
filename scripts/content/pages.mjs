@@ -25,9 +25,14 @@ vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'pricing-config.js'), 'utf8')
 const NV = cfgSandbox.window.NV_PRICING || {};
 const MISSED_CALL = (NV.addOns || []).find((a) => a.id === 'missed_call_recovery');
 const FRONT_DESK = (NV.plans || []).find((p) => p.id === 'pro');
-if (!MISSED_CALL || !MISSED_CALL.sellable || !(MISSED_CALL.launch > 0) || !(MISSED_CALL.monthly > 0)) {
-  throw new Error('pages.mjs: pricing-config.js has no sellable missed_call_recovery add-on with a launch and a monthly; refusing to print its price.');
+/* Since v7 (2026-10-03) a module's Launch & Implementation fee is 0, so the
+   fee is no longer required, only declared; its sentence is the config's own
+   startLine(), which names a fee only where there is one. */
+if (!MISSED_CALL || !MISSED_CALL.sellable || typeof MISSED_CALL.launch !== 'number' || !(MISSED_CALL.monthly > 0)
+  || typeof NV.startLine !== 'function') {
+  throw new Error('pages.mjs: pricing-config.js has no sellable missed_call_recovery add-on with a monthly, or no startLine(); refusing to print its price.');
 }
+const MISSED_CALL_LINE = NV.startLine(MISSED_CALL).replace(/\.$/, '').replace(/&/g, '&amp;');
 if (!FRONT_DESK || !(FRONT_DESK.includedMinutes > 0) || !(FRONT_DESK.overage > 0)) {
   throw new Error('pages.mjs: pricing-config.js has no "pro" plan with included minutes and an overage rate; refusing to print them.');
 }
@@ -486,7 +491,7 @@ export const PAGES = {
         you missed, once, with your business name on it and a working opt-out, on your written
         go-ahead. It sends only between 8 a.m. and 8 p.m. your time, every day, and hands over
         the moment they reply. On its own it is
-        ${cad(MISSED_CALL.launch)} Launch &amp; Implementation to start, then ${cad(MISSED_CALL.monthly)} a month,
+        ${MISSED_CALL_LINE},
         plus applicable GST/HST.</p></div>
     </div>
   </div>

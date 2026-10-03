@@ -249,7 +249,13 @@ test('LEGAL-9: the terms note charges the one-time fee when the plan or add-on s
   const note = config().terms.note;
   expect(note).toMatch(/\badd-on\b/);
   expect(note, 'an add-on added later is not charged "beside your first month"').not.toMatch(/\bbeside (?:your|the) first month\b/i);
-  expect(note).toMatch(/\bcharged once when the plan or add-on starts\b/);
+  /* v7 (2026-10-03): only the Performance Partnership carries a fee, and
+     its card and the terms band state it, so the term note names no fee at
+     all. Where a note does name one, it is charged when the plan or add-on
+     starts. And the note says nothing about a first month free: every
+     renderer prints it to every buyer, and that offer is gated. */
+  if (/Launch & Implementation/.test(note)) expect(note).toMatch(/\bcharged once when the plan or add-on starts\b/);
+  expect(note).not.toMatch(/\bfree month\b|\bfirst month (?:is )?free\b|\bmonths? free\b/i);
   /* The pricing page's no-script copy says the same words. */
   const m = read('pricing.html').match(/<p id="termsNote"[^>]*>([\s\S]*?)<\/p>/);
   expect(m && flat(decode(m[1]))).toBe(note);
@@ -318,7 +324,9 @@ test('PRICING-14, WALK-LIVE-2: the no-script add-on list is the config, line for
     const sellableNow = a.sellable === true && a.monthly > 0;
     const priced = sellableNow && !!P.publishedPricing;
     const parts = [a.name];
-    if (priced) parts.push(P.money(a.monthly) + '/month', P.startLine(a).replace(/\.$/, ''));
+    /* The whole sentence only where it says more than the label (v7: a
+       module's fee is 0, and the label is then the whole price). */
+    if (priced) parts.push(P.money(a.monthly) + '/month', ...(P.launchPart(a) ? [P.startLine(a).replace(/\.$/, '')] : []));
     else if (sellableNow) parts.push('quoted per client');
     else parts.push(a.partnership ? 'on the Performance Partnership' : 'coming');
     parts.push(a.blurb.charAt(0).toLowerCase() + a.blurb.slice(1));
