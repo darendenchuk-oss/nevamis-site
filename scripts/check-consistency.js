@@ -21,6 +21,8 @@ import { headCssBlock, readCssSources, CSS_OPEN, CSS_CLOSE, LINK_FONTS, LINK_SIT
 import { applySelfCta } from "./lib/nav-cta.mjs";
 import { chipsOf, chipFindings, statusLabelsFrom, CHIP_FIXTURES } from "./lib/status-chips.mjs";
 import { termFindings, TERM_FIXTURES } from "./lib/llms-terms.mjs";
+import { agentTruthFindings, agentRequiredFindings, doorOrderFindings, AGENT_FIXTURES, llmsPageFindings, LLMS_PAGE_FIXTURES, offerFindings, OFFER_FIXTURES } from "./lib/machine-surfaces.mjs";
+import { sitemapPages } from "./lib/sitemap.mjs";
 /* DENIAL / ADDITIVE / RETIRED_OFFERS and the claim classifier moved to
    ./lib/claims.mjs on 2026-08-10, when a laundering defect in the classifier
    was fixed: a denial in ONE CLAUSE used to excuse every claim in the whole
@@ -120,13 +122,13 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
    The two homepage entries were deleted the day the source line was fixed
    (fix plan A8); the knowledge-base entry the day that file was corrected here;
    the cold-calling offer sheet's entry on 2026-09-25, the day OFFER-V4.md
-   stopped saying it. What is left is one file outside this repository, which
-   no commit here can fix and which CI never sees: the live demo prompt (fix
-   plan A18, pushed through the agent flow). It reports as an owner action and
-   leaves the exit code alone. */
-const BANNED_PENDING = [
-  { file: "../nevamis-engine/docs/agent-prompts/demo.md", text: "the start most businesses make", owner: "engine demo prompt, fix plan A18" },
-];
+   stopped saying it; and the live demo prompt's entry (fix plan A18) on
+   2026-10-03, after every run had been printing that demo.md no longer says
+   it (audit CHECK-RUNNER-11). The ledger is EMPTY, which is the state it is
+   meant to return to: nothing prohibited is excused anywhere. Keep the
+   machinery; the next entry goes here with its owner, and is deleted the day
+   its NOTE line says it stopped matching. */
+const BANNED_PENDING = [];
 const pendingHit = new Set();
 /* The text a `banned` rule is allowed to see: the file as written, minus the
    exact pending fragments recorded for that file above. */
@@ -1888,8 +1890,8 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
       if (clause) {
         err(`${label}: a spoken-agent surface uses retired fee vocabulary or an additive join (${b}).\n      clause: "${clause}"\n      `
           + `"Setup fee", "activation fee" and "onboarding fee" are retired names. The one-time charge is `
-          + `"Launch & Implementation", spoken as "one thousand dollars Launch and Implementation to start, `
-          + `then seven hundred and fifty dollars a month" — never joined with "plus" or "on top".`);
+          + `"Launch & Implementation", spoken as "fifteen hundred dollars Launch and Implementation to start, `
+          + `then one thousand dollars a month" on the AI Front Desk — never joined with "plus" or "on top".`);
       }
     }
   }
@@ -2159,7 +2161,7 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     const noSetupKey = w.NV_PRICING.plans.every((p) => p.setup === undefined);
     if (noSetupKey && w.NV_PRICING.publishedPricing) {
       const naysLaunch = /launch (?:and|&) implementation/.test(spoken);
-      if (!naysLaunch) wait("demo.md: the one-time Launch & Implementation fee is never named. The agent must state it in the approved shape (\"one thousand dollars Launch and Implementation to start, then seven hundred and fifty dollars a month\"), never call it a setup, activation or onboarding fee, and never deny it.");
+      if (!naysLaunch) wait("demo.md: the one-time Launch & Implementation fee is never named. The agent must state it in the approved shape (\"fifteen hundred dollars Launch and Implementation to start, then one thousand dollars a month\" on the AI Front Desk), never call it a setup, activation or onboarding fee, and never deny it.");
     }
     const RETIRED_SPOKEN = [
       "five hundred dollars one-time setup", "seven hundred and fifty dollars setup",
@@ -2805,6 +2807,120 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
   }
 }
 
+/* 7q. THE AGENT DOCUMENTS STATE WHAT THE PRODUCT DOES (audit MACHINE-9 to 16,
+      2026-10-03).
+
+      config/elevenlabs/ is what the demo agent speaks from, what it is
+      graded by, and what every client agent is built from. Guards 6b and 7e
+      read it for banned slogans and retired PRICES, and a sweep of retired
+      prices cannot see a retired PROMISE: the audit found the acceptance
+      tests passing an agent that offers a live transfer, the knowledge base
+      saying the missed-call text goes "during business hours" and that
+      clinics and restaurants are the audience, the support knowledge base
+      stating the Partnership's share as "10%", the client greeting drafts
+      announcing "AI receptionist" and promising bookings, and the template
+      wiring a calendar and a transfer number into an agent that has neither.
+      Every guard here was green on all of it.
+
+      The rules live in scripts/lib/machine-surfaces.mjs, with fixtures that
+      run first: a judge that refuses a true sentence or lets a quoted false
+      one through fails here before any file is judged. Then each file is
+      held to the claims it may not make, the priced knowledge bases to the
+      figures pricing-config.js derives (every module sold alone with its two
+      figures, the Partnership through startLine, the missed-call hours from
+      its blurb), and the door order (Lead Generation, quotes, the front desk;
+      never AI first) on the knowledge base's opening and the catalogue's
+      first row. err(), not wait(): every file is in this repository. */
+{
+  let judged = true;
+  for (const [f, t] of AGENT_FIXTURES.mustFire) {
+    if (!agentTruthFindings(f, t).length) { err(`agent-truth judge: missed a false claim in ${f}: "${t.slice(0, 120)}"`); judged = false; }
+  }
+  for (const [f, t] of AGENT_FIXTURES.mustPass) {
+    const b = agentTruthFindings(f, t);
+    if (b.length) { err(`agent-truth judge: refused a true sentence: ${b[0]}`); judged = false; }
+  }
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const NV = w.NV_PRICING;
+  const files = walk(path.join(root, "config", "elevenlabs"));
+  if (!files.length) err("guard 7q: config/elevenlabs/ has no documents, so the agent's knowledge, tests and templates are unjudged");
+  if (!NV || !Array.isArray(NV.addOns) || typeof NV.startLine !== "function") {
+    err("guard 7q: pricing-config.js did not yield NV_PRICING with addOns and startLine, so the agent's figures are unjudged");
+  } else if (judged) {
+    for (const file of files) {
+      const label = path.relative(root, file).replace(/\\/g, "/");
+      const text = fs.readFileSync(file, "utf8");
+      for (const f of [...agentTruthFindings(label, text), ...agentRequiredFindings(label, text, NV)]) err(f);
+      if (/nevamis-knowledge-base\.md$/.test(label)) {
+        const m = text.replace(/\r\n/g, "\n").match(/## What Nevamis is\n+([^\n]+)/);
+        if (!m) err(`${label}: has no "## What Nevamis is" paragraph, so its door order is unjudged`);
+        else for (const f of doorOrderFindings(`${label} "What Nevamis is"`, m[1])) err(f);
+      }
+      if (/nevamis-agent-test-cases\.md$/.test(label)) {
+        const row = text.split(/\r?\n/).find((l) => l.startsWith("| 1 |"));
+        const cell = row && row.split("|")[4];
+        if (!cell) err(`${label}: has no row 1 "What does Nevamis do?", so its door order is unjudged`);
+        else for (const f of doorOrderFindings(`${label} row 1`, cell)) err(f);
+      }
+    }
+  }
+}
+
+/* 7r. llms.txt LISTS EVERY PAGE THE SITEMAP DOES (audit MACHINE-26).
+
+      Its "## Pages" list was typed once and named ten of twenty indexable
+      pages: no solutions hub, no trade or comparison page, no security.html.
+      An answer engine told "here are the pages" took that as the site. The
+      set it must equal is the one gen-sitemap writes, read from
+      content-map.json through the same helper, so a page added there fails
+      here until llms.txt names it. */
+{
+  let judged = true;
+  for (const [why, t] of LLMS_PAGE_FIXTURES.mustPass) {
+    const b = llmsPageFindings(t, LLMS_PAGE_FIXTURES.locs);
+    if (b.length) { err(`llms-pages judge: refused a right list (${why}): ${b[0]}`); judged = false; }
+  }
+  for (const [why, t] of LLMS_PAGE_FIXTURES.mustFail) {
+    if (!llmsPageFindings(t, LLMS_PAGE_FIXTURES.locs).length) { err(`llms-pages judge: missed a wrong list (${why})`); judged = false; }
+  }
+  const locs = sitemapPages(root).map((p) => p.loc);
+  if (!locs.length) err("guard 7r: content-map.json yields no sitemap pages, so llms.txt's list is unjudged");
+  else if (judged) for (const f of llmsPageFindings(fs.readFileSync(path.join(root, "llms.txt"), "utf8"), locs)) err(f);
+}
+
+/* 7s. THE HOMEPAGE'S OFFERS CARRY BOTH FIGURES (audit MACHINE-17).
+
+      scripts/build-schema.mjs writes the Service JSON-LD that index.html
+      publishes. Each Offer's machine-read price was the monthly alone, the
+      Partnership a flat 350, and no module sold on its own had an Offer, so
+      a parser was told the AI Front Desk costs C$1,000 to start, which
+      llms.txt names as the wrong summary. This reads the block index.html
+      actually ships and holds every sold item in pricing-config.js to its
+      Launch & Implementation component and its monthly component, bands as
+      bands. */
+{
+  let judged = true;
+  for (const [why, svc] of OFFER_FIXTURES.mustPass) {
+    const b = offerFindings(svc, OFFER_FIXTURES.NV);
+    if (b.length) { err(`offers judge: refused a right offer set (${why}): ${b[0]}`); judged = false; }
+  }
+  for (const [why, svc] of OFFER_FIXTURES.mustFail) {
+    if (!offerFindings(svc, OFFER_FIXTURES.NV).length) { err(`offers judge: missed a wrong offer set (${why})`); judged = false; }
+  }
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  let service = null;
+  for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+    let parsed; try { parsed = JSON.parse(m[1]); } catch { continue; }   /* guard 15 reports the parse */
+    service = [].concat(parsed).find((x) => x && x["@type"] === "Service") || service;
+  }
+  if (!service) err("guard 7s: index.html publishes no Service JSON-LD, so its offers are unjudged");
+  else if (!w.NV_PRICING) err("guard 7s: pricing-config.js did not yield NV_PRICING");
+  else if (judged) for (const f of offerFindings(service, w.NV_PRICING)) err("index.html JSON-LD: " + f);
+}
+
 /* The BANNED_PENDING ledger reports on itself every run: what it is still
    excusing and who owns the fix, and which entries have stopped matching and
    should be deleted.
@@ -2825,7 +2941,7 @@ for (const p of BANNED_PENDING) {
   else if (fs.existsSync(path.join(root, p.file))) console.log(`NOTE: ${p.file} no longer says "${p.text}". Delete its BANNED_PENDING entry in scripts/check-consistency.js.`);
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan, every roadmap status chip reads its roadmap status, llms.txt states the term pricing-config.js carries.");
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan, every roadmap status chip reads its roadmap status, llms.txt states the term pricing-config.js carries, the agent documents state only what the product does, llms.txt lists every sitemap page, the homepage offers carry both figures.");
 /* 1 = something here is broken. 2 = nothing here is broken but the live
    phone agent needs a change only the owner can make. 0 = clean. */
 if (fail === 0 && waiting > 0) console.error(`
