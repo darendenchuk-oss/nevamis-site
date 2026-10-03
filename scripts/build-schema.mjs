@@ -399,13 +399,13 @@ for (const p of PAGES) {
 // ---------------------------------------------------------------
 /* og:image:alt and twitter:image:alt on every page in content-map.json that
    publishes the share card (audit COMPLETENESS-8: none did). The text is the
-   card's own words, read from assets/og-default.svg by scripts/lib/
+   card's own words, read from scripts/og-default.svg by scripts/lib/
    og-card.mjs, so it cannot describe a card that is no longer there.
    index.html is skipped because promote.mjs writes it from home.html, which
    is in the set. Last in this file, so it sees the heads written above. */
-const ALT = cardAlt(fs.readFileSync('assets/og-default.svg', 'utf8'));
+const ALT = cardAlt(fs.readFileSync('scripts/og-default.svg', 'utf8'));
 if (ALT.length < 20) {
-  console.error(`assets/og-default.svg yielded the alt "${ALT}", which cannot be the card; refusing to write it into every page.`);
+  console.error(`scripts/og-default.svg yielded the alt "${ALT}", which cannot be the card; refusing to write it into every page.`);
   process.exit(1);
 }
 let altPages = 0;

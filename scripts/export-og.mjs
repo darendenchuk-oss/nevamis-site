@@ -1,5 +1,5 @@
 /* ============================================================
-   Re-export assets/og-default.png from assets/og-default.svg.
+   Re-export assets/og-default.png from scripts/og-default.svg.
 
      node scripts/export-og.mjs
 
@@ -9,6 +9,14 @@
    og:image. So the pair is a copy, and this repository has watched
    copies drift before: the SVG said one thing and the PNG kept showing
    the previous wordmark to everyone who pasted a link.
+
+   WHY THE SVG LIVES HERE AND NOT IN assets/ (2026-10-03, audit
+   COMPLETENESS-7). Everything in assets/ is served, and nothing a visitor
+   loads names the SVG: it is a build input, read by this script and by
+   scripts/lib/og-card.mjs. Served from assets/ it was a public file with no
+   page behind it. scripts/ is excluded from the published site, and
+   check-published-surface.mjs now fails any file in assets/ that no served
+   page, script, stylesheet or XML file loads.
 
    Chromium rather than a raster library, because there is no image
    toolchain on this machine and Playwright is already a devDependency.
@@ -38,7 +46,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const SRC = path.join(root, 'assets', 'og-default.svg');
+const SRC = path.join(root, 'scripts', 'og-default.svg');
 const OUT = path.join(root, 'assets', 'og-default.png');
 
 const svg = fs.readFileSync(SRC, 'utf8');
