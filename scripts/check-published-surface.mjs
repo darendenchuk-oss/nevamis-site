@@ -33,7 +33,10 @@ const ROOT_FILES = new Set([
   'CNAME', 'favicon.ico', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png',
   'site.js', 'motion.js', 'pricing-config.js', 'roadmap-config.js',
   'search-index.json', 'content-map.json', 'llms.txt', 'sitemap.xml', 'robots.txt',
-  'THIRD_PARTY_NOTICES.md',
+  /* The licence notices for the code nevamis.ca serves, as plain text. The
+     Markdown file of the same name is the repository's and is excluded: see
+     the served-Markdown rule below. */
+  'THIRD_PARTY_NOTICES.txt',
   /* Twilio fetches this for every Nevamis phone number. It must stay published. */
   'ring.xml',
   /* Twilio's voice FALLBACK for a client number diverted to the engine's
@@ -194,6 +197,30 @@ const unexpected = published.filter((f) => {
   return !d || !d.ok(f);
 });
 const missing = REQUIRED.filter((f) => !set.has(f));
+
+/* NO MARKDOWN FILE IS SERVED, WHATEVER THE LISTS ABOVE ALLOW.
+
+   publishedFiles() answers "which tracked files does Pages serve", and for
+   every other file type the answer is the file itself. Markdown is the
+   exception. GitHub Pages runs jekyll-optional-front-matter, so a served .md
+   with no front matter is ALSO rendered into an HTML document, at <name>.html
+   and at <name>, in the default Primer theme: its own <title>, canonical, og
+   tags and JSON-LD, a script from cdnjs, and no Content-Security-Policy,
+   because that policy travels inside our pages and this page is not one of
+   them. THIRD_PARTY_NOTICES.md was allowed in ROOT_FILES as "a raw file", and
+   nevamis.ca served it for weeks as THIRD_PARTY_NOTICES.html, titled
+   "nevamis-site", with internal licence reasoning and em dashes on it, while
+   this guard was green (audit findings COMPLETENESS-1 and -2): the HTML it
+   produced is not a tracked file, so no list here could see it.
+
+   So the rule is about the file type, not the list: a served Markdown file
+   fails even if an allow list names it. Exclude it in _config.yml, or publish
+   the content as a real page (content-map.json, which gets the site's chrome
+   and policy) or as plain text. (The theme also adds /assets/css/style.css to
+   the site, untracked. A stylesheet no page loads cannot run anything, so it
+   is noted here rather than refused.) */
+const MARKDOWN = /\.(?:md|markdown|mdown|mkdn|mkd|mdwn|mdtxt|mdtext)$/i;
+const servedMarkdown = published.filter((f) => MARKDOWN.test(f));
 
 /* THE SECURITY CONTACT MUST POINT AT THIS SITE.
 
@@ -373,6 +400,9 @@ for (const f of published) {
 }
 
 if (missing.length) console.error('MUST BE PUBLISHED but is not (excluded, hidden or untracked):\n  ' + missing.join('\n  '));
+if (servedMarkdown.length) console.error('A MARKDOWN FILE IS SERVED. GitHub Pages renders it into an HTML page (<name>.html and <name>) in its own theme, '
+  + 'with no Content-Security-Policy. Exclude it in _config.yml, or publish its content as a page in content-map.json or as plain text:\n  '
+  + servedMarkdown.join('\n  '));
 if (unsafeSvg.length) console.error('ASSET SVG OUTSIDE THE ALLOW LIST. Opened directly it could run code or load something on the nevamis.ca origin. '
   + 'Asset SVGs may hold only static SVG elements and #fragment references: no links, script, event handlers, foreignObject, <set>, DTDs or processing instructions, '
   + 'and no javascript:, data: or external URL in any attribute or stylesheet. Remove what is listed, or re-export the file as plain SVG:\n  ' + unsafeSvg.join('\n  '));
@@ -394,6 +424,6 @@ if (servedCommentProblems.length) console.error('A SERVED FILE CARRIES INTERNAL 
   + 'Move the reasoning to docs/ (docs/PRICING-CONFIG.md for pricing-config.js) and name the field instead of the figure:\n  ' + servedCommentProblems.join('\n  '));
 if (servedSelfTest.length) console.error('THE SERVED-COMMENT RULE FAILS ITS OWN EXAMPLES. Fix SERVED_COMMENT_FORBIDDEN in scripts/check-published-surface.mjs so it catches every SERVED_MUST_CATCH line and none of SERVED_MUST_PASS:\n  '
   + servedSelfTest.join('\n  '));
-if (missing.length || unexpected.length || securityTxtProblems.length || readmeProblems.length || readmeSelfTest.length
+if (missing.length || servedMarkdown.length || unexpected.length || securityTxtProblems.length || readmeProblems.length || readmeSelfTest.length
   || vendorOrphans.length || servedCommentProblems.length || servedSelfTest.length) process.exitCode = 1;
-else console.log(`Published surface OK: ${published.length} files, all intended; security.txt points at nevamis.ca; README.md states no commercial fact; every vendored file is loaded; no served comment carries internal commercial notes.`);
+else console.log(`Published surface OK: ${published.length} files, all intended, no Markdown served; security.txt points at nevamis.ca; README.md states no commercial fact; every vendored file is loaded; no served comment carries internal commercial notes.`);

@@ -23,9 +23,7 @@
       "phone:+15874130035",
       "tel:+15874130035"
     ],
-    "THIRD_PARTY_NOTICES.md": [
-      "https://creativecommons.org/licenses/by/4.0/",
-      "https://github.com/smixs/visual-skills",
+    "THIRD_PARTY_NOTICES.txt": [
       "https://www.npmjs.com/package/@elevenlabs/convai-widget-embed"
     ],
     "about.html": [
@@ -304,8 +302,6 @@
       "https://api.elevenlabs.io/",
       "https://app.nevamis.ca/",
       "https://cdn.jsdelivr.net/npm/@alexanderolsen/libsamplerate-js@2.1.2/dist/libsamplerate.worklet.js",
-      "https://fonts.googleapis.com/",
-      "https://fonts.gstatic.com/",
       "https://storage.googleapis.com/eleven-public-cdn/",
       "phone:+15874130035",
       "tel:+15874130035",
