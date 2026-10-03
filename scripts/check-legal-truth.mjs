@@ -37,6 +37,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { publishedFiles } from './lib/published-files.mjs';
 import { decodeRefs } from './lib/char-refs.mjs';
@@ -458,7 +459,8 @@ for (const f of META_PAGES) {
    names from pricing-config.js, never from this file, and hold the Terms
    body to the RULE each amendment makes, not to its wording:
 
-     cap      a sentence states the first N businesses (N is
+     cap      a sentence in the free-month section (the one headed for
+              the first month) states the first N businesses (N is
               freeMonth.firstClients) and the booked call, and no sentence
               gives a free month to every, all or any new client or business,
               or names a count other than N;
@@ -496,11 +498,17 @@ const COUNT_WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven:
     const sections = sectionsOf(read('terms.html'));
     const terms = sections.filter((s) => !/^change history$/i.test(s.heading)).flatMap((s) => sentencesOf(s.text));
     const billing = sections.filter((s) => /\bbilling\b/i.test(s.heading)).flatMap((s) => sentencesOf(s.text));
+    /* The section that describes the free month. The billing section's own
+       third case also names the first N businesses on a booked call, so a
+       body-wide rule passed a free-month section that had dropped the booked
+       call from its main clause; the cap is held where the offer is made. */
+    const offer = sections.filter((s) => /\bfirst month\b/i.test(s.heading)).flatMap((s) => sentencesOf(s.text));
     const freeSentences = terms.filter((s) => FREE_MONTH.test(s));
     const CLIENT = '(?:clients?|customers?|businesses|business|buyers?)';
     const capRe = new RegExp(`\\bfirst (?:${N}|${Object.keys(COUNT_WORDS).filter((w) => COUNT_WORDS[w] === N).join('|')}) ${CLIENT}\\b`, 'i');
-    if (!terms.some((s) => FREE_MONTH.test(s) && capRe.test(s) && /\bbooked call\b/i.test(s))) {
-      fail('terms-v7', `terms.html has no sentence giving the free month to the first ${N} businesses on a booked call `
+    if (!offer.length) fail('terms-v7', 'terms.html has no section headed for the first month, where the free month is described.');
+    else if (!offer.some((s) => FREE_MONTH.test(s) && capRe.test(s) && /\bbooked call\b/i.test(s))) {
+      fail('terms-v7', `terms.html's first-month section has no sentence giving the free month to the first ${N} businesses on a booked call `
         + '(amendment #66). Say who gets it, and how, where the free month is described.');
     }
     const WHO_ALL = new RegExp(`\\b(?:every|all|any|each)\\s+(?:(?:of\\s+)?(?:our|the)\\s+)?(?:new\\s+)?${CLIENT}\\b`, 'i');
@@ -599,6 +607,77 @@ if (PUBLISHED.includes('free-month.js')) {
   }
 }
 
+/* =====================================================================
+   17. NOTES FOR COUNSEL NEVER REACH NEVAMIS.CA (decision #69)
+
+   The v7 Terms and privacy drafts carry HTML comments for counsel ("FOR
+   COUNSEL", "QUESTION FOR COUNSEL", "BEYOND THE AGREED WORDING") that name
+   the draft's weak points: whether a liability cap is enforceable, how the
+   free-month places are reserved, owner items and engine file paths. A
+   comment is served with the page, so anyone could read them with
+   view-source. They are allowed only while the work is held on a sell/v7-*
+   branch; checked anywhere else (main, a pull request into main, a local
+   main) they fail, so the publish cannot pass until counsel has read the
+   page and the comments are gone. The branch is the pull request's target
+   in CI, the pushed branch on a push, and the checked-out branch locally.
+   ===================================================================== */
+{
+  const COUNSEL = /\b(?:FOR COUNSEL|BEYOND THE AGREED WORDING)\b/;
+  const TEXT = /\.(?:html?|js|mjs|css|json|txt|xml|md|webmanifest|svg)$/i;
+  const target = process.env.GITHUB_BASE_REF || process.env.GITHUB_REF_NAME || (() => {
+    try { return execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: root }).toString().trim(); } catch { return ''; }
+  })();
+  const held = /^sell\/v7-/.test(target);
+  const carrying = PUBLISHED.filter((f) => TEXT.test(f) && COUNSEL.test(read(f)));
+  if (carrying.length && held) {
+    console.log(`Held branch ${target}: ${carrying.join(', ')} carry notes for counsel, which fail this check on any other branch.`);
+  } else if (carrying.length) {
+    fail('counsel-notes', `${carrying.join(', ')} carry notes for counsel (FOR COUNSEL, QUESTION FOR COUNSEL or BEYOND THE AGREED WORDING) `
+      + `on ${target || 'an unknown branch'}. They are served with the page; remove them once counsel and the owner have read it.`);
+  }
+}
+
+/* =====================================================================
+   18. THE AGENT DOCUMENTS DATE THE v7 CHANGE ON THE TERMS' EFFECTIVE DAY
+
+   The demo knowledge base and its test catalogue tell callers the day the
+   Launch & Implementation fees on the standard plans were retired. That is
+   the day the Terms version that retired them takes effect, and the Terms'
+   change-history entry for that version carries the same day. The draft is
+   held for counsel, so the publish day is not known yet: all three move
+   together, or the agent names a day on which the fees were still charged.
+   ===================================================================== */
+{
+  const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+  const iso = (d) => {
+    const m = d.match(/^([A-Za-z]+) (\d{1,2}), (\d{4})$/);
+    const mo = m ? MONTHS.indexOf(m[1].toLowerCase()) : -1;
+    return mo < 0 ? null : `${m[3]}-${String(mo + 1).padStart(2, '0')}-${m[2].padStart(2, '0')}`;
+  };
+  const termsText = textOf(mainOf(read('terms.html')));
+  const top = termsText.match(/\bVersion ([\d.]+), effective ([A-Za-z]+ \d{1,2}, \d{4})\./);
+  const effective = top && iso(top[2]);
+  if (!effective) fail('v7-date', 'terms.html has no "Version N, effective <Month D, YYYY>." line this rule can read.');
+  else {
+    const entry = termsText.match(new RegExp(`\\bVersion ${top[1].replace(/\./g, '\\.')}, ([A-Za-z]+ \\d{1,2}, \\d{4}):`));
+    if (!entry || iso(entry[1]) !== effective) {
+      fail('v7-date', `terms.html is version ${top[1]}, effective ${top[2]}, and its change-history entry for that version is dated ${entry ? entry[1] : '(missing)'}.`);
+    }
+    const said = [
+      ['config/elevenlabs/nevamis-knowledge-base.md', /\bLaunch & Implementation fees on the AI Front Desk, The Works and the modules were retired on (\d{4}-\d{2}-\d{2})/],
+      ['config/elevenlabs/nevamis-agent-test-cases.md', /\bany Launch and Implementation fee on a plan other than the Partnership, retired (\d{4}-\d{2}-\d{2})/],
+    ];
+    for (const [f, re] of said) {
+      const m = read(f).match(re);
+      if (!m) fail('v7-date', `${f} no longer states, where this rule can read it, the day the standard plans' Launch & Implementation fees were retired.`);
+      else if (m[1] !== effective) {
+        fail('v7-date', `${f} says the standard plans' Launch & Implementation fees were retired on ${m[1]}, and terms.html version ${top[1]} `
+          + `takes effect ${effective}. Set all three on the publish day.`);
+      }
+    }
+  }
+}
+
 if (problems.length) {
   console.error(`LEGAL PAGES DO NOT MATCH WHAT THE SITE DOES (${problems.length}):\n  ` + problems.join('\n  '));
   process.exitCode = 1;
@@ -606,5 +685,6 @@ if (problems.length) {
   console.log('Legal truth OK: the privacy page matches the browser call, the fonts, the click IDs and what is counted; '
     + 'the legal pages are dated, linked, footed and previewable; no page calls the demo a client\'s own agent; '
     + 'the Terms state the first-ten month, the sizes and the billing cases as decided; the privacy page names the '
-    + 'free-month request; the footer names no Front Desk size.');
+    + 'free-month request; the footer names no Front Desk size; notes for counsel stay on held branches; the agent '
+    + 'documents date the v7 change on the Terms\' effective day.');
 }

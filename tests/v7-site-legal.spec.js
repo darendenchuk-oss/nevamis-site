@@ -21,9 +21,13 @@
                      minutes and rate, read from pricing-config.js;
                      the email at the limit names the next size and never
                      changes the plan;
-     test catalogue  a P0 row fails any free month once the spots run out, a
-                     row grades Buy now, every size is graded, and so is the
-                     email at the limit;
+     test catalogue  a P0 row fails any free month once the spots run out,
+                     every row that grades the offer says it applies only
+                     while spots are open, a row grades Buy now, every size
+                     is graded, and so is the email at the limit;
+     free-month      in the knowledge base and the support KB, the paragraph
+     paragraphs      that describes the free month says "charged", never
+                     "billed", and names no pilot or discount;
      support KB      every size with its monthly, and the free month only as
                      the booked-call offer;
      pages           terms, privacy, security, 404 and /talk/, at 1440 and 390
@@ -140,6 +144,15 @@ test.describe('agent test catalogue: grades the first-ten month and the sizes', 
     }
   });
 
+  /* A row that grades the agent on stating the offer would fail a correct
+     agent built with --spots=closed, where row 6d fails any free month. So
+     every such row says it applies while spots are open. */
+  test('every row that grades the offer applies only while spots are open', () => {
+    const stating = rows.filter((r) => r.expected.toLowerCase().includes(CAP_PHRASE));
+    expect(stating.length).toBeGreaterThan(0);
+    for (const r of stating) expect(r.scenario, `row ${r.id} grades the offer`).toMatch(/\bspots? open\b/i);
+  });
+
   test('Buy now is graded: it never gives the free month', () => {
     expect(rows.some((r) => /\bBuy now charges the first month\b/i.test(r.expected) && /\bNever says Buy now gives the free month\b/i.test(r.pass))).toBe(true);
   });
@@ -165,6 +178,22 @@ test.describe('agent test catalogue: grades the first-ten month and the sizes', 
 /* ------------------------------------------------------------------ */
 /* The client support knowledge base.                                 */
 /* ------------------------------------------------------------------ */
+/* The free-month paragraph in each agent document says what is charged, the
+   word the Terms use: nothing invoices minutes past the allowance (owner item
+   O41), and "billed" says something does. It names no retired offer word
+   either, not even to deny one: "pilot" and "discount" are kept off what the
+   agent may say. */
+test('agent documents: the free-month paragraph says charged, never billed, and names no pilot or discount', () => {
+  for (const rel of ['config/elevenlabs/nevamis-knowledge-base.md', 'config/elevenlabs/client-support-knowledge.md']) {
+    const paras = doc(rel).split(/\n\s*\n/).filter((p) => SAYS_FREE.test(p));
+    expect(paras.length, `${rel} describes the free month`).toBeGreaterThan(0);
+    for (const p of paras) {
+      const hit = p.match(/\b(?:billed|invoiced|pilots?|discounts?)\b/i);
+      expect(hit && p.slice(Math.max(0, hit.index - 80), hit.index + 40), `${rel}: the free-month paragraph`).toBeNull();
+    }
+  }
+});
+
 test('client support knowledge: every size at its monthly, and the free month only as the booked-call offer', () => {
   const t = doc('config/elevenlabs/client-support-knowledge.md');
   for (const tier of TIERS) {
