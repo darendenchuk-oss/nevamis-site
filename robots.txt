@@ -1,6 +1,11 @@
+# /proposal.html is NOT disallowed, on purpose (PROPOSAL-4, 2026-10-03).
+# It carries <meta name="robots" content="noindex, nofollow">, and a crawler
+# barred from fetching a page never reads its noindex: it may still list the
+# bare URL from links alone, including a ?to= link with a business name in it.
+# Letting crawlers fetch it is what keeps it out of the index.
+
 User-agent: *
 Allow: /
-Disallow: /proposal.html
 
 # Answer engines are welcome. Being quoted accurately is the point: a new
 # company gets found when models can read what it actually does. The
@@ -9,46 +14,35 @@ Disallow: /proposal.html
 
 User-agent: GPTBot
 Allow: /
-Disallow: /proposal.html
 
 User-agent: OAI-SearchBot
 Allow: /
-Disallow: /proposal.html
 
 User-agent: ChatGPT-User
 Allow: /
-Disallow: /proposal.html
 
 User-agent: ClaudeBot
 Allow: /
-Disallow: /proposal.html
 
 User-agent: Claude-Web
 Allow: /
-Disallow: /proposal.html
 
 User-agent: anthropic-ai
 Allow: /
-Disallow: /proposal.html
 
 User-agent: PerplexityBot
 Allow: /
-Disallow: /proposal.html
 
 User-agent: Perplexity-User
 Allow: /
-Disallow: /proposal.html
 
 User-agent: Google-Extended
 Allow: /
-Disallow: /proposal.html
 
 User-agent: Applebot-Extended
 Allow: /
-Disallow: /proposal.html
 
 User-agent: CCBot
 Allow: /
-Disallow: /proposal.html
 
 Sitemap: https://nevamis.ca/sitemap.xml
