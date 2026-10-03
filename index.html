@@ -1204,39 +1204,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       },
       {
         "@type": "Offer",
-        "name": "Missed-Call Recovery",
-        "category": "Module sold on its own",
-        "description": "C$500 Launch & Implementation to start, then C$350 a month. Sold on its own, month to month, with no plan required. A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out.",
-        "priceCurrency": "CAD",
-        "priceSpecification": {
-          "@type": "CompoundPriceSpecification",
-          "priceCurrency": "CAD",
-          "description": "C$500 Launch & Implementation to start, then C$350 a month.",
-          "priceComponent": [
-            {
-              "@type": "UnitPriceSpecification",
-              "name": "Launch & Implementation",
-              "priceCurrency": "CAD",
-              "price": "500",
-              "description": "Charged once, at the start, beside the first month. Never recurring."
-            },
-            {
-              "@type": "UnitPriceSpecification",
-              "name": "Monthly",
-              "priceComponentType": "https://schema.org/Subscription",
-              "priceCurrency": "CAD",
-              "unitCode": "MON",
-              "unitText": "MONTH",
-              "billingIncrement": 1,
-              "price": "350"
-            }
-          ]
-        },
-        "availability": "https://schema.org/InStock",
-        "url": "https://nevamis.ca/pricing.html"
-      },
-      {
-        "@type": "Offer",
         "name": "Quote-Chase Engine",
         "category": "Module sold on its own",
         "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own, month to month, with no plan required. Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.",
@@ -1270,9 +1237,42 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       },
       {
         "@type": "Offer",
+        "name": "Missed-Call Recovery",
+        "category": "Module sold on its own",
+        "description": "C$500 Launch & Implementation to start, then C$350 a month. Sold on its own, month to month, with no plan required. A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out.",
+        "priceCurrency": "CAD",
+        "priceSpecification": {
+          "@type": "CompoundPriceSpecification",
+          "priceCurrency": "CAD",
+          "description": "C$500 Launch & Implementation to start, then C$350 a month.",
+          "priceComponent": [
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Launch & Implementation",
+              "priceCurrency": "CAD",
+              "price": "500",
+              "description": "Charged once, at the start, beside the first month. Never recurring."
+            },
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Monthly",
+              "priceComponentType": "https://schema.org/Subscription",
+              "priceCurrency": "CAD",
+              "unitCode": "MON",
+              "unitText": "MONTH",
+              "billingIncrement": 1,
+              "price": "350"
+            }
+          ]
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html"
+      },
+      {
+        "@type": "Offer",
         "name": "Get-Paid Autopilot",
         "category": "Module sold on its own",
-        "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own, month to month, with no plan required. Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks YOU get told instead, because past that point the judgment call belongs to a person.",
+        "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own, month to month, with no plan required. Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead, because past that point the judgment call belongs to a person.",
         "priceCurrency": "CAD",
         "priceSpecification": {
           "@type": "CompoundPriceSpecification",
@@ -1367,14 +1367,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Missed-Call Recovery",
-            "description": "C$500 Launch & Implementation to start, then C$350 a month. Sold on its own, month to month, with no plan required. A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out."
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
             "name": "Quote-Chase Engine",
             "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own, month to month, with no plan required. Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you."
           }
@@ -1383,8 +1375,16 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
+            "name": "Missed-Call Recovery",
+            "description": "C$500 Launch & Implementation to start, then C$350 a month. Sold on its own, month to month, with no plan required. A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
             "name": "Get-Paid Autopilot",
-            "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own, month to month, with no plan required. Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks YOU get told instead, because past that point the judgment call belongs to a person."
+            "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own, month to month, with no plan required. Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead, because past that point the judgment call belongs to a person."
           }
         },
         {
