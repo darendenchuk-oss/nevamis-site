@@ -1,5 +1,5 @@
 /* Nevamis Phase 2 motion system: header states, Living Signal, hero chips,
-   capability rail, call-proof sync, simulator FSM, sales reveals.
+   capability rail, call-proof sync, sales reveals.
    No dependencies. Everything degrades: content is complete with no JS,
    reduced motion, or the motion toggle off. */
 (function () {
@@ -156,188 +156,15 @@
     }, { threshold: 0.6 }).observe(finalCta);
   }
 
-  /* ================= SIMULATOR: finite-state scenario player ================= */
-  var sim = document.getElementById("sim");
-  if (!sim) return;
-  var SCEN = {
-    emergency: {
-      label: "After-hours emergency",
-      steps: [
-        { st: "ringing", say: null, note: "Incoming call · 11:42 PM", rules: [], chips: [] },
-        { st: "answered", who: "Nevamis", say: "Prairie Mechanical, how can I help you tonight?", rules: [], chips: [] },
-        { st: "listening", who: "Caller", say: "Our furnace just died and it's minus twenty out. We've got a newborn in the house.", rules: [], chips: [] },
-        { st: "extracting", who: null, say: null, chips: ["Service: furnace failure", "Urgency: emergency", "Occupants: infant"], rules: [] },
-        { st: "checking_rules", chips: [], rules: [["Service offered", "pass"], ["Inside service area", "pass"], ["Emergency criteria met", "urgent"], ["On-call tech available", "urgent"]] },
-        { st: "escalated", who: "Nevamis", say: "That qualifies as an emergency. I have your details and I am alerting the on-call technician now, flagged urgent.", outcome: "transfer" },
-        { st: "summarizing", outcome: "summary", sum: "URGENT · Furnace failure, -20°C, infant on site. On-call tech alerted at 11:44 PM. Caller: Dana R., 587-555-0119." },
-        { st: "complete" }
-      ]
-    },
-    routine: {
-      label: "Routine appointment",
-      steps: [
-        { st: "ringing", note: "Incoming call · 2:15 PM", rules: [], chips: [] },
-        { st: "answered", who: "Nevamis", say: "Prairie Mechanical, how can I help you?", rules: [], chips: [] },
-        { st: "listening", who: "Caller", say: "I'd like to book our annual furnace tune-up sometime next week.", rules: [], chips: [] },
-        { st: "extracting", chips: ["Service: maintenance", "Urgency: routine", "Timing: next week"], rules: [] },
-        { st: "checking_rules", rules: [["Service offered", "pass"], ["Inside service area", "pass"], ["Emergency criteria met", "block"], ["Calendar has openings", "pass"]] },
-        { st: "selecting_slot", who: "Nevamis", say: "I can do Tuesday at 10 AM or Thursday at 1 PM. Which works better?", chips: [] },
-        { st: "booked", who: "Caller", say: "Tuesday at ten.", outcome: "booked" },
-        { st: "confirming", who: "Nevamis", say: "I have Tuesday at ten down as the time you want. The office will confirm that slot with you.", outcome: "confirm" },
-        { st: "summarizing", outcome: "summary", sum: "Requested: furnace tune-up, Tue 10:00 AM preferred. Caller: Sam T., 780-555-0163. New customer. You confirm the slot." },
-        { st: "complete" }
-      ]
-    },
-    unusual: {
-      label: "Unusual request",
-      steps: [
-        { st: "ringing", note: "Incoming call · 4:03 PM", rules: [], chips: [] },
-        { st: "answered", who: "Nevamis", say: "Prairie Mechanical, how can I help you?", rules: [], chips: [] },
-        { st: "listening", who: "Caller", say: "If I convert to a heat pump, exactly how much will my utility bill drop over five years?", rules: [], chips: [] },
-        { st: "extracting", chips: ["Topic: heat pump conversion", "Request: multi-year cost projection"], rules: [] },
-        { st: "checking_rules", rules: [["Topic in approved knowledge", "amber"], ["Allowed to quote projections", "block"], ["Fallback configured", "pass"]] },
-        { st: "fallback", who: "Nevamis", say: "That deserves a real answer from our senior tech rather than a guess from me. Can I take down a time for a free assessment, or have him call you back?", outcome: "message" },
-        { st: "summarizing", outcome: "summary", sum: "Message: heat pump conversion inquiry, wants 5-year cost comparison. Prefers callback after 5 PM. Caller: Alex M., 825-555-0147." },
-        { st: "complete" }
-      ]
-    }
-  };
-  var STATE_LABEL = {
-    ringing: "Ringing", answered: "Answered", listening: "Listening", extracting: "Extracting details",
-    checking_rules: "Checking your business rules", selecting_slot: "Offering available slots",
-    booked: "Preferred time captured", confirming: "Caller told you will confirm", summarizing: "Owner summary sent",
-    complete: "Complete", escalated: "Urgent alert sent", fallback: "Safe fallback"
-  };
-  var STAGES = ["Answer", "Understand", "Check rules", "Take action", "Confirm", "Report"];
-  var STATE_STAGE = {
-    ringing: 0, answered: 0, listening: 1, extracting: 1, checking_rules: 2,
-    selecting_slot: 3, booked: 3, escalated: 3, fallback: 3, confirming: 4,
-    summarizing: 5, complete: 5
-  };
-  var cur = "routine", idx = -1, timer = null, playing = false, lastStage = -1;
-  var el = {
-    log: sim.querySelector(".sim-log"), chips: sim.querySelector(".sim-chips"),
-    rules: sim.querySelector(".sim-rules"), outcome: sim.querySelector(".sim-outcome"),
-    state: sim.querySelector("[data-sim-state]"), progress: sim.querySelector(".sim-progress i"),
-    elapsed: sim.querySelector(".sim-elapsed"), live: sim.querySelector("[data-sim-live]"),
-    play: sim.querySelector("[data-sim-play]"),
-    rail: Array.prototype.slice.call(sim.querySelectorAll(".stage-pill")),
-    idle: document.getElementById("simIdle"), body: document.getElementById("simBody"),
-    watch: document.getElementById("simWatch"), stepMode: document.getElementById("simStepMode"),
-    backLabel: sim.querySelector("[data-back-label]"), fwdLabel: sim.querySelector("[data-fwd-label]")
-  };
-  function showBody() {
-    if (el.idle) el.idle.hidden = true;
-    if (el.body) el.body.hidden = false;
-  }
-  function stageOf(i) {
-    var steps = scen ? scen().steps : null;
-    if (!steps || i < 0) return -1;
-    return STATE_STAGE[steps[Math.min(i, steps.length - 1)].st] || 0;
-  }
-  function scen() { return SCEN[cur]; }
-  /* SAFETY INVARIANT: everything rendered below via innerHTML comes from the
-     hardcoded SCEN constants in this file. Never interpolate user input,
-     URL params, or fetched data into these templates without sanitizing. */
-  function render() {
-    var steps = scen().steps;
-    /* conversation log */
-    var logHtml = "";
-    for (var i = 0; i <= idx && i < steps.length; i++) {
-      var s = steps[i];
-      if (s.say) logHtml += '<div class="sim-line on"><span class="who">' + (s.who || "") + "</span>" + s.say + "</div>";
-      else if (s.note) logHtml += '<div class="sim-line on"><span class="who">SYSTEM</span>' + s.note + "</div>";
-    }
-    /* sim-empty, not a bare sim-line: .sim-line starts at opacity 0 and is
-       revealed by .on as each line is spoken, so this hint never appeared. */
-    el.log.innerHTML = logHtml || '<div class="sim-line sim-empty">Press play to start the scenario.</div>';
-    /* chips (accumulate) */
-    var chipsHtml = "";
-    for (var c = 0; c <= idx && c < steps.length; c++) {
-      (steps[c].chips || []).forEach(function (ch) {
-        var amber = /Topic|Request/.test(ch);
-        chipsHtml += '<span class="sim-chip on' + (amber ? " amber" : "") + '">' + ch + "</span>";
-      });
-    }
-    el.chips.innerHTML = chipsHtml;
-    /* rules (latest rule-bearing step) */
-    var rulesHtml = "";
-    for (var r = 0; r <= idx && r < steps.length; r++) {
-      if ((steps[r].rules || []).length) {
-        rulesHtml = steps[r].rules.map(function (ru) {
-          return '<div class="sim-rule ' + ru[1] + '">' + ru[0] + "</div>";
-        }).join("");
-      }
-    }
-    el.rules.innerHTML = rulesHtml || '<div class="sim-rule">Rules you approve before launch appear here.</div>';
-    /* outcomes */
-    var out = { booked: false, confirm: false, transfer: false, message: false, sum: null };
-    for (var o = 0; o <= idx && o < steps.length; o++) {
-      var st = steps[o];
-      if (st.outcome === "booked") out.booked = true;
-      if (st.outcome === "confirm") out.confirm = true;
-      if (st.outcome === "transfer") out.transfer = true;
-      if (st.outcome === "message") out.message = true;
-      if (st.sum) out.sum = st.sum;
-    }
-    el.outcome.innerHTML =
-      '<div class="sim-out-card' + (out.booked ? " on" : "") + '"><span class="mono">CALENDAR</span>' + (out.booked ? "Tue 10:00 AM requested, yours to confirm" : "No time captured yet") + "</div>" +
-      '<div class="sim-out-card' + (out.transfer ? " on warm" : "") + '"><span class="mono">URGENT ALERT</span>' + (out.transfer ? "Urgent details captured, your team alerted" : "Not needed") + "</div>" +
-      '<div class="sim-out-card' + (out.confirm || out.message ? " on" : "") + '"><span class="mono">CUSTOMER</span>' + (out.confirm ? "Told the business will confirm the time" : out.message ? "Callback promised" : "Waiting") + "</div>" +
-      '<div class="sim-out-card' + (out.sum ? " on" : "") + '"><span class="mono">OWNER SUMMARY</span>' + (out.sum || "Arrives when the call completes") + "</div>";
-    /* state, stage rail, progress, elapsed */
-    var label = idx < 0 ? "Idle" : (STATE_LABEL[steps[Math.min(idx, steps.length - 1)].st] || "");
-    el.state.textContent = label;
-    var stg = stageOf(idx);
-    el.rail.forEach(function (p, j) {
-      p.classList.toggle("active", j === stg);
-      p.classList.toggle("done", j < stg);
-    });
-    if (el.live && stg !== lastStage) {
-      el.live.textContent = stg < 0 ? "" : "Stage " + (stg + 1) + " of 6: " + STAGES[stg];
-      lastStage = stg;
-    }
-    if (el.backLabel) el.backLabel.textContent = stg > 0 ? STAGES[Math.max(stageOf(idx - 1), 0)] : "Back";
-    if (el.fwdLabel) {
-      var nextStg = idx >= steps.length - 1 ? null : stageOf(idx + 1);
-      el.fwdLabel.textContent = nextStg === null ? "Done" : "Next: " + STAGES[nextStg];
-    }
-    var frac = steps.length > 1 ? Math.max(idx, 0) / (steps.length - 1) : 0;
-    el.progress.style.transform = "scaleX(" + frac + ")";
-    var secs = Math.round(Math.max(idx, 0) * 3.5);
-    el.elapsed.textContent = "0:" + (secs < 10 ? "0" : "") + secs + " elapsed";
-  }
-  function stop() { playing = false; clearTimeout(timer); el.play.textContent = "Play"; }
-  function tick() {
-    if (!playing) return;
-    if (idx >= scen().steps.length - 1) { stop(); return; }
-    idx += 1; render();
-    timer = setTimeout(tick, 1250);
-  }
-  sim.querySelectorAll(".sim-scenarios button").forEach(function (b) {
-    b.addEventListener("click", function () {
-      sim.querySelectorAll(".sim-scenarios button").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
-      b.setAttribute("aria-pressed", "true");
-      cur = b.getAttribute("data-scen"); stop(); idx = -1; showBody(); render();
-      playing = true; el.play.textContent = "Pause"; tick();
-    });
-  });
-  if (el.watch) el.watch.addEventListener("click", function () {
-    showBody(); idx = -1; render();
-    playing = true; el.play.textContent = "Pause"; tick();
-  });
-  if (el.stepMode) el.stepMode.addEventListener("click", function () {
-    showBody(); stop(); idx = 0; render();
-  });
-  el.play.addEventListener("click", function () {
-    if (playing) { stop(); return; }
-    if (idx >= scen().steps.length - 1) idx = -1;
-    playing = true; el.play.textContent = "Pause"; tick();
-  });
-  sim.querySelector("[data-sim-back]").addEventListener("click", function () { stop(); idx = Math.max(-1, idx - 1); render(); });
-  sim.querySelector("[data-sim-fwd]").addEventListener("click", function () { stop(); idx = Math.min(scen().steps.length - 1, idx + 1); render(); });
-  sim.querySelector("[data-sim-replay]").addEventListener("click", function () { stop(); idx = -1; render(); playing = true; el.play.textContent = "Pause"; tick(); });
-  render();
+  /* The SIMULATOR that ended this file (a finite-state player for three
+     scripted calls, mounted on #sim) was deleted on 2026-10-03. No page has
+     carried #sim since the homepage moved to the film, so it never ran, but
+     it shipped on twenty pages and its scripts described a front desk that
+     does not exist: "I can do Tuesday at 10 AM or Thursday at 1 PM", offered
+     from a "Calendar has openings" rule, and "alerting the on-call
+     technician now" with a transfer outcome. A client agent has no calendar
+     and no hand-off (owner decision B1; engine agent-draft.ts), so markup
+     put back for it would have shown both. Git history has it. */
   } catch (err) {
     /* Fail open: reveal everything this file would have animated. */
     try {

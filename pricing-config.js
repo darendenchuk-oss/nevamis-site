@@ -53,7 +53,10 @@
       /* Branch on the value; never fall back to `|| 30`. */
       cancellationNoticeDays: 0,
       priceLockMonths: 12,
-      note: "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch & Implementation fee, charged once beside your first month, is the only commitment."
+      /* "charged once when the plan or add-on starts", not "beside your
+         first month": the sentence covers an add-on added later, whose fee
+         is charged the day that add-on starts (LEGAL-9, 2026-10-03). */
+      note: "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch & Implementation fee, charged once when the plan or add-on starts, is the only commitment."
     },
     /* Enterprise is quoted per client, so it is not a plans[] entry.
        `launchFrom` is a floor ("starting at"), never a price. */
@@ -67,31 +70,13 @@
     recommendedLabel: "RECOMMENDED",
     /* The add-on catalog. Every automation is its own sale. `soldAlone: true`
        means it may be bought with nothing beside it; `sellable: false` means it
-       may be described as coming and never sold, with no Buy control. */
+       may be described as coming and never sold, with no Buy control.
+       ORDER IS DISPLAY ORDER, as it is for `plans`: pricing.html renders
+       #addOnList by walking this array (PRICING-14, 2026-10-03), so the doors
+       come first, Lead Generation then the Quote-Chase Engine (owner
+       decision), then the modules sold alone, then what is coming. Every
+       other reader finds an item by its id. */
     addOns: [
-      {
-        id: "missed_call_recovery", name: "Missed-Call Recovery",
-        monthly: 350, launch: 500, sellable: true, soldAlone: true,
-        blurb: "A caller you missed gets one text back, during business hours, with your name on it and a working opt-out, before they ring the next name on Google."
-      },
-      /* `partnership` is what this item costs on the Performance Partnership.
-         Bought on its own, or beside any other plan, it is its own pair above. */
-      {
-        id: "quote_chase", name: "Quote-Chase Engine",
-        monthly: 500, launch: 750, sellable: true, soldAlone: true,
-        partnership: { launch: 0, monthly: 0, attributableTo: "a quote Nevamis recovered" },
-        blurb: "Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you, stopping the moment the customer replies."
-      },
-      {
-        id: "get_paid", name: "Get-Paid Autopilot",
-        monthly: 500, launch: 750, sellable: true, soldAlone: true,
-        blurb: "Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks YOU get told instead, because past that point the judgment call belongs to a person."
-      },
-      {
-        id: "review_engine", name: "Review Engine",
-        monthly: 300, launch: 500, sellable: true, soldAlone: true,
-        blurb: "Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person."
-      },
       /* Lead Generation is offered by invitation on the Performance Partnership
          only, so it has no standalone pair. `sellable` follows the engine's
          capability record for it, and the site may say less than the engine,
@@ -100,18 +85,41 @@
         id: "lead_generation", name: "Lead Generation",
         monthly: 0, launch: 0, sellable: false, soldAlone: false,
         partnership: { launch: 0, monthly: 0, attributableTo: "a business Nevamis found" },
-        blurb: "Businesses that fit what you do, found for you, with the page each one came from and what came of it. Offered by invitation, under your own agreement, and not yet sellable from a page."
+        blurb: "Businesses that fit what you do, found for you, with the page each one came from and what came of it. You decide every row, and nobody on the list is contacted by us. Offered by invitation, under your own agreement, and not yet sellable from a page."
+      },
+      /* `partnership` is what this item costs on the Performance Partnership.
+         Bought on its own, or beside any other plan, it is its own pair above. */
+      {
+        id: "quote_chase", name: "Quote-Chase Engine",
+        monthly: 500, launch: 750, sellable: true, soldAlone: true,
+        partnership: { launch: 0, monthly: 0, attributableTo: "a quote Nevamis recovered" },
+        blurb: "Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you."
+      },
+      {
+        id: "missed_call_recovery", name: "Missed-Call Recovery",
+        monthly: 350, launch: 500, sellable: true, soldAlone: true,
+        blurb: "A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out."
+      },
+      {
+        id: "get_paid", name: "Get-Paid Autopilot",
+        monthly: 500, launch: 750, sellable: true, soldAlone: true,
+        blurb: "Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead, because past that point the judgment call belongs to a person."
+      },
+      {
+        id: "review_engine", name: "Review Engine",
+        monthly: 300, launch: 500, sellable: true, soldAlone: true,
+        blurb: "Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person."
       },
       /* Listed as coming. It carries no price and is never sold. */
       {
         id: "seo_rankings", name: "Search Rankings",
         monthly: 0, launch: 0, sellable: false, soldAlone: false,
-        blurb: "Better search rankings for the work you want more of. Coming, and not built yet."
+        blurb: "Better search rankings for the work you want more of. Not built yet."
       },
       {
         id: "reactivation", name: "Customer Reactivation",
         perCampaign: 2000, sellable: false, soldAlone: false,
-        blurb: "A win-back campaign over your own past-customer list, inside the consent rules. Coming, and not sellable until it ships end to end."
+        blurb: "A win-back campaign over your own past-customer list, inside the consent rules. Not sellable until it ships end to end."
       }
     ],
     /* What an item costs on the Performance Partnership, derived as the
@@ -127,6 +135,41 @@
       }
       return { launch: a.launch || 0, monthly: a.monthly || 0, attributableTo: null };
     },
+    /* A plan's two figures as the one approved sentence, in plain text (a
+       page that writes it into HTML escapes it), so a plan whose figures are
+       a band cannot be printed as a flat price on one surface and a band on
+       another: with `launchRange` the fee reads "From", and with
+       `monthlyRange` the monthly reads as the default inside its published
+       band. It is built from launchPart() and monthlyBand() below, and a page
+       that sets the fee and the monthly on separate lines (proposal.html)
+       uses those two parts instead of typing its own. */
+    startLine: function (pl) {
+      return this.launchPart(pl) + ", then " + this.money(pl.monthly) + " a month"
+        + this.monthlyBand(pl) + ".";
+    },
+    /* The fee half of startLine(): "Launch & Implementation to start" after
+       the `launch` figure, with "From" in front when the plan has
+       `launchRange`. */
+    launchPart: function (pl) {
+      return (Array.isArray(pl.launchRange) ? "From " : "") + this.money(pl.launch)
+        + " Launch & Implementation to start";
+    },
+    /* What follows the monthly figure of a plan with `monthlyRange`: that it
+       is the default inside the band, and the band's two ends. Empty for a
+       plan without one. */
+    monthlyBand: function (pl) {
+      return Array.isArray(pl.monthlyRange)
+        ? " by default, inside a monthly band of " + this.money(pl.monthlyRange[0])
+          + " to " + this.money(pl.monthlyRange[1])
+        : "";
+    },
+    /* The lowest and highest monthly a plan may be agreed at: its band where
+       it has `monthlyRange`, otherwise its one published monthly at both
+       ends. proposal.html honours an agreed ?quote= only inside these. */
+    monthlyBounds: function (pl) {
+      return Array.isArray(pl.monthlyRange) ? [pl.monthlyRange[0], pl.monthlyRange[1]] : [pl.monthly, pl.monthly];
+    },
+    money: function (n) { return "C$" + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); },
     /* The lines every plan's `features` carries, in the first plan's order,
        so the pricing page prints them once and each card prints only what
        differs. Computed, not read off EVERY_PLAN, because "One business phone
@@ -177,17 +220,20 @@
     /* `monthly` recurs; `launch` is charged once, at the start, beside the
        first month and never instead of it. There is deliberately no `setup`
        key. `performanceNote` is the approved wording for a plan's
-       performance component, or null. Order is display order: every renderer
-       walks this array in order. */
+       performance component, or null. `launchRange` and `monthlyRange`,
+       where a plan has them, are the bands its figures are agreed within,
+       and `launch` and `monthly` are then the defaults inside them; state
+       such a plan through startLine(), never as a flat pair. Order is
+       display order: every renderer walks this array in order. */
     plans: [
       {
         /* By invitation. `selfServe: false`: never presented as the default,
            and checkout refuses it without an approval. */
         id: "starter", name: "Performance Partnership",
-        monthly: 350, monthlyRange: [250, 500], launch: 2500, includedMinutes: 250,
+        monthly: 350, monthlyRange: [250, 500], launch: 2500, launchRange: [2500, 10000], includedMinutes: 250,
         callRange: "80 to 125 typical calls", overage: 1.10,
         selfServe: false,
-        performanceNote: "Lower fixed cost. Lead Generation, offered by invitation, and the Quote-Chase Engine are each paid on it by an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, subject to your agreement. The monthly, the share, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged.",
+        performanceNote: "Lower fixed cost. Lead Generation, offered by invitation, and the Quote-Chase Engine are each paid on it by an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, subject to your agreement. Its Launch & Implementation fee and its monthly, the share, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged.",
         /* Names the items that can be added on this plan. The figures live on
            the add-ons above and the share in the executed agreement. */
         bestFor: "A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
@@ -209,7 +255,7 @@
         bestFor: "The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts.",
         features: [
           "Everything in the AI Front Desk",
-          "Missed-Call Recovery: one text back to a caller you missed, during business hours, with your name on it and a working opt-out",
+          "Missed-Call Recovery: one text back to a caller you missed, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out",
           "Quote-Chase Engine: follow-up on every quiet estimate: day it stales, day 4, day 11, each touch approved by you",
           "Get-Paid Autopilot: overdue-invoice reminders, with the owner told at three weeks instead of a third email",
           "Review Engine: post-job review requests by text, one ask per finished job, with every request released by a person",

@@ -15,7 +15,7 @@
    JSON-LD blocks are data, not script, and need no hash.
 
    This is the LAST page builder before promote.mjs, because every earlier one
-   can change an inline script:
+   can change an inline script (`npm run build` runs exactly this list):
      python scripts/film/compose.py        (home.html)
      node scripts/build-content.mjs
      node scripts/build-pages.mjs
@@ -77,9 +77,21 @@ const BASE = {
 const TALK = {
   'script-src': ["'self'", 'blob:',
     'https://cdn.jsdelivr.net/npm/@alexanderolsen/libsamplerate-js@2.1.2/dist/libsamplerate.worklet.js'],
-  'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+  /* NO FONT PROVIDER, ON PURPOSE. The widget's stylesheet carries
+     @import "https://fonts.googleapis.com/css2?family=Inter...", and this
+     policy used to allow it (style-src fonts.googleapis.com, font-src
+     fonts.gstatic.com) while nevamis.ca/privacy said no page requests fonts
+     from any font provider (audit finding LEGAL-11). In 0.18.2 the import
+     happens to sit after a rule inside the same <style>, so the browser drops
+     it and no request was observed even with the hosts allowed; the next
+     widget version may not be so lucky, and the policy is what the privacy
+     page's promise should rest on. Without the import the widget's own font
+     stack falls back to the visitor's system sans. Allowing a font host here
+     again means changing the privacy page in the same commit, and
+     scripts/check-legal-truth.mjs fails until it does. */
+  'style-src': ["'self'", "'unsafe-inline'"],
   'img-src': ["'self'", 'data:', 'blob:', 'https://storage.googleapis.com/eleven-public-cdn/'],
-  'font-src': ["'self'", 'data:', 'https://fonts.gstatic.com'],
+  'font-src': ["'self'", 'data:'],
   'media-src': ["'self'", 'blob:', 'data:'],
   'connect-src': ["'self'", 'https://app.nevamis.ca',
     'https://api.elevenlabs.io', 'wss://api.elevenlabs.io', 'wss://livekit.rtc.elevenlabs.io',

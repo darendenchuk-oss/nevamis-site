@@ -5,7 +5,8 @@
     "assets/ringback-tone.wav": "adca34b56966b7e5a5b102cd082ff2ea6e001699f042e645c0a8d34d0e412928",
     "assets/vendor/gsap.min.js": "28033e449a31ebcc396e5be8b13b63152bf03094288fb5867034321927bce087",
     "assets/vendor/ScrollTrigger.min.js": "ad33c2df9ada8a663c2147357828f980d0b7ca731ef33eb3c6e4f327c3b2cda5",
-    "assets/vendor/elevenlabs-convai-widget-embed-0.18.2.js": "12907c8b162e5de2cb9be7754272eb7148bbe1c97724d6268975aed13f9ae8c0"
+    "assets/vendor/elevenlabs-convai-widget-embed-0.18.2.js": "12907c8b162e5de2cb9be7754272eb7148bbe1c97724d6268975aed13f9ae8c0",
+    "missed-line.xml": "ba2e266bde0ba2370d14d92f218d377a9cccdc01b7d4ead595bae27c1bcc4986"
   },
   "destinations": {
     ".well-known/security.txt": [
@@ -22,9 +23,7 @@
       "phone:+15874130035",
       "tel:+15874130035"
     ],
-    "THIRD_PARTY_NOTICES.md": [
-      "https://creativecommons.org/licenses/by/4.0/",
-      "https://github.com/smixs/visual-skills",
+    "THIRD_PARTY_NOTICES.txt": [
       "https://www.npmjs.com/package/@elevenlabs/convai-widget-embed"
     ],
     "about.html": [
@@ -42,6 +41,7 @@
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -52,9 +52,6 @@
     ],
     "assets/fonts/fonts.css": [
       "https://scripts.sil.org/OFL"
-    ],
-    "assets/og-default.svg": [
-      "http://www.w3.org/2000/svg"
     ],
     "book.html": [
       "email:sales@nevamis.ca",
@@ -104,6 +101,7 @@
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -119,6 +117,7 @@
       "https://schema.org/InStock",
       "https://schema.org/LimitedAvailability",
       "https://schema.org/MobileWebPlatform",
+      "https://schema.org/Subscription",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -139,6 +138,7 @@
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -154,6 +154,7 @@
       "https://schema.org/InStock",
       "https://schema.org/LimitedAvailability",
       "https://schema.org/MobileWebPlatform",
+      "https://schema.org/Subscription",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -168,14 +169,10 @@
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
-    ],
-    "motion.js": [
-      "phone:+15875550119",
-      "phone:+17805550163",
-      "phone:+18255550147"
     ],
     "pilot.html": [
       "email:sales@nevamis.ca",
@@ -192,6 +189,7 @@
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -238,6 +236,7 @@
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -292,6 +291,7 @@
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -301,8 +301,6 @@
       "https://api.elevenlabs.io/",
       "https://app.nevamis.ca/",
       "https://cdn.jsdelivr.net/npm/@alexanderolsen/libsamplerate-js@2.1.2/dist/libsamplerate.worklet.js",
-      "https://fonts.googleapis.com/",
-      "https://fonts.gstatic.com/",
       "https://storage.googleapis.com/eleven-public-cdn/",
       "phone:+15874130035",
       "tel:+15874130035",
@@ -328,6 +326,7 @@
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -337,6 +336,7 @@
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"

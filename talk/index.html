@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' blob: https://cdn.jsdelivr.net/npm/@alexanderolsen/libsamplerate-js@2.1.2/dist/libsamplerate.worklet.js; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://storage.googleapis.com/eleven-public-cdn/; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: data:; connect-src 'self' https://app.nevamis.ca https://api.elevenlabs.io wss://api.elevenlabs.io wss://livekit.rtc.elevenlabs.io https://*.elevenlabs.io wss://*.elevenlabs.io; frame-src 'none'; worker-src 'self' blob:; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' blob: https://cdn.jsdelivr.net/npm/@alexanderolsen/libsamplerate-js@2.1.2/dist/libsamplerate.worklet.js; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://storage.googleapis.com/eleven-public-cdn/; font-src 'self' data:; media-src 'self' blob: data:; connect-src 'self' https://app.nevamis.ca https://api.elevenlabs.io wss://api.elevenlabs.io wss://livekit.rtc.elevenlabs.io https://*.elevenlabs.io wss://*.elevenlabs.io; frame-src 'none'; worker-src 'self' blob:; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -158,6 +158,8 @@
   }
 
   .fine{font-size:12.5px;line-height:1.5;color:var(--ink-4);margin:16px 0 0}
+  .fine a{text-decoration:underline;text-underline-offset:2px}
+  .fine a:hover{color:var(--ink-2)}
 
   /* The site's label idiom: 11px mono capitals in emerald with a glowing
      dot, and a rule above it, which is how every boundary on the site is
@@ -184,7 +186,7 @@
   <h1>Talk to the front desk</h1>
   <p>Speak to it right here in your browser. It is the same assistant as the phone line, so try to trip it up.</p>
   <button type="button" class="pri" id="talkStart">Start the voice call</button>
-  <p class="fine" id="talkFine">Browser calls run through ElevenLabs, our voice provider, and load their software only when you press start. Your microphone is used only during the call, and the call is recorded, exactly like the phone line.</p>
+  <p class="fine" id="talkFine">Browser calls run through ElevenLabs, our voice provider, and load their software only when you press start. Your microphone is used only during the call, and the call is recorded, exactly like the phone line. Nothing is stored in your browser to identify you or your device. <a href="/privacy.html#demo-calls">How browser calls are handled</a>.</p>
   <span class="or">or call from any phone</span>
   <a class="num" href="tel:+15874130035">(587) 413-0035</a>
 </main>

@@ -49,7 +49,11 @@
    gen-sitemap has to run LAST, after compose.py and every builder in
    BUILDERS below, because it hashes the pages' final bytes. Run any earlier,
    it records pages that a later step then rewrites, and this check fails on
-   exactly those pages.
+   exactly those pages. `npm run build` is that order.
+
+   Landed with audit MACHINE-18 (2026-10-03): this sitemap check was written
+   on 2026-09-24 in site PR #32, which never merged, and main went on
+   publishing 2026-09-19 for pages that changed on 09-26 and 09-30.
    ============================================================ */
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -113,7 +117,7 @@ let aborted = false;
 /* ---------- the sitemap still describes the pages on disk ----------
    First, and read-only: it needs neither git nor a clean tree, only the files.
    See the header for why this compares content and never dates. */
-const REGEN = `run node scripts/gen-sitemap.mjs, then commit ${SITEMAP} and ${SIDECAR}`;
+const REGEN = `run npm run build (it ends with node scripts/gen-sitemap.mjs, which alone is enough when the pages are already built), then commit ${SITEMAP} and ${SIDECAR}`;
 try {
   /* A sidecar that does not parse is a committed defect (a bad hand merge,
      say), not an unknown: FAIL, exit 1, with the same fix as everything else

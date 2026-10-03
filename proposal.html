@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-afge87k3bKEZBq3XmcMEywPrae1/li/72OoUJYNe008=' 'sha256-YXhiOoF9IdEwS8u3V3f0uokaOlFvWAA0Z5jXSNPzsz4='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-0owPzF+sR2KsWCUr2CoO7CxdBhjyxMkoqXi1np0aCxU=' 'sha256-7y8ESMHd0tPm6A3hQXAF+QsIfhPcitgpWdgrRl/wj7g='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,14 +15,20 @@
      their email, texts and Slack. Without these the preview renders blank,
      which is a poor first impression on the one document that is meant to
      close them. Deliberately generic wording: the URL may be forwarded to a
-     partner or spouse who was not on the call. -->
+     partner or spouse who was not on the call. No og:url: the shared link
+     carries the proposal in its query, and a bare og:url would point the
+     card at an empty proposal. -->
 <meta property="og:title" content="Your Nevamis proposal">
 <meta property="og:description" content="A short written summary of what was discussed: the plan, what is included, what it costs each month, and what happens before your line is answered.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nevamis">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
+<meta property="og:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nevamis.ca/assets/og-default.png">
+<meta name="twitter:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -242,6 +248,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--ink)}
 html{overflow-x:clip;scrollbar-color:#123528 var(--bg)}
+html{scroll-padding-top:calc(var(--head-h) + 16px)}
 body{overflow-x:clip;font-family:var(--f-body);font-size:var(--fs-body);
   line-height:var(--lh-body);-webkit-font-smoothing:antialiased}
 img{max-width:100%;height:auto}
@@ -270,7 +277,7 @@ strong{color:var(--ink)}
 .site-header.scrolled{background:rgba(2,8,13,.94);box-shadow:0 1px 0 var(--line-soft);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .site-header .wrap{display:flex;align-items:center;gap:18px;height:var(--head-h)}
-.wordmark{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
+.wordmark{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:17px;min-height:44px}
 .wordmark .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
 .wordmark .wm-v{letter-spacing:.055em}
 .wordmark svg{width:22px;height:22px;transform:translateY(-1.7px);
@@ -287,20 +294,31 @@ strong{color:var(--ink)}
 .main-nav a:not(.btn):hover::after,.main-nav a.active-section::after{transform:scaleX(1)}
 .main-nav a.active-section{color:var(--ink)}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
-  color:var(--ink);border-radius:9px;width:42px;height:42px;font-size:17px;cursor:pointer}
+  color:var(--ink);border-radius:9px;width:44px;height:44px;font-size:17px;cursor:pointer}
 @media(max-width:1080px){
-  .main-nav a.nav-min{display:none}
-}
-@media(max-width:880px){
   .nav-toggle{display:grid;place-items:center}
-  .main-nav{position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:stretch;
-    gap:0;padding:8px 20px 18px;background:rgba(7,15,22,.98);border-bottom:1px solid var(--line);
-    display:none}
+  .main-nav{position:absolute;top:var(--head-h);left:0;right:0;flex-direction:column;align-items:stretch;
+    gap:0;padding:8px 20px 18px;background:#070F16;border-bottom:1px solid var(--line);
+    display:none;max-height:calc(100vh - var(--head-h));max-height:calc(100dvh - var(--head-h));
+    overflow-y:auto;overscroll-behavior:contain}
   .main-nav.open{display:flex}
-  .main-nav a:not(.btn){padding:12px 4px;font-size:16px;border-bottom:1px solid rgba(159,240,206,.07)}
-  .main-nav a.nav-min{display:block}
+  .main-nav .navitem{display:block;overflow:visible}
+  .main-nav a:not(.btn){display:flex;align-items:center;min-height:44px;padding:10px 4px;font-size:16px;
+    border-bottom:1px solid rgba(159,240,206,.07)}
+  .main-nav a:not(.btn)::after{display:none}
+  .main-nav a.nav-min{display:flex}
   .main-nav .btn{margin-top:12px;justify-content:center}
 }
+@media (min-width:821px) and (max-width:1080px){
+  .main-nav:not(.open){display:flex;position:static;flex-direction:row;align-items:center;
+    padding:0;background:none;border:0;max-height:none;overflow:visible;margin-left:auto;order:1}
+  .main-nav:not(.open) .navitem{display:none}
+  .main-nav:not(.open) .navitem:last-child{display:block}
+  .main-nav:not(.open) .btn{margin-top:0}
+  .nav-toggle{order:2;margin-left:12px}
+  .nav-toggle[aria-expanded="true"]{margin-left:auto}
+}
+html.nav-locked{overflow:hidden}
 .btn{position:relative;display:inline-flex;align-items:center;gap:9px;
   border-radius:var(--r-pill);padding:12px 20px;font-family:inherit;font-weight:600;
   font-size:14.5px;border:1px solid transparent;cursor:pointer;white-space:nowrap;
@@ -323,7 +341,7 @@ strong{color:var(--ink)}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 main section,main .dark{position:relative}
 section{padding:var(--sec-y) 0;position:relative;overflow:clip;
-  border-top:1px solid var(--line-soft);scroll-margin-top:var(--head-h)}
+  border-top:1px solid var(--line-soft)}
 #roi{overflow:visible}
 section.tight{padding-top:var(--sec-y)}
 .page-hero+section{border-top:none}
@@ -354,7 +372,7 @@ span.eyebrow{display:block;width:fit-content}
 .centre .eyebrow,.centre .k{text-align:center}
 .crumb{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-crumb);
   text-transform:uppercase;color:var(--ink-5);margin-bottom:10px}
-.crumb a{color:var(--ink-4)}
+.crumb a{color:var(--ink-4);display:inline-block;padding:14px 0;margin:-14px 0}
 .crumb a:hover{color:var(--mint)}
 .grid-lines,.hero-light{position:absolute;inset:0;z-index:0;pointer-events:none;
   background:
@@ -454,6 +472,11 @@ ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
 .more{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-tag);
   text-transform:uppercase;color:var(--emerald);text-decoration:none}
 .more:hover{color:var(--mint)}
+@media (max-width:820px),(pointer:coarse){
+  .more{display:inline-flex;align-items:center;min-height:44px}
+  #paneNav button{min-height:44px}
+}
+html.nv-below #close .cta{pointer-events:none}
 .prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:rgba(159,240,206,.45)}
@@ -787,6 +810,13 @@ html.motion-off .faq details p{animation:none}
 .callbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;text-align:center;
   background:var(--mint);color:var(--on-mint);font-weight:700;
   padding:14px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px -12px rgba(0,0,0,.5)}
+@media (max-width:820px),(pointer:coarse){
+  .site-footer .cols a{display:flex;align-items:center;min-height:44px;padding:0}
+  .site-footer .cols a::after{bottom:11px}
+}
+.callbar{transition:transform var(--t-base) var(--e-out),visibility 0s linear 0s}
+.callbar.callbar-off{transform:translateY(110%);visibility:hidden;
+  transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}
 @media(max-width:820px){
   .callbar{display:block}
   .site-footer{padding-bottom:96px}
@@ -1032,6 +1062,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </style>
 </head>
 <body class="doc-page">
+<!-- The skip link every other page carries (CHECK-RUNNER-10, 2026-10-03).
+     This page has no site navigation before <main>, so here it lands at the
+     top of the document; it is kept so the keyboard contract is the same on
+     every page a prospect can be sent, and the .skip style above was already
+     here without the link it was written for. -->
+<a class="skip" href="#main">Skip to content</a>
 <main class="prop" id="main">
   <div class="prop-head">
     <div class="mark">
@@ -1051,14 +1087,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <p id="summaryLine">
       Your line answered around the clock by a front desk configured around your
       hours, service area, job types and the rules you approve. It qualifies the
-      caller, takes the job, the address and the time they want, and texts and
-      emails you a summary of every call within seconds. Your phone number does
-      not change.
+      caller, captures the request, the address and the times that suit them, and
+      texts and emails you a summary of every call within seconds, for you to
+      confirm the slot. Your phone number does not change.
     </p>
   </section>
 
   <section>
-    <h2>Recommended plan</h2>
+    <h2 id="planHeading">Recommended plan</h2>
     <div class="plan-box card-featured">
       <p class="eyebrow mono" id="planName">AI FRONT DESK</p>
       <p class="amount" id="planPrice">C$1,000<span>/month</span></p>
@@ -1119,7 +1155,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   </section>
 
   <section>
-    <h2>What happens next</h2>
+    <h2 id="stepsHeading">What happens next</h2>
     <!-- This section used to end at a seven-day paid trial: build it, run it
          live for a week, and on day eight the prospect chose or it stopped.
          That offer was retired on 2026-08-09, and the steps that survived are
@@ -1145,8 +1181,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   <div class="prop-foot">
     <p class="fine2">Nevamis AI Inc. · Edmonton, Alberta · <a href="tel:+15874130035">(587) 413-0035</a>
       · <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a></p>
-    <p class="fine2">This summary reflects published pricing at the time it was sent and is not a
-      contract. Terms at <a href="/terms.html">nevamis.ca/terms</a>.</p>
+    <p class="fine2"><span id="footPricing">This summary reflects published pricing at the time it was sent and is not a
+      contract.</span> Terms at <a href="/terms.html">nevamis.ca/terms</a>.</p>
   </div>
 </main>
 
@@ -1157,9 +1193,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
    Every value shown comes from pricing-config.js, so a proposal can never
    quote a number the business has not approved.
    Params: ?to=Business+Name&plan=starter|growth|pro (legacy ids after-hours
-   and scale still resolve). A bare link or an unknown id renders the
-   recommended plan, the AI Front Desk; until 2026-09-19 a bare link rendered
-   The Works while this line said otherwise (fix plan A29). ?date=YYYY-MM-DD
+   and scale still resolve), or the id of an automation sold on its own
+   (quote_chase, get_paid, review_engine, missed_call_recovery: whatever
+   pricing-config.js marks soldAlone). A bare link renders the recommended
+   plan, the AI Front Desk; until 2026-09-19 a bare link rendered The Works
+   while this line said otherwise (fix plan A29). An id that names nothing
+   renders a visible "no plan named" state, never a substitute product
+   (BD-F7, 2026-09-26). ?date=YYYY-MM-DD
    prints the day the proposal was prepared; without it no date is printed,
    because the day a link is opened is not the day it was prepared.
    The &founding=1 parameter does nothing. Old links carrying it still render
@@ -1285,19 +1325,133 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        on a page built to be sent to a buyer. tests/proposal.spec.js asserted
        that it rendered, which is why nobody noticed.
 
-       An unrecognised plan id now falls through to the recommended plan,
-       which is what every other unknown value already did. It read
-       P.plans[1] until 2026-09-19, which is The Works since the display
-       order changed, so "the recommended plan" was a comment, not the code
-       (fix plan A29). */
+       AN ID THAT IS NOT A PLAN IS NOT A PLAN (BD-F7, 2026-09-26). An
+       unrecognised id used to fall through to the recommended plan, so
+       ?plan=quote_chase, a module this business sells on its own, rendered
+       the AI Front Desk, recommended, at its monthly, with a Start now that
+       bought the front desk: the link named one product and the document
+       sold another. Now there are three outcomes and no substitution:
+         - a plan id renders that plan;
+         - the id of an automation pricing-config.js marks sellable and
+           soldAlone renders that module from its own figures, with no buy
+           button (checkout has no live module price yet, so a module is
+           quoted and started on a call);
+         - anything else renders a visible "no plan named" state.
+       Only a missing ?plan= still means the recommended plan, because a bare
+       link is how the static copy has always been sent. */
+    var mod = plan ? null : (P.addOns || []).filter(function (a) {
+      return a.id === wanted && a.sellable === true && a.soldAlone === true && a.monthly > 0 && a.launch > 0;
+    })[0];
+
+    /* THE TERM, stated once for a plan and a module alike. NO MINIMUM TERM,
+       stated outright. It said "no minimum term" until the v4 directive of
+       2026-08-22 made that false; the owner reversed v4 on 2026-09-08 and
+       `minimumMonths` is zero. The branch that printed a minimum length for
+       a non-zero term was dead code carrying a retired sentence, and it is
+       deleted (fix plan A33, 2026-09-19). If a term ever returns, the
+       sentence below must change with it: it does not read
+       terms.minimumMonths. The defaults below are `== null` and not `||` on
+       purpose: `(0 || 30)` is 30.
+
+       ZERO notice, not 30, since the owner directive of 2026-09-12 removed
+       the notice period outright. The old default read a missing field as
+       30 days, which is the identical trap: the moment the real figure
+       became 0, a `|| 30` would have gone on printing a retired condition on
+       the one document written to close a sale. The clause is derived from
+       the number rather than typed beside it. */
+    var T = P.terms || {};
+    var mNotice = T.cancellationNoticeDays == null ? 0 : T.cancellationNoticeDays;
+    var mCancel = mNotice ? "on " + mNotice + " days notice" : "at any time";
+    var mLock = T.priceLockMonths == null ? 12 : T.priceLockMonths;
+    var termSentence = "There is no minimum term: month to month from the first month, cancel " + mCancel
+      + " from your own portal, with service running to the end of the month you already paid for."
+      + " Your price is locked for " + mLock + " months.";
+
+    /* The static steps are the front desk's build (an agent, scripted test
+       callers, forwarding proven), which is the wrong list for a module and
+       for a link that names nothing. An empty list hides its heading too, so
+       "What happens next" never stands over nothing. */
+    function replaceSteps(list) {
+      var ol = document.querySelector("ol.steps");
+      if (!ol) return;
+      ol.textContent = "";
+      list.forEach(function (st) {
+        var li = document.createElement("li");
+        var b = document.createElement("b");
+        b.textContent = st[0];
+        li.appendChild(b);
+        li.appendChild(document.createTextNode(" " + st[1]));
+        ol.appendChild(li);
+      });
+      ol.hidden = !list.length;
+      var h = document.getElementById("stepsHeading");
+      if (h) h.hidden = !list.length;
+    }
+    function hideFeatures() {
+      var ul = document.getElementById("planFeatures");
+      ul.textContent = "";
+      ul.hidden = true;
+    }
+
+    if (!plan && mod) {
+      /* A MODULE PROPOSAL. Every figure is the module's own pair from
+         pricing-config.js, the pair the pricing page's add-on list states,
+         and the description is its `blurb` there. Start now goes: there is
+         no live price for a module in checkout yet (owner item O25), so the
+         only honest action beside it is the call. */
+      callOnly();
+      /* Not "Recommended": whether the automatic text-back may be
+         recommended at all is still the owner's (O24/O12), so a module
+         proposal names what was discussed and recommends nothing. */
+      set("planHeading", "The module we discussed");
+      set("summaryLine", mod.blurb);
+      set("planName", mod.name.toUpperCase());
+      var mPrice = document.getElementById("planPrice");
+      if (P.publishedPricing) {
+        mPrice.textContent = money(mod.monthly);
+        var mPer = document.createElement("span"); mPer.textContent = "/month";
+        mPrice.appendChild(mPer);
+      } else {
+        mPrice.textContent = "Quoted per client";
+      }
+      set("planIncludes", "Each automation is its own sale, on its own or beside a plan. This one is set up after a short call, not bought from this page.");
+      set("planMonthly", P.publishedPricing
+        ? money(mod.launch) + " Launch & Implementation to start, then " + money(mod.monthly) + " a month, charged the day you start and every month after."
+        : "Your price is quoted per client, then it is charged the day you start and every month after.");
+      set("planTerms", termSentence);
+      hideFeatures();
+      replaceSteps([
+        ["Discovery.", "A short call about where the work is slipping, and what this module needs from you to run."],
+        ["Set up.", "It is configured with your business name, your hours and the rules you approve, and nothing is switched on until you say so."],
+        ["Live, and cancellable whenever you want.", "You are billed monthly from the day you start, with no minimum term. If it is not earning its price, you cancel it yourself from the portal at any time, and the month you already paid for runs out normally."]
+      ]);
+      return;
+    }
+    if (!plan) {
+      /* NO PLAN NAMED. The link is mistyped or out of date, and guessing
+         which product it meant is what BD-F7 was. Nothing is priced and
+         nothing is bought; the call and the published price list remain. */
+      callOnly();
+      set("planHeading", "This link does not name a plan");
+      set("summaryLine", "This proposal link does not name a plan or a module we sell, so it states no product and no price. Every plan and its price is published at nevamis.ca/pricing, and the next call is where we put the right one in writing.");
+      set("planName", "NO PLAN NAMED");
+      ["planPrice", "planIncludes", "planMonthly", "planTerms"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) { el.textContent = ""; el.hidden = true; }
+      });
+      hideFeatures();
+      replaceSteps([]);
+      /* The footer vouches for published pricing; this page states none. */
+      set("footPricing", "This page states no price and is not a contract.");
+      return;
+    }
     {
-      plan = plan || (P.plans || []).filter(function (p) { return p.recommended; })[0] || P.plans[0];
       /* What we discussed, per plan. The static copy is the front desk
          summary, which is right for the AI Front Desk and The Works. The
          Performance Partnership is where Lead Generation is arranged, so its
          proposal opens on that, and its steps start with the list. */
       set("summaryLine", plan.id === "starter" ? "Lead Generation, by invitation. We read public pages and list businesses of exactly the kind you want more of, each with the page it came from. You decide every one, and nobody on it is contacted by us. It is arranged on the Performance Partnership below, which also answers your line around the clock."
-        : "Your line answered around the clock by a front desk configured around your hours, service area, job types and the rules you approve. It qualifies the caller, takes the job, the address and the time they want, and texts and emails you a summary of every call within seconds. Your phone number does not change.");
+        : "Your line answered around the clock by a front desk configured around your hours, service area, job types and the rules you approve. It qualifies the caller, captures the request, the address and the times that suit them, and texts and emails you a summary of every call within seconds, for you to confirm the slot. Your phone number does not change.");
       if (plan.id === "starter") {
         var stepsEl = document.querySelector("ol.steps");
         var LG_STEPS = [
@@ -1328,19 +1482,24 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          no quote the box states the plan's own monthly; the morning's
          "priced after a scan" fallback survives only for the unpublished
          state, as "quoted per client". */
-      /* Only a figure inside the band of real prices is shown. Anyone can
-         build this link, and ?quote=1 used to print a one-dollar monthly as a
-         Nevamis proposal. An agreed per-client figure always sits between the lowest
-         and highest monthly in pricing-config.js; anything outside that band
-         is ignored and the plan's own price is stated instead. */
+      /* Only a figure inside THIS PLAN'S OWN band is shown. Anyone can
+         build this link, and ?quote=1 used to print a one-dollar monthly as
+         a Nevamis proposal. The first fix bounded the quote by ONE band
+         across every plan, from the Partnership's floor to The Works'
+         monthly, so a link for The Works carrying the Partnership's floor
+         printed The Works at that floor, above "This summary reflects
+         published pricing" (BD-F1, 2026-09-26): every figure in that band is
+         some plan's price, and almost none of them is this plan's. A plan agreed inside a band
+         (`monthlyRange`, the Performance Partnership) may carry any figure in
+         its band; a plan without one has exactly one price, so a quote is
+         honoured only when it IS that price. NV_PRICING.monthlyBounds says
+         which, so this page reads no band of its own. Anything else is ignored and the
+         plan's published price is stated instead. */
       var quoted = Number(q.get("quote") || 0);
-      var band = (P.plans || []).reduce(function (b, p) {
-        [p.monthly].concat(p.monthlyRange || []).forEach(function (n) {
-          if (typeof n === "number" && n > 0) { b[0] = Math.min(b[0], n); b[1] = Math.max(b[1], n); }
-        });
-        return b;
-      }, [Infinity, 0]);
-      quoted = (isFinite(quoted) && quoted >= band[0] && quoted <= band[1]) ? Math.round(quoted * 100) / 100 : 0;
+      /* A stale cached pricing-config.js without the helper honours only the
+         published monthly, the narrower reading, rather than throwing. */
+      var own = typeof P.monthlyBounds === "function" ? P.monthlyBounds(plan) : [plan.monthly, plan.monthly];
+      quoted = (isFinite(quoted) && quoted > 0 && quoted >= own[0] && quoted <= own[1]) ? Math.round(quoted * 100) / 100 : 0;
       var priceEl = document.getElementById("planPrice");
       if (quoted > 0) {
         priceEl.textContent = money(quoted);
@@ -1406,36 +1565,25 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          words: the one-time
          Launch & Implementation fee starts the build, beside the first
          month, and the monthly recurs. */
+      /* A banded plan's published monthly is the default inside its band,
+         not a fixed price (BD-4, 2026-09-25), so with no agreed ?quote= the
+         band is stated beside it, as on the pricing card. The band's words
+         are NV_PRICING.monthlyBand's, the part startLine() is built from,
+         never typed here: this page is the one that splits the fee and the
+         monthly onto two lines, so it cannot use startLine() whole. */
       set("planMonthly", quoted > 0
         ? money(quoted) + "/month, charged the day you start and every month after."
         : (P.publishedPricing
-          ? money(plan.monthly) + "/month, charged the day you start and every month after."
+          ? money(plan.monthly) + "/month" + P.monthlyBand(plan) + ", charged the day you start and every month after."
           : "Your monthly amount is quoted per client, then it is charged the day you start and every month after."));
-      /* NO MINIMUM TERM, stated outright. It said "no minimum term" until
-         the v4 directive of 2026-08-22 made that false; the owner reversed v4
-         on 2026-09-08 and `minimumMonths` is zero. The branch that printed a
-         minimum length for a non-zero term was dead code carrying a retired
-         sentence, and it is deleted (fix plan A33, 2026-09-19). If a term
-         ever returns, the sentence below must change with it: it no longer
-         reads terms.minimumMonths. The defaults below are `== null` and not
-         `||` on purpose: `(0 || 30)` is 30. */
-      var T = P.terms || {};
-      /* ZERO, not 30, since the owner directive of 2026-09-12 removed the
-         notice period outright. The old default read a missing field as 30
-         days, which is the identical trap the comment above describes for
-         `minimumMonths`: the moment the real figure became 0, a `|| 30` or a
-         30-default would have gone on printing a retired condition on the one
-         document written to close a sale. The clause is derived from the
-         number rather than typed beside it. */
-      var mNotice = T.cancellationNoticeDays == null ? 0 : T.cancellationNoticeDays;
-      var mCancel = mNotice ? "on " + mNotice + " days notice" : "at any time";
-      var mLock = T.priceLockMonths == null ? 12 : T.priceLockMonths;
-      set("planTerms", "One-time " + money(plan.launch) + " Launch & Implementation to start."
+      /* The term sentence is termSentence, above, shared with the module
+         proposal so the two cannot drift apart. */
+      /* NV_PRICING.launchPart, which puts "from" in front of a fee that is
+         a band, for the same reason as monthlyBand above. */
+      set("planTerms", "One-time " + P.launchPart(plan).replace(/^From /, "from ") + "."
         + (plan.performanceNote ? " " + plan.performanceNote : "")
         + " Overage past your included minutes is the only other usage billing."
-        + " There is no minimum term: month to month from the first month, cancel " + mCancel
-        + " from your own portal, with service running to the end of the month you already paid for."
-        + " Your price is locked for " + mLock + " months."
+        + " " + termSentence
         + (plan.selfServe === false ? " This plan is offered by invitation and approval." : ""));
 
       if (P.annual && P.annual.active && plan.annual) {

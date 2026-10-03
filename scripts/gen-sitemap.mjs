@@ -1,15 +1,26 @@
 #!/usr/bin/env node
 /* Regenerates sitemap.xml and its sidecar, config/sitemap-hashes.json.
-   Run: node scripts/gen-sitemap.mjs   (writes both in place; commit both)
+   Run: npm run build                   (the whole chain, this script last)
+    or: node scripts/gen-sitemap.mjs    (this step alone; commit both files)
 
    RUN IT LAST, after every writer of a page: python scripts/film/compose.py
    (for a homepage edit), then build-content, build-pages, build-schema,
    build-csp, promote and build-search-index (the order
-   check-generator-drift.mjs runs them in). This script records a hash of each
-   page's bytes as they are at that moment. Run before build-csp or promote,
-   it records half-built pages, gives pages that end up unchanged today's
-   date, and CI fails on every page a later step rewrote. Then commit the
-   pages together with sitemap.xml and the sidecar.
+   check-generator-drift.mjs runs them in). `npm run build` is exactly that
+   chain, in that order, ending here; it is the publish chain, so a page
+   change and its <lastmod> travel in one command. This script records a
+   hash of each page's bytes as they are at that moment. Run before
+   build-csp or promote, it records half-built pages, gives pages that end up
+   unchanged today's date, and CI fails on every page a later step rewrote.
+   Then commit the pages together with sitemap.xml and the sidecar.
+
+   WHY IT IS IN THE PUBLISH CHAIN (audit MACHINE-18, 2026-10-03). The hash
+   guard below was written on 2026-09-24 in site PR #32, which was never
+   merged, so main kept the old script: every <lastmod> said 2026-09-19 (one
+   said 09-24) while index, pricing and four more pages changed on 09-30 and
+   terms on 09-26. The generator existed and nothing ran it. Now the guard
+   fails any page that changed without it, and the one command that builds
+   the site ends with it.
 
    On a merge or rebase conflict in sitemap.xml or the sidecar, do not merge
    the lines by hand. Finish resolving the pages, run this script, and commit

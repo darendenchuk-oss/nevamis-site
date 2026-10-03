@@ -19,6 +19,10 @@ import { fileURLToPath } from "node:url";
 import { promoteHtml } from "./promote.mjs";
 import { headCssBlock, readCssSources, CSS_OPEN, CSS_CLOSE, LINK_FONTS, LINK_SITE } from "./lib/inline-css.mjs";
 import { applySelfCta } from "./lib/nav-cta.mjs";
+import { chipsOf, chipFindings, statusLabelsFrom, CHIP_FIXTURES } from "./lib/status-chips.mjs";
+import { termFindings, TERM_FIXTURES } from "./lib/llms-terms.mjs";
+import { agentTruthFindings, agentRequiredFindings, doorOrderFindings, AGENT_FIXTURES, llmsPageFindings, LLMS_PAGE_FIXTURES, offerFindings, OFFER_FIXTURES } from "./lib/machine-surfaces.mjs";
+import { sitemapPages } from "./lib/sitemap.mjs";
 /* DENIAL / ADDITIVE / RETIRED_OFFERS and the claim classifier moved to
    ./lib/claims.mjs on 2026-08-10, when a laundering defect in the classifier
    was fixed: a denial in ONE CLAUSE used to excuse every claim in the whole
@@ -118,13 +122,13 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
    The two homepage entries were deleted the day the source line was fixed
    (fix plan A8); the knowledge-base entry the day that file was corrected here;
    the cold-calling offer sheet's entry on 2026-09-25, the day OFFER-V4.md
-   stopped saying it. What is left is one file outside this repository, which
-   no commit here can fix and which CI never sees: the live demo prompt (fix
-   plan A18, pushed through the agent flow). It reports as an owner action and
-   leaves the exit code alone. */
-const BANNED_PENDING = [
-  { file: "../nevamis-engine/docs/agent-prompts/demo.md", text: "the start most businesses make", owner: "engine demo prompt, fix plan A18" },
-];
+   stopped saying it; and the live demo prompt's entry (fix plan A18) on
+   2026-10-03, after every run had been printing that demo.md no longer says
+   it (audit CHECK-RUNNER-11). The ledger is EMPTY, which is the state it is
+   meant to return to: nothing prohibited is excused anywhere. Keep the
+   machinery; the next entry goes here with its owner, and is deleted the day
+   its NOTE line says it stopped matching. */
+const BANNED_PENDING = [];
 const pendingHit = new Set();
 /* The text a `banned` rule is allowed to see: the file as written, minus the
    exact pending fragments recorded for that file above. */
@@ -360,6 +364,19 @@ for (const p of contentPages) {
           const launch = body.match(/C\$([\d,]+)\s+Launch\s+(?:&|&amp;|and)\s+Implementation/i);
           if (!launch || num(launch[1]) !== plan.launch) err('pricing fallback "' + name + '": does not state the one-time Launch & Implementation fee from config ('
             + plan.launch + '); expected "C$' + plan.launch.toLocaleString("en-CA") + ' Launch &amp; Implementation to start".');
+          /* A banded plan stated as a flat pair is the BD-4 defect: two real
+             numbers, arranged into a fixed price the agreement then
+             contradicts. Its fee must read "From", and its monthly band must
+             be on the card. */
+          const cash = (n) => "C$" + Number(n).toLocaleString("en-CA");
+          if (Array.isArray(plan.launchRange) && !new RegExp("\\bfrom " + cash(plan.launch).replace("$", "\\$") + "\\s+Launch", "i").test(body)) {
+            err('pricing fallback "' + name + '": its Launch & Implementation fee is a band (pricing-config.js launchRange), so it must read "From '
+              + cash(plan.launch) + ' Launch &amp; Implementation", never as a flat fee.');
+          }
+          if (Array.isArray(plan.monthlyRange) && !body.includes(cash(plan.monthlyRange[0]) + " to " + cash(plan.monthlyRange[1]))) {
+            err('pricing fallback "' + name + '": its monthly is a band (pricing-config.js monthlyRange), so it must state "'
+              + cash(plan.monthlyRange[0]) + " to " + cash(plan.monthlyRange[1]) + '".');
+          }
         } else {
           if (monthly) err('pricing fallback "' + name + '": still states C$' + monthly[1] + '/month. Pricing is unpublished; the fallback must carry no figure.');
           if (!/quoted per client|priced after your scan/i.test(body)) err('pricing fallback "' + name + '": does not say how the price is arrived at, so a reader with no JavaScript is told nothing about how it is priced.');
@@ -415,7 +432,27 @@ for (const p of contentPages) {
   const PERSON = "(?:on-call\\s+(?:tech(?:nician)?|number|crew|team|person|line)"
     + "|person\\s+on\\s+call|technician|dispatcher|team\\s+member"
     + "|live\\s+(?:person|agent|operator)|human"
-    + "|your\\s+(?:cell|mobile|phone|team|crew)|a\\s+person|the\\s+person)";
+    + "|your\\s+(?:cell|mobile|phone|team|crew)|a\\s+person|the\\s+person"
+    /* Added after the third review (2026-09-25): "it forwards the call to
+       your office manager" names a person and read as honest without it. */
+    + "|(?:office\\s+|service\\s+|shop\\s+)?manager)";
+  /* The hand-off rule alone also takes "you" (the owner): "it forwards the
+     call to you" is a transfer promise (third review, 2026-09-25). Not in
+     PERSON, because the escalation rule shares PERSON and
+     vs-answering-service.html's "Escalates to you instead" is true: an
+     escalation is an alert to the owner, not a call put through. Bounded so
+     it never matches the start of "your". */
+  const HANDOFF_TO = "(?:" + PERSON + "|you\\b)";
+  /* The words that may sit in front of the call in a hand-off ("the urgent
+     call", "your calls", "any after-hours callers"). Closed on purpose: an
+     open "any two words" would let the rule reach across a clause boundary
+     the splitter missed and flag a sentence about something else. */
+  const CALL_MOD = "(?:the|your|their|its|our|this|that|these|those|any|all|every|each|a|an"
+    + "|urgent|emergency|after-hours|overnight|weekend|incoming|inbound|live|real|important|priority"
+    /* "missed" is the product's own word (Missed-Call Recovery), so "it
+       forwards missed calls to your cell" is the likeliest way this promise
+       gets written; it passed until the third review (2026-09-25). */
+    + "|missed)";
   const TRANSFER_PROMISE = [
     /\btransfer(?:s|red|ring)?\b/i,
     /\bpatch(?:es|ing)?\s+(?:you|them|the caller)\s+through\b/i,
@@ -441,10 +478,27 @@ for (const p of contentPages) {
        is not. Widened after review the same day: the plural ("it passes
        calls to your team", "it can route urgent calls to your phone") is the
        same promise, and so is "put the call through to a person", which the
-       put-through rule above misses because its object there is a person. */
+       put-through rule above misses because its object there is a person.
+
+       Widened again after a second review (2026-09-25, FP1): the object took
+       ONE word in front of it from a closed list, so "it forwards the urgent
+       call to your on-call tech" (two words), "it passes your calls to your
+       team" (a possessive) and "it routes emergency calls to your on-call
+       tech" (an adjective the list lacked) all read as honest. Up to two
+       modifiers now, from CALL_MOD: the determiners and possessives a
+       sentence opens the object with, plus the adjectives this trade uses
+       for the calls that matter most. The particle may also come BEFORE the
+       object ("hands off the call to"), which is how people say it.
+
+       "it" is deliberately NOT an object, although "it hands it to your
+       on-call tech" is a promise. On this site "it" is as often the message
+       as the call: "it writes up the job and sends it to your phone" is
+       exactly what the product does, and PERSON includes "your phone". A
+       rule that fails the true sentence gets deleted, which costs every case
+       it does catch. HANDOFF_MUST_PASS below pins that choice. */
     new RegExp("\\b(?:(?:pass|hand|forward|route|send)(?:es|s|ed|ing)?|sent|put(?:s|ting)?)"
-      + "\\s+(?:(?:the|urgent|any|all|those)\\s+)?(?:calls?|callers?|you|them)"
-      + "\\s+(?:off\\s+|over\\s+|on\\s+|straight\\s+|through\\s+)?to\\s+(?:the|your|a)?\\s*" + PERSON, "i"),
+      + "\\s+(?:(?:off|over|on)\\s+)?(?:" + CALL_MOD + "\\s+){0,2}(?:calls?|callers?|you|them)"
+      + "\\s+(?:off\\s+|over\\s+|on\\s+|straight\\s+|through\\s+)?to\\s+(?:the|your|a)?\\s*" + HANDOFF_TO, "i"),
   ];
   /* Constructions that WITHDRAW the claim in the clause that makes it. The
      site's own correction is the first entry's job; the rest are the shapes
@@ -463,6 +517,53 @@ for (const p of contentPages) {
   ];
   const promises = (c) => TRANSFER_PROMISE.some((r) => r.test(c));
   const denies = (c) => TRANSFER_DENIAL.some((r) => r.test(c));
+
+  /* THE RULE'S OWN EXAMPLES, checked on every run (added 2026-09-25, FP1).
+     Each widening above was a reviewer finding a natural sentence the rule
+     let through, and each one was checked by hand once and then only
+     protected by the regex staying as it was. These are those sentences.
+     Narrowing any pattern until one of them passes fails this guard, so the
+     next edit cannot quietly undo a finding the way a regex change with no
+     example beside it can. The same idea as the self-tests in
+     scripts/check-published-surface.mjs. */
+  const HANDOFF_MUST_CATCH = [
+    "It can pass the call to a person.",
+    "It passes calls to your team.",
+    "It can route urgent calls to your phone.",
+    "It can put the call through to a person.",
+    "The call escalates to the on-call tech.",
+    "It forwards the urgent call to your on-call tech.",
+    "It passes your calls to your team.",
+    "It routes emergency calls to your on-call tech.",
+    "It hands off the urgent call to your dispatcher.",
+    "Nevamis sends any after-hours callers straight to your cell.",
+    "It forwards missed calls to your cell.",
+    "It forwards the missed call to your phone.",
+    "It forwards the call to you.",
+    "It forwards the call to your office manager.",
+  ];
+  const HANDOFF_MUST_PASS = [
+    "Live transfer to a person is not part of the service.",
+    "It cannot pass the call to your team; it takes the details and alerts them.",
+    "It passes the details to your team.",
+    "Urgent calls escalate by your rules.",
+    "It writes up the job and sends it to your phone.",
+    "It sends the urgent job summary to your phone.",
+    "It sends the job details to you.",
+    "Urgent calls escalate to you.",
+  ];
+  for (const s of HANDOFF_MUST_CATCH) {
+    if (!clauses(s).some((c) => promises(c) && !denies(c))) {
+      err("guard 16 fails its own example: it lets through \"" + s + "\", a hand-off the agent cannot perform. "
+        + "Fix TRANSFER_PROMISE in scripts/check-consistency.js so every HANDOFF_MUST_CATCH line is caught.");
+    }
+  }
+  for (const s of HANDOFF_MUST_PASS) {
+    if (clauses(s).some((c) => promises(c) && !denies(c))) {
+      err("guard 16 fails its own example: it flags \"" + s + "\", which is true. "
+        + "Fix TRANSFER_PROMISE or TRANSFER_DENIAL so no HANDOFF_MUST_PASS line is flagged.");
+    }
+  }
 
   /* pricing-config.js and roadmap-config.js are page surfaces, not data.
      Their string values are rendered into pricing.html and coming-soon.html
@@ -722,6 +823,7 @@ for (const p of contentPages) {
     const modules = cfg.addOns.filter((a) => a.sellable && a.launch > 0 && a.monthly > 0);
     const launches = new Set([...cfg.plans.map((p) => p.launch), ...modules.map((a) => a.launch)]);
     if (cfg.enterprise && cfg.enterprise.launchFrom) launches.add(cfg.enterprise.launchFrom);
+    for (const p of cfg.plans) (p.launchRange || []).forEach((n) => launches.add(n));
     const monthlies = new Set([...cfg.plans.map((p) => p.monthly), ...modules.map((a) => a.monthly)]);
     for (const p of cfg.plans) (p.monthlyRange || []).forEach((n) => monthlies.add(n));
     const charged = new Set([...launches, ...monthlies,
@@ -735,8 +837,17 @@ for (const p of contentPages) {
       err('llms.txt: "' + name + '" must state "' + want + '", which is what pricing-config.js charges. '
         + "The figures and the joins are what an answer engine quotes verbatim.");
     };
+    /* A plan's sentence is NV_PRICING.startLine's, the one the pricing page
+       renders, so a banded plan must be stated as a band here too. Until
+       2026-09-25 this required the flat "C$launch ... then C$monthly a
+       month" of every plan, which made the Partnership's flat price the
+       only spelling this file would accept (BD-4). */
     for (const p of cfg.plans) {
-      pair(p.name, money(p.launch) + " Launch & Implementation to start, then " + money(p.monthly) + " a month");
+      if (typeof cfg.startLine !== "function") {
+        err("pricing-config.js: NV_PRICING.startLine is missing, so no plan's sentence in llms.txt can be derived");
+        break;
+      }
+      pair(p.name, cfg.startLine(p).replace(/\.$/, ""));
       if (!Array.isArray(p.monthlyRange)) continue;
       const band = money(p.monthlyRange[0]) + " to " + money(p.monthlyRange[1]);
       if (!flat.includes(band)) err("llms.txt: " + p.name + "'s published monthly band must read \"" + band
@@ -800,9 +911,30 @@ const NO_MECHANISM = [
      is true and is the pitch. The denial governs the verb, as above. First run
      (2026-09-25) it found config/elevenlabs/recording-notice-greetings.md
      offering "Route to voicemail" as a decline-recording path a client agent
-     cannot perform; that draft now says so. */
-  { re: /(?:\b(?:send|sends|sending|route|routes|routing|forward|forwards|forwarding|pass|passes|passing|transfer|transfers|transferring|puts?|putting)|\b(?:is|are|be|been|being|gets?|getting|got)\s+(?:\w+\s+)?(?:sent|routed|forwarded|passed|transferred|put))\s+(?:[\w'-]+\s+){0,4}?(?:through\s+)?to\s+(?:your\s+|a\s+|the\s+)?voice\s?mail\b/i,
-    denial: /\b(?:cannot|can't|can not|does not|doesn't|will not|won't|never|not)\s+(?:\w+\s+){0,2}?(?:send|sent|rout|forward|pass|transfer|put)\w*|\bno\s+voice\s?mail\s+(?:fallback|transfer|forwarding)\b/i,
+     cannot perform; that draft now says so.
+
+     Second review, same day (FP1): "hand" and "divert" were missing from the
+     verbs, so "it hands the caller off to your voicemail" and "it diverts the
+     caller to voicemail" passed, and so did "switch", which is how the
+     recording-notice draft's Option B offered a decliner "voicemail or a
+     person" (config/elevenlabs/recording-notice-greetings.md, now fixed: a
+     client agent reaches neither). And the denial accepted a bare "not" with
+     any two words before the verb, so in "Calls Nevamis does not answer are
+     forwarded to your voicemail" the "not" that belongs to ANSWER excused
+     the forwarding. A negation now counts only when it governs the routing
+     verb itself: the verb follows it directly, or after "be" or an adverb
+     from a closed list ("will not be sent", "never ever routes").
+
+     Third review, same day: that narrowing failed honest sentences the old
+     denial accepted. "Callers never get sent to voicemail" (a "get" passive)
+     and the no-subject forms "Nothing is ever sent to voicemail" and "No
+     caller is sent to voicemail" all read as promises. "get" joins the
+     closed list, and a "no <caller|call|message|one>" / "nothing" / "nobody"
+     subject counts when the passive verb follows it directly. The subject is
+     a closed list, not any word after "no", so "Calls with no answer are sent
+     to voicemail" is still caught. */
+  { re: /(?:\b(?:send|sends|sending|route|routes|routing|forward|forwards|forwarding|pass|passes|passing|hand|hands|handing|divert|diverts|diverting|switch|switches|switching|transfer|transfers|transferring|puts?|putting)|\b(?:is|are|be|been|being|gets?|getting|got)\s+(?:\w+\s+)?(?:sent|routed|forwarded|passed|handed|diverted|switched|transferred|put))\s+(?:[\w'-]+\s+){0,4}?(?:through\s+)?to\s+(?:your\s+|a\s+|the\s+)?voice\s?mail\b/i,
+    denial: /\b(?:cannot|can't|can not|does not|doesn't|do not|don't|will not|won't|is not|isn't|are not|aren't|never)\s+(?:(?:be|ever|then|just|simply|automatically|quietly|get|gets|got)\s+){0,2}(?:send|sent|rout|forward|pass|hand|divert|switch|transfer|put)\w*|\b(?:no\s+(?:caller|callers|call|calls|one|message|messages)|nothing|nobody)\s+(?:is|are|gets?)\s+(?:ever\s+)?(?:sent|routed|forwarded|passed|handed|diverted|switched|transferred|put)\b|\bno\s+voice\s?mail\s+(?:fallback|transfer|forwarding)\b/i,
     why: "a client's agent has end_call only (engine elevenlabs-provision.ts): it cannot send, route or forward a caller anywhere, voicemail included; say it takes a message, flags it urgent and alerts the team" },
   /* Up to two adverbs may sit between "then" and the verb: "then permanently
      deleted" and "then automatically and permanently removed" are the same
@@ -811,7 +943,214 @@ const NO_MECHANISM = [
     why: "nothing deletes these records on a schedule: data is kept until the person or the client asks for deletion. The retention windows are owner item O6; say so rather than promise a deletion nothing performs" },
   { re: /(?:\bplus|\+)\s*(?:applicable\s+)?GST\b(?!\s*\/\s*HST)/i,
     why: "canonical and pricing-config.js taxNote say \"plus applicable GST/HST\"; derive the tax words from P.taxNote instead of typing them" },
+  /* FORWARDING THAT FOLLOWS A CLOCK (BD-G10C-1, 2026-09-26). The after-hours
+     page told buyers "Call forwarding sends calls to Nevamis outside your
+     business hours, and during the day nothing is different", then "You
+     choose the hours: Evenings only, weekends, holidays, or any schedule" and
+     "Calls forward automatically". The homepage and its FAQ offered forwarding
+     "always, after hours, or only when you miss one", llms.txt "always, only
+     after hours, or only when a call is missed" and "Coverage modes:
+     after-hours only", and the demo agent's knowledge base "a human answers
+     during the day, and the AI takes evenings". None of it exists. The codes
+     a client is handed (nevamis-engine forwarding-codes.ts, rendered by
+     forwarding-setup.ts buildSteps) are no-answer, busy and unreachable, or
+     every call, and each switches only when the owner dials it. So a client
+     who bought "after hours" either has every daytime call they miss reach
+     the AI too, on their included minutes, or dials the all-calls code on
+     and off by hand each evening and morning.
+
+     One rule, several shapes, because every one of those sentences said it
+     differently: "after hours" offered as a setting beside "always" or with
+     "only"; choosing the hours or a schedule; calls routed by business
+     hours; the day left untouched while the AI takes the night; and a
+     forward that switches itself at a time. "After hours" on its own is
+     allowed, in the honest sense: nobody picks up at night, so no-answer
+     forwarding catches those calls. So is "during business hours", which
+     is when Missed-Call Recovery sends its one text and is true.
+
+     THE WAY TO LIFT THIS RULE is to build it: when nevamis-engine can switch
+     a client's forwarding by time of day (or route by the clock on its own
+     number), this entry changes in the same commit that ships that.
+
+     Review of PR #39 (2026-09-26) found rewrites the first cut let through,
+     each now its own shape: "Forwarding switches on automatically after
+     hours" (a switch verb before "automatically"), "You decide which hours
+     it covers" (decide / select / set which hours), "Nevamis takes over at
+     6 PM every night" (a handover at a clock time), "Forward calls only at
+     night" (only at night / evenings / weekends), and "Forwarding sends
+     calls to Nevamis after hours" (a routing verb conditioned on bare
+     "after hours", which reads as a mode; "After hours, when nobody is
+     picking up, that is every call" has no routing verb and stays sayable).
+
+     The denial must govern the claim, not sit beside it. It used to excuse
+     any clause holding "no timer" anywhere, so "No timer, calls forward
+     automatically at 5 PM" passed. Now a negation counts only when the
+     words between it and the schedule, timer, clock, "automatically" or
+     "hours" come from a closed list ("does not run on a schedule", "does
+     not switch on automatically"), AND the clause with that negated phrase
+     cut out no longer makes the claim. A negation elsewhere in the clause
+     leaves the claim standing, so it is still caught. */
+  (() => {
+    /* A clock time: "6 PM", "5:30", "at 6", noon, midnight, closing time.
+       A bare number is a time only when no count follows it, so "after
+       four rings" and "after 20 seconds" (how no-answer forwarding really
+       triggers) are not clock times. */
+    const CLOCK = String.raw`(?:\d{1,2}(?::\d\d)?\s*(?:[ap]\.?\s?m\b\.?|o'clock\b)|\d{1,2}(?::\d\d)?\b(?!\s*(?:rings?|seconds?|secs?|minutes?|mins?|calls?|times?|%))|noon\b|midnight\b|closing\s+time\b)`;
+    /* When a timed switch happens: a clock time, after or outside hours,
+       every night, overnight, when you close. */
+    const WHEN = String.raw`(?:(?:at|from|after|by|before)\s+${CLOCK}|(?:after|outside)\s+(?:of\s+)?(?:your\s+|its\s+|their\s+|normal\s+|regular\s+|the\s+)?(?:(?:business|office|opening|working|shop)\s+)?hours\b|(?:at|every|each)\s+(?:night|evening|close|closing|dusk|sundown|sunset)\b|(?:every|each)\s+(?:weekend|day)\b|overnight\b|in\s+the\s+evenings?\b|when\s+you\s+(?:close|lock\s+up|leave)\b)`;
+    const re = new RegExp([
+      String.raw`\balways\s*,\s*(?:only\s+)?after[- ]hours\b`,
+      String.raw`\bafter[- ]hours\s+only\b`,
+      String.raw`\bonly\s+after[- ]hours\b`,
+      String.raw`\b(?:(?:choose|chooses|choosing|chose|pick|picks|picking|picked|decide|decides|deciding|select|selects|selecting)\s+(?:the|your|its|their)|(?:choose|chooses|choosing|chose|pick|picks|picking|picked|decide|decides|deciding|select|selects|selecting|set|sets|setting)\s+(?:which|what))\s+hours\b`,
+      String.raw`\bany\s+schedule\b`,
+      String.raw`\b(?:forward\w*|calls?|coverage|answer\w*|line)\b[^.;]{0,40}?\b(?:on|to|by|with)\s+a\s+(?:schedule|timer)\b`,
+      String.raw`\bscheduled\s+(?:forwarding|coverage|answering|hours)\b`,
+      String.raw`\b(?:forwarding|coverage|answering)\s+(?:schedule|timer)\b`,
+      String.raw`\bby\s+the\s+clock\b`,
+      String.raw`\btime[- ]of[- ]day\s+(?:forwarding|routing|coverage|switching)\b`,
+      String.raw`(?:\bforward\w*|\b(?:send|sends|sending|route|routes|routing)\s+(?:\w+\s+){0,2}?calls?\b|\bcalls?\s+(?:\w+\s+){0,3}?(?:sent|routed|forwarded|go|goes|reach|reaches|ring|rings)\b)[^.;:]{0,60}?\b(?:outside|after|before)\s+(?:of\s+)?(?:your\s+|its\s+|their\s+|normal\s+|regular\s+|the\s+)?(?:(?:business|office|opening|working|shop)\s+)?hours\b`,
+      String.raw`\bduring\s+the\s+day\b[^.;]{0,40}?\bnothing\s+(?:else\s+)?(?:is\s+|at\s+all\s+)?(?:different|changes)\b`,
+      String.raw`\b(?:human|person|your\s+team|you)\s+(?:answers?|picks?\s+up)\s+(?:\w+\s+)?during\s+the\s+day\s*,?\s*(?:and|while|then)\s+(?:the\s+)?(?:AI|Nevamis|it|assistant|agent)\s+(?:takes|answers|covers|handles)\b`,
+      String.raw`\b(?:forward\w*|switch\w*|turn\w*|flip\w*|kick\w*|come\w*|go|goes|going|cuts?)\s+(?:[\w-]+\s+){0,2}?automatically\s+${WHEN}`,
+      String.raw`\bautomatically\s+(?:forward\w*|switch\w*|turn\w*|flip\w*|send\w*|rout\w*)\s+(?:[\w-]+\s+){0,3}?${WHEN}`,
+      String.raw`\b(?:(?:switches|turns|flips|kicks|comes)\s+(?:on|over|in)|(?:is|are|gets?)\s+(?:switched|turned|flipped)\s+(?:on|over))\s+(?:[\w-]+\s+){0,2}?(?:at|from|after|by)\s+${CLOCK}`,
+      String.raw`\b(?:takes?|taking|took)\s+over\s+(?:(?:at|from|after|by)\s+${CLOCK}|(?:every|each)\s+(?:night|evening|weekend)\b)`,
+      String.raw`\b(?:forward\w*|answer\w*|cover\w*|calls?|line|Nevamis)\b[^.;]{0,40}?\bonly\s+(?:at\s+night|overnight|after\s+dark|(?:in\s+the\s+|on\s+)?(?:evenings?|nights|weekends)|when\s+you(?:'re|\s+are)\s+closed)\b`,
+      String.raw`\b(?:forward\w*|answer\w*|cover\w*|calls?)\b[^.;]{0,40}?\b(?:evenings?|nights?|weekends?|at\s+night|overnight)\s+only\b`,
+      /* "After-hours coverage" named as a mode beside "Overflow coverage"
+         and "Full-time front line" (missed-calls.html, review of PR #39).
+         There are two modes, overflow and every call; evenings are caught
+         by the same no-answer forwarding. "After-hours answering", the
+         situation page's name, stays sayable. */
+      String.raw`\bafter[- ]hours\s+(?:coverage|mode|setting|option)\b`,
+    ].join("|"), "i");
+    const NEGATED = String.raw`(?:\bno|\bnot|\bnever|\bwithout|n't)\s+(?:(?:be|ever|run|runs|running|work|works|go|goes|follow|follows|use|uses|need|needs|have|has|set|choose|pick|decide|switch|switches|turn|turns|forward|forwards|take|takes|change|changes|on|over|to|by|with|at|a|an|any|the|its|your|which|what|itself)\s+){0,4}(?:schedule|timer|clock|automatically|hours)\b`;
+    return { name: "forwarding on a schedule", re,
+      denial: { test: (c) => [...c.matchAll(new RegExp(NEGATED, "gi"))]
+        .some((m) => !re.test(c.slice(0, m.index) + " " + c.slice(m.index + m[0].length))) },
+      why: "forwarding has no clock: the codes a client dials (nevamis-engine forwarding-codes.ts, forwarding-setup.ts) are no-answer, busy and unreachable, or every call, switched only when the owner dials them. Say that the phone rings first and a call nobody picks up goes to Nevamis, which after hours is every call, or that the owner dials the all-calls code at closing and the off code at opening" };
+  })(),
 ];
+
+/* clauses() cuts at every newline, and the page sources hard-wrap their
+   prose: after-hours-answering.html carried "Call forwarding sends calls
+   to" on one line and "Nevamis outside your business hours" on the next,
+   so no single clause held the verb and the hours together and the claim
+   read as two harmless fragments (BD-G10C-1). Each unit is therefore also
+   judged with its line wraps joined, a blank line still ending a
+   paragraph. Both cuts are judged, so joining can only add findings: a
+   clause the old cut caught is caught still. The self-test below judges
+   through the same function, so a MUST_CATCH line with a wrap in it proves
+   the join is still there. */
+const unwrapped = (t) => t.replace(/([^\r\n])[ \t]*\r?\n[ \t]*(?=\S)/g, "$1 ");
+const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
+
+/* NO_MECHANISM's own examples, checked on every run (2026-09-25, FP1), for
+   the reason guard 16 carries HANDOFF_MUST_CATCH: every widening of these
+   patterns came from a reviewer's sentence, and a sentence only protects the
+   rule while something keeps checking it. Judged exactly as guard 7k judges
+   copy: per clause, the pattern hits and its denial does not. */
+{
+  const flagged = (s) => [...judgedClauses(s)].some((c) => NO_MECHANISM.some(({ re, denial }) => re.test(c) && !(denial && denial.test(c))));
+  const MUST_CATCH = [
+    "It can fall back to your voicemail, and it never invents an answer.",
+    "It sends the caller to voicemail.",
+    "Urgent calls are forwarded to your voicemail.",
+    "It hands the caller off to your voicemail.",
+    "It diverts the caller to voicemail.",
+    "If you'd prefer I don't record, I'll switch you to voicemail or a person.",
+    "Calls Nevamis does not answer are forwarded to your voicemail.",
+    "Calls with no answer are sent to voicemail.",
+    "Contact details are kept for a year, then permanently deleted.",
+    "Old records are then automatically and permanently removed.",
+    "Billed each month, plus GST.",
+    /* BD-G10C-1: every sentence that carried it, as it was published. */
+    "Call forwarding sends calls to Nevamis outside your business hours, and during the day nothing is different.",
+    "You choose the hours Evenings only, weekends, holidays, or any schedule that matches how you actually work.",
+    "Forwarding sends calls to Nevamis always, after hours, or only when you miss one, and you can switch it off from your own phone.",
+    "Call forwarding sends calls to Nevamis always, only after hours, or only when a call is missed.",
+    "Coverage modes: after-hours only, overflow when the team cannot pick up, or full-time front line.",
+    "After-hours coverage: a human answers during the day, and the AI takes evenings, weekends, and holidays.",
+    /* Hard-wrapped the way the page source was, verb on one line and the
+       hours on the next: caught only because judgedClauses() joins the wrap. */
+    "Call forwarding sends calls to\n        Nevamis after your business hours.",
+    /* And the shapes a rewrite reaches for next. */
+    "Your calls are routed to Nevamis after business hours.",
+    "Calls forward automatically at closing time.",
+    "Forwarding runs on a schedule you set.",
+    "Nevamis answers only after hours.",
+    "It never misses a call, and you pick the hours it covers.",
+    /* One line per shape the pattern names, each caught by that shape
+       alone, so deleting any one of them turns this list red. */
+    "During the day nothing is different.",
+    "It fits any schedule you keep.",
+    "Scheduled forwarding covers your evenings.",
+    "Set your forwarding schedule once and forget it.",
+    "Your line switches over by the clock.",
+    "Time-of-day routing covers your evenings.",
+    "It automatically switches your line over at 6 PM.",
+    /* Review of PR #39: the rewrites the first cut let through, and one
+       line per new shape, each caught by that shape alone. */
+    "Forwarding switches on automatically after hours.",
+    "You decide which hours it covers.",
+    "Nevamis takes over at 6 PM every night.",
+    "Forward calls only at night.",
+    "Forwarding sends calls to Nevamis after hours.",
+    "Calls forward automatically at closing time.",
+    "Forwarding switches on at 6 PM.",
+    "Nevamis answers calls at night only.",
+    "Evenings and weekends are when emergency work is decided. After-hours coverage catches it.",
+    /* A negation beside the claim is not a denial of it. */
+    "No timer, calls forward automatically at 5 PM.",
+    "Forwarding has no timer, and it switches on at 6 PM.",
+    /* The negation governs "answer", not the switch: only a closed list of
+       words may sit between a negation and what it denies. */
+    "Calls you don't answer forward automatically at 6 PM.",
+  ];
+  const MUST_PASS = [
+    "It never falls back to your voicemail.",
+    "There is no voicemail fallback.",
+    "It cannot send a caller to voicemail.",
+    "Callers are never sent to voicemail.",
+    "Urgent calls will not be forwarded to your voicemail.",
+    "Callers never get sent to voicemail.",
+    "Nothing is ever sent to voicemail.",
+    "No caller is sent to voicemail.",
+    "The same call sent to voicemail is a note about a job you did not get.",
+    "Calls that go to voicemail are lost.",
+    "Billed each month, plus applicable GST/HST.",
+    /* BD-G10C-1: the honest wording, which must stay sayable. */
+    "Forwarding follows whether you answer, not the clock, so a call you miss on a job during the day is answered too.",
+    "After hours, when nobody is picking up, that is every call.",
+    "It changes only when you dial it: there is no timer to set.",
+    "Forwarding does not run on a schedule.",
+    "Forwarding has no timer and no business-hours setting.",
+    "Evenings, weekends, and holidays covered without hiring a night shift.",
+    "A caller you missed gets one text back, during business hours, with your name on it.",
+    "A call you do not answer forwards automatically.",
+    "Dial the all-calls code when you close and its off code when you open.",
+    "Before you go live your agent is configured around your hours, services, prices, service area and rules.",
+    /* A negation that governs the claim still denies it, and no-answer
+       forwarding's real trigger is a count of rings, not a clock. */
+    "Forwarding does not switch on automatically at closing.",
+    "You do not choose the hours it covers.",
+    "It forwards automatically after four rings.",
+    "It forwards automatically after 20 seconds.",
+    "Nobody picks up after hours, so every call reaches Nevamis.",
+    "How after-hours answering works.",
+    /* Other products keep time honestly, and the rule is about forwarding. */
+    "Invoice reminders go out on a schedule you approve.",
+    "An answering service bills by the hour.",
+  ];
+  for (const s of MUST_CATCH) if (!flagged(s)) {
+    err("NO_MECHANISM fails its own example: it lets through \"" + s + "\". Fix the pattern in scripts/check-consistency.js so every MUST_CATCH line is caught.");
+  }
+  for (const s of MUST_PASS) if (flagged(s)) {
+    err("NO_MECHANISM fails its own example: it flags \"" + s + "\", which is true. Fix the pattern or its denial so no MUST_PASS line is flagged.");
+  }
+}
 
 /* 7k. NO SURFACE MAY PROMISE A FEATURE THE PRODUCT DOES NOT HAVE.
 
@@ -905,14 +1244,17 @@ const NO_MECHANISM = [
      deliberately reads as naming rather than asserting, and a guard that
      cannot see the defect it was written for is decoration. */
   for (const { label, text } of units) {
-    for (const { re, why, denial } of NO_MECHANISM) {
+    for (const { re, why, denial, name } of NO_MECHANISM) {
       if (!re.test(text)) continue;
-      for (const clause of clauses(text)) {
-        if (!re.test(clause) || (denial && denial.test(clause))) continue;
+      /* One report per sentence: a line-cut fragment that fires inside a
+         joined clause that also fires is the same finding said twice. */
+      const hits = [...judgedClauses(text)].filter((c) => re.test(c) && !(denial && denial.test(c)));
+      for (const clause of hits) {
+        if (hits.some((h) => h !== clause && h.includes(clause))) continue;
         const key = label + "::" + clause;
         if (seen.has(key)) continue;
         seen.add(key);
-        err(label + ": says something nothing in the product does (" + re + ").\n      clause: \"" + clause.slice(0, 180) + "\"\n      "
+        err(label + ": says something nothing in the product does (" + (name || re) + ").\n      clause: \"" + clause.slice(0, 180) + "\"\n      "
           + "Why it is false: " + why + ".");
       }
     }
@@ -1079,7 +1421,21 @@ const NO_MECHANISM = [
       const bad = (msg) => err(`site.js calculator: ${msg}`);
       const d = run({});
       if (d.won !== 3) bad(`at the defaults (plan 1000, job 400, 50%) 3 won jobs cover the plan; it says ${d.won}`);
-      if (d.inquiries !== 5) bad(`at the defaults 5 real inquiries are needed at a 50% close rate; it says ${d.inquiries}`);
+      /* 6, not 5 (BD-6, 2026-09-25): the inquiries row answers "how many to
+         win the jobs in the row above", and 3 won jobs at 50% take 6
+         inquiries. 5 was the plan divided by job value x close rate, which
+         wins 2.5 jobs. Held as a rule over a grid as well as at the
+         defaults, so a formula that only happens to agree at one point
+         still fails. */
+      if (d.inquiries !== 6) bad(`at the defaults 3 won jobs at a 50% close rate take 6 real inquiries; it says ${d.inquiries}`);
+      for (const close of ["10", "25", "30", "33.3", "50", "70", "99", "100"]) {
+        for (const value of ["150", "400", "999"]) {
+          const r = run({ close, value });
+          const c = Number(close) / 100;
+          if (!(r.inquiries * c >= r.won - 1e-9)) bad(`at ${close}% and a ${value} job, ${r.inquiries} inquiries win ${r.inquiries * c} jobs, fewer than the ${r.won} it says cover the plan`);
+          if (!((r.inquiries - 1) * c < r.won - 1e-9)) bad(`at ${close}% and a ${value} job, ${r.inquiries - 1} inquiries already win the ${r.won} jobs; it asks for one too many`);
+        }
+      }
       for (const [name, over] of [["missed calls", { missed: "-10" }], ["the opportunity share", { real: "-60" }],
         ["the job value", { value: "-400" }], ["the close rate", { close: "-50" }]]) {
         const r = run(over);
@@ -1250,6 +1606,21 @@ const NO_MECHANISM = [
        so that is the plan its static copy must quote. */
     const dflt = cfg.plans.find((p) => p.recommended) || cfg.plans[0];
     const pr = fs.readFileSync(path.join(root, "proposal.html"), "utf8");
+    /* A banded plan's figures on the proposal come from the two parts
+       NV_PRICING.startLine is built from, never from a band or a "from" the
+       page types itself (review of BD-4, 2026-09-26): a hand-built band here
+       drifts from the pricing card with nothing to catch it, and a render
+       that drops it prints the Partnership flat on the document a buyer
+       keeps. tests/site-truth.spec.js renders the proposal for each banded
+       plan; this holds the source to the same parts in CI. */
+    for (const need of ["P.launchPart(plan)", "P.monthlyBand(plan)"]) {
+      if (!pr.includes(need)) err("proposal.html: the plan's figures must come from " + need
+        + " (pricing-config.js), the part startLine() is built from, so a banded plan cannot render as a flat pair");
+    }
+    for (const typed of [/monthly band of/, /\bplan\.(?:launchRange|monthlyRange)\b/]) {
+      if (typed.test(pr)) err("proposal.html: builds a plan's band itself (" + typed.source
+        + "); use NV_PRICING.launchPart/monthlyBand so it cannot drift from the pricing card");
+    }
     /* The proposal is the document a named prospect keeps, so its price
        sentence is held to the exact shape of the approved model rather than
        just to the right figure. PLAN_TERMS is written out here on purpose: it
@@ -1519,8 +1890,8 @@ const NO_MECHANISM = [
       if (clause) {
         err(`${label}: a spoken-agent surface uses retired fee vocabulary or an additive join (${b}).\n      clause: "${clause}"\n      `
           + `"Setup fee", "activation fee" and "onboarding fee" are retired names. The one-time charge is `
-          + `"Launch & Implementation", spoken as "one thousand dollars Launch and Implementation to start, `
-          + `then seven hundred and fifty dollars a month" — never joined with "plus" or "on top".`);
+          + `"Launch & Implementation", spoken as "fifteen hundred dollars Launch and Implementation to start, `
+          + `then one thousand dollars a month" on the AI Front Desk — never joined with "plus" or "on top".`);
       }
     }
   }
@@ -1790,7 +2161,7 @@ const NO_MECHANISM = [
     const noSetupKey = w.NV_PRICING.plans.every((p) => p.setup === undefined);
     if (noSetupKey && w.NV_PRICING.publishedPricing) {
       const naysLaunch = /launch (?:and|&) implementation/.test(spoken);
-      if (!naysLaunch) wait("demo.md: the one-time Launch & Implementation fee is never named. The agent must state it in the approved shape (\"one thousand dollars Launch and Implementation to start, then seven hundred and fifty dollars a month\"), never call it a setup, activation or onboarding fee, and never deny it.");
+      if (!naysLaunch) wait("demo.md: the one-time Launch & Implementation fee is never named. The agent must state it in the approved shape (\"fifteen hundred dollars Launch and Implementation to start, then one thousand dollars a month\" on the AI Front Desk), never call it a setup, activation or onboarding fee, and never deny it.");
     }
     const RETIRED_SPOKEN = [
       "five hundred dollars one-time setup", "seven hundred and fifty dollars setup",
@@ -2189,6 +2560,11 @@ const NO_MECHANISM = [
     const w = {};
     vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
     const ids = new Set((w.NV_PRICING?.plans ?? []).map((p) => p.id));
+    /* Since BD-F7 (2026-09-26) a proposal can also be for a module sold on
+       its own: the ids proposal.html renders as a module, by the same rule it
+       uses. They may be sent; they are not required to be. */
+    const moduleIds = new Set((w.NV_PRICING?.addOns ?? [])
+      .filter((a) => a.sellable === true && a.soldAlone === true && a.monthly > 0 && a.launch > 0).map((a) => a.id));
     const doc = fs.readFileSync(docPath, "utf8");
 
     const urls = [...doc.matchAll(/proposal\.html\?[^\s)`"']*/g)].map((m) => m[0]);
@@ -2203,11 +2579,11 @@ const NO_MECHANISM = [
          ?plan=PAY-AS-YOU-GO would still fail, which is the point. */
       if (plan === "PLAN") continue;
       used.add(plan);
-      if (!ids.has(plan)) {
+      if (!ids.has(plan) && !moduleIds.has(plan)) {
         err(`${docRel}: an example link sends ?plan=${plan}, which pricing-config.js does not define.\n`
-          + `       proposal.html falls back to the recommended plan for an unknown id, so this link\n`
-          + `       quotes the wrong tier at the wrong price to a named prospect.\n`
-          + `       Known ids: ${[...ids].join(", ")}`);
+          + `       proposal.html shows "no plan named" for an unknown id, so this link sends a\n`
+          + `       named prospect a proposal with nothing in it.\n`
+          + `       Known ids: ${[...ids, ...moduleIds].join(", ")}`);
       }
     }
     for (const id of ids) {
@@ -2360,6 +2736,191 @@ const NO_MECHANISM = [
   }
 }
 
+/* 7o. A PAGE'S STATUS CHIP FOR A ROADMAP ITEM IS THE ROADMAP'S STATUS (BD-F4).
+
+      One item carried three statuses on three pages (the Inbox Assistant:
+      "In development" on the homepage, BEING RESEARCHED on the Roadmap,
+      "Coming soon" on revenue-engine.html), and nothing compared a chip typed
+      into a page with roadmap-config.js. scripts/lib/status-chips.mjs holds
+      the rule and its fixtures; the labels are read from coming-soon.html's
+      renderer, so this file types none. The judge is proved on its fixtures
+      first, so a rule that has stopped firing fails here rather than passing
+      everything. */
+{
+  let judged = true;
+  const F = CHIP_FIXTURES;
+  for (const [why, html] of F.mustFail) {
+    if (!chipFindings(html, F.services, F.labels).length) { err("status-chips judge: missed a wrong chip (" + why + ")"); judged = false; }
+  }
+  for (const [why, html] of F.mustPass) {
+    const b = chipFindings(html, F.services, F.labels);
+    if (b.length) { err("status-chips judge: refused a right chip (" + why + "): " + JSON.stringify(b)); judged = false; }
+  }
+  const labels = statusLabelsFrom(fs.readFileSync(path.join(root, "coming-soon.html"), "utf8"));
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "roadmap-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const services = w.NV_ROADMAP?.services;
+  if (!labels) err("coming-soon.html: its statusLabel map was not found, so no page's roadmap chips can be checked");
+  else if (!Array.isArray(services) || !services.length) err("roadmap-config.js: NV_ROADMAP.services not found, so no page's roadmap chips can be checked");
+  else if (judged) {
+    let chips = 0;
+    for (const page of contentPages) {
+      const html = fs.readFileSync(path.join(root, page), "utf8");
+      chips += chipsOf(html).length;
+      for (const b of chipFindings(html, services, labels)) {
+        err(`${page}: a chip reads "${b.chip}" for ${b.name}, whose roadmap-config.js status is "${b.status}". `
+          + `It must read ${b.want.map((x) => '"' + x + '"').join(" or ")} (case aside), the words the Roadmap shows for it.`);
+      }
+    }
+    if (!chips) err("no page carries a status chip, so guard 7o proves nothing: has the chip markup changed?");
+  }
+}
+
+/* 7p. llms.txt's TERM STATEMENTS MATCH pricing-config.js terms (G6-12).
+
+      Guard 7j reads llms.txt's prices; nothing read its term, so "locked for
+      six months" passed every check. scripts/lib/llms-terms.mjs holds the
+      rule (price lock, minimum term, cancellation notice) and its fixtures;
+      the fixtures run first, then the real file is judged against the real
+      config. */
+{
+  let judged = true;
+  const F = TERM_FIXTURES;
+  for (const [why, text] of F.mustPass) {
+    const b = termFindings(text, F.terms);
+    if (b.length) { err("llms-terms judge: refused a right statement (" + why + "): " + b.join("; ")); judged = false; }
+  }
+  for (const [why, text] of F.mustFail) {
+    if (!termFindings(text, F.terms).length) { err("llms-terms judge: missed a wrong statement (" + why + ")"); judged = false; }
+  }
+  for (const [why, text, terms] of F.mustFailWith) {
+    if (!termFindings(text, terms).length) { err("llms-terms judge: missed a wrong statement (" + why + ")"); judged = false; }
+  }
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const terms = w.NV_PRICING?.terms;
+  if (!terms || typeof terms.priceLockMonths !== "number" || typeof terms.minimumMonths !== "number"
+    || typeof terms.cancellationNoticeDays !== "number") {
+    err("pricing-config.js: NV_PRICING.terms is missing a number, so llms.txt's term statements are unguarded");
+  } else if (judged) {
+    for (const f of termFindings(fs.readFileSync(path.join(root, "llms.txt"), "utf8"), terms)) err("llms.txt: " + f);
+  }
+}
+
+/* 7q. THE AGENT DOCUMENTS STATE WHAT THE PRODUCT DOES (audit MACHINE-9 to 16,
+      2026-10-03).
+
+      config/elevenlabs/ is what the demo agent speaks from, what it is
+      graded by, and what every client agent is built from. Guards 6b and 7e
+      read it for banned slogans and retired PRICES, and a sweep of retired
+      prices cannot see a retired PROMISE: the audit found the acceptance
+      tests passing an agent that offers a live transfer, the knowledge base
+      saying the missed-call text goes "during business hours" and that
+      clinics and restaurants are the audience, the support knowledge base
+      stating the Partnership's share as "10%", the client greeting drafts
+      announcing "AI receptionist" and promising bookings, and the template
+      wiring a calendar and a transfer number into an agent that has neither.
+      Every guard here was green on all of it.
+
+      The rules live in scripts/lib/machine-surfaces.mjs, with fixtures that
+      run first: a judge that refuses a true sentence or lets a quoted false
+      one through fails here before any file is judged. Then each file is
+      held to the claims it may not make, the priced knowledge bases to the
+      figures pricing-config.js derives (every module sold alone with its two
+      figures, the Partnership through startLine, the missed-call hours from
+      its blurb), and the door order (Lead Generation, quotes, the front desk;
+      never AI first) on the knowledge base's opening and the catalogue's
+      first row. err(), not wait(): every file is in this repository. */
+{
+  let judged = true;
+  for (const [f, t] of AGENT_FIXTURES.mustFire) {
+    if (!agentTruthFindings(f, t).length) { err(`agent-truth judge: missed a false claim in ${f}: "${t.slice(0, 120)}"`); judged = false; }
+  }
+  for (const [f, t] of AGENT_FIXTURES.mustPass) {
+    const b = agentTruthFindings(f, t);
+    if (b.length) { err(`agent-truth judge: refused a true sentence: ${b[0]}`); judged = false; }
+  }
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const NV = w.NV_PRICING;
+  const files = walk(path.join(root, "config", "elevenlabs"));
+  if (!files.length) err("guard 7q: config/elevenlabs/ has no documents, so the agent's knowledge, tests and templates are unjudged");
+  if (!NV || !Array.isArray(NV.addOns) || typeof NV.startLine !== "function") {
+    err("guard 7q: pricing-config.js did not yield NV_PRICING with addOns and startLine, so the agent's figures are unjudged");
+  } else if (judged) {
+    for (const file of files) {
+      const label = path.relative(root, file).replace(/\\/g, "/");
+      const text = fs.readFileSync(file, "utf8");
+      for (const f of [...agentTruthFindings(label, text), ...agentRequiredFindings(label, text, NV)]) err(f);
+      if (/nevamis-knowledge-base\.md$/.test(label)) {
+        const m = text.replace(/\r\n/g, "\n").match(/## What Nevamis is\n+([^\n]+)/);
+        if (!m) err(`${label}: has no "## What Nevamis is" paragraph, so its door order is unjudged`);
+        else for (const f of doorOrderFindings(`${label} "What Nevamis is"`, m[1])) err(f);
+      }
+      if (/nevamis-agent-test-cases\.md$/.test(label)) {
+        const row = text.split(/\r?\n/).find((l) => l.startsWith("| 1 |"));
+        const cell = row && row.split("|")[4];
+        if (!cell) err(`${label}: has no row 1 "What does Nevamis do?", so its door order is unjudged`);
+        else for (const f of doorOrderFindings(`${label} row 1`, cell)) err(f);
+      }
+    }
+  }
+}
+
+/* 7r. llms.txt LISTS EVERY PAGE THE SITEMAP DOES (audit MACHINE-26).
+
+      Its "## Pages" list was typed once and named ten of twenty indexable
+      pages: no solutions hub, no trade or comparison page, no security.html.
+      An answer engine told "here are the pages" took that as the site. The
+      set it must equal is the one gen-sitemap writes, read from
+      content-map.json through the same helper, so a page added there fails
+      here until llms.txt names it. */
+{
+  let judged = true;
+  for (const [why, t] of LLMS_PAGE_FIXTURES.mustPass) {
+    const b = llmsPageFindings(t, LLMS_PAGE_FIXTURES.locs);
+    if (b.length) { err(`llms-pages judge: refused a right list (${why}): ${b[0]}`); judged = false; }
+  }
+  for (const [why, t] of LLMS_PAGE_FIXTURES.mustFail) {
+    if (!llmsPageFindings(t, LLMS_PAGE_FIXTURES.locs).length) { err(`llms-pages judge: missed a wrong list (${why})`); judged = false; }
+  }
+  const locs = sitemapPages(root).map((p) => p.loc);
+  if (!locs.length) err("guard 7r: content-map.json yields no sitemap pages, so llms.txt's list is unjudged");
+  else if (judged) for (const f of llmsPageFindings(fs.readFileSync(path.join(root, "llms.txt"), "utf8"), locs)) err(f);
+}
+
+/* 7s. THE HOMEPAGE'S OFFERS CARRY BOTH FIGURES (audit MACHINE-17).
+
+      scripts/build-schema.mjs writes the Service JSON-LD that index.html
+      publishes. Each Offer's machine-read price was the monthly alone, the
+      Partnership a flat 350, and no module sold on its own had an Offer, so
+      a parser was told the AI Front Desk costs C$1,000 to start, which
+      llms.txt names as the wrong summary. This reads the block index.html
+      actually ships and holds every sold item in pricing-config.js to its
+      Launch & Implementation component and its monthly component, bands as
+      bands. */
+{
+  let judged = true;
+  for (const [why, svc] of OFFER_FIXTURES.mustPass) {
+    const b = offerFindings(svc, OFFER_FIXTURES.NV);
+    if (b.length) { err(`offers judge: refused a right offer set (${why}): ${b[0]}`); judged = false; }
+  }
+  for (const [why, svc] of OFFER_FIXTURES.mustFail) {
+    if (!offerFindings(svc, OFFER_FIXTURES.NV).length) { err(`offers judge: missed a wrong offer set (${why})`); judged = false; }
+  }
+  const w = {};
+  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+  const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  let service = null;
+  for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+    let parsed; try { parsed = JSON.parse(m[1]); } catch { continue; }   /* guard 15 reports the parse */
+    service = [].concat(parsed).find((x) => x && x["@type"] === "Service") || service;
+  }
+  if (!service) err("guard 7s: index.html publishes no Service JSON-LD, so its offers are unjudged");
+  else if (!w.NV_PRICING) err("guard 7s: pricing-config.js did not yield NV_PRICING");
+  else if (judged) for (const f of offerFindings(service, w.NV_PRICING)) err("index.html JSON-LD: " + f);
+}
+
 /* The BANNED_PENDING ledger reports on itself every run: what it is still
    excusing and who owns the fix, and which entries have stopped matching and
    should be deleted.
@@ -2380,7 +2941,7 @@ for (const p of BANNED_PENDING) {
   else if (fs.existsSync(path.join(root, p.file))) console.log(`NOTE: ${p.file} no longer says "${p.text}". Delete its BANNED_PENDING entry in scripts/check-consistency.js.`);
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan.");
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan, every roadmap status chip reads its roadmap status, llms.txt states the term pricing-config.js carries, the agent documents state only what the product does, llms.txt lists every sitemap page, the homepage offers carry both figures.");
 /* 1 = something here is broken. 2 = nothing here is broken but the live
    phone agent needs a change only the owner can make. 0 = clean. */
 if (fail === 0 && waiting > 0) console.error(`

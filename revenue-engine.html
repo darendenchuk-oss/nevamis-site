@@ -3,30 +3,27 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-UI1ecm038suA/4opwkYCO5L+qVb3/G1o7+PcBOQAMF8=' 'sha256-nTm6vb0nxjy2UlOlMD40oNM3kK32LAunNMHc8tYLJq0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-gEYW6bu8Qgw4Skbm3++ePgZozOIjvz6BOABoyi0Y6lg=' 'sha256-KqxHkOGssIrXlbhSD9G51zvFiPX8FUsw3fGtHIaQ+1U='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Revenue Engine | Nevamis | Edmonton</title>
-<meta name="description" content="The Revenue Engine will tie each lead to the marketing that produced it and track the job to paid, so you see what to spend more on. In development, not yet available.">
+<title>The Revenue Engine | Nevamis</title>
+<meta name="description" content="The Revenue Engine would tie each lead to the marketing that produced it and follow the job to paid. It is in development and not offered yet.">
 <link rel="canonical" href="https://nevamis.ca/revenue-engine.html">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="The Revenue Engine | Nevamis">
-<meta property="og:description" content="The Revenue Engine will tie each lead to the marketing that produced it and track the job to paid, so you see what to spend more on. In development, not yet available.">
+<meta property="og:description" content="The Revenue Engine would tie each lead to the marketing that produced it and follow the job to paid. It is in development and not offered yet.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nevamis.ca/revenue-engine.html">
 <meta property="og:site_name" content="Nevamis">
 <meta property="og:locale" content="en_CA">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
- {"@type":"ListItem","position":1,"name":"Home","item":"https://nevamis.ca/"},
- {"@type":"ListItem","position":2,"name":"Revenue Engine","item":"https://nevamis.ca/revenue-engine.html"}]}
-</script>
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
+<meta property="og:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nevamis.ca/assets/og-default.png">
+<meta name="twitter:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -246,6 +243,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--ink)}
 html{overflow-x:clip;scrollbar-color:#123528 var(--bg)}
+html{scroll-padding-top:calc(var(--head-h) + 16px)}
 body{overflow-x:clip;font-family:var(--f-body);font-size:var(--fs-body);
   line-height:var(--lh-body);-webkit-font-smoothing:antialiased}
 img{max-width:100%;height:auto}
@@ -274,7 +272,7 @@ strong{color:var(--ink)}
 .site-header.scrolled{background:rgba(2,8,13,.94);box-shadow:0 1px 0 var(--line-soft);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .site-header .wrap{display:flex;align-items:center;gap:18px;height:var(--head-h)}
-.wordmark{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
+.wordmark{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:17px;min-height:44px}
 .wordmark .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
 .wordmark .wm-v{letter-spacing:.055em}
 .wordmark svg{width:22px;height:22px;transform:translateY(-1.7px);
@@ -291,20 +289,31 @@ strong{color:var(--ink)}
 .main-nav a:not(.btn):hover::after,.main-nav a.active-section::after{transform:scaleX(1)}
 .main-nav a.active-section{color:var(--ink)}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
-  color:var(--ink);border-radius:9px;width:42px;height:42px;font-size:17px;cursor:pointer}
+  color:var(--ink);border-radius:9px;width:44px;height:44px;font-size:17px;cursor:pointer}
 @media(max-width:1080px){
-  .main-nav a.nav-min{display:none}
-}
-@media(max-width:880px){
   .nav-toggle{display:grid;place-items:center}
-  .main-nav{position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:stretch;
-    gap:0;padding:8px 20px 18px;background:rgba(7,15,22,.98);border-bottom:1px solid var(--line);
-    display:none}
+  .main-nav{position:absolute;top:var(--head-h);left:0;right:0;flex-direction:column;align-items:stretch;
+    gap:0;padding:8px 20px 18px;background:#070F16;border-bottom:1px solid var(--line);
+    display:none;max-height:calc(100vh - var(--head-h));max-height:calc(100dvh - var(--head-h));
+    overflow-y:auto;overscroll-behavior:contain}
   .main-nav.open{display:flex}
-  .main-nav a:not(.btn){padding:12px 4px;font-size:16px;border-bottom:1px solid rgba(159,240,206,.07)}
-  .main-nav a.nav-min{display:block}
+  .main-nav .navitem{display:block;overflow:visible}
+  .main-nav a:not(.btn){display:flex;align-items:center;min-height:44px;padding:10px 4px;font-size:16px;
+    border-bottom:1px solid rgba(159,240,206,.07)}
+  .main-nav a:not(.btn)::after{display:none}
+  .main-nav a.nav-min{display:flex}
   .main-nav .btn{margin-top:12px;justify-content:center}
 }
+@media (min-width:821px) and (max-width:1080px){
+  .main-nav:not(.open){display:flex;position:static;flex-direction:row;align-items:center;
+    padding:0;background:none;border:0;max-height:none;overflow:visible;margin-left:auto;order:1}
+  .main-nav:not(.open) .navitem{display:none}
+  .main-nav:not(.open) .navitem:last-child{display:block}
+  .main-nav:not(.open) .btn{margin-top:0}
+  .nav-toggle{order:2;margin-left:12px}
+  .nav-toggle[aria-expanded="true"]{margin-left:auto}
+}
+html.nav-locked{overflow:hidden}
 .btn{position:relative;display:inline-flex;align-items:center;gap:9px;
   border-radius:var(--r-pill);padding:12px 20px;font-family:inherit;font-weight:600;
   font-size:14.5px;border:1px solid transparent;cursor:pointer;white-space:nowrap;
@@ -327,7 +336,7 @@ strong{color:var(--ink)}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 main section,main .dark{position:relative}
 section{padding:var(--sec-y) 0;position:relative;overflow:clip;
-  border-top:1px solid var(--line-soft);scroll-margin-top:var(--head-h)}
+  border-top:1px solid var(--line-soft)}
 #roi{overflow:visible}
 section.tight{padding-top:var(--sec-y)}
 .page-hero+section{border-top:none}
@@ -358,7 +367,7 @@ span.eyebrow{display:block;width:fit-content}
 .centre .eyebrow,.centre .k{text-align:center}
 .crumb{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-crumb);
   text-transform:uppercase;color:var(--ink-5);margin-bottom:10px}
-.crumb a{color:var(--ink-4)}
+.crumb a{color:var(--ink-4);display:inline-block;padding:14px 0;margin:-14px 0}
 .crumb a:hover{color:var(--mint)}
 .grid-lines,.hero-light{position:absolute;inset:0;z-index:0;pointer-events:none;
   background:
@@ -458,6 +467,11 @@ ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
 .more{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-tag);
   text-transform:uppercase;color:var(--emerald);text-decoration:none}
 .more:hover{color:var(--mint)}
+@media (max-width:820px),(pointer:coarse){
+  .more{display:inline-flex;align-items:center;min-height:44px}
+  #paneNav button{min-height:44px}
+}
+html.nv-below #close .cta{pointer-events:none}
 .prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:rgba(159,240,206,.45)}
@@ -791,6 +805,13 @@ html.motion-off .faq details p{animation:none}
 .callbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;text-align:center;
   background:var(--mint);color:var(--on-mint);font-weight:700;
   padding:14px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px -12px rgba(0,0,0,.5)}
+@media (max-width:820px),(pointer:coarse){
+  .site-footer .cols a{display:flex;align-items:center;min-height:44px;padding:0}
+  .site-footer .cols a::after{bottom:11px}
+}
+.callbar{transition:transform var(--t-base) var(--e-out),visibility 0s linear 0s}
+.callbar.callbar-off{transform:translateY(110%);visibility:hidden;
+  transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}
 @media(max-width:820px){
   .callbar{display:block}
   .site-footer{padding-bottom:96px}
@@ -962,8 +983,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     "@type": "WebPage",
     "@id": "https://nevamis.ca/revenue-engine.html",
     "url": "https://nevamis.ca/revenue-engine.html",
-    "name": "The Revenue Engine | Nevamis | Edmonton",
-    "description": "The Revenue Engine will tie each lead to the marketing that produced it and track the job to paid, so you see what to spend more on. In development, not yet available.",
+    "name": "The Revenue Engine | Nevamis",
+    "description": "The Revenue Engine would tie each lead to the marketing that produced it and follow the job to paid. It is in development and not offered yet.",
     "isPartOf": {
       "@type": "WebSite",
       "name": "Nevamis",
@@ -987,7 +1008,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "name": "Can I buy the Revenue Engine today?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Not yet. It is in private development, applications to be part of the first builds are open, with no clients onboarded yet. Everything live today, from the front desk to quote recovery, is on the pricing page with its price, and Lead Generation is offered by invitation."
+          "text": "No. It is in development and not offered, by invitation or otherwise, and there are no clients onboarded yet. If you want it built, tell us on the Roadmap form. Everything live today, from quote recovery to the front desk, is on the pricing page with its price, and Lead Generation is offered by invitation."
         }
       },
       {
@@ -995,7 +1016,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "name": "How is this different from the front desk?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "The front desk answers your phone and is live today on a published price. The Revenue Engine is unreleased development work on attribution: tying each lead to the marketing that produced it and following it to a paid job, using your own advertising account. Nothing about it is sold or priced yet."
+          "text": "The front desk answers your phone and is live today on a published price. The Revenue Engine is unreleased development work on attribution: it would tie each lead to the marketing that produced it and follow it to a paid job, using your own advertising account. Nothing about it is sold or priced yet."
         }
       },
       {
@@ -1003,7 +1024,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "name": "Do you guarantee more revenue?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No. You control capacity, pricing, service delivery, and close rate. We measure and report the results honestly. The calculator above is an illustration, not a promise."
+          "text": "No. You control capacity, pricing, service delivery, and close rate. If it is built, its results would be reported from your own records. The calculator above is an illustration, not a promise."
         }
       },
       {
@@ -1019,7 +1040,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "name": "What does it cost?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Nothing is priced. There is no Revenue Engine price, and none will be published until it is built and measured. Everything live today has its price on the pricing page."
+          "text": "Nothing is priced. There is no Revenue Engine price today. If it is built, it gets a published price before anyone signs up for it. Everything live today has its price on the pricing page."
         }
       }
     ]
@@ -1050,7 +1071,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
       <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
       <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
-      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
+      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="nav_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
     </nav>
   </div>
 </header>
@@ -1060,14 +1081,24 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="grid-lines" aria-hidden="true"></div>
     <div class="wrap">
       <div>
-        <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>In development · applications open</p>
+        <!-- NOT OFFERED (O50, decision #65, 2026-09-26). Until 2026-10-03 this
+             hero read "In development · applications open", invited
+             applications "to be part of the first builds" and carried an
+             "Apply to be considered" button to /book.html, here and again
+             further down (site audit PLATFORM-1). Nothing delivers the Revenue
+             Engine, so there is nothing to apply for, and the Roadmap card for
+             it already had no start or call action. The one action on this
+             page is the Roadmap's own interest path, which ticks the Revenue
+             Engine on the form there: the only way the site measures who wants
+             it built. tests/site-live-platform.spec.js holds the rule. -->
+        <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>In development · not offered yet</p>
         <h1>The engine behind the platform&rsquo;s next step.</h1>
-        <p class="lede">The Revenue Engine is the whole picture after the call: which marketing produced which lead, which lead became a paid job, and what that job was worth, down to the campaign. It is not for sale yet, and applications to be part of the first builds are open now. It is built on the calls, quotes and leads the live services already collect.</p>
+        <p class="lede">The Revenue Engine would be the whole picture after the call: which marketing produced which lead, which lead became a paid job, and what that job was worth, down to the campaign. It is in development and not offered yet. It would build on the calls, quotes and leads the live services already collect.</p>
         <div class="midcta">
-          <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Apply to be considered</a>
+          <a class="btn btn-primary btn-lg" href="/coming-soon.html?service=revenue-engine#interest" data-svc="revenue-engine">Tell us this would help</a>
           <a class="btn btn-ghost btn-lg" href="/pricing.html">See what is live today</a>
         </div>
-        <p class="fine2">Lead Generation is by invitation, and quote recovery and the front desk are live today. The Revenue Engine is in private development and is not yet generally available.</p>
+        <p class="fine2">Lead Generation is by invitation, and quote recovery and the front desk are live today. The Revenue Engine is in development and not offered yet.</p>
       </div>
     </div>
   </section>
@@ -1077,7 +1108,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="section-head reveal">
         <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>What it is being built to answer</p>
         <h2>What it is being built to answer.</h2>
-        <p>Each answer reuses the calls, forms and customer history the live services already collect.</p>
+        <p>Each answer would reuse the calls, forms and customer history the live services already collect.</p>
       </div>
       <ol class="proc reveal">
         <li><h3>Where each lead came from</h3><p>Every lead tied back to where it came from, down to the campaign.</p></li>
@@ -1096,11 +1127,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="modes reveal">
         <div class="card"><span class="chip inv">By invitation</span><h3>Lead Generation</h3><p>Offered by invitation, under your own agreement, and put together by hand. A person here reads public pages and builds you a list of the businesses that fit the work you want, with the page each row came from and the day it was read. You decide every row, and nobody on the list is contacted by us.</p><a class="more" href="/coming-soon.html">See the roadmap</a></div>
         <div class="card"><span class="chip av">Available now</span><h3>Quote Recovery</h3><p>The quotes you already sent, followed up when they go quiet past your threshold: the day they go stale, four days on and eleven days on, each email with your name on it and your approval before it goes. Live, sold as the Quote-Chase Engine.</p><a class="more" href="/pricing.html">See what it costs</a></div>
-        <div class="card"><span class="chip av">Available now</span><h3>AI Front Desk</h3><p>Answers your line, qualifies callers, takes the job down, and sends you the outcome. Live, on a published monthly price.</p><a class="more" href="/how-you-start.html">See how you start</a></div>
+        <div class="card"><span class="chip av">Available now</span><h3>AI Front Desk</h3><p>Answers your line, qualifies callers, captures the request and the times that suit them, and sends you the outcome to confirm. Live, on a published monthly price.</p><a class="more" href="/how-you-start.html">See how you start</a></div>
+        <div class="card"><span class="chip av">Available now</span><h3>Automatic Lead Tracking</h3><p>Each call, text and form becomes a lead with its source and a status, so you can see what is sitting untouched. It runs off the calls the front desk already answers, and has no price of its own.</p><a class="more" href="/how-you-start.html">See how you start</a></div>
         <div class="card"><span class="chip av">Available now</span><h3>PULSE Business Scan</h3><p>Reads only what is public on your own website and shows what it found, quoted from your own pages. Any figure it gives is a modelled range from public information and market benchmarks, not a measurement of your results. Free, and live today.</p><a class="more" href="https://app.nevamis.ca/scan" data-evt="revenue_engine_scan_click">Scan my website</a></div>
-        <div class="card"><span class="chip dev">In development</span><h3>Revenue Engine</h3><p>Which marketing produced which job, and what it was worth, down to the campaign. In private development. Applications to be part of the first builds are open, with no clients onboarded yet.</p></div>
-        <div class="card"><span class="chip av">Available now</span><h3>Missed-Call Recovery, Get-Paid Autopilot and Review Engine</h3><p>A missed caller gets one text back during business hours. Overdue invoices get a gentle reminder, then a firm one, and at three weeks you are told instead. Each finished job gets one review request, released by a person. Live, each on a published price.</p><a class="more" href="/pricing.html">See what it costs</a></div>
-        <div class="card"><span class="chip dev">Coming soon</span><h3>Inbox Assistant</h3><p>Drafts the routine replies and flags the ones that need you. Nothing sends without you pressing send. In development.</p><a class="more" href="/coming-soon.html">See the roadmap</a></div>
+        <div class="card"><span class="chip dev">In development</span><h3>Revenue Engine</h3><p>Would show which marketing produced which job, and what it was worth, down to the campaign. In development and not offered yet, with no clients onboarded.</p><a class="more" href="/coming-soon.html?service=revenue-engine#interest" data-svc="revenue-engine">Tell us this would help</a></div>
+        <div class="card"><span class="chip av">Available now</span><h3>Missed-Call Recovery, Get-Paid Autopilot and Review Engine</h3><p>A missed caller gets one text back, between 8 a.m. and 8 p.m. your time, every day. Overdue invoices get a gentle reminder, then a firm one, and at three weeks you are told instead. Each finished job gets one review request, released by a person. Live, each on a published price.</p><a class="more" href="/pricing.html">See what it costs</a></div>
+        <div class="card"><span class="chip dev">Coming</span><h3>Search Rankings</h3><p>Would help your business show up in search for the work you want more of. Nothing is built for it yet, so it has no price.</p><a class="more" href="/coming-soon.html?service=seo-rankings#interest" data-svc="seo-rankings">Tell us this would help</a></div>
+        <div class="card"><span class="chip dev">Being researched</span><h3>Inbox Assistant</h3><p>Would draft the routine replies and flag the ones that need you, with nothing sent until you press send. Being researched, not built.</p><a class="more" href="/coming-soon.html">See the roadmap</a></div>
       </div>
     </div>
   </section>
@@ -1135,33 +1168,33 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   <section class="tight">
     <div class="wrap read">
       <div class="section-head reveal">
-        <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>The first Revenue Engine build</p>
+        <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>If it is built</p>
         <h2>This is development work, not a product you can buy.</h2>
         <!-- This section used to compare itself to a seven-day Front Desk
-             pilot and describe that pilot as free. It was neither free nor
-             still offered; both are retired as of 2026-08-09. It also priced
-             itself: management and performance fees "waived", against a
-             "configurable activation fee" creditable to a first paid month.
-             That was a commercial offer, invented for a product with no
-             published price, on the same site that commits to charging
-             nothing to begin. It is gone. What is left is what is true: this
-             is unreleased, it is applied for, and nothing about its
-             commercial terms exists until it is written down for a specific
-             business. -->
-        <p>The front desk is a live product on a published monthly price. The Revenue Engine is not: it is in development, and the first builds are applied for rather than bought. Applying is a conversation about whether your business is a sensible place to build it first.</p>
+             offer and describe it as free; that was retired on 2026-08-09,
+             with the "waived" fees it priced itself against. Until 2026-10-03
+             it was an intake instead: "the first builds are applied for
+             rather than bought", scoped to one location and "accepted on
+             fit", with commercial terms written per business. That is an
+             offer by invitation, which O50 says the Revenue Engine is not,
+             and it contradicted the Roadmap's promise that anything not yet
+             ready gets a published price before anyone signs up (site audit
+             PLATFORM-1 and PLATFORM-2). What is left is how it would work
+             once built, in the conditional, and the same pricing story the
+             Roadmap tells. -->
+        <p>The front desk is a live product on a published monthly price. The Revenue Engine is not: it is in development, and it is not offered, by invitation or otherwise. If it is built, it gets a published price before anyone signs up for it, the same as everything on the Roadmap.</p>
       </div>
       <div class="card reveal">
       <ul class="node-list">
-        <li>Scoped small on purpose: one location, one service line and one advertising channel, with each lead from it followed to a paid job.</li>
-        <li>You own and fund your own advertising account. Advertising, telephony, messaging, and data are disclosed pass-through costs you pay directly.</li>
-        <li>There is no published Revenue Engine price and no standing offer. Commercial terms are scoped and confirmed in writing before anything starts, or there is no engagement.</li>
-        <li>No minimum number of leads, appointments, or revenue is guaranteed, and none is implied by anything on this page.</li>
-        <li>Founder-led, and accepted on fit and onboarding capacity rather than on order of arrival.</li>
+        <li>It would follow each lead from your advertising to a paid job, using the calls, quotes and leads the live services already collect.</li>
+        <li>You would own and fund your own advertising account. Advertising, telephony, messaging and data would be disclosed pass-through costs you pay directly.</li>
+        <li>There is no Revenue Engine price and no offer today.</li>
+        <li>No number of leads, appointments or revenue would be guaranteed, and none is implied by anything on this page.</li>
       </ul>
       </div>
       <p class="fine2">Nothing here is a price list. Your front desk plan, if you have one, is unaffected by any of this: it stays its own published plan, with a monthly you can cancel yourself from the portal at any time, because there is no minimum term and no notice period on anything.</p>
       <div class="midcta reveal">
-        <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Apply to be considered</a>
+        <a class="btn btn-primary btn-lg" href="/coming-soon.html?service=revenue-engine#interest" data-svc="revenue-engine">Tell us this would help</a>
       </div>
     </div>
   </section>
@@ -1172,11 +1205,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <p class="eyebrow mono"><span class="dot" aria-hidden="true"></span>Questions</p>
         <h2>Straight answers.</h2>
       </div>
-      <details class="reveal"><summary>Can I buy the Revenue Engine today?</summary><p>Not yet. It is in private development, applications to be part of the first builds are open, with no clients onboarded yet. Everything live today, from the front desk to quote recovery, is on the pricing page with its price, and Lead Generation is offered by invitation.</p></details>
-      <details class="reveal"><summary>How is this different from the front desk?</summary><p>The front desk answers your phone and is live today on a published price. The Revenue Engine is unreleased development work on attribution: tying each lead to the marketing that produced it and following it to a paid job, using your own advertising account. Nothing about it is sold or priced yet.</p></details>
-      <details class="reveal"><summary>Do you guarantee more revenue?</summary><p>No. You control capacity, pricing, service delivery, and close rate. We measure and report the results honestly. The calculator above is an illustration, not a promise.</p></details>
+      <details class="reveal"><summary>Can I buy the Revenue Engine today?</summary><p>No. It is in development and not offered, by invitation or otherwise, and there are no clients onboarded yet. If you want it built, tell us on the Roadmap form. Everything live today, from quote recovery to the front desk, is on the pricing page with its price, and Lead Generation is offered by invitation.</p></details>
+      <details class="reveal"><summary>How is this different from the front desk?</summary><p>The front desk answers your phone and is live today on a published price. The Revenue Engine is unreleased development work on attribution: it would tie each lead to the marketing that produced it and follow it to a paid job, using your own advertising account. Nothing about it is sold or priced yet.</p></details>
+      <details class="reveal"><summary>Do you guarantee more revenue?</summary><p>No. You control capacity, pricing, service delivery, and close rate. If it is built, its results would be reported from your own records. The calculator above is an illustration, not a promise.</p></details>
       <details class="reveal"><summary>Who owns the advertising account?</summary><p>It would stay yours. Nothing about this runs today. If it is built for your business, you keep the advertising account and fund it directly, and nothing is spent or changed on it without your approval.</p></details>
-      <details class="reveal"><summary>What does it cost?</summary><p>Nothing is priced. There is no Revenue Engine price, and none will be published until it is built and measured. Everything live today has its price on the pricing page.</p></details>
+      <details class="reveal"><summary>What does it cost?</summary><p>Nothing is priced. There is no Revenue Engine price today. If it is built, it gets a published price before anyone signs up for it. Everything live today has its price on the pricing page.</p></details>
     </div>
   </section>
 </main>
@@ -1206,6 +1239,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2 class="foot-h">Legal</h2>
         <a href="/privacy.html">Privacy</a>
         <a href="/terms.html">Terms</a>
+        <a href="/security.html">Security</a>
       </div>
     </div>
     <div class="base">
@@ -1236,6 +1270,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   f.forEach(function (el) { if (el) el.addEventListener("input", calc); });
   calc();
 })();
+/* Each "Tell us this would help" link says which service it is for. site.js
+   sends a bare [data-evt] name, which cannot tell the Revenue Engine links
+   from the Search Rankings card or from the Roadmap hero, so these links
+   carry data-svc instead and send the slug the way the Roadmap cards do
+   (docs/analytics-events.md: roadmap_service_interest_clicked, service). */
+document.addEventListener("click", function (e) {
+  var a = e.target.closest && e.target.closest("a[data-svc]");
+  if (a && window.nvTrack) window.nvTrack("roadmap_service_interest_clicked", { service: a.getAttribute("data-svc") });
+});
 </script>
 </body>
 </html>

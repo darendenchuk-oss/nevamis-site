@@ -37,12 +37,20 @@
      other client-facing string, here and everywhere: there is no pilot and no
      trial of anything. Adding a fifth string means adding its .chip class in
      scripts/film/source.html and extending this list in the same commit.
+     Since 2026-09-26 (BD-F4) a chip on a roadmap entry reads that entry's
+     status as the Roadmap page labels it, so the #doc stations also carry
+     "Planned" and "Being researched", both on .chip.dev, and
+     check-consistency.js guard 7o holds every such chip to roadmap-config.js.
+
+     The section eyebrows carry no numbers (BD-F6, 2026-09-26). They were
+     the film's station numbers, so in reading order they ran 05, 03, 02, 06
+     with the How you start steps' own 01 to 04 after them.
      ============================================================ -->
 
 <section id="found">
   <div class="wrap">
     <div class="centre reveal">
-      <p class="k"><i>05</i> GROW <span class="chip inv">By invitation</span></p>
+      <p class="k">GROW <span class="chip inv">By invitation</span></p>
       <h1>More of the customers you want.</h1>
       <p class="lede">You tell us the kind of business you want more of, and we find them for you.</p>
     </div>
@@ -60,11 +68,19 @@
       </ul>
     </div>
 
-    <p class="fine2 reveal">Lead Generation is offered by invitation, to a few businesses under their own agreement, and the list is put together by hand. On the Performance Partnership it is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement.</p>
+    <!-- The fine print stops at the hand-built list (audit HOME-12, 2026-10-03).
+         It went on to say how Lead Generation is paid, and decision #54 lets
+         Lead Generation copy carry "by invitation" and nothing else: no price,
+         volume, guarantee, automation or contact claim. How it is paid is the
+         pricing page's to say. -->
+    <p class="fine2 reveal">Lead Generation is offered by invitation, to a few businesses under their own agreement, and the list is put together by hand.</p>
 
+    <!-- Book a call leads and the scan follows, here, at the film's ending and
+         in the closing section (#54). The scan is "Scan my website" everywhere
+         on the site, because the public website is all it reads. -->
     <div class="ctarow reveal">
       <a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
-      <a class="btn btn-ghost btn-lg" href="https://app.nevamis.ca/scan" data-evt="hero_scan_click">Scan my business</a>
+      <a class="btn btn-ghost btn-lg" href="https://app.nevamis.ca/scan" data-evt="hero_scan_click" data-film-exit>Scan my website</a>
     </div>
   </div>
 </section>
@@ -72,7 +88,7 @@
 <section id="recover">
   <div class="wrap">
     <div class="centre reveal">
-      <p class="k"><i>03</i> CONVERT <span class="chip av">Available today</span></p>
+      <p class="k">CONVERT <span class="chip av">Available today</span></p>
       <h2>The quotes you already sent, followed up.</h2>
       <p class="lede">A quote that goes quiet past your threshold gets spotted and followed up the day it goes stale, four days on and eleven days on, each touch with your name on it and your approval before it goes.</p>
     </div>
@@ -92,7 +108,7 @@
     </div>
 
 
-    <p class="fine2 reveal">It needs your written go-ahead to email your own customers, and your quotes recorded as jobs. Sold as the Quote-Chase Engine: on its own, beside the AI Front Desk, or included in The Works, with no minimum term on any of them. <span id="qrPrice">See the pricing page for the current figures.</span></p>
+    <p class="fine2 reveal">It needs your written go-ahead to email your own customers, your business details for each email to carry, and the quotes you have out, added on the Quotes page of your portal or imported from a spreadsheet. Sold as the Quote-Chase Engine: on its own, beside the AI Front Desk, or included in The Works, with no minimum term on any of them. <span id="qrPrice">See the pricing page for the current figures.</span></p>
 
     <p class="centre fine2 reveal"><a class="more" href="#roi" data-evt="dayone_roi_click">+ What missed calls are costing you</a></p>
   </div>
@@ -101,14 +117,20 @@
 <section id="answer">
   <div class="wrap">
     <div class="centre reveal">
-      <p class="k"><i>02</i> CAPTURE <span class="chip av">Available today</span></p>
+      <p class="k">CAPTURE <span class="chip av">Available today</span></p>
       <h2>Your phone answered, any hour.</h2>
       <p class="lede">Your line is answered around the clock, in your business's name, with the questions you approved.</p>
     </div>
 
     <div class="card card-featured offer-card reveal">
+      <!-- It TAKES DOWN the request and the times that suit; it never "takes
+           the job" or "the time the caller wants" (audit PRICING-9,
+           2026-10-03). Both read as the agent accepting a booking, even beside
+           "you confirm", and a client agent has no calendar and no booking
+           tool. how-you-start.html says it in these words, and
+           tests/polish-home.spec.js holds every homepage surface to them. -->
       <div class="offer-copy">
-        <p>It takes the job, the address and the time the caller wants, then texts and emails you the details. You confirm the slot.</p>
+        <p>It takes down the request, the address and the times that suit the caller, then texts and emails you the details. You confirm a time with them.</p>
         <p class="outcome">No more jobs lost to voicemail.</p>
       </div>
       <ul class="node-list offer-list">
@@ -119,7 +141,7 @@
       </ul>
     </div>
 
-    <p class="fine2 reveal">Keep your own number. Forwarding sends calls to Nevamis always, after hours, or only when you miss one, and you can switch it off from your own phone. <a class="more" href="tel:+15874130035" data-evt="demo_phone_click">+ Hear it answer</a></p>
+    <p class="fine2 reveal">Keep your own number. Forwarding sends Nevamis the calls you do not pick up, or every call if you choose, and you switch it on and off from your own phone. <a class="more" href="tel:+15874130035" data-evt="demo_phone_click">+ Hear it answer</a></p>
   </div>
 </section>
 
@@ -131,31 +153,41 @@
     <div class="section-head reveal">
       <p class="k">BUILT FOR THE TRADES FIRST</p>
       <h2>Customers found. Quotes followed up. Calls answered.</h2>
-      <p class="lede">Nevamis is built for appointment-based local businesses where a missed call is a lost job. Pick your trade to see what gets found, followed up and reported.</p>
+      <p class="lede">Nevamis is built for appointment-based local businesses where a missed call is a lost job. Pick your trade to see how its calls are answered, how the urgent ones reach you, and where Lead Generation and Quote Recovery come in.</p>
     </div>
+    <!-- Two rules for the four cards and the lede above (audit TRADES-4 and
+         TRADES-10, 2026-10-03).
+         The lede promises only what the trade pages show. Each one leads with
+         the phone, how its calls are answered and how an urgent one is
+         handled, and then has a section on Lead Generation and Quote Recovery.
+         None of them reports anything, so the lede no longer says "reported".
+         A quote is never "recorded" or "captured" by a call. A call is a quote
+         REQUEST; the quote a client sends afterwards is followed up only once
+         the client adds it on the Quotes page of the portal (canonical
+         quote_recovery.needsFromYou, and the fine print under #recover). -->
     <div class="ind-grid">
       <a class="card ind-card reveal" href="/electricians.html">
         <p class="k">ELECTRICAL</p>
         <h3>Electricians</h3>
-        <p>Panel upgrades and rewires captured with the details you need, quiet quotes followed up on your approval, and service calls answered while the crew is on the tools.</p>
+        <p>Panel upgrades and rewires taken down with the details you need, and service calls answered while the crew is on the tools. The quotes you add on your Quotes page are followed up on your approval when they go quiet.</p>
         <p class="cardfoot"><span class="chip inv">By invitation</span> Lead Generation <span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
       </a>
       <a class="card ind-card reveal" href="/hvac.html">
         <p class="k">HVAC</p>
         <h3>HVAC</h3>
-        <p>A furnace out at 11 PM in January does not wait for opening hours. Urgent after-hours calls captured, and the quote that goes quiet afterwards followed up on your approval.</p>
+        <p>A furnace out at 11 PM in January does not wait for opening hours. Urgent after-hours calls answered and sent to you, and the quote you send afterwards, once you add it on your Quotes page, followed up on your approval if it goes quiet.</p>
         <p class="cardfoot"><span class="chip inv">By invitation</span> Lead Generation <span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
       </a>
       <a class="card ind-card reveal" href="/plumbers.html">
         <p class="k">PLUMBING</p>
         <h3>Plumbers</h3>
-        <p>Renovation quotes captured rather than lost to voicemail, then followed up when they go quiet: the day they go stale, four days on and eleven days on, each touch with your approval.</p>
+        <p>Renovation calls answered rather than lost to voicemail. The quote you send afterwards, once you add it on your Quotes page, is followed up if it goes quiet: the day it goes stale, four days on and eleven days on, each touch with your approval.</p>
         <p class="cardfoot"><span class="chip inv">By invitation</span> Lead Generation <span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
       </a>
       <a class="card ind-card reveal" href="/restoration.html">
         <p class="k">RESTORATION</p>
         <h3>Restoration and property services</h3>
-        <p>Incident details gathered calmly and the urgent ones sent to you within seconds. The estimate that follows is recorded, so it can be chased before it goes cold.</p>
+        <p>Incident details gathered calmly, and an urgent call flagged and sent to you as soon as it ends. The estimate you send afterwards, once you add it on your Quotes page, is followed up before it goes cold.</p>
         <p class="cardfoot"><span class="chip inv">By invitation</span> Lead Generation <span class="chip av">Available today</span> Quote Recovery <span class="chip av">Available today</span> Front Desk</p>
       </a>
     </div>
@@ -259,7 +291,7 @@
 <section id="plans">
   <div class="wrap">
     <div class="section-head reveal">
-      <p class="k"><i>06</i> PLANS <span class="chip av">Published prices</span></p>
+      <p class="k">PLANS <span class="chip av">Published prices</span></p>
       <h2>One fee to start, then a monthly.</h2>
       <p class="lede">Every plan is a Launch &amp; Implementation fee to start, then a monthly, in Canadian dollars plus GST/HST. Lead Generation is offered by invitation and lives on the Performance Partnership, which is never the default. Every other add-on is its own sale, and all of them are in The Works. Enterprise is quoted per client.</p>
     </div>
@@ -276,16 +308,16 @@
     <div class="section-head reveal">
       <p class="k">HOW YOU START</p>
       <h2>Your line is answered inside the first week.</h2>
-      <p class="lede">Days, not months. There is no trial, paid or free. What replaces a promise is a first week you can read for yourself.</p>
+      <p class="lede">Days, not months. You start on a normal subscription with no minimum term, and what replaces a promise is a first week you can read for yourself.</p>
     </div>
     <div class="steps">
       <div class="card reveal">
         <p class="k"><i>01</i> SCAN</p>
-        <p>Every engagement starts with the PULSE Business Scan. Takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
+        <p>The free PULSE Business Scan, if you want your website read before you talk to anyone. It is optional and takes about two minutes. No call required. Every figure is a range with a confidence level.</p>
       </div>
       <div class="card reveal">
         <p class="k"><i>02</i> TALK</p>
-        <p>After the scan, a short strategy call confirms your exact fit. There is no minimum term to discover in the agreement: month to month from the first month, cancelled from your own portal at any time.</p>
+        <p>A short strategy call confirms your exact fit, with or without a scan first. There is no minimum term to discover in the agreement: month to month from the first month, cancelled from your own portal at any time.</p>
       </div>
       <div class="card reveal">
         <p class="k"><i>03</i> BUILD</p>
@@ -320,35 +352,47 @@
       <p class="lede">Each answer is written to stand on its own. If it is not built, it says so.</p>
     </div>
     <details class="reveal"><summary>How does Lead Generation work, and can I get it?</summary><p>It is offered by invitation, under your own agreement, and the list is put together by hand. You tell us the kinds of business you want more of and where you work, and a person here reads public pages and builds the list, with the page each row came from. You decide every row, and nobody on it is contacted by us. Businesses only: it never looks for people at home.</p></details>
-    <details class="reveal"><summary>What counts as a quiet quote?</summary><p>A quote you sent that has gone past a threshold you set without an answer. You choose the threshold. When a quote you have recorded as a job crosses it, Nevamis spots it and prepares up to three follow-ups (the day it goes stale, four days on and eleven days on), each one sent only with your approval.</p></details>
+    <details class="reveal"><summary>What counts as a quiet quote?</summary><p>A quote you sent that has gone past a threshold you set without an answer. You choose the threshold. When a quote you have added crosses it, Nevamis spots it and prepares up to three follow-ups (the day it goes stale, four days on and eleven days on), each one sent only with your approval.</p></details>
     <details class="reveal"><summary>Who sends the Quote Recovery follow-up, and can it go out without me?</summary><p>It goes with your name on the email, and only after your approval. Nothing is sent to your customers without your written go-ahead to email them, every message carries your business identity, and opt-outs are honoured. No outbound marketing campaigns are offered: Quote Recovery only follows up quotes you already wrote.</p></details>
-    <details class="reveal"><summary>Does Quote Recovery need my CRM or quoting software?</summary><p>No, and it does not connect to one. Outside Enterprise, Nevamis does not connect to a CRM, an ads account or an automation tool; a custom integration is Enterprise work, scoped and quoted per client. You record your quotes as jobs in your Nevamis portal so we can see them go quiet, and the follow-up and the reporting run from there.</p></details>
+    <details class="reveal"><summary>Does Quote Recovery need my CRM or quoting software?</summary><p>No, and it does not connect to one. Outside Enterprise, Nevamis does not connect to a CRM, an ads account or an automation tool; a custom integration is Enterprise work, scoped and quoted per client. You add the quotes you have out on the Quotes page of your Nevamis portal, by hand or from a spreadsheet, so we can see them go quiet, and the follow-up and the reporting run from there.</p></details>
     <details class="reveal"><summary>Is Quote Recovery the same thing as the Quote-Chase Engine?</summary><p>Yes. Quote Recovery is the capability; the Quote-Chase Engine is the add-on that sells it, bought on its own or beside the AI Front Desk, with its own Launch &amp; Implementation fee to start and then a monthly. It is already included in The Works. Its figures are rendered on the pricing page from the published price list, and there is no minimum term on it.</p></details>
-    <details class="reveal"><summary>Will Quote Recovery quote prices, negotiate or offer discounts?</summary><p>No. It follows up a quote you already wrote. It does not answer customer questions, negotiate, change your prices or offer discounts, and it does not book or schedule anything. What you get back is which quotes came back to life and what they were worth.</p></details>
+    <!-- The question does not say "discounts" and the answer does, once, inside
+         its denial: the owner rule keeps the word off buyer surfaces, and the
+         driver ruled (2026-10-03) that a denial of what the product does may
+         keep it. A FAQ question is quoted alone by answer engines, as the
+         FAQPage name, so it gets no such cover. tests/polish-home.spec.js. -->
+    <details class="reveal"><summary>Will Quote Recovery quote prices or negotiate with my customers?</summary><p>No. It follows up a quote you already wrote. It does not answer customer questions, negotiate, change your prices or offer discounts, and it does not book or schedule anything. What you get back is which quotes came back to life and what they were worth.</p></details>
     <details class="reveal"><summary>Will callers know they are talking to an AI?</summary><p>The moment anyone asks, yes, plainly and without hedging. It does not open the call by announcing itself, any more than a receptionist opens by explaining who employs them: it greets the caller in your business's name and gets on with the job. Dial the demo line and ask it directly.</p></details>
-    <details class="reveal"><summary>Can it book directly into my calendar?</summary><p>Not yet, and we will not pretend otherwise. The assistant takes the job, the address and the time the caller wants, then texts and emails it to you so you can confirm the slot. Calendar booking is not part of the service today.</p></details>
+    <details class="reveal"><summary>Can it book directly into my calendar?</summary><p>No. The assistant takes down the request, the address and the times that suit the caller, then texts and emails it to you so you can confirm a time with them.</p></details>
     <details class="reveal"><summary>What happens on an urgent call?</summary><p>Nevamis captures the urgent details and alerts your team. We define together what counts as urgent for your business, and a call that meets it is flagged that way the moment it ends. Live transfer to a person is not part of the service.</p></details>
-    <details class="reveal"><summary>Can I keep my current phone number?</summary><p>Yes. Your number stays exactly as it is. Call forwarding sends calls to Nevamis always, after hours, or only when you miss the call. You can switch it off from your own phone at any time.</p></details>
+    <details class="reveal"><summary>Can I keep my current phone number?</summary><p>Yes. Your number stays exactly as it is. Call forwarding sends a call to Nevamis when you do not answer, your line is busy or your phone is off, or it sends every call if you choose. It follows whether you answer, not the clock, so after hours it catches every call nobody picks up. You switch it on and off from your own phone at any time.</p></details>
     <details class="reveal"><summary>How long does setup take?</summary><p>Days, not months. Discovery, build, written call scenarios run at the agent before a number is pointed at it, then your forwarding proven with a real call.</p></details>
     <details class="reveal"><summary>What does it cost?</summary><p>Every plan is a Launch &amp; Implementation fee to start, then a monthly, in Canadian dollars plus GST/HST, with no performance fee on the AI Front Desk or The Works. Each add-on is its own sale, bought on its own or beside a plan, each with its own Launch &amp; Implementation fee and monthly, and all of them are included in The Works. The figures are published on the pricing page from one source. There is no minimum term: month to month from the first month, cancel any time from your own portal, service running to the end of the month you already paid for, and your price is locked for 12 months from signing.</p></details>
     <details class="reveal"><summary>What does the Launch &amp; Implementation fee cover?</summary><p>The build, priced in the open instead of hidden in the monthly. Before you go live your agent is configured around your hours, services, prices, service area and rules, your automations are enabled, a baseline of your business is taken, and the system is run against written call scenarios before a phone number is pointed at it. That is real work, it happens once, and the one-time fee is charged once, at the start, never again.</p></details>
-    <details class="reveal"><summary>Can I try it before I commit?</summary><p>There is no trial, paid or free. You start on a normal subscription with no minimum term: month to month from the first month, and you cancel it yourself from the portal at any time. The build takes days, so by the end of the first week you are judging your own call recordings rather than a promise.</p></details>
+    <details class="reveal"><summary>Can I try it before I commit?</summary><p>You start on a normal subscription with no minimum term: month to month from the first month, and you cancel it yourself from the portal at any time. The build takes days, so by the end of the first week you are judging your own call recordings rather than a promise.</p></details>
     <details class="reveal"><summary>How is customer information handled?</summary><p>Call details are used to run your service: the lead record, your summaries, and the recording in your portal. Quote Recovery emails go only to your own customers, on your written go-ahead, with your name on them. See the privacy page for what this website itself collects. Businesses remain responsible for notices appropriate to their own jurisdiction and call-recording requirements.</p></details>
     <details class="reveal"><summary>What if it is not a fit?</summary><p>You cancel it yourself from the portal whenever you want, with no notice period, and service runs to the end of the month you already paid for. There is no cancellation fee and nobody to talk into letting you go. There is no minimum term on anything: every plan and every automation, bought on its own or added later, is month to month from the first month.</p></details>
   </div>
 </section>
 
+<!-- THE CLOSE FOLLOWS DECISION #54, THE SAME AS THE HERO AND THE FILM'S ENDING
+     (audit HOME-7 and HOME-8, 2026-10-03). It used to lead with the scan
+     ("See where yours is leaking", the scan as the filled button), the one
+     promise #54 took off this page, and its Book a call sent the hero's own
+     event, so a press here could not be told from a press at the top. Book a
+     call is the filled primary, the scan the ghost secondary with its honest
+     description, and each button has its own allowlisted event. -->
 <section id="next">
   <div class="wrap">
     <div class="centre reveal">
-      <p class="k">ONE SCAN</p>
-      <h2>See where yours is leaking.</h2>
-      <p class="lede">It reads only what is public on your own website and shows what it found, quoted from your own pages. Any figure it gives is a modelled range from public information and market benchmarks, not a measurement of your results.</p>
+      <p class="k">LEAD GENERATION <span class="chip inv">By invitation</span></p>
+      <h2>Tell us who you want more of.</h2>
+      <p class="lede">Lead Generation is by invitation, and a short call is where it starts. If you would rather see your website read first, the scan reads only what is public on it. Any figure it gives is a modelled range from public information and market benchmarks, not a measurement of your results.</p>
       <p class="ctarow">
-        <a class="btn btn-primary btn-lg" href="https://app.nevamis.ca/scan" data-evt="platform_scan_click">Scan my business</a>
-        <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a call</a>
+        <a class="btn btn-primary btn-lg" href="/book.html#pick-a-time" data-evt="closing_book_call_click">Book a call</a>
+        <a class="btn btn-ghost btn-lg" href="https://app.nevamis.ca/scan" data-evt="platform_scan_click" data-film-exit>Scan my website</a>
       </p>
-      <p class="fine2">Takes about two minutes. No call required.</p>
+      <p class="fine2">The scan takes about two minutes and needs no call.</p>
     </div>
   </div>
 </section>

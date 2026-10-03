@@ -8,16 +8,22 @@
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Terms of Service | Nevamis | Edmonton</title>
-<meta name="description" content="Terms of use for the Nevamis website, the live demo line, and paid service. A one-time Launch and Implementation fee, then monthly, no minimum term. Canadian dollars, Alberta law.">
+<meta name="description" content="Terms of use for the Nevamis website, the demo line and paid service: a one-time Launch and Implementation fee, then monthly with no minimum term. Alberta law.">
 <link rel="canonical" href="https://nevamis.ca/terms.html">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="Terms | Nevamis">
-<meta property="og:description" content="Terms of use for the Nevamis website, the live demo line, and paid service. A one-time Launch and Implementation fee, then monthly, no minimum term. Canadian dollars, Alberta law.">
+<meta property="og:description" content="Terms of use for the Nevamis website, the demo line and paid service: a one-time Launch and Implementation fee, then monthly with no minimum term. Alberta law.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nevamis.ca/terms.html">
+<meta property="og:site_name" content="Nevamis">
+<meta property="og:locale" content="en_CA">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
+<meta property="og:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nevamis.ca/assets/og-default.png">
+<meta name="twitter:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -237,6 +243,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--ink)}
 html{overflow-x:clip;scrollbar-color:#123528 var(--bg)}
+html{scroll-padding-top:calc(var(--head-h) + 16px)}
 body{overflow-x:clip;font-family:var(--f-body);font-size:var(--fs-body);
   line-height:var(--lh-body);-webkit-font-smoothing:antialiased}
 img{max-width:100%;height:auto}
@@ -265,7 +272,7 @@ strong{color:var(--ink)}
 .site-header.scrolled{background:rgba(2,8,13,.94);box-shadow:0 1px 0 var(--line-soft);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .site-header .wrap{display:flex;align-items:center;gap:18px;height:var(--head-h)}
-.wordmark{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
+.wordmark{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:17px;min-height:44px}
 .wordmark .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
 .wordmark .wm-v{letter-spacing:.055em}
 .wordmark svg{width:22px;height:22px;transform:translateY(-1.7px);
@@ -282,20 +289,31 @@ strong{color:var(--ink)}
 .main-nav a:not(.btn):hover::after,.main-nav a.active-section::after{transform:scaleX(1)}
 .main-nav a.active-section{color:var(--ink)}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
-  color:var(--ink);border-radius:9px;width:42px;height:42px;font-size:17px;cursor:pointer}
+  color:var(--ink);border-radius:9px;width:44px;height:44px;font-size:17px;cursor:pointer}
 @media(max-width:1080px){
-  .main-nav a.nav-min{display:none}
-}
-@media(max-width:880px){
   .nav-toggle{display:grid;place-items:center}
-  .main-nav{position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:stretch;
-    gap:0;padding:8px 20px 18px;background:rgba(7,15,22,.98);border-bottom:1px solid var(--line);
-    display:none}
+  .main-nav{position:absolute;top:var(--head-h);left:0;right:0;flex-direction:column;align-items:stretch;
+    gap:0;padding:8px 20px 18px;background:#070F16;border-bottom:1px solid var(--line);
+    display:none;max-height:calc(100vh - var(--head-h));max-height:calc(100dvh - var(--head-h));
+    overflow-y:auto;overscroll-behavior:contain}
   .main-nav.open{display:flex}
-  .main-nav a:not(.btn){padding:12px 4px;font-size:16px;border-bottom:1px solid rgba(159,240,206,.07)}
-  .main-nav a.nav-min{display:block}
+  .main-nav .navitem{display:block;overflow:visible}
+  .main-nav a:not(.btn){display:flex;align-items:center;min-height:44px;padding:10px 4px;font-size:16px;
+    border-bottom:1px solid rgba(159,240,206,.07)}
+  .main-nav a:not(.btn)::after{display:none}
+  .main-nav a.nav-min{display:flex}
   .main-nav .btn{margin-top:12px;justify-content:center}
 }
+@media (min-width:821px) and (max-width:1080px){
+  .main-nav:not(.open){display:flex;position:static;flex-direction:row;align-items:center;
+    padding:0;background:none;border:0;max-height:none;overflow:visible;margin-left:auto;order:1}
+  .main-nav:not(.open) .navitem{display:none}
+  .main-nav:not(.open) .navitem:last-child{display:block}
+  .main-nav:not(.open) .btn{margin-top:0}
+  .nav-toggle{order:2;margin-left:12px}
+  .nav-toggle[aria-expanded="true"]{margin-left:auto}
+}
+html.nav-locked{overflow:hidden}
 .btn{position:relative;display:inline-flex;align-items:center;gap:9px;
   border-radius:var(--r-pill);padding:12px 20px;font-family:inherit;font-weight:600;
   font-size:14.5px;border:1px solid transparent;cursor:pointer;white-space:nowrap;
@@ -318,7 +336,7 @@ strong{color:var(--ink)}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 main section,main .dark{position:relative}
 section{padding:var(--sec-y) 0;position:relative;overflow:clip;
-  border-top:1px solid var(--line-soft);scroll-margin-top:var(--head-h)}
+  border-top:1px solid var(--line-soft)}
 #roi{overflow:visible}
 section.tight{padding-top:var(--sec-y)}
 .page-hero+section{border-top:none}
@@ -349,7 +367,7 @@ span.eyebrow{display:block;width:fit-content}
 .centre .eyebrow,.centre .k{text-align:center}
 .crumb{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-crumb);
   text-transform:uppercase;color:var(--ink-5);margin-bottom:10px}
-.crumb a{color:var(--ink-4)}
+.crumb a{color:var(--ink-4);display:inline-block;padding:14px 0;margin:-14px 0}
 .crumb a:hover{color:var(--mint)}
 .grid-lines,.hero-light{position:absolute;inset:0;z-index:0;pointer-events:none;
   background:
@@ -449,6 +467,11 @@ ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
 .more{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-tag);
   text-transform:uppercase;color:var(--emerald);text-decoration:none}
 .more:hover{color:var(--mint)}
+@media (max-width:820px),(pointer:coarse){
+  .more{display:inline-flex;align-items:center;min-height:44px}
+  #paneNav button{min-height:44px}
+}
+html.nv-below #close .cta{pointer-events:none}
 .prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:rgba(159,240,206,.45)}
@@ -782,6 +805,13 @@ html.motion-off .faq details p{animation:none}
 .callbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;text-align:center;
   background:var(--mint);color:var(--on-mint);font-weight:700;
   padding:14px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px -12px rgba(0,0,0,.5)}
+@media (max-width:820px),(pointer:coarse){
+  .site-footer .cols a{display:flex;align-items:center;min-height:44px;padding:0}
+  .site-footer .cols a::after{bottom:11px}
+}
+.callbar{transition:transform var(--t-base) var(--e-out),visibility 0s linear 0s}
+.callbar.callbar-off{transform:translateY(110%);visibility:hidden;
+  transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}
 @media(max-width:820px){
   .callbar{display:block}
   .site-footer{padding-bottom:96px}
@@ -952,7 +982,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     "@id": "https://nevamis.ca/terms.html",
     "url": "https://nevamis.ca/terms.html",
     "name": "Terms of Service | Nevamis | Edmonton",
-    "description": "Terms of use for the Nevamis website, the live demo line, and paid service. A one-time Launch and Implementation fee, then monthly, no minimum term. Canadian dollars, Alberta law.",
+    "description": "Terms of use for the Nevamis website, the demo line and paid service: a one-time Launch and Implementation fee, then monthly with no minimum term. Alberta law.",
     "isPartOf": {
       "@type": "WebSite",
       "name": "Nevamis",
@@ -991,7 +1021,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
       <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
       <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
-      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
+      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="nav_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
     </nav>
   </div>
 </header>
@@ -1000,14 +1030,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap">
       <p class="eyebrow mono">Legal</p>
       <h1>Terms of use</h1>
-      <p>Version 2.8, effective September 24, 2026. Plain-language terms for this website, the public demo line, and a summary of how paid service works. If you sign a service agreement with us, that agreement governs where the two differ. What changed in each version is listed under Change history at the end of this page.</p>
+      <p>Version 2.9, effective September 26, 2026. Plain-language terms for this website, the public demo line, and a summary of how paid service works. If you sign a service agreement with us, that agreement governs where the two differ. What changed in each version is listed under Change history at the end of this page.</p>
       <h2>The website</h2>
       <p>Content on nevamis.ca is provided for general information about the Nevamis service. The example call is an illustration using a fictional company. Estimates from the calculator are estimates, not guarantees of business results.</p>
       <h2>The demo line</h2>
       <p>The demo number (587) 413-0035 exists so prospective customers can evaluate the agent. Test it honestly and hard. Do not use it for abuse, harassment, unlawful recordings, attempts to extract confidential configuration, or automated or bulk calling intended to exhaust the service.</p>
       <h2>Service plans and how billing works</h2>
-      <p>Each plan has two published figures, both stated on the pricing page: a one-time Launch &amp; Implementation fee, then a monthly price. C$1,500 Launch &amp; Implementation on the AI Front Desk, C$3,000 on The Works, from C$2,500 on Performance Partnership, and starting at C$5,000 or custom quoted for Enterprise. A plan's Launch &amp; Implementation fee is charged once, at the start, beside the first month; it covers the audit, configuration, integrations, testing and go-live of your system. The monthly price is charged on the day the subscription starts and on the same day each month afterwards, in advance, in Canadian dollars plus applicable GST/HST. Automation add-ons are optional and are provided only on your instruction: each may be bought on its own or alongside a plan. An add-on has the same two published figures as a plan, both stated on the pricing page: its own one-time Launch &amp; Implementation fee, charged once when that add-on starts, and its own monthly price, charged monthly from then. On Performance Partnership, an item the pricing page shows as paid by an agreed share of attributable collected revenue (the Quote-Chase Engine, and Lead Generation, which is offered by invitation) carries neither figure there and is paid only through the performance fee described below. Beyond those figures, the one-time Launch &amp; Implementation fee and the monthly price of each plan and each add-on you choose, nothing is billed except usage beyond the included minutes and, on Performance Partnership only, a performance fee charged on collected revenue directly attributable to qualified NEVAMIS-generated opportunities, never on your unrelated revenue and never on profit. The percentage, the attribution window, the measurement method and what counts as eligible revenue are set in your executed agreement and agreed before anything is charged; no rate applies until that agreement is signed. Service carries no minimum term: every plan and every automation add-on, bought on its own or added later, is month to month from the first month. Your subscription price is fixed for twelve months from signing. Plans and add-ons renew monthly and can be cancelled from your client portal at any time, with no notice period, and service continues to the end of the month already paid for. GST/HST is shown and added in accordance with the law. Included usage and overage rates are stated on the pricing page; overage is billed only with usage alerts as described there. Existing clients receive at least 30 days written notice before a material price increase. Full service terms are confirmed in writing when you engage us.</p>
-      <h2>Trials and pilots</h2>
+      <p>Each plan has two published figures, both stated on the pricing page: a one-time Launch &amp; Implementation fee, then a monthly price. C$1,500 Launch &amp; Implementation on the AI Front Desk, C$3,000 on The Works, from C$2,500 on Performance Partnership, and starting at C$5,000 or custom quoted for Enterprise. A plan's Launch &amp; Implementation fee is charged once, at the start, beside the first month; it covers the audit, configuration, testing and go-live of your system, and any integrations your Enterprise agreement names. The monthly price is charged on the day the subscription starts and on the same day each month afterwards, in advance, in Canadian dollars plus applicable GST/HST. Automation add-ons are optional and are provided only on your instruction: each may be bought on its own or alongside a plan. An add-on has the same two published figures as a plan, both stated on the pricing page: its own one-time Launch &amp; Implementation fee, charged once when that add-on starts, and its own monthly price, charged monthly from then. On Performance Partnership, an item the pricing page shows as paid by an agreed share of attributable collected revenue (the Quote-Chase Engine, and Lead Generation, which is offered by invitation) carries neither figure there and is paid only through the performance fee described below. Beyond those figures, the one-time Launch &amp; Implementation fee and the monthly price of each plan and each add-on you choose, nothing is billed except usage beyond the included minutes and, on Performance Partnership only, a performance fee charged on collected revenue directly attributable to qualified NEVAMIS-generated opportunities, never on your unrelated revenue and never on profit. The percentage, the attribution window, the measurement method and what counts as eligible revenue are set in your executed agreement and agreed before anything is charged; no rate applies until that agreement is signed. Service carries no minimum term: every plan and every automation add-on, bought on its own or added later, is month to month from the first month. Your subscription price is fixed for twelve months from signing. Plans and add-ons renew monthly and can be cancelled from your client portal at any time, with no notice period, and service continues to the end of the month already paid for. GST/HST is shown and added in accordance with the law. Included usage and overage rates are stated on the pricing page; overage is billed only with usage alerts as described there. Existing clients receive at least 30 days written notice before a material price increase. Full service terms are confirmed in writing when you engage us.</p>
+      <h2>Evaluation periods</h2>
       <p>Nevamis does not offer a trial or an evaluation period, paid or free. The paid seven-day pilot described in versions 2.2 and 2.3 of these terms was retired on August 9, 2026 and is no longer available; nothing on this website or in any current quotation offers it. Where Nevamis had already accepted money or granted a credit under those earlier terms, that obligation continues to be honoured on the terms in force when it was created. Any period of service is a normal subscription on the terms set out under Cancellation below: it is charged, it renews, and you can end it yourself from the client portal whenever you choose.</p>
       <h2>Third-party services and availability</h2>
       <p>Nevamis is built on telephony, voice, scheduling, and payment providers (currently including Twilio, ElevenLabs, Cal.com, and Stripe). We choose reputable providers and design fallbacks, but we do not control them, and no phone or AI service is available 100% of the time. We commit to commercially reasonable efforts to keep service running and to tell you promptly when something is wrong. An outage caused by a carrier, provider, or event outside our control is not a breach of these terms.</p>
@@ -1018,13 +1048,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <h2>Liability</h2>
       <p>The website and demo line are provided as is, without warranties of any kind beyond those the law does not allow us to exclude. To the extent permitted by law: neither party is liable to the other for indirect, consequential, or special losses, including lost profits or lost business opportunities; and for paid service, the total liability of Nevamis for all claims in any 12-month period is capped at the fees you paid us in the three months before the event giving rise to the claim. Nothing in these terms limits liability that cannot be limited under applicable law, including under Alberta consumer-protection law where it applies.</p>
       <h2>Cancellation</h2>
-      <p>Paid plans carry no minimum term, stated above and on the pricing page: every plan and every automation add-on, bought on its own or added later, is month to month from the first month. You can cancel at any time from the Plan and billing page in your client portal, or by emailing Sales@nevamis.ca, and that counts from the moment you send it. There is no notice period: the cancellation takes effect at the end of the month you have already paid for, and you keep the service you paid for until then. Nothing renews after that and there is no cancellation fee. You can reverse a cancellation from the same page at any time before it takes effect, with no gap in service and nothing extra to pay. Your phone number and your call forwarding remain yours throughout: reverting forwarding takes minutes and needs nothing from us. When service ends, we return or delete your business data on request as described in the privacy policy.</p>
+      <p>Paid plans carry no minimum term, stated above and on the pricing page: every plan and every automation add-on, bought on its own or added later, is month to month from the first month. You can cancel at any time from the Plan and billing page in your client portal, or by emailing Sales@nevamis.ca, and that counts from the moment you send it. There is no notice period: the cancellation takes effect at the end of the month you have already paid for, and you keep the service you paid for until then. Nothing renews after that and there is no cancellation fee. You can reverse a cancellation from the same page at any time before it takes effect, with no gap in service and nothing extra to pay. Your phone number and your call forwarding remain yours throughout: reverting forwarding takes minutes and needs nothing from us. When service ends, we return or delete your business data on request as described in the <a href="/privacy.html">privacy policy</a>.</p>
       <h2>Governing law and disputes</h2>
       <p>These terms are governed by the laws of Alberta and the federal laws of Canada that apply there. Courts located in Edmonton, Alberta have jurisdiction, and both sides agree to try direct good-faith resolution before going there. Nothing here prevents either party from using a court or tribunal that consumer-protection law makes available.</p>
       <h2>Changes and the rest</h2>
-      <p>If we change these terms materially, we update the version and date at the top of this page and, for active clients, give notice by email at least 30 days before the change applies to them. If part of these terms is found unenforceable, the rest still stands. For visitors, these terms and the privacy policy are the whole agreement about the website and demo line; for clients, your signed service agreement comes first wherever the two differ.</p>
+      <p>If we change these terms materially, we update the version and date at the top of this page and, for active clients, give notice by email at least 30 days before the change applies to them. If part of these terms is found unenforceable, the rest still stands. For visitors, these terms and the <a href="/privacy.html">privacy policy</a> are the whole agreement about the website and demo line; for clients, your signed service agreement comes first wherever the two differ.</p>
       <h2>Change history</h2>
-      <p>Newest first. Obligations created under the retired pilot terms are honoured as described under Trials and pilots above.</p>
+      <p>Newest first. Obligations created under the retired pilot terms are honoured as described under Evaluation periods above.</p>
+      <p>Version 2.9, September 26, 2026: the Launch &amp; Implementation fee covers the audit, configuration, testing and go-live of your system, and only the integrations an Enterprise agreement names. Version 2.8 listed integrations among what every plan's fee covers; integration work is part of an Enterprise agreement only.</p>
       <p>Version 2.8, September 24, 2026: states that each automation add-on carries its own one-time Launch &amp; Implementation fee, charged once when that add-on starts, beside its monthly price, as the pricing page already showed. Version 2.7 described that fee for plans only and said it was never charged again, which read as if no add-on carried one. This history also moved here from the top of the page.</p>
       <p>Version 2.7, September 12, 2026: there is no notice period on a cancellation. You cancel from your client portal at any time and your service runs to the end of the month you have already paid for, which removed the notice that version 2.6 still required before a cancellation took effect.</p>
       <p>Version 2.6, September 8, 2026: removed the minimum term from every plan and automation add-on, so service is month to month from the first month, replacing the commitment introduced on August 22, 2026. The one-time Launch &amp; Implementation fee and the twelve-month price lock were unchanged by versions 2.6 and 2.7.</p>
@@ -1037,6 +1068,32 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </main>
 <footer class="site-footer">
   <div class="wrap">
+    <div class="cols">
+      <div>
+        <h2 class="foot-h foot-brand">Nevamis</h2>
+        <p>Nevamis helps Canadian service businesses win more of the work they want. Lead Generation, offered by invitation, finds businesses of the kind you want more of, and you decide every one. Quote Recovery follows up the quotes you already sent, and the AI Front Desk answers the calls you cannot, inside rules you approve.</p>
+        <p style="margin-top:10px">Demo line: <a href="tel:+15874130035" class="mono">(587) 413-0035</a><br>Sales: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a><br>Edmonton, Alberta, Canada</p>
+      </div>
+      <div>
+        <h2 class="foot-h">Site</h2>
+        <a href="/#how">How it works</a>
+        <a href="/#industries">Industries</a>
+        <a href="/solutions.html">Solutions</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/how-you-start.html">How you start</a>
+        <a href="/demo.html">Demo</a>
+        <a href="/coming-soon.html">Roadmap</a>
+        <a href="/about.html">About</a>
+        <a href="/book.html">Book a call</a>
+        <a href="https://app.nevamis.ca/login" data-evt="client_login_click">Client login</a>
+      </div>
+      <div>
+        <h2 class="foot-h">Legal</h2>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/security.html">Security</a>
+      </div>
+    </div>
     <div class="base">
       <span>© 2026 Nevamis AI Inc.</span>
       <span class="right mono">nevamis.ca</span>

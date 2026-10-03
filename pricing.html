@@ -3,21 +3,27 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-+psDRHFpPKXDwS5G/lgBO7D7u4luFcw/Vc+q9L3TqnQ=' 'sha256-MNZV7p5Rb20m8fINKT9gCBCCdTZRUDzHSRmZtVsntjA=' 'sha256-vdFqsRG4dbM94ZyLQb+d7KYeFaoa62xfg4ICGxkaBm4=' 'sha256-XnTXsJcwYjObQqoVm3epG2mmgh0MZQVtoPfXJTCHXnI='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-PP3oPqYrtamSHHe1u3Iy2+f2UxrLjKbyR+UjgdvmGt8=' 'sha256-SJYqI98NUggtweZt48N0wfUqdSHJvU9npEkB01QRhhg=' 'sha256-2DrAI+HRw11Dal8zG+4dQ1MlRONFs0QWTUwRq2XgDJg=' 'sha256-L5hzxmuixfuveKyl6PKQA/GPSe3+FDaUzBXn34w3dFw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pricing | Nevamis | Plans for Edmonton trades</title>
-<meta name="description" content="Published plans: a one-time Launch & Implementation fee to start, then The Works at C$2,100 or the AI Front Desk at C$1,000 a month. Lead Generation by invitation.">
+<title>Pricing | Nevamis | Plans for Canadian trades</title>
+<meta name="description" content="Plans: a one-time Launch & Implementation fee to start, then The Works at C$2,100 or the AI Front Desk at C$1,000 a month. Lead Generation by invitation.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://nevamis.ca/pricing.html">
 <meta property="og:title" content="Pricing | Nevamis">
-<meta property="og:description" content="Published plans: a one-time Launch & Implementation fee to start, then The Works at C$2,100 or the AI Front Desk at C$1,000 a month. Lead Generation by invitation.">
+<meta property="og:description" content="Plans: a one-time Launch & Implementation fee to start, then The Works at C$2,100 or the AI Front Desk at C$1,000 a month. Lead Generation by invitation.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nevamis.ca/pricing.html">
+<meta property="og:site_name" content="Nevamis">
+<meta property="og:locale" content="en_CA">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
+<meta property="og:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nevamis.ca/assets/og-default.png">
+<meta name="twitter:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -237,6 +243,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--ink)}
 html{overflow-x:clip;scrollbar-color:#123528 var(--bg)}
+html{scroll-padding-top:calc(var(--head-h) + 16px)}
 body{overflow-x:clip;font-family:var(--f-body);font-size:var(--fs-body);
   line-height:var(--lh-body);-webkit-font-smoothing:antialiased}
 img{max-width:100%;height:auto}
@@ -265,7 +272,7 @@ strong{color:var(--ink)}
 .site-header.scrolled{background:rgba(2,8,13,.94);box-shadow:0 1px 0 var(--line-soft);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .site-header .wrap{display:flex;align-items:center;gap:18px;height:var(--head-h)}
-.wordmark{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
+.wordmark{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:17px;min-height:44px}
 .wordmark .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
 .wordmark .wm-v{letter-spacing:.055em}
 .wordmark svg{width:22px;height:22px;transform:translateY(-1.7px);
@@ -282,20 +289,31 @@ strong{color:var(--ink)}
 .main-nav a:not(.btn):hover::after,.main-nav a.active-section::after{transform:scaleX(1)}
 .main-nav a.active-section{color:var(--ink)}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
-  color:var(--ink);border-radius:9px;width:42px;height:42px;font-size:17px;cursor:pointer}
+  color:var(--ink);border-radius:9px;width:44px;height:44px;font-size:17px;cursor:pointer}
 @media(max-width:1080px){
-  .main-nav a.nav-min{display:none}
-}
-@media(max-width:880px){
   .nav-toggle{display:grid;place-items:center}
-  .main-nav{position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:stretch;
-    gap:0;padding:8px 20px 18px;background:rgba(7,15,22,.98);border-bottom:1px solid var(--line);
-    display:none}
+  .main-nav{position:absolute;top:var(--head-h);left:0;right:0;flex-direction:column;align-items:stretch;
+    gap:0;padding:8px 20px 18px;background:#070F16;border-bottom:1px solid var(--line);
+    display:none;max-height:calc(100vh - var(--head-h));max-height:calc(100dvh - var(--head-h));
+    overflow-y:auto;overscroll-behavior:contain}
   .main-nav.open{display:flex}
-  .main-nav a:not(.btn){padding:12px 4px;font-size:16px;border-bottom:1px solid rgba(159,240,206,.07)}
-  .main-nav a.nav-min{display:block}
+  .main-nav .navitem{display:block;overflow:visible}
+  .main-nav a:not(.btn){display:flex;align-items:center;min-height:44px;padding:10px 4px;font-size:16px;
+    border-bottom:1px solid rgba(159,240,206,.07)}
+  .main-nav a:not(.btn)::after{display:none}
+  .main-nav a.nav-min{display:flex}
   .main-nav .btn{margin-top:12px;justify-content:center}
 }
+@media (min-width:821px) and (max-width:1080px){
+  .main-nav:not(.open){display:flex;position:static;flex-direction:row;align-items:center;
+    padding:0;background:none;border:0;max-height:none;overflow:visible;margin-left:auto;order:1}
+  .main-nav:not(.open) .navitem{display:none}
+  .main-nav:not(.open) .navitem:last-child{display:block}
+  .main-nav:not(.open) .btn{margin-top:0}
+  .nav-toggle{order:2;margin-left:12px}
+  .nav-toggle[aria-expanded="true"]{margin-left:auto}
+}
+html.nav-locked{overflow:hidden}
 .btn{position:relative;display:inline-flex;align-items:center;gap:9px;
   border-radius:var(--r-pill);padding:12px 20px;font-family:inherit;font-weight:600;
   font-size:14.5px;border:1px solid transparent;cursor:pointer;white-space:nowrap;
@@ -318,7 +336,7 @@ strong{color:var(--ink)}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 main section,main .dark{position:relative}
 section{padding:var(--sec-y) 0;position:relative;overflow:clip;
-  border-top:1px solid var(--line-soft);scroll-margin-top:var(--head-h)}
+  border-top:1px solid var(--line-soft)}
 #roi{overflow:visible}
 section.tight{padding-top:var(--sec-y)}
 .page-hero+section{border-top:none}
@@ -349,7 +367,7 @@ span.eyebrow{display:block;width:fit-content}
 .centre .eyebrow,.centre .k{text-align:center}
 .crumb{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-crumb);
   text-transform:uppercase;color:var(--ink-5);margin-bottom:10px}
-.crumb a{color:var(--ink-4)}
+.crumb a{color:var(--ink-4);display:inline-block;padding:14px 0;margin:-14px 0}
 .crumb a:hover{color:var(--mint)}
 .grid-lines,.hero-light{position:absolute;inset:0;z-index:0;pointer-events:none;
   background:
@@ -449,6 +467,11 @@ ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
 .more{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-tag);
   text-transform:uppercase;color:var(--emerald);text-decoration:none}
 .more:hover{color:var(--mint)}
+@media (max-width:820px),(pointer:coarse){
+  .more{display:inline-flex;align-items:center;min-height:44px}
+  #paneNav button{min-height:44px}
+}
+html.nv-below #close .cta{pointer-events:none}
 .prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:rgba(159,240,206,.45)}
@@ -782,6 +805,13 @@ html.motion-off .faq details p{animation:none}
 .callbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;text-align:center;
   background:var(--mint);color:var(--on-mint);font-weight:700;
   padding:14px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px -12px rgba(0,0,0,.5)}
+@media (max-width:820px),(pointer:coarse){
+  .site-footer .cols a{display:flex;align-items:center;min-height:44px;padding:0}
+  .site-footer .cols a::after{bottom:11px}
+}
+.callbar{transition:transform var(--t-base) var(--e-out),visibility 0s linear 0s}
+.callbar.callbar-off{transform:translateY(110%);visibility:hidden;
+  transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}
 @media(max-width:820px){
   .callbar{display:block}
   .site-footer{padding-bottom:96px}
@@ -898,6 +928,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .plan .price{font-family:var(--f-display);font-size:38px;font-weight:700;
     letter-spacing:var(--tr-head);line-height:1.1;color:var(--ink);margin-top:2px}
   .plan .price span{font-size:15px;font-weight:400;color:var(--ink-3);font-family:var(--f-body)}
+  /* The invitation card's headline and its band (BD-F3): the words take the
+     headline slot, and the band sits under them at the size of the fee line,
+     so no figure on this card is set in the type the buyable plans use. */
+  .plan .price-band{font-size:var(--fs-card);line-height:var(--lh-snug);color:var(--ink-2);margin-top:6px}
   .plan .setup{font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-3);margin:8px 0 14px}
   .plan .usage{font-size:var(--fs-fine);line-height:var(--lh-snug);color:var(--ink-2);
     background:var(--frost);border:1px solid var(--line);border-radius:var(--r-input);
@@ -953,6 +987,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .chooser-out .node-list{margin-bottom:10px}
   .chooser-out .amount{font-family:var(--f-display);font-size:19px;font-weight:700;
     letter-spacing:var(--tr-h3);color:var(--ink);margin:12px 0 6px}
+  /* The Start link on an add-on sold alone: the row's own action, to the
+     right of its sentence on a wide screen (under it on a phone, below), its
+     label on one line, and 44px tall so a thumb can hit it. */
+  #addOnList .addon-start{flex:none;margin-left:auto;align-self:center;display:inline-flex;
+    align-items:center;gap:6px;min-height:44px;padding:0 14px;border:1px solid var(--line-accent);
+    border-radius:999px;font-family:var(--f-mono);font-size:var(--fs-label);
+    letter-spacing:var(--tr-label);text-transform:uppercase;color:var(--mint);
+    text-decoration:none;white-space:nowrap}
+  #addOnList .addon-start:hover{border-color:var(--mint)}
+  /* At phone width the pill beside the sentence left it a 190px column, so
+     the row becomes a two-column grid (bullet, text) and the pill drops under
+     its own sentence instead. */
+  @media (max-width:700px){
+    #addOnList li{display:grid;grid-template-columns:auto 1fr;column-gap:12px}
+    #addOnList .addon-start{grid-column:2;justify-self:start;margin:8px 0 0}
+  }
   .band{margin-bottom:30px}
   .block-gap{margin-top:26px}
   .midcta{margin-top:34px}
@@ -983,8 +1033,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     "@type": "WebPage",
     "@id": "https://nevamis.ca/pricing.html",
     "url": "https://nevamis.ca/pricing.html",
-    "name": "Pricing | Nevamis | Plans for Edmonton trades",
-    "description": "Published plans: a one-time Launch & Implementation fee to start, then The Works at C$2,100 or the AI Front Desk at C$1,000 a month. Lead Generation by invitation.",
+    "name": "Pricing | Nevamis | Plans for Canadian trades",
+    "description": "Plans: a one-time Launch & Implementation fee to start, then The Works at C$2,100 or the AI Front Desk at C$1,000 a month. Lead Generation by invitation.",
     "isPartOf": {
       "@type": "WebSite",
       "name": "Nevamis",
@@ -1025,7 +1075,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
       <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
       <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
-      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
+      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="nav_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
     </nav>
   </div>
 </header>
@@ -1066,7 +1116,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              "There is no trial to convert out of" is gone from the end of the
              first paragraph: "trial" is a banned word on client surfaces even
              in a denial. -->
-        <p>Every plan starts with a one-time Launch &amp; Implementation fee: the discovery call, configuration, testing and go-live are real work and they are priced in the open, not hidden in the monthly. It is collected once, beside your first month. After that, your plan's monthly price is charged on the same day every month, and the only other recurring charges are any add-ons you choose and overage past your included minutes.</p>
+        <p>Every plan starts with a one-time Launch &amp; Implementation fee: the discovery call, configuration, testing and go-live are real work and they are priced in the open, not hidden in the monthly. It is collected once, beside your first month. After that, your plan's monthly price is charged on the same day every month. The only other recurring charges are the monthly of any add-on you choose, overage past your included minutes and, on the Performance Partnership, offered by invitation, the agreed share of attributable collected revenue set in your agreement.</p>
         <!-- THE TERM, and its whole history is a warning. Until 2026-08-25
              this paragraph ended "We do not ask for a term, and we do not
              need one." The v4 directive of 2026-08-22 made that false, and
@@ -1083,7 +1133,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              it from P.terms.note, and guard 7a holds this static copy equal to
              that note, so the no-script reading and the rendered one are the
              same words. -->
-        <p id="termsNote" class="fine2">There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch &amp; Implementation fee, charged once beside your first month, is the only commitment.</p>
+        <p id="termsNote" class="fine2">There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch &amp; Implementation fee, charged once when the plan or add-on starts, is the only commitment.</p>
         <p class="prose"><a href="/how-you-start.html">What happens before your line is answered</a> · <a href="/book.html">Book a call</a></p>
       </div>
       <!-- THE COVERAGE CHOOSER (2026-08-25). A price list asks a business to
@@ -1126,7 +1176,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="plans" id="plans"><div id="plansFallback">
         <div class="card">
           <h3>Performance Partnership &middot; C$350/month, by invitation</h3>
-          <p>Offered by invitation and approval, where Nevamis takes on substantially more of the acquisition risk; it is not the default and not self-serve. C$2,500 Launch &amp; Implementation to start, then C$350 a month. It is the plan that carries the growth stack, and each item on it is a separate choice that changes what the plan costs: Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page; the Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement; Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch &amp; Implementation fee and their own monthly, at the prices listed below; Search Rankings is coming and is not sold. 250 included AI minutes · C$1.10 per extra minute.</p>
+          <p>Offered by invitation and approval, where Nevamis takes on substantially more of the acquisition risk; it is not the default and not self-serve. From C$2,500 Launch &amp; Implementation to start, then C$350 a month by default, inside a monthly band of C$250 to C$500. Both figures, the share and the attribution window are set in your agreement before anything is charged. It is the plan that carries the growth stack, and each item on it is a separate choice that changes what the plan costs: Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page; the Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement; Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own one-time Launch &amp; Implementation fee and their own monthly, at the prices listed below; Search Rankings is coming and is not sold. 250 included AI minutes · C$1.10 per extra minute.</p>
           <p><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
         </div>
         <div class="card">
@@ -1180,27 +1230,44 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         </ul>
       </div>
 
-      <!-- ADD-ONS, v4 (2026-08-22): every automation is its own product.
-           This list is HAND-TYPED HTML, not rendered from pricing-config.js:
-           guard 7h in scripts/check-consistency.js reads each line's
-           "C$N/month" and "C$N Launch" against the config, so a price that
-           drifts fails the check. A module with sellable:false carries no
-           price and a "coming" label: it may be described, never sold, and
-           nothing here may imply otherwise. Each sellable line leads with its
-           monthly as a label (the shape guard 7h reads), then states the
-           approved sentence ending "then C$N a month": "then C$N/month" is
-           the retired two-number framing guard 7d refuses on every page. -->
+      <!-- ADD-ONS: every automation is its own product, and its own sale.
+           RENDERED FROM pricing-config.js since 2026-10-03 (PRICING-14). The
+           list below was hand-typed HTML that no script ever overwrote, so it
+           was the live copy for every visitor while the site's rule is that
+           every price renders from the config: guard 7h held its figures, but
+           a held copy is still a second copy. The plan script now rebuilds it
+           from P.addOns, in the config's order, with P.startLine() for the
+           figures and each item's own blurb, and this markup is only the
+           no-script fallback. tests/live-buyer-truth.spec.js holds this
+           fallback equal to what the script renders, and guard 7h still
+           reads its figures, so the two copies cannot part company.
+
+           A START CONTROL ON EVERY ADD-ON SOLD ALONE (WALK-LIVE-2). The
+           paragraph says "buy one on its own" and nothing on the site led to
+           buying Missed-Call Recovery alone: the chooser sends "People ring
+           while I am on a job" to the front desk on purpose (BD-F5, an owner
+           decision this list does not reverse), so no tick produced its
+           coverage link. Each item the config marks sellable and soldAlone
+           now carries its own link to signup?coverage=<id>, the module-only
+           signup the chooser already uses for the other three. Shown only
+           while P.sellable and P.publishedPricing are on, as the chooser is;
+           an unsellable item never gets one (guard 7h refuses it).
+
+           Each line is "name · monthly · the approved sentence · blurb": the
+           monthly leads as a label (the shape guard 7h reads), then the
+           sentence ending "then C$N a month"; "then C$N/month" is the retired
+           two-number framing guard 7d refuses on every page. -->
       <div class="card reveal block-gap">
         <h3>Automation add-ons</h3>
         <p>Each automation is its own product and its own sale: buy one on its own, or add it beside a plan, one at a time. The four sellable ones are already included in The Works. On the Performance Partnership they are the growth stack, and two of them are paid out of what they produce instead of a monthly: see the Partnership above.</p>
         <ul id="addOnList" class="node-list">
-          <li>Lead Generation &middot; offered by invitation, not yet sellable from a page &middot; businesses that fit what you do, found for you, with the page each one came from and what came of it. Nobody on the list is contacted by us, and you decide every row.</li>
-          <li>Quote-Chase Engine &middot; C$500/month &middot; C$750 Launch &amp; Implementation to start, then C$500 a month &middot; every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.</li>
-          <li>Missed-Call Recovery &middot; C$350/month &middot; C$500 Launch &amp; Implementation to start, then C$350 a month &middot; a caller you missed gets one text back, during business hours, with your name on it and a working opt-out.</li>
-          <li>Get-Paid Autopilot &middot; C$500/month &middot; C$750 Launch &amp; Implementation to start, then C$500 a month &middot; overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead.</li>
-          <li>Review Engine &middot; C$300/month &middot; C$500 Launch &amp; Implementation to start, then C$300 a month &middot; one review request by text per finished job, with your own review link, every request released by a person.</li>
-          <li>Search Rankings &middot; coming &middot; better search rankings for the work you want more of. Nothing is built for it yet, so it has no price and is not sold.</li>
-          <li>Customer Reactivation &middot; coming &middot; a win-back campaign over your own past-customer list. Not sellable until it ships end to end.</li>
+          <li>Lead Generation &middot; on the Performance Partnership &middot; businesses that fit what you do, found for you, with the page each one came from and what came of it. You decide every row, and nobody on the list is contacted by us. Offered by invitation, under your own agreement, and not yet sellable from a page.</li>
+          <li>Quote-Chase Engine &middot; C$500/month &middot; C$750 Launch &amp; Implementation to start, then C$500 a month &middot; every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=quote_chase" data-evt="plan_buy_click" aria-label="Start Quote-Chase Engine on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
+          <li>Missed-Call Recovery &middot; C$350/month &middot; C$500 Launch &amp; Implementation to start, then C$350 a month &middot; a caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=missed_call_recovery" data-evt="plan_buy_click" aria-label="Start Missed-Call Recovery on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
+          <li>Get-Paid Autopilot &middot; C$500/month &middot; C$750 Launch &amp; Implementation to start, then C$500 a month &middot; overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead, because past that point the judgment call belongs to a person.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=get_paid" data-evt="plan_buy_click" aria-label="Start Get-Paid Autopilot on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
+          <li>Review Engine &middot; C$300/month &middot; C$500 Launch &amp; Implementation to start, then C$300 a month &middot; post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=review_engine" data-evt="plan_buy_click" aria-label="Start Review Engine on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
+          <li>Search Rankings &middot; coming &middot; better search rankings for the work you want more of. Not built yet.</li>
+          <li>Customer Reactivation &middot; coming &middot; a win-back campaign over your own past-customer list, inside the consent rules. Not sellable until it ships end to end.</li>
         </ul>
         <!-- The term paragraph that sat here moved to the terms band on
              2026-09-24 (W6), where it is the page's one full statement of the
@@ -1298,6 +1365,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2 class="foot-h">Legal</h2>
         <a href="/privacy.html">Privacy</a>
         <a href="/terms.html">Terms</a>
+        <a href="/security.html">Security</a>
       </div>
     </div>
     <div class="base">
@@ -1364,6 +1432,60 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   if (everyPlanEl && shared.length) {
     everyPlanEl.textContent = "";
     shared.forEach(function (f) { var li = document.createElement("li"); li.textContent = f; everyPlanEl.appendChild(li); });
+  }
+  /* THE ADD-ON CATALOG, from P.addOns (PRICING-14, 2026-10-03). It was the
+     one price list on this page no script wrote, so a price change reached
+     the cards and the chooser and stopped here. Built in the config's order,
+     with each sellable item's figures in P.startLine()'s words, so an add-on
+     can never be priced in a shape the cards and the chooser do not use.
+     A config without startLine (a cached copy older than this page) leaves
+     the static list in place, which is correct, just not live.
+
+     The Start link (WALK-LIVE-2) goes on an item only when it is sellable,
+     sold alone, and the page is selling at all. Its event is the per-item
+     member of the plan_buy_click family the engine already accepts
+     (plan_buy_click_<id>, so the funnel says which module was reached for);
+     the no-script copy carries the flat parent name, which is allowlisted
+     and lands in the same stage. */
+  var addOnEl = document.getElementById("addOnList");
+  /* The list is built whole before it replaces the static one, and inside a
+     try, because the plan cards render after it in this same function: one
+     malformed catalog entry (no blurb, say) must leave the static add-on list
+     and still let the cards render, not blank both. */
+  if (addOnEl && Array.isArray(P.addOns) && P.addOns.length && typeof P.startLine === "function") {
+    try {
+      var addOnItems = P.addOns.map(function (a) {
+        /* PRICES FOLLOW THE SAME SWITCH AS THE PLAN CARDS (2026-10-03).
+           The cards print a figure only while P.publishedPricing is on, and
+           say "Quoted per client" when it is off. This list used the switch
+           only for its Start links, so turning prices off would have hidden
+           every plan price and left every add-on price on the page beside
+           them. A sellable add-on with prices off is quoted per client too,
+           in the cards' own words. */
+        var sellableNow = a.sellable === true && a.monthly > 0;
+        var priced = sellableNow && !!P.publishedPricing;
+        var blurb = String(a.blurb || "");
+        var parts = [a.name];
+        if (priced) parts.push(P.money(a.monthly) + "/month", P.startLine(a).replace(/\.$/, ""));
+        else if (sellableNow) parts.push("quoted per client");
+        else parts.push(a.partnership ? "on the Performance Partnership" : "coming");
+        if (blurb) parts.push(blurb.charAt(0).toLowerCase() + blurb.slice(1));
+        var li = document.createElement("li");
+        li.appendChild(document.createTextNode(parts.join(" · ")));
+        if (priced && a.soldAlone === true && P.sellable) {
+          var go = document.createElement("a");
+          go.className = "addon-start";
+          go.href = "https://app.nevamis.ca/signup?coverage=" + encodeURIComponent(a.id);
+          go.setAttribute("data-evt", "plan_buy_click_" + a.id);
+          go.setAttribute("aria-label", "Start " + a.name + " on its own");
+          go.innerHTML = 'Start <span class="arw" aria-hidden="true">›</span>';
+          li.appendChild(go);
+        }
+        return li;
+      });
+      addOnEl.textContent = "";
+      addOnItems.forEach(function (li) { addOnEl.appendChild(li); });
+    } catch (e) { /* the static list stays; the plan cards below still render */ }
   }
   var wrap = document.getElementById("plans");
   /* Thousands are grouped: an ungrouped four-digit price beside a
@@ -1439,7 +1561,23 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        unpublished branch is kept as a switch, not deleted: it has been
        flipped in both directions inside one calendar day. */
     if (P.publishedPricing) {
-      h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
+      if (pl.selfServe === false) {
+        /* AN INVITATION IS NOT AN ENTRY TIER (BD-F3, 2026-09-26). The
+           Performance Partnership is the first card (Lead Generation is door
+           one, an owner decision), and its headline was a bare monthly in the
+           same 38px type as the plans anyone can buy, the lowest figure on the
+           page, while "never the default" sat at the end of a fourteen-line
+           paragraph. canonical.ts names the hazard: a published cheap monthly
+           is read as the entry tier. So the headline is what the plan IS, the
+           words the homepage already heads it with, and its band is stated
+           under it in small type, from monthlyRange, never typed. */
+        h += '<div class="price price-invite">By invitation</div>';
+        if (Array.isArray(pl.monthlyRange)) {
+          h += '<div class="price-band">C$' + grp(pl.monthlyRange[0]) + " to C$" + grp(pl.monthlyRange[1]) + " a month</div>";
+        }
+      } else {
+        h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
+      }
       /* THE TERM, and it is derived, not typed. This sentence said "No
          minimum term." from the day the page was written until 2026-08-25,
          which was true of the old month-to-month model and became false the
@@ -1458,7 +1596,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          button (startNote), rather than a third time here on every card.
          This line now carries only what differs by plan: the two figures,
          the performance sentence and the invitation status. */
-      h += '<div class="setup">C$' + grp(pl.launch) + " Launch &amp; Implementation to start, then C$" + grp(pl.monthly) + " a month."
+      /* P.startLine, not the pair typed here: the Partnership's figures are a
+         band, and this line printed them as one flat price for a month while
+         the same card went on to say its monthly is set in the agreement
+         (BD-4, 2026-09-25). */
+      h += '<div class="setup">' + P.startLine(pl).replace(/&/g, "&amp;")
         + (pl.performanceNote ? " " + pl.performanceNote : "")
         + (pl.selfServe === false ? " Offered by invitation and approval; never the default." : "")
         + "</div>";
@@ -1604,7 +1746,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              : " fits inside the " + grp(pick.includedMinutes) + " included on " + pick.name + ", at C$" + pick.overage.toFixed(2) + " for anything past that");
     document.getElementById("rcResult").innerHTML =
       '<span class="mono">CLOSEST FIT</span><div class="pick"></div><p></p>';
-    document.querySelector("#rcResult .pick").textContent = pick.name + " · C$" + grp(pick.launch) + " Launch & Implementation to start, then C$" + grp(pick.monthly) + " a month";
+    document.querySelector("#rcResult .pick").textContent = pick.name + " · " + P.startLine(pick).replace(/\.$/, "");
     var twins = ladder.filter(function (p) { return p !== pick && p.includedMinutes === pick.includedMinutes; });
     var note = twins.length ? twins.map(function (p) { return p.name; }).join(" and ") + " carries the same minutes and adds automations, so choose between them for the automations, not for the minutes. " : "";
     document.querySelector("#rcResult p").textContent = "Why: " + why + ". " + note + "Your real average shows up in the portal from your first week of calls, and you can change plan yourself from there.";
@@ -1636,7 +1778,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            them, the performance sentence where the plan has one, and the
            invitation status where the plan is not self-serve. */
         "description": (P.publishedPricing
-          ? "C$" + grp(pl.launch) + " Launch & Implementation to start, then C$" + grp(pl.monthly) + " a month."
+          ? P.startLine(pl)
             + (pl.performanceNote ? " " + pl.performanceNote : "")
             + (pl.selfServe === false ? " Offered by invitation and approval; never the default." : "") + " "
           : "Quoted per client, then one monthly amount. ") + pl.bestFor,
@@ -1684,7 +1826,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       "@type": "Product",
       "@id": "https://nevamis.ca/pricing.html#plans",
       "name": "Nevamis",
-      "description": "A configured voice agent that answers a business phone line 24/7, qualifies the caller, takes the job and the time they want, and sends the owner a summary of every call within seconds.",
+      /* "captures the request and the times that suit them", never "takes
+         the job and the time they want" (PRICING-9, 2026-10-03). Answer
+         engines quote this string on its own, and "takes the job" reads as
+         a booking: a client agent cannot book (it ends the call), and the
+         owner confirms the slot, as how-you-start.html says. */
+      "description": "A configured voice agent that answers a business phone line 24/7, qualifies the caller, captures the request and the times that suit them, and sends the owner a summary of every call within seconds.",
       "brand": { "@id": "https://nevamis.ca/#organization" },
       "category": "Lead generation, quote follow-up and phone answering for service businesses",
       "offers": {
@@ -1749,14 +1896,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     return P.addOns.filter(function (a) { return a.id === id && a.sellable && a.monthly; })[0];
   }
   /* Each leak is a sentence a business would say about itself, mapped to
-     the one module that answers it. The first has no module because the
-     core plan IS the answer to it, and since 2026-09-08 that is also what
-     TICKING it means: leave it unticked and the automations are quoted on
+     the one module that answers it. The first two have no module because the
+     core plan IS the answer to them, and since 2026-09-08 that is also what
+     TICKING one means: leave both unticked and the automations are quoted on
      their own, with the front desk offered beside them rather than under
-     them. */
+     them.
+
+     "People ring while I am on a job" is a phone that is not being answered,
+     so its answer is the front desk (BD-F5, 2026-09-26). It mapped to
+     Missed-Call Recovery, and because that module is sold alone, ticking it
+     on its own quoted a text-back with no front desk at all, while every
+     trade page sells answering for exactly this case ("Your line answered
+     while the crew is on the tools"). Whether the text-back should be
+     recommended here at all is an owner decision (O24/O12), not this list's. */
   var LEAKS = [
     { id: "calls",    say: "Calls go to voicemail",            mod: null },
-    { id: "missed",   say: "People ring while I am on a job",  mod: "missed_call_recovery" },
+    { id: "missed",   say: "People ring while I am on a job",  mod: null },
     { id: "quotes",   say: "Quotes go quiet",                  mod: "quote_chase" },
     { id: "invoices", say: "Invoices sit unpaid",              mod: "get_paid" },
     { id: "reviews",  say: "Not enough reviews coming in",     mod: "review_engine" }
@@ -1838,23 +1993,37 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var monthly = useBundle ? bundle.monthly : pieces.monthly;
     var launch = useBundle ? bundle.launch : pieces.launch;
 
-    var lines;
+    /* EACH PRICE ONCE, AND EACH LINE ONE BOX (BP2, 2026-09-25). A .node-list
+       li is display:flex, so a bare <strong> followed by text laid out as
+       two flex items: at 390px the name became a 37px column three lines
+       tall and the price started on the next item with an orphaned ", C$".
+       Every line's content is now ONE <span>, so it wraps as a sentence.
+       And the total below restated the only line's price whenever a single
+       thing was picked, so the same figure sat twice, 40px apart. A line
+       carries its own price only when there is more than one priced line,
+       and the total is then labelled as the sum it is. */
+    var priced = [];
+    /* A plan's or a module's figures in NV_PRICING.startLine's words, not a
+       pair typed here, so a banded plan could never reach this list flat. */
+    var figures = function (x) {
+      return P.startLine(x).replace(/\.$/, "").replace(/&/g, "&amp;");
+    };
+    var item = function (x, suffix) {
+      return { name: x.name + (suffix || ""), price: figures(x) };
+    };
+    var notes = [];
     if (alone) {
-      lines = mods.map(function (a) {
-        return "<strong style=\"color:var(--ink)\">" + a.name + "</strong> on its own, C$"
-          + grp(a.launch) + " Launch &amp; Implementation to start, then C$" + grp(a.monthly) + " a month";
-      });
+      mods.forEach(function (a) { priced.push(item(a, " on its own")); });
     } else {
-      lines = ["<strong style=\"color:var(--ink)\">" + chosen.name + "</strong>, C$" + grp(chosen.launch)
-        + " Launch &amp; Implementation to start, then C$" + grp(chosen.monthly) + " a month"];
-      if (useBundle) {
-        lines.push("every automation included, which is why it beats the pieces");
-      } else {
-        mods.forEach(function (a) {
-          lines.push(a.name + ", C$" + grp(a.launch) + " Launch &amp; Implementation to start, then C$" + grp(a.monthly) + " a month");
-        });
-      }
+      priced.push(item(chosen));
+      if (useBundle) notes.push("every automation included, which is why it beats the pieces");
+      else mods.forEach(function (a) { priced.push(item(a)); });
     }
+    var many = priced.length > 1;
+    var lines = priced.map(function (x) {
+      return "<span><strong style=\"color:var(--ink)\">" + x.name + "</strong>"
+        + (many ? ", " + x.price : "") + "</span>";
+    }).concat(notes.map(function (n) { return "<span>" + n + "</span>"; }));
 
     var coverageParam = encodeURIComponent(mods.map(function (a) { return a.id; }).join(","));
     /* A module-only request carries no plan key at all, which is what the
@@ -1869,7 +2038,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     h += '<p class="lbl">Your coverage</p>';
     h += '<ul class="node-list"><li>'
       + lines.join("</li><li>") + "</li></ul>";
-    h += '<p class="amount">C$' + grp(launch)
+    h += '<p class="amount">' + (many ? "Together, C$" : "C$") + grp(launch)
       + " Launch &amp; Implementation to start, then C$" + grp(monthly) + " a month" + taxClause() + "</p>";
     /* NO MINIMUM TERM, stated outright. A branch here printed a number of
        months "agreed up front" whenever pricing-config.js carried a term;
@@ -1888,12 +2057,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          shape: there is no plan to charge, so nothing is charged at all. */
       h += " Nothing is bought or charged on this page. Create your account and we set it up with you"
         + " under your agreement. If you want the phone answered too, the "
-        + core.name + " is C$" + grp(core.launch) + " Launch &amp; Implementation to start, then C$"
-        + grp(core.monthly) + " a month.";
+        + core.name + " is " + figures(core).replace(/^From /, "from ") + ".";
     } else if (mods.length) {
       /* The honest half of a chooser that is not a cart. */
-      h += " Checkout charges the " + chosen.name + ": C$" + grp(chosen.launch)
-        + " Launch &amp; Implementation to start, then C$" + grp(chosen.monthly) + " a month."
+      /* The core's figures are on its own line above; naming the plan is
+         enough to say which of the lines checkout charges. */
+      h += " Checkout charges the " + chosen.name + " line only."
         + " The automations you ticked are recorded with your signup and set up with you under your agreement;"
         + " their fees are not charged at checkout.";
     }

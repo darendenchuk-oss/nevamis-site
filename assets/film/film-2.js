@@ -46,6 +46,15 @@ try {
   renderer = new T.WebGLRenderer({ canvas: canvas, antialias: false, powerPreference: 'high-performance' });
 } catch (e) {
   document.body.classList.add('no3d');
+  /* NO FILM, SO THE PAGE READS TOP TO BOTTOM (BPH-1, 2026-09-26). Every
+     block is switched on here, and .copy is position:fixed at one resting
+     line: without the film to fade them in turn, all four sat on that line
+     at once, on top of each other and over the "Scan my business" button
+     (390x844 with WebGL unavailable). The static layout already exists for
+     reduced motion, .nv-rm, which stacks the blocks in the document under a
+     short hero strip; a browser that cannot draw the film gets the same
+     page as one that asked not to see it move. */
+  document.documentElement.classList.add('nv-rm');
   copyEls.forEach(function(c){ c.el.classList.add('on'); });
   return; /* nv-filmwait stays: the poster and .no3d are the same ground */
 }
@@ -2226,8 +2235,14 @@ function apply(p){
     lastTransit = transitV;
     copyEls[3].el.style.setProperty('--nv-transit', transitV.toFixed(3));
   }
-  /* copy visibility */
-  copyEls.forEach(function(c){
+  /* copy visibility. Not on the reduced-motion path (audit CHECK-RUNNER-3,
+     2026-10-03): there every block is switched on once and stays on, because
+     nothing scrolls the film for that visitor. The one still frame calls
+     apply(0.26), and this loop used to turn off every block whose window does
+     not hold 0.26 (c.on starts undefined, so all three later blocks counted as
+     changed), leaving the first line and three blank spaces, the last of them
+     an invisible Book a call that still took taps. */
+  if (!reduced) copyEls.forEach(function(c){
     var on = p >= c.p0 && p <= c.p1;
     if (on !== c.on) { c.on = on; c.el.classList.toggle('on', on); }
   });
@@ -2438,7 +2453,7 @@ if (DEBUG) window.__nv.gix = GIX;
 if (DEBUG) { window.__nv.gov = GOV; window.__nv.bloomPass = bloom; window.__nv.setLag = function(x){ LAGMS = x | 0; }; }
 /* ---------- exit transition: the CTA's final scan pulse ----------
    One plain unmodified left-click (or plain keyboard Enter, which arrives as
-   the same click) on a "Scan my business" link plays a ~1.15s exit flourish
+   the same click) on a link marked data-film-exit plays a ~1.15s exit flourish
    and then navigates to the link's real href:
      - the mark's dot flares first, and one last scan ring erupts from its
        base and sweeps outward through the ground grid and the dust field
@@ -2759,12 +2774,15 @@ if (reduced) {
   startFilm();
 }
 
-/* wire every "Scan my business" link: the ending CTA and the doc fallbacks
-   all get the same exit flourish (see the exit transition block above) */
+/* wire every link marked data-film-exit: the ending's two actions and the scan
+   links below the film all get the same exit flourish (see the exit transition
+   block above). By the attribute, never by the label (audit HOME-11,
+   2026-10-03): this used to pick links whose text matched "Scan my business",
+   so renaming the button to what the scan actually reads would have silently
+   dropped the flourish, and that is why the homepage kept the old label after
+   every other page had changed. */
 (function(){
-  var scanLinks = Array.prototype.slice.call(document.querySelectorAll('a')).filter(function(a){
-    return /scan my business/i.test(a.textContent || '');
-  });
+  var scanLinks = Array.prototype.slice.call(document.querySelectorAll('a[data-film-exit]'));
   scanLinks.forEach(function(a){
     a.addEventListener('click', function(ev){
       /* plain unmodified left activation only; anything that opens a new tab

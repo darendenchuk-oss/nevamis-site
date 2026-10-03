@@ -23,12 +23,19 @@ https://nevamis.ca/proposal.html?to=BUSINESS+NAME&plan=PLAN
 | Part | What to put | Notes |
 |---|---|---|
 | `to` | the business name | spaces become `+` or `%20`. Optional; without it the page still reads fine. |
-| `plan` | `starter`, `growth`, or `pro` | defaults to `pro`, the recommended plan. An id it does not recognise also falls back to `pro`, so a typo quotes the AI Front Desk rather than failing visibly. |
-| `quote` | an agreed monthly figure, digits only | optional. Replaces the published monthly on the page. A figure outside the range of real plan prices is ignored. A quoted proposal has no **Start now** button, because checkout charges the published price, not the agreed one. |
+| `plan` | `starter`, `growth` or `pro`, or a module sold on its own: `quote_chase`, `get_paid`, `review_engine` or `missed_call_recovery` | defaults to `pro`, the recommended plan, when there is no `plan` at all. An id it does not recognise shows **NO PLAN NAMED** and no price, never a substitute plan: check the link before you send it. |
+| `quote` | an agreed monthly figure, digits only | optional, and only for the Performance Partnership, whose monthly is agreed inside its published band. A figure inside that band replaces the published monthly on the page; anything outside it is ignored and the published monthly is shown. The Works and the AI Front Desk have one price each, so a `quote` on them is ignored unless it is that price. A quoted proposal has no **Start now** button, because checkout charges the published price, not the agreed one. |
 
 Those ids are the ones in `pricing-config.js`. They are not what the plans are
 called on the page: `starter` renders as **Performance Partnership**, `growth`
-as **The Works**, and `pro` as **AI Front Desk**.
+as **The Works**, and `pro` as **AI Front Desk**. A module id renders that
+module under its own name (`quote_chase` is the **Quote-Chase Engine**), with
+its own Launch & Implementation fee and monthly from `pricing-config.js`, its
+description from the same file, and **Book the next call** as the only action:
+checkout has no live price for a module on its own yet, so a module is started
+after a call. Only modules marked sellable and sold on their own work here;
+Lead Generation, Search Rankings and Customer Reactivation show
+**NO PLAN NAMED**.
 
 ## Examples
 
@@ -47,6 +54,12 @@ The front desk on its own, the recommended plan:
 https://nevamis.ca/proposal.html?to=Strathcona+Locksmiths&plan=pro
 ```
 
+One automation on its own, for a business that only wants its quiet quotes
+followed up:
+```
+https://nevamis.ca/proposal.html?to=Mill+Creek+Roofing&plan=quote_chase
+```
+
 ## Parameters that no longer do anything
 
 Worth knowing, because old links and old habits both still exist.
@@ -54,7 +67,7 @@ Worth knowing, because old links and old habits both still exist.
 | Parameter | What happens now |
 |---|---|
 | `founding=1` | Ignored. It waived a setup fee during a period when setup was free for everyone. It does not waive or change the Launch & Implementation fee; the page quotes the real amount. |
-| `plan=pay-as-you-go` | **Do not send this.** The plan was retired on 2026-08-06 and removed on 2026-08-07. It is not recognised, so the link quotes the **AI Front Desk** at its full published price to someone you told about a low-volume option. |
+| `plan=pay-as-you-go` | **Do not send this.** The plan was retired on 2026-08-06 and removed on 2026-08-07. It is not recognised, so the page shows **NO PLAN NAMED** and no price. |
 | `plan=after-hours` | Still resolves, to `starter`. Links sent before 2026-08-06 keep working rather than silently quoting the wrong tier. |
 | `plan=scale` | Still resolves, to `pro`. Same reason. |
 
@@ -67,9 +80,10 @@ list for that plan, and six steps of what happens next.
 Two buttons sit under the price and again at the end. For The Works and the AI
 Front Desk the first is **Start now**, which opens signup and checkout for that
 exact plan at the published price, and the second is **Book the next call**.
-The Performance Partnership, a proposal with a `quote`, or any time checkout is
-switched off in `pricing-config.js`, shows **Book the next call** alone, because
-checkout could not charge what the page states. The demo number to hear it
+The Performance Partnership, a module, a proposal with a `quote`, a link that
+names no plan, or any time checkout is switched off in `pricing-config.js`,
+shows **Book the next call** alone, because checkout could not charge what the
+page states. The demo number to hear it
 again is at the end either way.
 
 Under the price it states the monthly, the one-time Launch & Implementation fee

@@ -74,10 +74,19 @@ test('homepage publishes Organization, Service, FAQ and resolvable @id links', a
   const service = schema.find((s) => s['@type'] === 'Service');
   const ids = schema.map((s) => s['@id']).filter(Boolean);
   expect(ids, 'Service.provider must resolve').toContain(service.provider['@id']);
-  expect(service.offers.length, 'all three plans should be listed').toBe(3);
+  /* Every plan and every module sold on its own (audit MACHINE-17,
+     2026-10-03). Each Offer's price is its two components, never a single
+     `price`: the monthly alone was the figure a parser read as the whole
+     cost. tests/machine-surfaces.spec.js checks every figure against
+     pricing-config.js; this holds the shape. */
+  expect(service.offers.filter((o) => o.category === 'Plan').length, 'all three plans should be listed').toBe(3);
+  expect(service.offers.filter((o) => o.category === 'Module sold on its own').length, 'every module sold alone has an Offer').toBeGreaterThan(0);
   for (const o of service.offers) {
     expect(o.priceCurrency).toBe('CAD');
-    expect(Number(o.price)).toBeGreaterThan(0);
+    expect(o.price, `${o.name} has no single price`).toBeUndefined();
+    const parts = o.priceSpecification.priceComponent;
+    expect(parts.map((c) => c.name)).toEqual(['Launch & Implementation', 'Monthly']);
+    for (const c of parts) expect(Number(c.price ?? c.minPrice)).toBeGreaterThan(0);
   }
 
   // FAQ markup must mirror the visible FAQ, not a separate hand-written list
@@ -210,7 +219,11 @@ test('every price promised to a crawler is visible to a buyer', async ({ page })
 
   const cards = await page.$$eval('#plans .plan', (els) => els.map((el) => ({
     name: el.querySelector('h3')?.textContent.trim(),
-    price: el.querySelector('.price')?.textContent.replace(/\s+/g, ' ').trim(),
+    /* The headline and the figure lines under it. Since BD-F3 (2026-09-26)
+       the invitation card's headline is "By invitation" and its figures sit
+       in the band and fee lines below it, still on the card, still in front
+       of the buyer, which is what this test is about. */
+    price: [...el.querySelectorAll('.price, .price-band, .setup')].map((n) => n.textContent).join(' ').replace(/\s+/g, ' ').trim(),
     href: el.querySelector('.buy a')?.getAttribute('href'),
   })));
 
@@ -291,16 +304,21 @@ test('the organization is typed and priced for local answer results', async ({ p
   expect(org.knowsAbout.join(' ')).toContain('AI receptionist');
 });
 
-test('answer engines are welcomed, and the proposal page is not', async ({ page }) => {
+test('answer engines are welcomed, and the proposal page is kept out by its own noindex', async ({ page }) => {
   const robots = await (await page.request.get('/robots.txt')).text();
   for (const bot of ['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended', 'OAI-SearchBot']) {
     expect(robots, `${bot} should have an explicit stance`).toContain(bot);
   }
-  // the per-prospect proposal is private in every crawler's section
-  const blocks = robots.split(/\n(?=User-agent:)/);
-  for (const b of blocks.filter((x) => x.trim())) {
-    expect(b, `a crawler block fails to exclude the proposal:\n${b}`).toContain('Disallow: /proposal.html');
-  }
+  /* The per-prospect proposal stays out of the index by its own noindex,
+     which a crawler can only read if robots.txt lets it fetch the page
+     (PROPOSAL-4, 2026-10-03). Until then every block here disallowed it,
+     so its noindex was never read and the bare URL could be listed from
+     links alone. */
+  expect(robots, 'robots.txt must not bar crawlers from reading the proposal\'s noindex')
+    .not.toMatch(/^\s*Disallow:\s*\/proposal\.html/im);
+  await page.goto('/proposal.html');
+  const meta = await page.evaluate(() => document.querySelector('meta[name=robots]')?.content || '');
+  expect(meta).toContain('noindex');
 });
 
 test('the staging twin stays out of the index', async ({ page }) => {

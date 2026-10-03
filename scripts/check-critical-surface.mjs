@@ -6,7 +6,9 @@
    A few are not:
    - ring.xml is the call routing Twilio fetches for the demo line and every
      phone number the engine provisions. A changed <Redirect> or an added
-     <Dial> reroutes real customers' callers.
+     <Dial> reroutes real customers' callers. missed-line.xml is the voice
+     fallback of a client number diverted to the engine's missed-call line,
+     so it is what those callers hear whenever the engine does not answer.
    - the vendored third-party code (GSAP, the ElevenLabs widget) runs inside
      the site. EVERY published file under assets/vendor/ is pinned by hash,
      so a vendor file that is new, changed or gone fails until the manifest
@@ -78,7 +80,7 @@ const PUBLISHED_SET = new Set(PUBLISHED);
 const VENDOR = 'assets/vendor/';
 /* The vendor part is the directory, not a hand-kept list: a list of four
    names let a fifth vendor file ship unpinned and unscanned. */
-const PINNED = ['ring.xml', 'assets/ringback-tone.wav', ...PUBLISHED.filter((f) => f.startsWith(VENDOR)).sort()];
+const PINNED = ['ring.xml', 'missed-line.xml', 'assets/ringback-tone.wav', ...PUBLISHED.filter((f) => f.startsWith(VENDOR)).sort()];
 const FIRST_PARTY_SCRIPTS = [
   /^(site|motion|pricing-config|roadmap-config)\.js$/,
   /^assets\/film\/[^/]+\.js$/,

@@ -1,8 +1,8 @@
 # GitHub Pages (Jekyll) build configuration.
 # Sole purpose: keep internal working files out of the published site.
 # Everything not listed here is served verbatim at nevamis.ca.
-# ring.xml and pricing-config.js MUST stay published (phone routing and
-# live pricing depend on them).
+# ring.xml, missed-line.xml and pricing-config.js MUST stay published (phone
+# routing, the phone fallback and live pricing depend on them).
 exclude:
   - docs/
   - config/
@@ -33,6 +33,15 @@ exclude:
   # served copy is security.html, which is what security.txt's Policy names:
   # a github.com Policy URL stops resolving the day this repository is private.
   - SECURITY.md
+  # The repository's notices file, for people reading the source: it records
+  # the licence reasoning behind the film's production notes. It is NOT a page.
+  # Served, GitHub Pages turned it into a themed HTML document at
+  # /THIRD_PARTY_NOTICES.html and /THIRD_PARTY_NOTICES, titled "nevamis-site",
+  # indexable, loading a script from cdnjs, with none of this site's design and
+  # no Content-Security-Policy (audit finding COMPLETENESS-1). The notices the
+  # served code needs are in THIRD_PARTY_NOTICES.txt, which IS served, as plain
+  # text. scripts/check-published-surface.mjs refuses any served Markdown file.
+  - THIRD_PARTY_NOTICES.md
   # Film production working set: After Effects project, cost plan, checkpoint
   # notes with local machine paths, build scripts, a vendored skills clone.
   # Everything the live film needs is built into assets/film/. Until

@@ -7,21 +7,23 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI Receptionist vs a Live Answering Service | Nevamis</title>
-<meta name="description" content="Live answering services use real people and charge per call or minute. An honest comparison with Nevamis, including where a person still wins.">
+<title>Nevamis vs a Live Answering Service | Nevamis</title>
+<meta name="description" content="The questions to ask a live answering service, and how Nevamis answers each one, including where a person still wins.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://nevamis.ca/vs-answering-service.html">
-<meta property="og:title" content="AI Receptionist vs a Live Answering Service | Nevamis">
-<meta property="og:description" content="Live answering services use real people and charge per call or minute. An honest comparison with Nevamis, including where a person still wins.">
+<meta property="og:title" content="Nevamis vs a Live Answering Service | Nevamis">
+<meta property="og:description" content="The questions to ask a live answering service, and how Nevamis answers each one, including where a person still wins.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nevamis.ca/vs-answering-service.html">
 <meta property="og:site_name" content="Nevamis">
 <meta property="og:locale" content="en_CA">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
+<meta property="og:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nevamis.ca/assets/og-default.png">
+<meta name="twitter:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <meta name="geo.region" content="CA-AB">
 <meta name="geo.placename" content="Edmonton, Alberta">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -243,6 +245,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--ink)}
 html{overflow-x:clip;scrollbar-color:#123528 var(--bg)}
+html{scroll-padding-top:calc(var(--head-h) + 16px)}
 body{overflow-x:clip;font-family:var(--f-body);font-size:var(--fs-body);
   line-height:var(--lh-body);-webkit-font-smoothing:antialiased}
 img{max-width:100%;height:auto}
@@ -271,7 +274,7 @@ strong{color:var(--ink)}
 .site-header.scrolled{background:rgba(2,8,13,.94);box-shadow:0 1px 0 var(--line-soft);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .site-header .wrap{display:flex;align-items:center;gap:18px;height:var(--head-h)}
-.wordmark{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
+.wordmark{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:17px;min-height:44px}
 .wordmark .wm{text-transform:uppercase;letter-spacing:.13em;margin-right:-.13em}
 .wordmark .wm-v{letter-spacing:.055em}
 .wordmark svg{width:22px;height:22px;transform:translateY(-1.7px);
@@ -288,20 +291,31 @@ strong{color:var(--ink)}
 .main-nav a:not(.btn):hover::after,.main-nav a.active-section::after{transform:scaleX(1)}
 .main-nav a.active-section{color:var(--ink)}
 .nav-toggle{display:none;margin-left:auto;background:none;border:1px solid var(--line-control);
-  color:var(--ink);border-radius:9px;width:42px;height:42px;font-size:17px;cursor:pointer}
+  color:var(--ink);border-radius:9px;width:44px;height:44px;font-size:17px;cursor:pointer}
 @media(max-width:1080px){
-  .main-nav a.nav-min{display:none}
-}
-@media(max-width:880px){
   .nav-toggle{display:grid;place-items:center}
-  .main-nav{position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:stretch;
-    gap:0;padding:8px 20px 18px;background:rgba(7,15,22,.98);border-bottom:1px solid var(--line);
-    display:none}
+  .main-nav{position:absolute;top:var(--head-h);left:0;right:0;flex-direction:column;align-items:stretch;
+    gap:0;padding:8px 20px 18px;background:#070F16;border-bottom:1px solid var(--line);
+    display:none;max-height:calc(100vh - var(--head-h));max-height:calc(100dvh - var(--head-h));
+    overflow-y:auto;overscroll-behavior:contain}
   .main-nav.open{display:flex}
-  .main-nav a:not(.btn){padding:12px 4px;font-size:16px;border-bottom:1px solid rgba(159,240,206,.07)}
-  .main-nav a.nav-min{display:block}
+  .main-nav .navitem{display:block;overflow:visible}
+  .main-nav a:not(.btn){display:flex;align-items:center;min-height:44px;padding:10px 4px;font-size:16px;
+    border-bottom:1px solid rgba(159,240,206,.07)}
+  .main-nav a:not(.btn)::after{display:none}
+  .main-nav a.nav-min{display:flex}
   .main-nav .btn{margin-top:12px;justify-content:center}
 }
+@media (min-width:821px) and (max-width:1080px){
+  .main-nav:not(.open){display:flex;position:static;flex-direction:row;align-items:center;
+    padding:0;background:none;border:0;max-height:none;overflow:visible;margin-left:auto;order:1}
+  .main-nav:not(.open) .navitem{display:none}
+  .main-nav:not(.open) .navitem:last-child{display:block}
+  .main-nav:not(.open) .btn{margin-top:0}
+  .nav-toggle{order:2;margin-left:12px}
+  .nav-toggle[aria-expanded="true"]{margin-left:auto}
+}
+html.nav-locked{overflow:hidden}
 .btn{position:relative;display:inline-flex;align-items:center;gap:9px;
   border-radius:var(--r-pill);padding:12px 20px;font-family:inherit;font-weight:600;
   font-size:14.5px;border:1px solid transparent;cursor:pointer;white-space:nowrap;
@@ -324,7 +338,7 @@ strong{color:var(--ink)}
 @keyframes ringOnce{0%{box-shadow:0 0 0 0 rgba(159,240,206,.55)}100%{box-shadow:0 0 0 22px rgba(159,240,206,0)}}
 main section,main .dark{position:relative}
 section{padding:var(--sec-y) 0;position:relative;overflow:clip;
-  border-top:1px solid var(--line-soft);scroll-margin-top:var(--head-h)}
+  border-top:1px solid var(--line-soft)}
 #roi{overflow:visible}
 section.tight{padding-top:var(--sec-y)}
 .page-hero+section{border-top:none}
@@ -355,7 +369,7 @@ span.eyebrow{display:block;width:fit-content}
 .centre .eyebrow,.centre .k{text-align:center}
 .crumb{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-crumb);
   text-transform:uppercase;color:var(--ink-5);margin-bottom:10px}
-.crumb a{color:var(--ink-4)}
+.crumb a{color:var(--ink-4);display:inline-block;padding:14px 0;margin:-14px 0}
 .crumb a:hover{color:var(--mint)}
 .grid-lines,.hero-light{position:absolute;inset:0;z-index:0;pointer-events:none;
   background:
@@ -455,6 +469,11 @@ ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
 .more{font-family:var(--f-mono);font-size:var(--fs-label);letter-spacing:var(--tr-tag);
   text-transform:uppercase;color:var(--emerald);text-decoration:none}
 .more:hover{color:var(--mint)}
+@media (max-width:820px),(pointer:coarse){
+  .more{display:inline-flex;align-items:center;min-height:44px}
+  #paneNav button{min-height:44px}
+}
+html.nv-below #close .cta{pointer-events:none}
 .prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:rgba(159,240,206,.45)}
@@ -788,6 +807,13 @@ html.motion-off .faq details p{animation:none}
 .callbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;text-align:center;
   background:var(--mint);color:var(--on-mint);font-weight:700;
   padding:14px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px -12px rgba(0,0,0,.5)}
+@media (max-width:820px),(pointer:coarse){
+  .site-footer .cols a{display:flex;align-items:center;min-height:44px;padding:0}
+  .site-footer .cols a::after{bottom:11px}
+}
+.callbar{transition:transform var(--t-base) var(--e-out),visibility 0s linear 0s}
+.callbar.callbar-off{transform:translateY(110%);visibility:hidden;
+  transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}
 @media(max-width:820px){
   .callbar{display:block}
   .site-footer{padding-bottom:96px}
@@ -988,7 +1014,61 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     table.compare th,table.compare td{padding:10px 5px}
     table.compare thead th{letter-spacing:.05em}
   }
+  /* A question for the buyer to put to the other service, not a verdict on
+     it, so it carries no tick, cross or warning colour: the body ink, read
+     as a question (vs-answering-service.html, 2026-10-03). */
+  td.ask{color:var(--ink-2)}
 </style>
+<!-- generated:schema -->
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://nevamis.ca/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Solutions",
+        "item": "https://nevamis.ca/solutions.html"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "vs Answering service",
+        "item": "https://nevamis.ca/vs-answering-service.html"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://nevamis.ca/vs-answering-service.html",
+    "url": "https://nevamis.ca/vs-answering-service.html",
+    "name": "Nevamis vs a Live Answering Service | Nevamis",
+    "description": "The questions to ask a live answering service, and how Nevamis answers each one, including where a person still wins.",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Nevamis",
+      "url": "https://nevamis.ca/"
+    },
+    "about": {
+      "@id": "https://nevamis.ca/#service"
+    },
+    "publisher": {
+      "@id": "https://nevamis.ca/#organization"
+    },
+    "inLanguage": "en-CA"
+  }
+]
+</script>
+<!-- /generated:schema -->
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -1012,7 +1092,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
       <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
       <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
-      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
+      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="nav_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
     </nav>
   </div>
 </header>
@@ -1023,8 +1103,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap">
       <p class="crumb"><a href="/">Home</a> / <a href="/solutions.html">Solutions</a> / vs Answering service</p>
       <span class="eyebrow mono"><span class="dot" aria-hidden="true"></span>Honest comparison</span>
-      <h1>AI receptionist vs a live answering service</h1>
-      <p class="lede">Traditional answering services employ real people, and people are good at things software is not. They also cost per call or per minute, and what comes back is usually a name and a number rather than the detail you need to price the work.</p>
+      <h1>Nevamis vs a live answering service</h1>
+      <p class="lede">A live answering service puts a person on your line, and people are good at things software is not. Before you choose one, ask what each call costs and what comes back to you off it. Here is how Nevamis answers the same questions.</p>
       <div class="cta">
         <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer &nbsp;›</a>
         <a class="btn btn-ghost btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-min call</a>
@@ -1037,14 +1117,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   <div class="wrap">
     <div class="compare-wrap reveal">
       <table class="compare">
-        <thead><tr><th scope="col">On every call</th><th scope="col">Live answering service</th><th scope="col">Nevamis</th></tr></thead>
+        <thead><tr><th scope="col">Ask about</th><th scope="col">Ask the answering service</th><th scope="col">Nevamis</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Available at 2 AM</th><td class="part">Usually, at a premium</td><td class="yes">Yes, at the same rate</td></tr>
-          <tr><th scope="row">Knows your service area and prices</th><td class="part">A script they follow</td><td class="yes">Rules built with you</td></tr>
-          <tr><th scope="row">Takes the job down in full</th><td class="part">Varies by operator</td><td class="yes">Included</td></tr>
-          <tr><th scope="row">Never on hold or queued</th><td class="part">Depends on their volume</td><td class="yes">Answers in parallel</td></tr>
-          <tr><th scope="row">Handles genuine judgement calls</th><td class="yes">A person can</td><td class="part">Escalates to you instead</td></tr>
-          <tr><th scope="row">Cost as volume grows</th><td class="part">Per call or per minute</td><td class="part">1,400 minutes included on the AI Front Desk, then C$0.75 a minute, or a cap you choose</td></tr>
+          <tr><th scope="row">A call at 2 AM</th><td class="ask">Does a call at 2 AM cost more?</td><td class="yes">Answered at the same rate</td></tr>
+          <tr><th scope="row">Your service area and prices</th><td class="ask">Do they work from your price list, or a general script?</td><td class="yes">Rules built with you</td></tr>
+          <tr><th scope="row">What comes back to you</th><td class="ask">What do you get after each call?</td><td class="yes">Who called, what they wanted, the callback number, urgency, outcome and next step</td></tr>
+          <tr><th scope="row">A genuine judgement call</th><td class="ask">Can the person on the line make a judgement call for you?</td><td class="part">Takes a message and flags it for you</td></tr>
+          <tr><th scope="row">Cost as volume grows</th><td class="ask">Is it per call or per minute, and is there a monthly minimum?</td><td class="part">1,400 minutes included on the AI Front Desk, then C$0.75 a minute, and calls keep being answered</td></tr>
         </tbody>
       </table>
     </div>
@@ -1056,12 +1135,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="section-head reveal">
       <p class="eyebrow mono">The honest version</p>
       <h2>Where a person still wins.</h2>
-      <p>A trained human handles the unexpected better than any AI, and some businesses need
-        that on every call. Nevamis is built to know its limits: for anything outside the rules
+      <p>A trained person handles the unexpected better than software does, and some businesses
+        need that all the time. Nevamis is built to know its limits: for anything outside the rules
         you approved, it takes a message rather than guessing. If most of your calls
         are genuinely unpredictable, hire the person. If most are the same twenty questions and a
-        job to take down, this does that part without a queue, inside the minutes your plan
-        includes.</p>
+        job to write down, this does that part, inside the minutes your plan includes.</p>
     </div>
   </div>
 </section>
@@ -1074,7 +1152,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <p>The fastest way to know whether this is good enough for your customers is to
         be a customer. The demo line runs on the same voice your line
         would. It answers for Nevamis, so it can set up a call with us. On your line it
-        takes the job and the time the caller wants, and you confirm the slot.</p>
+        captures the request and the times that suit the caller, and you confirm the slot.</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer (587)&nbsp;413-0035</a>
@@ -1090,7 +1168,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <h2>Related pages</h2>
     </div>
     <div class="related reveal">
-      <a href="/vs-voicemail.html"><strong>AI Receptionist vs Voicemail</strong><span>Voicemail records the lost job. Compare what each one actually does.</span></a>
+      <a href="/vs-voicemail.html"><strong>Nevamis vs Voicemail</strong><span>Voicemail records the lost job. Compare what each one actually does.</span></a>
       <a href="/solutions.html"><strong>Solutions by outcome, trade and situation</strong><span>Every outcome, trade, situation, and comparison in one place.</span></a>
       <a href="/electricians.html"><strong>Answering Service for Electricians</strong><span>Service calls answered while the crew is on the tools.</span></a>
     </div>
@@ -1123,6 +1201,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2 class="foot-h">Legal</h2>
         <a href="/privacy.html">Privacy</a>
         <a href="/terms.html">Terms</a>
+        <a href="/security.html">Security</a>
       </div>
     </div>
     <div class="base">

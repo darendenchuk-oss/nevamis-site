@@ -37,8 +37,9 @@
      THE one place that decides which URL parameters may leave this browser.
 
      nevamis.ca/privacy promises that each count records "only the event name,
-     the page path, the referring site's hostname, and campaign tags", and that
-     "no identifiers are stored". Everything that reported a "source" used to
+     the page path, the referring site's hostname, and campaign tags, including
+     an ad platform's click ID", and that "we set no identifier of our own".
+     Everything that reported a "source" used to
      satisfy that by accident, by copying location.search wholesale and trusting
      that every page only ever carried utm tags. proposal.html carries ?to=<the
      recipient's name>, so a personal name was reaching site_events.source, and
@@ -56,7 +57,17 @@
      reads exactly these names (src/domain/attribution.ts). So ?UTM_SOURCE=x is
      dropped: a mis-cased campaign link loses its tag, which is a real but small
      cost, and the alternative is a second matching rule that disagrees with
-     every consumer. */
+     every consumer.
+
+     THE CLICK IDS ARE NAMED ON THE PRIVACY PAGE, AND MUST STAY NAMED.
+     gclid, msclkid and fbclid are unique per ad click: the ad platform can tie
+     one to the person who clicked. Until 2026-10-03 the privacy page called
+     everything here "campaign tags" and said "no identifiers are stored"
+     (audit finding LEGAL-12). They are kept, because ads are planned, and the
+     page now says "campaign tags, including an ad platform's click ID".
+     Adding another click id (ttclid, li_fat_id, ...) to this list is fine;
+     scripts/check-legal-truth.mjs fails if the privacy page stops naming
+     click IDs while any is collected. */
   var NV_ATTRIB_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term",
     "utm_content", "gclid", "msclkid", "fbclid"];
 
@@ -155,8 +166,9 @@
      campaign tags PARSED into fields, so spend can be divided by
      campaign and cost per qualified demo call becomes computable.
 
-     PRIVACY: nevamis.ca/privacy says this site "stores one preference
-     in your browser" and that "no identifiers are stored". So this
+     PRIVACY: nevamis.ca/privacy says the site's own pages store "two
+     small things" in the browser (the motion choice and the call-button
+     note below) and that "we set no identifier of our own". So this
      block deliberately:
        - stores NOTHING new client-side (no cookie, no sessionStorage)
        - sends NO visitor identifier
@@ -195,8 +207,8 @@
      ad that produced a paying client was unattributable.
 
      A cookie would fix it and would also contradict a published legal page:
-     privacy.html states that no identifiers are stored and names the two
-     things this site keeps in a browser. So nothing is stored. Instead, at
+     privacy.html states that we set no identifier of our own and names the
+     two things this site keeps in a browser. So nothing is stored. Instead, at
      the moment a Nevamis link is CLICKED, whatever tags are in the current
      address are copied onto the destination. Each hop hands them to the next,
      so a five-page journey keeps them with no state anywhere.
@@ -295,7 +307,13 @@
       bar.setAttribute("aria-label", "After your call");
 
       var msg = document.createElement("span");
-      msg.textContent = "How did that call go? That was the same agent your customers would reach.";
+      /* NOT "the same agent your customers would reach". The demo line answers
+         for Nevamis and can set up a call with Daren; a client's front desk
+         books nothing and ends the call (audit finding MACHINE-22). What the
+         two genuinely share is the voice. scripts/check-legal-truth.mjs fails
+         on any served page or script that calls the demo the same agent a
+         client's customers reach. */
+      msg.textContent = "How did that call go? That was the same voice your own line would use.";
 
       var cta = document.createElement("a");
       cta.className = "btn btn-primary";
@@ -346,22 +364,66 @@
     io.observe(host);
   })();
 
-  /* ---------- mobile nav ---------- */
+  /* ---------- header: solid once the page moves ----------
+     The same rule as motion.js (a passive listener, solid past 40px), here
+     because the homepage does not load motion.js: until 2026-09-25 its header
+     stayed a transparent gradient at every scroll position, and on a phone
+     the page's text ran straight through the wordmark (BP1). On a page that
+     loads both files the two listeners set the same class from the same
+     number, so running twice changes nothing. */
+  var siteHeader = document.querySelector(".site-header");
+  if (siteHeader) {
+    var headerState = function () { siteHeader.classList.toggle("scrolled", window.scrollY > 40); };
+    window.addEventListener("scroll", headerState, { passive: true });
+    headerState();
+  }
+
+  /* ---------- mobile nav ----------
+     While the menu is open it owns the screen (BP9, 2026-09-25): the page
+     behind it is locked (html.nav-locked, so a swipe on the menu cannot
+     scroll the page out from under it), Escape closes it and puts focus
+     back on the button, and a link tap closes it. It also closes if the
+     window widens past the width the menu exists at, which would otherwise
+     leave the page locked behind a row of links. */
   var navBtn = document.querySelector(".nav-toggle");
   var nav = document.querySelector(".main-nav");
   if (navBtn && nav) {
-    navBtn.addEventListener("click", function () {
-      var open = nav.classList.toggle("open");
+    var setNav = function (open) {
+      nav.classList.toggle("open", open);
+      document.documentElement.classList.toggle("nav-locked", open);
       navBtn.setAttribute("aria-expanded", String(open));
       navBtn.textContent = open ? "✕" : "☰";
-    });
+    };
+    navBtn.addEventListener("click", function () { setNav(!nav.classList.contains("open")); });
     nav.addEventListener("click", function (e) {
-      if (e.target.tagName === "A" && nav.classList.contains("open")) {
-        nav.classList.remove("open");
-        navBtn.setAttribute("aria-expanded", "false");
-        navBtn.textContent = "☰";
+      if (e.target.closest && e.target.closest("a") && nav.classList.contains("open")) setNav(false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if ((e.key === "Escape" || e.key === "Esc") && nav.classList.contains("open")) {
+        setNav(false);
+        navBtn.focus();
       }
     });
+    if (typeof window.matchMedia === "function") {
+      var menuWidth = window.matchMedia("(max-width:1080px)");
+      var onWidth = function () { if (!menuWidth.matches && nav.classList.contains("open")) setNav(false); };
+      if (menuWidth.addEventListener) menuWidth.addEventListener("change", onWidth);
+      else if (menuWidth.addListener) menuWidth.addListener(onWidth);
+    }
+  }
+
+  /* ---------- the call bar steps aside for the scheduler ----------
+     On book.html the phone bar points at #pick-a-time, deliberately (see the
+     comment above that panel). Fixed to the bottom of the screen, it then sat
+     over the last 54px of the calendar it points at, at every scroll position
+     inside it (BP6). It is hidden only while the scheduler is on screen, and
+     back everywhere else. */
+  var callbar = document.querySelector("a.callbar");
+  var sched = document.getElementById("pick-a-time");
+  if (callbar && sched && typeof window.IntersectionObserver === "function") {
+    new IntersectionObserver(function (es) {
+      es.forEach(function (en) { callbar.classList.toggle("callbar-off", en.isIntersecting); });
+    }).observe(sched);
   }
 
   /* ---------- same-page anchors ----------
@@ -410,11 +472,43 @@
        the visitor scrolled to while the script was still downloading does not
        vanish underneath them. */
     var fold = window.innerHeight || 0;
+    /* A jump to an anchor must land where the header lets it be read (BP5,
+       2026-09-25). An armed block waits 26px low for its entrance, and the
+       browser scrolls to where the block IS, so a jump to one (or into one)
+       landed 26px high and the entrance then slid the heading up under the
+       header. The target of a jump, and every block around it, is therefore
+       shown in place first: on load for the URL's own #hash, and on the
+       click, before the browser scrolls, for a link on the page. */
+    var hashTarget = null;
+    try { hashTarget = location.hash.length > 1 ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null; }
+    catch (e) { hashTarget = null; }
     reveals.forEach(function (el) {
       if (el.getBoundingClientRect().top < fold) return;
+      if (hashTarget && el.contains(hashTarget)) return;
       el.classList.add("armed");
       io.observe(el);
     });
+    var landNow = function (target) {
+      for (var n = target; n && n !== document.body; n = n.parentElement) {
+        if (!n.classList || !n.classList.contains("armed") || n.classList.contains("in")) continue;
+        n.style.transition = "none";
+        n.classList.add("in");
+        void n.offsetWidth;
+        n.style.transition = "";
+        io.unobserve(n);
+      }
+    };
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest('a[href*="#"]');
+      if (!a) return;
+      var href = a.getAttribute("href");
+      var at = href.indexOf("#");
+      var path = href.slice(0, at);
+      if (path && path !== location.pathname && !(path === "/" && /\/(?:index\.html)?$/.test(location.pathname))) return;
+      var target = null;
+      try { target = document.getElementById(decodeURIComponent(href.slice(at + 1))); } catch (err) { target = null; }
+      if (target) landNow(target);
+    }, true);
   } else {
     reveals.forEach(function (el) { el.classList.add("in"); });
   }
@@ -630,7 +724,14 @@
      is the real inquiries you must answer to win that many at your close
      rate. One row showed the second under the first's name until 2026-09-24
      (5 "won jobs" at the defaults, where 3 cover the plan). Either is null
-     when it cannot be reached (no job value; a 0% close rate), never 0. */
+     when it cannot be reached (no job value; a 0% close rate), never 0.
+
+     "inquiries" is derived FROM "won", as its row says: the inquiries you
+     must answer to win that many jobs at your close rate. Until 2026-09-25
+     it was worked out from the dollars instead (plan / (job value x close
+     rate)), which assumes you can win half a job, so at the defaults the
+     page said 3 won jobs and then 5 inquiries, and 5 inquiries at 50% win
+     2.5 jobs, not 3 (BD-6). */
   function roiFigures(raw) {
     function num(v) { var n = parseFloat(v); return isFinite(n) ? n : 0; }
     function count(v) { return Math.max(0, num(v)); }
@@ -638,12 +739,15 @@
     var missed = count(raw.missed), real = share(raw.real), value = count(raw.value);
     var close = share(raw.close), quote = count(raw.quote);
     var opp = missed * 4.33 * real * value * close;
+    var won = value > 0 ? Math.ceil(quote / value) : null;
     return {
       missed: missed, value: value, close: close, quote: quote,
       opp: opp,
       recovered: opp * 0.5, /* conservative: capture half of what currently hits voicemail */
-      won: value > 0 ? Math.ceil(quote / value) : null,
-      inquiries: value * close > 0 ? Math.ceil(quote / (value * close)) : null
+      won: won,
+      /* Less a hair before rounding up: 3 / 0.3 is 10.000000000000002 in
+         binary, and ceil() of that would ask for one inquiry too many. */
+      inquiries: won !== null && close > 0 ? Math.ceil(won / close - 1e-9) : null
     };
   }
   /* ROI-MATH END */
