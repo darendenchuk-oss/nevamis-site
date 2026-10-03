@@ -8,16 +8,18 @@
      publishing the same sentence in two cases, and this tag is the half a
      search result shows. -->
 <title>Nevamis | More of the customers you want</title>
-<!-- Under 185 chars, because Google truncates past roughly that and
-     tests/seo.spec.js pins it: the sentence that gets cut is the only one a
-     stranger reads. It leads with Lead Generation since 2026-09-12 (owner
+<!-- 160 characters or fewer (audit CHECK-RUNNER-7, 2026-10-03; it was 182):
+     a search result cuts a description at about that length, and the sentence
+     that gets cut is the only one a stranger reads. tests/seo.spec.js holds
+     every page under a looser 185; tests/home-door-order.spec.js holds this one
+     to 160. It leads with Lead Generation since 2026-09-12 (owner
      ranking: customers found first, quotes second, the phone third), and it
      therefore HAS to carry "by invitation". check-consistency's readiness
      guard reads this attribute and fails any description naming a capability
      roadmap-config.js does not mark available with no word saying it is not
      here yet; lead-generation is private_pilot, so the qualifier is not
      decoration, it is the thing that makes the sentence true. -->
-<meta name="description" content="Lead Generation, by invitation: we read public pages and build you a list of the businesses you want as customers, and you decide every row. Quote Recovery and a 24/7 front desk too.">
+<meta name="description" content="Lead Generation, by invitation: we read public pages, list businesses you want as customers, and you decide each one. Quote Recovery and a 24/7 front desk too.">
 <meta name="robots" content="noindex, nofollow"><!-- staging: flip to index,follow at promotion -->
 <link rel="canonical" href="https://nevamis.ca/">
 <meta property="og:title" content="Nevamis | More of the customers you want.">
@@ -60,8 +62,11 @@
       { "@type": "City", "name": "Spruce Grove" }
     ],
     "address": { "@type": "PostalAddress", "addressLocality": "Edmonton", "addressRegion": "AB", "addressCountry": "CA" },
-    "contactPoint": { "@type": "ContactPoint", "telephone": "+1-587-413-0035", "contactType": "sales", "areaServed": "CA", "availableLanguage": "English",
-      "hoursAvailable": { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "00:00", "closes": "23:59" } },
+    "contactPoint": [
+      { "@type": "ContactPoint", "contactType": "sales", "email": "Sales@nevamis.ca", "areaServed": "CA", "availableLanguage": "English" },
+      { "@type": "ContactPoint", "contactType": "demo line", "name": "Demo line", "description": "Call it to hear the front desk answer.", "telephone": "+1-587-413-0035", "areaServed": "CA", "availableLanguage": "English",
+        "hoursAvailable": { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "00:00", "closes": "23:59" } }
+    ],
     "openingHoursSpecification": { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "00:00", "closes": "23:59" },
     "potentialAction": {
       "@type": "ReserveAction",
@@ -71,14 +76,15 @@
     "makesOffer": { "@id": "https://nevamis.ca/#service" },
     "knowsAbout": [
       "lead generation for trades",
-      "revenue recovery",
-      "business revenue scan",
-      "AI receptionist",
+      "quote follow-up",
+      "call answering for service businesses",
       "after-hours call answering",
       "missed call recovery",
+      "revenue recovery",
+      "business website scan",
       "structured lead capture for trades",
       "call qualification",
-      "voice AI for service businesses"
+      "AI receptionist"
     ]
   },
   { "@context": "https://schema.org", "@type": "WebSite", "@id": "https://nevamis.ca/#website", "name": "Nevamis", "url": "https://nevamis.ca/", "publisher": { "@id": "https://nevamis.ca/#organization" }, "inLanguage": "en-CA" }
@@ -776,7 +782,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      9.7s with the entire page still dark. The stage is the only animated
      surface now, so there is nothing to uncover. */
 
-  .navitem{overflow:hidden;display:inline-flex}
+  /* No overflow:hidden (audit walk-local-2, 2026-10-03). It was the mask of a
+     nav slide-in that no longer exists, and it clipped the Book a call pill's
+     glow to a hard rectangle that showed at the pill's rounded corners, on
+     this page only: every other page's header lets the glow spread. */
+  .navitem{display:inline-flex}
   @media(max-width:880px){.navitem{display:block;overflow:visible}}
 
   .hero{position:relative;min-height:100svh;overflow:hidden;padding:0}
@@ -990,7 +1000,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
       <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
       <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
-      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
+      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="nav_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
     </nav>
   </div>
 </header>

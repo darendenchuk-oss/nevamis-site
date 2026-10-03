@@ -40,7 +40,7 @@ const overlap = (a, b) => a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.
 
 /* ---------- BPH-1: without WebGL the homepage reads top to bottom ---------- */
 
-test('BPH-1: with WebGL unavailable, the copy blocks do not overlap and the scan button is not covered', async ({ playwright, baseURL }) => {
+test("BPH-1: with WebGL unavailable, the copy blocks do not overlap and the ending's actions are not covered", async ({ playwright, baseURL }) => {
   const browser = await playwright.chromium.launch({ args: ['--disable-webgl', '--disable-webgl2', '--disable-3d-apis'] });
   try {
     const ctx = await context(browser, { ...PHONE, baseURL });
@@ -57,14 +57,18 @@ test('BPH-1: with WebGL unavailable, the copy blocks do not overlap and the scan
         expect(overlap(blocks[i], blocks[j]), `#${blocks[i].id} sits on top of #${blocks[j].id}`).toBe(false);
       }
     }
-    const cta = page.locator('#close .cta');
-    await cta.scrollIntoViewIfNeeded();
-    const hit = await cta.evaluate((a) => {
-      const b = a.getBoundingClientRect();
-      const el = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
-      return !!el && (el === a || a.contains(el));
-    });
-    expect(hit, '"Scan my business" takes the tap at its own centre').toBe(true);
+    /* Both of the ending's actions since decision #54: Book a call, and the
+       quiet "Scan my website" link under it. */
+    for (const [sel, name] of [['#close .cta', 'Book a call'], ['#close .cta-q', 'Scan my website']]) {
+      const cta = page.locator(sel);
+      await cta.scrollIntoViewIfNeeded();
+      const hit = await cta.evaluate((a) => {
+        const b = a.getBoundingClientRect();
+        const el = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+        return !!el && (el === a || a.contains(el));
+      });
+      expect(hit, `"${name}" takes the tap at its own centre`).toBe(true);
+    }
     await ctx.close();
   } finally {
     await browser.close();

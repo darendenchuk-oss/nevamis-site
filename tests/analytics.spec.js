@@ -25,7 +25,16 @@ const REQUIRED = [
   { page: '/home.html', sel: 'a[href="/demo.html"][data-evt]', evt: 'compare_demo_click' },
   { page: '/home.html', sel: 'a[href="#roi"][data-evt]', evt: 'dayone_roi_click' },
   { page: '/home.html', sel: 'a[href="/book.html"][data-evt="roi_book_click"]', evt: 'roi_book_click' },
-  { page: '/home.html', sel: 'a[href="https://app.nevamis.ca/scan"][data-evt]', evt: 'hero_scan_click' },
+  { page: '/home.html', sel: '#found a[href="https://app.nevamis.ca/scan"][data-evt]', evt: 'hero_scan_click' },
+  /* Decision #54's placements, split 2026-10-03 (audit HOME-8): each Book a
+     call and each scan on the homepage has its own name, allowlisted by the
+     engine before the site sends it. The hero keeps hero_book_call_click. */
+  { page: '/home.html', sel: '#found a[href^="/book.html"][data-evt]', evt: 'hero_book_call_click' },
+  { page: '/home.html', sel: '.site-header a.btn-primary[href^="/book.html"][data-evt]', evt: 'nav_book_call_click' },
+  { page: '/home.html', sel: '#close a[href^="/book.html"][data-evt]', evt: 'film_book_click' },
+  { page: '/home.html', sel: '#close a[href="https://app.nevamis.ca/scan"][data-evt]', evt: 'film_scan_click' },
+  { page: '/home.html', sel: '#next a[href^="/book.html"][data-evt]', evt: 'closing_book_call_click' },
+  { page: '/home.html', sel: '#next a[href="https://app.nevamis.ca/scan"][data-evt]', evt: 'platform_scan_click' },
   { page: '/pricing.html', sel: 'a[href="/book.html"][data-evt="pricing_book_call_click"]', evt: 'pricing_book_call_click' },
   { page: '/pricing.html', sel: 'a[data-evt="pricing_demo_call_click"]', evt: 'pricing_demo_call_click' },
   { page: '/electricians.html', sel: 'a[data-evt="trade_pricing_click"]', evt: 'trade_pricing_click' },

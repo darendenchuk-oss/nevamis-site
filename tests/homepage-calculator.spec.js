@@ -21,11 +21,13 @@ import { test, expect } from '@playwright/test';
       every priced add-on is in the strip, and "Every other add-on is on the
       pricing page" would send a buyer looking for modules that do not exist.
 
-   4. The film's closing CTA. #close is position:fixed for the whole film and
-      only its opacity changes, and its button had pointer-events:auto, so
-      until the finale an invisible "Scan my business" sat mid-screen and took
-      the tap: reproduced on the live build 2026-09-25, a click at the middle
-      of a 1366x768 screen five seconds in went to the scan app.
+   4. The film's closing actions. #close is position:fixed for the whole film
+      and only its opacity changes, and its button had pointer-events:auto, so
+      until the finale an invisible scan button sat mid-screen and took the
+      tap: reproduced on the live build 2026-09-25, a click at the middle of a
+      1366x768 screen five seconds in went to the scan app. Since decision
+      #54 (built 2026-10-03) the ending has two actions, Book a call and a
+      quiet scan link, and neither may take a tap while the block is hidden.
 
    Run with the site served from this checkout, e.g. NV_PORT=3847 npx
    playwright test tests/homepage-calculator.spec.js. */
@@ -158,20 +160,24 @@ test.describe('the homepage plans strip', () => {
 
 test.describe('the film closing CTA', () => {
   for (const vp of [{ width: 1366, height: 768 }, { width: 375, height: 812 }]) {
-    test(`while its block is hidden the "Scan my business" button takes no taps (${vp.width}x${vp.height})`, async ({ page }) => {
+    test(`while its block is hidden no action in the film's ending takes a tap (${vp.width}x${vp.height})`, async ({ page }) => {
       await page.setViewportSize(vp);
       await page.goto('/index.html', { waitUntil: 'load' });
       await page.waitForTimeout(5000);
       const s = await page.evaluate(() => {
         const block = document.querySelector('#close');
-        const a = block.querySelector('.cta');
-        const r = a.getBoundingClientRect();
-        const at = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-        return { on: block.classList.contains('on'), opacity: Number(getComputedStyle(block).opacity), hit: !!at && (at === a || a.contains(at)) };
+        const links = [...block.querySelectorAll('a')];
+        const hits = links.filter((a) => {
+          const r = a.getBoundingClientRect();
+          const at = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+          return !!at && (at === a || a.contains(at));
+        }).map((a) => a.textContent.trim());
+        return { on: block.classList.contains('on'), opacity: Number(getComputedStyle(block).opacity), links: links.length, hits };
       });
       expect(s.on, 'the test must run before the finale').toBe(false);
       expect(s.opacity, 'the block is not on screen').toBeLessThan(0.05);
-      expect(s.hit, 'a tap at the hidden button lands on it and navigates to the scan').toBe(false);
+      expect(s.links, 'the ending offers Book a call and the scan').toBe(2);
+      expect(s.hits, 'hidden actions that a tap lands on and follows').toEqual([]);
     });
   }
 });

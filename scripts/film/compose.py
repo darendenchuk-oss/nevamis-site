@@ -224,5 +224,78 @@ _answer = out.find('id="answer"')
 assert 0 < _found < _recover < _answer < out.find('<section id="doc"'),     'the offers must read Lead Generation, then Quote Recovery, then the front desk, all above #doc'
 assert 'app.nevamis.ca/scan' in out
 
+# THE SERVED PAGE CARRIES NO SOURCE COMMENTS (audit CHECK-RUNNER-6, 2026-10-03).
+# The three source files are written the way this codebase writes everything,
+# with long comments saying WHY, and every one of them used to ship: about 30 KB
+# of the composed page, one byte in seven, was HTML comments and CSS comments
+# that a visitor downloads and parses and never sees, on the page that already
+# sits nearest its load budget. They stay in the sources, which is where a person
+# reads them; the page gets the markup. Kept: the generated:* markers, because
+# build-pages, build-schema and build-csp find their regions by them. Not
+# touched: anything inside <script>, because a JavaScript string or a JSON-LD
+# value can hold "/*" or "<!--" and this is not a JavaScript parser.
+_MARKER = re.compile(r'<!-- /?generated:[a-z]+ -->')
+
+def _strip_css_comments(css):
+    # A small scanner rather than a regex, so a "/*" inside a quoted string or a
+    # url() payload survives (the same rule scripts/lib/inline-css.mjs follows).
+    o, i, n, q = [], 0, len(css), None
+    while i < n:
+        c = css[i]
+        if q:
+            o.append(c)
+            if c == '\\' and i + 1 < n:
+                o.append(css[i + 1]); i += 2; continue
+            if c == q: q = None
+            i += 1; continue
+        if c in '"\'':
+            q = c; o.append(c); i += 1; continue
+        if css.startswith('/*', i):
+            j = css.find('*/', i + 2)
+            assert j >= 0, 'unterminated CSS comment'
+            i = j + 2; continue
+        o.append(c); i += 1
+    return ''.join(o)
+
+def _strip_served_comments(html):
+    o, i, low = [], 0, html.lower()
+    while True:
+        nxt = [(k, low.find(t, i)) for k, t in (('c', '<!--'), ('s', '<script'), ('y', '<style'))]
+        nxt = [(k, p) for k, p in nxt if p >= 0]
+        if not nxt:
+            o.append(html[i:]); break
+        k, p = min(nxt, key=lambda kp: kp[1])
+        o.append(html[i:p])
+        if k == 'c':
+            e = html.find('-->', p)
+            assert e >= 0, 'unterminated HTML comment'
+            e += 3
+            if _MARKER.fullmatch(html[p:e]): o.append(html[p:e])
+            i = e
+        elif k == 's':
+            e = low.find('</script>', p)
+            assert e >= 0, 'unterminated <script>'
+            e += len('</script>')
+            o.append(html[p:e]); i = e
+        else:
+            gt = html.find('>', p) + 1
+            e = low.find('</style>', gt)
+            assert gt > 0 and e >= 0, 'unterminated <style>'
+            o.append(html[p:gt] + _strip_css_comments(html[gt:e]) + '</style>')
+            i = e + len('</style>')
+    return ''.join(o)
+
+_before = len(out.encode('utf-8'))
+out = _strip_served_comments(out)
+# Lines a comment used to fill are left blank; collapse runs of them.
+out = re.sub(r'\n[ \t]*(?:\n[ \t]*)+\n', '\n\n', out)
+assert '<!--' not in re.sub(r'<script\b.*?</script>', '', out, flags=re.S | re.I).replace(
+    '<!-- generated:schema -->', '').replace('<!-- /generated:schema -->', '').replace(
+    '<!-- generated:css -->', '').replace('<!-- /generated:css -->', '').replace(
+    '<!-- generated:csp -->', '').replace('<!-- /generated:csp -->', ''), 'a served comment survived'
+for _m in ('generated:schema', 'generated:css'):
+    assert out.count('<!-- ' + _m + ' -->') == 1 and out.count('<!-- /' + _m + ' -->') == 1, _m + ' marker lost'
+
 open('home.html', 'w', encoding='utf-8', newline='').write(out)
+print('comments stripped:', _before - len(out.encode('utf-8')), 'bytes')
 print('composed home.html:', len(out), 'bytes')
