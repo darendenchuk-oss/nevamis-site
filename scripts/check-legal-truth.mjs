@@ -562,7 +562,11 @@ if (PUBLISHED.includes('free-month.js')) {
   if (!endpoint) fail('free-month-request', 'free-month.js has no ENDPOINT string this rule can read.');
   else if (loaded.length) {
     const host = new URL(endpoint).host;
-    const said = sentencesOf(privacyText).filter((s) => s.includes(host) && /\bfree\b/i.test(s));
+    /* The sentence that names the host and what it is asked. It says "the
+       offer" rather than the free month itself: the privacy page is read
+       after the places are gone too, so it describes the request, not the
+       offer (guard 7u's machine rule, applied by hand). */
+    const said = sentencesOf(privacyText).filter((s) => s.includes(host) && /\boffer\b/i.test(s) && /\bopen\b/i.test(s));
     if (!said.length) {
       fail('free-month-request', `${loaded.join(', ')} load free-month.js, which asks ${host} whether a free-month place is open, `
         + 'and privacy.html does not describe that request. Name the host, what is sent and what is kept.');
