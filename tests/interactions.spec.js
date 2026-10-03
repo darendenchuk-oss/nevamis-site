@@ -200,10 +200,15 @@ test('the demo transcript is the corrected call, with no half-wired player left 
   await expect(card.locator('.line')).toHaveCount(11);
   await expect(card.locator('.line p').first()).toBeVisible();
 
-  /* The correction itself: the agent takes the time the caller asked for and
-     hands the confirmation to the office. The two retired lines are asserted
-     against by name, because they are what the deleted recording said. */
-  await expect(card).toContainText('someone from the office will confirm');
+  /* The correction itself: the agent notes the time the caller asked for and
+     says the office will get back to them. Since 2026-10-03 (site PR #42) it no
+     longer says the office "will confirm the exact time": only a client with a
+     booking link has the agent say that (engine agent-draft.ts, BOOKING), and
+     the content guard's confirm-time-promise rule now refuses it. The retired
+     lines are asserted against by name, because they are what the deleted
+     recording and the earlier correction said. */
+  await expect(card).toContainText('someone from the office will get back to you');
+  await expect(card).not.toContainText(/will confirm the exact time/i);
   await expect(card).not.toContainText(/you'?re booked/i);
   await expect(card).not.toContainText(/we'?ll see you tomorrow/i);
 

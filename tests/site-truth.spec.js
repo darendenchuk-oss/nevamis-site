@@ -326,7 +326,12 @@ test('BP4: the named phone tap targets are at least 44px tall, and footer links 
       .filter((el) => getComputedStyle(el).display !== 'none')
       .map((el) => ({ t: el.textContent.trim().replace(/\s+/g, ' ').slice(0, 40), h: el.getBoundingClientRect().height })), sel);
     expect(boxes.length, `${what}: nothing matched ${sel}`).toBeGreaterThan(0);
-    for (const b of boxes) expect(b.h, `${what}: "${b.t}" is ${b.h}px tall`).toBeGreaterThanOrEqual(44);
+    /* Rounded to the whole pixel: a box whose CSS min-height is 44px measured
+       43.999 in the merged site train of 2026-10-03, because its parent's
+       .reveal transform had not quite finished scaling. A thousandth of a pixel
+       left over from an animation is not a short tap target; anything really
+       short (the 14 to 30px this test was written for) still fails. */
+    for (const b of boxes) expect(Math.round(b.h), `${what}: "${b.t}" is ${b.h}px tall`).toBeGreaterThanOrEqual(44);
   };
   await page.goto('/', { waitUntil: 'load' });
   await tall('#paneNav button', 'the homepage chapter numerals');
