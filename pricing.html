@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-hf+oqoMTcdZSCY8sI4Mjo/3yLid4i3rKBxE1ivU53JA=' 'sha256-12+gr7yAJKEn0cefhcygwaZPAGX4QUYeYracHCgq5kc=' 'sha256-JXqBjJZcnb6A53xDi4AUWLiyjToNB2HEuNrbMI/S+6c=' 'sha256-laZYsqKpVJKVr/E+iPK3GpwRZ6hiJ9BJcU7xAR4RjHQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-sd0nCgUuPEdqHVkqr1/xVg1JfRcUQ8l9DNGRvzSW2SA=' 'sha256-W7cy57qtNjLnJSbKotVFrB3tK3p1kLNLUrG7GgPYaAE=' 'sha256-JXqBjJZcnb6A53xDi4AUWLiyjToNB2HEuNrbMI/S+6c=' 'sha256-laZYsqKpVJKVr/E+iPK3GpwRZ6hiJ9BJcU7xAR4RjHQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1702,8 +1702,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          it is not appended a second time. An invitation-only plan adds its
          inviteNote; "never the default" is its bestFor's, said once. */
       /* Only where it says more than the price line above it: a plan with no
-         fee, no performance clause and no invitation would print "C$250 a
-         month." under "C$250/month", one figure twice. */
+         fee, no performance clause and no invitation would print its
+         monthly twice, once as the price and once as the sentence. */
       if (P.launchPart(pl) || pl.performanceNote || pl.selfServe === false) {
         h += '<div class="setup">' + P.startLine(pl).replace(/&/g, "&amp;")
           + (pl.selfServe === false ? " " + (pl.inviteNote || "Offered by invitation and approval.") : "")

@@ -142,9 +142,55 @@ its daily run and sends only the highest threshold crossed since the last
 check, so a client may get one message a day after crossing it rather than one
 per threshold on the dot.
 
-## Referral, founding client, annual
+## Referral and annual
 
 `referral` mirrors `CANONICAL.referral`; the referrer's free month is earned on
 the referred business's first paid invoice, and the engine validates it.
-`foundingClient` and `annual` are inactive records kept so a renderer that
-reads them gets `active: false` rather than `undefined`.
+`annual` is an inactive record kept so a renderer that reads it gets
+`active: false` rather than `undefined`.
+
+## Commercial model v7 (held for counsel, decision #69)
+
+Owner decisions of 2026-10-02 (ADR-015) and the amendments of 2026-10-03
+(#66, #67). Nothing here is live until counsel has read Terms v3.0 and the
+owner says publish; the branch is `sell/v7-site`.
+
+- **Fees.** `launch` is 0 on The Works, every Front Desk size and every module.
+  Only the Performance Partnership carries one, and its figures are fixed:
+  `launchRange` and `monthlyRange` are retired, and both the engine and guard
+  7t fail on either field. `startLine()` prints a fee only where there is one,
+  so a fee-less plan reads "C$X a month".
+- **The three Front Desk sizes.** `front-desk-starter` and `front-desk-plus`
+  carry `tierOf: "pro"`: the same receptionist as the AI Front Desk, with
+  fewer minutes and a higher overage. Keys are hyphenated because the engine
+  rewrites `_` to `-` before it resolves a plan, and `starter` stays the
+  Partnership's key for the subscriptions and links that carry it. The sizes
+  carry no `callRange`: a call estimate per size is the owner's to approve.
+  `frontDeskTiers()` orders them smallest first, and the pricing page, the
+  homepage strip and the minutes check read it rather than naming a plan.
+  Tier events send the id with underscores, because the engine's events
+  allowlist takes `[a-z0-9_]` only.
+- **The first month free.** It is for the first `freeMonth.firstClients`
+  businesses, given on a booked call, never by Buy now (#66). `freeMonth`
+  holds the terms only, mirrored field by field by the engine. The words live
+  in `foundingClient` (`active`, `spots`, `offer`, `note`) and nowhere else in
+  this file, and only `free-month.js` prints them: into an element marked
+  `data-nv-free-month` that ships `hidden` with empty offer and note slots,
+  and only when `active` is true, `spots` equals `firstClients`, and
+  `GET https://app.nevamis.ca/api/free-month` answers 200 with
+  `{"open": true, "cap": N}` inside three seconds. Before the engine route
+  deploys it answers 404, so the page stays silent; when the tenth place is
+  taken it answers `open: false`, and the page stops offering it with no
+  edit. JSON-LD, meta descriptions, `llms.txt` and `search-index.json` never
+  carry it, because none of them can be switched off. Guard 7u in
+  `scripts/check-consistency.js` holds all of that, and
+  `tests/free-month-gate.spec.js` proves the gate open and closed in a
+  browser. The old label "Founding clients" is gone: the engine's
+  founding-client arrangement is a different thing that no page offers.
+- **Publishing v7.** On the day it is published, set `lastUpdated` and
+  `freeMonth.effective` here, and canonical's `pricing.freeMonth.effective`,
+  to that date, then rebuild (`npm run build`): the static "pricing updated"
+  line on `pricing.html` is held to `lastUpdated` by guard 7a. The founder's
+  `../ai-assistant/PLAYBOOK.md` tier table moves to v7 in the same step
+  (guard 9 says what it must carry), not before: until then it is what he
+  quotes on calls against the live site.
