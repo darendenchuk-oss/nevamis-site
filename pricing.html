@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-gLxCC2APYc5qFFp5FQwSD6xa9ve/XrZgAprsLRr2W+4=' 'sha256-caS3SwWSHCeEJzLHQDC2i6aXWfW0gg86YVzaiEnc+qk=' 'sha256-JXqBjJZcnb6A53xDi4AUWLiyjToNB2HEuNrbMI/S+6c=' 'sha256-laZYsqKpVJKVr/E+iPK3GpwRZ6hiJ9BJcU7xAR4RjHQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-eOYVXoy4csfg4ekRbBFNF0YtAiRgcNecBtjNPkdOVr0=' 'sha256-ZjwB0n7c2MbtDFI8Aw7kKj4seYFE+Wv0pJeE+TwqNPQ=' 'sha256-JXqBjJZcnb6A53xDi4AUWLiyjToNB2HEuNrbMI/S+6c=' 'sha256-laZYsqKpVJKVr/E+iPK3GpwRZ6hiJ9BJcU7xAR4RjHQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -993,6 +993,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   #termsBanner{border-color:var(--line-accent)}
   #foundingBanner{border-color:rgba(240,180,98,.35)}
   #foundingBanner #foundingOffer{font-size:15px;color:var(--warm);font-weight:700}
+  #foundingBanner .fm-cta{margin-top:14px}
   #chooser #leaks{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
   .chooser-out{border-top:1px solid var(--line-soft);padding-top:14px}
   .chooser-out .lbl{font-family:var(--f-mono);font-size:var(--fs-label);
@@ -1250,7 +1251,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div id="foundingBanner" class="card band block-gap" data-nv-free-month hidden>
         <p id="foundingOffer" data-nv-free-month-offer></p>
         <p class="fine2" id="foundingNote" data-nv-free-month-note></p>
-        <p><a class="btn btn-primary" href="/book.html" data-evt="pricing_book_call_click">Book a call</a></p>
+        <div class="fm-cta"><a class="btn btn-primary" href="/book.html" data-evt="pricing_book_call_click">Book a call</a></div>
       </div>
 
       <!-- WHAT EVERY PLAN INCLUDES, printed once (2026-09-24, W6). These lines
@@ -1700,9 +1701,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          share included: performanceNote is joined inside startLine now, so
          it is not appended a second time. An invitation-only plan adds its
          inviteNote; "never the default" is its bestFor's, said once. */
-      h += '<div class="setup">' + P.startLine(pl).replace(/&/g, "&amp;")
-        + (pl.selfServe === false ? " " + (pl.inviteNote || "Offered by invitation and approval.") : "")
-        + "</div>";
+      /* Only where it says more than the price line above it: a plan with no
+         fee, no performance clause and no invitation would print "C$250 a
+         month." under "C$250/month", one figure twice. */
+      if (P.launchPart(pl) || pl.performanceNote || pl.selfServe === false) {
+        h += '<div class="setup">' + P.startLine(pl).replace(/&/g, "&amp;")
+          + (pl.selfServe === false ? " " + (pl.inviteNote || "Offered by invitation and approval.") : "")
+          + "</div>";
+      }
     } else {
       h += '<div class="price price-quoted">Quoted per client</div>';
       h += '<div class="setup">Your price is quoted per client, then charged monthly, month to month with no minimum term, cancelled ' + cancelClause() + '.</div>';
