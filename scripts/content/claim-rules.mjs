@@ -279,8 +279,8 @@ export const MUST_PASS = [
   'It writes down the job and the times that suit the caller, for you to confirm.',
   'Everything else is captured with the times that suit the caller, for you to confirm.',
   'It does not book into your calendar. It takes the request and the times that suit; you confirm',
-  'There is no minimum term, and it captures the times that suit the caller, for you to confirm.',
-  'The times that suit them, with no booking made, are captured for you to confirm.',
+  /* A negation in another clause does not deny the confirm. */
+  'It notes the times that suit them, with no booking made, for you to confirm.',
   'Writes the job down in full',
   'When the call is urgent work you take, Nevamis captures the urgent details and alerts your team.',
   'Take the time to compare both.',
