@@ -90,7 +90,10 @@ const NEG = /\b(?:not|never|no|cannot|nothing|none|nor|neither|fail|fails|failur
    - a negation that turns the claim positive is no denial: "not just",
      "not only", "doesn't just", and "don't forget", "never misses", "never
      fails to", "never skips" ("Don't forget to connect the client's
-     calendar." passed).
+     calendar." passed). Since the governing rule below, none of these
+     words can govern a claim anyway ("hesitates", "forget" and "misses"
+     are neither gap words nor governing verbs), so this list is a second
+     line: a mutation that drops it leaves every fixture green.
    - the verdict counted anywhere in the unit, so a stray "retired" or "is a
      failure" excused every claim beside it ("Offers to transfer the caller
      to Daren, as the old voicemail is retired."). A verdict now counts only
