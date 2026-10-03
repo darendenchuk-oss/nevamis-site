@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-UtNQAyoGeaKiL6vnlKRBcV3vLaMxLV6mhXuMuJdMrp4=' 'sha256-J370LoND2L+9w1IVT1xZpucTrwi/lsSsyk4kDX9UapM=' 'sha256-2DrAI+HRw11Dal8zG+4dQ1MlRONFs0QWTUwRq2XgDJg=' 'sha256-L5hzxmuixfuveKyl6PKQA/GPSe3+FDaUzBXn34w3dFw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-PP3oPqYrtamSHHe1u3Iy2+f2UxrLjKbyR+UjgdvmGt8=' 'sha256-SJYqI98NUggtweZt48N0wfUqdSHJvU9npEkB01QRhhg=' 'sha256-2DrAI+HRw11Dal8zG+4dQ1MlRONFs0QWTUwRq2XgDJg=' 'sha256-L5hzxmuixfuveKyl6PKQA/GPSe3+FDaUzBXn34w3dFw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1455,15 +1455,24 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   if (addOnEl && Array.isArray(P.addOns) && P.addOns.length && typeof P.startLine === "function") {
     try {
       var addOnItems = P.addOns.map(function (a) {
-        var priced = a.sellable === true && a.monthly > 0;
+        /* PRICES FOLLOW THE SAME SWITCH AS THE PLAN CARDS (2026-10-03).
+           The cards print a figure only while P.publishedPricing is on, and
+           say "Quoted per client" when it is off. This list used the switch
+           only for its Start links, so turning prices off would have hidden
+           every plan price and left every add-on price on the page beside
+           them. A sellable add-on with prices off is quoted per client too,
+           in the cards' own words. */
+        var sellableNow = a.sellable === true && a.monthly > 0;
+        var priced = sellableNow && !!P.publishedPricing;
         var blurb = String(a.blurb || "");
         var parts = [a.name];
         if (priced) parts.push(P.money(a.monthly) + "/month", P.startLine(a).replace(/\.$/, ""));
+        else if (sellableNow) parts.push("quoted per client");
         else parts.push(a.partnership ? "on the Performance Partnership" : "coming");
         if (blurb) parts.push(blurb.charAt(0).toLowerCase() + blurb.slice(1));
         var li = document.createElement("li");
         li.appendChild(document.createTextNode(parts.join(" · ")));
-        if (priced && a.soldAlone === true && P.sellable && P.publishedPricing) {
+        if (priced && a.soldAlone === true && P.sellable) {
           var go = document.createElement("a");
           go.className = "addon-start";
           go.href = "https://app.nevamis.ca/signup?coverage=" + encodeURIComponent(a.id);

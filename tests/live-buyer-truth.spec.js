@@ -313,9 +313,13 @@ test('PRICING-14, WALK-LIVE-2: the no-script add-on list is the config, line for
   expect(items.length, 'one line per add-on in the config').toBe(P.addOns.length);
   const selling = P.sellable && P.publishedPricing;
   P.addOns.forEach((a, i) => {
-    const priced = a.sellable === true && a.monthly > 0;
+    /* The renderer's own rule: a figure only while prices are published,
+       "quoted per client" for a sellable add-on while they are not. */
+    const sellableNow = a.sellable === true && a.monthly > 0;
+    const priced = sellableNow && !!P.publishedPricing;
     const parts = [a.name];
     if (priced) parts.push(P.money(a.monthly) + '/month', P.startLine(a).replace(/\.$/, ''));
+    else if (sellableNow) parts.push('quoted per client');
     else parts.push(a.partnership ? 'on the Performance Partnership' : 'coming');
     parts.push(a.blurb.charAt(0).toLowerCase() + a.blurb.slice(1));
     const text = flat(decode(items[i].replace(/<a\b[\s\S]*?<\/a>/g, '')));

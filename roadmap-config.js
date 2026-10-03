@@ -114,7 +114,7 @@ window.NV_ROADMAP = {
       functions: ["Quiet-quote detection on your threshold", "Three approved follow-ups per quote: the day it goes stale, day four and day eleven", "Your identification on every message", "Recovered value reported against the quotes that came back"],
       outcome: "Recovered revenue that was already almost won.", cta: "/pricing.html" },
     { slug: "ai-front-desk", name: "AI Front Desk", pillar: "capture", status: "available", stage: "now",
-      desc: "Answers your line 24/7, qualifies the caller, takes the job and the time they want, and sends you the details. You confirm the slot.",
+      desc: "Answers your line 24/7, qualifies the caller, captures the request and the times that suit them, and sends you the details. You confirm the slot.",
       outcome: "Calls you cannot take are answered instead of going to voicemail.", cta: "/how-you-start.html" },
     /* Described the way DC#54 (2026-09-18) requires: the public website only,
        and modelled ranges rather than measurements (engine scan/page.tsx).
