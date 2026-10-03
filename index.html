@@ -32,10 +32,12 @@
 <meta property="og:site_name" content="Nevamis">
 <meta property="og:locale" content="en_CA">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
+<meta property="og:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nevamis.ca/assets/og-default.png">
+<meta name="twitter:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <meta name="geo.region" content="CA-AB">
 <meta name="geo.placename" content="Edmonton, Alberta">
 <script type="application/ld+json">
@@ -1188,15 +1190,34 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       {
         "@type": "Offer",
         "name": "Performance Partnership",
+        "category": "Plan",
         "description": "From C$2,500 Launch & Implementation to start, then C$350 a month by default, inside a monthly band of C$250 to C$500. Lower fixed cost. Lead Generation, offered by invitation, and the Quote-Chase Engine are each paid on it by an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, subject to your agreement. Its Launch & Implementation fee and its monthly, the share, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged. Offered by invitation and approval; never the default. 250 included minutes. A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
-        "price": "350",
         "priceCurrency": "CAD",
         "priceSpecification": {
-          "@type": "UnitPriceSpecification",
-          "price": "350",
+          "@type": "CompoundPriceSpecification",
           "priceCurrency": "CAD",
-          "unitText": "MONTH",
-          "billingIncrement": 1
+          "description": "From C$2,500 Launch & Implementation to start, then C$350 a month by default, inside a monthly band of C$250 to C$500.",
+          "priceComponent": [
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Launch & Implementation",
+              "priceCurrency": "CAD",
+              "minPrice": "2500",
+              "description": "From C$2,500, set in the client's agreement. Charged once, at the start, beside the first month."
+            },
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Monthly",
+              "priceComponentType": "https://schema.org/Subscription",
+              "priceCurrency": "CAD",
+              "unitCode": "MON",
+              "unitText": "MONTH",
+              "billingIncrement": 1,
+              "minPrice": "250",
+              "maxPrice": "500",
+              "description": "C$350 a month by default, inside a monthly band of C$250 to C$500, set in the client's agreement."
+            }
+          ]
         },
         "availability": "https://schema.org/LimitedAvailability",
         "url": "https://nevamis.ca/pricing.html"
@@ -1204,15 +1225,32 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       {
         "@type": "Offer",
         "name": "The Works",
+        "category": "Plan",
         "description": "C$3,000 Launch & Implementation to start, then C$2,100 a month. 1,400 included minutes. The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts.",
-        "price": "2100",
         "priceCurrency": "CAD",
         "priceSpecification": {
-          "@type": "UnitPriceSpecification",
-          "price": "2100",
+          "@type": "CompoundPriceSpecification",
           "priceCurrency": "CAD",
-          "unitText": "MONTH",
-          "billingIncrement": 1
+          "description": "C$3,000 Launch & Implementation to start, then C$2,100 a month.",
+          "priceComponent": [
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Launch & Implementation",
+              "priceCurrency": "CAD",
+              "price": "3000",
+              "description": "Charged once, at the start, beside the first month. Never recurring."
+            },
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Monthly",
+              "priceComponentType": "https://schema.org/Subscription",
+              "priceCurrency": "CAD",
+              "unitCode": "MON",
+              "unitText": "MONTH",
+              "billingIncrement": 1,
+              "price": "2100"
+            }
+          ]
         },
         "availability": "https://schema.org/InStock",
         "url": "https://nevamis.ca/pricing.html"
@@ -1220,15 +1258,164 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       {
         "@type": "Offer",
         "name": "AI Front Desk",
+        "category": "Plan",
         "description": "C$1,500 Launch & Implementation to start, then C$1,000 a month. 1,400 included minutes. The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place.",
-        "price": "1000",
         "priceCurrency": "CAD",
         "priceSpecification": {
-          "@type": "UnitPriceSpecification",
-          "price": "1000",
+          "@type": "CompoundPriceSpecification",
           "priceCurrency": "CAD",
-          "unitText": "MONTH",
-          "billingIncrement": 1
+          "description": "C$1,500 Launch & Implementation to start, then C$1,000 a month.",
+          "priceComponent": [
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Launch & Implementation",
+              "priceCurrency": "CAD",
+              "price": "1500",
+              "description": "Charged once, at the start, beside the first month. Never recurring."
+            },
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Monthly",
+              "priceComponentType": "https://schema.org/Subscription",
+              "priceCurrency": "CAD",
+              "unitCode": "MON",
+              "unitText": "MONTH",
+              "billingIncrement": 1,
+              "price": "1000"
+            }
+          ]
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html"
+      },
+      {
+        "@type": "Offer",
+        "name": "Missed-Call Recovery",
+        "category": "Module sold on its own",
+        "description": "C$500 Launch & Implementation to start, then C$350 a month. Sold on its own or beside any plan, month to month. A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out.",
+        "priceCurrency": "CAD",
+        "priceSpecification": {
+          "@type": "CompoundPriceSpecification",
+          "priceCurrency": "CAD",
+          "description": "C$500 Launch & Implementation to start, then C$350 a month.",
+          "priceComponent": [
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Launch & Implementation",
+              "priceCurrency": "CAD",
+              "price": "500",
+              "description": "Charged once, at the start, beside the first month. Never recurring."
+            },
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Monthly",
+              "priceComponentType": "https://schema.org/Subscription",
+              "priceCurrency": "CAD",
+              "unitCode": "MON",
+              "unitText": "MONTH",
+              "billingIncrement": 1,
+              "price": "350"
+            }
+          ]
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html"
+      },
+      {
+        "@type": "Offer",
+        "name": "Quote-Chase Engine",
+        "category": "Module sold on its own",
+        "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own or beside any plan, month to month. Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.",
+        "priceCurrency": "CAD",
+        "priceSpecification": {
+          "@type": "CompoundPriceSpecification",
+          "priceCurrency": "CAD",
+          "description": "C$750 Launch & Implementation to start, then C$500 a month.",
+          "priceComponent": [
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Launch & Implementation",
+              "priceCurrency": "CAD",
+              "price": "750",
+              "description": "Charged once, at the start, beside the first month. Never recurring."
+            },
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Monthly",
+              "priceComponentType": "https://schema.org/Subscription",
+              "priceCurrency": "CAD",
+              "unitCode": "MON",
+              "unitText": "MONTH",
+              "billingIncrement": 1,
+              "price": "500"
+            }
+          ]
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html"
+      },
+      {
+        "@type": "Offer",
+        "name": "Get-Paid Autopilot",
+        "category": "Module sold on its own",
+        "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own or beside any plan, month to month. Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks YOU get told instead, because past that point the judgment call belongs to a person.",
+        "priceCurrency": "CAD",
+        "priceSpecification": {
+          "@type": "CompoundPriceSpecification",
+          "priceCurrency": "CAD",
+          "description": "C$750 Launch & Implementation to start, then C$500 a month.",
+          "priceComponent": [
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Launch & Implementation",
+              "priceCurrency": "CAD",
+              "price": "750",
+              "description": "Charged once, at the start, beside the first month. Never recurring."
+            },
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Monthly",
+              "priceComponentType": "https://schema.org/Subscription",
+              "priceCurrency": "CAD",
+              "unitCode": "MON",
+              "unitText": "MONTH",
+              "billingIncrement": 1,
+              "price": "500"
+            }
+          ]
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html"
+      },
+      {
+        "@type": "Offer",
+        "name": "Review Engine",
+        "category": "Module sold on its own",
+        "description": "C$500 Launch & Implementation to start, then C$300 a month. Sold on its own or beside any plan, month to month. Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person.",
+        "priceCurrency": "CAD",
+        "priceSpecification": {
+          "@type": "CompoundPriceSpecification",
+          "priceCurrency": "CAD",
+          "description": "C$500 Launch & Implementation to start, then C$300 a month.",
+          "priceComponent": [
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Launch & Implementation",
+              "priceCurrency": "CAD",
+              "price": "500",
+              "description": "Charged once, at the start, beside the first month. Never recurring."
+            },
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Monthly",
+              "priceComponentType": "https://schema.org/Subscription",
+              "priceCurrency": "CAD",
+              "unitCode": "MON",
+              "unitText": "MONTH",
+              "billingIncrement": 1,
+              "price": "300"
+            }
+          ]
         },
         "availability": "https://schema.org/InStock",
         "url": "https://nevamis.ca/pricing.html"
@@ -1236,7 +1423,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     ],
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
-      "name": "Nevamis plans",
+      "name": "Nevamis plans and modules",
       "itemListElement": [
         {
           "@type": "Offer",
@@ -1260,6 +1447,38 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             "@type": "Service",
             "name": "AI Front Desk plan",
             "description": "C$1,500 Launch & Implementation to start, then C$1,000 a month. 1,400 included minutes. The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Missed-Call Recovery",
+            "description": "C$500 Launch & Implementation to start, then C$350 a month. Sold on its own or beside any plan, month to month. A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Quote-Chase Engine",
+            "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own or beside any plan, month to month. Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Get-Paid Autopilot",
+            "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own or beside any plan, month to month. Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks YOU get told instead, because past that point the judgment call belongs to a person."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Review Engine",
+            "description": "C$500 Launch & Implementation to start, then C$300 a month. Sold on its own or beside any plan, month to month. Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person."
           }
         }
       ]

@@ -25,16 +25,20 @@
 import { prefersReduced, isFinePointer } from './tokens.js';
 import { initCursor } from './cursor.js';
 import { initSonar } from './sonar.js';
-import { initSearch } from './search.js';
 import { initScroll } from './scroll.js';
 import { initVoice } from './voice.js';
 
 const gsap = window.gsap;
 
-/* Search is wayfinding, not motion, so it is wired before the gsap check and
-   outside it: if the animation library fails to load, a visitor looking for
-   the pricing page should still be able to find it. */
-guard(initSearch);
+/* NO SITE SEARCH HERE ANY MORE (2026-10-03, audit COMPLETENESS-6). This
+   module wired a search combobox, ./search.js, that looked for #siteSearch,
+   and no page has carried #siteSearch since the film homepage replaced the
+   old hero. So every secondary page downloaded a module whose first line
+   returned, and its dormant empty state still told visitors to search for
+   "pilot", a page that answers there is no pilot and asks not to be
+   indexed. The module and this call are deleted. /search-index.json stays:
+   it is generated from every public page and is listed in llms.txt for the
+   machines that read the site, which are now its only audience. */
 
 if (gsap) {
   gsap.ticker.lagSmoothing(500, 33);
