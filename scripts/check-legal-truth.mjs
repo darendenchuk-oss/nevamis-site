@@ -367,10 +367,18 @@ for (const f of LEGAL) {
   else for (const f of LEGAL) if (base.includes(`'${f}'`) || base.includes(`"${f}"`)) {
     fail('footer', `scripts/build-pages.mjs gives ${f} the compact footer, which has no legal links.`);
   }
+  /* The whole footer, not only its Legal column: check-consistency.js
+     compares the Site column on the marketing pages and has never looked at
+     these three, so a legal page could keep the links and lose the contact
+     details beside them without anything noticing. */
+  const footerOf = (html) => ((html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [''])[0]).replace(/\s+/g, ' ').trim();
+  const fullFooter = footerOf(read('_partials/footer.html'));
   for (const f of LEGAL) {
-    const col = legalColOf(read(f));
+    const html = read(f);
+    const col = legalColOf(html);
     if (!col) fail('footer', `${f} has no footer Legal column. Run node scripts/build-pages.mjs.`);
     else if (partial && col.join(' ') !== partial.join(' ')) fail('footer', `${f}'s footer Legal column differs from _partials/footer.html. Run node scripts/build-pages.mjs.`);
+    else if (footerOf(html) !== fullFooter) fail('footer', `${f}'s footer differs from _partials/footer.html. Run node scripts/build-pages.mjs.`);
   }
 }
 
