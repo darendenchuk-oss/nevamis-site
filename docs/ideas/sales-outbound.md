@@ -1,28 +1,16 @@
 # Sales & Outbound — 70 improvements toward client #1
 
-> **SUPERSEDED 2026-08-09 — the commercial model this file was written against no longer exists.**
-> Ideas below were authored while Nevamis sold the C$249 / C$449 / C$849 ladder (plans named
+<!-- commercial-truth: HISTORICAL_REFERENCE_ALLOWED. An idea backlog written on 2026-07-27 against the commercial model of that week. Its prices, plan names and offers are quoted as they were proposed then and none of them is an offer; what Nevamis sells today is in pricing-config.js and the engine's src/domain/canonical.ts. Marked 2026-10-03. -->
+
+> **Record of 2026-07-27. Not a description of today.** The ideas below were written on that date
+> against the commercial model of that week: the C$249 / C$449 / C$849 ladder (plans named
 > After Hours, Growth and Scale), a Pay As You Go tier at C$49 + C$1.95/min, annual prepay, a
-> setup fee with a founding-client waiver, and a 7-day live pilot — free at first, then C$150.
-> Every one of those is retired, and the single-recurring-price model that replaced them on
-> 2026-08-09 was itself superseded by v4 (2026-08-22) and then by v5 (owner
-> directive 2026-08-24). The current model is a
-> one-time Launch & Implementation fee to start, then a monthly price:
-> **The Works** C$3,000 to start, then C$2,100/month (1,400 included minutes, C$0.75/min overage);
-> **AI Front Desk** (recommended) C$1,500 to start, then C$1,000/month (1,400 included minutes, C$0.75/min overage);
-> **Performance Partnership** (invite-only) from C$2,500 to start, then C$350/month plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 included minutes, C$1.10/min overage).
-> Sellable add-ons, each its own sale, bought on its own or beside a plan:
-> Missed-Call Recovery C$350/month, Quote-Chase Engine C$500/month, Get-Paid Autopilot C$500/month,
-> Review Engine C$300/month — each with a one-time Launch & Implementation fee of its own
-> (C$500, C$750, C$750, C$500).
-> Terms: no minimum term on anything (owner directive 2026-09-08, replacing the
-> three-month and six-month starts) and no notice period either (owner
-> directive 2026-09-12, replacing the thirty days it used to require): month to
-> month from the first month, cancelled at any time from the client's own
-> portal with the service running to the end of the month already paid for,
-> and the price locked for twelve months.
-> No pilot or trial at any price. `pricing-config.js` and the engine's
-> `src/domain/canonical.ts` are the source of truth.
+> setup fee with a founding-client waiver, and a 7-day live pilot, free at first, then C$150.
+> Every one of those is retired, and every model since has been superseded in turn, most
+> recently by commercial model v7 (owner decision 2026-10-02). This banner used to restate the
+> current model, and that copy went stale each time the model moved, so it no longer does: what
+> Nevamis sells today, and every figure of it, is in `pricing-config.js` and the engine's
+> `src/domain/canonical.ts`.
 >
 > The ideas are kept rather than deleted: most are about how a price is *presented*, and that work
 > survives the change. But no figure, plan name or offer quoted below may be copied onto a surface,

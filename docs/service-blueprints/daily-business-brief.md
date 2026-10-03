@@ -1,21 +1,17 @@
 # Service Blueprint: Your Daily Business Brief (Daily Owner Brief)
 
 > **NOT NEVAMIS PRICING. Every fee in this file is an internal hypothesis,
-> not approved, for a product that does not exist yet.** Noted 2026-08-10;
-> restated for v5 on 2026-08-24. These figures have never been offered,
-> quoted or charged, and nothing described here has been approved for sale.
-> What Nevamis actually sells is a one-time Launch & Implementation fee
-> to start, then a monthly price:
-> The Works C$3,000 to start, then C$2,100/month (1,400 minutes, C$0.75/min overage);
-> AI Front Desk C$1,500 to start, then C$1,000/month (1,400 minutes, C$0.75/min overage);
-> Performance Partnership (invite-only) from C$2,500 to start, then C$350/month plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 minutes, C$1.10/min overage).
-> Sellable add-ons, each its own sale, bought on its own or beside a plan:
-> Missed-Call Recovery C$350/month, Quote-Chase Engine C$500/month, Get-Paid Autopilot C$500/month,
-> Review Engine C$300/month — each with a one-time Launch & Implementation fee of its own
-> (C$500, C$750, C$750, C$500).
-> No pilot and no trial at any price. `pricing-config.js` and the engine's
-> `src/domain/canonical.ts` are the source of truth. Nothing below may be
-> quoted to a prospect; a price here would need approving on its own first.
+> not approved, for a service as this file designs it, which is not what Nevamis sells.**
+> Noted 2026-08-10; restated for commercial model v7 on 2026-10-03. These figures have never
+> been offered, quoted or charged, and nothing described here has been approved for sale.
+> What Nevamis does sell, and every figure of it, is in `pricing-config.js` and the engine's
+> `src/domain/canonical.ts`. This banner used to copy those figures and went stale each time
+> the model moved, so it now states only the shape of the offer: each Front Desk plan,
+> The Works and each module is its monthly price alone, month to month from the first month,
+> and only the Performance Partnership, by invitation, starts with a Launch & Implementation
+> fee. Nevamis offers a buyer no pilot; where "pilot" appears below it means the first internal
+> deployment of a service that is not built yet, never an offer.
+> Nothing below may be quoted to a prospect; a price here would need approving on its own first.
 
 
 - Title: Your Daily Business Brief (internal name: Daily Owner Brief)
