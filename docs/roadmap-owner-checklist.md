@@ -46,7 +46,8 @@ Decision rule applied throughout: with zero interviews completed, nothing earns 
 - Compliance risk: M (CASL consent, unsubscribe handling, stop rules for SMS and email)
 - Integration risk: M (telephony, SMS provider, forms, CRM logging)
 - Support risk: M (clients will blame the system for any lost lead)
-- Recommended next action: Recruit pilot clients / validate in discovery calls
+- Recommended next action: Recruit pilot clients / validate in discovery calls (pre-launch assessment)
+- Status today (canonical, 2026-10-03): available as the Missed-Call Recovery module. The blocks above are the assessment from before it shipped; canonical's capabilities list is the truth.
 
 ## Priority 2: Automatic Lead Tracking (CRM and Lead Pipeline Automation)
 
@@ -58,7 +59,8 @@ Decision rule applied throughout: with zero interviews completed, nothing earns 
 - Compliance risk: L to M (customer data handling under PIPEDA; no outbound messaging)
 - Integration risk: H (every client uses a different CRM, or none at all)
 - Support risk: M (duplicate records and misfiled leads generate tickets)
-- Recommended next action: Recruit pilot clients / validate in discovery calls
+- Recommended next action: Recruit pilot clients / validate in discovery calls (pre-launch assessment)
+- Status today (canonical, 2026-10-03): available, running off the calls the front desk answers. The blocks above are the assessment from before it shipped; canonical's capabilities list is the truth.
 
 ## Priority 3: Quote Recovery
 
@@ -70,7 +72,8 @@ Decision rule applied throughout: with zero interviews completed, nothing earns 
 - Compliance risk: M (CASL for reminders; hard guardrail that the system never invents prices, discounts, or terms)
 - Integration risk: M to H (quoting tools vary widely; some quotes live in PDFs and email)
 - Support risk: M
-- Recommended next action: Recruit pilot clients / validate in discovery calls
+- Recommended next action: Recruit pilot clients / validate in discovery calls (pre-launch assessment)
+- Status today (canonical, 2026-10-03): available as the Quote-Chase Engine. The blocks above are the assessment from before it shipped; canonical's capabilities list is the truth.
 
 ## Priority 4: Schedule Protection (Appointment Reminders and Schedule Recovery)
 
@@ -106,7 +109,8 @@ Decision rule applied throughout: with zero interviews completed, nothing earns 
 - Compliance risk: M (review platform policies, no fake reviews, no prohibited incentives, no suppression of legitimate negatives)
 - Integration risk: M (job-completion trigger requires job data access)
 - Support risk: M
-- Recommended next action: Keep researching
+- Recommended next action: Keep researching (pre-launch assessment)
+- Status today (canonical, 2026-10-03): the review half is available as the Review Engine; referrals are not. The blocks above are the assessment from before it shipped; canonical's capabilities list is the truth.
 
 ## Priority 7: Customer Reactivation (Past-Customer Reactivation)
 
