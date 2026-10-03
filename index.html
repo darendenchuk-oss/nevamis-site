@@ -69,13 +69,14 @@
     "knowsAbout": [
       "lead generation for trades",
       "quote follow-up",
-      "revenue recovery",
-      "business website scan",
       "call answering for service businesses",
       "after-hours call answering",
       "missed call recovery",
+      "revenue recovery",
+      "business website scan",
       "structured lead capture for trades",
-      "call qualification"
+      "call qualification",
+      "AI receptionist"
     ]
   },
   { "@context": "https://schema.org", "@type": "WebSite", "@id": "https://nevamis.ca/#website", "name": "Nevamis", "url": "https://nevamis.ca/", "publisher": { "@id": "https://nevamis.ca/#organization" }, "inLanguage": "en-CA" }
@@ -1392,11 +1393,15 @@ body{
 #close .cta:active{transform:translateY(0) scale(.97);filter:brightness(1.14);
   transition:transform .09s ease,box-shadow .09s ease,filter .09s ease}
 
-#close:not(.on) a{pointer-events:none}
+#close:not(.on) a,#close:not(.on) .fine .cta-q,
+html.nv-below #close a,html.nv-below #close .fine .cta-q{pointer-events:none}
 
-#close .fine .cta-q{pointer-events:auto;color:var(--mint);font-weight:700;
-  text-decoration:underline;text-underline-offset:3px;padding:.4rem 0}
-#close .fine .cta-q:hover{color:#fff}
+#close .fine .cta-q{pointer-events:auto;display:inline-block;margin-bottom:.5rem;
+  padding:.4rem 1rem;border-radius:999px;background:rgba(2,8,13,.78);
+  border:2px solid rgba(159,240,206,.85);box-shadow:0 0 0 3px #02080D;
+  color:var(--mint);font-weight:700;text-decoration:none;text-shadow:none;
+  transition:border-color .18s ease,background .18s ease}
+#close .fine .cta-q:hover{border-color:var(--mint);background:rgba(2,8,13,.9)}
 #brand{position:fixed;top:22px;left:28px;z-index:4;font-weight:700;font-size:.95rem;
   letter-spacing:.34em;color:var(--ink);opacity:.85;pointer-events:none}
 .no3d #stage{background:radial-gradient(ellipse at 50% 40%,#0A2A1F 0%,var(--bg1) 70%)}
@@ -1664,7 +1669,7 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
     <p>Tell us who you want more of.</p>
     <p class="sub">Lead Generation is by invitation, and a short call is where it starts.</p>
     <a class="cta" href="/book.html#pick-a-time" data-evt="film_book_click" data-film-exit>Book a call</a>
-    <p class="fine"><a class="cta-q" href="https://app.nevamis.ca/scan" data-evt="film_scan_click" data-film-exit>Scan my website</a> first, if you would rather: it reads only what is public, in about two minutes.</p>
+    <p class="fine"><a class="cta-q" href="https://app.nevamis.ca/scan" data-evt="film_scan_click" data-film-exit>Scan my website</a><br>Reads only your public website. About two minutes.</p>
   </section>
 </div>
 <nav id="paneNav" aria-label="NEVAMIS sections">

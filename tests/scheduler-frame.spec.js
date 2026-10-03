@@ -30,17 +30,6 @@ const NEEDED = 1015;
 const WIDE = { width: 1280, height: 900 };
 const NARROW = { width: 390, height: 844 };
 
-/** The homepage embed is injected by site.js when its host scrolls into view. */
-async function homepageFrame(page) {
-  await page.goto('/');
-  await page.evaluate(() => {
-    const h = document.querySelector('[data-book-src]');
-    if (h) h.scrollIntoView();
-  });
-  await page.waitForSelector('iframe.nv-cal-frame', { timeout: 15000 });
-  return page.locator('iframe.nv-cal-frame');
-}
-
 test('the booking page frame clears a six-row month', async ({ page }) => {
   await page.setViewportSize(WIDE);
   await page.goto('/book.html');
@@ -48,21 +37,21 @@ test('the booking page frame clears a six-row month', async ({ page }) => {
   expect(h, `${h}px leaves the last week of the month below the frame`).toBeGreaterThanOrEqual(NEEDED);
 });
 
-test('the homepage scheduler frame clears a six-row month', async ({ page }) => {
-  await page.setViewportSize(WIDE);
-  const frame = await homepageFrame(page);
-  const h = await frame.evaluate((el) => el.getBoundingClientRect().height);
-  expect(h, `${h}px shows the first week and hides the rest, at the conversion moment`)
-    .toBeGreaterThanOrEqual(NEEDED);
-});
-
-test('both schedulers are the same height, because they are the same thing', async ({ page }) => {
-  await page.setViewportSize(WIDE);
-  await page.goto('/book.html');
-  const a = await page.locator('#bkFrame').evaluate((el) => el.getBoundingClientRect().height);
-  const frame = await homepageFrame(page);
-  const b = await frame.evaluate((el) => el.getBoundingClientRect().height);
-  expect(b, `book.html declares ${a}px and the homepage declares ${b}px — two constants again`).toBe(a);
+/* The homepage embed is gone. The film homepage has no inline scheduler: its
+   Book a call buttons go to book.html, whose frame is the one measured above.
+   Two tests here loaded '/' and waited for [data-book-src] and
+   iframe.nv-cal-frame, which the homepage no longer has, and timed out on
+   every run from 2026-09 until 2026-10-03 (audit CHECK-RUNNER-5), so the
+   suite's red verdict hid any real regression. They are removed, not
+   retargeted: with one scheduler there is nothing left to disagree with.
+   The guard below that the homepage stays that way is what keeps the one
+   declaration true. */
+test("the homepage carries no second scheduler, so book.html's frame is the only one", async ({ page }) => {
+  await page.goto('/', { waitUntil: 'load' });
+  expect(await page.locator('[data-book-src], iframe.nv-cal-frame').count(),
+    'an inline scheduler on the homepage is a second height to keep in step').toBe(0);
+  const books = await page.locator('main a[href^="/book.html"]').count();
+  expect(books, 'the homepage still sends visitors to the booking page').toBeGreaterThan(0);
 });
 
 test('the narrow layout is still tall enough', async ({ page }) => {

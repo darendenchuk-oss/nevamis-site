@@ -111,15 +111,28 @@ body{
    build 2026-09-25: at 1366x768, five seconds in, with the block at opacity 0, a
    click at the middle of the screen went to the scan app. The button takes taps
    only while its block is on screen (.on; reduced motion and no-WebGL set .on
-   on every block). Every action in the block, the quiet scan link included. */
-#close:not(.on) a{pointer-events:none}
-/* The ending's quiet second action (decision #54): a text link inside the small
-   print under Book a call, never a second button. pointer-events is restored
-   on it alone because #close itself takes no taps; the vertical padding widens
-   its tap area without moving the line it sits on. */
-#close .fine .cta-q{pointer-events:auto;color:var(--mint);font-weight:700;
-  text-decoration:underline;text-underline-offset:3px;padding:.4rem 0}
-#close .fine .cta-q:hover{color:#fff}
+   on every block). Every action in the block, the quiet scan link included, and
+   that one by a selector at least as specific as the rule below that gives it
+   pointer-events:auto: a plain "#close:not(.on) a" lost to it, and the hidden
+   scan pill took the tap (tests/homepage-calculator.spec.js caught it). The same
+   holds below the film, where #close stays .on but the composed page fades it
+   (html.nv-below): assets/motion/site.css covers .cta there, and the scan pill
+   is covered here (tests/site-truth.spec.js, "below the film"). */
+#close:not(.on) a,#close:not(.on) .fine .cta-q,
+html.nv-below #close a,html.nv-below #close .fine .cta-q{pointer-events:none}
+/* The ending's quiet second action (decision #54): a small ghost pill on the
+   small-print line under Book a call, never a second filled button. It sits
+   over the arch's glow, where a bare mint text link measured 2.13:1, so it
+   brings its own dark plate, and a dark ring outside its mint border keeps the
+   edge findable over both the glow and the dark ground
+   (tests/scan-contrast.spec.js grades both). pointer-events is restored on it
+   alone because #close itself takes no taps. */
+#close .fine .cta-q{pointer-events:auto;display:inline-block;margin-bottom:.5rem;
+  padding:.4rem 1rem;border-radius:999px;background:rgba(2,8,13,.78);
+  border:2px solid rgba(159,240,206,.85);box-shadow:0 0 0 3px #02080D;
+  color:var(--mint);font-weight:700;text-decoration:none;text-shadow:none;
+  transition:border-color .18s ease,background .18s ease}
+#close .fine .cta-q:hover{border-color:var(--mint);background:rgba(2,8,13,.9)}
 #brand{position:fixed;top:22px;left:28px;z-index:4;font-weight:700;font-size:.95rem;
   letter-spacing:.34em;color:var(--ink);opacity:.85;pointer-events:none}
 .no3d #stage{background:radial-gradient(ellipse at 50% 40%,#0A2A1F 0%,var(--bg1) 70%)}
@@ -328,7 +341,7 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
     <p>Tell us who you want more of.</p>
     <p class="sub">Lead Generation is by invitation, and a short call is where it starts.</p>
     <a class="cta" href="/book.html#pick-a-time" data-evt="film_book_click" data-film-exit>Book a call</a>
-    <p class="fine"><a class="cta-q" href="https://app.nevamis.ca/scan" data-evt="film_scan_click" data-film-exit>Scan my website</a> first, if you would rather: it reads only what is public, in about two minutes.</p>
+    <p class="fine"><a class="cta-q" href="https://app.nevamis.ca/scan" data-evt="film_scan_click" data-film-exit>Scan my website</a><br>Reads only your public website. About two minutes.</p>
   </section>
 </div>
 <nav id="paneNav" aria-label="NEVAMIS sections">

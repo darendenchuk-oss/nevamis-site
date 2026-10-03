@@ -229,21 +229,16 @@ test.describe('a visitor can act before the intro finishes', () => {
     expect(toggle.onTop, 'nothing may sit on top of it').toBe(true);
   });
 
-  /* KNOWN DEFECT, found 2026-09-25 while repointing the test above, and pinned
-     here as an expected failure so that it cannot be forgotten: the day it is
-     fixed this test starts passing, Playwright reports that as a failure, and
-     whoever fixed it deletes the test.fail line.
-
-     The film's reduced-motion branch (assets/film/film-2.js, composed from
-     scripts/film/source.html) adds "on" to every copy block and then calls
-     apply(0.26) for its one still frame. apply()'s copy-visibility loop turns
-     "on" back off for every block whose scroll window does not contain 0.26,
-     so a reduced-motion visitor sees the first line and then three empty
-     spaces where "NEVAMIS works out what to do", "Then handles them" and the
-     closing "Scan my business" should be. The link is still there at opacity 0
-     and pointer-events:auto: an invisible button. */
+  /* FOUND 2026-09-25 AND HELD AS AN EXPECTED FAILURE UNTIL 2026-10-03 (audit
+     CHECK-RUNNER-3). The film's reduced-motion branch (assets/film/film-2.js,
+     composed from scripts/film/source.html) adds "on" to every copy block and
+     then calls apply(0.26) for its one still frame, and apply()'s
+     copy-visibility loop turned "on" back off for every block whose scroll
+     window does not contain 0.26. A reduced-motion visitor saw the first line
+     and three empty spaces, the last of them the film's ending, whose button
+     stayed tappable at opacity 0: an invisible button. apply() now leaves the
+     blocks alone on that path, and this is an ordinary test again. */
   test('reduced motion shows every film copy block, including the closing call to action', async ({ page }) => {
-    test.fail(true, 'known defect: apply(0.26) re-hides the copy on the reduced-motion path');
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/index.html', { waitUntil: 'load' });
@@ -252,6 +247,19 @@ test.describe('a visitor can act before the intro finishes', () => {
     const hidden = await page.evaluate(() => ['s1', 's2', 's3', 'close']
       .filter((id) => +getComputedStyle(document.getElementById(id)).opacity < 0.9));
     expect(hidden, 'film copy blocks a reduced-motion visitor cannot see').toEqual([]);
-    await expect(page.locator('#close a.cta')).toHaveAttribute('href', 'https://app.nevamis.ca/scan');
+    /* The ending's two actions are on screen and take the tap where they are
+       drawn: Book a call first (decision #54), the scan link under it. */
+    for (const sel of ['#close a.cta', '#close a.cta-q']) {
+      const a = page.locator(sel);
+      await a.scrollIntoViewIfNeeded();
+      const ok = await a.evaluate((el) => {
+        const b = el.getBoundingClientRect();
+        const at = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+        return +getComputedStyle(el).opacity > 0.9 && !!at && (at === el || el.contains(at));
+      });
+      expect(ok, `${sel} is visible and takes its own tap`).toBe(true);
+    }
+    await expect(page.locator('#close a.cta')).toHaveAttribute('href', '/book.html#pick-a-time');
+    await expect(page.locator('#close a.cta-q')).toHaveAttribute('href', 'https://app.nevamis.ca/scan');
   });
 });
