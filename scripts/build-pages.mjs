@@ -10,7 +10,7 @@
    the mobile callbar in place, then marks the current page's own
    nav and footer links with aria-current="page".
 
-   Legal pages keep their reduced footer: see FOOTER_BASE_ONLY.
+   Every page gets the full footer, legal pages included: see FOOTER_BASE_ONLY.
    ============================================================ */
 
 import fs from 'node:fs';
@@ -25,10 +25,18 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const NAV = read('_partials/nav.html').trim();
 const FOOTER_FULL = read('_partials/footer.html').trim();
 
-/** Privacy and terms ship the compact footer. pricing.html used to as well,
+/** Pages that ship the compact footer: none, any more. pricing.html used to,
     which left the page with the Buy buttons without the contact, Terms and
-    Privacy links, although checkout binds the buyer to terms.html. */
-const FOOTER_BASE_ONLY = new Set(['privacy.html', 'terms.html']);
+    Privacy links, although checkout binds the buyer to terms.html. Privacy and
+    terms kept it until 2026-10-03, and that was the same mistake on the two
+    pages a buyer is bound by: terms.html mentioned "the privacy policy" with
+    no link to it, neither page linked the other, and security.html (the page
+    .well-known/security.txt names) was linked from no page at all (audit
+    finding LEGAL-16). Every chromed page now carries the one footer, and its
+    Legal column names all three. The set stays so that a page which truly
+    needs the compact footer is a visible, reviewed exception here;
+    scripts/check-legal-truth.mjs fails if a legal page is put back in it. */
+const FOOTER_BASE_ONLY = new Set([]);
 
 /** Pages that receive the shared chrome. This used to skip 404.html on the
  *  grounds that it had no nav or footer, which stopped being true at some

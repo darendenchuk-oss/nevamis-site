@@ -1,5 +1,11 @@
 # Third-party notices
 
+This file is for people reading this repository, and it is not served on
+nevamis.ca (`_config.yml` excludes it). The notices for the code the site
+serves, including the full MIT licence text of the ElevenLabs widget, are in
+[THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt), which is served at
+https://nevamis.ca/THIRD_PARTY_NOTICES.txt. Change both together.
+
 ## Visual Skills
 Portions of the **film-v2** production documentation — specifically the camera,
 lighting, dramaturgy and transition vocabulary used to plan the styleframe

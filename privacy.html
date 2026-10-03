@@ -13,6 +13,10 @@
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="Privacy | Nevamis">
 <meta property="og:description" content="What nevamis.ca collects, why, and how long it is kept. Written for PIPEDA and Alberta PIPA.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nevamis.ca/privacy.html">
+<meta property="og:site_name" content="Nevamis">
+<meta property="og:locale" content="en_CA">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -1024,18 +1028,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap">
       <p class="eyebrow"><span class="dot"></span>Legal</p>
       <h1>Privacy</h1>
-      <p>Last updated: September 2026. This page describes what this website collects, and what we hold about businesses that have a Nevamis account. It is written to be read, not to hide things.</p>
+      <p>Last updated: October 3, 2026. This page describes what this website collects, and what we hold about businesses that have a Nevamis account. It is written to be read, not to hide things.</p>
       <h2>Who we are</h2>
-      <p>This service is operated by Nevamis AI Inc., a federal corporation based in Edmonton, Alberta, Canada. We handle personal information under Alberta&rsquo;s Personal Information Protection Act (PIPA) and Canada&rsquo;s Personal Information Protection and Electronic Documents Act (PIPEDA) where it applies. This page is written to be read, not to hide things, and it is not legal advice.</p>
+      <p>This service is operated by Nevamis AI Inc., a federal corporation based in Edmonton, Alberta, Canada. We handle personal information under Alberta&rsquo;s Personal Information Protection Act (PIPA) and Canada&rsquo;s Personal Information Protection and Electronic Documents Act (PIPEDA) where it applies. This page is not legal advice.</p>
       <h2>What this website collects</h2>
-      <p>This website does not use advertising trackers and does not set non-essential cookies. It stores two small things in your browser, and neither ever leaves your device: your motion on/off choice, and a short-lived note that you tapped a call button, so that when you come back to the tab we can offer the obvious next step once instead of asking again. Fonts are self-hosted on nevamis.ca, so viewing this site sends no requests to Google or any other font provider. We count page views and button clicks first-party on our own systems to understand what works: each count records only the event name, the page path, the referring site&rsquo;s hostname, and campaign tags. No cookies, no IP addresses, and no identifiers are stored, and the counts never leave Nevamis.</p>
+      <p>This website does not use advertising trackers and does not set non-essential cookies. Its own pages store two small things in your browser, and neither ever leaves your device: your motion on/off choice, and a short-lived note that you tapped a call button, so that when you come back to the tab we can offer the obvious next step once instead of asking again. A browser call to the demo is the one addition, and what its software keeps is described in the next section. Fonts are self-hosted on nevamis.ca, so our pages, the browser call included, request no fonts from Google or any other font provider. We count page views, button clicks and how far down a page you scrolled, first-party on our own systems, to understand what works: each count records only the event name, the page path, the referring site&rsquo;s hostname, and campaign tags, including an ad platform&rsquo;s click ID when you arrive from an ad. No cookies and no IP addresses are stored, we set no identifier of our own, and the counts never leave Nevamis.</p>
       <div class="reveal">
-      <h2>When you call the demo line</h2>
-      <p>Calls to (587) 413-0035 are handled by an AI voice agent running on third-party telephony and voice platforms. Call audio, transcripts, and any details you share (such as your name or callback number) are processed to run the conversation and to follow up with you if you ask us to. Do not share sensitive personal information on the demo line.</p>
+      <h2 id="demo-calls">When you call the demo, by phone or in your browser</h2>
+      <p>Calls to (587) 413-0035, and browser calls started on nevamis.ca/talk/, are handled by an AI voice agent running on third-party telephony and voice platforms. Every demo call is recorded, by phone or in the browser. Call audio, transcripts, and any details you share (such as your name or callback number) are processed to run the conversation and to follow up with you if you ask us to. Do not share sensitive personal information on a demo call.</p>
+      <p>A browser call uses your microphone only while the call is open, and sends that audio to ElevenLabs, our voice provider, which runs the call. Its software loads from nevamis.ca only when you press start. While it runs, it connects to ElevenLabs, and it may load small images from ElevenLabs&rsquo; public storage on Google Cloud and one audio component from the jsDelivr network. It does not identify your device: every browser call carries the same fixed label from us, so the software neither fingerprints your device nor stores an ID for you. It may remember in your browser the language you chose and whether you accepted ElevenLabs&rsquo; call terms.</p>
       </div>
       <div class="reveal">
       <h2>When you book a call</h2>
-      <p>Bookings are handled by our scheduling provider (Cal.com). The information you enter there (name, email, and anything you add) is used to run the meeting and follow up. Their own privacy terms apply to their processing.</p>
+      <p>Bookings are handled by our scheduling provider (Cal.com). The calendar on the booking page is Cal.com&rsquo;s own page, shown inside ours and loaded from cal.com when you scroll to it. The information you enter there (name, email, and anything you add) is used to run the meeting and follow up. Their own privacy terms apply to their processing.</p>
       </div>
       <div class="reveal">
       <h2>When you ask us to call you back, or tell us what would help</h2>
@@ -1047,11 +1052,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       </div>
       <div class="reveal">
       <h2>Where your data is processed</h2>
-      <p>To run the demo line, scheduling, voice, text messages, email, and our website and database, we use service providers that may store and process personal information in the United States and other countries. They are ElevenLabs (the voice agent), Twilio (calls and texts), Resend (sending email, and receiving replies to Quote Recovery follow-ups), Google (our nevamis.ca mailbox, which receives email you send us, our lead alerts and your customers&rsquo; replies to invoice reminders and estimate follow-ups; and the public business listings we look up for Lead Generation and business scans), Cal.com (booking a call with us), Vercel and Turso (hosting and our database), Trigger.dev (running a business scan you ask for), Activepieces (running some of the automations you switch on, inside Nevamis only: outside an Enterprise agreement, nothing is linked to your CRM, ad accounts or other tools), Stripe (billing), and Anthropic, whose AI model we use to review call summaries and transcripts, to check that the agent kept to the facts it was given. This means your information may be handled outside Canada and may be subject to the laws of those countries. We use providers that offer commercially reasonable safeguards, and we share only what is needed to deliver the service.</p>
+      <p>To run the demo line, scheduling, voice, text messages, email, and our website and database, we use service providers that may store and process personal information in the United States and other countries. They are ElevenLabs (the voice agent), Twilio (calls and texts), Resend (sending email, and receiving replies to Quote-Chase Engine follow-ups), Google (our nevamis.ca mailbox, which receives email you send us, our lead alerts and your customers&rsquo; replies to invoice reminders and estimate follow-ups; and the public business listings we look up for Lead Generation and business scans), Cal.com (booking a call with us), Vercel and Turso (hosting and our database), Trigger.dev (running a business scan you ask for), Activepieces (running some of the automations you switch on, inside Nevamis only: outside an Enterprise agreement, nothing is linked to your CRM, ad accounts or other tools), Stripe (billing), and Anthropic, whose AI model we use to review call summaries and transcripts, to check that the agent kept to the facts it was given. This means your information may be handled outside Canada and may be subject to the laws of those countries. We use providers that offer commercially reasonable safeguards, and we share only what is needed to deliver the service.</p>
       </div>
       <div class="reveal">
       <h2>How long we keep it</h2>
-      <p>Website preferences stay on your device only. Contact and scheduling details, including what you send through the callback and roadmap forms, are kept until you ask us to delete them. Demo-line audio and transcripts are used to run and improve the demo. They are kept by our voice provider, and a summary and written record may also be kept on our own systems, until you ask us to delete them. We have not yet set a fixed period after which any of these is deleted without being asked, and this page will state that period once one is set. We keep only what we need for the purposes described here.</p>
+      <p>Website preferences stay on your device only. Contact and scheduling details, including what you send through the callback and roadmap forms, are kept until you ask us to delete them. Demo call audio and transcripts, by phone or in the browser, are used to run and improve the demo. They are kept by our voice provider, and a summary and written record may also be kept on our own systems, until you ask us to delete them. We have not yet set a fixed period after which any of these is deleted without being asked, and this page will state that period once one is set. We keep only what we need for the purposes described here.</p>
       </div>
       <div class="reveal">
       <h2>Your rights: see, correct, or delete your information</h2>
@@ -1060,7 +1065,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="reveal">
       <h2>When you have a Nevamis account</h2>
       <p>If your business signs up, we hold your business name, the contact details of the people you give access to, and a record of when they sign in. We hold the configuration you give us: your hours, services, prices and the answers you want the agent to give. We hold the calls the agent handles on your behalf and the leads it takes down, so we can deliver them to you and bill for the minutes used; the written agreement sets out how long those are kept and how to get them back or have them deleted. Billing is handled by Stripe, and we do not hold your card details.</p>
-      <p>The other services you switch on work with your customers&rsquo; details, which we handle for you and only for you. For Quote Recovery and Get-Paid Autopilot we hold the quotes and unpaid invoices you give us: each customer&rsquo;s name and email, the amount, the dates and where it stands. We send the follow-ups and reminders you approve, in your business&rsquo;s name, and we keep those messages and any reply your customer sends, so you can see who answered. For Missed-Call Recovery and the Review Engine we hold the number we text and the text we sent. If Lead Generation is enabled for you, we hold the businesses it shows you: name, website, phone, address, and where and when we read each one, from public listings on Google or a supplier we are licensed to use. We contact none of them. Nothing here is switched on until you switch it on, and the written agreement sets out how long these details are kept and how to get them back or have them deleted.</p>
+      <p>The other services you switch on work with your customers&rsquo; details, which we handle for you and only for you. For the Quote-Chase Engine (Quote Recovery) and Get-Paid Autopilot we hold the quotes and unpaid invoices you give us: each customer&rsquo;s name and email, the amount, the dates and where it stands. We send the follow-ups and reminders you approve, in your business&rsquo;s name, and we keep those messages and any reply your customer sends, so you can see who answered. For Missed-Call Recovery and the Review Engine we hold the number we text and the text we sent. If Lead Generation is enabled for you, we hold the businesses it shows you: name, website, phone, address, and where and when we read each one, from public listings on Google or a supplier we are licensed to use. We contact none of them. Nothing here is switched on until you switch it on, and the written agreement sets out how long these details are kept and how to get them back or have them deleted.</p>
       <p>If you refer another business to us, we record which business referred which, so we can apply the reward. We do not ask you for their contact details and we do not email anyone on the strength of a referral: you send them the link yourself.</p>
       <p>If you put your business forward for something we have not built yet, we record which one you asked about, who asked, and anything you typed in the box, so we can come back to you about it. That is a waiting list and nothing else: it is not an order, there is no price attached, and it does not change what we hold about your calls or your customers.</p>
       <p>Some of the things we are working on would involve a kind of information we do not handle today. An assistant that helps with your email would need access to your inbox, for example. <strong>We will not start handling a new kind of information without asking you first and updating this page to say so.</strong> Being on a waiting list is not that permission, and nothing on this page grants it in advance.</p>
@@ -1076,6 +1081,32 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </main>
 <footer class="site-footer">
   <div class="wrap">
+    <div class="cols">
+      <div>
+        <h2 class="foot-h foot-brand">Nevamis</h2>
+        <p>Nevamis helps Canadian service businesses win more of the work they want. Lead Generation, offered by invitation, finds businesses of the kind you want more of, and you decide every one. Quote Recovery follows up the quotes you already sent, and the AI Front Desk answers the calls you cannot, inside rules you approve.</p>
+        <p style="margin-top:10px">Demo line: <a href="tel:+15874130035" class="mono">(587) 413-0035</a><br>Sales: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a><br>Edmonton, Alberta, Canada</p>
+      </div>
+      <div>
+        <h2 class="foot-h">Site</h2>
+        <a href="/#how">How it works</a>
+        <a href="/#industries">Industries</a>
+        <a href="/solutions.html">Solutions</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/how-you-start.html">How you start</a>
+        <a href="/demo.html">Demo</a>
+        <a href="/coming-soon.html">Roadmap</a>
+        <a href="/about.html">About</a>
+        <a href="/book.html">Book a call</a>
+        <a href="https://app.nevamis.ca/login" data-evt="client_login_click">Client login</a>
+      </div>
+      <div>
+        <h2 class="foot-h">Legal</h2>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/security.html">Security</a>
+      </div>
+    </div>
     <div class="base">
       <span>© 2026 Nevamis AI Inc.</span>
       <span class="right mono">nevamis.ca</span>
