@@ -1018,6 +1018,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      it, so it carries no tick, cross or warning colour: the body ink, read
      as a question (vs-answering-service.html, 2026-10-03). */
   td.ask{color:var(--ink-2)}
+
+  /* The trade pages' price line sits under the urgency lede as a second
+     lede, a little apart from it. .fm-gate is the element free-month.js
+     fills and shows (scripts/content/pages.mjs says when). Nothing here sets
+     its display, so its hidden attribute alone decides whether it shows; its
+     two slots are spans made into lines, the first in the warm ink
+     pricing.html's banner uses, the second at the footnote colour. */
+  /* Written with the lede rule's own :not() chain so it outranks it: the
+     lede rule's margin otherwise ran the two paragraphs together. */
+  .section-head p.start-line:not(.eyebrow):not(.k):not(.doc-k){margin-top:14px;color:var(--ink)}
+  .fm-gate{margin-top:20px;max-width:var(--measure-lede);font-size:var(--fs-card);
+    line-height:var(--lh-body);color:var(--ink-2)}
+  .fm-gate [data-nv-free-month-offer]{display:block;color:var(--warm);font-weight:700}
+  .fm-gate [data-nv-free-month-note]{display:block;margin-top:6px;color:var(--ink-4)}
+  .fm-gate a{display:inline-block;padding:4px 0;margin-top:6px;color:var(--mint);
+    text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(159,240,206,.45)}
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -1169,11 +1185,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         is captured with the times that suit the caller, for you to confirm. For anything outside the rules you approved, it takes a message and
         flags it for you rather than inventing an answer. You decide what counts as urgent
         for your business, and everything else is taken down for the morning.</p>
+      <p class="start-line">From C$250 a month on Front Desk Starter, with 200 minutes included, plus applicable GST/HST. Same receptionist, answers 24/7. The three sizes differ only in the minutes included each month and the rate for each minute past them.</p>
     </div>
     <div class="midcta reveal">
+      <a class="btn btn-primary" href="/pricing.html#plans" data-evt="trade_pricing_click">Buy now</a>
       <a class="btn btn-ghost" href="/how-you-start.html" data-evt="trade_start_click">See how you start</a>
-      <a class="btn btn-ghost" href="/pricing.html" data-evt="trade_pricing_click">Compare plans</a>
     </div>
+      <div class="fm-gate" data-nv-free-month hidden><span data-nv-free-month-offer></span>
+        <span class="fine2" data-nv-free-month-note></span>
+        <a href="/book.html" data-evt="hero_book_call_click">Book a 15-min call</a></div>
   </div>
 </section>
 
@@ -1268,6 +1288,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 <a class="callbar" href="/book.html#pick-a-time" data-evt="callbar_book_click">Book a 15-min call</a>
 
 <script>document.documentElement.classList.remove('no-js');</script>
+<script src="pricing-config.js"></script>
+<script src="free-month.js" defer></script>
 <script src="assets/vendor/gsap.min.js"></script>
 <script src="site.js" defer></script>
 <script src="motion.js" defer></script>

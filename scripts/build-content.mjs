@@ -23,8 +23,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PAGES, PROOF_BLOCK } from './content/pages.mjs';
+import { PAGES, PROOF_BLOCK, PRICING, SIZE_COUNT } from './content/pages.mjs';
 import { contentClaimFindings, formatFindings } from './content/claim-rules.mjs';
+import { priceFindings } from './content/price-rules.mjs';
 import { headCssBlock, readCssSources } from './lib/inline-css.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -244,6 +245,22 @@ ${CSS_BLOCK}
      it, so it carries no tick, cross or warning colour: the body ink, read
      as a question (vs-answering-service.html, 2026-10-03). */
   td.ask{color:var(--ink-2)}
+
+  /* The trade pages' price line sits under the urgency lede as a second
+     lede, a little apart from it. .fm-gate is the element free-month.js
+     fills and shows (scripts/content/pages.mjs says when). Nothing here sets
+     its display, so its hidden attribute alone decides whether it shows; its
+     two slots are spans made into lines, the first in the warm ink
+     pricing.html's banner uses, the second at the footnote colour. */
+  /* Written with the lede rule's own :not() chain so it outranks it: the
+     lede rule's margin otherwise ran the two paragraphs together. */
+  .section-head p.start-line:not(.eyebrow):not(.k):not(.doc-k){margin-top:14px;color:var(--ink)}
+  .fm-gate{margin-top:20px;max-width:var(--measure-lede);font-size:var(--fs-card);
+    line-height:var(--lh-body);color:var(--ink-2)}
+  .fm-gate [data-nv-free-month-offer]{display:block;color:var(--warm);font-weight:700}
+  .fm-gate [data-nv-free-month-note]{display:block;margin-top:6px;color:var(--ink-4)}
+  .fm-gate a{display:inline-block;padding:4px 0;margin-top:6px;color:var(--mint);
+    text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(159,240,206,.45)}
 </style>
 ${schema}
 </head>
@@ -265,11 +282,18 @@ ${schema}
 `;
 }
 
-function tail() {
+/* A page that carries the gated first month free loads its carrier and its
+   one renderer, in that order (check-consistency.js guard 7u reads the order):
+   pricing-config.js for foundingClient, then free-month.js, which asks the
+   engine whether a place is open. A page without one loads neither, so a
+   trade page costs nothing extra while the owner's switch is off. */
+function tail(gated = false) {
   return `
 ${FOOTER}
 
-<script>document.documentElement.classList.remove('no-js');</script>
+<script>document.documentElement.classList.remove('no-js');</script>${gated ? `
+<script src="pricing-config.js"></script>
+<script src="free-month.js" defer></script>` : ''}
 <script src="assets/vendor/gsap.min.js"></script>
 <script src="site.js" defer></script>
 <script src="motion.js" defer></script>
@@ -319,6 +343,7 @@ for (const [file, content] of Object.entries(PAGES)) {
      search result (fix plan A31). The cut stays as the fallback. */
   const description = content.description || content.lede.replace(/\s+/g, ' ').trim().slice(0, 155);
 
+  const gated = /\bdata-nv-free-month(?![-\w])/.test(content.body);
   const html =
     head({
       title, ogTitle: `${meta.title} | Nevamis`, description, canonical: `${SITE}${meta.url}`,
@@ -346,7 +371,7 @@ ${content.body}
 ${PROOF_BLOCK}
 ${relatedFor(file)}
 </main>
-` + tail();
+` + tail(gated);
 
   out[file] = html;
 }
@@ -361,7 +386,13 @@ const CLUSTERS = [
 ];
 
 const hubMeta = byFile['solutions.html'];
-const hubDesc = 'Lead Generation by invitation, Quote Recovery and the AI Front Desk, by trade, by situation, and compared to voicemail and answering services.';
+/* "the AI Front Desk" named the whole phone capability here until v7. Since
+   owner amendment #67 that is the name of the largest of the front desk's
+   sizes, so the capability is "the front desk" (decision #17) in the
+   description, the lede and the card, and the lede says once that it comes
+   in sizes, as many as the config sells, linking to them (audit
+   PRODUCT-11). */
+const hubDesc = 'Lead Generation by invitation, Quote Recovery and the front desk, by trade, by situation, and compared to voicemail and answering services.';
 
 /* The front desk card on the hub said it "takes the job, the address and
    the time the caller wants", with no word about who confirms, until
@@ -387,7 +418,7 @@ const hubHtml =
       <p class="crumb"><a href="/">Home</a> / Solutions</p>
       <span class="eyebrow mono"><span class="dot" aria-hidden="true"></span>Everything in one place</span>
       <h1>Find the part of Nevamis that fits your business.</h1>
-      <p class="lede">Nevamis does three things. Lead Generation, offered by invitation, finds businesses of the kind you want more of. Quote Recovery follows up the quotes you already sent. The AI Front Desk answers the calls you cannot. The pages by trade and by situation below start at the phone.</p>
+      <p class="lede">Nevamis does three things. Lead Generation, offered by invitation, finds businesses of the kind you want more of. Quote Recovery follows up the quotes you already sent. The front desk answers the calls you cannot, in <a href="/pricing.html#plans">${SIZE_COUNT} sizes</a>: the same receptionist answers 24/7 in each, and they differ only in the minutes included and the rate past them. The pages by trade and by situation below start at the phone.</p>
       <div class="cta">
         <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer &nbsp;›</a>
         <a class="btn btn-ghost btn-lg" href="https://app.nevamis.ca/scan" data-evt="solutions_hero_scan_click">Scan my website</a>
@@ -399,7 +430,7 @@ const hubHtml =
        answering, and the free scan is the way in for anyone unsure which of
        the three they need. The owner made that ranking explicit on
        2026-09-12, so the three sold things are all named here in it: Lead
-       Generation, Quote Recovery, the AI Front Desk. The front-desk row
+       Generation, Quote Recovery, the front desk. The front-desk row
        carries no data-evt on purpose. Event names are an allowlist shared
        with the engine (src/app/api/events/route.ts) and a name that is not on
        it is dropped in silence, so an untracked link is honest where an
@@ -426,7 +457,7 @@ const hubHtml =
       <div class="related reveal">
         <a href="/book.html" data-evt="solutions_leadgen_click"><strong>Lead Generation (by invitation)</strong><span>Offered by invitation, under your own agreement, and put together by hand. A person here reads public pages and builds you a list of the businesses that fit the work you want, with the page each row came from and the day it was read. You decide every row, and nobody on the list is contacted by us.</span></a>
         <a href="/pricing.html" data-evt="solutions_recovery_click"><strong>Quote Recovery</strong><span>The quotes you sent and never heard back about, followed up for you: the day a quote goes quiet, again four days on, and again eleven days on. Each email carries your name and needs your approval before it goes. On the pricing page it is the Quote-Chase Engine.</span></a>
-        <a href="/missed-calls.html"><strong>The AI Front Desk</strong><span>Answers your line when you cannot and writes down the job, the address and the times that suit the caller, for you to confirm. Each call it answers reaches you as a summary. Start with what a missed call costs you.</span></a>
+        <a href="/missed-calls.html"><strong>The front desk</strong><span>Answers your line when you cannot and writes down the job, the address and the times that suit the caller, for you to confirm. Each call it answers reaches you as a summary. The same receptionist in every size. Start with what a missed call costs you.</span></a>
         <a href="https://app.nevamis.ca/scan" data-evt="solutions_scan_click"><strong>Scan my website</strong><span>PULSE reads only what is public on your own website and quotes what it found. Where it puts a figure on something, the figure is a modelled range, not a measurement. No email required.</span></a>
       </div>
     </div>
@@ -456,9 +487,9 @@ out['solutions.html'] = hubHtml;
    Judge everything before writing anything. A refusal leaves every
    committed page as it was, so a failed build never ships half.
    --------------------------------------------------------------- */
-const findings = contentClaimFindings(root, out);
+const findings = [...contentClaimFindings(root, out), ...priceFindings(root, out, PRICING)];
 if (findings.length) {
-  console.error(`build-content: refusing to write. ${findings.length} finding(s) from scripts/content/claim-rules.mjs:\n`
+  console.error(`build-content: refusing to write. ${findings.length} finding(s) from scripts/content/claim-rules.mjs and price-rules.mjs:\n`
     + formatFindings(findings)
     + '\n\nFix the copy in scripts/content/pages.mjs, content-map.json or demo.html. Weaken a rule only with'
     + '\nthe engine fact that makes the claim true, and move its example from MUST_FIRE to MUST_PASS.');

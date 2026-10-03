@@ -18,13 +18,19 @@ const DEMO = '(587)&nbsp;413-0035';
    the config the same way build-schema.mjs reads it, and the build refuses to
    run rather than print a figure it could not find. Added 2026-09-19 with the
    Missed-Call Recovery card and the answering-service cost row (fix plan A25,
-   A27). */
+   A27). Since v7 (2026-10-03) a guard does compare them:
+   scripts/content/price-rules.mjs refuses a C$ figure the config does not
+   hold, a figure or a free month typed into this file, and a page that
+   leaves out the sizes it must state, and build-content.mjs runs it before
+   it writes anything. */
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const cfgSandbox = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'pricing-config.js'), 'utf8'), cfgSandbox);
 const NV = cfgSandbox.window.NV_PRICING || {};
+/** The config itself, for build-content.mjs and price-rules.mjs, so the
+    figures a page prints and the figures it is judged against are one read. */
+export const PRICING = NV;
 const MISSED_CALL = (NV.addOns || []).find((a) => a.id === 'missed_call_recovery');
-const FRONT_DESK = (NV.plans || []).find((p) => p.id === 'pro');
 /* Since v7 (2026-10-03) a module's Launch & Implementation fee is 0, so the
    fee is no longer required, only declared; its sentence is the config's own
    startLine(), which names a fee only where there is one. */
@@ -33,14 +39,86 @@ if (!MISSED_CALL || !MISSED_CALL.sellable || typeof MISSED_CALL.launch !== 'numb
   throw new Error('pages.mjs: pricing-config.js has no sellable missed_call_recovery add-on with a monthly, or no startLine(); refusing to print its price.');
 }
 const MISSED_CALL_LINE = NV.startLine(MISSED_CALL).replace(/\.$/, '').replace(/&/g, '&amp;');
-if (!FRONT_DESK || !(FRONT_DESK.includedMinutes > 0) || !(FRONT_DESK.overage > 0)) {
-  throw new Error('pages.mjs: pricing-config.js has no "pro" plan with included minutes and an overage rate; refusing to print them.');
-}
 /** C$500, C$1,500, C$0.75: whole dollars bare, cents to two places. */
 const cad = (n) => 'C$' + n.toLocaleString('en-US', {
   minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2,
 });
 const count = (n) => n.toLocaleString('en-US');
+
+/* THE FRONT DESK IN SIZES (commercial model v7, owner amendment #67,
+   2026-10-03). The phone service is sold in three sizes, Front Desk Starter,
+   Front Desk Plus and the AI Front Desk: the same receptionist answering
+   24/7, differing only in the minutes included and the rate past them, and
+   each one a Buy now on pricing.html. Until v7 these pages read one plan,
+   'pro', so the answering-service cost row named only the C$1,000 size and
+   the voicemail row named no figure at all, which hid the honest answer to
+   "what does this cost against free voicemail" (audit COMPARE-3, COMPARE-4).
+
+   The sizes come from the config's own frontDeskTiers(), the list
+   pricing.html sets side by side, so a size added or repriced there lands
+   here without an edit. ENTRY is the cheapest one a visitor can buy
+   alone, which is the honest "from" figure. Its id is the config's, never
+   'starter': that key is the Performance Partnership's (canonical.ts), and
+   "Front Desk Starter" is 'front-desk-starter'.
+
+   The build refuses rather than prints a size it cannot state whole: a
+   size with a Launch & Implementation fee would make "from C$250 a month" a
+   half-truth, so none may carry one, as none does since v7. */
+const SIZES = typeof NV.frontDeskTiers === 'function' ? NV.frontDeskTiers() : [];
+if (SIZES.length < 2 || SIZES.some((s) => !(s.monthly > 0) || !(s.includedMinutes > 0) || !(s.overage > 0)
+  || s.launch > 0 || s.id === 'starter')) {
+  throw new Error('pages.mjs: pricing-config.js frontDeskTiers() does not give two or more Front Desk sizes, each with a monthly, included minutes and an overage rate and no Launch & Implementation fee; refusing to print them.');
+}
+if (!NV.frontDeskSizes || !NV.frontDeskSizes.note || !/\b24\/7\b/.test(NV.frontDeskSizes.note)) {
+  throw new Error('pages.mjs: pricing-config.js frontDeskSizes.note is missing or no longer says the receptionist answers 24/7; refusing to describe the sizes without it.');
+}
+const ENTRY = SIZES.filter((s) => s.selfServe !== false).sort((a, b) => a.monthly - b.monthly)[0];
+if (!ENTRY) throw new Error('pages.mjs: no Front Desk size can be bought on its own; refusing to print a "from" price.');
+const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+/** "three", from the number of sizes the config sells. */
+export const SIZE_COUNT = WORDS[SIZES.length] || String(SIZES.length);
+/** The config's own sentence under the sizes on pricing.html: "Same
+    receptionist, answers 24/7. The three sizes differ only in ...". */
+const SIZES_NOTE = NV.frontDeskSizes.note;
+/** "from C$250 a month with 200 minutes included": the cheapest size, read. */
+const FROM_LINE = `from ${cad(ENTRY.monthly)} a month with ${count(ENTRY.includedMinutes)} minutes included`;
+/** The trade pages' line, with the size named beside its figure. A bare "the
+    front desk costs from C$250" is read by the engine's truth check as the
+    AI Front Desk at C$250 ("Front Desk" is that size's alias there), which is
+    false, and a buyer could read it the same way. */
+const TRADE_LINE = `From ${cad(ENTRY.monthly)} a month on ${ENTRY.name}, with ${count(ENTRY.includedMinutes)} minutes included`;
+
+/* THE FIRST MONTH FREE, ONLY BEHIND THE GATE (owner amendment #66,
+   2026-10-03). The first month free is for the first
+   freeMonth.firstClients businesses, given on a booked call and never by
+   Buy now, and the site must stop saying it the moment the engine reports
+   the last place taken. #41 typed "Your first month is free" into the
+   voicemail row and foot-note and printed "its first month is free" beside
+   Missed-Call Recovery's price, unconditionally, to every visitor, after
+   the tenth place too (audit COMPARE-2, PRODUCT-9).
+
+   So these pages type no free month at all. Where it belongs, beside a
+   price, they carry an element free-month.js controls: marked
+   data-nv-free-month, shipped hidden, with its offer and note slots EMPTY,
+   filled from pricing-config.js foundingClient and shown only after
+   app.nevamis.ca/api/free-month answers that a place is open. The builder
+   writes that element only while the owner's switch is on and places
+   remain (foundingClient.active and spots above zero), and build-content
+   loads pricing-config.js and then free-month.js only on a page that
+   carries one. With the switch off nothing about a free month is in the
+   page, not even hidden. Its link is the booked call, the only way the
+   month is given; the Buy now beside a price says nothing about it.
+   scripts/check-consistency.js guard 7u refuses any free-month phrase
+   outside such an element, and scripts/content/price-rules.mjs refuses the
+   element while the switch is off. */
+const FC = NV.foundingClient || {};
+const FREE_MONTH_LIVE = FC.active === true && Number(FC.spots) > 0;
+/** The gated offer, or nothing while the switch is off. `tag` is the
+    element it rides in: a block on its own, or a line inside a card. */
+const freeMonth = (tag = 'div') => (FREE_MONTH_LIVE ? `
+      <${tag} class="fm-gate" data-nv-free-month hidden><span data-nv-free-month-offer></span>
+        <span class="fine2" data-nv-free-month-note></span>
+        <a href="/book.html" data-evt="hero_book_call_click">Book a 15-min call</a></${tag}>` : '');
 
 /** The platform paragraph that sits under the hero CTAs on the four trade
     pages. It lived only in the generated HTML until 2026-08-27, so any run of
@@ -97,9 +175,9 @@ export const PROOF_BLOCK = `
    cards promise Lead Generation and Quote Recovery behind each trade. Lead
    Generation always carries "by invitation" and no price, volume, guarantee,
    automation or contact claim. The pricing link carries no data-evt on
-   purpose: trade_pricing_click already fires from "Compare plans" above, and
-   one name from two placements on a page is what tests/analytics.spec.js
-   refuses. hero_book_call_click is one of the three names that test lets fire
+   purpose: trade_pricing_click already fires from "Buy now" above (it was
+   "Compare plans" until v7), and one name from two placements on a page is
+   what tests/analytics.spec.js refuses. hero_book_call_click is one of the three names that test lets fire
    from several placements.
 
    Two of its sentences were tightened on 2026-10-03 (review of PR #42).
@@ -117,7 +195,16 @@ export const PROOF_BLOCK = `
    "It takes the job and any time they ask for" opened "Written down, not
    lost" until the same day's polish pass (audit PRICING-9): the time with no
    word about who confirms it reads as booked. It now writes the job down,
-   and the times that suit the caller are for you to confirm. */
+   and the times that suit the caller are for you to confirm.
+
+   WHAT IT COSTS, AND A WAY TO BUY IT (v7, audit TRADES-7). These are the
+   phone-first pages, and until v7 they carried no price and no way to buy:
+   "See how you start" and "Compare plans". Under #67 the phone is sold in
+   sizes, each a Buy now, so the urgency section now ends with the cheapest
+   size's figure and minutes and the config's own "same receptionist,
+   answers 24/7" sentence, then Buy now to the sizes on pricing.html. The
+   first month free sits under them only behind the gate (freeMonth above),
+   with the booked call as its link, never the Buy now. */
 const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours }) => `
 <section class="tight">
   <div class="wrap">
@@ -162,11 +249,12 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
       <p>${afterHours} For anything outside the rules you approved, it takes a message and
         flags it for you rather than inventing an answer. You decide what counts as urgent
         for your business, and everything else is taken down for the morning.</p>
+      <p class="start-line">${TRADE_LINE}, plus applicable GST/HST. ${SIZES_NOTE}</p>
     </div>
     <div class="midcta reveal">
+      <a class="btn btn-primary" href="/pricing.html#plans" data-evt="trade_pricing_click">Buy now</a>
       <a class="btn btn-ghost" href="/how-you-start.html" data-evt="trade_start_click">See how you start</a>
-      <a class="btn btn-ghost" href="/pricing.html" data-evt="trade_pricing_click">Compare plans</a>
-    </div>
+    </div>${freeMonth()}
   </div>
 </section>
 
@@ -437,7 +525,15 @@ export const PAGES = {
      neither: they are the two ways a client forwards to the one AI Front
      Desk (engine forwarding-codes.ts: no-answer, busy and unreachable
      together, or every call), so the page names them as that (audit
-     PRODUCT-8). The busy card stays, because busy forwarding is real. */
+     PRODUCT-8). The busy card stays, because busy forwarding is real.
+
+     Since v7 "AI Front Desk" is the name of one size, the C$1,000 one, so
+     the capability is "the front desk" here (decision #17), and both modes
+     work on every size. Missed-Call Recovery's price is the config's
+     startLine(), which never carries a free month: #41 printed "its first
+     month is free" there for every buyer (audit PRODUCT-9). The month is
+     said only by the gated element after it, for the first clients, with
+     the booked call as its link. */
   'missed-calls.html': {
     /* "Every unanswered call is a customer (who is already) dialling
        somebody else" in both lines until 2026-10-03. Wrong numbers, spam and
@@ -469,7 +565,7 @@ export const PAGES = {
     <div class="section-head reveal">
       <p class="eyebrow mono">Where the calls go</p>
       <h2>Where the calls go, and what catches each one.</h2>
-      <p>The AI Front Desk has two forwarding modes. Overflow sends it the calls you do not
+      <p>The front desk has two forwarding modes, in every size. Overflow sends it the calls you do not
         answer, including when your line is busy or your phone is off. Full-time sends it every
         call. You set the mode with your phone provider, often by dialling short codes on your
         phone, or in your provider's portal for a hosted business line, and we can walk you
@@ -492,7 +588,7 @@ export const PAGES = {
         go-ahead. It sends only between 8 a.m. and 8 p.m. your time, every day, and hands over
         the moment they reply. On its own it is
         ${MISSED_CALL_LINE},
-        plus applicable GST/HST.</p></div>
+        plus applicable GST/HST.</p>${freeMonth('p')}</div>
     </div>
   </div>
 </section>`,
@@ -522,7 +618,15 @@ export const PAGES = {
          (COMPARE-6).
        - "Escalates an emergency | By your rules" read as a hand-off. Client
          agents have end_call and nothing else; what happens is the urgent
-         details captured and the team alerted (COMPARE-8, decision #40). */
+         details captured and the team alerted (COMPARE-8, decision #40).
+       The price row and the foot-note changed with v7. Both said "a one-time
+       Launch & Implementation fee to start, then a monthly plan", and no
+       Front Desk size carries a fee since v7; #41 replaced it with "Your
+       first month is free on the AI Front Desk", typed, for every visitor,
+       naming only the C$1,000 size and no figure (audit COMPARE-2,
+       COMPARE-4). Against free voicemail the honest figure is the cheapest
+       size, read from the config, and the first month free appears only in
+       the gated element under the note. */
     body: `
 <section class="tight">
   <div class="wrap">
@@ -535,13 +639,13 @@ export const PAGES = {
           <tr><th scope="row">Confirms the callback number</th><td class="no">No</td><td class="yes">Yes, and says your team will get back to them</td></tr>
           <tr><th scope="row">Flags an emergency to you</th><td class="no">No</td><td class="yes">Captures the urgent details and alerts your team, by the rules you set</td></tr>
           <tr><th scope="row">Gives you a useful summary</th><td class="part">A recording</td><td class="yes">Who called, what they wanted, the callback number, urgency, outcome and next step</td></tr>
-          <tr><th scope="row">Costs nothing</th><td class="yes">Yes</td><td class="part">A one-time Launch &amp; Implementation fee to start, then a monthly plan</td></tr>
+          <tr><th scope="row">Costs nothing</th><td class="yes">Yes</td><td class="part">From ${cad(ENTRY.monthly)} a month (${ENTRY.name}, ${count(ENTRY.includedMinutes)} minutes included)</td></tr>
         </tbody>
       </table>
     </div>
     <p class="foot-note reveal">Voicemail genuinely wins on price. The
-      question is what one recovered job a month is worth against a one-time
-      Launch &amp; Implementation fee to start, then the monthly plan you would be on.</p>
+      question is what one recovered job a month is worth against the monthly
+      plan you would be on, ${FROM_LINE} on ${ENTRY.name}, plus applicable GST/HST.</p>${freeMonth()}
   </div>
 </section>
 
@@ -589,7 +693,21 @@ export const PAGES = {
          (COMPARE-8). And the cost row lost ", or a cap you choose": no
          client can choose a cap (engine usage-policy.ts has no production
          caller), and pricing.html says calls keep being answered past the
-         included minutes (COMPARE-1). */
+         included minutes (COMPARE-1).
+       The cost row named only the AI Front Desk until v7, and since #67
+       that is the largest of three sizes, so the cheapest answer to "cost
+       as volume grows" was hidden (audit COMPARE-3). It now walks the
+       config's frontDeskTiers(), smallest first, each with its minutes,
+       monthly and per-minute rate, and says what the product does at the
+       limit: calls keep being answered, the email at 100% names the rate
+       and the next size (pricing-config.js usagePolicy), and nothing
+       changes the plan but the client. The engine half of that email is
+       v7 engine leaf L5 (usage-upgrade-email: src/domain/upgrade-
+       suggestion.ts over canonical.ts nextTierUp(), appended to the 100%
+       message in usage-policy.ts). On sell/v7-integration nextTierUp()
+       exists but has no caller and the 100% email does not yet name the
+       next size, so this sentence is true only once L5 lands: L5 is a
+       hard precondition for v7 go-live. */
     body: `
 <section class="tight">
   <div class="wrap">
@@ -601,7 +719,7 @@ export const PAGES = {
           <tr><th scope="row">Your service area and prices</th><td class="ask">Do they work from your price list, or a general script?</td><td class="yes">Rules built with you</td></tr>
           <tr><th scope="row">What comes back to you</th><td class="ask">What do you get after each call?</td><td class="yes">Who called, what they wanted, the callback number, urgency, outcome and next step</td></tr>
           <tr><th scope="row">A genuine judgement call</th><td class="ask">Can the person on the line make a judgement call for you?</td><td class="part">Takes a message and flags it for you</td></tr>
-          <tr><th scope="row">Cost as volume grows</th><td class="ask">Is it per call or per minute, and is there a monthly minimum?</td><td class="part">${count(FRONT_DESK.includedMinutes)} minutes included on the ${FRONT_DESK.name}, then ${cad(FRONT_DESK.overage)} a minute, and calls keep being answered</td></tr>
+          <tr><th scope="row">Cost as volume grows</th><td class="ask">Is it per call or per minute, and is there a monthly minimum?</td><td class="part">${SIZES.map((s) => `${s.name}: ${count(s.includedMinutes)} minutes for ${cad(s.monthly)} a month, then ${cad(s.overage)} a minute`).join(';<br>')}.<br>The same receptionist answers 24/7 on every size. Past the minutes, calls keep being answered, the email when you pass them names the rate and the next size up where there is one, and your plan changes only if you change it.</td></tr>
         </tbody>
       </table>
     </div>
