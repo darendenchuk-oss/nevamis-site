@@ -227,6 +227,34 @@ test('PLATFORM-3/7: every item pricing lists as coming is on the Roadmap, labell
   }
 });
 
+/* llms.txt is what an answer engine quotes, so it carries the same word.
+   Its "IN DEVELOPMENT OR BEING RESEARCHED" line named Customer Reactivation
+   after pricing and the Roadmap both said coming. llms.txt is
+   site-live-machine's file in this audit, so the item is PENDING under that
+   leaf. The entry expires itself: the day llms.txt files it as coming, this
+   test fails until the entry is deleted, so the exemption cannot outlive the fix. */
+const LLMS_COMING_PENDING = { 'Customer Reactivation': 'site-live-machine' };
+
+test('PLATFORM-3/7: llms.txt files every item pricing lists as coming as coming, not in development', () => {
+  const coming = new Set(pricing().addOns.filter((a) => /\bComing\b/.test(a.blurb || '')).map((a) => a.name));
+  for (const m of read('pricing.html').matchAll(/<li>([^<&]+?) &middot; coming &middot;/g)) coming.add(m[1].trim());
+  expect(coming.size).toBeGreaterThan(0);
+  const text = read('llms.txt').replace(/\r/g, '');
+  const bullets = text.split(/\n(?=- )|\n\s*\n/).map((b) => b.replace(/\s+/g, ' ').trim());
+  const dev = bullets.find((b) => /^- IN DEVELOPMENT\b/.test(b));
+  expect(dev, 'llms.txt has no IN DEVELOPMENT line: has its markup changed?').toBeTruthy();
+  const sentences = (b) => b.split(/(?<=\.)\s+/);
+  const bad = [];
+  for (const name of coming) {
+    const misfiled = sentences(dev).some((x) => x.includes(name) && !/\bcoming\b/i.test(x));
+    const saidComing = bullets.some((b) => sentences(b).some((x) => x.includes(name) && /\bcoming\b/i.test(x)));
+    const wrong = misfiled || !saidComing;
+    if (wrong && !LLMS_COMING_PENDING[name]) bad.push(`${name}: llms.txt ${misfiled ? 'files it as in development or being researched' : 'never calls it coming'}`);
+    if (!wrong && LLMS_COMING_PENDING[name]) bad.push(`${name}: llms.txt now files it as coming, so delete its LLMS_COMING_PENDING entry`);
+  }
+  expect(bad, bad.join('\n')).toEqual([]);
+});
+
 test('PLATFORM-3: the Revenue Engine page grid lists Search Rankings as coming', () => {
   const html = read('revenue-engine.html').replace(/<!--[\s\S]*?-->/g, ' ');
   expect(html).toMatch(/<span class="chip dev">Coming<\/span><h3>Search Rankings<\/h3>/);
@@ -375,4 +403,32 @@ test('PLATFORM-1: the Revenue Engine page\'s link ticks the Revenue Engine on th
   await expect(page.locator('#svcChecks input:checked')).toHaveCount(1);
   await page.goto('/coming-soon.html?service=seo-rankings#interest');
   await expect(page.locator('#svcChecks input[data-slug="seo-rankings"]')).toBeChecked();
+});
+
+test('PLATFORM-3: each Revenue Engine page interest link sends the service it is for', async ({ page }) => {
+  /* site.js sends a bare [data-evt] name, so three links with one name could
+     not be told apart. Each now carries data-svc, and its click sends the slug,
+     exactly once. */
+  await page.goto('/revenue-engine.html');
+  await page.waitForFunction(() => typeof window.nvTrack === 'function');
+  const links = await page.$$eval('main a[href^="/coming-soon.html?service="]', (as) => as.map((a) => ({
+    slug: new URL(a.href).searchParams.get('service'), svc: a.getAttribute('data-svc'), evt: a.getAttribute('data-evt'),
+  })));
+  expect(links.length, 'the Revenue Engine page has its interest links').toBeGreaterThanOrEqual(3);
+  for (const l of links) {
+    expect(l.svc, `a link to ?service=${l.slug} names the same service`).toBe(l.slug);
+    expect(l.evt, 'a bare data-evt would send a second, slug-less event').toBeNull();
+  }
+  const sent = await page.evaluate(() => {
+    document.addEventListener('click', (e) => e.preventDefault());
+    const out = [];
+    for (const a of document.querySelectorAll('main a[href^="/coming-soon.html?service="]')) {
+      const before = window.nvEvents.length;
+      a.click();
+      out.push(window.nvEvents.slice(before).map((e) => [e.event, e.data && e.data.service]));
+    }
+    return out;
+  });
+  expect(sent).toEqual(links.map((l) => [['roadmap_service_interest_clicked', l.slug]]));
+  expect(sent.flat().map((e) => e[1])).toContain('seo-rankings');
 });

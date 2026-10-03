@@ -169,8 +169,10 @@ window.NV_ROADMAP = {
        if it has one. Only canonical work in development may say "Is being
        built to", which today is the Revenue Engine alone (canonical carries
        it as revenue_engine, and the site says less than canonical's
-       private_pilot). The Daily Brief, Search Rankings and Customer
-       Reactivation have no canonical capability, and the Inbox Assistant is
+       private_pilot). The Daily Brief has no canonical capability. Search
+       Rankings and Customer Reactivation are canonical modules
+       (seo_rankings, reactivation) that canonical lets the site describe as
+       coming, with nothing built behind either, and the Inbox Assistant is
        canonical coming_soon, so all four say "Would". An outcome in the
        present tense on an unbuilt entry is a results promise: the Growth
        System promised "measurable growth" for something only being
