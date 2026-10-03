@@ -16,9 +16,9 @@
      HOME-2  no visible sentence says the month is free while the engine
              reports no place open (open:false, a 503, an aborted request);
              with a place open, every sentence that says it names the first
-             N businesses (N = freeMonth.firstClients) and the booked call,
-             and the FAQ's own lines also name the card at sign-up, the plan
-             carrying on as a paid monthly and once per business. No FAQ
+             N businesses (N = freeMonth.firstClients), the booked call, the
+             plan carrying on as a paid monthly unless cancelled, and once
+             per business; the FAQ's own lines also name the card at sign-up. No FAQ
              question asks whether a buyer can try it, and the FAQPage
              JSON-LD carries no free month at all.
      HOME-3  "Is there a fee to start?" names the Performance Partnership AND
@@ -108,7 +108,7 @@ for (const [why, answer] of Object.entries(CLOSED_ANSWERS)) {
 
 /* ---------- HOME-2: open, every sentence carries its conditions ---------- */
 
-test('HOME-2: with a place open, every free-month sentence names the first N and the booked call, and the FAQ lines name card, conversion and once per business', async ({ browser }) => {
+test('HOME-2: with a place open, every free-month block names the first N, the booked call, conversion and once per business, and the FAQ lines name the card', async ({ browser }) => {
   const { ctx, page } = await load(browser, OPEN);
   await expect(page.locator('#freeMonthHome')).toBeVisible();
   const said = [];
@@ -124,6 +124,7 @@ test('HOME-2: with a place open, every free-month sentence names the first N and
     expect(block, 'the cap').toMatch(firstN);
     expect(block, 'the booked call').toMatch(/\bbooked call\b/i);
     expect(block, 'once per business').toMatch(/\bonce per business\b/i);
+    expect(block, 'it carries on as a paid monthly').toMatch(/carries on as a paid monthly unless you cancel/i);
     expect(block, 'never a trial').not.toMatch(/\btrial|\bpilot|no (?:credit )?card/i);
     expect(block, 'never every new client').not.toMatch(/\b(?:every|all|any) new (?:client|business|customer)/i);
   }
@@ -131,7 +132,6 @@ test('HOME-2: with a place open, every free-month sentence names the first N and
   expect(faq.length, 'the cost and cancellation answers each carry one').toBe(2);
   for (const f of faq) {
     expect(f, 'the card at sign-up').toMatch(/\bcard\b[^.]*\bsign-up\b|\bsign-up\b[^.]*\bcard\b/i);
-    expect(f, 'it carries on as a paid monthly').toMatch(/carries on as a paid monthly unless you cancel/i);
   }
   /* Outside the gated elements, still nothing says it. */
   const outside = await page.evaluate(() => {
