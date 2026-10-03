@@ -335,6 +335,9 @@ export const PAGES = {
        what happens here (audit MACHINE-25). "a per-call answering service"
        stays: it names a kind of service, not what any provider charges. */
     lede: `Evenings, weekends, and holidays covered without hiring a night shift or paying a per-call answering service. Your number, your rules, answered when you do not pick up.`,
+    /* Its own, because the lede is longer than the 155-character cut and the
+       cut ended this page's search snippet at "answered when you do". */
+    description: 'Evenings, weekends and holidays answered on your own number when nobody picks up, without a night shift. Your rules, and a summary of each call.',
     body: `
 <section class="tight">
   <div class="wrap">

@@ -259,6 +259,15 @@ export function structureFindings(file, html) {
     if (AI_LED.test(t)) say('ai-led-title', `the ${where} leads with "AI"; lead with the outcome or the brand (owner rule; decision #17)`, t);
   }
 
+  /* 1b. THE SNIPPET ENDS A SENTENCE. build-content falls back to the lede
+        cut at 155 characters, and on 2026-10-03 that cut ended the
+        after-hours page's search result at "answered when you do". A page
+        whose description stops mid-sentence gets its own `description`. */
+  for (const m of html.matchAll(/<meta (?:name="description"|property="og:description") content="([^"]*)"/gi)) {
+    const d = decode(m[1]).trim();
+    if (!/[.?!]$/.test(d)) say('cut-description', 'the description stops mid-sentence (the 155-character lede fallback); give the page its own description in pages.mjs', d);
+  }
+
   /* 2. THE OTHER COLUMN ASKS (COMPARE-5). On a compare table whose middle
         column is a competitor rather than voicemail, every cell in that
         column is a question for the buyer to put to them. */
@@ -365,6 +374,7 @@ export function selfTestFindings() {
   if (!ids(page('Nevamis vs Voicemail', 'AI receptionist vs voicemail', '<td class="ask">Is it per call?</td>')).includes('ai-led-title')) out.push('ai-led-title no longer catches an AI-led h1');
   if (!ids(page('Nevamis vs Voicemail', 'Nevamis vs voicemail', '<td class="part">Per call or per minute</td>')).includes('competitor-column-asserts')) out.push('competitor-column-asserts no longer catches an asserted cell');
   if (!ids(page('Nevamis vs Voicemail', 'Nevamis vs voicemail', '<td class="ask">Is it per call?</td>', 3)).includes('breadcrumb-count')) out.push('breadcrumb-count no longer catches a second BreadcrumbList');
+  if (!ids(clean + '<meta name="description" content="Your number, your rules, answered when you do">').includes('cut-description')) out.push('cut-description no longer catches a description cut mid-sentence');
   return out;
 }
 
