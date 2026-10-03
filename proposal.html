@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-nkMt6GJ5AQx7Fj+PFMIJuj8Jmo92S/21cBzJAw8Ms8U=' 'sha256-ijb17BkqishcNJVFz6G9STxjtv7Ku+rPWP3vjcMUP3E='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-fAnGnNBj7j4JXdQFegd2na/CrCeE5wrtj4FTLH9dVVY=' 'sha256-V79ByvBDNX5rc+vr3o3XfDIjONdUAEERvedkpJor1V8='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1056,6 +1056,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </style>
 </head>
 <body class="doc-page">
+<!-- The skip link every other page carries (CHECK-RUNNER-10, 2026-10-03).
+     This page has no site navigation, but it opens on a header block a
+     keyboard or screen-reader user has to pass to reach the plan, and the
+     .skip style above was already here waiting for it. -->
+<a class="skip" href="#main">Skip to content</a>
 <main class="prop" id="main">
   <div class="prop-head">
     <div class="mark">
@@ -1075,9 +1080,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <p id="summaryLine">
       Your line answered around the clock by a front desk configured around your
       hours, service area, job types and the rules you approve. It qualifies the
-      caller, takes the job, the address and the time they want, and texts and
-      emails you a summary of every call within seconds. Your phone number does
-      not change.
+      caller, captures the job, the address and the times that suit them, and
+      texts and emails you a summary of every call within seconds, for you to
+      confirm the slot. Your phone number does not change.
     </p>
   </section>
 
@@ -1439,7 +1444,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          Performance Partnership is where Lead Generation is arranged, so its
          proposal opens on that, and its steps start with the list. */
       set("summaryLine", plan.id === "starter" ? "Lead Generation, by invitation. We read public pages and list businesses of exactly the kind you want more of, each with the page it came from. You decide every one, and nobody on it is contacted by us. It is arranged on the Performance Partnership below, which also answers your line around the clock."
-        : "Your line answered around the clock by a front desk configured around your hours, service area, job types and the rules you approve. It qualifies the caller, takes the job, the address and the time they want, and texts and emails you a summary of every call within seconds. Your phone number does not change.");
+        : "Your line answered around the clock by a front desk configured around your hours, service area, job types and the rules you approve. It qualifies the caller, captures the job, the address and the times that suit them, and texts and emails you a summary of every call within seconds, for you to confirm the slot. Your phone number does not change.");
       if (plan.id === "starter") {
         var stepsEl = document.querySelector("ol.steps");
         var LG_STEPS = [

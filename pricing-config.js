@@ -53,7 +53,10 @@
       /* Branch on the value; never fall back to `|| 30`. */
       cancellationNoticeDays: 0,
       priceLockMonths: 12,
-      note: "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch & Implementation fee, charged once beside your first month, is the only commitment."
+      /* "charged once when the plan or add-on starts", not "beside your
+         first month": the sentence covers an add-on added later, whose fee
+         is charged the day that add-on starts (LEGAL-9, 2026-10-03). */
+      note: "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing. The one-time Launch & Implementation fee, charged once when the plan or add-on starts, is the only commitment."
     },
     /* Enterprise is quoted per client, so it is not a plans[] entry.
        `launchFrom` is a floor ("starting at"), never a price. */
@@ -67,12 +70,22 @@
     recommendedLabel: "RECOMMENDED",
     /* The add-on catalog. Every automation is its own sale. `soldAlone: true`
        means it may be bought with nothing beside it; `sellable: false` means it
-       may be described as coming and never sold, with no Buy control. */
+       may be described as coming and never sold, with no Buy control.
+       ORDER IS DISPLAY ORDER, as it is for `plans`: pricing.html renders
+       #addOnList by walking this array (PRICING-14, 2026-10-03), so the doors
+       come first, Lead Generation then the Quote-Chase Engine (owner
+       decision), then the modules sold alone, then what is coming. Every
+       other reader finds an item by its id. */
     addOns: [
+      /* Lead Generation is offered by invitation on the Performance Partnership
+         only, so it has no standalone pair. `sellable` follows the engine's
+         capability record for it, and the site may say less than the engine,
+         never more. */
       {
-        id: "missed_call_recovery", name: "Missed-Call Recovery",
-        monthly: 350, launch: 500, sellable: true, soldAlone: true,
-        blurb: "A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out."
+        id: "lead_generation", name: "Lead Generation",
+        monthly: 0, launch: 0, sellable: false, soldAlone: false,
+        partnership: { launch: 0, monthly: 0, attributableTo: "a business Nevamis found" },
+        blurb: "Businesses that fit what you do, found for you, with the page each one came from and what came of it. You decide every row, and nobody on the list is contacted by us. Offered by invitation, under your own agreement, and not yet sellable from a page."
       },
       /* `partnership` is what this item costs on the Performance Partnership.
          Bought on its own, or beside any other plan, it is its own pair above. */
@@ -83,6 +96,11 @@
         blurb: "Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you."
       },
       {
+        id: "missed_call_recovery", name: "Missed-Call Recovery",
+        monthly: 350, launch: 500, sellable: true, soldAlone: true,
+        blurb: "A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out."
+      },
+      {
         id: "get_paid", name: "Get-Paid Autopilot",
         monthly: 500, launch: 750, sellable: true, soldAlone: true,
         blurb: "Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks YOU get told instead, because past that point the judgment call belongs to a person."
@@ -91,16 +109,6 @@
         id: "review_engine", name: "Review Engine",
         monthly: 300, launch: 500, sellable: true, soldAlone: true,
         blurb: "Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person."
-      },
-      /* Lead Generation is offered by invitation on the Performance Partnership
-         only, so it has no standalone pair. `sellable` follows the engine's
-         capability record for it, and the site may say less than the engine,
-         never more. */
-      {
-        id: "lead_generation", name: "Lead Generation",
-        monthly: 0, launch: 0, sellable: false, soldAlone: false,
-        partnership: { launch: 0, monthly: 0, attributableTo: "a business Nevamis found" },
-        blurb: "Businesses that fit what you do, found for you, with the page each one came from and what came of it. Offered by invitation, under your own agreement, and not yet sellable from a page."
       },
       /* Listed as coming. It carries no price and is never sold. */
       {

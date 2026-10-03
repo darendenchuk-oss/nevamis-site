@@ -295,16 +295,21 @@ test('the organization is typed and priced for local answer results', async ({ p
   expect(org.knowsAbout.join(' ')).toContain('AI receptionist');
 });
 
-test('answer engines are welcomed, and the proposal page is not', async ({ page }) => {
+test('answer engines are welcomed, and the proposal page is kept out by its own noindex', async ({ page }) => {
   const robots = await (await page.request.get('/robots.txt')).text();
   for (const bot of ['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended', 'OAI-SearchBot']) {
     expect(robots, `${bot} should have an explicit stance`).toContain(bot);
   }
-  // the per-prospect proposal is private in every crawler's section
-  const blocks = robots.split(/\n(?=User-agent:)/);
-  for (const b of blocks.filter((x) => x.trim())) {
-    expect(b, `a crawler block fails to exclude the proposal:\n${b}`).toContain('Disallow: /proposal.html');
-  }
+  /* The per-prospect proposal stays out of the index by its own noindex,
+     which a crawler can only read if robots.txt lets it fetch the page
+     (PROPOSAL-4, 2026-10-03). Until then every block here disallowed it,
+     so its noindex was never read and the bare URL could be listed from
+     links alone. */
+  expect(robots, 'robots.txt must not bar crawlers from reading the proposal\'s noindex')
+    .not.toMatch(/^\s*Disallow:\s*\/proposal\.html/im);
+  await page.goto('/proposal.html');
+  const meta = await page.evaluate(() => document.querySelector('meta[name=robots]')?.content || '');
+  expect(meta).toContain('noindex');
 });
 
 test('the staging twin stays out of the index', async ({ page }) => {

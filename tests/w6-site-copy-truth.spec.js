@@ -266,7 +266,9 @@ test('O40: the add-on blurb states the window every day, and the static pricing 
   expect(list, 'pricing.html carries #addOnList').toBeTruthy();
   const li = [...list[0].matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => m[1]).find((t) => t.startsWith('Missed-Call Recovery'));
   expect(li, 'the static list has a Missed-Call Recovery entry').toBeTruthy();
-  const described = li.split('&middot;').pop().trim().replace(/&amp;/g, '&');
+  /* Since 2026-10-03 (WALK-LIVE-2) a module sold alone ends its line with
+     its own Start link; the description is the text before it. */
+  const described = li.replace(/<a\b[\s\S]*?<\/a>/g, '').split('&middot;').pop().trim().replace(/&amp;/g, '&');
   expect(described).toBe(mcr.blurb.charAt(0).toLowerCase() + mcr.blurb.slice(1));
 });
 
