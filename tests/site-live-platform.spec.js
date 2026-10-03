@@ -229,11 +229,13 @@ test('PLATFORM-3/7: every item pricing lists as coming is on the Roadmap, labell
 
 /* llms.txt is what an answer engine quotes, so it carries the same word.
    Its "IN DEVELOPMENT OR BEING RESEARCHED" line named Customer Reactivation
-   after pricing and the Roadmap both said coming. llms.txt is
-   site-live-machine's file in this audit, so the item is PENDING under that
-   leaf. The entry expires itself: the day llms.txt files it as coming, this
-   test fails until the entry is deleted, so the exemption cannot outlive the fix. */
-const LLMS_COMING_PENDING = { 'Customer Reactivation': 'site-live-machine' };
+   after pricing and the Roadmap both said coming. llms.txt was another
+   leaf's file in this audit, so the item sat PENDING here until
+   polish-machine filed it under llms.txt's COMING line (2026-10-03), and
+   its entry is gone. An entry expires itself: the day llms.txt files a
+   pending item as coming, this test fails until the entry is deleted, so
+   an exemption cannot outlive its fix. Empty is the steady state. */
+const LLMS_COMING_PENDING = {};
 
 test('PLATFORM-3/7: llms.txt files every item pricing lists as coming as coming, not in development', () => {
   const coming = new Set(pricing().addOns.filter((a) => /\bComing\b/.test(a.blurb || '')).map((a) => a.name));

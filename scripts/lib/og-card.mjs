@@ -2,7 +2,7 @@
    THE SOCIAL CARD'S WORDS, READ OFF THE CARD ITSELF
 
    Every page publishes one share image, assets/og-default.png, exported from
-   assets/og-default.svg by scripts/export-og.mjs. Until 2026-10-03 no page
+   scripts/og-default.svg by scripts/export-og.mjs. Until 2026-10-03 no page
    said what was in it: no og:image:alt and no twitter:image:alt anywhere, so a
    screen reader on a link preview, and an answer engine that reads the alt
    instead of the pixels, got nothing (audit COMPLETENESS-8).

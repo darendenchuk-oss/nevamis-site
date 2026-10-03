@@ -317,18 +317,79 @@ const readmeProblems = [];
    (finding T13, 2026-09-25). A vendored file is a third-party library
    published on nevamis.ca, so it has to earn its place: some other served
    page, script or stylesheet must name it. A file only a test or a doc
-   names is not loaded by any visitor, and fails. The name is matched as a
-   path ending, so talk/talk.js loading "/assets/vendor/<file>" counts. */
-const vendorOrphans = [];
-{
-  const referrers = published
-    .filter((f) => /\.(?:html?|m?js|css)$/i.test(f) && !f.startsWith('assets/vendor/'))
-    .map((f) => fs.readFileSync(path.join(root, f), 'utf8'));
-  for (const f of published.filter((p) => p.startsWith('assets/vendor/'))) {
-    const tail = f.slice('assets/'.length);
-    if (!referrers.some((src) => src.includes(tail))) vendorOrphans.push(f);
+   names is not loaded by any visitor, and fails.
+
+   AND SO IS EVERY OTHER FILE IN assets/ (2026-10-03, audit COMPLETENESS-7).
+   The rule above held for assets/vendor/ only, and six more files were
+   served with nothing loading them: four industry photos dropped from the
+   trade cards (one of a vertical the site does not sell), the old
+   ringback.mp3 that ringback-tone.wav replaced, and og-default.svg, the
+   source the share card is exported from. Every one returned 200. So the
+   rule is now the whole folder, worked out the way a visitor's browser
+   reaches a file: start from everything served outside assets/ (the pages,
+   the root scripts, ring.xml, talk/, security.txt), follow every file they
+   name, then every file THOSE name (assets/motion/main.js imports
+   ./cursor.js), and fail whatever is never reached. A file named only by
+   another orphan is an orphan too, and a file named only by a test, a doc
+   or a build script is never reached, because none of those is served.
+
+   A file is named by a path that resolves to it from the naming file's own
+   folder ("/assets/film/film-1.js" from a page, "./cursor.js" from
+   assets/motion/, "../fonts/x.woff2" from a stylesheet), with a path
+   boundary on each side, so precursor.js does not name cursor.js.
+   EXTERNAL lists what something outside this repository fetches by URL and
+   nothing served names. It is empty: Twilio's ringback-tone.wav is named by
+   ring.xml, which is served. Adding a file is a deliberate choice, like
+   BRAND above. */
+const EXTERNAL = new Set();
+const REFERRER = /\.(?:html?|m?js|css|json|xml|txt|svg|webmanifest)$/i;
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** Files in assets/ that nothing reachable from the served set outside
+    assets/ names. `read(f)` returns a file's text. */
+function assetOrphans(files, read) {
+  const assets = files.filter((f) => f.startsWith('assets/'));
+  const names = (from, to) => {
+    const rel = path.posix.relative(path.posix.dirname(from), to);
+    const forms = new Set([rel, to]);
+    const text = read(from);
+    return [...forms].some((p) => new RegExp(`(?:^|[\\s'"\`(=,/>])(?:\\./)?${escapeRe(p)}(?=$|[\\s'"\`)?#,;<&])`).test(text));
+  };
+  const reached = new Set();
+  const queue = files.filter((f) => !f.startsWith('assets/') && REFERRER.test(f));
+  while (queue.length) {
+    const from = queue.shift();
+    for (const a of assets) {
+      if (reached.has(a) || !names(from, a)) continue;
+      reached.add(a);
+      if (REFERRER.test(a)) queue.push(a);
+    }
   }
+  return assets.filter((a) => !reached.has(a) && !EXTERNAL.has(a));
 }
+/* Checked on every run against a small site, like the README rule: a judge
+   that stops following a relative import, or starts reading "precursor.js"
+   as "cursor.js", fails here before it judges the real folder. */
+const ORPHAN_FIXTURE = {
+  'index.html': '<script src="/assets/film/a.js"></script><script type="module" src="/assets/motion/main.js"></script><img src="assets/og.png" alt="">',
+  'ring.xml': '<Play>https://nevamis.ca/assets/tone.wav</Play>',
+  'assets/film/a.js': 'import "./b.js"; fetch("../fonts/f.woff2")',
+  'assets/film/b.js': '/* loaded by a.js */',
+  'assets/fonts/f.woff2': '',
+  'assets/og.png': '', 'assets/tone.wav': '',
+  'assets/motion/main.js': 'import "./precursor.js";',
+  'assets/motion/precursor.js': '',
+  'assets/motion/cursor.js': '',
+  'assets/old.js': 'import "./old-child.js";',
+  'assets/old-child.js': '',
+  'assets/old.mp3': '',
+};
+const orphanSelfTest = [];
+{
+  const got = assetOrphans(Object.keys(ORPHAN_FIXTURE), (f) => ORPHAN_FIXTURE[f]).sort().join(', ');
+  const want = 'assets/motion/cursor.js, assets/old-child.js, assets/old.js, assets/old.mp3';
+  if (got !== want) orphanSelfTest.push(`expected orphans [${want}], got [${got}]`);
+}
+const assetOrphanList = assetOrphans(published, (f) => fs.readFileSync(path.join(root, f), 'utf8'));
 
 /* NO SERVED FILE CARRIES THE INTERNAL COMMERCIAL MODEL (finding F149b).
 
@@ -418,12 +479,14 @@ if (readmeProblems.length) console.error('README.MD STATES A COMMERCIAL FACT. Th
   + 'Link to nevamis.ca/pricing.html or nevamis.ca/terms.html instead of stating it:\n  ' + readmeProblems.join('\n  '));
 if (readmeSelfTest.length) console.error('THE README RULE FAILS ITS OWN EXAMPLES. Fix README_FORBIDDEN in scripts/check-published-surface.mjs so it catches every README_MUST_CATCH line and none of README_MUST_PASS:\n  '
   + readmeSelfTest.join('\n  '));
-if (vendorOrphans.length) console.error('VENDORED FILE NOTHING LOADS. Every file under assets/vendor/ must be named by a served page, script or stylesheet; '
-  + 'delete the file (and its pin in config/critical-surface.json) or load it:\n  ' + vendorOrphans.join('\n  '));
+if (assetOrphanList.length) console.error('A FILE IN assets/ THAT NOTHING LOADS. Every file under assets/ must be reached from a served page, script, stylesheet or XML file; '
+  + 'delete it (a file under assets/vendor/ also leaves config/critical-surface.json), move a build input out of assets/ (scripts/ is not served), or load it:\n  '
+  + assetOrphanList.join('\n  '));
+if (orphanSelfTest.length) console.error('THE ASSET-REACH RULE FAILS ITS OWN EXAMPLE. Fix assetOrphans() in scripts/check-published-surface.mjs: ' + orphanSelfTest.join('; '));
 if (servedCommentProblems.length) console.error('A SERVED FILE CARRIES INTERNAL COMMERCIAL NOTES. Anyone can read a served file\'s comments with view-source. '
   + 'Move the reasoning to docs/ (docs/PRICING-CONFIG.md for pricing-config.js) and name the field instead of the figure:\n  ' + servedCommentProblems.join('\n  '));
 if (servedSelfTest.length) console.error('THE SERVED-COMMENT RULE FAILS ITS OWN EXAMPLES. Fix SERVED_COMMENT_FORBIDDEN in scripts/check-published-surface.mjs so it catches every SERVED_MUST_CATCH line and none of SERVED_MUST_PASS:\n  '
   + servedSelfTest.join('\n  '));
 if (missing.length || servedMarkdown.length || unexpected.length || securityTxtProblems.length || readmeProblems.length || readmeSelfTest.length
-  || vendorOrphans.length || servedCommentProblems.length || servedSelfTest.length) process.exitCode = 1;
-else console.log(`Published surface OK: ${published.length} files, all intended, no Markdown served; security.txt points at nevamis.ca; README.md states no commercial fact; every vendored file is loaded; no served comment carries internal commercial notes.`);
+  || assetOrphanList.length || orphanSelfTest.length || servedCommentProblems.length || servedSelfTest.length) process.exitCode = 1;
+else console.log(`Published surface OK: ${published.length} files, all intended, no Markdown served; security.txt points at nevamis.ca; README.md states no commercial fact; every file in assets/ is loaded; no served comment carries internal commercial notes.`);

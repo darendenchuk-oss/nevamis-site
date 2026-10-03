@@ -67,7 +67,7 @@ test('MACHINE-17 sibling: pricing.html\'s runtime Product offers carry both figu
 /* ---------- COMPLETENESS-8: the share card says what it shows ---------- */
 
 test('COMPLETENESS-8: every page names its share card in og:image:alt and twitter:image:alt, in the card\'s own words', async ({ page }) => {
-  const svg = fs.readFileSync('assets/og-default.svg', 'utf8');
+  const svg = fs.readFileSync('scripts/og-default.svg', 'utf8');
   const alt = cardAlt(svg);
   expect(cardLines(svg)[0]).toBe('Nevamis');
   for (const url of servedPages) {
@@ -84,7 +84,7 @@ test('COMPLETENESS-8: every page names its share card in og:image:alt and twitte
 });
 
 test('COMPLETENESS-8: the card is set in the site\'s typefaces, names all three doors, and is exported at 1200x630', async () => {
-  const svg = fs.readFileSync('assets/og-default.svg', 'utf8');
+  const svg = fs.readFileSync('scripts/og-default.svg', 'utf8');
   const families = [...svg.matchAll(/font-family="([^"]+)"/g)].map((m) => m[1].split(',')[0].replace(/'/g, '').trim());
   for (const f of families) expect(['Bricolage Grotesque', 'Atkinson Hyperlegible', 'Spline Sans Mono']).toContain(f);
   const text = cardLines(svg).join(' ');

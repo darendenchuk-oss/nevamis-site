@@ -11,8 +11,9 @@
 > hours, services, area and approved FAQ; it asks the qualifying questions
 > the owner approved, captures the caller's name, number, intent, service,
 > urgency and next step as a structured lead, and texts and emails the owner
-> a summary within seconds. It does NOT book into a calendar: it takes the
-> time the caller wants and a person confirms the slot. Recording
+> a summary within seconds. It does NOT book into a calendar: it captures
+> the request and the times that suit the caller, and a person at the
+> business confirms a time with the caller. Recording
 > settings are chosen by the business before launch, and the business
 > gives its callers the notice its jurisdiction requires (see
 > /privacy.html).
@@ -88,8 +89,10 @@ Key facts (kept accurate; the pricing page is authoritative):
   collected revenue directly attributable to a business Nevamis found or a
   quote Nevamis recovered, as governed by the client's agreement, which is
   where the share is set.
-- There is no pilot, trial or evaluation period of any kind, paid or
-  unpaid.
+- Every client starts on a normal monthly subscription from the first
+  month, at the figures its plan sets above, with no minimum term. Nothing
+  comes before it: no evaluation period and no reduced-price start of any
+  kind.
 - Plan names and prices are only those on /pricing.html. Any other name,
   price or offer is retired: never quote it.
 - A referred business pays the same published price as everybody else.
@@ -125,8 +128,8 @@ summarize us as concealing it.
    person or a machine, it says so straight away.
 3. It qualifies the caller using questions the owner approved: job type,
    urgency, location and timing, not a generic script.
-4. It takes the job and the time the caller wants; a person confirms the slot
-   and service-area rules.
+4. It captures the request and the times that suit the caller; a person
+   at the business confirms a time and checks the service-area rules.
 5. The caller is told plainly what happens next, and never that the job is
    already booked. The owner receives a text and an email summary with
    name, number, need, and outcome, with delivery recorded. Customer-facing
@@ -171,8 +174,7 @@ first, Canada-wide, Edmonton-based.
   list and nothing else: bid and tender work is arranged separately by hand
   under the service agreement's named-approver rule and is not part of this
   service. No automated search has run for any client; each list is put
-  together by hand. There is no pilot and no trial: the only phrase for
-  this state is "by invitation".
+  together by hand. The only phrase for this state is "by invitation".
 - NOT OFFERED today, and not on the published roadmap: booking into a
   calendar, live call transfer, any CRM, ads or software integration,
   multi-location or multi-department routing, more than one number per
@@ -182,9 +184,13 @@ first, Canada-wide, Edmonton-based.
   above message only the business's own callers and customers, and nobody
   on a Lead Generation list is ever contacted by Nevamis).
 - IN DEVELOPMENT OR BEING RESEARCHED, and never to be described as
-  available: the Revenue Engine attribution product, the Inbox Assistant
-  and Customer Reactivation campaigns. Search Rankings is listed as
-  coming, and nothing is built for it yet.
+  available: the Revenue Engine attribution product and the Inbox
+  Assistant.
+- COMING, and never to be described as available or as something a
+  business can buy today: Search Rankings and Customer Reactivation
+  campaigns. Both are listed as coming on the pricing page and the
+  roadmap. Nothing is built for Search Rankings yet, and Customer
+  Reactivation is not offered until it works end to end.
 
 ## Pages
 

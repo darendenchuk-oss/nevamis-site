@@ -30,7 +30,7 @@ when a generated file no longer matches what its builder produces.
 | `scripts/film/source.html`, `scripts/film/sections.html`, `scripts/film/sections.css`, `scripts/film/chrome-source.html` | `python scripts/film/compose.py` | `home.html` (the homepage, noindex) and `assets/film/*.js` |
 | `scripts/content/pages.mjs`, `content-map.json` | `node scripts/build-content.mjs` | the trade, situation and comparison pages, and `solutions.html` |
 | `_partials/nav.html`, `_partials/footer.html`, `assets/motion/site.css`, `assets/fonts/fonts.css` | `node scripts/build-pages.mjs` | the shared header and footer, and the inlined stylesheet, on every page |
-| page titles and descriptions, `pricing-config.js`, `assets/og-default.svg` | `node scripts/build-schema.mjs` | structured data (JSON-LD), and each page's share-image alt text |
+| page titles and descriptions, `pricing-config.js`, `scripts/og-default.svg` | `node scripts/build-schema.mjs` | structured data (JSON-LD), and each page's share-image alt text |
 | every inline script | `node scripts/build-csp.mjs` | each page's Content-Security-Policy |
 | `home.html` | `node scripts/promote.mjs` | `index.html`, the indexable homepage |
 | every page in `content-map.json` | `node scripts/build-search-index.mjs` | `search-index.json` |

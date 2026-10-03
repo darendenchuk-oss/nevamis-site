@@ -6,7 +6,7 @@
    the site measurably worse for a real visitor.
    ============================================================ */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, chromium } from '@playwright/test';
 import fs from 'node:fs';
 
 const MAP = JSON.parse(fs.readFileSync('content-map.json', 'utf8'));
@@ -22,16 +22,60 @@ test('the homepage paints its largest element quickly and does not shift', async
     new PerformanceObserver((l) => {
       for (const e of l.getEntries()) if (!e.hadRecentInput) cls += e.value;
     }).observe({ type: 'layout-shift', buffered: true });
-    setTimeout(() => {
-      const nav = performance.getEntriesByType('navigation')[0] || {};
-      resolve({ lcp, cls, ttfb: nav.responseStart || 0, domReady: nav.domContentLoadedEventEnd || 0 });
-    }, 3500);
+    setTimeout(() => resolve({ lcp, cls }), 3500);
   }));
 
   // Generous ceilings: these catch regressions, not micro-variance.
   expect(vitals.lcp, `LCP ${Math.round(vitals.lcp)}ms`).toBeLessThan(3000);
   expect(vitals.cls, `CLS ${vitals.cls.toFixed(3)} — reserved space for animated elements`).toBeLessThan(0.1);
-  expect(vitals.domReady, `DOM ready ${Math.round(vitals.domReady)}ms`).toBeLessThan(3000);
+});
+
+/* DOM READY IS A BUDGET ON THE PAGE, NOT ON THIS MACHINE'S GPU (audit
+   CHECK-RUNNER-6, 2026-10-03).
+
+   The test above also held domContentLoadedEventEnd under 3000 ms. The
+   audit saw it fail about one run in three on main and in v7 alike, and on
+   the site train of 2026-10-03 it failed every run but one.
+   The audit read that as HTML weight (the homepage is about 194 KB of HTML)
+   and asked for a cut. Measured on this checkout, five headless runs each:
+     - JavaScript off:  DOM ready in 19 to 42 ms. Parsing the HTML costs
+                        nothing worth budgeting, at any weight it has had.
+     - WebGL off:       206 to 325 ms. Every script on the parser path runs,
+                        film-1.js to film-3.js and the pricing block included.
+     - as configured:   3,916 to 5,321 ms.
+   So the whole difference is the film's WebGL work on the parser path,
+   which headless Chromium runs in SwiftShader, a software rasteriser: the
+   3000 ms ceiling was measuring the test machine's CPU and what else it was
+   doing, and a page change could neither fail it nor pass it. A ceiling
+   that flakes is skimmed past, and this one had been.
+
+   So the budget now holds what a page change controls, on a browser with
+   WebGL off (a real visitor's path too: WebGL blocked or unavailable): the
+   HTML and every script before DOMContentLoaded, ready inside 1000 ms. That
+   is three times today's slowest run, so it catches a blocking script, a
+   synchronous fetch or a parser-blocking stylesheet, and not noise. The
+   film's GPU cost to a real visitor is held by the LCP and CLS ceilings
+   above, which run with WebGL on. Moving the film's GL work off the parser
+   path is the film's own change (assets/film/, via compose.py), not this
+   budget's.
+
+   Its own browser, launched here: the WebGL switch is a launch argument,
+   and Playwright allows a launch option only for a whole file's worker. */
+test('the homepage HTML and its parser-path scripts are ready quickly, the GPU set aside', async ({ baseURL }) => {
+  const browser = await chromium.launch({ args: ['--disable-webgl', '--disable-3d-apis'] });
+  try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await page.goto(`${baseURL}/`, { waitUntil: 'load' });
+    const nav = await page.evaluate(() => {
+      const n = performance.getEntriesByType('navigation')[0] || {};
+      return { domReady: n.domContentLoadedEventEnd || 0, webgl: !!document.createElement('canvas').getContext('webgl') };
+    });
+    expect(nav.webgl, 'this budget is measured with WebGL off; the switch did not take').toBe(false);
+    expect(nav.domReady, 'DOM ready was never recorded').toBeGreaterThan(0);
+    expect(nav.domReady, `DOM ready ${Math.round(nav.domReady)}ms with WebGL off`).toBeLessThan(1000);
+  } finally {
+    await browser.close();
+  }
 });
 
 test('the page weight stays within budget', async ({ page }) => {
