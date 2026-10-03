@@ -200,3 +200,11 @@ owner says publish; the branch is `sell/v7-site`.
   until that leaf is merged into the engine that will be live, the note
   describes an email nobody sends. Both `freeMonth.effective` values (here
   and canonical's) are re-stamped together; they are kept equal until then.
+- **The minutes recommender is coverage-first.** It picks the smallest
+  self-serve plan whose included minutes cover the estimate. A smaller size
+  plus its extra minutes can cost less: 1,000 minutes is C$927.50 on Front
+  Desk Plus (C$500 + 450 x C$0.95) against C$1,000 on the AI Front Desk, and
+  300 minutes is C$360 on Front Desk Starter against C$500 on Front Desk
+  Plus. When that happens the result's Why line names the cheaper size and
+  both totals, so the pick is never the dearer one without saying so.
+  Ranking on lowest total instead is an owner decision.

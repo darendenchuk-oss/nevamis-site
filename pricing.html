@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-oZ8b+7i4aD8XUqIPM8BktJ7zpxeAf9yzbfTWiOzU4/o=' 'sha256-/iVOqbDuklEOEnTRQmSyPs84fMVEC0l+Bf7p+7YGXo0=' 'sha256-JXqBjJZcnb6A53xDi4AUWLiyjToNB2HEuNrbMI/S+6c=' 'sha256-laZYsqKpVJKVr/E+iPK3GpwRZ6hiJ9BJcU7xAR4RjHQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-UzPlgzeV6yuI72dhDXhM2PnGOnWduxv1S9KzC2w69ic=' 'sha256-2XodkI8l/Dud4Rg6MMqbpzLoIYPmCYTgJqeVOs8NeMY=' 'sha256-JXqBjJZcnb6A53xDi4AUWLiyjToNB2HEuNrbMI/S+6c=' 'sha256-laZYsqKpVJKVr/E+iPK3GpwRZ6hiJ9BJcU7xAR4RjHQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1863,9 +1863,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var note = twins.length ? twins.map(function (p) { return p.name; }).join(" and ") + " carries the same minutes and adds automations, so choose between them for the automations, not for the minutes. " : "";
     /* The pick is coverage-first: the smallest plan whose included minutes
        cover the estimate. A smaller size plus its extra minutes can cost
-       less than that (1,000 minutes on Front Desk Plus is C$927.50, under
-       the AI Front Desk's C$1,000), so when one does, the Why line says
-       so with its total and never leaves the dearer pick unexplained. */
+       less than that (docs/PRICING-CONFIG.md works an example), so when
+       one does, the Why line says so with its total and never leaves the
+       dearer pick unexplained. */
     var totalAt = function (p) { return Math.round((p.monthly + Math.max(0, est - p.includedMinutes) * p.overage) * 100) / 100; };
     var cheapest = ladder.slice().sort(function (a, b) { return totalAt(a) - totalAt(b); })[0];
     var cheaper = cheapest && cheapest !== pick && totalAt(cheapest) < totalAt(pick)
