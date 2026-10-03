@@ -20,20 +20,36 @@
                  question, which answer engines quote alone, never carries it.
      MACHINE-24  at most one BreadcrumbList.
      MACHINE-25  og:url (the canonical), og:type, og:site_name and og:title
-                 are present, and the title does not narrow to one city.
+                 are present, the title does not narrow to one city, and no
+                 surface makes an unmeasured speed claim ("within seconds",
+                 "instantly", "first ring": the claims ledger retired the
+                 instant-answer claim CLM-02). One sibling is pinned, not
+                 fixed, because its source is another leaf's file: the
+                 Organization/Product JSON-LD description that
+                 scripts/build-schema.mjs writes ("texting and emailing the
+                 owner each call's details within seconds"), polish-machine's
+                 to measure or drop. The pin matches that one sentence only,
+                 so a speed claim anywhere else still fails.
      CHECK-RUNNER-7  the meta description is 160 characters or fewer.
 
    The surfaces: what a visitor reads with scripts off, each FAQ question and
    answer, the title, every description/og/twitter meta, every string in the
-   JSON-LD, the search index's records for "/" (built from this page by
-   build-search-index.mjs, so a stale index is caught too). The film's cards
-   carry no copy of their own: film-3.js reads every caption verbatim from the
-   plain-DOM truth copy in the markup (source.html's pane docs), which the
-   visible text above already reads.
+   JSON-LD, and the search index's records for "/": their title (t), text (d)
+   and page-body keywords (k), which build-search-index.mjs builds from this
+   page, so a rule broken in a stale index fails here as well as in
+   check-generator-drift. The film's cards carry no copy of their own:
+   film-3.js reads every caption verbatim from the plain-DOM truth copy in the
+   markup (source.html's pane docs), which the visible text above already
+   reads.
 
-   The tests open no browser and reach no network. SITE_ROOT=<a checkout>
-   points them at another tree, which is how they were shown red on the site
-   train as it was before this change:
+   WHERE THIS RUNS: locally, as a proof spec (npx playwright test, or the
+   command below), like tests/home-door-order.spec.js. The site's CI
+   (.github/workflows/verify.yml, another leaf's file) runs only
+   tests/pages.spec.js, so CI does not run this file: a regression merges
+   green unless someone runs it. The tests open no browser and reach no
+   network, so adding it to verify.yml is one word on that step.
+   SITE_ROOT=<a checkout> points them at another tree, which is how they were
+   shown red on the site train as it was before this change:
      SITE_ROOT=<checkout> NV_PORT=3373 npx playwright test tests/polish-home.spec.js
    ============================================================ */
 import { test, expect } from '@playwright/test';
@@ -100,8 +116,13 @@ function machineStrings(html) {
 function indexStrings() {
   const idx = JSON.parse(read('search-index.json'));
   const records = Array.isArray(idx) ? idx : Object.values(idx).find(Array.isArray);
+  /* t is the record's title, d its text and k the page-body keywords the
+     site search matches on; each is a copy of homepage words, so each can
+     carry a sibling. */
   return records.filter((r) => r.u === '/')
-    .flatMap((r) => [{ page: 'search-index.json', where: '/ title', text: r.t }, { page: 'search-index.json', where: '/ text', text: r.d }]);
+    .flatMap((r) => [['title', r.t], ['text', r.d], ['keywords', r.k]]
+      .filter(([, text]) => typeof text === 'string' && text)
+      .map(([field, text]) => ({ page: 'search-index.json', where: `/ ${field}`, text })));
 }
 
 function surfaces() {
@@ -126,6 +147,7 @@ test('the surfaces are really read: both pages, their JSON-LD FAQ and the search
     expect(all.filter((s) => s.page === p && /\.acceptedAnswer\.text$/.test(s.where)).length, `${p} FAQPage answers`).toBeGreaterThan(5);
   }
   expect(all.filter((s) => s.page === 'search-index.json').length, 'search-index records for /').toBeGreaterThan(5);
+  expect(all.filter((s) => s.where === '/ keywords').length, "the search index's page-body keywords for /").toBeGreaterThan(5);
   /* The film's pane docs are part of what is read. */
   expect(all.some((s) => s.page === 'index.html' && /^Answers your line 24\/7\b/.test(s.text)), "the film's Capture pane").toBe(true);
 });
@@ -156,6 +178,24 @@ test('MACHINE-19: no homepage surface says pilot, trial or free period, and "dis
       if (/\bdiscount(?:s|ed|ing)?\b/i.test(sentence) && !denial.test(sentence)) {
         bad.push(`${s.page} ${s.where}: "discount" outside a denial: "${sentence.slice(0, 200)}"`);
       }
+    }
+  }
+  expect(bad, bad.join('\n')).toEqual([]);
+});
+
+test('MACHINE-25: no homepage surface claims a speed nobody measured (within seconds, instantly, first ring)', () => {
+  const speed = /\b(?:in|within) (?:a few |mere |just )?(?:seconds?|moments?)\b|\binstant(?:ly)?\b|\bfirst ring\b|\bin real[- ]time\b/i;
+  /* The one pinned sibling (see the header): its source is
+     scripts/build-schema.mjs, polish-machine's file. Pinned by its whole
+     clause, and only in the JSON-LD, so the same words in any other sentence
+     or surface still fail. */
+  const PINNED = /texting and emailing the owner each call's details within seconds\.?$/;
+  const bad = [];
+  for (const s of surfaces()) {
+    for (const sentence of sentences(s.text)) {
+      if (!speed.test(sentence)) continue;
+      if (/^JSON-LD /.test(s.where) && PINNED.test(sentence)) continue;
+      bad.push(`${s.page} ${s.where}: "${sentence.slice(0, 200)}"`);
     }
   }
   expect(bad, bad.join('\n')).toEqual([]);
