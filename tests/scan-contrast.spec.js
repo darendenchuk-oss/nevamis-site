@@ -1,4 +1,4 @@
-/* Every "Scan my business" control has to be readable, measured in pixels.
+/* Every scan control ("Scan my website") has to be readable, measured in pixels.
  *
  * The station pill in #doc shipped with a mint fill and an emerald label: 11px
  * uppercase mono at 1.76:1, and 1.00:1 on hover (mint on mint). A selector from
@@ -34,14 +34,14 @@ const VIEWPORTS = [
   { name: 'phone', width: 390, height: 844 },
   { name: 'desktop', width: 1440, height: 900 },
 ];
-/* BOTH LABELS, since 2026-09-19. The homepage says "Scan my business" and the
-   film's exit flourish keys on that exact text (assets/film/film-2.js:2766);
-   everywhere off the homepage the control says "Scan my website", because that
-   is what the scan reads and what DC#54 named the path (fix plan A12). This
-   regex matching only the homepage spelling is the reason the solutions hero
-   button kept the old label: renaming it would have made this spec find no
-   control at all and pass vacuously on the page it was written for. It now
-   grades whatever the page calls the scan. */
+/* BOTH LABELS. From 2026-09-19 the homepage said "Scan my business", because
+   the film's exit flourish keyed on that exact text, while every other page
+   said "Scan my website", what the scan reads and what DC#54 named the path.
+   Since 2026-10-03 (audit HOME-11) the homepage says "Scan my website" too
+   and the film wires its flourish by data-film-exit. The regex keeps
+   accepting the old spelling so that a control carrying it is still graded
+   here rather than silently skipped; tests/home-door-order.spec.js is what
+   fails the old label itself. */
 const SCAN = /scan my (business|website)/i;
 
 /* Production safety: nothing here may reach the real app or the voice widget. */
@@ -209,11 +209,12 @@ async function settle(page, sel) {
 }
 
 /* Measure one control at rest (several frames) and on hover. Returns failures. */
-async function check(page, decoder, sel, label, frames) {
+async function check(page, decoder, sel, label, frames, textOnly = false) {
   const bad = [];
   const run = async (state) => {
     const r = await probe(page, decoder, sel);
     if (r.text < r.needText) bad.push(`${label} ${state}: label ${r.text}:1 (need ${r.needText}:1) [${r.desc}]`);
+    if (textOnly) return;
     if (r.edgeSamples === 0) bad.push(`${label} ${state}: no boundary samples [${r.desc}]`);
     else if (r.edge < 3) bad.push(`${label} ${state}: boundary ${r.edge}:1 against the pixels outside (need 3:1) [${r.desc}]`);
     if (r.far !== null && r.far < 3) bad.push(`${label} ${state}: boundary ${r.far}:1 against the page 8px out, past any ring of its own (need 3:1) [${r.desc}]`);
@@ -246,13 +247,21 @@ async function tagScanLinks(page, root) {
     if (!scope) throw new Error('scan sweep root not found: ' + root);
     return [...scope.querySelectorAll('a')].filter((a) => re.test(a.textContent || '')).map((a, i) => {
       a.setAttribute('data-scan-probe', String(i));
-      return { sel: `[data-scan-probe="${i}"]`, inClose: !!a.closest('#close'), where: `${(a.closest('[id]') || {}).id || '?'} a.${String(a.className).trim().split(/\s+/).join('.')}` };
+      /* A text link has no edge of its own to find: no fill, no border, no
+         ring. The film's ending carries one since decision #54, the scan as
+         a quiet link under Book a call. Its label is graded like any other;
+         the boundary rule (WCAG 1.4.11) is about a control's own shape and
+         has nothing to measure on it. */
+      const cs = getComputedStyle(a);
+      const textOnly = /rgba\(\s*0,\s*0,\s*0,\s*0\s*\)|transparent/.test(cs.backgroundColor)
+        && !(parseFloat(cs.borderTopWidth) > 0) && cs.boxShadow === 'none';
+      return { sel: `[data-scan-probe="${i}"]`, inClose: !!a.closest('#close'), textOnly, where: `${(a.closest('[id]') || {}).id || '?'} a.${String(a.className).trim().split(/\s+/).join('.')}` };
     });
   }, { src: SCAN.source, root: root || null });
 }
 
 for (const vp of VIEWPORTS) {
-  test(`every "Scan my business" on the homepage is readable (${vp.name})`, async ({ browser }) => {
+  test(`every scan control on the homepage is readable (${vp.name})`, async ({ browser }) => {
     test.setTimeout(240_000);
     const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
     await contain(context);
@@ -262,9 +271,9 @@ for (const vp of VIEWPORTS) {
     await page.waitForFunction(() => window.__nv && window.__nv.dbg, null, { timeout: 60_000 });
 
     const links = await tagScanLinks(page);
-    /* The film's ending pill, the Lead Generation ghost, the station pill and the
-       closing primary. Fewer means a placement was removed or renamed, and the
-       exit flourish in the film also keys on this exact text. */
+    /* The film ending's quiet link, the Lead Generation ghost, the station
+       pill and the closing ghost. Fewer means a placement was removed or
+       renamed. */
     expect(links.length, `scan links found: ${links.map((l) => l.where).join(', ')}`).toBeGreaterThanOrEqual(4);
 
     const failures = [];
@@ -278,9 +287,9 @@ for (const vp of VIEWPORTS) {
         await page.evaluate((sel) => document.querySelector(sel).scrollIntoView({ block: 'center' }), l.sel);
       }
       await settle(page, l.sel);
-      failures.push(...await check(page, decoder, l.sel, l.where, l.inClose ? 3 : 2));
+      failures.push(...await check(page, decoder, l.sel, l.where, l.inClose ? 3 : 2, l.textOnly));
     }
-    expect(failures, `unreadable "Scan my business" controls at ${vp.width}x${vp.height}:\n${failures.join('\n')}`).toEqual([]);
+    expect(failures, `unreadable scan controls at ${vp.width}x${vp.height}:\n${failures.join('\n')}`).toEqual([]);
     await context.close();
   });
 

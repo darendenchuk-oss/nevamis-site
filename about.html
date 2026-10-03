@@ -17,16 +17,13 @@
 <meta property="og:url" content="https://nevamis.ca/about.html">
 <meta property="og:site_name" content="Nevamis">
 <meta property="og:locale" content="en_CA">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
- {"@type":"ListItem","position":1,"name":"Home","item":"https://nevamis.ca/"},
- {"@type":"ListItem","position":2,"name":"About","item":"https://nevamis.ca/about.html"}]}
-</script>
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
+<meta property="og:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nevamis.ca/assets/og-default.png">
+<meta name="twitter:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -996,37 +993,41 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a class="nav-min" href="/about.html" aria-current="page" data-nav>About</a></span>
       <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
       <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
-      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
+      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="nav_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
     </nav>
   </div>
 </header>
 
 <main id="main">
   <!-- The hero carries the opening paragraph as its .lede, which is the shape
-       every other page's first screen has: eyebrow, headline, lede. It used to
-       be the first paragraph of the section below, set at 18.5px - the largest
-       body text on the site - under a hero that held a headline and nothing
-       else. Same sentence, same order, same words; it is standing where the
-       rest of the site stands. -->
+       every other page's first screen has: eyebrow, headline, lede.
+
+       THE PLATFORM FIRST, IN DOOR ORDER (decision #17; door order 2026-09-12:
+       Lead Generation, then Quote Recovery, then the front desk). Until
+       2026-10-03 this page opened on a missed call going to voicemail, its
+       mission sentence was "We build the front desk that ends that pattern",
+       and Lead Generation and quote recovery arrived later as things the
+       company "grew around" (site audit PLATFORM-4), the reverse of the
+       headline above it, the meta description and the footer. The body now
+       says what Nevamis does in that order, and the voicemail story stays
+       as what it is: how the company started. tests/site-live-platform.spec.js
+       reads the order out of the rendered page. -->
   <section class="page-hero">
     <div class="grid-lines" aria-hidden="true"></div>
     <div class="wrap">
       <p class="eyebrow mono">About Nevamis</p>
       <h1>More of the customers you want. Fewer jobs slipping away.</h1>
-      <p class="lede">Nevamis exists because of a simple, expensive pattern: a customer calls a service business, nobody can pick up, the call hits voicemail, and the customer dials the next company on the list. The job is gone, and the business never even knows it happened.</p>
+      <p class="lede">Nevamis helps Canadian service businesses win more of the work they want. Lead Generation, offered by invitation, finds businesses of the kind you want more of. The quotes you already sent get followed up, and a front desk answers the calls you cannot take.</p>
     </div>
   </section>
 
   <section class="tight">
     <div class="wrap">
       <div class="reveal prose">
-        <p>We build the front desk that ends that pattern. Not a chatbot bolted onto a website: a voice agent on your real phone line that answers the way a sharp front-desk person would, qualifies the caller, takes the job down, and tells you exactly what happened.</p>
-        <p>The front desk was where we started, and it taught us that a
-          missed call is only one way work slips away. So Nevamis grew around it. With Lead Generation, offered by
-          invitation, we read public pages and list businesses of exactly the kind you want more of. You decide every
-          one, and nobody on the list is contacted by us. Quote recovery follows up the quotes that went quiet, with
-          your approval on every email. The phone is still the part you can hear.</p>
-        <p>The service is done for you. We build the agent around your business, test it against written call scenarios before a number is pointed at it, prove your forwarding with a real call, and then keep reviewing calls and tuning it. You never touch the technology.</p>
+        <p>It starts with the customers you want. For Lead Generation, a person here reads public pages and lists businesses of exactly the kind you want more of, with the page each one came from. You decide every one, and nobody on the list is contacted by us.</p>
+        <p>Then the quotes you already sent. Quote recovery follows up the ones that go quiet past your threshold, the day they go stale, four days on and eleven days on, with your name on every email and your approval before it goes.</p>
+        <p>And the calls you cannot take. The AI Front Desk is a voice agent on your real phone line, not a chatbot bolted onto a website. It answers the way a sharp front-desk person would, qualifies the caller, captures the request and the times that suit them for you to confirm, and tells you exactly what happened. We build it around your business, test it against written call scenarios before a number is pointed at it, prove your forwarding with a real call, and then keep reviewing calls and tuning it. You never touch the technology.</p>
+        <p>The front desk is where Nevamis started. It came from a simple, expensive pattern: a customer calls a service business, nobody can pick up, the call hits voicemail, and the customer dials the next company on the list. The job is gone, and the business never even knows it happened. Answering those calls taught us that a missed call is only one way work slips away, and Nevamis grew from there.</p>
         <p>Nevamis is built in Edmonton and serves Canadian businesses. It is a new studio, and deliberately small: we take on a limited number of builds at a time and stay close to every one.</p>
       </div>
       <div class="founder reveal">
@@ -1066,6 +1067,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2 class="foot-h">Legal</h2>
         <a href="/privacy.html">Privacy</a>
         <a href="/terms.html">Terms</a>
+        <a href="/security.html">Security</a>
       </div>
     </div>
     <div class="base">

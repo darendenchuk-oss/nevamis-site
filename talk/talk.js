@@ -17,6 +17,27 @@
   var WIDGET = "/assets/vendor/elevenlabs-convai-widget-embed-0.18.2.js";
   var EVENTS_URL = "https://app.nevamis.ca/api/events";
 
+  /* ONE FIXED LABEL FOR EVERY BROWSER CALL, SO THE WIDGET NEVER MAKES ONE UP.
+
+     Left to itself, the widget's startSession runs `userId ||= await FC()`.
+     FC() looks for localStorage "elevenlabs_convai_user_id" and, when it is
+     empty, loads FingerprintJS, computes this device's visitorId (or falls
+     back to a random UUID), stores it in the visitor's browser and sends it
+     to ElevenLabs as user_id with every call. nevamis.ca/privacy says the
+     site's own pages store two small things and that we set no identifier of
+     our own, and a fingerprint stored on the device and sent to a third party
+     is exactly the thing that sentence rules out.
+
+     The widget reads a `user-id` attribute (Ey(`user-id`) -> userId) and only
+     calls FC() when that is empty. So every browser call carries this same
+     constant: no fingerprinting, nothing stored for the visitor, and nothing
+     that tells one caller from another. It is a label for "came from the
+     website", not an identifier, and it must never be made per-visitor
+     (random, timed, hashed) without changing the privacy page first.
+     scripts/check-legal-truth.mjs fails if this stops being a fixed string or
+     if the pinned widget stops honouring the attribute. */
+  var BROWSER_CALL_LABEL = "nevamis-site-browser-call";
+
   var btn = document.getElementById("talkStart");
   var fine = document.getElementById("talkFine");
   if (!btn) return;
@@ -60,6 +81,7 @@
 
     var el = document.createElement("elevenlabs-convai");
     el.setAttribute("agent-id", AGENT_ID);
+    el.setAttribute("user-id", BROWSER_CALL_LABEL);
     el.setAttribute("default-expanded", "");
     document.body.appendChild(el);
 

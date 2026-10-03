@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-nkMt6GJ5AQx7Fj+PFMIJuj8Jmo92S/21cBzJAw8Ms8U=' 'sha256-ijb17BkqishcNJVFz6G9STxjtv7Ku+rPWP3vjcMUP3E='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-0owPzF+sR2KsWCUr2CoO7CxdBhjyxMkoqXi1np0aCxU=' 'sha256-7y8ESMHd0tPm6A3hQXAF+QsIfhPcitgpWdgrRl/wj7g='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,14 +15,20 @@
      their email, texts and Slack. Without these the preview renders blank,
      which is a poor first impression on the one document that is meant to
      close them. Deliberately generic wording: the URL may be forwarded to a
-     partner or spouse who was not on the call. -->
+     partner or spouse who was not on the call. No og:url: the shared link
+     carries the proposal in its query, and a bare og:url would point the
+     card at an empty proposal. -->
 <meta property="og:title" content="Your Nevamis proposal">
 <meta property="og:description" content="A short written summary of what was discussed: the plan, what is included, what it costs each month, and what happens before your line is answered.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nevamis">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
+<meta property="og:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nevamis.ca/assets/og-default.png">
+<meta name="twitter:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -1056,6 +1062,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 </style>
 </head>
 <body class="doc-page">
+<!-- The skip link every other page carries (CHECK-RUNNER-10, 2026-10-03).
+     This page has no site navigation before <main>, so here it lands at the
+     top of the document; it is kept so the keyboard contract is the same on
+     every page a prospect can be sent, and the .skip style above was already
+     here without the link it was written for. -->
+<a class="skip" href="#main">Skip to content</a>
 <main class="prop" id="main">
   <div class="prop-head">
     <div class="mark">
@@ -1075,9 +1087,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <p id="summaryLine">
       Your line answered around the clock by a front desk configured around your
       hours, service area, job types and the rules you approve. It qualifies the
-      caller, takes the job, the address and the time they want, and texts and
-      emails you a summary of every call within seconds. Your phone number does
-      not change.
+      caller, captures the request, the address and the times that suit them, and
+      texts and emails you a summary of every call within seconds, for you to
+      confirm the slot. Your phone number does not change.
     </p>
   </section>
 
@@ -1439,7 +1451,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          Performance Partnership is where Lead Generation is arranged, so its
          proposal opens on that, and its steps start with the list. */
       set("summaryLine", plan.id === "starter" ? "Lead Generation, by invitation. We read public pages and list businesses of exactly the kind you want more of, each with the page it came from. You decide every one, and nobody on it is contacted by us. It is arranged on the Performance Partnership below, which also answers your line around the clock."
-        : "Your line answered around the clock by a front desk configured around your hours, service area, job types and the rules you approve. It qualifies the caller, takes the job, the address and the time they want, and texts and emails you a summary of every call within seconds. Your phone number does not change.");
+        : "Your line answered around the clock by a front desk configured around your hours, service area, job types and the rules you approve. It qualifies the caller, captures the request, the address and the times that suit them, and texts and emails you a summary of every call within seconds, for you to confirm the slot. Your phone number does not change.");
       if (plan.id === "starter") {
         var stepsEl = document.querySelector("ol.steps");
         var LG_STEPS = [

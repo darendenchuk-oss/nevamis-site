@@ -8,8 +8,14 @@
 
    The index is built from the pages themselves rather than hand-written, for
    the same reason the sitemap and the schema are: a hand-maintained list is a
-   list that goes stale, and a search box that cannot find a page is worse
-   than no search box at all.
+   list that goes stale.
+
+   WHO READS IT (2026-10-03, audit COMPLETENESS-6). It was written for a
+   search box in the old hero. No page has carried that box since the film
+   homepage, and the dormant module that drove it (assets/motion/search.js)
+   is deleted. The file stays for the machines that read the site, and
+   llms.txt lists it for them, so everything in it is held to the same truth
+   rules as the pages it is built from.
 
    Run after adding a page or editing copy:
      node scripts/build-search-index.mjs

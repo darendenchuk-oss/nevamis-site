@@ -198,9 +198,23 @@ export const RETIRED_OFFERS = [
      "twenty-five hundred dollars" is the live Works launch fee said out
      loud, and without them the "five hundred" inside it reports as the
      retired figure — a live price failing as a dead one on the day it
-     shipped. Same fix, same day, as the engine's SPOKEN_NOT_A_TAIL. */
-  /(?<!twenty[- ])(?<!thirty[- ])(?<!forty[- ])(?<!fifty[- ])(?<!sixty[- ])(?<!seventy[- ])(?<!eighty[- ])(?<!ninety[- ])\b(?:forty[- ]nine|one hundred and fifty|two hundred and forty[- ]nine|three hundred and ninety[- ]seven|four hundred and forty[- ]nine|four hundred and fifty|seven hundred and fifty|eighteen hundred|one thousand and eight hundred|eight hundred and forty[- ]nine|eight hundred and fifty)\s+dollars\b/i,
-  /(?<!twenty[- ])(?<!thirty[- ])(?<!forty[- ])(?<!fifty[- ])(?<!sixty[- ])(?<!seventy[- ])(?<!eighty[- ])(?<!ninety[- ])\b(?:five hundred|seven hundred and fifty)\s+(?:dollars\s+)?a month\b/i,
+     shipped. Same fix, same day, as the engine's SPOKEN_NOT_A_TAIL.
+
+     "FIVE HUNDRED ... A MONTH" LEFT THIS LIST ON 2026-10-03. Since v5
+     (2026-08-24) C$500 a month is the live monthly of the Quote-Chase Engine
+     and Get-Paid Autopilot (pricing-config.js; the classifier's own fixture
+     note says so), and the written ladder above dropped 500 that day. The
+     spoken form stayed, so the demo agent's acceptance test could not grade
+     the agent on saying a live module price out loud: the whole-site audit's
+     MACHINE-12 fix ("seven hundred and fifty to start, then five hundred a
+     month") failed here as a retired price. "Seven hundred and fifty ... a
+     month" stays: C$750 is a launch fee today and never a monthly. For the
+     same reason "seven hundred and fifty dollars" left the pattern above
+     it: it is how the agent says the live Quote-Chase and Get-Paid launch
+     fee ("seven hundred and fifty dollars Launch and Implementation to
+     start"), and only its monthly reading is retired. */
+  /(?<!twenty[- ])(?<!thirty[- ])(?<!forty[- ])(?<!fifty[- ])(?<!sixty[- ])(?<!seventy[- ])(?<!eighty[- ])(?<!ninety[- ])\b(?:forty[- ]nine|one hundred and fifty|two hundred and forty[- ]nine|three hundred and ninety[- ]seven|four hundred and forty[- ]nine|four hundred and fifty|eighteen hundred|one thousand and eight hundred|eight hundred and forty[- ]nine|eight hundred and fifty)\s+dollars\b/i,
+  /(?<!twenty[- ])(?<!thirty[- ])(?<!forty[- ])(?<!fifty[- ])(?<!sixty[- ])(?<!seventy[- ])(?<!eighty[- ])(?<!ninety[- ])\b(?:seven hundred and fifty)\s+(?:dollars\s+)?a month\b/i,
 
   /* Retired entitlements. Pro was 1,200 minutes and "400 to 600 calls" until
      2026-08-09; both are now 1,400 and 470 to 700. A surface can carry the

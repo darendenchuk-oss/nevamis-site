@@ -15,6 +15,13 @@
    file excluded only by a glob still counts as published, so the surface
    guard reports it instead of silently trusting it.
 
+   What this returns is the set of tracked files Pages serves AS THEMSELVES.
+   Pages also serves things that are not tracked files: a served Markdown
+   file is rendered into <name>.html and <name> as well, and the default
+   theme adds /assets/css/style.css. Neither appears here, which is why
+   check-published-surface.mjs refuses any served Markdown file outright
+   rather than trusting this list to describe what it turns into.
+
    _config.yml is read line by line. It is checked out with CRLF on Windows,
    and a regex built on `.` stops at the \r, which read the whole exclude list
    as empty on the first run of this guard.

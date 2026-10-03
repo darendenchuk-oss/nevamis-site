@@ -111,8 +111,28 @@ body{
    build 2026-09-25: at 1366x768, five seconds in, with the block at opacity 0, a
    click at the middle of the screen went to the scan app. The button takes taps
    only while its block is on screen (.on; reduced motion and no-WebGL set .on
-   on every block). */
-#close:not(.on) .cta{pointer-events:none}
+   on every block). Every action in the block, the quiet scan link included, and
+   that one by a selector at least as specific as the rule below that gives it
+   pointer-events:auto: a plain "#close:not(.on) a" lost to it, and the hidden
+   scan pill took the tap (tests/homepage-calculator.spec.js caught it). The same
+   holds below the film, where #close stays .on but the composed page fades it
+   (html.nv-below): assets/motion/site.css covers .cta there, and the scan pill
+   is covered here (tests/site-truth.spec.js, "below the film"). */
+#close:not(.on) a,#close:not(.on) .fine .cta-q,
+html.nv-below #close a,html.nv-below #close .fine .cta-q{pointer-events:none}
+/* The ending's quiet second action (decision #54): a small ghost pill on the
+   small-print line under Book a call, never a second filled button. It sits
+   over the arch's glow, where a bare mint text link measured 2.13:1, so it
+   brings its own dark plate, and a dark ring outside its mint border keeps the
+   edge findable over both the glow and the dark ground
+   (tests/scan-contrast.spec.js grades both). pointer-events is restored on it
+   alone because #close itself takes no taps. */
+#close .fine .cta-q{pointer-events:auto;display:inline-block;margin-bottom:.5rem;
+  padding:.4rem 1rem;border-radius:999px;background:rgba(2,8,13,.78);
+  border:2px solid rgba(159,240,206,.85);box-shadow:0 0 0 3px #02080D;
+  color:var(--mint);font-weight:700;text-decoration:none;text-shadow:none;
+  transition:border-color .18s ease,background .18s ease}
+#close .fine .cta-q:hover{border-color:var(--mint);background:rgba(2,8,13,.9)}
 #brand{position:fixed;top:22px;left:28px;z-index:4;font-weight:700;font-size:.95rem;
   letter-spacing:.34em;color:var(--ink);opacity:.85;pointer-events:none}
 .no3d #stage{background:radial-gradient(ellipse at 50% 40%,#0A2A1F 0%,var(--bg1) 70%)}
@@ -307,14 +327,21 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
     <canvas id="c"></canvas>
     <div id="vignette"></div>
   </div>
-  <section class="copy" id="s1"><p><span class="kick">THE SCAN</span>The scan finds where the money is leaking.</p></section>
-  <section class="copy" id="s2"><p><span class="kick">THE READ</span>NEVAMIS works out what to do about each leak.</p></section>
-  <section class="copy" id="s3"><p><span class="kick">THE WORK</span>Then handles the ones it is built for, one at a time.</p></section>
+  <!-- THE FILM TELLS THE LEAD GENERATION STORY (decision #54, 2026-09-18,
+       built 2026-10-03 for audit HOME-7). The beats and the ending are the
+       owner's words. The ending's one filled action is Book a call; the scan
+       stays as the quiet "Scan my website" line under it, described for what
+       it is. Every action here carries data-evt, and data-film-exit is what
+       gives it the exit flourish (the wiring at the end of the next script
+       reads that attribute, never the label). -->
+  <section class="copy" id="s1"><p><span class="kick">ONE QUESTION</span>Who would you want more of this year?</p></section>
+  <section class="copy" id="s2"><p><span class="kick">THE LIST</span>We read public pages and list businesses of exactly that kind.</p></section>
+  <section class="copy" id="s3"><p><span class="kick">YOUR CALL</span>You decide every one. Nobody on it is contacted by us.</p></section>
   <section class="copy" id="close">
-    <p>See where yours is leaking.</p>
-    <p class="sub">One scan shows where it leaks, and which leaks NEVAMIS handles.</p>
-    <a class="cta" href="https://app.nevamis.ca/scan">Scan my business</a>
-    <p class="fine">Takes about two minutes. No call required.</p>
+    <p>Tell us who you want more of.</p>
+    <p class="sub">Lead Generation is by invitation, and a short call is where it starts.</p>
+    <a class="cta" href="/book.html#pick-a-time" data-evt="film_book_click" data-film-exit>Book a call</a>
+    <p class="fine"><a class="cta-q" href="https://app.nevamis.ca/scan" data-evt="film_scan_click" data-film-exit>Scan my website</a><br>Reads only your public website. About two minutes.</p>
   </section>
 </div>
 <nav id="paneNav" aria-label="NEVAMIS sections">
@@ -366,7 +393,7 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
         <p>Reads only what is public on your own website and shows what it found, quoted from your own pages. Where it puts a figure on something, that figure is a modelled range from public information and market benchmarks, not a measurement of your results. Adding your real numbers sharpens it.</p>
         <p class="outcome">A free, plain read of your website before you talk to anyone.</p>
       </div>
-      <a class="cta2" href="https://app.nevamis.ca/scan" data-evt="moves_scan_click">Scan my business</a>
+      <a class="cta2" href="https://app.nevamis.ca/scan" data-evt="moves_scan_click" data-film-exit>Scan my website</a>
     </article>
 
     <article class="pane-doc" id="doc-capture">
@@ -374,7 +401,10 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
       <h3>Capture</h3>
       <div class="svc">
         <h4>Front Desk <span class="chip av">Available today</span></h4>
-        <p>Answers your line 24/7, qualifies the caller, takes the job and the time they want, and sends you the details. You confirm the slot.</p>
+        <p>Answers your line 24/7, qualifies the caller, takes down the request and the times that suit them, and sends you the details. You confirm a time with them.</p>
+        <!-- "Takes down the request and the times that suit", never "takes the
+             job and the time they want": that read as a booking (audit
+             PRICING-9, 2026-10-03), and a client agent cannot book. -->
       </div>
       <!-- Web and Messaging Concierge and Smarter Job Intake were removed here on
            2026-09-19 (fix plan B7, owner decision). Neither had a canonical
@@ -469,6 +499,18 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
         <h4>Review Engine <span class="chip av">Available today</span></h4>
         <p>Post-job review requests by text: one ask per finished job, with your own review link, and every request released by a person. Sold on the pricing page, on its own or inside The Works.</p>
       </div>
+      <!-- Search Rankings, 2026-10-03 (audit PLATFORM-3). The pricing page and
+           llms.txt list it as coming, and this pane, which is the Grow pillar,
+           did not mention it. Canonical seo_rankings is a prototype: it may be
+           described as coming and may not be sold or charged, so the line says
+           what it WOULD do, with no price and no action. "Coming" is the
+           Roadmap's own word for it (roadmap-config.js statusLabel, the same
+           word pricing-config.js uses), which guard 7o in check-consistency.js
+           holds this chip to. -->
+      <div class="svc">
+        <h4>Search Rankings <span class="chip dev">Coming</span></h4>
+        <p>Would help you rank in search for the work you want more of. Nothing is built for it yet, so it has no price and is not sold.</p>
+      </div>
       <p class="fine2">The PULSE Business Scan also belongs to Grow; it leads the journey as the first station and is not repeated here.</p>
     </article>
 
@@ -524,6 +566,7 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
         <li><b>Lead Generation</b> <span>Grow</span></li>
         <li><b>Revenue Engine</b> <span>Grow</span></li>
         <li><b>Review Engine</b> <span>Grow</span></li>
+        <li><b>Search Rankings</b> <span>Grow</span></li>
       </ul>
     </article>
   </div>
@@ -7093,8 +7136,14 @@ function apply(p){
     lastTransit = transitV;
     copyEls[3].el.style.setProperty('--nv-transit', transitV.toFixed(3));
   }
-  /* copy visibility */
-  copyEls.forEach(function(c){
+  /* copy visibility. Not on the reduced-motion path (audit CHECK-RUNNER-3,
+     2026-10-03): there every block is switched on once and stays on, because
+     nothing scrolls the film for that visitor. The one still frame calls
+     apply(0.26), and this loop used to turn off every block whose window does
+     not hold 0.26 (c.on starts undefined, so all three later blocks counted as
+     changed), leaving the first line and three blank spaces, the last of them
+     an invisible Book a call that still took taps. */
+  if (!reduced) copyEls.forEach(function(c){
     var on = p >= c.p0 && p <= c.p1;
     if (on !== c.on) { c.on = on; c.el.classList.toggle('on', on); }
   });
@@ -7305,7 +7354,7 @@ if (DEBUG) window.__nv.gix = GIX;
 if (DEBUG) { window.__nv.gov = GOV; window.__nv.bloomPass = bloom; window.__nv.setLag = function(x){ LAGMS = x | 0; }; }
 /* ---------- exit transition: the CTA's final scan pulse ----------
    One plain unmodified left-click (or plain keyboard Enter, which arrives as
-   the same click) on a "Scan my business" link plays a ~1.15s exit flourish
+   the same click) on a link marked data-film-exit plays a ~1.15s exit flourish
    and then navigates to the link's real href:
      - the mark's dot flares first, and one last scan ring erupts from its
        base and sweeps outward through the ground grid and the dust field
@@ -7626,12 +7675,15 @@ if (reduced) {
   startFilm();
 }
 
-/* wire every "Scan my business" link: the ending CTA and the doc fallbacks
-   all get the same exit flourish (see the exit transition block above) */
+/* wire every link marked data-film-exit: the ending's two actions and the scan
+   links below the film all get the same exit flourish (see the exit transition
+   block above). By the attribute, never by the label (audit HOME-11,
+   2026-10-03): this used to pick links whose text matched "Scan my business",
+   so renaming the button to what the scan actually reads would have silently
+   dropped the flourish, and that is why the homepage kept the old label after
+   every other page had changed. */
 (function(){
-  var scanLinks = Array.prototype.slice.call(document.querySelectorAll('a')).filter(function(a){
-    return /scan my business/i.test(a.textContent || '');
-  });
+  var scanLinks = Array.prototype.slice.call(document.querySelectorAll('a[data-film-exit]'));
   scanLinks.forEach(function(a){
     a.addEventListener('click', function(ev){
       /* plain unmodified left activation only; anything that opens a new tab

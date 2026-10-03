@@ -18,10 +18,12 @@
 <meta property="og:site_name" content="Nevamis">
 <meta property="og:locale" content="en_CA">
 <meta property="og:image" content="https://nevamis.ca/assets/og-default.png">
+<meta property="og:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://nevamis.ca/assets/og-default.png">
+<meta name="twitter:image:alt" content="Nevamis. More of the customers you want. Lead Generation by invitation, Quote Recovery, the front desk. nevamis.ca, Edmonton, Alberta.">
 <meta name="geo.region" content="CA-AB">
 <meta name="geo.placename" content="Edmonton, Alberta">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -1012,7 +1014,61 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     table.compare th,table.compare td{padding:10px 5px}
     table.compare thead th{letter-spacing:.05em}
   }
+  /* A question for the buyer to put to the other service, not a verdict on
+     it, so it carries no tick, cross or warning colour: the body ink, read
+     as a question (vs-answering-service.html, 2026-10-03). */
+  td.ask{color:var(--ink-2)}
 </style>
+<!-- generated:schema -->
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://nevamis.ca/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Solutions",
+        "item": "https://nevamis.ca/solutions.html"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Plumbers",
+        "item": "https://nevamis.ca/plumbers.html"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://nevamis.ca/plumbers.html",
+    "url": "https://nevamis.ca/plumbers.html",
+    "name": "Answering Service for Plumbers | Nevamis",
+    "description": "Burst pipes, blocked drains and no hot water. Nevamis answers the calls you cannot, qualifies them, and gets the details to you within seconds.",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Nevamis",
+      "url": "https://nevamis.ca/"
+    },
+    "about": {
+      "@id": "https://nevamis.ca/#service"
+    },
+    "publisher": {
+      "@id": "https://nevamis.ca/#organization"
+    },
+    "inLanguage": "en-CA"
+  }
+]
+</script>
+<!-- /generated:schema -->
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -1036,7 +1092,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
       <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
       <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
-      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="hero_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
+      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="nav_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
     </nav>
   </div>
 </header>
@@ -1064,18 +1120,20 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="section-head reveal">
       <p class="eyebrow mono">The problem</p>
       <h2>Water damage does not leave a voicemail and wait.</h2>
-      <p>You cannot answer a phone with your hands full. So the call goes to voicemail,
-        and the person on the other end simply calls the next name on their list. The job
-        is not lost because of price or quality. It is lost because nobody picked up.</p>
+      <p>You cannot answer a phone with your hands full, so the call goes to voicemail.
+        A caller who reaches voicemail can ring the next name on their list before you have
+        heard the message.</p>
     </div>
     <div class="proc">
       <div class="reveal"><h3>Answered in seconds</h3><p>Nevamis picks up in your
         business's tone, day or night, while you stay on the tools.</p></div>
-      <div class="reveal"><h3>Qualified the way you would</h3><p>It asks whether water is actively running, whether they have found the
-        shut-off, what is affected, how long it has been happening, the address, and access
-        details.</p></div>
-      <div class="reveal"><h3>Written down, not lost</h3><p>It takes the job and the time
-        they want, and tells them plainly that you will confirm it.</p></div>
+      <div class="reveal"><h3>Asks what the job needs</h3><p>It asks about the job, where it is and how urgent it is, and it can be set up to
+        ask what you would ask, such as whether water is actively
+        running, whether they have found the shut-off, what is affected, how long it has been
+        happening, the address, and access details.</p></div>
+      <div class="reveal"><h3>Written down, not lost</h3><p>It writes down the job and the
+        times that suit the caller, for you to confirm. It confirms their callback number and
+        tells them your team will get back to them.</p></div>
     </div>
   </div>
 </section>
@@ -1090,12 +1148,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         emergency for your business.</p>
     </div>
     <div class="stack" aria-label="What we configure for plumbing">
-      <div class="layer"><strong>Emergency leaks</strong><span>Shut-off guidance from your approved script, then escalation.</span></div>
+      <div class="layer"><strong>Emergency leaks</strong><span>Shut-off guidance only from your approved FAQ, then the urgent details captured and your team alerted.</span></div>
       <div class="layer"><strong>Drains and blockages</strong><span>Qualified and written up with the details your tech needs.</span></div>
       <div class="layer"><strong>Hot water tanks</strong><span>Age, type, and symptoms captured before anyone drives out.</span></div>
       <div class="layer"><strong>Renovation quotes</strong><span>Captured as leads rather than lost to voicemail.</span></div>
-      <div class="layer"><strong>Trip and diagnostic fees</strong><span>Quoted consistently, exactly as you approve them.</span></div>
-      <div class="layer"><strong>Property managers</strong><span>Asked who they manage for and marked on the summary, if they are a different workflow for you.</span></div>
+      <div class="layer"><strong>Trip and diagnostic fees</strong><span>Quoted as you approved them and never estimated.</span></div>
+      <div class="layer"><strong>Property managers</strong><span>Can be asked who they manage for when you approve the question, with the answer in the call recording in your portal.</span></div>
     </div>
   </div>
 </section>
@@ -1105,11 +1163,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="section-head reveal">
       <p class="eyebrow mono">Urgency handled properly</p>
       <h2>Active flooding gets treated as active flooding.</h2>
-      <p>Active water gets your emergency path immediately. Slow drains and
-        fixture replacements are captured normally. You set the line between the two, and it
-        holds on every call at every hour. For anything outside the rules you approved, it takes a message and
-        flags the summary rather than inventing an answer. You decide what gets escalated,
-        what gets captured, and what waits until morning.</p>
+      <p>When active water is urgent work you take, Nevamis captures the urgent
+        details and alerts your team. Slow drains and fixture replacements are taken down
+        normally. You set the line between the two when we set it up. For anything outside the rules you approved, it takes a message and
+        flags it for you rather than inventing an answer. You decide what counts as urgent
+        for your business, and everything else is taken down for the morning.</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-ghost" href="/how-you-start.html" data-evt="trade_start_click">See how you start</a>
@@ -1126,7 +1184,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     </div>
     <div class="proc">
       <div class="reveal"><h3>Lead Generation, by invitation</h3><p>We read public pages and
-        list businesses of exactly the kind you want more of, each with the page it came from.
+        list businesses of the kind you want more of, each with the page it came from.
         You decide every one, and nobody on it is contacted by us. Lead Generation is by
         invitation, and a short call is where it starts.</p>
         <p><a href="/book.html#pick-a-time" data-evt="hero_book_call_click">Book a call</a></p></div>
@@ -1147,7 +1205,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <p>The fastest way to know whether this is good enough for your customers is to
         be a customer. The demo line runs on the same voice your line
         would. It answers for Nevamis, so it can set up a call with us. On your line it
-        takes the job and the time the caller wants, and you confirm the slot.</p>
+        captures the request and the times that suit the caller, and you confirm the slot.</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-primary btn-lg" href="tel:+15874130035" data-evt="demo_phone_click">Hear it answer (587)&nbsp;413-0035</a>
@@ -1196,6 +1254,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2 class="foot-h">Legal</h2>
         <a href="/privacy.html">Privacy</a>
         <a href="/terms.html">Terms</a>
+        <a href="/security.html">Security</a>
       </div>
     </div>
     <div class="base">

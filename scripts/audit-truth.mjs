@@ -4,7 +4,7 @@
    What it checks:
      1. Every price/number on every page against pricing-config.js
      2. Phone numbers: one demo line everywhere, no strays
-     3. Email addresses: one contact address, no strays
+     3. Email addresses: the sales contact and the addresses pricing-config.js publishes, no strays
      4. Claim words that assert traction Nevamis does not have
      5. Absolute internal links that hardcode the domain (break on preview)
      6. Pages missing from sitemap.xml that are indexable  */
@@ -29,9 +29,26 @@ const pages = fs.readdirSync(root).filter((f) => f.endsWith(".html"))
 const cfgSrc = fs.readFileSync(path.join(root, "pricing-config.js"), "utf8");
 const numbersFor = (key) =>
   [...cfgSrc.matchAll(new RegExp(`\\b${key}:\\s*(\\d+(?:\\.\\d+)?)`, "g"))].map((m) => Number(m[1]));
+/* `monthlyRange: [250, 500]`: both ends of a band are published figures. */
+const rangeFor = (key) =>
+  [...cfgSrc.matchAll(new RegExp(`\\b${key}:\\s*\\[\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\]`, "g"))].flatMap((m) => [Number(m[1]), Number(m[2])]);
 
 const approvedMonthly = new Set(numbersFor("monthly"));
 const approvedAnnual = new Set(numbersFor("annual"));
+/* THE ONE-TIME FEES AND THE BANDS (2026-10-03, audit CHECK-RUNNER-8). This
+   auditor read `monthly:` and `annual:` and nothing else, so on a pricing
+   page that states every item's Launch & Implementation fee and the
+   Partnership's monthly band it reported three HIGH "unapproved price"
+   findings (C$750, the Quote-Chase and Get-Paid fee, and C$250, the band's
+   floor), every one a figure pricing-config.js publishes. An auditor that
+   cries wolf on the pricing page is skimmed past on the day it is right.
+   Now every figure the config publishes is approved: each item's `launch`,
+   Enterprise's `launchFrom` floor, and both ends of every `monthlyRange`.
+   `launchRange` is deliberately NOT read: its top (C$10,000) is the most an
+   agreement may set and is printed on no page, so a page that started
+   printing it should be asked about, not waved through. */
+const approvedLaunch = new Set([...numbersFor("launch"), ...numbersFor("launchFrom")].filter((n) => n > 0));
+const approvedBands = new Set(rangeFor("monthlyRange"));
 /* `setup` was read here and required to be non-empty. On 2026-08-09 the key
    was deleted from pricing-config.js rather than zeroed, so this scan returned
    nothing and the WHOLE AUDITOR aborted on its first check with "could not
@@ -71,18 +88,32 @@ const findings = [];
 const add = (sev, page, what) => findings.push({ sev, page, what });
 
 const DEMO_PHONE = "587-413-0035";
+/* The addresses a page may show: the sales contact, plus every address
+   pricing-config.js itself publishes. The support address is in the plan
+   features ("Email support at support@nevamis.ca") and printed on every
+   pricing card, so flagging it on pricing.html (CHECK-RUNNER-8) was the
+   auditor disagreeing with the config the page renders from. Read, not
+   typed, so a new address in the config is approved where it is published
+   and nowhere it is not. */
 const CONTACT_EMAIL = "sales@nevamis.ca";
+const approvedEmails = new Set([CONTACT_EMAIL,
+  ...[...cfgSrc.matchAll(/[\w.+-]+@nevamis\.ca\b/gi)].map((m) => m[0].toLowerCase())]);
 
 for (const f of pages) {
   const raw = html(f);
   const body = raw.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");
   const text = body.replace(/<[^>]+>/g, " ");
 
-  /* 1. dollar figures that look like plan pricing but are not approved */
-  for (const m of text.matchAll(/\$\s?(\d{2,4})\b(?!\s?(?:k|,\d))/g)) {
-    const n = Number(m[1]);
+  /* 1. dollar figures that look like plan pricing but are not approved.
+     Grouped figures ("C$2,500") are read whole. The pattern used to stop at
+     the comma and skip every grouped figure outright, so no price of a
+     thousand dollars or more on any page was ever audited: a page could
+     have said C$1,800, The Works' retired month, without a finding. */
+  for (const m of text.matchAll(/\$\s?(\d{1,3}(?:,\d{3})+|\d{2,5})(?![\d,.]*\d)(?!\s?k\b)/g)) {
+    const n = Number(m[1].replace(/,/g, ""));
     if (n < 40) continue;                      // small numbers are job values / examples
-    if (approvedMonthly.has(n) || approvedSetup.has(n) || approvedAnnual.has(n) || approvedDerived.has(n)) continue;
+    if (approvedMonthly.has(n) || approvedSetup.has(n) || approvedAnnual.has(n) || approvedDerived.has(n)
+      || approvedLaunch.has(n) || approvedBands.has(n)) continue;
     const ctx = text.slice(Math.max(0, m.index - 90), m.index + 60).replace(/\s+/g, " ").trim();
     // Buyer-entered assumptions, job-value illustrations, and the fictional
     // trade prices spoken inside example call transcripts are not our pricing.
@@ -103,10 +134,10 @@ for (const f of pages) {
 
   /* 3. email addresses */
   for (const m of text.matchAll(/[\w.+-]+@[\w.-]+\.\w{2,}/g)) {
-    if (m[0].toLowerCase() !== CONTACT_EMAIL) add("MED", f, `unexpected email ${m[0]}`);
+    if (!approvedEmails.has(m[0].toLowerCase())) add("MED", f, `unexpected email ${m[0]}`);
   }
   for (const m of raw.matchAll(/mailto:([^"'?]+)/g)) {
-    if (m[1].toLowerCase() !== CONTACT_EMAIL) add("MED", f, `mailto to ${m[1]}`);
+    if (!approvedEmails.has(m[1].toLowerCase())) add("MED", f, `mailto to ${m[1]}`);
   }
 
   /* 4. traction claims Nevamis cannot support */
@@ -146,3 +177,13 @@ console.log("=".repeat(72));
 if (!findings.length) console.log("no findings");
 for (const x of findings) console.log(`${x.sev.padEnd(5)} ${x.page.padEnd(26)} ${x.what}`);
 console.log(`\n${findings.length} findings`);
+/* A HIGH finding is an unapproved price, a stray phone number or a traction
+   claim on a published page, and until 2026-10-03 this script exited 0 with
+   any number of them (CHECK-RUNNER-8): a truth audit whose exit code says
+   nothing is only as good as the person reading its output that day. MED and
+   LOW stay advisory. */
+const high = findings.filter((x) => x.sev === "HIGH").length;
+if (high) {
+  console.error(`${high} HIGH finding(s): exit 1`);
+  process.exitCode = 1;
+}

@@ -37,8 +37,9 @@
      THE one place that decides which URL parameters may leave this browser.
 
      nevamis.ca/privacy promises that each count records "only the event name,
-     the page path, the referring site's hostname, and campaign tags", and that
-     "no identifiers are stored". Everything that reported a "source" used to
+     the page path, the referring site's hostname, and campaign tags, including
+     an ad platform's click ID", and that "we set no identifier of our own".
+     Everything that reported a "source" used to
      satisfy that by accident, by copying location.search wholesale and trusting
      that every page only ever carried utm tags. proposal.html carries ?to=<the
      recipient's name>, so a personal name was reaching site_events.source, and
@@ -56,7 +57,17 @@
      reads exactly these names (src/domain/attribution.ts). So ?UTM_SOURCE=x is
      dropped: a mis-cased campaign link loses its tag, which is a real but small
      cost, and the alternative is a second matching rule that disagrees with
-     every consumer. */
+     every consumer.
+
+     THE CLICK IDS ARE NAMED ON THE PRIVACY PAGE, AND MUST STAY NAMED.
+     gclid, msclkid and fbclid are unique per ad click: the ad platform can tie
+     one to the person who clicked. Until 2026-10-03 the privacy page called
+     everything here "campaign tags" and said "no identifiers are stored"
+     (audit finding LEGAL-12). They are kept, because ads are planned, and the
+     page now says "campaign tags, including an ad platform's click ID".
+     Adding another click id (ttclid, li_fat_id, ...) to this list is fine;
+     scripts/check-legal-truth.mjs fails if the privacy page stops naming
+     click IDs while any is collected. */
   var NV_ATTRIB_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term",
     "utm_content", "gclid", "msclkid", "fbclid"];
 
@@ -155,8 +166,9 @@
      campaign tags PARSED into fields, so spend can be divided by
      campaign and cost per qualified demo call becomes computable.
 
-     PRIVACY: nevamis.ca/privacy says this site "stores one preference
-     in your browser" and that "no identifiers are stored". So this
+     PRIVACY: nevamis.ca/privacy says the site's own pages store "two
+     small things" in the browser (the motion choice and the call-button
+     note below) and that "we set no identifier of our own". So this
      block deliberately:
        - stores NOTHING new client-side (no cookie, no sessionStorage)
        - sends NO visitor identifier
@@ -195,8 +207,8 @@
      ad that produced a paying client was unattributable.
 
      A cookie would fix it and would also contradict a published legal page:
-     privacy.html states that no identifiers are stored and names the two
-     things this site keeps in a browser. So nothing is stored. Instead, at
+     privacy.html states that we set no identifier of our own and names the
+     two things this site keeps in a browser. So nothing is stored. Instead, at
      the moment a Nevamis link is CLICKED, whatever tags are in the current
      address are copied onto the destination. Each hop hands them to the next,
      so a five-page journey keeps them with no state anywhere.
@@ -295,7 +307,13 @@
       bar.setAttribute("aria-label", "After your call");
 
       var msg = document.createElement("span");
-      msg.textContent = "How did that call go? That was the same agent your customers would reach.";
+      /* NOT "the same agent your customers would reach". The demo line answers
+         for Nevamis and can set up a call with Daren; a client's front desk
+         books nothing and ends the call (audit finding MACHINE-22). What the
+         two genuinely share is the voice. scripts/check-legal-truth.mjs fails
+         on any served page or script that calls the demo the same agent a
+         client's customers reach. */
+      msg.textContent = "How did that call go? That was the same voice your own line would use.";
 
       var cta = document.createElement("a");
       cta.className = "btn btn-primary";

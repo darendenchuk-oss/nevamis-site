@@ -6,6 +6,7 @@
   "description": "Local-only motion proof harness for the Nevamis static site. Not part of the published site (see _config.yml exclude + .gitignore).",
   "scripts": {
     "serve": "node serve.js",
+    "build": "python scripts/film/compose.py && node scripts/build-content.mjs && node scripts/build-pages.mjs && node scripts/build-schema.mjs && node scripts/build-csp.mjs && node scripts/promote.mjs && node scripts/build-search-index.mjs && node scripts/gen-sitemap.mjs",
     "proof": "playwright test",
     "check": "node scripts/check-all.mjs",
     "consistency": "node scripts/check-consistency.js",

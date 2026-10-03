@@ -82,6 +82,9 @@ run('consistency', process.execPath, ['scripts/check-consistency.js']);
 run('content security policy', process.execPath, ['scripts/build-csp.mjs', '--check']);
 run('published surface', process.execPath, ['scripts/check-published-surface.mjs']);
 run('critical surface', process.execPath, ['scripts/check-critical-surface.mjs']);
+/* The legal pages against the code they describe: the browser call, fonts,
+   click IDs, counting, footer links, share cards. Pure file reads. */
+run('legal truth', process.execPath, ['scripts/check-legal-truth.mjs']);
 
 // 2. Whole-site audit: needs a real browser against a real server.
 {

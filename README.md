@@ -30,14 +30,18 @@ when a generated file no longer matches what its builder produces.
 | `scripts/film/source.html`, `scripts/film/sections.html`, `scripts/film/sections.css`, `scripts/film/chrome-source.html` | `python scripts/film/compose.py` | `home.html` (the homepage, noindex) and `assets/film/*.js` |
 | `scripts/content/pages.mjs`, `content-map.json` | `node scripts/build-content.mjs` | the trade, situation and comparison pages, and `solutions.html` |
 | `_partials/nav.html`, `_partials/footer.html`, `assets/motion/site.css`, `assets/fonts/fonts.css` | `node scripts/build-pages.mjs` | the shared header and footer, and the inlined stylesheet, on every page |
-| page titles and descriptions | `node scripts/build-schema.mjs` | structured data (JSON-LD) |
-| every page in `content-map.json` | `node scripts/build-search-index.mjs` | `search-index.json` |
+| page titles and descriptions, `pricing-config.js`, `scripts/og-default.svg` | `node scripts/build-schema.mjs` | structured data (JSON-LD), and each page's share-image alt text |
 | every inline script | `node scripts/build-csp.mjs` | each page's Content-Security-Policy |
 | `home.html` | `node scripts/promote.mjs` | `index.html`, the indexable homepage |
-| `content-map.json` and git history | `node scripts/gen-sitemap.mjs` | `sitemap.xml` |
+| every page in `content-map.json` | `node scripts/build-search-index.mjs` | `search-index.json` |
+| every page in `content-map.json`, as built | `node scripts/gen-sitemap.mjs` | `sitemap.xml` and `config/sitemap-hashes.json` |
 
 Run the builders in the order listed; each later one reads what the earlier
-ones wrote. Never edit `index.html` or `search-index.json` by hand.
+ones wrote. `npm run build` runs all of them, in that order, and is the
+command to use: gen-sitemap has to run last because it records a hash of
+each finished page, and `scripts/check-generator-drift.mjs` fails any page
+that changed without it. Never edit `index.html` or `search-index.json` by
+hand.
 
 `content-map.json` is the list of public pages. Adding a page means adding a
 row there, which puts it in the sitemap, the search index and the checks.
@@ -47,8 +51,8 @@ Prices come from `pricing-config.js`. Where a page carries a figure as text,
 
 ## Run it locally
 
-You need Node 22 (what CI uses). Python 3 is needed only to rebuild the
-homepage.
+You need Node 22 (what CI uses). Python 3 is needed to rebuild the
+homepage, which `npm run build` does on every run.
 
 ```
 node serve.js            # http://localhost:3211
