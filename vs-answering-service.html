@@ -1018,6 +1018,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      it, so it carries no tick, cross or warning colour: the body ink, read
      as a question (vs-answering-service.html, 2026-10-03). */
   td.ask{color:var(--ink-2)}
+
+  /* The trade pages' price line sits under the urgency lede as a second
+     lede, a little apart from it. .fm-gate is the element free-month.js
+     fills and shows (scripts/content/pages.mjs says when). Nothing here sets
+     its display, so its hidden attribute alone decides whether it shows; its
+     two slots are spans made into lines, the first in the warm ink
+     pricing.html's banner uses, the second at the footnote colour. */
+  /* Written with the lede rule's own :not() chain so it outranks it: the
+     lede rule's margin otherwise ran the two paragraphs together. */
+  .section-head p.start-line:not(.eyebrow):not(.k):not(.doc-k){margin-top:14px;color:var(--ink)}
+  .fm-gate{margin-top:20px;max-width:var(--measure-lede);font-size:var(--fs-card);
+    line-height:var(--lh-body);color:var(--ink-2)}
+  .fm-gate [data-nv-free-month-offer]{display:block;color:var(--warm);font-weight:700}
+  .fm-gate [data-nv-free-month-note]{display:block;margin-top:6px;color:var(--ink-4)}
+  .fm-gate a{display:inline-block;padding:4px 0;margin-top:6px;color:var(--mint);
+    text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(159,240,206,.45)}
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -1123,7 +1139,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <tr><th scope="row">Your service area and prices</th><td class="ask">Do they work from your price list, or a general script?</td><td class="yes">Rules built with you</td></tr>
           <tr><th scope="row">What comes back to you</th><td class="ask">What do you get after each call?</td><td class="yes">Who called, what they wanted, the callback number, urgency, outcome and next step</td></tr>
           <tr><th scope="row">A genuine judgement call</th><td class="ask">Can the person on the line make a judgement call for you?</td><td class="part">Takes a message and flags it for you</td></tr>
-          <tr><th scope="row">Cost as volume grows</th><td class="ask">Is it per call or per minute, and is there a monthly minimum?</td><td class="part">1,400 minutes included on the AI Front Desk, then C$0.75 a minute, and calls keep being answered</td></tr>
+          <tr><th scope="row">Cost as volume grows</th><td class="ask">Is it per call or per minute, and is there a monthly minimum?</td><td class="part">Front Desk Starter: 200 minutes for C$250 a month, then C$1.10 a minute;<br>Front Desk Plus: 550 minutes for C$500 a month, then C$0.95 a minute;<br>AI Front Desk: 1,400 minutes for C$1,000 a month, then C$0.75 a minute.<br>The same receptionist answers 24/7 on every size. Past the minutes, calls keep being answered, the email when you pass them names the rate and the next size up where there is one, and your plan changes only if you change it.</td></tr>
         </tbody>
       </table>
     </div>
