@@ -103,7 +103,7 @@
       {
         id: "get_paid", name: "Get-Paid Autopilot",
         monthly: 500, launch: 750, sellable: true, soldAlone: true,
-        blurb: "Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks YOU get told instead, because past that point the judgment call belongs to a person."
+        blurb: "Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead, because past that point the judgment call belongs to a person."
       },
       {
         id: "review_engine", name: "Review Engine",
@@ -114,12 +114,12 @@
       {
         id: "seo_rankings", name: "Search Rankings",
         monthly: 0, launch: 0, sellable: false, soldAlone: false,
-        blurb: "Better search rankings for the work you want more of. Coming, and not built yet."
+        blurb: "Better search rankings for the work you want more of. Not built yet."
       },
       {
         id: "reactivation", name: "Customer Reactivation",
         perCampaign: 2000, sellable: false, soldAlone: false,
-        blurb: "A win-back campaign over your own past-customer list, inside the consent rules. Coming, and not sellable until it ships end to end."
+        blurb: "A win-back campaign over your own past-customer list, inside the consent rules. Not sellable until it ships end to end."
       }
     ],
     /* What an item costs on the Performance Partnership, derived as the

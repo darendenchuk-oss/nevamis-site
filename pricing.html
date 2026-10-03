@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xtxZzGQeyeTmdWYsbOimdMhBMn0p/zQ2exFGY6kqz3k=' 'sha256-TYv6lHxtnXiVr2KyhNs4nDdtJmJ5Nu94iUhuLoDIQ0A=' 'sha256-2DrAI+HRw11Dal8zG+4dQ1MlRONFs0QWTUwRq2XgDJg=' 'sha256-L5hzxmuixfuveKyl6PKQA/GPSe3+FDaUzBXn34w3dFw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-UtNQAyoGeaKiL6vnlKRBcV3vLaMxLV6mhXuMuJdMrp4=' 'sha256-J370LoND2L+9w1IVT1xZpucTrwi/lsSsyk4kDX9UapM=' 'sha256-2DrAI+HRw11Dal8zG+4dQ1MlRONFs0QWTUwRq2XgDJg=' 'sha256-L5hzxmuixfuveKyl6PKQA/GPSe3+FDaUzBXn34w3dFw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1262,10 +1262,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <li>Lead Generation &middot; on the Performance Partnership &middot; businesses that fit what you do, found for you, with the page each one came from and what came of it. You decide every row, and nobody on the list is contacted by us. Offered by invitation, under your own agreement, and not yet sellable from a page.</li>
           <li>Quote-Chase Engine &middot; C$500/month &middot; C$750 Launch &amp; Implementation to start, then C$500 a month &middot; every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=quote_chase" data-evt="plan_buy_click" aria-label="Start Quote-Chase Engine on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
           <li>Missed-Call Recovery &middot; C$350/month &middot; C$500 Launch &amp; Implementation to start, then C$350 a month &middot; a caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=missed_call_recovery" data-evt="plan_buy_click" aria-label="Start Missed-Call Recovery on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
-          <li>Get-Paid Autopilot &middot; C$500/month &middot; C$750 Launch &amp; Implementation to start, then C$500 a month &middot; overdue invoices get a gentle nudge, a firm one a week later, and at three weeks YOU get told instead, because past that point the judgment call belongs to a person.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=get_paid" data-evt="plan_buy_click" aria-label="Start Get-Paid Autopilot on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
+          <li>Get-Paid Autopilot &middot; C$500/month &middot; C$750 Launch &amp; Implementation to start, then C$500 a month &middot; overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead, because past that point the judgment call belongs to a person.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=get_paid" data-evt="plan_buy_click" aria-label="Start Get-Paid Autopilot on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
           <li>Review Engine &middot; C$300/month &middot; C$500 Launch &amp; Implementation to start, then C$300 a month &middot; post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=review_engine" data-evt="plan_buy_click" aria-label="Start Review Engine on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
-          <li>Search Rankings &middot; coming &middot; better search rankings for the work you want more of. Coming, and not built yet.</li>
-          <li>Customer Reactivation &middot; coming &middot; a win-back campaign over your own past-customer list, inside the consent rules. Coming, and not sellable until it ships end to end.</li>
+          <li>Search Rankings &middot; coming &middot; better search rankings for the work you want more of. Not built yet.</li>
+          <li>Customer Reactivation &middot; coming &middot; a win-back campaign over your own past-customer list, inside the consent rules. Not sellable until it ships end to end.</li>
         </ul>
         <!-- The term paragraph that sat here moved to the terms band on
              2026-09-24 (W6), where it is the page's one full statement of the
@@ -1445,27 +1445,35 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      the no-script copy carries the flat parent name, which is allowlisted
      and lands in the same stage. */
   var addOnEl = document.getElementById("addOnList");
+  /* The list is built whole before it replaces the static one, and inside a
+     try, because the plan cards render after it in this same function: one
+     malformed catalog entry (no blurb, say) must leave the static add-on list
+     and still let the cards render, not blank both. */
   if (addOnEl && Array.isArray(P.addOns) && P.addOns.length && typeof P.startLine === "function") {
-    addOnEl.textContent = "";
-    P.addOns.forEach(function (a) {
-      var priced = a.sellable === true && a.monthly > 0;
-      var parts = [a.name];
-      if (priced) parts.push(P.money(a.monthly) + "/month", P.startLine(a).replace(/\.$/, ""));
-      else parts.push(a.partnership ? "on the Performance Partnership" : "coming");
-      parts.push(a.blurb.charAt(0).toLowerCase() + a.blurb.slice(1));
-      var li = document.createElement("li");
-      li.appendChild(document.createTextNode(parts.join(" · ")));
-      if (priced && a.soldAlone === true && P.sellable && P.publishedPricing) {
-        var go = document.createElement("a");
-        go.className = "addon-start";
-        go.href = "https://app.nevamis.ca/signup?coverage=" + encodeURIComponent(a.id);
-        go.setAttribute("data-evt", "plan_buy_click_" + a.id);
-        go.setAttribute("aria-label", "Start " + a.name + " on its own");
-        go.innerHTML = 'Start <span class="arw" aria-hidden="true">›</span>';
-        li.appendChild(go);
-      }
-      addOnEl.appendChild(li);
-    });
+    try {
+      var addOnItems = P.addOns.map(function (a) {
+        var priced = a.sellable === true && a.monthly > 0;
+        var blurb = String(a.blurb || "");
+        var parts = [a.name];
+        if (priced) parts.push(P.money(a.monthly) + "/month", P.startLine(a).replace(/\.$/, ""));
+        else parts.push(a.partnership ? "on the Performance Partnership" : "coming");
+        if (blurb) parts.push(blurb.charAt(0).toLowerCase() + blurb.slice(1));
+        var li = document.createElement("li");
+        li.appendChild(document.createTextNode(parts.join(" · ")));
+        if (priced && a.soldAlone === true && P.sellable && P.publishedPricing) {
+          var go = document.createElement("a");
+          go.className = "addon-start";
+          go.href = "https://app.nevamis.ca/signup?coverage=" + encodeURIComponent(a.id);
+          go.setAttribute("data-evt", "plan_buy_click_" + a.id);
+          go.setAttribute("aria-label", "Start " + a.name + " on its own");
+          go.innerHTML = 'Start <span class="arw" aria-hidden="true">›</span>';
+          li.appendChild(go);
+        }
+        return li;
+      });
+      addOnEl.textContent = "";
+      addOnItems.forEach(function (li) { addOnEl.appendChild(li); });
+    } catch (e) { /* the static list stays; the plan cards below still render */ }
   }
   var wrap = document.getElementById("plans");
   /* Thousands are grouped: an ungrouped four-digit price beside a

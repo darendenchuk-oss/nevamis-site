@@ -15,9 +15,10 @@
      PRICING-8   how-you-start.html renders every figure from
           pricing-config.js, and its no-script copy is held equal to what it
           renders.
-     PRICING-9   no machine-read description says the agent takes the job or
-          the time, which reads as a booking; a sentence that says it takes
-          them down also says the owner confirms.
+     PRICING-9   no sentence, machine-read or not, says the agent takes the
+          job or the time the caller wants, which reads as a booking, even
+          beside "you confirm": it captures the request and the times that
+          suit, as how-you-start.html says.
      PRICING-10  a refusal that a published plan makes (integrations, more
           than one location) is scoped to the published plans and names
           Enterprise, which sells exactly those.
@@ -179,18 +180,18 @@ test('PRICING-8: how-you-start\'s no-script figures equal what the config render
     + (banded ? ' within published ranges: ' : ': ') + line.charAt(0).toLowerCase() + line.slice(1));
 });
 
-test('PRICING-9: nothing a machine reads, and no sentence a buyer reads, has the agent take the job or the time without the owner confirming', () => {
+test('PRICING-9: no sentence a machine or a buyer reads has the agent take the job or the time the caller wants, even beside "you confirm"', () => {
   const booking = /\btakes? (?:the job|the time|the slot)\b|\b(?:the )?times? (?:they|the caller) wants?\b/i;
   const bad = [];
   for (const s of surfaces()) {
     for (const sentence of sentences(s.text)) {
-      if (booking.test(sentence) && !/\bconfirms?\b/i.test(sentence)) bad.push(`${s.page} ${s.where}: "${sentence.slice(0, 200)}"`);
+      if (booking.test(sentence)) bad.push(`${s.page} ${s.where}: "${sentence.slice(0, 200)}"`);
     }
   }
   /* The proposal writes its summary line from script too. */
   for (const lit of read('proposal.html').matchAll(/"([^"\n]{40,})"/g)) {
     for (const sentence of sentences(lit[1])) {
-      if (booking.test(sentence) && !/\bconfirms?\b/i.test(sentence)) bad.push(`proposal.html script: "${sentence.slice(0, 200)}"`);
+      if (booking.test(sentence)) bad.push(`proposal.html script: "${sentence.slice(0, 200)}"`);
     }
   }
   expect(bad, bad.join('\n')).toEqual([]);
@@ -394,6 +395,60 @@ test('PRICING-14: pricing renders the add-on list from the config, and the rende
   await moved.goto('/pricing.html');
   await expect(moved.locator('#addOnList > li', { hasText: 'Missed-Call Recovery' })).toContainText('C$999/month');
   await ctx.close(); await ctx2.close();
+});
+
+/* The page's heading and its meta answer the same question: you start on a
+   plan or on one automation sold alone, so the heading does not drop one. */
+test('PRICING-7: how-you-start\'s heading names both ways to start that its meta names', () => {
+  const html = read('how-you-start.html');
+  const h1 = flat(decode(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)[1].replace(/<[^>]+>/g, '')));
+  const meta = html.match(/<meta name="description" content="([^"]*)"/)[1];
+  expect(meta).toMatch(/\bsingle automation\b/);
+  expect(h1).toMatch(/\bplan\b/);
+  expect(h1).toMatch(/\bsingle automation\b/);
+});
+
+/* Each blurb is read after the item's status ("coming", or its price), so a
+   coming item's blurb does not say "coming" again, and no blurb shouts. */
+test('PRICING-14: an add-on line says "coming" once and shouts no word', () => {
+  const bad = [];
+  for (const a of config().addOns) {
+    const priced = a.sellable === true && a.monthly > 0;
+    if (!priced && !a.partnership && /\bcoming\b/i.test(a.blurb)) bad.push(`${a.id}: says "coming" twice`);
+    const shout = (a.blurb || '').match(/\b(?!CRM\b|SMS\b|SEO\b)[A-Z]{2,}\b/);
+    if (shout) bad.push(`${a.id}: "${shout[0]}" in capitals`);
+  }
+  expect(bad, bad.join('\n')).toEqual([]);
+});
+
+/* The add-on list renders before the plan cards, in the same script, so a bad
+   catalog entry must cost at most the list, never the cards a buyer pays from. */
+test('PRICING-14: an add-on with no blurb still renders, and the plan cards still render', async ({ browser }) => {
+  const ctx = await browser.newContext();
+  await offline(ctx);
+  await withMovedConfig(ctx, (s) => s.replace(/(id: "get_paid", name: "Get-Paid Autopilot",[\s\S]*?soldAlone: true),\s*blurb: "[^"]*"/, '$1'));
+  const page = await ctx.newPage();
+  await page.goto('/pricing.html');
+  await expect(page.locator('#plansFallback')).toHaveCount(0);
+  expect(await page.locator('#plans > *').count()).toBeGreaterThan(0);
+  await expect(page.locator('#addOnList > li', { hasText: 'Get-Paid Autopilot' })).toContainText('C$500/month');
+  await ctx.close();
+});
+
+test('PRICING-14: an add-on entry that throws leaves the static list and still lets the plan cards render', async ({ browser }) => {
+  const ctx = await browser.newContext();
+  await offline(ctx);
+  /* Appended after the config: the last entry throws the moment the
+     renderer reads whether it is sellable. */
+  await withMovedConfig(ctx, (s) => s + '\nwindow.NV_PRICING.addOns.push(Object.defineProperty({ id: "broken", name: "Broken" }, "sellable", { get: function () { throw new Error("bad entry"); } }));\n');
+  const page = await ctx.newPage();
+  await page.goto('/pricing.html');
+  await expect(page.locator('#plansFallback')).toHaveCount(0);
+  expect(await page.locator('#plans > *').count()).toBeGreaterThan(0);
+  const list = read('pricing.html').match(/<ul id="addOnList"[^>]*>([\s\S]*?)<\/ul>/)[1];
+  const fallback = [...list.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => flat(decode(m[1].replace(/<[^>]+>/g, ''))));
+  expect((await page.locator('#addOnList > li').allTextContents()).map(flat)).toEqual(fallback);
+  await ctx.close();
 });
 
 test('PRICING-9: the Product structured data the pricing page writes does not read as a booking', async ({ browser }) => {
