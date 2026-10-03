@@ -1,14 +1,15 @@
 # Commercial model decision record
 
-> **SUPERSEDED 2026-08-09 — this record is history, not the offer.** Model B
-> below (a free 7-day live pilot plus a founding-client offer) was decided
-> 2026-07-23 and is retired, along with the paid C$150 pilot that briefly
-> replaced it, the founding waiver, the setup fee, Pay As You Go, annual prepay,
-> and the C$249 / C$449 / C$849 ladder quoted further down. The current model
-> (v4, owner directive 2026-08-22) is a one-time Launch & Implementation fee
-> to start, then a monthly price per plan, with no pilot and no trial at any
-> price. pricing-config.js and the engine's src/domain/canonical.ts are the
-> source of truth; no figure in this file may be quoted.
+<!-- commercial-truth: HISTORICAL_REFERENCE_ALLOWED. The decision of 2026-07-23 to sell a free seven-day pilot (Model B), with the setup-fee and pricing history of the weeks after it; every term in it is retired, and it is kept as the record of why, never as the offer. -->
+
+> **Record of 2026-07-23. Not a description of today.** SUPERSEDED 2026-08-09, and every
+> commercial model since has been superseded in turn, most recently by commercial model v7
+> (owner decision 2026-10-02). Model B below (a free 7-day live pilot plus a founding-client
+> offer) was decided 2026-07-23 and is retired, along with the paid C$150 pilot that briefly
+> replaced it, the founding waiver, the setup fee, Pay As You Go, annual prepay, the
+> C$249 / C$449 / C$849 ladder and the Core / Growth / Pro ladder quoted further down. What
+> Nevamis sells today is in pricing-config.js and the engine's src/domain/canonical.ts; no
+> figure in this file may be quoted.
 >
 > Several other files in this repo used to point HERE for "the current model".
 > They have been repointed at pricing-config.js, which is the only file a guard
