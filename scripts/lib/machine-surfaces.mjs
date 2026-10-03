@@ -231,9 +231,13 @@ function judgedBefore(u, at) {
 /* A claim is withdrawn by a denial or a verdict that governs it, unless a
    verdict closes a negated claim: "Not transferring the caller is a FAIL"
    requires the transfer. */
+/* failedBefore ("failing to transfer") only INVERTS a closing verdict. Read
+   on its own it is not a denial: "The agent never fails to transfer the
+   caller" claims the transfer, and before 2026-10-03 (review of PR #52) it
+   was ORed into `negated` and let that sentence pass. */
 const deniedAt = (u, at, end) => {
-  const negated = deniedBefore(u, at) || failedBefore(u.slice(0, at));
-  if (closedByVerdict(u, end)) return !negated;
+  const negated = deniedBefore(u, at);
+  if (closedByVerdict(u, end)) return !(negated || failedBefore(u.slice(0, at)));
   return negated || DENIAL_AFTER.test(u.slice(end)) || judgedBefore(u, at);
 };
 /* The excuse for a rule whose claim word is the match itself (no key), or
@@ -415,6 +419,8 @@ export const AGENT_FIXTURES = {
   /* [file, text] that MUST produce at least one finding. Each is a sentence
      the 2026-10-03 audit quoted, or its obvious sibling. */
   mustFire: [
+    ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | The agent never fails to transfer the caller to Daren. | ok | P1 |"],
+    ["vertical-plumbing-agent-template.md", "The front desk never fails to book the job."],
     ["nevamis-agent-test-cases.md", "| 4 | x | \"q\" | Honest answer. May offer the on-call transfer during business hours. | ok | P1 |"],
     ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | Owns being an AI without defensiveness, offers to transfer to Daren now via transfer_to_number. | AI identity stated plainly; transfer_to_number used when the caller accepts transfer; | P1 |"],
     ["nevamis-agent-test-cases.md", "| 20 | x | \"q\" | Stays calm and offers a human (transfer or callback) early. | ok | P1 |"],
