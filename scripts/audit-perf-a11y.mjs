@@ -137,8 +137,14 @@ for (const f of pages) {
     const id = (a.match(/id="([^"]+)"/) || [])[1];
     const before = body.slice(0, m.index);
     const open = before.lastIndexOf("<label");
+    /* The wrapping label's text may sit on either side of the input
+       ("<label><input type=\"checkbox\"> I agree</label>"), so both the text
+       before it and the text up to the label's close are counted. */
+    const after = body.slice(m.index + m[0].length);
+    const close = after.indexOf("</label>");
     const wrapped = open > before.lastIndexOf("</label>")
-      && before.slice(before.indexOf(">", open) + 1).replace(/<[^>]+>/g, "").trim().length > 0;
+      && (before.slice(before.indexOf(">", open) + 1) + " " + (close < 0 ? "" : after.slice(0, close)))
+        .replace(/<[^>]+>/g, "").trim().length > 0;
     const labelled = wrapped || /aria-label=|aria-labelledby=/.test(a) || (id && new RegExp(`<label[^>]*for="${id}"`).test(body));
     if (!labelled) add("MED", f, `<input${id ? " #" + id : ""}> has no label`);
   }

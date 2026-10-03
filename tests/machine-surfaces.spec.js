@@ -204,7 +204,8 @@ test('CHECK-RUNNER-9: audit-perf-a11y counts a wrapping <label> and a hidden, un
   const good = miniSite('audit-perf-a11y.mjs', page_(
     '<form><label>Your name <input id="n" name="n"></label>'
     + '<input id="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">'
-    + '<label>Website<input aria-hidden="true" id="hp2" tabindex="-1"></label></form>'));
+    + '<label>Website<input aria-hidden="true" id="hp2" tabindex="-1"></label>'
+    + '<label><input type="checkbox" id="agree"> I <b>agree</b></label></form>'));
   expect(good.stdout).not.toMatch(/has no label/);
   const bad = miniSite('audit-perf-a11y.mjs', page_(
     '<form><input id="bare"><label></label><input id="afterEmpty">'

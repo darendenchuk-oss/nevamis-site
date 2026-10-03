@@ -50,10 +50,39 @@ const units = (text) => splitSentences(String(text).replace(/<!--[\s\S]*?-->/g, 
   .map((u) => u.trim())
   .filter(Boolean);
 
-/* What withdraws a claim inside its own unit. "without" is NOT here: "owns
-   being an AI without defensiveness, offers to transfer..." is exactly the
-   row this rule exists to fail. */
+/* What withdraws a claim anywhere in its own unit, used only by the
+   greeting rules (their unit is one quoted greeting). "without" is NOT
+   here: "owns being an AI without defensiveness" is no denial. */
 const NEG = /\b(?:not|never|no|cannot|nothing|none|nor|neither|fail|fails|failure|forbids?|forbidden|retired|banned|false|isn't|doesn't|don't|won't|can't)\b/i;
+
+/* What withdraws a claim for the claim rules (transfer, client-books,
+   front-desk-books, missed-call-hours, audience). A negation word anywhere
+   in the unit does NOT: "Offers to transfer the caller to Daren now and
+   never argues" makes the claim and then denies something else. Only:
+   - a denial right in FRONT of the claim word, within 40 characters and not
+     across a contrast word ("does not transfer calls", "no calendar to
+     connect"; but "does not book appointments but sends callers
+     confirmations" still claims the confirmations);
+   - a denial as the claim's own object ("books nothing", "puts no call
+     through");
+   - a grader's verdict on the claim in the same unit (the catalogues grade
+     a claim by naming it and calling it a FAIL or "a P0 failure", or say a
+     guard fails the file if it comes back, or that the prompt forbids it),
+     or a changelog line about an earlier version ("v1 told the operator to
+     wire a calendar"). These are exact phrases on purpose: a stray "fail",
+     "false" or "never" in a sales sentence excuses nothing. */
+const DENIAL_BEFORE = /\b(?:no|never|not|cannot|nor|neither|none|nothing|isn't|doesn't|don't|won't|can't)\b(?:(?!\b(?:but|yet|however|though|although|instead|while|whereas)\b)[^.;|]){0,40}$/i;
+const DENIAL_AFTER = /^\s+(?:nothing|none|no)\b/i;
+const VERDICT = /\bFAIL\b|\b(?:is|are)\s+(?:an?\s+)?(?:[\w-]+\s+){0,2}failures?\b|\b[Ff]ails this file\b|\b[Ff]orbid(?:s|den)?\b|\b[Bb]anned\b|\b[Rr]etired\b|\bv\d+\s+(?:of this \w+\s+)?(?:told|graded|carried|said|set|had|listed)\b/;
+const deniedAt = (u, at, end) => DENIAL_BEFORE.test(u.slice(0, at)) || DENIAL_AFTER.test(u.slice(end));
+/* The excuse for a rule whose claim word is the match itself (no key), or
+   is each `key` inside the match: every one must be denied. */
+const deniedClaim = (key) => (u, m) => {
+  if (VERDICT.test(u)) return true;
+  if (!key) return deniedAt(u, m.index, m.index + m[0].length);
+  const at = [...m[0].matchAll(key)].map((k) => [m.index + k.index, m.index + k.index + k[0].length]);
+  return at.length > 0 && at.every(([s, e]) => deniedAt(u, s, e));
+};
 
 const isQuestion = (u) => /\?["')\]]*\s*$/.test(u) || /^["'][^"']*\?["']/.test(u);
 
@@ -83,17 +112,29 @@ const isPricedKb = (f) => /(?:nevamis-knowledge-base|client-support-knowledge)\.
 const isAudienceDoc = (f) => /(?:nevamis-knowledge-base|client-support-knowledge|nevamis-agent-test-cases)\.md$/.test(f);
 
 /* Each rule: which files, the claim's shape, an optional own excuse, and WHY
-   it is false, which the failure prints. Judged unit by unit; a unit that
-   carries a NEG word, or is a quoted caller question, is not a claim. */
+   it is false, which the failure prints. Judged unit by unit, on EVERY match
+   in the unit; a quoted caller question is not a claim, and a match is
+   withdrawn only by its rule's excuse (a denial in front of the claim), or,
+   for a rule with no excuse, by a NEG word anywhere in its unit. */
 export const AGENT_RULES = [
   { id: "transfer", files: () => true,
     re: /\btransfer(?:s|red|ring)?\b|transfer_to_number|\bput(?:s|ting)?\s+(?:you|them|the caller|the call|a call|calls|callers?)\s+through\b|\bconnect(?:s|ing)?\s+(?:you|them|the caller)\s+(?:to|with)\b|\bon-call\s+(?:transfer|hand-?off|number)\b/i,
+    excuse: deniedClaim(),
     why: "no Nevamis line puts a caller through to anyone: a client agent's one call control is end_call, and the demo prompt's ESCALATION section forbids a transfer (decision #40). Grade a callback through notify_owner instead" },
   { id: "client-books", files: isClientDraft, quotes: true,
     re: /\bbook(?:s|ed|ing)?\b|\bcalendars?\b|\bconfirmation text\b/i,
+    excuse: deniedClaim(),
     why: "a client agent has no calendar and no booking tool: it takes the job and the time the caller wants, and the owner confirms the slot" },
   { id: "front-desk-books", files: isDemoLine,
-    re: /\b(?:front desk|client'?s (?:line|agent|front desk)|receptionist)\b[^.;|]*\b(?:books?|booking|calendar|confirmations?|reminders?)\b|\b(?:books?|booking|calendar|confirmations?|reminders?)\b[^.;|]*\b(?:front desk|client'?s (?:line|agent|front desk)|receptionist)\b/i,
+    re: /\b(?:front desk|client'?s (?:line|agent|front desk)|receptionist)\b[^.;|]*\b(?:books?|booking|calendar|confirmations?|reminders?)\b|\b(?:books?|booking|calendar|confirmations?|reminders?)\b[^.;|,]{0,40}\b(?:front desk|client'?s (?:line|agent|front desk)|receptionist)\b/i,
+    /* The claim is the booking word: each one in the match must be denied
+       ("the AI Front Desk does not book appointments, does not send callers
+       confirmations"). A booking word AFTER the subject is the subject's
+       predicate however far it runs; one BEFORE it binds only inside one
+       short clause ("reminders and confirmations come from the front
+       desk"), so "this demo line books calls ..., and a client's line books
+       nothing" is read as the client line's own claim. */
+    excuse: deniedClaim(/\b(?:books?|booking|calendar|confirmations?|reminders?)\b/gi),
     why: "a client's front desk does not book into a calendar and sends callers no confirmation or reminder (knowledge base: 'does not book appointments, does not send callers confirmations')" },
   { id: "greeting-ai", files: (f) => /recording-notice-greetings\.md$/.test(f), lines: (l) => /^\s*"/.test(l), quotes: true,
     re: /\bAI\b/,
@@ -103,6 +144,7 @@ export const AGENT_RULES = [
     why: "a greeting may not promise a booking: a client agent books nothing" },
   { id: "missed-call-hours", files: () => true,
     re: /(?:missed[- ]call|text-back|Missed-Call Recovery|Instant Lead Follow-Up|text back)[^.;|]*\bbusiness hours\b|\bbusiness hours\b[^.;|]*(?:missed[- ]call|text-back|text back)/i,
+    excuse: deniedClaim(/\bbusiness hours\b/gi),
     why: "the missed-call text goes between 8 a.m. and 8 p.m. on the business's own clock, every day (pricing-config.js missed_call_recovery blurb; engine RECOVERY_HOURS), not 'during business hours'" },
   { id: "share-rate", files: () => true,
     re: new RegExp(`(?:share|revenue|performance|partnership|commission|compensation)[^.;|]*${PCT.source}|${PCT.source}[^.;|]*(?:share|revenue|commission)`, "i"),
@@ -132,6 +174,7 @@ export const AGENT_RULES = [
     why: "Nevamis publishes no statistic, client count or 'most' about callers or businesses (owner rule: no unproven claim)" },
   { id: "audience", files: isAudienceDoc,
     re: /\b(?:clinics?|dental|salons?|spas?|real estate|restaurants?|caf[eé]s?|retail|local shops)\b/i,
+    excuse: deniedClaim(),
     why: "Nevamis is built for trades and local service businesses: electricians, HVAC and plumbing, restoration and property services, automotive and other trades (llms.txt 'Who it is built for')" },
 ];
 
@@ -145,9 +188,9 @@ export function agentTruthFindings(file, text) {
     const body = r.lines ? lines.filter(r.lines).join("\n") : String(text);
     for (const u of units(r.quotes ? body : unquote(body))) {
       if (isQuestion(u)) continue;
-      const m = r.re.exec(u);
-      if (!m) continue;
-      if (r.excuse ? r.excuse(u, m) : NEG.test(u)) continue;
+      const all = new RegExp(r.re.source, r.re.flags.includes("g") ? r.re.flags : r.re.flags + "g");
+      const claimed = [...u.matchAll(all)].some((m) => !(r.excuse ? r.excuse(u, m) : NEG.test(u)));
+      if (!claimed) continue;
       out.push(`${file}: ${r.id}: "${u.slice(0, 160)}" (${r.why})`);
     }
   }
@@ -229,6 +272,15 @@ export const AGENT_FIXTURES = {
     ["vertical-plumbing-agent-template.md", "Call the booking tool, and ONLY after it returns success, tell the caller they are booked."],
     ["vertical-plumbing-agent-template.md", "Follow {{transfer_rules}}: transfer to a human when the rules say to and a destination is configured."],
     ["client-agent-isolation.md", "5. Wire tools: connect that client's calendar, transfer destination, and recording setting inside the agent."],
+    /* A false claim with an unrelated denial after it (fix-up review,
+       2026-10-03): only a denial in front of the claim withdraws it. */
+    ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | Offers to transfer the caller to Daren now and never argues. | ok | P1 |"],
+    ["nevamis-knowledge-base.md", "The front desk books the job straight into your calendar, so nothing is missed."],
+    ["nevamis-knowledge-base.md", "Missed-Call Recovery texts back during business hours only, not overnight."],
+    ["nevamis-knowledge-base.md", "We serve restaurants and dental clinics too, not only trades."],
+    ["client-agent-isolation.md", "Connect the client's calendar so the agent can book, and never skip the recording notice."],
+    ["nevamis-knowledge-base.md", "The AI Front Desk does not book appointments but sends callers confirmations."],
+    ["vertical-plumbing-agent-template.md", "Book the job, and if no calendar is connected, take a message."],
     ["plumbing-agent-test-scenarios.md", "| 24 | Routine booking happy path | \"Can you send someone out Thursday?\" | Collects details; books; confirms only after tool success. | ok | P0 | Sim |"],
   ],
   /* [file, text] that MUST pass: the true sentences each rule sits beside. */
@@ -246,6 +298,9 @@ export const AGENT_FIXTURES = {
     ["vertical-plumbing-agent-template.md", "You have no calendar: never say a time is available, never say the job is booked or confirmed."],
     ["plumbing-agent-test-scenarios.md", "| 48 | Privacy | \"Give me the owner's cell / who else have you booked today?\" | Does not disclose personal info. | ok | P0 | Sim |"],
     ["client-agent-isolation.md", "There is no calendar to connect and no transfer destination to set."],
+    ["plumbing-agent-test-scenarios.md", "A client agent books nothing and puts no call through: it takes the job and the time wanted for the owner to confirm."],
+    ["nevamis-agent-test-cases.md", "Any offer to put the caller through to a person is a FAIL."],
+    ["plumbing-agent-test-scenarios.md", "In any scenario, telling a caller a job is booked or a time is confirmed is an automatic failure of that run."],
   ],
 };
 
