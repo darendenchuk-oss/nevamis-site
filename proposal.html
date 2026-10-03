@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-KO6CI+07PeaL3jDvxoXmeuLN/91YBnSw2H2+08uFF7U=' 'sha256-1mLedE7j1Ti1UbJX3UVP5VnRlyvs+1SlU+JIowUilmc='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-UKIFsbcpF6bjvmdbzhdQdRkC4ubbVibiysAMgMoHaNY=' 'sha256-YBkiUbLgDvqle/MhJU7mlzsDYrr9x/+Y7gZVAOCu5JA='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1619,7 +1619,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         var buys = document.querySelectorAll("a[data-buy]");
         for (var b = 0; b < buys.length; b++) {
           buys[b].href = "https://app.nevamis.ca/signup?plan=" + encodeURIComponent(plan.id);
-          buys[b].setAttribute("data-evt", "plan_buy_click_" + plan.id);
+          /* The event suffix is the id with its hyphens as underscores, as
+             the pricing page writes it: the engine's allowlist takes
+             [a-z0-9_] only, so "plan_buy_click_front-desk-plus" (v7) would
+             be dropped silently and read as nobody clicking. The link keeps
+             the id as it is. */
+          buys[b].setAttribute("data-evt", "plan_buy_click_" + String(plan.id).replace(/-/g, "_"));
         }
       } else {
         callOnly();

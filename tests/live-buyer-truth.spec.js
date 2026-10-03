@@ -29,7 +29,9 @@
      BOOK-2      every "only recurring charges" sentence names the
           Partnership's agreed share, and never a rate (ADR-015).
      BOOK-5      "published before you decide" never stands without the
-          Partnership's agreement-within-ranges exception.
+          Partnership's agreement exception (v7: its figures are fixed, so
+          the exception is that its share is set in the agreement, and the
+          retired "within published ranges" is no longer required).
      LEGAL-9     the terms note says the one-time fee is charged when the plan
           or add-on starts, because it covers an add-on added later.
      PROPOSAL-4  robots.txt lets crawlers read the proposal's noindex.
@@ -152,11 +154,17 @@ test('PRICING-7, MACHINE-19, PILOT-1: no buyer page says pilot, trial, free peri
   expect(hits, hits.join('\n')).toEqual([]);
 });
 
-test('PRICING-8: how-you-start loads pricing-config.js and types no figure outside the two lines it rewrites', () => {
+/* The sentences how-you-start's script rewrites from the config. Since v7
+   (owner amendment #67, v7-site-booked) they are the three Front Desk sizes,
+   The Works, the Partnership and Enterprise's floor; the recommended plan's
+   own sentence is one of the sizes now. */
+const HYS_SPANS = ['hysTiers', 'hysWorks', 'hysPartnership', 'hysEnterprise'];
+
+test('PRICING-8: how-you-start loads pricing-config.js and types no figure outside the lines it rewrites', () => {
   const html = read('how-you-start.html');
   expect(html, 'how-you-start.html must load the config every price renders from').toMatch(/<script src="pricing-config\.js"><\/script>/);
-  /* Take out the two sentences the script rewrites; nothing left may be a price. */
-  const rest = html.replace(/<span id="hys(?:Recommended|Partnership)">[\s\S]*?<\/span>/g, ' ');
+  /* Take out the sentences the script rewrites; nothing left may be a price. */
+  const rest = html.replace(new RegExp(`<span id="(?:${HYS_SPANS.join('|')})">[\\s\\S]*?</span>`, 'g'), ' ');
   const typed = [...visibleText(rest).matchAll(/C\$\s?[\d,]+/g)].map((m) => m[0]);
   expect(typed, `figures typed outside the rendered lines: ${typed.join(', ')}`).toEqual([]);
   expect(visibleText(html), 'the page still states the two figures, rendered').toMatch(/C\$[\d,]+/);
@@ -169,15 +177,19 @@ test('PRICING-8: how-you-start\'s no-script figures equal what the config render
     const m = html.match(new RegExp(`<span id="${id}">([\\s\\S]*?)</span>`));
     return m && flat(decode(m[1]));
   };
-  /* Derived the way the page derives it: the plan flagged recommended, and
-     the one offered by invitation, found by their flags. */
-  const rec = P.plans.find((p) => p.recommended);
+  /* Every figure the config holds for what each sentence names, found by
+     the plans' flags the way the page finds them. The exact sentence is held
+     to the render in tests/v7-booked.spec.js; this holds the FIGURES, so a
+     price that moves in the config and not in the page fails here too. */
+  const rate = (n) => (Number.isInteger(n) ? P.money(n) : 'C$' + n.toFixed(2));
+  for (const t of P.frontDeskTiers()) {
+    expect(span('hysTiers'), t.name).toContain(`${t.name}${t.recommended ? ', the recommended size,' : ','} ${P.money(t.monthly)} a month with ${t.includedMinutes.toLocaleString('en-CA')} minutes, then ${rate(t.overage)} for each extra minute`);
+  }
+  const works = P.plans.find((p) => p.includesAutomations);
+  expect(span('hysWorks')).toContain(P.startLine(works));
   const inv = P.plans.find((p) => p.selfServe === false);
-  expect(span('hysRecommended')).toBe(`On the ${rec.name}, the recommended plan, that is ${P.startLine(rec)}`);
-  const line = P.startLine(inv);
-  const banded = Array.isArray(inv.launchRange) || Array.isArray(inv.monthlyRange);
-  expect(span('hysPartnership')).toBe(`On the ${inv.name}, offered by invitation, both are set in your agreement`
-    + (banded ? ' within published ranges: ' : ': ') + line.charAt(0).toLowerCase() + line.slice(1));
+  expect(span('hysPartnership')).toContain(P.startLine(inv));
+  expect(span('hysEnterprise')).toContain(P.money(P.enterprise.launchFrom));
 });
 
 test('PRICING-9: no sentence a machine or a buyer reads has the agent take the job or the time the caller wants, even beside "you confirm"', () => {
@@ -237,7 +249,7 @@ test('BOOK-5: "published before you decide" never stands without the Partnership
   for (const s of surfaces()) {
     for (const sentence of sentences(s.text)) {
       if (/\bpublished before you (?:decide|commit)\b/i.test(sentence)
-        && !(/\bPerformance Partnership\b/.test(sentence) && /\bagreement within published ranges\b/i.test(sentence))) {
+        && !(/\bPerformance Partnership\b/.test(sentence) && /\b(?:set in (?:your|its) agreement|agreement within published ranges)\b/i.test(sentence))) {
         bad.push(`${s.page} ${s.where}: "${sentence.slice(0, 220)}"`);
       }
     }
@@ -371,7 +383,7 @@ test('PRICING-8: how-you-start renders a moved price from the config, and with t
   const page = await ctx.newPage();
   await page.goto('/how-you-start.html');
   const html = read('how-you-start.html');
-  for (const id of ['hysRecommended', 'hysPartnership']) {
+  for (const id of HYS_SPANS) {
     const fallback = flat(decode(html.match(new RegExp(`<span id="${id}">([\\s\\S]*?)</span>`))[1]));
     await expect(page.locator('#' + id), `#${id} renders exactly its no-script copy`).toHaveText(fallback);
   }
@@ -381,7 +393,7 @@ test('PRICING-8: how-you-start renders a moved price from the config, and with t
   await withMovedConfig(ctx2, (s) => s.replace(/(id: "pro", name: "AI Front Desk", recommended: true,\s*monthly: )\d+/, '$11234'));
   const moved = await ctx2.newPage();
   await moved.goto('/how-you-start.html');
-  await expect(moved.locator('#hysRecommended')).toContainText('then C$1,234 a month');
+  await expect(moved.locator('#hysTiers')).toContainText('the AI Front Desk, the recommended size, C$1,234 a month');
   await ctx.close(); await ctx2.close();
 });
 
