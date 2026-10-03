@@ -223,7 +223,9 @@ test('v6: no homepage sentence gives the Front Desk sizes, The Works or an add-o
   const feeless = [...P.plans.filter((p) => !(p.launch > 0)).map((p) => p.name), 'add-on', 'every plan', 'Every plan'];
   const bad = sentences(text).filter((s) => /Launch (?:&|and) Implementation/i.test(s)
     && feeless.some((n) => s.includes(n))
-    && !/\bnone\b|\bno\b|\bwithout\b|\balone\b/i.test(s));
+    /* Only "charged on none of them" excuses it. A looser excuse ("no",
+       "alone") let the v6 lede through on its "no minimum term" clause. */
+    && !/\bnone\b/i.test(s));
   expect(bad, 'a sentence that charges a fee-less plan a Launch & Implementation fee').toEqual([]);
   expect(text, 'the v6 heading').not.toMatch(/One fee to start/i);
 });
