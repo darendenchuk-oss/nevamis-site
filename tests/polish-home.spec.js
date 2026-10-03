@@ -186,15 +186,17 @@ test('MACHINE-19: no homepage surface says pilot, trial or free period, and "dis
 test('MACHINE-25: no homepage surface claims a speed nobody measured (within seconds, instantly, first ring)', () => {
   const speed = /\b(?:in|within) (?:a few |mere |just )?(?:seconds?|moments?)\b|\binstant(?:ly)?\b|\bfirst ring\b|\bin real[- ]time\b/i;
   /* The one pinned sibling (see the header): its source is
-     scripts/build-schema.mjs, polish-machine's file. Pinned by its whole
-     clause, and only in the JSON-LD, so the same words in any other sentence
-     or surface still fail. */
-  const PINNED = /texting and emailing the owner each call's details within seconds\.?$/;
+     scripts/build-schema.mjs, polish-machine's file. Pinned by the whole
+     sentence (it opens "Nevamis finds" and ends on the claim) and only as a
+     top-level JSON-LD node's description, so the same words in a FAQ answer,
+     in any other sentence or on any other surface still fail. */
+  const PINNED_WHERE = /^JSON-LD \[\d+\]\.description$/;
+  const PINNED = /^Nevamis finds .* texting and emailing the owner each call's details within seconds\.$/i;
   const bad = [];
   for (const s of surfaces()) {
     for (const sentence of sentences(s.text)) {
       if (!speed.test(sentence)) continue;
-      if (/^JSON-LD /.test(s.where) && PINNED.test(sentence)) continue;
+      if (PINNED_WHERE.test(s.where) && PINNED.test(sentence)) continue;
       bad.push(`${s.page} ${s.where}: "${sentence.slice(0, 200)}"`);
     }
   }
