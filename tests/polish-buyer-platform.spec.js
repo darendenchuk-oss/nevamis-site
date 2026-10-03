@@ -21,8 +21,9 @@
                      (the driver's ruling: "it never ... offers a discount").
      MACHINE-24      at most one BreadcrumbList per page, and it is the
                      generated one; every indexable page has it.
-     MACHINE-25      indexable pages carry og:url (their canonical), og:type
-                     and og:site_name, and no title narrows the market to
+     MACHINE-25      every page with a share card carries og:type and
+                     og:site_name, indexable pages also carry og:url (their
+                     canonical), and no title narrows the market to
                      one city: Nevamis sells Canada-wide from Edmonton.
      CHECK-RUNNER-7  every description a search result or a share card
                      shows is 160 characters or fewer.
@@ -158,16 +159,35 @@ test('PRICING-9: each surface the hand-over named still describes the front desk
   }
 });
 
+/* "discount" passes only when a negation governs it: the negation, at most
+   four plain words with no "and", "but", "plus", "with" or punctuation
+   between (so a new clause cannot start), an optional "or"/"nor", then the
+   offer words and the discount. "never cuts the price or offers a discount"
+   is a denial; "No setup fee, and a 10% discount for annual" is an offer. */
+const DISCOUNT_DENIED = /\b(?:never|not|no|nor)\s+(?:(?!(?:and|but|plus|with|then)\b)[\w']+\s+){0,4}?(?:(?:or|nor)\s+)?(?:(?:offers?|offered|offering|gives?|giving|runs?|an?|any)\s+){0,3}discount(?:s|ed)?\b/i;
+const discountOutsideDenial = (sentence) => {
+  const disc = sentence.match(/\bdiscount(?:s|ed)?\b/i);
+  return Boolean(disc) && !DISCOUNT_DENIED.test(sentence.slice(0, disc.index + disc[0].length));
+};
+
+test('MACHINE-19: the discount rule tells a denial from an offer', () => {
+  for (const denial of ['Nevamis never offers a discount.', 'It never cuts the price or offers a discount.',
+    'There is no discount for paying early.', 'We do not run discounts.', 'Not a discount, the published price.']) {
+    expect(discountOutsideDenial(denial), denial).toBe(false);
+  }
+  for (const offer of ['No setup fee, and a 10% discount for annual.', 'No setup fee and a discount for annual.',
+    'Not today, but a discount next month.', 'Ask about the discount.', 'No contract. A 10% discount for referrals.']) {
+    expect(discountOutsideDenial(offer), offer).toBe(true);
+  }
+});
+
 test('MACHINE-19: no owned file says pilot, trial or free period, and "discount" only to deny offering one', () => {
   const bad = [];
   for (const s of allSurfaces()) {
     for (const sentence of sentences(s.text)) {
       const word = sentence.match(/\bpilots?\b|\btrials?\b|\bfree periods?\b/i);
       if (word) bad.push(`${s.file} ${s.where}: "${word[0]}" in "${sentence.slice(0, 200)}"`);
-      const disc = sentence.match(/\bdiscount(?:s|ed)?\b/i);
-      if (disc && !/\b(?:never|not|no|nor)\b[^.]*\bdiscount/i.test(sentence.slice(0, disc.index + disc[0].length))) {
-        bad.push(`${s.file} ${s.where}: "${disc[0]}" outside a denial in "${sentence.slice(0, 200)}"`);
-      }
+      if (discountOutsideDenial(sentence)) bad.push(`${s.file} ${s.where}: "discount" outside a denial in "${sentence.slice(0, 200)}"`);
     }
   }
   expect(bad, bad.join('\n')).toEqual([]);
@@ -194,7 +214,7 @@ test('MACHINE-24: a page carries at most one BreadcrumbList, the generated one, 
    company ("Founded and run by Daren in Edmonton") is not a market. */
 const NARROWS = /(?:^|\|)\s*(?:Edmonton|Alberta)(?:,\s*(?:AB|Alberta))?\s*(?:\||$)|\bfor (?:Edmonton|Alberta)(?:'s)? (?:trades|businesses|contractors)\b/i;
 
-test('MACHINE-25: indexable pages carry og:url, og:type and og:site_name, and no title narrows to one city', () => {
+test('MACHINE-25: every share card carries og:type and og:site_name, indexable pages og:url, and no title narrows to one city', () => {
   const bad = [];
   for (const p of PAGES) {
     const html = read(p);
@@ -205,11 +225,16 @@ test('MACHINE-25: indexable pages carry og:url, og:type and og:site_name, and no
       ...surfacesOf(p).filter((s) => /^JSON-LD .*\.name$/.test(s.where) && /\|/.test(s.text)).map((s) => [s.where, s.text]),
     ];
     for (const [where, t] of titles) if (t && NARROWS.test(decode(t))) bad.push(`${p} ${where}: "${decode(t)}"`);
+    /* A noindex page that is still shared by link (proposal.html) shows a
+       card too, so it carries the same type and site name. Only og:url is
+       for indexable pages: a shared proposal lives in its query string. */
+    if (indexable(html) || meta(html, 'property', 'og:title')) {
+      if (meta(html, 'property', 'og:type') !== 'website') bad.push(`${p}: og:type is ${meta(html, 'property', 'og:type')}`);
+      if (meta(html, 'property', 'og:site_name') !== 'Nevamis') bad.push(`${p}: og:site_name is ${meta(html, 'property', 'og:site_name')}`);
+    }
     if (!indexable(html)) continue;
     const canonical = (html.match(/<link rel="canonical" href="([^"]+)">/) || [])[1];
     if (meta(html, 'property', 'og:url') !== canonical) bad.push(`${p}: og:url ${meta(html, 'property', 'og:url')} is not its canonical ${canonical}`);
-    if (meta(html, 'property', 'og:type') !== 'website') bad.push(`${p}: og:type is ${meta(html, 'property', 'og:type')}`);
-    if (meta(html, 'property', 'og:site_name') !== 'Nevamis') bad.push(`${p}: og:site_name is ${meta(html, 'property', 'og:site_name')}`);
   }
   expect(bad, bad.join('\n')).toEqual([]);
 });
