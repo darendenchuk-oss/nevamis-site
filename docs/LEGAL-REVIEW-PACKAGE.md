@@ -1,18 +1,15 @@
 # LEGAL REVIEW PACKAGE
 
-> **THE COMMERCIAL MODEL, STATED UP FRONT so counsel does not have to reach
-> the pricing section to learn it.** Since 2026-08-09 Nevamis sells ONE
-> recurring price per plan, charged the day the client subscribes and every
-> month after: Core C$250/month, Growth C$500/month, Pro C$1,000/month, CAD
-> plus GST/HST. There is no setup fee, activation fee, onboarding fee,
-> implementation fee or launch charge, no money-back guarantee, and no pilot
-> or trial at any price. Month to month, cancel any time from the portal.
-> Every other commercial shape named anywhere below - the C$249 / C$449 /
-> C$849 ladder, the Pay As You Go C$49/month tier, annual prepay, the free
-> seven-day pilot, its C$150 paid replacement, the setup fee and the
-> founding-client waiver - is RETIRED and is listed only as superseding
-> history. `pricing-config.js` is the source of truth; docs/CLAIMS-LEDGER.md
-> row CLM-18 is the approval. Banner added 2026-08-10.
+<!-- commercial-truth: HISTORICAL_REFERENCE_ALLOWED. The package prepared on 2026-07-27 for counsel's review of terms version 2.0 and the draft service agreement of that day, with its commercial facts as last restated on 2026-08-10; the terms and the commercial model have both moved since, and nothing here is the current offer. -->
+
+> **Record of 2026-07-27. Not a description of today.** This package was prepared for
+> counsel's review of terms version 2.0 and the 2026-07-27 draft service agreement, and its
+> commercial facts were last restated on 2026-08-10, for the model of 2026-08-09. Both have
+> moved since: the commercial model has been superseded in turn, most recently by commercial
+> model v7 (owner decision 2026-10-02), and the terms with it. Do not hand this file to counsel
+> as the current position. What Nevamis sells today is in `pricing-config.js` and the engine's
+> `src/domain/canonical.ts`, and the terms counsel is asked to read are terms.html at its
+> current version. Every commercial shape named below is history.
 
 For the qualified Alberta lawyer who reviews Nevamis's public terms,
 privacy policy, and client service agreement (engine OWNER_ACTIONS A5).

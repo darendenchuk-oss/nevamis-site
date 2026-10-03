@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-0owPzF+sR2KsWCUr2CoO7CxdBhjyxMkoqXi1np0aCxU=' 'sha256-7y8ESMHd0tPm6A3hQXAF+QsIfhPcitgpWdgrRl/wj7g='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-Qo57JfmIoBBM4giB4AqfEryZdNT9mKuJAaeUgnnu3hg=' 'sha256-YWkrFm1HVpPVhGuEHZ38BRe04VBVcyzPy6vSvw/obPo='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1035,6 +1035,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   ol.steps b{color:var(--ink)}
 
   .noprint-cta{display:flex;gap:14px;flex-wrap:wrap;margin:26px 0 0}
+  /* The first-month-free card (v7, #66), shown only by free-month.js and
+     only on a proposal with no Start now beside it. Warm, as on the pricing
+     page's banner; the offer is styled by id so no shared rule outranks it. */
+  .fm-card{margin:18px 0 0;padding:var(--pad-card);border:1px solid rgba(240,180,98,.35);
+    border-radius:var(--r-card);background:var(--surface)}
+  .doc-page #propFreeMonth p{font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2);margin:0 0 8px}
+  .doc-page #propFreeMonth p:last-child{margin-bottom:0}
+  .doc-page #propFreeMonth .fm-offer{color:var(--warm);font-weight:700}
+  .doc-page #propFreeMonth .fine2{font-size:var(--fs-fine);color:var(--ink-3)}
   .prop-foot{border-top:1px solid var(--line-soft);padding-top:24px;margin-top:44px}
   @media (max-width:760px){.noprint-cta .btn{width:100%;justify-content:center}}
 
@@ -1044,6 +1053,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      re-coloured because a mint hairline at .08 alpha prints as nothing. */
   @media print{
     .noprint-cta,.callbar,.nv-cur,.nv-halo{display:none!important}
+    /* A printed copy cannot be withdrawn when the last place is taken, so
+       the first month free never prints (v7, PROPOSAL-1). */
+    #propFreeMonth{display:none!important}
     html,body{background:#fff;color:#111}
     .prop{padding:0;max-width:none}
     .plan-box{background:#fff;border-color:#bbb;box-shadow:none;
@@ -1108,7 +1120,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            shift, on the one document written to close a sale. -->
       <p class="plan-line" id="planIncludes">1,400 included AI minutes per month, about 470 to 700 typical calls. Additional minutes C$0.75 each.</p>
       <p class="plan-line" id="planMonthly">C$1,000/month, charged the day you start and every month after.</p>
-      <p class="plan-line" id="planTerms">One-time C$1,500 Launch &amp; Implementation to start. Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.</p>
+      <p class="plan-line" id="planTerms">Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.</p>
       <p class="plan-line" id="planAnnual"></p>
       <ul class="ticks" id="planFeatures">
         <li>One business phone line</li>
@@ -1124,6 +1136,37 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     </div>
     <p class="meta">Canadian dollars, plus applicable GST/HST. No minimum term: month to month from the first month, cancelled from your portal.
       Full plan comparison at <a href="/pricing.html">nevamis.ca/pricing</a>.</p>
+    <!-- THE FIRST MONTH FREE, ON A PROPOSAL (v7, owner amendments #66 and
+         #67; PROPOSAL-1, 2026-10-03).
+
+         It is the first freeMonth.firstClients businesses', given on a booked
+         call: staff reserve a place for the business after the call, and
+         checkout gives the month only to a business holding one, never from a
+         link. Staged v7 printed it on every plan and module this page
+         rendered, unconditionally, beside a Start now that goes to the same
+         self-serve signup as the pricing page's Buy now, and a proposal link
+         is kept for weeks: one sent while places remained went on promising
+         the month after the tenth was taken.
+
+         So this card ships hidden with its offer and note slots EMPTY, and two
+         things must both say yes before it shows:
+           - the render script below keeps it only when the plan or module it
+             rendered carries a free month AND no Start now is left on the
+             page. Beside a self-serve link the page says no free month at
+             all, because that link charges the first month. Everywhere else
+             (the Partnership, a link naming nothing, a buyable plan, a render
+             that failed) it removes the card before free-month.js runs;
+           - free-month.js, loaded deferred after that script, shows what is
+             left only while the owner's switch is on and
+             app.nevamis.ca/api/free-month answers that a place is open, so
+             an old link stops saying it the day the places run out.
+         It never prints (see @media print). tests/v7-booked.spec.js holds
+         every branch. -->
+    <div id="propFreeMonth" class="fm-card" data-nv-free-month hidden>
+      <p class="fm-offer" data-nv-free-month-offer></p>
+      <p>Ask on our next call: if a place is still open, we reserve one for your business before you start.</p>
+      <p class="fine2" data-nv-free-month-note></p>
+    </div>
     <!-- The decision happens here, at the price, not 1,300px further down.
          This document is sent to a named prospect after a call, and its only
          action used to sit at 86% of the page: measured on production, 1,331px
@@ -1192,8 +1235,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 /* Renders the proposal from URL parameters against the approved price list.
    Every value shown comes from pricing-config.js, so a proposal can never
    quote a number the business has not approved.
-   Params: ?to=Business+Name&plan=starter|growth|pro (legacy ids after-hours
-   and scale still resolve), or the id of an automation sold on its own
+   Params: ?to=Business+Name&plan=front-desk-starter|front-desk-plus|pro|
+   growth|starter, any plan id pricing-config.js carries (legacy ids
+   after-hours and scale still resolve, and so does an id written with
+   underscores, as the engine reads it), or the id of an automation sold on its own
    (quote_chase, get_paid, review_engine, missed_call_recovery: whatever
    pricing-config.js marks soldAlone). A bare link renders the recommended
    plan, the AI Front Desk; until 2026-09-19 a bare link rendered The Works
@@ -1222,6 +1267,20 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       if (row) row.removeChild(a);
     }
   }
+  /* THE FIRST MONTH FREE stays on the page only where it may be said (v7,
+     PROPOSAL-1; see the comment on #propFreeMonth): the item this page
+     rendered carries a free month and no Start now is left beside it.
+     Otherwise the card is taken out of the page, so free-month.js, which
+     runs after this script, never asks the engine and never shows it.
+     settleFreeMonth() runs on every way out of the render, the failed one
+     included. */
+  function dropFreeMonth() {
+    var el = document.getElementById("propFreeMonth");
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+  }
+  function settleFreeMonth(item) {
+    if (!(item && item.freeMonths > 0) || document.querySelector("a[data-buy]")) dropFreeMonth();
+  }
   /* True when the link asks for the proposal the static copy already is:
      the AI Front Desk (no plan, "pro", or its legacy id "scale") at its
      published price (no ?quote=). */
@@ -1241,7 +1300,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        published price, so it keeps the call alone. A config that loaded and
        is NOT approved is a price list nobody signed off, so nothing on this
        page may take money against it. */
-    if (!P || !P.approved) { if (P || !asksForStaticPlan()) callOnly(); return; }
+    if (!P || !P.approved) { if (P || !asksForStaticPlan()) callOnly(); dropFreeMonth(); return; }
     var q = new URLSearchParams(location.search);
 
     /* keep an injected value short and plain; it is only ever printed as text */
@@ -1314,10 +1373,25 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        link for the CHEAPEST plan quoted the middle one at twice the price.
        The engine has resolved these in resolvePlan() since the rename; this is
        the same map on the page a prospect actually opens. */
+    /* "starter" IS THE PERFORMANCE PARTNERSHIP, on purpose, and stays so
+       (v7, PROPOSAL-2). Stored subscriptions and every link sent before v7
+       carry it, and the engine keeps it as the Partnership's key. The
+       smallest Front Desk size added on 2026-10-03 (owner amendment #67) is
+       "front-desk-starter", an id nobody can mistake for it, so a link for
+       that size never renders the Partnership at its fee. The map below
+       sends the retired "after-hours" to the Partnership too, as it always
+       has. tests/v7-booked.spec.js holds both. */
     var LEGACY = { "after-hours": "starter", "scale": "pro" };
     var wanted = clean(q.get("plan"), 24).toLowerCase() || "pro";
-    wanted = LEGACY[wanted] || wanted;
-    var plan = (P.plans || []).filter(function (p) { return p.id === wanted; })[0];
+    /* A plan id written with underscores ("front_desk_plus", "after_hours")
+       is the same plan, as the engine's normalizePlanKey reads it, so the
+       underscores become hyphens BEFORE the legacy map is read: one spelling
+       rule for every plan id, legacy or current. Module ids keep their
+       underscores, so `wanted` itself is left as typed for the module
+       lookup below and only `planKey` is normalised. */
+    var planKey = wanted.replace(/_/g, "-");
+    planKey = LEGACY[planKey] || planKey;
+    var plan = (P.plans || []).filter(function (p) { return p.id === planKey; })[0];
     /* Pay As You Go was retired on 2026-08-06 and removed on 2026-08-07.
 
        A branch here used to render it straight from its old record with NO
@@ -1339,8 +1413,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          - anything else renders a visible "no plan named" state.
        Only a missing ?plan= still means the recommended plan, because a bare
        link is how the static copy has always been sent. */
+    /* `a.launch > 0` was part of this test until v7 (2026-10-03). Every
+       module's fee is 0 now, so it refused every module, and ?plan=quote_chase
+       rendered "no plan named". A module is a proposal on its monthly. */
     var mod = plan ? null : (P.addOns || []).filter(function (a) {
-      return a.id === wanted && a.sellable === true && a.soldAlone === true && a.monthly > 0 && a.launch > 0;
+      return a.id === wanted && a.sellable === true && a.soldAlone === true && a.monthly > 0;
     })[0];
 
     /* THE TERM, stated once for a plan and a module alike. NO MINIMUM TERM,
@@ -1415,8 +1492,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         mPrice.textContent = "Quoted per client";
       }
       set("planIncludes", "Each automation is its own sale, on its own or beside a plan. This one is set up after a short call, not bought from this page.");
+      /* startLine(), the pricing page's own sentence for the item: its
+         monthly alone since v7, and its fee first wherever one returns. */
       set("planMonthly", P.publishedPricing
-        ? money(mod.launch) + " Launch & Implementation to start, then " + money(mod.monthly) + " a month, charged the day you start and every month after."
+        ? P.startLine(mod).replace(/\.$/, "") + ", charged the day you start and every month after."
         : "Your price is quoted per client, then it is charged the day you start and every month after.");
       set("planTerms", termSentence);
       hideFeatures();
@@ -1425,6 +1504,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         ["Set up.", "It is configured with your business name, your hours and the rules you approve, and nothing is switched on until you say so."],
         ["Live, and cancellable whenever you want.", "You are billed monthly from the day you start, with no minimum term. If it is not earning its price, you cancel it yourself from the portal at any time, and the month you already paid for runs out normally."]
       ]);
+      settleFreeMonth(mod);
       return;
     }
     if (!plan) {
@@ -1443,6 +1523,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       replaceSteps([]);
       /* The footer vouches for published pricing; this page states none. */
       set("footPricing", "This page states no price and is not a contract.");
+      dropFreeMonth();
       return;
     }
     {
@@ -1514,7 +1595,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       }
 
       /* THE BUY PATH (F4, 2026-09-24). Checkout charges the plan's published
-         Launch & Implementation fee and monthly, nothing else, so "Start now"
+         monthly, and the Partnership's Launch & Implementation fee where it
+         is agreed, nothing else, and it charges the first month on a link
+         from here: the first month free comes only from a place reserved on
+         a booked call (v7), never from a URL. So "Start now"
          may sit only under a price that IS that published monthly. Five
          conditions, each of them a way that button would contradict the box
          above it:
@@ -1539,7 +1623,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         var buys = document.querySelectorAll("a[data-buy]");
         for (var b = 0; b < buys.length; b++) {
           buys[b].href = "https://app.nevamis.ca/signup?plan=" + encodeURIComponent(plan.id);
-          buys[b].setAttribute("data-evt", "plan_buy_click_" + plan.id);
+          /* The event suffix is the id with its hyphens as underscores, as
+             the pricing page writes it: the engine's allowlist takes
+             [a-z0-9_] only, so "plan_buy_click_front-desk-plus" (v7) would
+             be dropped silently and read as nobody clicking. The link keeps
+             the id as it is. */
+          buys[b].setAttribute("data-evt", "plan_buy_click_" + String(plan.id).replace(/-/g, "_"));
         }
       } else {
         callOnly();
@@ -1549,9 +1638,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          of a sentence reads like a typo on the one document a buyer keeps.
          toLocaleString, not a hand-written string, so the number cannot drift
          from pricing-config.js. */
+      /* The call estimate only where the config gives one: the Front Desk
+         sizes (v7) carry none, because a call estimate for a size is the
+         owner's to approve, and "about undefined" is what a missing one
+         printed. */
       set("planIncludes", Number(plan.includedMinutes).toLocaleString("en-CA")
-        + " included AI minutes per month, about "
-        + plan.callRange + ". Additional minutes " + money(plan.overage) + " each.");
+        + " included AI minutes per month" + (plan.callRange ? ", about " + plan.callRange : "")
+        + ". Additional minutes " + money(plan.overage) + " each.");
 
       /* Both figures, stated plainly with the rule joining them, never struck
          through and never "waived". A fee shown with a line through it is a
@@ -1579,10 +1672,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       /* The term sentence is termSentence, above, shared with the module
          proposal so the two cannot drift apart. */
       /* NV_PRICING.launchPart, which puts "from" in front of a fee that is
-         a band, for the same reason as monthlyBand above. */
-      set("planTerms", "One-time " + P.launchPart(plan).replace(/^From /, "from ") + "."
-        + (plan.performanceNote ? " " + plan.performanceNote : "")
-        + " Overage past your included minutes is the only other usage billing."
+         a band, for the same reason as monthlyBand above. Since v7 only the
+         Partnership carries a fee, so a plan with none states none: this
+         line used to print "One-time ." for it. The performance clause
+         joins the fee's sentence ("..., plus an agreed share ..."); it used
+         to follow a full stop and begin a sentence with "plus". */
+      var lp = P.launchPart(plan);
+      set("planTerms", (lp ? "One-time " + lp.replace(/^From /, "from ")
+          + (plan.performanceNote ? ", " + plan.performanceNote : "") + ". " : "")
+        + "Overage past your included minutes is the only other usage billing."
         + " " + termSentence
         + (plan.selfServe === false ? " This plan is offered by invitation and approval." : ""));
 
@@ -1590,6 +1688,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         set("planAnnual", "Or " + money(plan.annual) + " for the year: pay ten months, get twelve.");
       }
       renderFeatures(plan.features || []);
+      settleFreeMonth(plan);
     }
 
     function renderFeatures(list) {
@@ -1606,11 +1705,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     /* The static copy above is already a valid proposal, but this render may
        have replaced half of it (the plan name, say) before it threw, so the
        Front Desk's "Start now" could now sit under another plan's name.
-       Whatever broke, the call is still right. */
+       Whatever broke, the call is still right, and the first month free
+       is not said on a page that may name the wrong item. */
     callOnly();
+    dropFreeMonth();
   }
 })();
 </script>
+<script src="free-month.js" defer></script>
 <script src="site.js" defer></script>
 </body>
 </html>

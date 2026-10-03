@@ -1,15 +1,30 @@
 # NEVAMIS — what may be said, and what may not
 
 > **PRICING, STATED FIRST, because this is the file every line of copy is
-> checked against.** Since 2026-08-09 there is ONE recurring price per plan,
-> charged the day the client subscribes and every month after: Core
-> C$250/month, Growth C$500/month, Pro C$1,000/month, with 250 / 600 / 1,400
-> included minutes and C$1.10 / C$0.90 / C$0.75 overage. No setup fee, no
-> activation fee, no pilot and no trial at any price. Any other figure that
-> appears below - C$850, C$150, C$249, C$449, C$849, C$49 - is RETIRED and
-> appears only as the subject of a defect or a correction, never as something
-> quotable. `pricing-config.js` is the source of truth. Banner added
-> 2026-08-10.
+> checked against.** Commercial model v7 (owner decision 2026-10-02, with the
+> owner's amendments of 2026-10-03), held for counsel until it is published.
+> Each plan is a monthly price, month to month from the first month: Front Desk
+> Starter C$250/month (200 included minutes, C$1.10 overage), Front Desk Plus
+> C$500/month (550 minutes, C$0.95 overage), the AI Front Desk C$1,000/month
+> (1,400 minutes, C$0.75 overage) and The Works C$2,100/month (1,400 minutes,
+> C$0.75 overage), with no Launch & Implementation fee on any of them. The Performance
+> Partnership, by invitation: C$5,000 Launch & Implementation, then C$350/month
+> from the first month (250 minutes, C$1.10 overage), plus an agreed share of
+> collected revenue directly attributable to a business Nevamis found or a quote
+> Nevamis recovered, set in the agreement before anything is charged; the rate
+> of that share is never published or spoken. Each module is its monthly alone:
+> Missed-Call Recovery C$350, the Quote-Chase Engine C$500, Get-Paid Autopilot
+> C$500, the Review Engine C$300. Buy now starts a plan and charges its first
+> month. The first month free is for our first 10 clients, given on a booked
+> call: one calendar month, the card taken at sign-up and nothing charged until
+> the second month begins, a reminder a week and a day before the first charge,
+> minutes past the allowance not billed during it, once per business, and never
+> on the Partnership or on a module added to an account that already pays. Its
+> name is "first month free"; it is never called a trial. There is no pilot.
+> Any other figure that appears below - C$850, C$150, C$249, C$449, C$849, C$49 -
+> is RETIRED and appears only as the subject of a defect or a correction, never
+> as something quotable. `pricing-config.js` is the source of truth. Banner
+> added 2026-08-10, restated for v7 on 2026-10-03.
 
 The factual floor under the cinematic system, the website and the film. Every
 line of new copy and every frame of the film is checked against this file.
@@ -86,15 +101,24 @@ of date.
 
 ### The other refusals
 
-No trial or pilot. No external integrations. No multi-line, multi-location or
+No free period but the first month free stated above, and no pilot. No external integrations. No multi-line, multi-location or
 department routing. No transcripts in the portal. No outbound to callers.
 Each is refused with the provisioning path that makes it impossible.
 
+**Since 2026-08-10, read with the modules.** The capability sentence and these
+refusals were verified for the front desk on 2026-08-10, before the modules
+shipped. Missed-Call Recovery, the Quote-Chase Engine, Get-Paid Autopilot and
+the Review Engine each do one bounded thing past the call (a text to a caller
+you missed, a quote followed up, an invoice nudged, a review asked for), and
+each claim about them is bounded by its own capability record in the engine's
+`src/domain/canonical.ts`, never by this section. "No outbound to callers"
+is true of the front desk itself, not of those modules.
+
 ---
 
-## Where the site currently overstates
+## Where the site overstated on 2026-08-10
 
-Found by audit, to be fixed as part of the overhaul — the reposition cannot ship
+A record of that audit, not a description of today's site. Found by audit, to be fixed as part of the overhaul — the reposition cannot ship
 on top of these.
 
 | Defect | Detail |
@@ -140,6 +164,8 @@ sweep on its own merit, not by a near miss.
 ---
 
 ## Baseline, for distinguishing later breakage
+
+As measured on 2026-08-10.
 
 Site: 191 Playwright tests passing, consistency green (exit 2 = one live-agent
 prompt item only the owner can apply), suite-collection guard green. Production

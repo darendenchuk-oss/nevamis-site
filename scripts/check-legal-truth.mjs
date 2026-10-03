@@ -36,6 +36,8 @@
    ============================================================ */
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { publishedFiles } from './lib/published-files.mjs';
 import { decodeRefs } from './lib/char-refs.mjs';
@@ -444,10 +446,245 @@ for (const f of META_PAGES) {
   }
 }
 
+/* =====================================================================
+   14. TERMS STATE THE FIRST MONTH AND THE SIZES AS THE OWNER DECIDED THEM
+       (v7 amendments #66 and #67, 2026-10-03; findings LEGAL-1 to LEGAL-6)
+
+   The first draft of Terms 3.0 gave "a business new to Nevamis" its first
+   month free, Buy now included, with no cap; named one front desk where
+   #67 sells three sizes; had no billing case for a sale with no free month;
+   said overage "is billed" when nothing invoices it (owner item O41); and
+   never said the email at the minutes limit leaves the plan alone. Each was
+   a sentence that read fine on its own. So these rules read the figures and
+   names from pricing-config.js, never from this file, and hold the Terms
+   body to the RULE each amendment makes, not to its wording:
+
+     cap      a sentence in the free-month section (the one headed for
+              the first month) states the first N businesses (N is
+              freeMonth.firstClients) and the booked call, and no sentence
+              gives a free month to every, all or any new client or business,
+              or names a count other than N;
+     sizes    every Front Desk size (frontDeskTiers()) is named;
+     billing  a sentence says a Buy now purchase is charged from its start
+              (the third billing case: the free month is never through it);
+     rate     minutes past the allowance are never said to be billed or
+              invoiced, only priced at a rate or "not charged";
+     email    a sentence promises the plan changes only if the client changes
+              it, and none says Nevamis moves or upgrades a plan by itself;
+     machine  no legal page's description, share card or JSON-LD says a
+              month is free: those cannot be switched off when the places
+              run out (the Terms body is legal text and states the rule
+              conditionally, so it is read by the rules above instead).
+   ===================================================================== */
+const NV = (() => {
+  const w = {};
+  vm.runInNewContext(read('pricing-config.js'), { window: w }, { timeout: 1000 });
+  return w.NV_PRICING;
+})();
+/* The engine's FREE_MONTH vocabulary (canonical.ts freePeriodMisstatements),
+   the same one scripts/check-consistency.js guard 7u reads. */
+const FREE_MONTH = /(?<!\b(?:no|not\s+a|never\s+a|without\s+a)\s)(?:free\s+(?:first\s+)?months?|first\s+month\s+(?:is\s+|for\s+)?free|months?\s+free|month\s+on\s+us)/i;
+const COUNT_WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+  eleven: 11, twelve: 12, fifteen: 15, twenty: 20, fifty: 50, hundred: 100 };
+{
+  const N = NV && NV.freeMonth && NV.freeMonth.firstClients;
+  const tiers = NV && typeof NV.frontDeskTiers === 'function' ? NV.frontDeskTiers() : [];
+  if (!Number.isInteger(N) || N <= 0) fail('terms-v7', 'pricing-config.js has no freeMonth.firstClients, so the Terms cap cannot be checked.');
+  else if (!tiers.length) fail('terms-v7', 'pricing-config.js NV_PRICING.frontDeskTiers() returns no sizes, so the Terms cannot be checked for them.');
+  else {
+    /* The body, without the change history: the history restates what each
+       version changed, so a rule the history alone satisfied would pass a
+       body that had dropped the clause. */
+    const sections = sectionsOf(read('terms.html'));
+    const terms = sections.filter((s) => !/^change history$/i.test(s.heading)).flatMap((s) => sentencesOf(s.text));
+    const billing = sections.filter((s) => /\bbilling\b/i.test(s.heading)).flatMap((s) => sentencesOf(s.text));
+    /* The section that describes the free month. The billing section's own
+       third case also names the first N businesses on a booked call, so a
+       body-wide rule passed a free-month section that had dropped the booked
+       call from its main clause; the cap is held where the offer is made. */
+    const offer = sections.filter((s) => /\bfirst month\b/i.test(s.heading)).flatMap((s) => sentencesOf(s.text));
+    const freeSentences = terms.filter((s) => FREE_MONTH.test(s));
+    const CLIENT = '(?:clients?|customers?|businesses|business|buyers?)';
+    const capRe = new RegExp(`\\bfirst (?:${N}|${Object.keys(COUNT_WORDS).filter((w) => COUNT_WORDS[w] === N).join('|')}) ${CLIENT}\\b`, 'i');
+    if (!offer.length) fail('terms-v7', 'terms.html has no section headed for the first month, where the free month is described.');
+    else if (!offer.some((s) => FREE_MONTH.test(s) && capRe.test(s) && /\bbooked call\b/i.test(s))) {
+      fail('terms-v7', `terms.html's first-month section has no sentence giving the free month to the first ${N} businesses on a booked call `
+        + '(amendment #66). Say who gets it, and how, where the free month is described.');
+    }
+    const WHO_ALL = new RegExp(`\\b(?:every|all|any|each)\\s+(?:(?:of\\s+)?(?:our|the)\\s+)?(?:new\\s+)?${CLIENT}\\b`, 'i');
+    for (const s of freeSentences) {
+      if (WHO_ALL.test(s) && !/\b(?:no|not|never)\b/i.test(s)) fail('terms-v7', `terms.html gives the free month to everyone: "${s.slice(0, 160)}"`);
+      for (const m of s.matchAll(new RegExp(`\\bfirst (\\d+|${Object.keys(COUNT_WORDS).join('|')}) ${CLIENT}\\b`, 'gi'))) {
+        const n = /^\d+$/.test(m[1]) ? Number(m[1]) : COUNT_WORDS[m[1].toLowerCase()];
+        if (n !== N) fail('terms-v7', `terms.html states a cap of ${m[1]}, and freeMonth.firstClients is ${N}: "${s.slice(0, 160)}"`);
+      }
+    }
+    for (const t of tiers) {
+      if (!terms.some((s) => s.includes(t.name))) fail('terms-v7', `terms.html never names ${t.name}, a Front Desk size pricing-config.js sells (amendment #67).`);
+    }
+    if (!billing.some((s) => /\bBuy now\b/.test(s) && /\bcharged from (?:the day (?:the|your) subscription starts|its first (?:day|month))\b/i.test(s))) {
+      fail('terms-v7', 'terms.html\'s billing section has no sentence saying a Buy now purchase is charged from the start. A sale '
+        + 'with no free month is the commonest one after the first places are given, and the billing section must say when it is charged.');
+    }
+    const BILLED_MINUTES = /\b(?:overage|minutes?)\b[^.;]{0,80}?\b(?:is|are|will be|gets?|get)\s+(?:billed|invoiced)\b|\b(?:bill|invoice)s?\s+(?:you\s+)?(?:for\s+)?(?:overage|(?:extra\s+)?minutes)\b/i;
+    for (const s of terms) {
+      const m = s.match(BILLED_MINUTES);
+      if (m && !/\bnot\s+(?:billed|invoiced)\b/i.test(m[0])) {
+        fail('terms-v7', `terms.html says minutes past the allowance are billed: "${s.slice(0, 160)}". Nothing invoices them today (owner item O41): state the rate.`);
+      }
+    }
+    if (!terms.some((s) => /\bplan changes only if you change it\b|\bnever change[sd]? (?:it|your plan) for you\b/i.test(s))) {
+      fail('terms-v7', 'terms.html does not say the plan changes only if the client changes it. The email at the minutes limit '
+        + 'suggests a size and never changes the plan (amendment #67), and the Terms are where that is promised.');
+    }
+    for (const s of terms) {
+      if (/\b(?:we|nevamis)\s+(?:will\s+|may\s+)?(?:automatically\s+)?(?:move|upgrade|switch|change)\s+(?:you|your plan)\b/i.test(s) && !/\b(?:never|not|no)\b/i.test(s)) {
+        fail('terms-v7', `terms.html says Nevamis changes a client's plan itself: "${s.slice(0, 160)}"`);
+      }
+    }
+  }
+  for (const f of META_PAGES) {
+    const html = read(f);
+    const said = [metaOf(html, 'name', 'description'), metaOf(html, 'property', 'og:description'), metaOf(html, 'name', 'twitter:description'),
+      ...[...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1])].filter(Boolean);
+    for (const d of said) {
+      const hit = d.match(FREE_MONTH);
+      if (hit) fail('terms-v7', `${f} says "${hit[0]}" in a description, share card or JSON-LD. Search results and link previews cannot be switched off when the first ${N} places are gone.`);
+    }
+  }
+}
+
+/* =====================================================================
+   15. THE PRIVACY PAGE NAMES THE FREE-MONTH REQUEST (v7, ENGINE-SPEC 4)
+
+   free-month.js asks the engine whether a place in the first-ten offer is
+   open, from the visitor's browser, on every page that can show it. That
+   is a request to a host other than nevamis.ca, so the privacy page says
+   so, names the host the script actually calls (read from the script, so a
+   new endpoint fails here), says it carries no cookie, and does not call it
+   anonymous: the host receives the visitor's IP address like any other.
+   ===================================================================== */
+if (PUBLISHED.includes('free-month.js')) {
+  const endpoint = (read('free-month.js').match(/ENDPOINT\s*=\s*["'](https:\/\/[^"']+)["']/) || [])[1];
+  const loaded = HTML.filter((f) => /<script src="free-month\.js"/.test(read(f)));
+  if (!endpoint) fail('free-month-request', 'free-month.js has no ENDPOINT string this rule can read.');
+  else if (loaded.length) {
+    const host = new URL(endpoint).host;
+    /* The sentence that names the host and what it is asked. It says "the
+       offer" rather than the free month itself: the privacy page is read
+       after the places are gone too, so it describes the request, not the
+       offer (guard 7u's machine rule, applied by hand). */
+    const said = sentencesOf(privacyText).filter((s) => s.includes(host) && /\boffer\b/i.test(s) && /\bopen\b/i.test(s));
+    if (!said.length) {
+      fail('free-month-request', `${loaded.join(', ')} load free-month.js, which asks ${host} whether a free-month place is open, `
+        + 'and privacy.html does not describe that request. Name the host, what is sent and what is kept.');
+    } else {
+      const para = privacyText.slice(privacyText.indexOf(said[0]), privacyText.indexOf(said[0]) + 700);
+      if (!/\bno cookie\b/i.test(para)) fail('free-month-request', 'privacy.html describes the free-month request without saying it carries no cookie.');
+      if (!/\bIP address\b/i.test(para)) fail('free-month-request', 'privacy.html describes the free-month request without saying the host receives the IP address.');
+      const anon = para.match(/\banonymous(?:ly)?\b[^.]*/i);
+      if (anon) fail('free-month-request', `privacy.html calls the free-month request "${anon[0].trim()}"; the host receives the visitor's IP address.`);
+    }
+  }
+}
+
+/* =====================================================================
+   16. THE FOOTER NAMES THE CAPABILITY, NOT ONE SIZE OF IT (TRADES-8)
+
+   "The AI Front Desk answers the calls you cannot" sat on every page's
+   footer. Since #67 the AI Front Desk is also the largest of three sizes,
+   so the sentence read as if only that size answers. The footer describes
+   what Nevamis does, so it names no size at all; the size names are read
+   from pricing-config.js, so a fourth size is covered without an edit.
+   ===================================================================== */
+{
+  const foot = textOf(read('_partials/footer.html'));
+  const tiers = NV && typeof NV.frontDeskTiers === 'function' ? NV.frontDeskTiers() : [];
+  for (const t of tiers) {
+    if (new RegExp(`\\b${t.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(foot)) {
+      fail('footer-size', `_partials/footer.html names "${t.name}", one Front Desk size, as the capability. Say "the front desk".`);
+    }
+  }
+}
+
+/* =====================================================================
+   17. NOTES FOR COUNSEL NEVER REACH NEVAMIS.CA (decision #69)
+
+   The v7 Terms and privacy drafts carry HTML comments for counsel ("FOR
+   COUNSEL", "QUESTION FOR COUNSEL", "BEYOND THE AGREED WORDING") that name
+   the draft's weak points: whether a liability cap is enforceable, how the
+   free-month places are reserved, owner items and engine file paths. A
+   comment is served with the page, so anyone could read them with
+   view-source. They are allowed only while the work is held on a sell/v7-*
+   branch; checked anywhere else (main, a pull request into main, a local
+   main) they fail, so the publish cannot pass until counsel has read the
+   page and the comments are gone. The branch is the pull request's target
+   in CI, the pushed branch on a push, and the checked-out branch locally.
+   ===================================================================== */
+{
+  const COUNSEL = /\b(?:FOR COUNSEL|BEYOND THE AGREED WORDING)\b/;
+  const TEXT = /\.(?:html?|js|mjs|css|json|txt|xml|md|webmanifest|svg)$/i;
+  const target = process.env.GITHUB_BASE_REF || process.env.GITHUB_REF_NAME || (() => {
+    try { return execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: root }).toString().trim(); } catch { return ''; }
+  })();
+  const held = /^sell\/v7-/.test(target);
+  const carrying = PUBLISHED.filter((f) => TEXT.test(f) && COUNSEL.test(read(f)));
+  if (carrying.length && held) {
+    console.log(`Held branch ${target}: ${carrying.join(', ')} carry notes for counsel, which fail this check on any other branch.`);
+  } else if (carrying.length) {
+    fail('counsel-notes', `${carrying.join(', ')} carry notes for counsel (FOR COUNSEL, QUESTION FOR COUNSEL or BEYOND THE AGREED WORDING) `
+      + `on ${target || 'an unknown branch'}. They are served with the page; remove them once counsel and the owner have read it.`);
+  }
+}
+
+/* =====================================================================
+   18. THE AGENT DOCUMENTS DATE THE v7 CHANGE ON THE TERMS' EFFECTIVE DAY
+
+   The demo knowledge base and its test catalogue tell callers the day the
+   Launch & Implementation fees on the standard plans were retired. That is
+   the day the Terms version that retired them takes effect, and the Terms'
+   change-history entry for that version carries the same day. The draft is
+   held for counsel, so the publish day is not known yet: all three move
+   together, or the agent names a day on which the fees were still charged.
+   ===================================================================== */
+{
+  const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+  const iso = (d) => {
+    const m = d.match(/^([A-Za-z]+) (\d{1,2}), (\d{4})$/);
+    const mo = m ? MONTHS.indexOf(m[1].toLowerCase()) : -1;
+    return mo < 0 ? null : `${m[3]}-${String(mo + 1).padStart(2, '0')}-${m[2].padStart(2, '0')}`;
+  };
+  const termsText = textOf(mainOf(read('terms.html')));
+  const top = termsText.match(/\bVersion ([\d.]+), effective ([A-Za-z]+ \d{1,2}, \d{4})\./);
+  const effective = top && iso(top[2]);
+  if (!effective) fail('v7-date', 'terms.html has no "Version N, effective <Month D, YYYY>." line this rule can read.');
+  else {
+    const entry = termsText.match(new RegExp(`\\bVersion ${top[1].replace(/\./g, '\\.')}, ([A-Za-z]+ \\d{1,2}, \\d{4}):`));
+    if (!entry || iso(entry[1]) !== effective) {
+      fail('v7-date', `terms.html is version ${top[1]}, effective ${top[2]}, and its change-history entry for that version is dated ${entry ? entry[1] : '(missing)'}.`);
+    }
+    const said = [
+      ['config/elevenlabs/nevamis-knowledge-base.md', /\bLaunch & Implementation fees on the AI Front Desk, The Works and the modules were retired on (\d{4}-\d{2}-\d{2})/],
+      ['config/elevenlabs/nevamis-agent-test-cases.md', /\bany Launch and Implementation fee on a plan other than the Partnership, retired (\d{4}-\d{2}-\d{2})/],
+    ];
+    for (const [f, re] of said) {
+      const m = read(f).match(re);
+      if (!m) fail('v7-date', `${f} no longer states, where this rule can read it, the day the standard plans' Launch & Implementation fees were retired.`);
+      else if (m[1] !== effective) {
+        fail('v7-date', `${f} says the standard plans' Launch & Implementation fees were retired on ${m[1]}, and terms.html version ${top[1]} `
+          + `takes effect ${effective}. Set all three on the publish day.`);
+      }
+    }
+  }
+}
+
 if (problems.length) {
   console.error(`LEGAL PAGES DO NOT MATCH WHAT THE SITE DOES (${problems.length}):\n  ` + problems.join('\n  '));
   process.exitCode = 1;
 } else {
   console.log('Legal truth OK: the privacy page matches the browser call, the fonts, the click IDs and what is counted; '
-    + 'the legal pages are dated, linked, footed and previewable; no page calls the demo a client\'s own agent.');
+    + 'the legal pages are dated, linked, footed and previewable; no page calls the demo a client\'s own agent; '
+    + 'the Terms state the first-ten month, the sizes and the billing cases as decided; the privacy page names the '
+    + 'free-month request; the footer names no Front Desk size; notes for counsel stay on held branches; the agent '
+    + 'documents date the v7 change on the Terms\' effective day.');
 }

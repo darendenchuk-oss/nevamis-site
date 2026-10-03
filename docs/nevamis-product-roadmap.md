@@ -1,21 +1,23 @@
 # Nevamis Internal Product Roadmap
 
 > **NOT NEVAMIS PRICING. Every fee in this file is an internal hypothesis,
-> not approved, for a product that does not exist yet.** Noted 2026-08-10;
-> restated for v5 on 2026-08-24. These figures have never been offered,
-> quoted or charged, and nothing described here has been approved for sale.
-> What Nevamis actually sells is a one-time Launch & Implementation fee
-> to start, then a monthly price:
-> The Works C$3,000 to start, then C$2,100/month (1,400 minutes, C$0.75/min overage);
-> AI Front Desk C$1,500 to start, then C$1,000/month (1,400 minutes, C$0.75/min overage);
-> Performance Partnership (invite-only) from C$2,500 to start, then C$350/month plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 minutes, C$1.10/min overage).
-> Sellable add-ons, each its own sale, bought on its own or beside a plan:
-> Missed-Call Recovery C$350/month, Quote-Chase Engine C$500/month, Get-Paid Autopilot C$500/month,
-> Review Engine C$300/month — each with a one-time Launch & Implementation fee of its own
-> (C$500, C$750, C$750, C$500).
-> No pilot and no trial at any price. `pricing-config.js` and the engine's
-> `src/domain/canonical.ts` are the source of truth. Nothing below may be
-> quoted to a prospect; a price here would need approving on its own first.
+> not approved, for a service as this file designs it, which is not what Nevamis sells.**
+> Noted 2026-08-10; restated for commercial model v7 on 2026-10-03. These figures have never
+> been offered, quoted or charged, and nothing described here has been approved for sale.
+> What Nevamis does sell, and every figure of it, is in `pricing-config.js` and the engine's
+> `src/domain/canonical.ts`. This banner used to copy those figures and went stale each time
+> the model moved, so it now states only the shape of the offer: each Front Desk plan,
+> The Works and each module is its monthly price alone, month to month from the first month,
+> and only the Performance Partnership, by invitation, starts with a Launch & Implementation
+> fee. Nevamis offers a buyer no pilot; where "pilot" appears below it means the first internal
+> deployment of a service that is not built yet, never an offer.
+> Since this file was last reviewed, canonical has made four of the services below available:
+> Instant Lead Follow-Up (sold as the Missed-Call Recovery module), Quote Recovery (the
+> Quote-Chase Engine), the review half of the Review and Referral Engine (the Review Engine),
+> and Automatic Lead Tracking (no price of its own; it runs off the calls the front desk
+> answers). For those four, the status and the pricing hypothesis below are history, and
+> canonical's capabilities list is the truth.
+> Nothing below may be quoted to a prospect; a price here would need approving on its own first.
 
 
 INTERNAL DOCUMENT. Not for publication.
@@ -30,18 +32,18 @@ Source of truth for business rules: PLAYBOOK.md. Related documents: `docs/integr
 
 ## 1. Service Portfolio Table
 
-Status values are the controlled vocabulary from the brief (available, private_pilot, planned, researching, paused). Nothing below is `available`. Only the owner may change a status to `available`.
+Status values are the controlled vocabulary from the brief (available, private_pilot, planned, researching, paused). When this table was written nothing in it was `available`; since then canonical has made four rows available (priorities 1, 2, 3 and the review half of 6, as the banner above lists), and their Status cells now say so. Only the owner may change a status to `available`.
 
 Founder time is the estimated hands-on founder time to onboard one client for that service, assuming the listed dependencies already exist. Pricing ranges are setup / monthly and are INTERNAL HYPOTHESES ONLY.
 
 | Pri | Internal name | Public name | Pillar | Status | One-line reason for priority | Key dependencies | Difficulty | Founder time (per client) | Pricing hypothesis (INTERNAL, unapproved, CAD) | Blueprint |
 |-----|---------------|-------------|--------|--------|------------------------------|------------------|------------|---------------------------|------------------------------------------------|-----------|
-| 1 | Instant Lead Follow-Up | Instant Lead Follow-Up | Convert | planned | Directly extends the current call workflow with data Nevamis already captures, and speed-to-lead is the fastest visible win | SMS/email provider, CASL consent capture, approved templates, CRM or simple database, opt-out handling | Low | 4 to 8 hours | Setup $500 to $1,500 / Monthly $199 to $599 plus messaging usage | `docs/service-blueprints/instant-lead-follow-up.md` |
-| 2 | CRM and Lead Pipeline Automation | Automatic Lead Tracking | Operate | planned | Call summaries already exist; turning them into clean CRM records unlocks every downstream service and attribution | One CRM integration (per client), call summaries, dedup rules, lead-source capture | Medium | 6 to 12 hours | Setup $750 to $2,500; Monthly $299 to $999 | `docs/service-blueprints/automatic-lead-tracking.md` |
-| 3 | Quote and Estimate Follow-Up | Quote Recovery | Convert | planned | Open quotes are the closest money to the door and results can be measured against accepted quotes | Quote-status data source (job software or CRM), approved reminder templates, written attribution method, human approval for pricing | Medium | 6 to 12 hours | Setup $750 to $2,000; Monthly $299 to $999; optional performance component only with reliable attribution (INTERNAL) | `docs/service-blueprints/quote-recovery.md` |
+| 1 | Instant Lead Follow-Up | Instant Lead Follow-Up | Convert | available (Missed-Call Recovery module) | Directly extends the current call workflow with data Nevamis already captures, and speed-to-lead is the fastest visible win | SMS/email provider, CASL consent capture, approved templates, CRM or simple database, opt-out handling | Low | 4 to 8 hours | Setup $500 to $1,500 / Monthly $199 to $599 plus messaging usage | `docs/service-blueprints/instant-lead-follow-up.md` |
+| 2 | CRM and Lead Pipeline Automation | Automatic Lead Tracking | Operate | available (runs off answered calls) | Call summaries already exist; turning them into clean CRM records unlocks every downstream service and attribution | One CRM integration (per client), call summaries, dedup rules, lead-source capture | Medium | 6 to 12 hours | Setup $750 to $2,500; Monthly $299 to $999 | `docs/service-blueprints/automatic-lead-tracking.md` |
+| 3 | Quote and Estimate Follow-Up | Quote Recovery | Convert | available (Quote-Chase Engine) | Open quotes are the closest money to the door and results can be measured against accepted quotes | Quote-status data source (job software or CRM), approved reminder templates, written attribution method, human approval for pricing | Medium | 6 to 12 hours | Setup $750 to $2,000; Monthly $299 to $999; optional performance component only with reliable attribution (INTERNAL) | `docs/service-blueprints/quote-recovery.md` |
 | 4 | Appointment Reminders and Schedule Recovery | Schedule Protection | Convert | planned | Booking is already in the call flow; reminders and no-show recovery are standard, low-risk, and measurable | Calendar integration (one per client), messaging provider, rescheduling rules, waitlist rules | Low | 4 to 8 hours | Setup $500 to $1,500 / Monthly $199 to $599 plus messaging usage | `docs/service-blueprints/schedule-protection.md` |
 | 5 | Daily Owner Brief | Your Daily Business Brief | Operate | planned | Mostly read-only aggregation of data services 1 to 4 already produce; highly demoable and owner-facing | Data feeds from calls, follow-ups, bookings, and quotes; reporting pipeline; fact vs recommendation separation | Medium | 4 to 8 hours | Setup $500 to $1,500 / Monthly $149 to $499 | `docs/service-blueprints/daily-business-brief.md` |
-| 6 | Review and Referral Automation | Review and Referral Engine | Grow | planned | Universal demand and clear reputation value, but needs job-completion events from client systems | Job-completion trigger from CRM or job software, review platform links, private complaint routing, incentive-policy guardrails | Medium | 5 to 10 hours | Setup $500 to $1,500 / Monthly $199 to $499 plus messaging usage | `docs/service-blueprints/review-referral-engine.md` |
+| 6 | Review and Referral Automation | Review and Referral Engine | Grow | available for reviews (Review Engine); referrals planned | Universal demand and clear reputation value, but needs job-completion events from client systems | Job-completion trigger from CRM or job software, review platform links, private complaint routing, incentive-policy guardrails | Medium | 5 to 10 hours | Setup $500 to $1,500 / Monthly $199 to $499 plus messaging usage | `docs/service-blueprints/review-referral-engine.md` |
 | 7 | Past-Customer Reactivation | Customer Reactivation | Convert | planned | Direct collected revenue from existing lists, but the highest consent risk of the Convert services, so it follows the safer ones | Eligible customer list with documented consent basis, suppression list enforcement, approved segments and templates | Medium | 6 to 12 hours | Setup $750 to $2,500; Monthly $299 to $999 plus messaging usage | `docs/service-blueprints/customer-reactivation.md` |
 | 8 | Website and Text Concierge | Web and Messaging Concierge | Capture | researching | Reuses the conversation engine on new channels, but needs a curated knowledge base and a new website surface | Approved per-client knowledge base, website chat widget, SMS channel, cross-channel context store, human handoff | High | 8 to 16 hours | Setup $1,000 to $3,500 / Monthly $399 to $1,499 plus usage | `docs/service-blueprints/web-messaging-concierge.md` |
 | 9 | Unified AI Inbox | AI Inbox Assistant | Operate | researching | Real labour savings, but email is a new domain with sensitive content, so it starts draft-only in Wave 3 | Mailbox access (OAuth), classification rules, draft-only workflow, approval gates for pricing, complaints, refunds, legal, employment | High | 8 to 16 hours | Setup $1,000 to $3,500 / Monthly $399 to $1,500 | `docs/service-blueprints/ai-inbox-assistant.md` |
@@ -53,7 +55,7 @@ Founder time is the estimated hands-on founder time to onboard one client for th
 Notes on the table:
 
 - Pillar assignments follow the public four-pillar grouping: Capture (AI Front Desk, Web and Messaging Concierge, Smarter Job Intake), Convert (Instant Lead Follow-Up, Quote Recovery, Schedule Protection, Customer Reactivation), Operate (Automatic Lead Tracking, Daily Business Brief, AI Inbox Assistant, Business Knowledge Assistant), Grow (Review and Referral Engine, Revenue Clarity, AI Growth System).
-- Status logic: Wave 1 and Wave 2 services (priorities 1 to 7) are `planned` because they extend proven workflows. Wave 3 and Wave 4 services (priorities 8 to 13) are `researching` because they need discovery interviews, deeper integrations, or operating history before commitment.
+- Status logic: Wave 1 and Wave 2 services (priorities 1 to 7) were `planned` because they extend proven workflows; priorities 1, 2, 3 and the review half of 6 have since become available (see the banner). Wave 3 and Wave 4 services (priorities 8 to 13) are `researching` because they need discovery interviews, deeper integrations, or operating history before commitment.
 - The AI Front Desk itself is `available` and is not in this table; it is the Wave 0 stabilization target.
 
 ---

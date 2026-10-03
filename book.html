@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-KIzMK1E7Az5FxOtRvLuSeFy5ppgKScEOWVr7J/FYCvg=' 'sha256-v7dBn9mMK4XYmVHBrv6DzaNRJ2eZBzcb/eGtKhuk/yc=' 'sha256-m9lxoY0gKu8qb804sptyy5GNt2w4+pbnycF3TS1BJkU=' 'sha256-M8j0DVq0JeBjn8qTrrBFJub18SKLmBlkSH83M6bvnJ8='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Qcy5qIwvtWUlBW6LFb6AToV+H9HGHbe9h3rcE1PyJ0s=' 'sha256-H+iP1EpVM3HzJDEsG1x49Va0DiZ/OhaaRrjSfZ9XFNc=' 'sha256-KIzMK1E7Az5FxOtRvLuSeFy5ppgKScEOWVr7J/FYCvg=' 'sha256-v7dBn9mMK4XYmVHBrv6DzaNRJ2eZBzcb/eGtKhuk/yc=' 'sha256-m9lxoY0gKu8qb804sptyy5GNt2w4+pbnycF3TS1BJkU=' 'sha256-M8j0DVq0JeBjn8qTrrBFJub18SKLmBlkSH83M6bvnJ8='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -975,6 +975,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .cb-msg:empty{margin:0;padding:0;border:0}
   .cb-msg.ok{background:rgba(47,191,143,.12);border:1px solid rgba(159,240,206,.35);color:var(--ink)}
   .cb-msg.bad{background:rgba(240,180,98,.10);border:1px solid rgba(240,180,98,.4);color:var(--ink)}
+  /* The first-month-free card, shown only by free-month.js. Warm, as on the
+     pricing page's banner, because it is the one time-limited thing here.
+     The offer is styled by id: the shared .card p rule carries six :not()
+     classes and outranks any two-class selector. */
+  .fm-card{margin-top:22px;border-color:rgba(240,180,98,.35)}
+  #bookFreeMonth .fm-offer{color:var(--warm);font-weight:700}
+  #bookFreeMonth .fm-cta{margin-top:14px}
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -1069,7 +1076,38 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div class="proc">
         <div class="reveal"><h3>Who you want more of</h3><p>The kind of customer you would want more of this year. Lead Generation is by invitation, and this call is where it starts.</p></div>
         <div class="reveal"><h3>What slips past you today</h3><p>The quotes that went quiet and the calls you miss, and exactly what Nevamis would handle for you.</p></div>
-        <div class="reveal"><h3>What it costs</h3><p>The plan that fits, its one-time Launch &amp; Implementation fee to start, then its monthly. Both are published before you decide, or, on the Performance Partnership, offered by invitation, set in its agreement within published ranges.</p></div>
+        <!-- v7 (BOOK-3, 2026-10-03). This said "Every figure is published
+             before you decide" on staged v7, and the call this page books is
+             where the Performance Partnership starts, whose share of revenue
+             is a recurring charge at a rate kept in its agreement and never
+             published (engine ADR-015). So the published prices are said to
+             be published, and the share is named as what it is. -->
+        <div class="reveal"><h3>What it costs</h3><p>The plan or the single automation that fits, and its monthly. The published prices are set out before you decide, and on the three Front Desk sizes, The Works or a module bought on its own the monthly is all you pay to start, with overage past the included minutes on the plans that include minutes. The Performance Partnership, offered by invitation, also has a fee to start, set out below, and a share of attributable collected revenue that recurs, at a rate set in its agreement.</p></div>
+      </div>
+      <!-- THE FIRST MONTH FREE IS OFFERED HERE, AND ONLY WHILE A PLACE IS OPEN
+           (v7, owner amendments #66 and #67; BOOK-1).
+
+           It is for the first freeMonth.firstClients businesses only, and it
+           is given through this call: after it, an owner or admin reserves a
+           place for the business in the engine, and checkout gives the month
+           only to a business holding one. Buy now never does. Staged v7 typed
+           the offer into this page as a property of every plan, with no cap
+           and nothing that could stop it once the tenth place was taken.
+
+           So this card ships hidden and its offer and note slots EMPTY.
+           free-month.js writes pricing-config.js foundingClient into them and
+           shows the card only while the owner's switch is on and
+           app.nevamis.ca/api/free-month answers that a place is open; no
+           script, a slow or failed answer, or a closed one leaves it hidden.
+           The sentence between the slots says no free-month words of its own
+           (guard 7u reads the slots, a crawler reads the rest), and the plans
+           it names are the ones pricing-config.js gives freeMonths to:
+           tests/v7-booked.spec.js holds the list to the config. -->
+      <div id="bookFreeMonth" class="card fm-card" data-nv-free-month hidden>
+        <p class="fm-offer" data-nv-free-month-offer></p>
+        <p id="bookFreeMonthHow">If a place is still open when we talk, we reserve one for your business on this call. It is for a business new to Nevamis, once per business, on <span id="bookFreeMonthWho">Front Desk Starter, Front Desk Plus, the AI Front Desk, The Works or a module bought on its own</span>. The Performance Partnership is not included.</p>
+        <p class="fine2" data-nv-free-month-note></p>
+        <div class="fm-cta"><a class="btn btn-primary" href="#pick-a-time">Pick a time</a></div>
       </div>
     </div>
   </section>
@@ -1096,11 +1134,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         </div>
         <div class="reveal">
           <h3>No pressure to decide</h3>
-          <p>The prices are published: a one-time Launch &amp; Implementation fee to start,
-            then your plan's monthly price, charged the day you start and every month after;
-            past the start, the only recurring charges are the monthly price of your plan
+          <!-- v7: no Launch & Implementation fee outside the Partnership, and
+               it is said as what you pay ("the monthly price alone"), not as
+               a denial: scripts/lib/claims.mjs still reads "no Launch &
+               Implementation fee" as the v6 false denial. And
+               Buy now charges the first month (the first month free is given
+               on this call, in the card above, never by Buy now). The
+               Partnership's figures render from pricing-config.js startLine()
+               over this no-script copy, which tests/v7-booked.spec.js holds
+               equal to it. -->
+          <p>The prices are published. On the three Front Desk sizes, The Works or a module
+            bought on its own you pay the monthly price alone: Buy now starts your plan and
+            charges it the day you start and every month after.
+            <span id="bookPartnership">The Performance Partnership, offered by invitation, is C$5,000 Launch &amp; Implementation to start, then C$350 a month, plus an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, set in your agreement before anything is charged.</span>
+            Past the start, the only recurring charges are the monthly price of your plan
             and of any automation you add, any overage past your included minutes and, on
-            the Performance Partnership, offered by invitation, the agreed share of
+            the Performance Partnership, the agreed share of
             attributable collected revenue set in your agreement. There is no minimum term: your plan, and every
             automation whether you buy it on its own or add it later, is month to month
             from the first month, and you end it yourself from your portal at any
@@ -1242,7 +1291,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="cols">
       <div>
         <h2 class="foot-h foot-brand">Nevamis</h2>
-        <p>Nevamis helps Canadian service businesses win more of the work they want. Lead Generation, offered by invitation, finds businesses of the kind you want more of, and you decide every one. Quote Recovery follows up the quotes you already sent, and the AI Front Desk answers the calls you cannot, inside rules you approve.</p>
+        <p>Nevamis helps Canadian service businesses win more of the work they want. Lead Generation, offered by invitation, finds businesses of the kind you want more of, and you decide every one. Quote Recovery follows up the quotes you already sent, and the front desk answers the calls you cannot, inside rules you approve.</p>
         <p style="margin-top:10px">Demo line: <a href="tel:+15874130035" class="mono">(587) 413-0035</a><br>Sales: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a><br>Edmonton, Alberta, Canada</p>
       </div>
       <div>
@@ -1274,6 +1323,24 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
 <a class="callbar" href="#pick-a-time">Book a 15-min call</a>
 
+<script src="pricing-config.js"></script>
+<script>
+/* THE PARTNERSHIP'S FIGURES RENDER FROM pricing-config.js (v7, 2026-10-03).
+   This page typed no price until v7, and the one sentence that now carries
+   figures is rewritten from NV_PRICING after load, in startLine()'s words,
+   so a price change reaches it with the pricing page. The plan is found by
+   its flag (offered by invitation, with a Launch & Implementation fee),
+   never by its name or id. The static copy says the same for a reader
+   without scripts, and tests/v7-booked.spec.js holds the two equal. */
+(function () {
+  var P = window.NV_PRICING;
+  if (!P || !P.publishedPricing || !Array.isArray(P.plans) || typeof P.startLine !== "function") return;
+  var inv = P.plans.filter(function (p) { return p.selfServe === false && p.launch > 0; })[0];
+  var el = document.getElementById("bookPartnership");
+  if (el && inv) el.textContent = "The " + inv.name + ", offered by invitation, is " + P.startLine(inv);
+})();
+</script>
+<script src="free-month.js" defer></script>
 <script src="assets/vendor/gsap.min.js"></script>
 <script src="assets/vendor/ScrollTrigger.min.js"></script>
 <script src="site.js" defer></script>

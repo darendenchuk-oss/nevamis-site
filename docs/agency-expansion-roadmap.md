@@ -1,16 +1,15 @@
 # Agency expansion roadmap (internal; nothing here is publishable until live)
 
 > **THE "Setup fee (draft)" AND "Monthly (draft)" COLUMNS ARE NOT NEVAMIS PRICING.**
-> Noted 2026-08-10. They are unapproved guesses for products that do not exist
-> yet (CAPTURE+, CONVERT, OPERATE, GROW, OPTIMIZE, PARTNERSHIP) and no figure in
-> them has been offered to anyone. The one row that IS live, CAPTURE, is the
-> receptionist family, sold since the 2026-08-22 v4 directive as a one-time
-> Launch & Implementation fee to start, then a monthly price:
-> The Works C$3,000 to start, then C$2,100/month (1,400 minutes, C$0.75/min overage);
-> AI Front Desk C$1,500 to start, then C$1,000/month (1,400 minutes, C$0.75/min overage);
-> Performance Partnership (invite-only) from C$2,500 to start, then C$350/month plus 10% of collected revenue directly attributable to qualified NEVAMIS-generated opportunities (250 minutes, C$1.10/min overage).
-> No pilot and no trial at any price. `pricing-config.js` and the engine's
-> src/domain/canonical.ts are the source of truth. The C$249 in the OPERATE row is a draft monthly for a
+> Noted 2026-08-10; restated for commercial model v7 on 2026-10-03. They are unapproved
+> guesses for products that do not exist yet (CAPTURE+, CONVERT, OPERATE, GROW, OPTIMIZE,
+> PARTNERSHIP) and no figure in them has been offered to anyone. The one row that IS live,
+> CAPTURE, is the receptionist family, and what it sells today, with every figure of it, is in
+> `pricing-config.js` and the engine's src/domain/canonical.ts: the Front Desk plans and The
+> Works are each a monthly price alone, month to month from the first month, and only the
+> Performance Partnership, by invitation, starts with a Launch & Implementation fee. There is
+> no pilot. CAPTURE+ has since shipped as the Missed-Call Recovery module, so its draft figures
+> below are history; its real price is in `pricing-config.js`. The C$249 in the OPERATE row is a draft monthly for a
 > different product; it is NOT the retired C$249 receptionist tier, which is
 > dead. Nothing in this table may be quoted to a prospect, and a setup fee for
 > any of these pillars would need approving on its own before it could be.
@@ -22,8 +21,8 @@ pillar pages without rebranding.
 
 | Pillar | Problem | First deliverable | Tools needed | Data needed | Compliance notes | Setup fee (draft) | Monthly (draft) | Measurement | Difficulty | Time to launch | Depends on | Status |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| CAPTURE (live flagship) | missed calls | AI receptionist | ElevenLabs, Twilio, Cal.com | business rules | call-recording notices | none (there is no setup fee) | per plan, one recurring figure | booked calls, summaries | — | live | — | **LIVE** |
-| CAPTURE+ | missed texts | missed-call text-back | Twilio SMS | templates | CASL: existing-relationship messaging | C$250 | C$99 | callbacks recovered | low | weeks | receptionist client | roadmap |
+| CAPTURE (live flagship) | missed calls | AI receptionist | ElevenLabs, Twilio, Cal.com | business rules | call-recording notices | none on the Front Desk plans or The Works; the Partnership's Launch & Implementation fee is in pricing-config.js | per plan, in pricing-config.js | booked calls, summaries | — | live | — | **LIVE** |
+| CAPTURE+ | missed texts | missed-call text-back | Twilio SMS | templates | CASL: existing-relationship messaging | C$250 | C$99 | callbacks recovered | low | weeks | receptionist client | **LIVE** as a module; draft figures superseded (see the banner) |
 | CONVERT | leads go cold | follow-up + reminder sequences | Twilio/email provider | consent records | CASL consent + unsubscribe + sender ID | C$500 | C$199 | show rate, reply rate | med | 1–2 mo | CRM access | roadmap |
 | OPERATE | admin drag | call/inbox summaries → CRM tasks | CRM API, email API | client CRM | data-minimization | C$500+ | C$249+ | tasks created, hours saved | med | 2 mo | integrations | roadmap |
 | GROW | weak funnel | landing pages + attribution + review requests | analytics, review platforms | baseline metrics | review-solicitation rules | C$1000+ | C$399+ | attributed leads | med-high | 2–3 mo | tracking numbers | roadmap |

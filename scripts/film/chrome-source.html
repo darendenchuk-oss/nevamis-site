@@ -1030,7 +1030,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        3. the site-header element, opening tag to closing tag
        4. the site-footer element, opening tag to closing tag
        5. the pricing-config.js tag plus the ONE inline script that follows
-          it (the priceRange patch)
+          it (the priceRange patch), and anything between the two. The
+          free-month.js tag sits there (v7, owner amendment #66): it is the
+          only thing that may show the homepage's hidden data-nv-free-month
+          elements, it needs pricing-config.js before it, and guard 7u fails
+          a page that carries such an element without both, in that order.
+          It is deferred, so it reads the page after the parser has built
+          it, and it runs nothing at all on a page with no gated element.
 
      Those five are located by plain substring search, which is why this note
      spells none of them as literal markup: a comment that quoted the header
@@ -1110,6 +1116,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      that can no longer happen, because nothing outside #stage is hidden and
      nothing has to be given back. -->
 <script src="pricing-config.js"></script>
+<script src="free-month.js" defer></script>
 <script>
 /* priceRange on the Organization node.
 
