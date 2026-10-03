@@ -1661,7 +1661,7 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
        contradiction (review of PR #53). */
     if (ptNote && cfg.enterprise && cfg.enterprise.launchFrom) {
       const entFloor = typeof cfg.money === "function" ? cfg.money(cfg.enterprise.launchFrom) : String(cfg.enterprise.launchFrom);
-      if (/the one (?:published )?plan with/i.test(ptNote) && !(ptNote.includes(cfg.enterprise.name) && ptNote.includes(entFloor)))
+      if (/\bthe one (?:published )?plan with\b/i.test(ptNote) && !(ptNote.includes(cfg.enterprise.name) && ptNote.slice(ptNote.indexOf(cfg.enterprise.name)).includes(entFloor)))
         err("pricing-config.js partnerNote() says \"" + ptNote + "\" while pricing.html quotes " + cfg.enterprise.name + "'s Launch & Implementation from " + entFloor + "; name " + cfg.enterprise.name + " and its floor beside it");
     }
     const shared = typeof cfg.sharedFeatures === "function" ? cfg.sharedFeatures() : null;
