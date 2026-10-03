@@ -1105,19 +1105,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "@type": "Offer",
         "name": "Performance Partnership",
         "category": "Plan",
-        "description": "From C$2,500 Launch & Implementation to start, then C$350 a month by default, inside a monthly band of C$250 to C$500. Lower fixed cost. Lead Generation, offered by invitation, and the Quote-Chase Engine are each paid on it by an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, subject to your agreement. Its Launch & Implementation fee and its monthly, the share, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged. Offered by invitation and approval; never the default. 250 included minutes. A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default.",
+        "description": "C$5,000 Launch & Implementation to start, then C$350 a month, plus an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, set in your agreement before anything is charged. Offered by invitation and approval. 250 included minutes. A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose. Its Launch & Implementation fee and its monthly are fixed; what the items you choose change is the agreed share and the monthly of each item you add. Not suitable for every business, and never the default.",
         "priceCurrency": "CAD",
         "priceSpecification": {
           "@type": "CompoundPriceSpecification",
           "priceCurrency": "CAD",
-          "description": "From C$2,500 Launch & Implementation to start, then C$350 a month by default, inside a monthly band of C$250 to C$500.",
+          "description": "C$5,000 Launch & Implementation to start, then C$350 a month, plus an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, set in your agreement before anything is charged.",
           "priceComponent": [
             {
               "@type": "UnitPriceSpecification",
               "name": "Launch & Implementation",
               "priceCurrency": "CAD",
-              "minPrice": "2500",
-              "description": "From C$2,500, set in the client's agreement. Charged once, at the start, beside the first month."
+              "price": "5000",
+              "description": "Charged once, at the start, beside the first month. Never recurring."
             },
             {
               "@type": "UnitPriceSpecification",
@@ -1127,9 +1127,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
               "unitCode": "MON",
               "unitText": "MONTH",
               "billingIncrement": 1,
-              "minPrice": "250",
-              "maxPrice": "500",
-              "description": "C$350 a month by default, inside a monthly band of C$250 to C$500, set in the client's agreement."
+              "price": "350"
             }
           ]
         },
@@ -1140,19 +1138,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "@type": "Offer",
         "name": "The Works",
         "category": "Plan",
-        "description": "C$3,000 Launch & Implementation to start, then C$2,100 a month. 1,400 included minutes. The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts.",
+        "description": "C$2,100 a month. 1,400 included minutes. The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts.",
         "priceCurrency": "CAD",
         "priceSpecification": {
           "@type": "CompoundPriceSpecification",
           "priceCurrency": "CAD",
-          "description": "C$3,000 Launch & Implementation to start, then C$2,100 a month.",
+          "description": "C$2,100 a month.",
           "priceComponent": [
             {
               "@type": "UnitPriceSpecification",
               "name": "Launch & Implementation",
               "priceCurrency": "CAD",
-              "price": "3000",
-              "description": "Charged once, at the start, beside the first month. Never recurring."
+              "price": "0",
+              "description": "None: this item has no Launch & Implementation fee."
             },
             {
               "@type": "UnitPriceSpecification",
@@ -1171,21 +1169,87 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       },
       {
         "@type": "Offer",
-        "name": "AI Front Desk",
+        "name": "Front Desk Starter",
         "category": "Plan",
-        "description": "C$1,500 Launch & Implementation to start, then C$1,000 a month. 1,400 included minutes. The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place.",
+        "description": "C$250 a month. 200 included minutes. A lighter phone: the same receptionist as the AI Front Desk, answering 24/7, sized for fewer calls.",
         "priceCurrency": "CAD",
         "priceSpecification": {
           "@type": "CompoundPriceSpecification",
           "priceCurrency": "CAD",
-          "description": "C$1,500 Launch & Implementation to start, then C$1,000 a month.",
+          "description": "C$250 a month.",
           "priceComponent": [
             {
               "@type": "UnitPriceSpecification",
               "name": "Launch & Implementation",
               "priceCurrency": "CAD",
-              "price": "1500",
-              "description": "Charged once, at the start, beside the first month. Never recurring."
+              "price": "0",
+              "description": "None: this item has no Launch & Implementation fee."
+            },
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Monthly",
+              "priceComponentType": "https://schema.org/Subscription",
+              "priceCurrency": "CAD",
+              "unitCode": "MON",
+              "unitText": "MONTH",
+              "billingIncrement": 1,
+              "price": "250"
+            }
+          ]
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html"
+      },
+      {
+        "@type": "Offer",
+        "name": "Front Desk Plus",
+        "category": "Plan",
+        "description": "C$500 a month. 550 included minutes. A busier phone that does not yet need the full allowance: the same receptionist, answering 24/7, with more minutes than Front Desk Starter.",
+        "priceCurrency": "CAD",
+        "priceSpecification": {
+          "@type": "CompoundPriceSpecification",
+          "priceCurrency": "CAD",
+          "description": "C$500 a month.",
+          "priceComponent": [
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Launch & Implementation",
+              "priceCurrency": "CAD",
+              "price": "0",
+              "description": "None: this item has no Launch & Implementation fee."
+            },
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Monthly",
+              "priceComponentType": "https://schema.org/Subscription",
+              "priceCurrency": "CAD",
+              "unitCode": "MON",
+              "unitText": "MONTH",
+              "billingIncrement": 1,
+              "price": "500"
+            }
+          ]
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://nevamis.ca/pricing.html"
+      },
+      {
+        "@type": "Offer",
+        "name": "AI Front Desk",
+        "category": "Plan",
+        "description": "C$1,000 a month. 1,400 included minutes. The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place.",
+        "priceCurrency": "CAD",
+        "priceSpecification": {
+          "@type": "CompoundPriceSpecification",
+          "priceCurrency": "CAD",
+          "description": "C$1,000 a month.",
+          "priceComponent": [
+            {
+              "@type": "UnitPriceSpecification",
+              "name": "Launch & Implementation",
+              "priceCurrency": "CAD",
+              "price": "0",
+              "description": "None: this item has no Launch & Implementation fee."
             },
             {
               "@type": "UnitPriceSpecification",
@@ -1206,19 +1270,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "@type": "Offer",
         "name": "Quote-Chase Engine",
         "category": "Module sold on its own",
-        "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own, month to month, with no plan required. Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.",
+        "description": "C$500 a month. Sold on its own, month to month, with no plan required. Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.",
         "priceCurrency": "CAD",
         "priceSpecification": {
           "@type": "CompoundPriceSpecification",
           "priceCurrency": "CAD",
-          "description": "C$750 Launch & Implementation to start, then C$500 a month.",
+          "description": "C$500 a month.",
           "priceComponent": [
             {
               "@type": "UnitPriceSpecification",
               "name": "Launch & Implementation",
               "priceCurrency": "CAD",
-              "price": "750",
-              "description": "Charged once, at the start, beside the first month. Never recurring."
+              "price": "0",
+              "description": "None: this item has no Launch & Implementation fee."
             },
             {
               "@type": "UnitPriceSpecification",
@@ -1239,19 +1303,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "@type": "Offer",
         "name": "Missed-Call Recovery",
         "category": "Module sold on its own",
-        "description": "C$500 Launch & Implementation to start, then C$350 a month. Sold on its own, month to month, with no plan required. A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out.",
+        "description": "C$350 a month. Sold on its own, month to month, with no plan required. A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out.",
         "priceCurrency": "CAD",
         "priceSpecification": {
           "@type": "CompoundPriceSpecification",
           "priceCurrency": "CAD",
-          "description": "C$500 Launch & Implementation to start, then C$350 a month.",
+          "description": "C$350 a month.",
           "priceComponent": [
             {
               "@type": "UnitPriceSpecification",
               "name": "Launch & Implementation",
               "priceCurrency": "CAD",
-              "price": "500",
-              "description": "Charged once, at the start, beside the first month. Never recurring."
+              "price": "0",
+              "description": "None: this item has no Launch & Implementation fee."
             },
             {
               "@type": "UnitPriceSpecification",
@@ -1272,19 +1336,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "@type": "Offer",
         "name": "Get-Paid Autopilot",
         "category": "Module sold on its own",
-        "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own, month to month, with no plan required. Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead, because past that point the judgment call belongs to a person.",
+        "description": "C$500 a month. Sold on its own, month to month, with no plan required. Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead, because past that point the judgment call belongs to a person.",
         "priceCurrency": "CAD",
         "priceSpecification": {
           "@type": "CompoundPriceSpecification",
           "priceCurrency": "CAD",
-          "description": "C$750 Launch & Implementation to start, then C$500 a month.",
+          "description": "C$500 a month.",
           "priceComponent": [
             {
               "@type": "UnitPriceSpecification",
               "name": "Launch & Implementation",
               "priceCurrency": "CAD",
-              "price": "750",
-              "description": "Charged once, at the start, beside the first month. Never recurring."
+              "price": "0",
+              "description": "None: this item has no Launch & Implementation fee."
             },
             {
               "@type": "UnitPriceSpecification",
@@ -1305,19 +1369,19 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         "@type": "Offer",
         "name": "Review Engine",
         "category": "Module sold on its own",
-        "description": "C$500 Launch & Implementation to start, then C$300 a month. Sold on its own, month to month, with no plan required. Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person.",
+        "description": "C$300 a month. Sold on its own, month to month, with no plan required. Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person.",
         "priceCurrency": "CAD",
         "priceSpecification": {
           "@type": "CompoundPriceSpecification",
           "priceCurrency": "CAD",
-          "description": "C$500 Launch & Implementation to start, then C$300 a month.",
+          "description": "C$300 a month.",
           "priceComponent": [
             {
               "@type": "UnitPriceSpecification",
               "name": "Launch & Implementation",
               "priceCurrency": "CAD",
-              "price": "500",
-              "description": "Charged once, at the start, beside the first month. Never recurring."
+              "price": "0",
+              "description": "None: this item has no Launch & Implementation fee."
             },
             {
               "@type": "UnitPriceSpecification",
@@ -1344,7 +1408,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           "itemOffered": {
             "@type": "Service",
             "name": "Performance Partnership plan",
-            "description": "From C$2,500 Launch & Implementation to start, then C$350 a month by default, inside a monthly band of C$250 to C$500. Lower fixed cost. Lead Generation, offered by invitation, and the Quote-Chase Engine are each paid on it by an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, subject to your agreement. Its Launch & Implementation fee and its monthly, the share, the attribution window and what counts as eligible revenue are all set in your agreement before anything is charged. Offered by invitation and approval; never the default. 250 included minutes. A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose, and each one changes what the plan costs. Not suitable for every business, and never the default."
+            "description": "C$5,000 Launch & Implementation to start, then C$350 a month, plus an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, set in your agreement before anything is charged. Offered by invitation and approval. 250 included minutes. A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose. Its Launch & Implementation fee and its monthly are fixed; what the items you choose change is the agreed share and the monthly of each item you add. Not suitable for every business, and never the default."
           }
         },
         {
@@ -1352,7 +1416,23 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           "itemOffered": {
             "@type": "Service",
             "name": "The Works plan",
-            "description": "C$3,000 Launch & Implementation to start, then C$2,100 a month. 1,400 included minutes. The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts."
+            "description": "C$2,100 a month. 1,400 included minutes. The whole engine: the AI Front Desk plus every sellable automation, priced under the sum of its parts."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Front Desk Starter plan",
+            "description": "C$250 a month. 200 included minutes. A lighter phone: the same receptionist as the AI Front Desk, answering 24/7, sized for fewer calls."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Front Desk Plus plan",
+            "description": "C$500 a month. 550 included minutes. A busier phone that does not yet need the full allowance: the same receptionist, answering 24/7, with more minutes than Front Desk Starter."
           }
         },
         {
@@ -1360,7 +1440,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           "itemOffered": {
             "@type": "Service",
             "name": "AI Front Desk plan",
-            "description": "C$1,500 Launch & Implementation to start, then C$1,000 a month. 1,400 included minutes. The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place."
+            "description": "C$1,000 a month. 1,400 included minutes. The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place."
           }
         },
         {
@@ -1368,7 +1448,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           "itemOffered": {
             "@type": "Service",
             "name": "Quote-Chase Engine",
-            "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own, month to month, with no plan required. Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you."
+            "description": "C$500 a month. Sold on its own, month to month, with no plan required. Every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you."
           }
         },
         {
@@ -1376,7 +1456,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           "itemOffered": {
             "@type": "Service",
             "name": "Missed-Call Recovery",
-            "description": "C$500 Launch & Implementation to start, then C$350 a month. Sold on its own, month to month, with no plan required. A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out."
+            "description": "C$350 a month. Sold on its own, month to month, with no plan required. A caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out."
           }
         },
         {
@@ -1384,7 +1464,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           "itemOffered": {
             "@type": "Service",
             "name": "Get-Paid Autopilot",
-            "description": "C$750 Launch & Implementation to start, then C$500 a month. Sold on its own, month to month, with no plan required. Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead, because past that point the judgment call belongs to a person."
+            "description": "C$500 a month. Sold on its own, month to month, with no plan required. Overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead, because past that point the judgment call belongs to a person."
           }
         },
         {
@@ -1392,7 +1472,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           "itemOffered": {
             "@type": "Service",
             "name": "Review Engine",
-            "description": "C$500 Launch & Implementation to start, then C$300 a month. Sold on its own, month to month, with no plan required. Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person."
+            "description": "C$300 a month. Sold on its own, month to month, with no plan required. Post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person."
           }
         }
       ]

@@ -23,7 +23,7 @@ https://nevamis.ca/proposal.html?to=BUSINESS+NAME&plan=PLAN
 | Part | What to put | Notes |
 |---|---|---|
 | `to` | the business name | spaces become `+` or `%20`. Optional; without it the page still reads fine. |
-| `plan` | `starter`, `growth` or `pro`, or a module sold on its own: `quote_chase`, `get_paid`, `review_engine` or `missed_call_recovery` | defaults to `pro`, the recommended plan, when there is no `plan` at all. An id it does not recognise shows **NO PLAN NAMED** and no price, never a substitute plan: check the link before you send it. |
+| `plan` | `starter`, `growth` or `pro`, one of the two smaller Front Desk sizes, `front-desk-starter` or `front-desk-plus` (v7), or a module sold on its own: `quote_chase`, `get_paid`, `review_engine` or `missed_call_recovery` | defaults to `pro`, the recommended plan, when there is no `plan` at all. An id it does not recognise shows **NO PLAN NAMED** and no price, never a substitute plan: check the link before you send it. |
 | `quote` | an agreed monthly figure, digits only | optional, and only for the Performance Partnership, whose monthly is agreed inside its published band. A figure inside that band replaces the published monthly on the page; anything outside it is ignored and the published monthly is shown. The Works and the AI Front Desk have one price each, so a `quote` on them is ignored unless it is that price. A quoted proposal has no **Start now** button, because checkout charges the published price, not the agreed one. |
 
 Those ids are the ones in `pricing-config.js`. They are not what the plans are
@@ -52,6 +52,16 @@ https://nevamis.ca/proposal.html?to=Bronco+Mechanical&plan=starter
 The front desk on its own, the recommended plan:
 ```
 https://nevamis.ca/proposal.html?to=Strathcona+Locksmiths&plan=pro
+```
+
+The same front desk in a smaller size (v7, held for counsel: send these only
+once the v7 pricing is published), for a lighter phone:
+```
+https://nevamis.ca/proposal.html?to=Birchfield+Glass&plan=front-desk-starter
+```
+or a busier one that does not yet need the full allowance:
+```
+https://nevamis.ca/proposal.html?to=Larkspur+Plumbing&plan=front-desk-plus
 ```
 
 One automation on its own, for a business that only wants its quiet quotes

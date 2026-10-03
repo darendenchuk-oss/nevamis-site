@@ -844,21 +844,60 @@
   var NVP2 = window.NV_PRICING;
   if (PS && NVP2 && NVP2.approved && Array.isArray(NVP2.plans)) {
     var grp = function (n) { return Number(n).toLocaleString("en-CA"); };
+    /* NV_PRICING.startLine's sentence, without its full stop: "C$X a month"
+       for a plan or module with no Launch & Implementation fee, and the fee,
+       "to start" and "then" where there is one (v7). It is what Buy now
+       charges, so it never says the first month is free: that is given on a
+       booked call, and only free-month.js may say it. A config without the
+       helper (a stale cached copy) falls back to the monthly alone rather
+       than to a fee that no longer exists. */
     var sentence = function (x) {
-      return "C$" + grp(x.launch) + " Launch & Implementation to start, then C$" + grp(x.monthly) + " a month";
+      return typeof NVP2.startLine === "function" ? NVP2.startLine(x).replace(/\.$/, "")
+        : "C$" + grp(x.monthly) + " a month";
     };
     var esc = function (s) {
       return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     };
+    /* The three Front Desk sizes are one receptionist in three sizes (owner
+       amendment #67), so the strip gives them one card, smallest first, with
+       the minutes leading each line, where the first of them falls in the
+       config's order. NVP2.frontDeskTiers() says which plans they are. */
+    var sizes = typeof NVP2.frontDeskTiers === "function" ? NVP2.frontDeskTiers() : [];
+    if (sizes.length < 2) sizes = [];
+    var sizesCard = function () {
+      var fs = NVP2.frontDeskSizes || {};
+      var c = '<div class="card' + (sizes.some(function (s) { return s.recommended; }) ? " card-featured" : "") + '">';
+      c += "<h3>" + esc(fs.heading || "The front desk") + "</h3>";
+      if (fs.note) c += "<p>" + esc(fs.note) + "</p>";
+      c += '<ul class="node-list">';
+      sizes.forEach(function (s) {
+        c += "<li><span><strong>" + esc(s.name) + "</strong>"
+          + (s.recommended && NVP2.recommendedLabel ? ' <span class="chip rec">' + esc(NVP2.recommendedLabel) + "</span>" : "")
+          + ": " + grp(s.includedMinutes) + " included minutes, " + esc(sentence(s))
+          + ", C$" + s.overage.toFixed(2) + " per extra minute.</span></li>";
+      });
+      c += "</ul><p>No performance fee.</p></div>";
+      return c;
+    };
     var html = '<div class="plan-row">';
+    var sizesDone = false;
     NVP2.plans.forEach(function (pl) {
+      if (sizes.indexOf(pl) >= 0) {
+        if (!sizesDone) { html += sizesCard(); sizesDone = true; }
+        return;
+      }
       html += '<div class="card' + (pl.recommended ? " card-featured" : "") + '">';
       html += "<h3>" + esc(pl.name)
         + (pl.recommended && NVP2.recommendedLabel ? ' <span class="chip rec">' + esc(NVP2.recommendedLabel) + "</span>" : "")
         + "</h3>";
       if (pl.selfServe === false) {
+        /* Still no figure on an invitation-only card: the share in words,
+           from its performanceNote clause, and its inviteNote. The pricing
+           page states its figures. */
         html += '<p class="price">By invitation.</p>';
-        if (pl.performanceNote) html += "<p>" + esc(pl.performanceNote) + "</p>";
+        var share = String(pl.performanceNote || "").replace(/^plus /, "");
+        if (share) html += "<p>" + esc(share.charAt(0).toUpperCase() + share.slice(1)) + ".</p>";
+        if (pl.inviteNote) html += "<p>" + esc(pl.inviteNote) + "</p>";
       } else {
         html += '<p class="price">' + esc(sentence(pl)) + ".</p>";
         if (pl.bestFor) html += "<p>" + esc(pl.bestFor) + "</p>";

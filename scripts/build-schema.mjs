@@ -163,10 +163,15 @@ const money = (n) => String(n);
     Works for a plan and for an add-on: both carry `launch` and `monthly`, and
     a plan may also carry `launchRange` and `monthlyRange`. */
 function priceSpecFor(item) {
+  /* A fee of 0 is still published as a component of 0, with words saying
+     there is none (v7, 2026-10-03: only the Partnership carries one). A
+     parser that finds no component assumes nothing; one that finds 0 knows. */
   const launch = Array.isArray(item.launchRange)
     ? { minPrice: money(item.launch),
         description: `From ${NV.money(item.launch)}, set in the client's agreement. Charged once, at the start, beside the first month.` }
-    : { price: money(item.launch), description: 'Charged once, at the start, beside the first month. Never recurring.' };
+    : item.launch > 0
+      ? { price: money(item.launch), description: 'Charged once, at the start, beside the first month. Never recurring.' }
+      : { price: money(0), description: 'None: this item has no Launch & Implementation fee.' };
   const monthly = Array.isArray(item.monthlyRange)
     ? { minPrice: money(item.monthlyRange[0]), maxPrice: money(item.monthlyRange[1]),
         description: `${NV.money(item.monthly)} a month${NV.monthlyBand(item)}, set in the client's agreement.` }
@@ -190,18 +195,21 @@ const PLANS = NV.plans.map((p) => ({
   selfServe: p.selfServe,
   spec: priceSpecFor(p),
   /* The whole offer, in the approved shape: an answer engine quotes this
-     verbatim, so it carries the one-time Launch & Implementation fee with
-     the rule joining it to the monthly, the performance sentence where the
-     plan has one, and the invitation status where the plan is not
-     self-serve. */
+     verbatim, so it carries the plan's startLine() sentence (the Launch &
+     Implementation fee and the performance clause where the plan has them)
+     and the invitation status where the plan is not self-serve. It never
+     carries the first month free (v7, owner amendment #66): that is given
+     to the first clients on a booked call, and structured data cannot be
+     switched off when the places run out. */
   /* NV.startLine, the sentence a plan's figures are stated in (see
      docs/PRICING-CONFIG.md for the surfaces that use it).
      This line typed its own pair and published the Partnership to answer
      engines as one flat price while its figures are a band (BD-4,
-     2026-09-25). */
+     2026-09-25). performanceNote is joined inside startLine since v7, so
+     it is not appended a second time, and "never the default" is the
+     Partnership's bestFor's, said once (audit MACHINE-27). */
   desc: NV.startLine(p)
-    + (p.performanceNote ? ` ${p.performanceNote}` : '')
-    + (p.selfServe === false ? ' Offered by invitation and approval; never the default.' : '')
+    + (p.selfServe === false ? ` ${p.inviteNote || 'Offered by invitation and approval.'}` : '')
     /* Grouped, because it is read aloud and quoted verbatim: "1400 included
        AI minutes" is the one number on this line a person reads as a typo. */
     + ` ${p.includedMinutes.toLocaleString('en-CA')} included minutes. ${p.bestFor}`,
@@ -217,8 +225,10 @@ const PLANS = NV.plans.map((p) => ({
 const MODULES = (NV.addOns || [])
   .filter((a) => a.sellable === true && a.soldAlone === true)
   .map((a) => {
-    if (!(a.launch > 0) || !(a.monthly > 0)) {
-      console.error(`pricing-config.js sells ${a.id} alone but gives it no launch and monthly pair; refusing to publish an Offer without its price.`);
+    /* A monthly is required; a fee is not, since v7 put every module's at
+       0. Until then this refused a module without both. */
+    if (!(a.monthly > 0) || typeof a.launch !== 'number') {
+      console.error(`pricing-config.js sells ${a.id} alone but gives it no monthly, or no launch field; refusing to publish an Offer without its price.`);
       process.exit(1);
     }
     return {
