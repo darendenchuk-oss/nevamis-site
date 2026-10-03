@@ -32,6 +32,9 @@ const PAGES = new Set(JSON.parse(fs.readFileSync(path.join(root, 'content-map.js
 const ROOT_FILES = new Set([
   'CNAME', 'favicon.ico', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png',
   'site.js', 'motion.js', 'pricing-config.js', 'roadmap-config.js',
+  /* Shows the first month free only while the engine reports a place open
+     (v7, owner amendment #66). */
+  'free-month.js',
   'search-index.json', 'content-map.json', 'llms.txt', 'sitemap.xml', 'robots.txt',
   /* The licence notices for the code nevamis.ca serves, as plain text. The
      Markdown file of the same name is the repository's and is excluded: see

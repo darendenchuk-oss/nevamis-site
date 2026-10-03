@@ -99,6 +99,25 @@ const TALK = {
   'worker-src': ["'self'", 'blob:'],
 };
 
+/* free-month.js (v7, owner amendment #66) asks the engine whether a place
+   for the first month free is open, and shows the offer only on a yes. The
+   request goes to the origin it names, which connect-src must allow: were
+   the two ever to part, the browser would block the request, and the offer
+   would stay hidden for good with nothing on any page saying why, which
+   reads exactly like "the places are gone". So it is a build error here,
+   in --check too, rather than a silence on the live site. */
+const FREE_MONTH_SRC = path.join(root, 'free-month.js');
+if (fs.existsSync(FREE_MONTH_SRC)) {
+  const asks = (fs.readFileSync(FREE_MONTH_SRC, 'utf8').match(/["'](https:\/\/[^/"']+)\/api\/free-month["']/) || [])[1];
+  if (!asks) {
+    console.error('ERROR free-month.js: names no https origin for /api/free-month, so the policy cannot be checked against it');
+    process.exitCode = 1;
+  } else if (!BASE['connect-src'].includes(asks)) {
+    console.error(`ERROR free-month.js asks ${asks}, which connect-src does not allow: the first month free could never be shown`);
+    process.exitCode = 1;
+  }
+}
+
 const PAGES = [
   ...JSON.parse(fs.readFileSync(path.join(root, 'content-map.json'), 'utf8')).pages.map((p) => p.file),
   'talk/index.html',

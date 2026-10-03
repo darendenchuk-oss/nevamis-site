@@ -45,10 +45,14 @@ const ALLOWED = /^plan_(quote|buy)_click_[a-z0-9_]{1,24}$/;
     checked selfServe), so it asserted a "Buy now" button was correct for
     Performance Partnership and passed while confirming the defect instead
     of catching it. */
+/* The event suffix is the id with hyphens as underscores (v7's
+   front-desk-starter and front-desk-plus): the engine's allowlist takes
+   [a-z0-9_] only. The href keeps the id as it is. */
 function expectedCta(P, pl) {
+  const key = String(pl.id).replace(/-/g, '_');
   return (!P.sellable || pl.startingAt || pl.selfServe === false)
-    ? { evt: 'plan_quote_click_' + pl.id, href: '/book.html' }
-    : { evt: 'plan_buy_click_' + pl.id, href: '/signup?plan=' + pl.id };
+    ? { evt: 'plan_quote_click_' + key, href: '/book.html' }
+    : { evt: 'plan_buy_click_' + key, href: '/signup?plan=' + pl.id };
 }
 
 test('every plan card reports its own tier, keyed on the plan id', async ({ page }) => {

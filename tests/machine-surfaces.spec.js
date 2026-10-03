@@ -186,8 +186,11 @@ function miniSite(script, pageHtml) {
 const page_ = (body) => `<!doctype html><html lang="en"><head><title>a</title></head><body><a class="skip" href="#m">Skip to content</a><h1>A</h1>${body}</body></html>`;
 
 test('CHECK-RUNNER-8: audit-truth approves every figure pricing-config publishes and support@, and exits non-zero on a HIGH', async () => {
-  const published = page_(`<p>Quote-Chase Engine C$750 Launch &amp; Implementation to start, then C$500 a month. `
-    + `From C$2,500 Launch &amp; Implementation to start, then C$350 a month by default, inside a monthly band of C$250 to C$500. `
+  /* Today's figures (v7, 2026-10-03): a module at its monthly alone, the
+     Partnership's fixed fee and monthly, the three Front Desk sizes. */
+  const published = page_(`<p>Quote-Chase Engine C$500 a month. `
+    + `C$5,000 Launch &amp; Implementation to start, then C$350 a month. `
+    + `Front Desk Starter C$250 a month, Front Desk Plus C$500 a month, the AI Front Desk C$1,000 a month. `
     + `Enterprise from C$5,000. Email support at support@nevamis.ca or Sales@nevamis.ca.</p>`);
   const ok = miniSite('audit-truth.mjs', published);
   expect(ok.stdout).toContain('no findings');

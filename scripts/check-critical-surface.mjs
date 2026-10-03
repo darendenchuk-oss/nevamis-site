@@ -82,12 +82,12 @@ const VENDOR = 'assets/vendor/';
    names let a fifth vendor file ship unpinned and unscanned. */
 const PINNED = ['ring.xml', 'missed-line.xml', 'assets/ringback-tone.wav', ...PUBLISHED.filter((f) => f.startsWith(VENDOR)).sort()];
 const FIRST_PARTY_SCRIPTS = [
-  /^(site|motion|pricing-config|roadmap-config)\.js$/,
+  /^(site|motion|pricing-config|roadmap-config|free-month)\.js$/,
   /^assets\/film\/[^/]+\.js$/,
   /^assets\/motion\/[^/]+\.js$/,
   /^talk\/talk\.js$/,
 ];
-const FIRST_PARTY_TEXT = 'site.js, motion.js, pricing-config.js, roadmap-config.js, assets/film/*.js, assets/motion/*.js, talk/talk.js';
+const FIRST_PARTY_TEXT = 'site.js, motion.js, pricing-config.js, roadmap-config.js, free-month.js, assets/film/*.js, assets/motion/*.js, talk/talk.js';
 const TEXT = /\.(xml|js|mjs|html|json|txt|md|css)$/i;
 
 /* Hash what git stores (LF), not a Windows checkout's CRLF copy. */
