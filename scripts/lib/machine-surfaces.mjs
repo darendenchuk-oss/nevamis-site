@@ -60,9 +60,10 @@ const NEG = /\b(?:not|never|no|cannot|nothing|none|nor|neither|fail|fails|failur
    in the unit does NOT: "Offers to transfer the caller to Daren now and
    never argues" makes the claim and then denies something else. Only:
    - a denial right in FRONT of the claim word, within 40 characters and not
-     across a contrast word ("does not transfer calls", "no calendar to
-     connect"; but "does not book appointments but sends callers
-     confirmations" still claims the confirmations);
+     across a contrast or a new clause ("does not transfer calls", "no
+     calendar to connect"; but "does not book appointments but sends callers
+     confirmations" and "no calendar to connect, so the agent books the job"
+     still make their second claim);
    - a denial as the claim's own object ("books nothing", "puts no call
      through");
    - a grader's verdict on the claim in the same unit (the catalogues grade
@@ -71,7 +72,7 @@ const NEG = /\b(?:not|never|no|cannot|nothing|none|nor|neither|fail|fails|failur
      or a changelog line about an earlier version ("v1 told the operator to
      wire a calendar"). These are exact phrases on purpose: a stray "fail",
      "false" or "never" in a sales sentence excuses nothing. */
-const DENIAL_BEFORE = /\b(?:no|never|not|cannot|nor|neither|none|nothing|isn't|doesn't|don't|won't|can't)\b(?:(?!\b(?:but|yet|however|though|although|instead|while|whereas)\b)[^.;|]){0,40}$/i;
+const DENIAL_BEFORE = /\b(?:no|never|not|cannot|nor|neither|none|nothing|isn't|doesn't|don't|won't|can't)\b(?:(?!\b(?:but|yet|however|though|although|instead|while|whereas|so|then|because)\b)[^.;|]){0,40}$/i;
 const DENIAL_AFTER = /^\s+(?:nothing|none|no)\b/i;
 const VERDICT = /\bFAIL\b|\b(?:is|are)\s+(?:an?\s+)?(?:[\w-]+\s+){0,2}failures?\b|\b[Ff]ails this file\b|\b[Ff]orbid(?:s|den)?\b|\b[Bb]anned\b|\b[Rr]etired\b|\bv\d+\s+(?:of this \w+\s+)?(?:told|graded|carried|said|set|had|listed)\b/;
 const deniedAt = (u, at, end) => DENIAL_BEFORE.test(u.slice(0, at)) || DENIAL_AFTER.test(u.slice(end));
@@ -281,6 +282,7 @@ export const AGENT_FIXTURES = {
     ["client-agent-isolation.md", "Connect the client's calendar so the agent can book, and never skip the recording notice."],
     ["nevamis-knowledge-base.md", "The AI Front Desk does not book appointments but sends callers confirmations."],
     ["vertical-plumbing-agent-template.md", "Book the job, and if no calendar is connected, take a message."],
+    ["client-agent-isolation.md", "There is no calendar to connect, so the agent books the job itself."],
     ["plumbing-agent-test-scenarios.md", "| 24 | Routine booking happy path | \"Can you send someone out Thursday?\" | Collects details; books; confirms only after tool success. | ok | P0 | Sim |"],
   ],
   /* [file, text] that MUST pass: the true sentences each rule sits beside. */
