@@ -128,7 +128,7 @@ test('the trade pages state the cheapest size, the same receptionist, and Buy no
   for (const file of TRADES) {
     await page.goto('/' + file);
     const line = flat(await page.locator('p.start-line').innerText());
-    expect(line).toContain(`from ${money(ENTRY.monthly)} a month with ${ENTRY.includedMinutes.toLocaleString('en-US')} minutes included`);
+    expect(line).toContain(`From ${money(ENTRY.monthly)} a month on ${ENTRY.name}, with ${ENTRY.includedMinutes.toLocaleString('en-US')} minutes included`);
     expect(line).toContain('Same receptionist, answers 24/7');
     expect(line).toContain('GST/HST');
     const buy = page.locator('main a.btn', { hasText: /^Buy now$/ });
@@ -219,7 +219,7 @@ const body = (mod, file) => mod.PAGES[file].body;
 test('a repriced Front Desk Starter moves the trade line, the voicemail row and the cost row', async () => {
   const mod = await pagesWith((s) => s.replace(/(id: "front-desk-starter", name: "Front Desk Starter",\s*monthly: )250(, launch: 0, freeMonths: 1, includedMinutes: )200/, '$1275$2210'));
   expect(mod.error).toBeUndefined();
-  for (const f of TRADES) expect(body(mod, f)).toContain('from C$275 a month with 210 minutes included');
+  for (const f of TRADES) expect(body(mod, f)).toContain('From C$275 a month on Front Desk Starter, with 210 minutes included');
   expect(body(mod, 'vs-voicemail.html')).toContain('From C$275 a month (Front Desk Starter, 210 minutes included)');
   expect(body(mod, 'vs-answering-service.html')).toContain('Front Desk Starter: 210 minutes for C$275 a month');
   for (const f of Object.keys(mod.PAGES)) expect(body(mod, f)).not.toContain('C$250 a month');

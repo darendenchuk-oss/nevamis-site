@@ -152,7 +152,7 @@ export function markupFindings(html, F, file, cluster) {
   /* The trade pages say what the phone costs, from the cheapest size, and
      offer Buy now to the sizes (TRADES-7). */
   if (cluster === 'trade' && F.entry) {
-    const want = `from ${money(F.entry.monthly)} a month with ${F.entry.includedMinutes.toLocaleString('en-US')} minutes included`;
+    const want = `From ${money(F.entry.monthly)} a month on ${F.entry.name}, with ${F.entry.includedMinutes.toLocaleString('en-US')} minutes included`;
     if (!text.includes(want)) say('trade-start-line', `does not state the cheapest Front Desk size as "${want}" (pricing-config.js ${F.entry.id})`, file);
     if (!/<a class="btn btn-primary" href="\/pricing\.html#plans"[^>]*>Buy now<\/a>/.test(html)) say('trade-buy-now', 'has no Buy now to the Front Desk sizes on pricing.html', file);
   }
@@ -247,7 +247,7 @@ function selfTest() {
   if (!markupFindings(gatedPage, F, 'x.html').some((f) => f.id === 'free-month-switch-off')) bad.push('misses a gated element built while the switch is off');
   if (markupFindings(gatedPage, { ...F, freeMonthLive: true }, 'x.html').length) bad.push('refuses a wired gated element while the switch is on');
   if (!markupFindings(gatedPage.replace(/<script src="free-month\.js" defer><\/script>/, ''), { ...F, freeMonthLive: true }, 'x.html').some((f) => f.id === 'free-month-unwired')) bad.push('misses a gated element with no free-month.js');
-  const trade = '<p>The front desk comes in three sizes, from C$250 a month with 200 minutes included.</p><a class="btn btn-primary" href="/pricing.html#plans" data-evt="trade_pricing_click">Buy now</a>';
+  const trade = '<p>From C$250 a month on Front Desk Starter, with 200 minutes included.</p><a class="btn btn-primary" href="/pricing.html#plans" data-evt="trade_pricing_click">Buy now</a>';
   if (markupFindings(trade, F, 't.html', 'trade').length) bad.push('refuses a trade page with its start line and Buy now');
   if (!markupFindings(trade.replace('C$250', 'C$300'), F, 't.html', 'trade').some((f) => f.id === 'trade-start-line')) bad.push('misses a trade page with the wrong start price');
   if (!markupFindings(trade.replace(/<a [\s\S]*<\/a>/, ''), F, 't.html', 'trade').some((f) => f.id === 'trade-buy-now')) bad.push('misses a trade page with no Buy now');

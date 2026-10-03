@@ -82,6 +82,11 @@ export const SIZE_COUNT = WORDS[SIZES.length] || String(SIZES.length);
 const SIZES_NOTE = NV.frontDeskSizes.note;
 /** "from C$250 a month with 200 minutes included": the cheapest size, read. */
 const FROM_LINE = `from ${cad(ENTRY.monthly)} a month with ${count(ENTRY.includedMinutes)} minutes included`;
+/** The trade pages' line, with the size named beside its figure. A bare "the
+    front desk costs from C$250" is read by the engine's truth check as the
+    AI Front Desk at C$250 ("Front Desk" is that size's alias there), which is
+    false, and a buyer could read it the same way. */
+const TRADE_LINE = `From ${cad(ENTRY.monthly)} a month on ${ENTRY.name}, with ${count(ENTRY.includedMinutes)} minutes included`;
 
 /* THE FIRST MONTH FREE, ONLY BEHIND THE GATE (owner amendment #66,
    2026-10-03). The first month free is for the first
@@ -244,8 +249,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
       <p>${afterHours} For anything outside the rules you approved, it takes a message and
         flags it for you rather than inventing an answer. You decide what counts as urgent
         for your business, and everything else is taken down for the morning.</p>
-      <p class="start-line">The front desk costs ${FROM_LINE}, plus applicable
-        GST/HST. ${SIZES_NOTE}</p>
+      <p class="start-line">${TRADE_LINE}, plus applicable GST/HST. ${SIZES_NOTE}</p>
     </div>
     <div class="midcta reveal">
       <a class="btn btn-primary" href="/pricing.html#plans" data-evt="trade_pricing_click">Buy now</a>
