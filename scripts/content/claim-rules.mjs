@@ -475,6 +475,28 @@ export function orphanAssetFindings(root) {
     .map((rel) => ({ id: 'orphan-asset', why: 'published at a stable URL and referred to by nothing served; delete it (git history keeps it) or reference it', excerpt: rel }));
 }
 
+/* ---------- content-map.json ----------
+   Every string a reader of /content-map.json sees, not only the five keys a
+   page renders: the file is served publicly (MACHINE-19 found the
+   how-you-start blurb saying "trial" there), so a "query", a new key or the
+   top-level comment is read as much as a blurb is. Only the addresses and
+   the cluster names are skipped, which are identifiers, not copy. */
+const IDENTIFIERS = new Set(['file', 'url', 'cluster', 'site', 'priority']);
+
+export function contentMapFindings(map) {
+  const out = [];
+  const rows = [{ ...map, pages: undefined, file: 'top level' }, ...(map.pages || [])];
+  for (const row of rows) {
+    for (const key of Object.keys(row)) {
+      if (IDENTIFIERS.has(key) || typeof row[key] !== 'string') continue;
+      const where = `content-map.json (${row.file} ${key})`;
+      for (const f of claimFindings(row[key])) out.push({ file: where, ...f });
+      if (/title/i.test(key) && AI_LED.test(row[key])) out.push({ file: where, id: 'ai-led-title', why: 'a title leads with "AI" (owner rule; decision #17)', excerpt: row[key] });
+    }
+  }
+  return out;
+}
+
 /* ---------- the rules' own examples, checked on every run ---------- */
 export function selfTestFindings() {
   const out = [];
@@ -503,6 +525,11 @@ export function selfTestFindings() {
   if (!ids(page('Nevamis vs Voicemail', 'Nevamis vs voicemail', '<td class="part">Per call or per minute</td>')).includes('competitor-column-asserts')) out.push('competitor-column-asserts no longer catches an asserted cell');
   if (!ids(page('Nevamis vs Voicemail', 'Nevamis vs voicemail', '<td class="ask">Is it per call?</td>', 3)).includes('breadcrumb-count')) out.push('breadcrumb-count no longer catches a second BreadcrumbList');
   if (!ids(clean + '<meta name="description" content="Your number, your rules, answered when you do">').includes('cut-description')) out.push('cut-description no longer catches a description cut mid-sentence');
+  /* content-map.json: a key no page renders is still read at /content-map.json. */
+  const mapIds = (row) => contentMapFindings({ _comment: 'Source of the page set.', pages: [{ file: 'x.html', url: '/x.html', cluster: 'trade', ...row }] }).map((f) => f.id);
+  if (mapIds({ blurb: 'Answered while you work.', query: 'answering service' }).length) out.push('contentMapFindings fires on a clean row');
+  if (!mapIds({ query: 'answering service free trial' }).includes('banned-buyer-word')) out.push('contentMapFindings no longer reads a key no page renders (MACHINE-19)');
+  if (!contentMapFindings({ _comment: 'No pilot here.', pages: [] }).some((f) => f.id === 'banned-buyer-word')) out.push('contentMapFindings no longer reads the top-level comment');
   if (!ids(clean + `<meta name="description" content="${'A sentence that runs on. '.repeat(7)}">`).includes('long-description')) out.push('long-description no longer catches a description over 160 characters');
   if (!ids(clean.replace('<meta property="og:site_name" content="Nevamis">', '')).includes('og-meta')) out.push('og-meta no longer catches a page with no og:site_name');
   if (!ids(clean.replace('content="https://nevamis.ca/x.html">', 'content="https://nevamis.ca/y.html">')).includes('og-meta')) out.push('og-meta no longer catches an og:url that is not the canonical');
@@ -533,20 +560,7 @@ export function contentClaimFindings(root, pages) {
     for (const f of claimFindings(prose, 'motion.js')) findings.push({ file: 'motion.js', ...f });
   }
   const map = JSON.parse(fs.readFileSync(path.join(root, 'content-map.json'), 'utf8'));
-  /* Every string a reader of /content-map.json sees, not only the five keys
-     a page renders: the file is served publicly (MACHINE-19 found the
-     how-you-start blurb saying "trial" there), so a new key or the top-level
-     comment is read as much as a blurb is. Only the addresses and the
-     cluster names are skipped, which are identifiers, not copy. */
-  const IDENTIFIERS = new Set(['file', 'url', 'cluster', 'site', 'priority']);
-  const rows = [{ ...map, pages: undefined, file: 'top level' }, ...map.pages];
-  for (const row of rows) {
-    for (const key of Object.keys(row)) {
-      if (IDENTIFIERS.has(key) || typeof row[key] !== 'string') continue;
-      for (const f of claimFindings(row[key])) findings.push({ file: `content-map.json (${row.file} ${key})`, ...f });
-      if (/title/i.test(key) && AI_LED.test(row[key])) findings.push({ file: `content-map.json (${row.file} ${key})`, id: 'ai-led-title', why: 'a title leads with "AI" (owner rule; decision #17)', excerpt: row[key] });
-    }
-  }
+  findings.push(...contentMapFindings(map));
   for (const f of orphanAssetFindings(root)) findings.push({ file: f.excerpt, ...f });
   return findings;
 }
