@@ -43,6 +43,7 @@
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -105,6 +106,7 @@
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -140,6 +142,7 @@
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -169,14 +172,10 @@
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
-    ],
-    "motion.js": [
-      "phone:+15875550119",
-      "phone:+17805550163",
-      "phone:+18255550147"
     ],
     "pilot.html": [
       "email:sales@nevamis.ca",
@@ -193,6 +192,7 @@
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -239,6 +239,7 @@
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -293,6 +294,7 @@
       "https://app.nevamis.ca/login",
       "https://app.nevamis.ca/scan",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -329,6 +331,7 @@
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
@@ -338,6 +341,7 @@
       "https://app.nevamis.ca/",
       "https://app.nevamis.ca/login",
       "https://nevamis.ca",
+      "https://schema.org/",
       "mailto:Sales@nevamis.ca",
       "phone:+15874130035",
       "tel:+15874130035"
