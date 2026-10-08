@@ -23,7 +23,8 @@ import { test, expect } from '@playwright/test';
 
 const CONTROLS = [
   ['/book.html', '#cbName', 'callback form'],
-  ['/book.html', '#bkName', 'scheduler prefill'],
+  /* Folded behind a summary since the ad landing audit (2026-10-08): opened first. */
+  ['/book.html', '#bkName', 'scheduler prefill', '#bkPrefillWrap summary'],
   ['/coming-soon.html', '#ifName', 'interest form'],
   ['/', '#roiMissed', 'homepage calculator'],
   ['/pricing.html', '.rc input', 'plan fit calculator'],
@@ -75,9 +76,10 @@ async function focusRatio(page, selector) {
   }, selector);
 }
 
-for (const [url, selector, label] of CONTROLS) {
+for (const [url, selector, label, open] of CONTROLS) {
   test(`the focus indicator on the ${label} is visible`, async ({ page }) => {
     await page.goto(url);
+    if (open) await page.locator(open).click();
     const r = await focusRatio(page, selector);
     expect(r.focused, 'the probe must actually have focused something').toBe(true);
     /* Either indicator is acceptable; what is not acceptable is neither. */

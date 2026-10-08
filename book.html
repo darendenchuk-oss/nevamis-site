@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Qcy5qIwvtWUlBW6LFb6AToV+H9HGHbe9h3rcE1PyJ0s=' 'sha256-H+iP1EpVM3HzJDEsG1x49Va0DiZ/OhaaRrjSfZ9XFNc=' 'sha256-KIzMK1E7Az5FxOtRvLuSeFy5ppgKScEOWVr7J/FYCvg=' 'sha256-v7dBn9mMK4XYmVHBrv6DzaNRJ2eZBzcb/eGtKhuk/yc=' 'sha256-m9lxoY0gKu8qb804sptyy5GNt2w4+pbnycF3TS1BJkU=' 'sha256-M8j0DVq0JeBjn8qTrrBFJub18SKLmBlkSH83M6bvnJ8='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-sQGqgKbXDT20IEnMN7IKYmP6SK9X7ZbETDPlavMEXQk=' 'sha256-1VEVXrRtgK+5y+cmggh6iffF6eLrUVinhUOL3AHx5fs=' 'sha256-u0DMXCqHvcb4L+8jDJhjDbPfRdhcRz7k9RPDABRIjiE=' 'sha256-DiEMqnJgkbX6YHKrlaouipklpKyvFunLaaBNBBkEkZw=' 'sha256-6FTbj5AW5yA3sTm3XCH+In+bv3IbpswZKAu8lFI928E=' 'sha256-MV7RxEjOQDc1ifC8BvQpnh+ITAd0sgDxQQZ2ZYT+jr0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -981,7 +981,32 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      classes and outranks any two-class selector. */
   .fm-card{margin-top:22px;border-color:rgba(240,180,98,.35)}
   #bookFreeMonth .fm-offer{color:var(--warm);font-weight:700}
-  #bookFreeMonth .fm-cta{margin-top:14px}
+  /* Inside the scheduler panel since the ad landing audit: a left-set inset
+     above the calendar, so its note does not take the panel's centred
+     .fine2 rule. */
+  #pick-a-time #bookFreeMonth{margin:0 auto 16px;max-width:760px;text-align:left}
+  #pick-a-time #bookFreeMonth .fine2{text-align:left;max-width:none;margin:10px 0 0}
+  /* The offer is the line a visitor came for; the terms under it are read by
+     the ones who want them, so they sit a step smaller and the calendar
+     starts higher on a phone. Ids, because the shared .card p rule outranks
+     any class pair. */
+  #pick-a-time #bookFreeMonthHow,#pick-a-time #bookFreeMonth [data-nv-free-month-note]{font-size:14px;line-height:1.45}
+  #pick-a-time #bookFreeMonth .fm-offer{margin:0}
+  #pick-a-time #bookFreeMonthShort{font-size:14px;line-height:1.45;margin:6px 0 0}
+  #pick-a-time #bookFreeMonth .fm-terms{margin-top:6px}
+  #pick-a-time #bookFreeMonth .fm-terms summary{display:inline-block;cursor:pointer;color:var(--ink-3);
+    font-size:14px;padding:8px 0;min-height:44px;line-height:28px;text-decoration:underline;text-underline-offset:3px}
+  #pick-a-time #bookFreeMonth .fm-terms[open] summary{margin-bottom:4px}
+  @media(max-width:720px){#pick-a-time #bookFreeMonth{padding:16px 18px}}
+  /* The price floor, one line under the offer, in the sub's measure. */
+  #pick-a-time .sched-price{color:var(--ink-2);font-size:var(--fs-card);line-height:var(--lh-snug);
+    max-width:var(--measure-lede);margin:0 auto 16px;text-align:center}
+  /* The folded prefill: one quiet line, opened on purpose. */
+  #pick-a-time .bk-pre{max-width:760px;margin:0 auto 14px;text-align:center}
+  #pick-a-time .bk-pre summary{display:inline-block;cursor:pointer;color:var(--ink-3);
+    font-size:14px;padding:10px 4px;min-height:44px;text-decoration:underline;text-underline-offset:3px}
+  #pick-a-time .bk-pre[open] summary{margin-bottom:8px}
+  #pick-a-time .bk-pre #bkPrefill{text-align:left;margin-bottom:0}
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -1084,31 +1109,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              be published, and the share is named as what it is. -->
         <div class="reveal"><h3>What it costs</h3><p>The plan or the single automation that fits, and its monthly. The published prices are set out before you decide, and on the three Front Desk sizes, The Works or a module bought on its own the monthly is all you pay to start, with overage past the included minutes on the plans that include minutes. The Performance Partnership, offered by invitation, also has a fee to start, set out below, and a share of attributable collected revenue that recurs, at a rate set in its agreement.</p></div>
       </div>
-      <!-- THE FIRST MONTH FREE IS OFFERED HERE, AND ONLY WHILE A PLACE IS OPEN
-           (v7, owner amendments #66 and #67; BOOK-1).
-
-           It is for the first freeMonth.firstClients businesses only, and it
-           is given through this call: after it, an owner or admin reserves a
-           place for the business in the engine, and checkout gives the month
-           only to a business holding one. Buy now never does. Staged v7 typed
-           the offer into this page as a property of every plan, with no cap
-           and nothing that could stop it once the tenth place was taken.
-
-           So this card ships hidden and its offer and note slots EMPTY.
-           free-month.js writes pricing-config.js foundingClient into them and
-           shows the card only while the owner's switch is on and
-           app.nevamis.ca/api/free-month answers that a place is open; no
-           script, a slow or failed answer, or a closed one leaves it hidden.
-           The sentence between the slots says no free-month words of its own
-           (guard 7u reads the slots, a crawler reads the rest), and the plans
-           it names are the ones pricing-config.js gives freeMonths to:
-           tests/v7-booked.spec.js holds the list to the config. -->
-      <div id="bookFreeMonth" class="card fm-card" data-nv-free-month hidden>
-        <p class="fm-offer" data-nv-free-month-offer></p>
-        <p id="bookFreeMonthHow">If a place is still open when we talk, we reserve one for your business on this call. It is for a business new to Nevamis, once per business, on <span id="bookFreeMonthWho">Front Desk Starter, Front Desk Plus, the AI Front Desk, The Works or a module bought on its own</span>. The Performance Partnership is not included.</p>
-        <p class="fine2" data-nv-free-month-note></p>
-        <div class="fm-cta"><a class="btn btn-primary" href="#pick-a-time">Pick a time</a></div>
-      </div>
+      <!-- The first-month-free card used to sit here, 2,600px above the
+           scheduler on a phone. Every ad lands on #pick-a-time, so a visitor
+           promised the free month never saw it: it now sits inside the
+           scheduler panel, above the calendar (ad landing audit, 2026-10-08). -->
     </div>
   </section>
 
@@ -1203,14 +1207,71 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap">
       <div class="reveal panel prose" id="pick-a-time">
         <h2 class="sched-h">Pick a time that works.</h2>
-        <p class="sched-sub">Times show in your timezone (Daren is in Edmonton, Mountain time). You get a calendar invite with a video link.</p>
-        <!-- Optional prefill: rewrites the scheduler URL with Cal.com prefill
-             params. Pure enhancement; the iframe works untouched without JS. -->
-        <div id="bkPrefill" hidden>
-          <input id="bkName" enterkeyhint="next" aria-label="Your name (optional, prefills the booking form)" placeholder="Your name" autocomplete="name">
-          <input id="bkBiz" enterkeyhint="next" aria-label="Business name (optional, prefills the booking form)" placeholder="Business name" autocomplete="organization">
-          <input id="bkEmail" inputmode="email" enterkeyhint="done" aria-label="Email (optional, prefills the booking form)" type="email" placeholder="Email" autocomplete="email">
+        <p class="sched-sub">Fifteen minutes on video with Daren, the founder, in Edmonton. Times show in your timezone.</p>
+        <!-- WHAT THE AD PROMISED, WHERE THE AD LANDS (ad landing audit,
+             2026-10-08). Every Meta ad links to #pick-a-time and says two
+             things: the first businesses get their first month free, and
+             what the cheapest plan costs. Until this change a phone visitor
+             landing here saw neither: the free-month card sat 2,600px above,
+             and the only figure anywhere on this page was the Partnership's
+             fee. So the card moved here, and the floor is said once.
+
+             THE FIRST MONTH FREE IS OFFERED HERE, AND ONLY WHILE A PLACE IS
+             OPEN (v7, owner amendments #66 and #67; BOOK-1). It is for the
+             first freeMonth.firstClients businesses only, and it is given
+             through this call: after it, an owner or admin reserves a place
+             for the business in the engine, and checkout gives the month only
+             to a business holding one. Buy now never does. So this card ships
+             hidden and its offer and note slots EMPTY. free-month.js writes
+             pricing-config.js foundingClient into them and shows the card
+             only while the owner's switch is on and
+             app.nevamis.ca/api/free-month answers that a place is open; no
+             script, a slow or failed answer, or a closed one leaves it hidden.
+             The sentence between the slots says no free-month words of its
+             own (guard 7u reads the slots, a crawler reads the rest), and the
+             plans it names are the ones pricing-config.js gives freeMonths
+             to: tests/v7-booked.spec.js holds the list to the config. It has
+             no button of its own: the calendar it introduces is directly
+             under it.
+             TWO LINES, THEN THE FULL TERMS (owner QC of PR #60, 2026-10-08):
+             the offer, and one line of what it costs you (card at sign-up,
+             nothing charged in the free month, cancel any time). That line
+             is freeMonth.cardRequired, freeMonth.months with
+             freeMonth.overageIncluded, and terms.minimumMonths 0, and
+             tests/v7-booked.spec.js holds it to those fields. Every other
+             sentence, the note slot included, sits whole behind the native
+             Full terms disclosure, so the calendar shows on a phone's first
+             screen. -->
+        <div id="bookFreeMonth" class="card fm-card" data-nv-free-month hidden>
+          <p class="fm-offer" data-nv-free-month-offer></p>
+          <p id="bookFreeMonthShort" class="fm-short">Card at sign-up, nothing charged until your second month, cancel any time from your portal.</p>
+          <details class="fm-terms">
+            <summary>Full terms</summary>
+            <p id="bookFreeMonthHow">If a place is still open when we talk, we reserve one for your business on this call. It is for a business new to Nevamis, once per business, on <span id="bookFreeMonthWho">Front Desk Starter, Front Desk Plus, the AI Front Desk, The Works or a module bought on its own</span>. The Performance Partnership is not included.</p>
+            <p class="fine2" data-nv-free-month-note></p>
+          </details>
         </div>
+        <!-- The floor of the price list, rendered from pricing-config.js by
+             the script under the page (the cheapest self-serve plan and its
+             included minutes), so a price change reaches it with the pricing
+             page. This copy is what a reader without scripts gets, and
+             tests/v7-booked.spec.js holds it equal to the render. -->
+        <p class="sched-price"><span id="bookFrom">Plans start at C$250 a month plus GST/HST (Front Desk Starter, 200 minutes).</span></p>
+        <!-- Optional prefill: rewrites the scheduler URL with Cal.com prefill
+             params. Pure enhancement; the iframe works untouched without JS.
+             Folded away by default (ad landing audit, 2026-10-08): three open
+             fields above the calendar read as a form to fill before booking,
+             pushed the first bookable day off a phone screen, and did nothing
+             at all for a visitor who picked a slot first. Cal.com asks for a
+             name and an email after the slot either way. -->
+        <details id="bkPrefillWrap" class="bk-pre" hidden>
+          <summary>Fill in your name and email first (optional)</summary>
+          <div id="bkPrefill" hidden>
+            <input id="bkName" enterkeyhint="next" aria-label="Your name (optional, prefills the booking form)" placeholder="Your name" autocomplete="name">
+            <input id="bkBiz" enterkeyhint="next" aria-label="Business name (optional, prefills the booking form)" placeholder="Business name" autocomplete="organization">
+            <input id="bkEmail" inputmode="email" enterkeyhint="done" aria-label="Email (optional, prefills the booking form)" type="email" placeholder="Email" autocomplete="email">
+          </div>
+        </details>
         <!-- Inline scheduler (works without JS: plain iframe). The external
              link below stays as the always-available fallback (WEB-138).
 
@@ -1338,6 +1399,18 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   var inv = P.plans.filter(function (p) { return p.selfServe === false && p.launch > 0; })[0];
   var el = document.getElementById("bookPartnership");
   if (el && inv) el.textContent = "The " + inv.name + ", offered by invitation, is " + P.startLine(inv);
+
+  /* THE FLOOR, over the calendar (ad landing audit, 2026-10-08): the
+     cheapest plan a business can start on by itself, found by its flags
+     (self-serve, a monthly, no fee to start), never by name, with its
+     included minutes. Its per-minute rate is on the pricing page. */
+  var from = P.plans.filter(function (p) { return p.selfServe === true && p.monthly > 0 && !(p.launch > 0); })
+    .sort(function (a, b) { return a.monthly - b.monthly; })[0];
+  var fromEl = document.getElementById("bookFrom");
+  if (fromEl && from && from.includedMinutes > 0) {
+    fromEl.textContent = "Plans start at " + P.money(from.monthly) + " a month plus GST/HST (" + from.name
+      + ", " + Number(from.includedMinutes).toLocaleString("en-CA") + " minutes).";
+  }
 })();
 </script>
 <script src="free-month.js" defer></script>
@@ -1356,6 +1429,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var row = document.getElementById("bkPrefill");
     var frame = document.getElementById("bkFrame");
     if (!row || !frame) return;
+    var fold = document.getElementById("bkPrefillWrap");
+    if (fold) fold.hidden = false;
     row.hidden = false;
     var base = "https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1";
     var timer = null;
@@ -1392,6 +1467,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          booking note. Guarded rather than assumed: if site.js has not loaded,
          send no source at all rather than fall back to the raw string. */
       var attrib = typeof window.nvAttributionQuery === "function" ? window.nvAttributionQuery() : "";
+      /* Campaign tags only, never an ad platform's click ID (ad landing
+         audit, 2026-10-08). Every Meta click arrives with fbclid, a value
+         unique to that click, and it was being typed into this note, where
+         it means nothing to Daren and reaches a third party for no use.
+         Filtered from site.js's rebuilt string, so the allowlist stays the
+         one in site.js. */
+      attrib = attrib.split("&").filter(function (kv) { return /^utm_/.test(kv); }).join("&");
       if (attrib) notes.push("Source: " + attrib.slice(0, 200));
       var url = base;
       if (name) url += "&name=" + encodeURIComponent(name);
@@ -1545,6 +1627,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       if (window.__nvBooked) return;      // one booking, one event
       window.__nvBooked = true;
       if (window.nvTrack) window.nvTrack("booking_completed");
+      /* The same booking on the campaign intake (ad landing audit,
+         2026-10-08). booking_completed lands in site_events with the tags as
+         one string; consultation_booked lands in the marketing funnel with
+         utm_source, utm_campaign and utm_content as their own fields, which
+         is what divides ad spend by booked calls per ad. The engine has
+         accepted this name from the web since the funnel was built, and the
+         site never sent it. Campaign tags from the address, no identifier,
+         as privacy.html says. */
+      if (window.nvFunnel) window.nvFunnel("consultation_booked");
 
       /* The page has to stop contradicting the visitor. Cal confirms the
          appointment itself - inside the iframe, then by email and a calendar
