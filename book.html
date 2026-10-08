@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-E1xw6GiYGq684z63QxAkCC51GRMLgRGA051wvUzLmUo=' 'sha256-btJRbFDNhoRds9vKkrXS246TxR/AksF01ie+UKMuH/k=' 'sha256-u0DMXCqHvcb4L+8jDJhjDbPfRdhcRz7k9RPDABRIjiE=' 'sha256-DiEMqnJgkbX6YHKrlaouipklpKyvFunLaaBNBBkEkZw=' 'sha256-6FTbj5AW5yA3sTm3XCH+In+bv3IbpswZKAu8lFI928E=' 'sha256-MV7RxEjOQDc1ifC8BvQpnh+ITAd0sgDxQQZ2ZYT+jr0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-sQGqgKbXDT20IEnMN7IKYmP6SK9X7ZbETDPlavMEXQk=' 'sha256-1VEVXrRtgK+5y+cmggh6iffF6eLrUVinhUOL3AHx5fs=' 'sha256-u0DMXCqHvcb4L+8jDJhjDbPfRdhcRz7k9RPDABRIjiE=' 'sha256-DiEMqnJgkbX6YHKrlaouipklpKyvFunLaaBNBBkEkZw=' 'sha256-6FTbj5AW5yA3sTm3XCH+In+bv3IbpswZKAu8lFI928E=' 'sha256-MV7RxEjOQDc1ifC8BvQpnh+ITAd0sgDxQQZ2ZYT+jr0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -991,6 +991,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      starts higher on a phone. Ids, because the shared .card p rule outranks
      any class pair. */
   #pick-a-time #bookFreeMonthHow,#pick-a-time #bookFreeMonth [data-nv-free-month-note]{font-size:14px;line-height:1.45}
+  #pick-a-time #bookFreeMonth .fm-offer{margin:0}
+  #pick-a-time #bookFreeMonthShort{font-size:14px;line-height:1.45;margin:6px 0 0}
+  #pick-a-time #bookFreeMonth .fm-terms{margin-top:6px}
+  #pick-a-time #bookFreeMonth .fm-terms summary{display:inline-block;cursor:pointer;color:var(--ink-3);
+    font-size:14px;padding:8px 0;min-height:44px;line-height:28px;text-decoration:underline;text-underline-offset:3px}
+  #pick-a-time #bookFreeMonth .fm-terms[open] summary{margin-bottom:4px}
   @media(max-width:720px){#pick-a-time #bookFreeMonth{padding:16px 18px}}
   /* The price floor, one line under the offer, in the sub's measure. */
   #pick-a-time .sched-price{color:var(--ink-2);font-size:var(--fs-card);line-height:var(--lh-snug);
@@ -1226,19 +1232,31 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              plans it names are the ones pricing-config.js gives freeMonths
              to: tests/v7-booked.spec.js holds the list to the config. It has
              no button of its own: the calendar it introduces is directly
-             under it. -->
+             under it.
+             TWO LINES, THEN THE FULL TERMS (owner QC of PR #60, 2026-10-08):
+             the offer, and one line of what it costs you (card at sign-up,
+             nothing charged in the free month, cancel any time). That line
+             is freeMonth.cardRequired, freeMonth.months with
+             freeMonth.overageIncluded, and terms.minimumMonths 0, and
+             tests/v7-booked.spec.js holds it to those fields. Every other
+             sentence, the note slot included, sits whole behind the native
+             Full terms disclosure, so the calendar shows on a phone's first
+             screen. -->
         <div id="bookFreeMonth" class="card fm-card" data-nv-free-month hidden>
           <p class="fm-offer" data-nv-free-month-offer></p>
-          <p id="bookFreeMonthHow">If a place is still open when we talk, we reserve one for your business on this call. It is for a business new to Nevamis, once per business, on <span id="bookFreeMonthWho">Front Desk Starter, Front Desk Plus, the AI Front Desk, The Works or a module bought on its own</span>. The Performance Partnership is not included.</p>
-          <p class="fine2" data-nv-free-month-note></p>
+          <p id="bookFreeMonthShort" class="fm-short">Card at sign-up, nothing charged until your second month, cancel any time from your portal.</p>
+          <details class="fm-terms">
+            <summary>Full terms</summary>
+            <p id="bookFreeMonthHow">If a place is still open when we talk, we reserve one for your business on this call. It is for a business new to Nevamis, once per business, on <span id="bookFreeMonthWho">Front Desk Starter, Front Desk Plus, the AI Front Desk, The Works or a module bought on its own</span>. The Performance Partnership is not included.</p>
+            <p class="fine2" data-nv-free-month-note></p>
+          </details>
         </div>
         <!-- The floor of the price list, rendered from pricing-config.js by
-             the script under the page (the cheapest self-serve plan, its
-             minutes, its rate past them and the term), so a price change
-             reaches it with the pricing page. This copy is what a reader
-             without scripts gets, and tests/v7-booked.spec.js holds it equal
-             to the render. -->
-        <p class="sched-price"><span id="bookFrom">Plans start at C$250 a month plus GST/HST: Front Desk Starter, answering 24/7 with 200 minutes included, then C$1.10 for each extra minute. There is no minimum term.</span></p>
+             the script under the page (the cheapest self-serve plan and its
+             included minutes), so a price change reaches it with the pricing
+             page. This copy is what a reader without scripts gets, and
+             tests/v7-booked.spec.js holds it equal to the render. -->
+        <p class="sched-price"><span id="bookFrom">Plans start at C$250 a month plus GST/HST (Front Desk Starter, 200 minutes).</span></p>
         <!-- Optional prefill: rewrites the scheduler URL with Cal.com prefill
              params. Pure enhancement; the iframe works untouched without JS.
              Folded away by default (ad landing audit, 2026-10-08): three open
@@ -1384,18 +1402,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
   /* THE FLOOR, over the calendar (ad landing audit, 2026-10-08): the
      cheapest plan a business can start on by itself, found by its flags
-     (self-serve, a monthly, no fee to start), never by name. A rate with
-     cents keeps both digits: money() is for whole dollars. The term clause
-     is said only while the config's minimum term is zero. */
+     (self-serve, a monthly, no fee to start), never by name, with its
+     included minutes. Its per-minute rate is on the pricing page. */
   var from = P.plans.filter(function (p) { return p.selfServe === true && p.monthly > 0 && !(p.launch > 0); })
     .sort(function (a, b) { return a.monthly - b.monthly; })[0];
   var fromEl = document.getElementById("bookFrom");
   if (fromEl && from && from.includedMinutes > 0) {
-    var rate = Number.isInteger(from.overage) ? P.money(from.overage) : "C$" + Number(from.overage).toFixed(2);
-    fromEl.textContent = "Plans start at " + P.money(from.monthly) + " a month plus GST/HST: " + from.name
-      + ", answering 24/7 with " + Number(from.includedMinutes).toLocaleString("en-CA") + " minutes included, then "
-      + rate + " for each extra minute."
-      + (P.terms && P.terms.minimumMonths === 0 ? " There is no minimum term." : "");
+    fromEl.textContent = "Plans start at " + P.money(from.monthly) + " a month plus GST/HST (" + from.name
+      + ", " + Number(from.includedMinutes).toLocaleString("en-CA") + " minutes).";
   }
 })();
 </script>

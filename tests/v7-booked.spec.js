@@ -224,6 +224,26 @@ test('BOOK-1: book.html says the place is reserved for the business on this call
   expect(flat(readable(card))).toMatch(/\breserve one for your business on this call\b/);
 });
 
+/* Owner QC of PR #60 (2026-10-08): two lines over the calendar, the rest
+   behind Full terms. The second line is typed, so each of its clauses is held
+   to the config field that makes it true, and the full note stays in the card. */
+test('BOOK-1: the short line under the offer states only what freeMonth and terms say, and the full terms stay in the card', () => {
+  const card = gatedElements(read('book.html'))[0].whole;
+  const short = card.match(/<p id="bookFreeMonthShort"[^>]*>([\s\S]*?)<\/p>/);
+  expect(short, 'book.html keeps #bookFreeMonthShort').toBeTruthy();
+  const line = flat(decode(short[1]));
+  expect(line).toBe('Card at sign-up, nothing charged until your second month, cancel any time from your portal.');
+  expect(P.freeMonth.cardRequired, '"Card at sign-up"').toBe(true);
+  expect(P.freeMonth.months, '"until your second month"').toBe(1);
+  expect(P.freeMonth.overageIncluded, '"nothing charged": overage in the free month is included').toBe(true);
+  expect(P.terms.minimumMonths, '"cancel any time"').toBe(0);
+  expect(P.terms.cancellationNoticeDays, '"cancel any time"').toBe(0);
+  const terms = card.match(/<details class="fm-terms">\s*<summary>Full terms<\/summary>([\s\S]*?)<\/details>/);
+  expect(terms, 'the rest sits behind a native Full terms disclosure').toBeTruthy();
+  expect(terms[1]).toMatch(/data-nv-free-month-note/);
+  expect(terms[1]).toMatch(/id="bookFreeMonthWho"/);
+});
+
 test('BOOK-3: no buyer page says every figure is published, and book.html names the share as recurring, its rate in the agreement', () => {
   const bad = [];
   for (const page of BUYER_PAGES) {
