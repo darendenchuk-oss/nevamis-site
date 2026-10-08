@@ -986,6 +986,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      .fine2 rule. */
   #pick-a-time #bookFreeMonth{margin:0 auto 16px;max-width:760px;text-align:left}
   #pick-a-time #bookFreeMonth .fine2{text-align:left;max-width:none;margin:10px 0 0}
+  /* The offer is the line a visitor came for; the terms under it are read by
+     the ones who want them, so they sit a step smaller and the calendar
+     starts higher on a phone. Ids, because the shared .card p rule outranks
+     any class pair. */
+  #pick-a-time #bookFreeMonthHow,#pick-a-time #bookFreeMonth [data-nv-free-month-note]{font-size:14px;line-height:1.45}
+  @media(max-width:720px){#pick-a-time #bookFreeMonth{padding:16px 18px}}
   /* The price floor, one line under the offer, in the sub's measure. */
   #pick-a-time .sched-price{color:var(--ink-2);font-size:var(--fs-card);line-height:var(--lh-snug);
     max-width:var(--measure-lede);margin:0 auto 16px;text-align:center}
