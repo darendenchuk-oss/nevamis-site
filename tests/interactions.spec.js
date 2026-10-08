@@ -467,6 +467,8 @@ test('the scheduler is never pointed at the SDK-only /embed endpoint', async ({ 
   expect(src, '/embed stays hidden without the embed SDK this page does not load')
     .not.toContain('/embed');
 
+  // Folded behind a summary since the ad landing audit (2026-10-08).
+  await page.locator('#bkPrefillWrap summary').click();
   await page.fill('#bkName', 'Marion Webb');
   await page.dispatchEvent('#bkName', 'change');
   await page.waitForTimeout(600);
@@ -485,6 +487,7 @@ test('filling the prefill fields never reloads a scheduler you have already used
   await expect(frame).toBeVisible();
 
   // Before any interaction, prefill is welcome to rewrite the src.
+  await page.locator('#bkPrefillWrap summary').click();
   await page.fill('#bkName', 'Marion Webb');
   await page.dispatchEvent('#bkName', 'change');
   await page.waitForTimeout(600);

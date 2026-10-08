@@ -474,7 +474,7 @@ test('PROPOSAL-2: ?plan=starter, after-hours and after_hours render the Partners
 
 const SPANS = {
   'how-you-start.html': ['hysTiers', 'hysWorks', 'hysPartnership', 'hysEnterprise'],
-  'book.html': ['bookPartnership'],
+  'book.html': ['bookPartnership', 'bookFrom'],
 };
 for (const [file, ids] of Object.entries(SPANS)) {
   test(`prices: ${file} renders its figures from the config, and its no-script copy is the render`, async ({ browser }) => {
