@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-oz/cH40AKBImYQQhjQ4o1Y1Ni15waevNDPCVxkneHxs=' 'sha256-Jm6D0yt0BZTU6Y9dNszpLeLT782f1Ry411kDKrjoBkA=' 'sha256-RZ2K5z1iHlrJKgRnirmCF9ue72N60yZqzkB5vluv/Ms=' 'sha256-udNYAIjxY0k//AfkfH0NNbhMewSNhgbMezSOFccrkxg='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-9NuL+H6KQEOUQr1Rqb88dvMTMXnVIMG9KybZ2vePaZ8=' 'sha256-OM04jpdsyzr+QKJ0jYHJDB2WG2jNhK9ZrIo0hkp4Ha0=' 'sha256-RZ2K5z1iHlrJKgRnirmCF9ue72N60yZqzkB5vluv/Ms=' 'sha256-udNYAIjxY0k//AfkfH0NNbhMewSNhgbMezSOFccrkxg='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1167,7 +1167,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
               <summary>Full terms</summary>
               <p class="fine2" id="foundingNote" data-nv-free-month-note></p>
             </details>
-            <div class="fm-cta"><a class="btn btn-primary" href="/book.html#pick-a-time" data-evt="pricing_book_call_click">Book a call</a></div>
+            <!-- hero_book_call_click, the name the engine counts as the hero's
+                 Book a call: this is the only one in this page's hero, and
+                 pricing_book_call_click stays the closing CTA's alone, so the
+                 two placements are told apart in the funnel
+                 (tests/analytics.spec.js). -->
+            <div class="fm-cta"><a class="btn btn-primary" href="/book.html#pick-a-time" data-evt="hero_book_call_click">Book a call</a></div>
           </div>
         </div>
         <!-- Two sentences since 2026-09-24 (W6), and the floor first since the
@@ -1706,7 +1711,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      launchPart()'s words, so the note can never undersell the charge. */
   function buyNote(pl) {
     var lp = P.launchPart(pl);
-    return (lp ? "Buy now charges " + lp.replace(/ to start$/, "") + " and your first month the day you start. "
+    return (lp ? "Buy now charges " + lp.replace(/ to start$/, "").replace(/&/g, "&amp;") + " and your first month the day you start. "
       : "Buy now charges your first month the day you start. ") + startNote(pl);
   }
   /* AND BESIDE IT, THE BOOKED-CALL OFFER: the first month free is given on a
@@ -1715,8 +1720,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      hidden with an empty offer slot like every other gated element (guard
      7u), shows only while a place may be open, and says nothing once the
      places are gone. No sentence here says the month is free. */
-  var BUY_FREE_MONTH = '<p class="buy-fm" data-nv-free-month hidden><span data-nv-free-month-offer></span> '
-    + '<a href="/book.html#pick-a-time" data-evt="pricing_book_call_click">Book a call first</a></p>';
+  /* Its link is plan_quote_click_<plan id>, the family the engine already
+     counts for "book a call about this plan" (the Talk to us cards), so the
+     funnel says which plan's card sent the booking, and no name is shared
+     with another placement on the page. */
+  function buyFreeMonth(pl) {
+    return '<p class="buy-fm" data-nv-free-month hidden><span data-nv-free-month-offer></span> '
+      + '<a href="/book.html#pick-a-time" data-evt="plan_quote_click_' + String(pl.id).replace(/[^a-z0-9]+/gi, "_").toLowerCase() + '">Book a call first</a></p>';
+  }
   /* THE THREE FRONT DESK SIZES, SIDE BY SIDE (owner amendment #67,
      2026-10-03): Front Desk Starter, Front Desk Plus and the AI Front Desk
      are one receptionist in three sizes, so they are set as one row under
@@ -1741,9 +1752,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   var open = P.plans.filter(function (pl) { return pl.selfServe !== false && !isSize(pl); })
     .sort(function (a, b) { return a.monthly - b.monthly; });
   var ordered = sizes.filter(function (pl) { return pl.selfServe !== false; }).concat(open, invited);
-  /* A size offered by invitation (none today) still renders, last, rather
-     than vanishing from the list. */
-  sizes.forEach(function (pl) { if (ordered.indexOf(pl) < 0) ordered.push(pl); });
   ordered.forEach(function (pl) {
     if (sizes.length && pl === sizes[0]) {
       var head = document.createElement("div");
@@ -1882,8 +1890,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            on the page still promising the old model, and the buyer read it at
            the exact moment they committed. The note now states the start
            they are agreeing to, from the same terms block as the card. */
-        + '<div class="buy-note">' + buyNote(pl) + "</div>"
-        + BUY_FREE_MONTH + "</div>";
+        + '<div class="buy-note">' + buyNote(pl) + "</div></div>"
+        /* After the .buy block, not inside it: ".buy a" is the card's one
+           buy control to every reader of it (the event rewrite below, the
+           tests), and the booked-call link is not that. */
+        + buyFreeMonth(pl);
     }
     d.innerHTML = h;
     /* Which tier the prospect reached for. All three cards used to emit the
