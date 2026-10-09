@@ -15,7 +15,7 @@
 > of that share is never published or spoken. Each module is its monthly alone:
 > Missed-Call Recovery C$350, the Quote-Chase Engine C$500, Get-Paid Autopilot
 > C$500, the Review Engine C$300. Buy now starts a plan and charges its first
-> month. The first month free is for our first 10 clients, given on a booked
+> month. The first month free is for our first 10 businesses, given on a booked
 > call: one calendar month, the card taken at sign-up and nothing charged until
 > the second month begins, a reminder a week and a day before the first charge,
 > minutes past the allowance not billed during it, once per business, and never
