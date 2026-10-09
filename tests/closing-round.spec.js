@@ -198,15 +198,24 @@ test('BD-F2: at 1024 about, pricing and a trade page show a primary "Book a call
 
 /* ---------- BD-F3: the invitation card's headline ---------- */
 
-test('BD-F3: the first pricing card is headed "By invitation", not a C$ figure, and the card order is unchanged', async ({ page }) => {
+/* The card order changed on 2026-10-09 (funnel audit item 1): the price list
+   renders smallest first and the invitation plan LAST, so a phone visitor
+   reads C$250 before the Partnership's fee. The config's order, the owner's
+   door order on every other page, is untouched. The rule here is unchanged:
+   the invitation card is headed "By invitation", never a C$ figure. */
+test('BD-F3: the invitation card is headed "By invitation", not a C$ figure, and sits last, after the plans anyone can buy, smallest first', async ({ page }) => {
   const P = pricing();
   await page.goto('/pricing.html');
   await page.waitForSelector('#plans .plan');
   const names = await page.$$eval('#plans .plan h3', (hs) => hs.map((h) => h.textContent.trim()));
-  expect(names, 'the card order is the config order (an owner decision)').toEqual(P.plans.map((p) => p.name));
-  const first = P.plans[0];
-  expect(first.selfServe, 'the first card is the invitation plan this rule is about').toBe(false);
-  const biggest = await page.locator('#plans .plan').first().evaluate((card) => {
+  const invited = P.plans.filter((p) => p.selfServe === false);
+  expect(names.slice(-invited.length), 'the invitation plans come last').toEqual(invited.map((p) => p.name));
+  const buyable = names.slice(0, -invited.length).map((n) => P.plans.find((p) => p.name === n));
+  expect(buyable.map((p) => p.monthly), 'the plans anyone can buy, cheapest first').toEqual(buyable.map((p) => p.monthly).sort((a, b) => a - b));
+  const first = invited[0];
+  expect(first.selfServe, 'the card this rule is about is the invitation plan').toBe(false);
+  const inviteCard = page.locator('#plans .plan').filter({ has: page.locator('h3', { hasText: first.name }) });
+  const biggest = await inviteCard.evaluate((card) => {
     let best = null;
     for (const el of card.querySelectorAll('*')) {
       const own = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim();
@@ -218,7 +227,7 @@ test('BD-F3: the first pricing card is headed "By invitation", not a C$ figure, 
   });
   expect(biggest.text, 'the largest type on the card').toBe('By invitation');
   expect(biggest.text).not.toMatch(/C\$/);
-  const t = (await page.locator('#plans .plan').first().innerText()).replace(/\s+/g, ' ');
+  const t = (await inviteCard.innerText()).replace(/\s+/g, ' ');
   const cash = (n) => 'C$' + n.toLocaleString('en-CA');
   /* Re-pointed 2026-10-03 (v7, ported from draft PR #41 and corrected to
      owner amendment #66). The card used to carry the Partnership's monthly
@@ -232,12 +241,19 @@ test('BD-F3: the first pricing card is headed "By invitation", not a C$ figure, 
   expect(t, 'the Partnership states its fee').toContain(cash(first.launch) + ' Launch & Implementation');
   expect(t, 'the card says it is by invitation').toContain(first.inviteNote);
   expect(t, 'no band on the card').not.toMatch(/monthly band| to C\$\d/);
-  const cards = await page.$$eval('#plans .plan', (cs) => cs.map((c) => c.innerText.replace(/\s+/g, ' ')));
+  /* A card never offers the month as a property of the plan. Its one
+     mention is the gated booked-call line under Buy now (.buy-fm), beside
+     "Buy now charges your first month", which free-month.js fills only while
+     a place may be open; tests/free-month-gate.spec.js holds that line. */
+  const cards = await page.$$eval('#plans .plan', (cs) => cs.map((c) => {
+    const x = c.cloneNode(true); x.querySelectorAll('.buy-fm').forEach((e) => e.remove()); return x.textContent.replace(/\s+/g, ' ');
+  }));
   for (const c of cards) expect(c, 'a plan card offers a free month to every buyer').not.toMatch(/free\s+(?:first\s+)?months?|first\s+month\s+(?:is\s+)?free|months?\s+free/i);
   /* The buyable plans keep their monthly as the headline. */
-  for (const [i, pl] of P.plans.entries()) {
+  for (const pl of P.plans) {
     if (pl.selfServe === false) continue;
-    await expect(page.locator('#plans .plan').nth(i).locator('.price')).toContainText(cash(pl.monthly));
+    const card = page.locator('#plans .plan').filter({ has: page.locator('h3', { hasText: new RegExp('^' + pl.name + '$') }) });
+    await expect(card.locator('.price')).toContainText(cash(pl.monthly));
   }
 });
 

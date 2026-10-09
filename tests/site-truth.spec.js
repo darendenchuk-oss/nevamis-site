@@ -65,8 +65,11 @@ test('BD-4 (v7): the rendered Partnership card states its fixed figures, and no 
   expect(partner.monthlyRange, 'the Partnership carries no monthly band since v7').toBeUndefined();
   expect(partner.launchRange, 'the Partnership carries no fee band since v7').toBeUndefined();
   await page.goto('/pricing.html');
-  const card = page.locator('#plans .plan').first();
-  await expect(card.locator('h3')).toHaveText(/Performance Partnership/);
+  /* Found by its name: since the funnel audit (2026-10-09, item 1) the price
+     list renders smallest first and the Partnership, by invitation, last. */
+  const card = page.locator('#plans .plan').filter({ has: page.locator('h3', { hasText: partner.name }) });
+  await expect(card).toHaveCount(1);
+  await expect(page.locator('#plans .plan').last().locator('h3')).toHaveText(partner.name);
   const t = (await card.innerText()).replace(/\s+/g, ' ');
   expect(t).toContain(P.startLine(partner));
   expect(t).not.toMatch(RETIRED_SHAPE);
