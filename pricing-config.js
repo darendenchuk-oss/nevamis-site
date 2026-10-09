@@ -252,17 +252,20 @@
       trigger: "The free month is earned when the business you referred pays their first invoice, and it comes off your next bill.",
       howTo: "Clients get their own link in the portal. Send it yourself: we never email somebody just because you named them."
     },
-    /* THE FIRST MONTH FREE FOR THE FIRST CLIENTS, the one place its words
+    /* THE FIRST MONTH FREE FOR THE FIRST BUSINESSES, the one place its words
        live. `active` is the owner's switch and `spots` must equal
        freeMonth.firstClients. free-month.js shows them only inside an
        element marked data-nv-free-month, which ships hidden, and only after
        app.nevamis.ca/api/free-month answers that a place is open: when the
        places are gone, the engine says so and nothing on the site claims
-       one. No other renderer, build step or machine-read file prints them. */
+       one. No other renderer, build step or machine-read file prints them.
+       The cap is counted in businesses (owner decision #74, 2026-10-08):
+       "our first 10 clients" was heard as clients Nevamis already has, and
+       the engine's canonical firstClientsPhrase() now says businesses too. */
     foundingClient: {
       active: true,
       spots: 10,
-      offer: "First month free for our first 10 clients, given on a booked call.",
+      offer: "First month free for our first 10 businesses, given on a booked call.",
       note: "We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. Buy now starts your plan and charges your first month."
     },
     annual: {
