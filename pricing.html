@@ -1190,6 +1190,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
   <section class="tight">
     <div class="wrap">
+      <!-- The plans' own heading, for the outline a screen reader walks: the
+           plans follow the H1 directly since the funnel audit, and their h3s
+           would otherwise jump a level (tests/quality.spec.js). Visually the
+           sizes heading and the cards already say what this is. -->
+      <h2 class="sr-only">Plans and prices</h2>
       <!-- Static fallback: real HTML so crawlers and failed-config loads still
            see accurate plans. Removed by the renderer only after a successful
            render. Validated against pricing-config.js by check-consistency.
