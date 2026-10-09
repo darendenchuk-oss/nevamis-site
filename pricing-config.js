@@ -261,12 +261,16 @@
        one. No other renderer, build step or machine-read file prints them.
        The cap is counted in businesses (owner decision #74, 2026-10-08):
        "our first 10 clients" was heard as clients Nevamis already has, and
-       the engine's canonical firstClientsPhrase() now says businesses too. */
+       the engine's canonical firstClientsPhrase() now says businesses too.
+       `unconfirmed` follows the offer only when the engine could not answer
+       in time (free-month.js, funnel audit 2026-10-09): it claims no open
+       place, so it is true whatever the count is. */
     foundingClient: {
       active: true,
       spots: 10,
       offer: "First month free for our first 10 businesses, given on a booked call.",
-      note: "We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. Buy now starts your plan and charges your first month."
+      note: "We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. Buy now starts your plan and charges your first month.",
+      unconfirmed: "We confirm on the call whether a place is still open."
     },
     annual: {
       active: false,
