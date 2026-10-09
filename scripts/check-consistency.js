@@ -1723,10 +1723,19 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
        published pricing is back, so the static line a prospect reads with
        scripts blocked states the default plan's monthly. A real quote from
        ?quote= still overrides it at render time. */
+    /* BOTH CASES SINCE THE FUNNEL AUDIT (2026-10-09, item 3): the buyer
+       this document is sent to may hold a first-month-free spot, and
+       checkout then charges nothing until month two. The clause is written
+       out here, as PLAN_TERMS is, and only where the default plan carries a
+       free month; it promises no spot, it says what happens if one has been
+       reserved, and that the portal shows which before anything is paid. */
+    const RESERVED = dflt.freeMonths > 0
+      ? " If a first-month-free spot has been reserved for your business, nothing is charged until your second month; the portal shows which before you pay."
+      : "";
     eq("proposal.html", "planMonthly", flat(textOf(pr, "planMonthly")),
-      cfg.publishedPricing
+      (cfg.publishedPricing
         ? money(dflt.monthly) + "/month, charged the day you start and every month after."
-        : "Your monthly amount is quoted per client, then it is charged the day you start and every month after.");
+        : "Your monthly amount is quoted per client, then it is charged the day you start and every month after.") + RESERVED);
     eq("proposal.html", "planTerms", flat(textOf(pr, "planTerms")), PLAN_TERMS);
     eq("proposal.html", "planName", flat(textOf(pr, "planName")), dflt.name.toUpperCase());
     /* Grouped first, bare second: both are dflt.includedMinutes, and the page

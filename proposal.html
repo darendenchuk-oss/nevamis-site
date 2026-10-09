@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-Qo57JfmIoBBM4giB4AqfEryZdNT9mKuJAaeUgnnu3hg=' 'sha256-YWkrFm1HVpPVhGuEHZ38BRe04VBVcyzPy6vSvw/obPo='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-tuKyZn/3ycw/MNMDii/kvSPrelo6SCsJSecqb1n2neg=' 'sha256-H7/Q2dxr087ABVNkrY5MLPRqoWT0UToqoAHvrs1EF+M=' 'sha256-0wCELb5/eUZx1uLKY65v09Ab500t2iXCGY/JwchHo9U='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1119,7 +1119,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            phone was 0.060 of this page's 0.060 CLS: the whole of it, in one
            shift, on the one document written to close a sale. -->
       <p class="plan-line" id="planIncludes">1,400 included AI minutes per month, about 470 to 700 typical calls. Additional minutes C$0.75 each.</p>
-      <p class="plan-line" id="planMonthly">C$1,000/month, charged the day you start and every month after.</p>
+      <!-- BOTH CASES, BESIDE START NOW (funnel audit item 3, 2026-10-09).
+           This said only "charged the day you start", and the buyer it is
+           sent to after a call may be one of the first businesses whose
+           first month is free. Checkout decides that from the workspace
+           alone: quoteFor() gives the month only when an owner or admin has
+           reserved one of the first-month-free spots for that workspace
+           (heldSeatFor), and /portal/activate says which before Stripe
+           takes anything ("Your first month ... is charged today. No
+           first-month-free spot is reserved for this workspace" or the
+           spot's own sentence, with nothing due today). So the line says both,
+           true for either buyer, and promises no spot: the sentence is
+           conditional, and the portal is where it is settled. Rendered on
+           every item that carries a free month (pricing-config.js
+           freeMonths), never on the Partnership, by reservedClause()
+           below; scripts/check-consistency.js pins this static copy. -->
+      <p class="plan-line" id="planMonthly">C$1,000/month, charged the day you start and every month after. If a first-month-free spot has been reserved for your business, nothing is charged until your second month; the portal shows which before you pay.</p>
       <p class="plan-line" id="planTerms">Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.</p>
       <p class="plan-line" id="planAnnual"></p>
       <ul class="ticks" id="planFeatures">
@@ -1274,6 +1289,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      runs after this script, never asks the engine and never shows it.
      settleFreeMonth() runs on every way out of the render, the failed one
      included. */
+  /* THE OTHER CASE, said beside "charged the day you start" (funnel audit
+     item 3, 2026-10-09; see the note on #planMonthly). Only on an item that
+     carries a free month: the Partnership has none, and saying it there
+     would offer what checkout never gives. */
+  function reservedClause(item) {
+    return item && item.freeMonths > 0 ? " If a first-month-free spot has been reserved for your business, nothing is charged until your second month; the portal shows which before you pay." : "";
+  }
   function dropFreeMonth() {
     var el = document.getElementById("propFreeMonth");
     if (el && el.parentNode) el.parentNode.removeChild(el);
@@ -1494,9 +1516,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       set("planIncludes", "Each automation is its own sale, on its own or beside a plan. This one is set up after a short call, not bought from this page.");
       /* startLine(), the pricing page's own sentence for the item: its
          monthly alone since v7, and its fee first wherever one returns. */
-      set("planMonthly", P.publishedPricing
+      set("planMonthly", (P.publishedPricing
         ? P.startLine(mod).replace(/\.$/, "") + ", charged the day you start and every month after."
-        : "Your price is quoted per client, then it is charged the day you start and every month after.");
+        : "Your price is quoted per client, then it is charged the day you start and every month after.") + reservedClause(mod));
       set("planTerms", termSentence);
       hideFeatures();
       replaceSteps([
@@ -1664,11 +1686,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          are NV_PRICING.monthlyBand's, the part startLine() is built from,
          never typed here: this page is the one that splits the fee and the
          monthly onto two lines, so it cannot use startLine() whole. */
-      set("planMonthly", quoted > 0
+      set("planMonthly", (quoted > 0
         ? money(quoted) + "/month, charged the day you start and every month after."
         : (P.publishedPricing
           ? money(plan.monthly) + "/month" + P.monthlyBand(plan) + ", charged the day you start and every month after."
-          : "Your monthly amount is quoted per client, then it is charged the day you start and every month after."));
+          : "Your monthly amount is quoted per client, then it is charged the day you start and every month after.")) + reservedClause(plan));
       /* The term sentence is termSentence, above, shared with the module
          proposal so the two cannot drift apart. */
       /* NV_PRICING.launchPart, which puts "from" in front of a fee that is

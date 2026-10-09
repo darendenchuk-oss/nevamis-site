@@ -31,7 +31,7 @@
    WHY THE WAIT IS EIGHT SECONDS AND THE UNKNOWN ANSWER IS NOT SILENCE (funnel
    audit item 6, 2026-10-09). On throttled 4G the answer took 3.7 s in one run
    and 9.7 s in another, and the wait was three seconds: an ad that promised
-   the first month free landed on a booking page that never said it. Eight
+   the first month free landed on a booking page that did not show it. Eight
    seconds covers the slow run with the preconnect the pages now carry, and
    the unknown answer still tells the visitor what the ad told them, in words
    that claim no place.
