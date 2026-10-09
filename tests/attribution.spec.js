@@ -110,8 +110,11 @@ test('an untagged visit leaves the scheduler and the new-tab link exactly as aut
 
 test('every link to the booking page lands at the scheduler, tagged or not, and a link with its own anchor keeps it', async ({ page }) => {
   await offlineWithCal(page);
+  /* site.js rewrites the link in the capture phase; the link's own listener
+     then cancels the navigation, so the page stays put to be read again. */
   const click = (sel) => page.evaluate((s) => {
     const a = document.querySelector(s);
+    a.addEventListener('click', (e) => e.preventDefault(), { once: true });
     a.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     return a.getAttribute('href');
   }, sel);
