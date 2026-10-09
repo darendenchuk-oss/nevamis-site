@@ -12,7 +12,7 @@
    every page this leaf owns in a real browser:
 
      knowledge base  every sentence that says the first month is free carries
-                     the cap ("first month free for our first N clients", N
+                     the cap ("first month free for our first N businesses", N
                      from pricing-config.js, the phrase the engine's
                      kb-commercial-block.mts requires), it is offered on the
                      booked call while a spot remains and routed to the
@@ -55,8 +55,11 @@ const P = (() => {
 const N = P.freeMonth.firstClients;
 const TIERS = P.frontDeskTiers();
 /* The engine's own phrase (canonical.ts firstClientsPhrase()), built from the
-   site's mirror of the same number. */
-const CAP_PHRASE = `first month free for our first ${N} clients`;
+   site's mirror of the same number. Counted in businesses since owner
+   decision #74 (2026-10-08); RETIRED_CAP is the wording it replaced, which
+   no agent document may say. */
+const CAP_PHRASE = `first month free for our first ${N} businesses`;
+const RETIRED_CAP = new RegExp(`\\bfirst ${N}\\s+(?:new\\s+)?(?:clients?|customers?)\\b`, 'i');
 /* The sentence test kb-commercial-block.mts and update-demo-kb.mts apply. */
 const SAYS_FREE = /\bfirst month (?:is )?free\b|\bfree first month\b/i;
 /* The engine's FREE_MONTH vocabulary, for the every-client rule. */
@@ -79,6 +82,10 @@ test.describe('demo knowledge base: the first-ten month and the three sizes', ()
     const said = sentences(kb).filter((s) => SAYS_FREE.test(s));
     expect(said.length, 'the knowledge base states the offer at all').toBeGreaterThan(0);
     for (const s of said) expect(s.toLowerCase(), s).toContain(CAP_PHRASE);
+    /* And nowhere in the document the cap counted in clients: the agent
+       repeated that noun back to callers as clients Nevamis already has
+       (owner decision #74). */
+    expect(sentences(kb).filter((s) => RETIRED_CAP.test(s))).toEqual([]);
   });
 
   test('the offer is given on the booked call, while a spot remains, and routed to the strategy call', () => {
@@ -203,7 +210,8 @@ test('client support knowledge: every size at its monthly, and the free month on
     expect(line).toContain(`overage ${money(tier.overage)}/minute`);
   }
   const said = sentences(t).filter((s) => FREE_MONTH.test(s));
-  expect(said.some((s) => /\bbooked call\b/i.test(s) && new RegExp(`\\bfirst ${N} clients\\b`).test(s))).toBe(true);
+  expect(said.some((s) => /\bbooked call\b/i.test(s) && new RegExp(`\\bfirst ${N} businesses\\b`).test(s))).toBe(true);
+  expect(sentences(t).filter((s) => RETIRED_CAP.test(s)), 'the cap counted in clients (owner decision #74)').toEqual([]);
   for (const s of said) if (EVERY_CLIENT.test(s)) expect(s).toMatch(NEGATED);
 });
 

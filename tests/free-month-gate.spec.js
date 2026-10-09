@@ -2,7 +2,7 @@
    THE FIRST MONTH FREE SHOWS ONLY WHILE A PLACE IS OPEN
    (v7, owner amendment #66, 2026-10-03; ENGINE-SPEC section 4, guard 3).
 
-   The first month free is for the first `freeMonth.firstClients` clients,
+   The first month free is for the first `freeMonth.firstClients` businesses,
    given on a booked call. pricing.html says it in one place, #foundingBanner,
    which ships hidden and empty; free-month.js fills it from
    pricing-config.js foundingClient and shows it only when:

@@ -324,7 +324,9 @@ for (const { page: file, id, url } of GATED) {
     await expect(card.locator('[data-nv-free-month-note]')).toHaveText(P.foundingClient.note);
     expect(asked.length, 'free-month.js asked the engine once').toBe(1);
     /* The offer carries the cap and the booked call, from the config. */
-    await expect(card).toContainText(`first ${CAP} clients`);
+    await expect(card).toContainText(`first ${CAP} businesses`);
+    /* Counted in businesses, never clients (owner decision #74). */
+    await expect(card).not.toContainText(`first ${CAP} clients`);
     await expect(card).toContainText('booked call');
     await ctx.close();
   });
