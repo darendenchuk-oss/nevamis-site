@@ -2392,7 +2392,7 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
         const cap = new RegExp(`\\bfirst ${fm.firstClients}\\b`);
         if (!fm.firstClients || !cap.test(row) || !/\bbooked call\b/i.test(row)) {
           err(`PLAYBOOK.md "${plan.name}": the tier row says the first month is free without "first ${fm.firstClients}" and "booked call". `
-            + `It is the first ${fm.firstClients} clients' only, given on a booked call (pricing-config.js freeMonth, foundingClient).`);
+            + `It is the first ${fm.firstClients} businesses' only, given on a booked call (pricing-config.js freeMonth, foundingClient).`);
         }
       }
     }
@@ -3247,7 +3247,11 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
      claim and still let the gated, empty element and the referral through. */
   {
     const MUST_CATCH = [
-      ["an ungated sentence", "<p>First month free for our first 10 clients, given on a booked call.</p>"],
+      ["an ungated sentence", "<p>First month free for our first 10 businesses, given on a booked call.</p>"],
+      /* The same sentence in the noun owner decision #74 retired, kept from
+         before 2026-10-08: ungated, it is caught here whatever its noun; the
+         noun itself is the carrier rule's, below. */
+      ["an ungated sentence in the retired noun", "<p>First month free for our first 10 clients, given on a booked call.</p>"],
       ["a gated element that ships visible", "<div data-nv-free-month><p data-nv-free-month-offer></p></div>"],
       ["a gated element with its words baked in", "<div data-nv-free-month hidden><p data-nv-free-month-offer>First month free.</p></div>"],
       ["a free month after the gated element", "<div data-nv-free-month hidden><div><p data-nv-free-month-offer></p></div></div><p>Your first month is free.</p>"],
@@ -3275,17 +3279,41 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
   else {
     if (fc.spots !== N) err("pricing-config.js foundingClient.spots is " + fc.spots + " and freeMonth.firstClients is " + N + "; they are the same cap, and free-month.js shows nothing while they differ");
     if (typeof fc.active !== "boolean") err("pricing-config.js foundingClient.active must be true or false: it is the owner's switch");
-    const offer = String(fc.offer || ""), note = String(fc.note || "");
-    if (!new RegExp("\\bfirst month free for our first " + N + " clients\\b", "i").test(offer)) {
-      err("pricing-config.js foundingClient.offer must state the cap, \"first month free for our first " + N + " clients\" (built from freeMonth.firstClients), and does not: \"" + offer + "\"");
-    }
-    if (!/\bbooked call\b/i.test(offer)) err("pricing-config.js foundingClient.offer must say it is given on a booked call (owner amendment #66): \"" + offer + "\"");
-    for (const [field, text] of [["offer", offer], ["note", note]]) {
-      for (const [re, what] of [[/\btrials?\b/i, "trial"], [/\bpilots?\b/i, "pilot"], [/\bno (?:credit )?card\b|\bcard (?:is )?not (?:required|needed)\b|\bwithout (?:a |your )?card\b/i, "no card required"],
-        [new RegExp("\\bfirst (?!" + N + "\\b)(?:\\d+|one|two|three|four|five|six|seven|eight|nine|eleven|twelve|fifteen|twenty|fifty|hundred)\\s+(?:new\\s+)?(?:clients?|customers?|businesses)\\b", "i"), "a count other than " + N]]) {
-        if (re.test(text)) err("pricing-config.js foundingClient." + field + " says " + what + ": \"" + text + "\"");
+    /* THE CARRIER'S WORDS. The cap is counted in BUSINESSES (owner decision
+       #74, 2026-10-08): "first month free for our first N businesses", the
+       engine's canonical firstClientsPhrase(). Until that day this required
+       "our first N clients", which the demo receptionist echoed back as
+       clients Nevamis already has, when it has none yet. So the offer must
+       say businesses, and neither the offer nor the note may count the cap
+       in clients or customers, in digits or in words. */
+    const COUNT_WORD = { 10: "ten" }[N];
+    const capCount = "(?:" + N + (COUNT_WORD ? "|" + COUNT_WORD : "") + ")";
+    const carrierProblems = (offer, note) => {
+      const out = [];
+      if (!new RegExp("\\bfirst month free for our first " + N + " businesses\\b", "i").test(offer)) {
+        out.push("foundingClient.offer must state the cap, \"first month free for our first " + N + " businesses\" (built from freeMonth.firstClients; owner decision #74), and does not: \"" + offer + "\"");
       }
+      if (!/\bbooked call\b/i.test(offer)) out.push("foundingClient.offer must say it is given on a booked call (owner amendment #66): \"" + offer + "\"");
+      for (const [field, text] of [["offer", offer], ["note", note]]) {
+        for (const [re, what] of [[/\btrials?\b/i, "trial"], [/\bpilots?\b/i, "pilot"], [/\bno (?:credit )?card\b|\bcard (?:is )?not (?:required|needed)\b|\bwithout (?:a |your )?card\b/i, "no card required"],
+          [new RegExp("\\bfirst (?!" + N + "\\b)(?:\\d+|one|two|three|four|five|six|seven|eight|nine|eleven|twelve|fifteen|twenty|fifty|hundred)\\s+(?:new\\s+)?(?:clients?|customers?|businesses)\\b", "i"), "a count other than " + N],
+          [new RegExp("\\bfirst " + capCount + "\\s+(?:new\\s+)?(?:clients?|customers?)\\b", "i"), "the cap counted in clients, which owner decision #74 retired (it is \"our first " + N + " businesses\")"]]) {
+          if (re.test(text)) out.push("foundingClient." + field + " says " + what + ": \"" + text + "\"");
+        }
+      }
+      return out;
+    };
+    /* Its own examples, as the 7u judge has: the rule must still refuse the
+       wording #74 retired and still pass the wording it chose. */
+    const NOTE = "We take your card when you start and charge nothing until your second month begins.";
+    for (const old of ["First month free for our first " + N + " clients, given on a booked call.",
+      "First month free for our first " + N + " businesses, given on a booked call. It is for our first " + (COUNT_WORD || N) + " clients only."]) {
+      if (!carrierProblems(old, NOTE).some((p) => /retired|must state the cap/.test(p))) err("guard 7u carrier: lets the retired noun through: " + old);
     }
+    const chosen = carrierProblems("First month free for our first " + N + " businesses, given on a booked call.", NOTE);
+    if (chosen.length) err("guard 7u carrier: refuses the wording owner decision #74 chose: " + chosen.join("; "));
+
+    for (const p of carrierProblems(String(fc.offer || ""), String(fc.note || ""))) err("pricing-config.js " + p);
   }
   /* No other config string may say it. */
   const walkStrings = (v, at, out) => {
