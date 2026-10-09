@@ -1022,9 +1022,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   #foundingBanner .fm-cta{margin-top:10px}
   @media(max-width:720px){#foundingBanner{padding:16px 18px}}
   .page-hero .fm-hold + .lede{margin-top:18px}
-  /* The booked-call offer under each Buy now, beside what Buy now charges. */
-  .plan .buy-fm{text-align:center;margin-top:8px;font-size:var(--fs-fine);line-height:var(--lh-snug);color:var(--warm)}
-  .plan .buy-fm a{color:var(--mint);white-space:nowrap}
+  /* The booked-call offer under each Buy now, beside what Buy now charges.
+     The id, because the shared .card p rule's six :not() classes outrank any
+     selector made of classes alone. */
+  #plans .plan .buy-fm{text-align:center;margin:6px 0 0;font-size:var(--fs-fine);line-height:var(--lh-snug);color:var(--warm)}
+  #plans .plan .buy-fm a{color:var(--mint);white-space:nowrap}
   #chooser #leaks{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
   .chooser-out{border-top:1px solid var(--line-soft);padding-top:14px}
   .chooser-out .lbl{font-family:var(--f-mono);font-size:var(--fs-label);
