@@ -499,9 +499,22 @@ test('PRICING-7: rendered with scripts, no buyer page says pilot, trial, free pe
   const page = await ctx.newPage();
   for (const p of PAGES) {
     await page.goto('/' + p);
+    await page.waitForTimeout(300);
     const text = flat(await page.locator('body').innerText());
-    const rules = TRY_IT_PAGES.includes(p) ? [...BANNED_WORDS, /\bfree\b/i] : BANNED_WORDS;
-    for (const re of rules) expect(text, `${p} says ${re}`).not.toMatch(re);
+    for (const re of BANNED_WORDS) expect(text, `${p} says ${re}`).not.toMatch(re);
+    /* "free" on a try-it page: everywhere but the gated offer, which v7
+       (owner amendment #66) puts on how-you-start and free-month.js shows
+       while a place may be open, or with "We confirm on the call whether a
+       place is still open." when the engine cannot answer, as this offline
+       run's 204 makes it (funnel audit item 6). The answer to "can I try
+       it" and the rest of the page still never say it. */
+    if (TRY_IT_PAGES.includes(p)) {
+      const outside = flat(await page.evaluate(() => {
+        document.querySelectorAll('[data-nv-free-month]').forEach((e) => { e.hidden = true; });
+        return document.body.innerText;
+      }));
+      expect(outside, `${p} says "free" outside the gated offer`).not.toMatch(/\bfree\b/i);
+    }
   }
   await ctx.close();
 });
@@ -531,3 +544,49 @@ for (const width of [1440, 390]) {
     await ctx.close();
   });
 }
+
+/* FUNNEL AUDIT ITEM 10 (2026-10-09). A module on its own is not bought from
+   a page: the engine's signup records the request ("we set it up with you
+   under your agreement") and /portal/activate says it is "not bought on
+   this page, and we will be in touch". So no module control may promise a
+   purchase: it says "Request it", in the no-script list and the render. */
+test('item 10: a module sold alone is requested, never started or bought, from the pricing page', async ({ browser }) => {
+  const html = read('pricing.html');
+  const list = html.match(/<ul id="addOnList"[^>]*>([\s\S]*?)<\/ul>/)[1];
+  const labels = [...list.matchAll(/<a\b[^>]*class="addon-start"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => flat(decode(m[1].replace(/<[^>]+>/g, ''))));
+  expect(labels.length).toBeGreaterThan(0);
+  for (const l of labels) expect(l).toBe('Request it ›');
+  const ctx = await browser.newContext();
+  await offline(ctx);
+  const page = await ctx.newPage();
+  await page.goto('/pricing.html');
+  for (const t of await page.locator('#addOnList a.addon-start').allTextContents()) {
+    expect(flat(t)).toBe('Request it ›');
+  }
+  for (const a of await page.locator('#addOnList a.addon-start').evaluateAll((as) => as.map((x) => x.getAttribute('aria-label')))) {
+    expect(a).toMatch(/^Request .+ on its own$/);
+  }
+  expect(flat(await page.locator('#addOnList').locator('xpath=..').innerText())).toContain('nothing is charged until you have agreed to it');
+  await ctx.close();
+});
+
+/* FUNNEL AUDIT ITEM 1: the pricing lede opens with the floor, rendered from
+   the config, and its no-script copy is the render. */
+test('item 1: the pricing lede opens with the floor from the config, and follows a moved price', async ({ browser }) => {
+  const html = read('pricing.html');
+  const fallback = flat(decode(html.match(/<span id="pricingFrom">([\s\S]*?)<\/span>/)[1]));
+  const ctx = await browser.newContext();
+  await offline(ctx);
+  const page = await ctx.newPage();
+  await page.goto('/pricing.html');
+  await expect(page.locator('#pricingFrom')).toHaveText(fallback);
+  const lede = flat(await page.locator('.page-hero .lede').innerText());
+  expect(lede.startsWith(fallback), 'the lede opens with the floor').toBe(true);
+  const ctx2 = await browser.newContext();
+  await offline(ctx2);
+  await withMovedConfig(ctx2, (s) => s.replace(/(id: "front-desk-starter", name: "Front Desk Starter",\s*monthly: )\d+/, '$1275'));
+  const moved = await ctx2.newPage();
+  await moved.goto('/pricing.html');
+  await expect(moved.locator('#pricingFrom')).toHaveText('Plans start at C$275 a month, with Front Desk Starter.');
+  await ctx.close(); await ctx2.close();
+});
