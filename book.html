@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-sQGqgKbXDT20IEnMN7IKYmP6SK9X7ZbETDPlavMEXQk=' 'sha256-1VEVXrRtgK+5y+cmggh6iffF6eLrUVinhUOL3AHx5fs=' 'sha256-u0DMXCqHvcb4L+8jDJhjDbPfRdhcRz7k9RPDABRIjiE=' 'sha256-DiEMqnJgkbX6YHKrlaouipklpKyvFunLaaBNBBkEkZw=' 'sha256-6FTbj5AW5yA3sTm3XCH+In+bv3IbpswZKAu8lFI928E=' 'sha256-MV7RxEjOQDc1ifC8BvQpnh+ITAd0sgDxQQZ2ZYT+jr0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-b4UXIchNugHjcgNxxrqh57Rs3aMMlZygKBwz9k3CdtI=' 'sha256-ATLwZeR9MihxbLDsn3EVdnLfJgC9L2DDYPiN0zRoYW0=' 'sha256-uYb/47LL+tmtIRTmQalibBhP3d+yxPzbPuEBS00zdQQ=' 'sha256-02jUoZw0PKQh33jRTN0BnWK/0eoEXs4Y1TlQPZRQxHg=' 'sha256-CiaZu42QZ8DgcwuI4SCqVofEx4YebkE2oNEoP1dxiZA=' 'sha256-wubUVsaSyBgY/U/r8NH9fWvoj21P30baXl+0Xac/EUQ=' 'sha256-6FTbj5AW5yA3sTm3XCH+In+bv3IbpswZKAu8lFI928E=' 'sha256-MV7RxEjOQDc1ifC8BvQpnh+ITAd0sgDxQQZ2ZYT+jr0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -50,6 +50,24 @@
      Scoping it to wide viewports takes the best column of each. -->
 <link rel="preload" href="assets/fonts/atkinson-hyperlegible-400-latin.woff2" media="(min-width: 900px)" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/atkinson-hyperlegible-700-latin.woff2" media="(min-width: 900px)" as="font" type="font/woff2" crossorigin>
+<!-- THE SCHEDULER AND THE FREE-MONTH ANSWER, CONNECTED EARLY (funnel
+     audit item 6, 2026-10-09). On throttled 4G the first tappable time in the
+     calendar came at about 14.5 s and the free-month line at 3.7 to 9.7 s.
+     Every ad lands on #pick-a-time, so the scheduler frame (cal.com, which
+     loads its booker from app.cal.com) and free-month.js's question to
+     app.nevamis.ca are the first things this page needs, and each paid for
+     its own DNS, TCP and TLS setup only when it was finally asked. These open
+     the connections while the page is still arriving; no request is sent
+     and nothing is loaded until the frame and the script ask. The
+     app.nevamis.ca one carries crossorigin because free-month.js sends a
+     credential-less CORS fetch, which does not share a connection opened
+     without it; the frame's navigation does. -->
+<link rel="preconnect" href="https://cal.com">
+<link rel="preconnect" href="https://app.cal.com">
+<link rel="preconnect" href="https://app.nevamis.ca" crossorigin>
+<!-- With scripts off nothing will ever fill the held space (see
+     data-nv-free-month-hold), so it is held for nothing. -->
+<noscript><style>[data-nv-free-month-hold]{min-height:0!important}</style></noscript>
 <!-- generated:css -->
 <!-- GENERATED. Do not edit: run `node scripts/build-pages.mjs`.
      Source of truth is assets/fonts/fonts.css + assets/motion/site.css, which
@@ -984,7 +1002,16 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   /* Inside the scheduler panel since the ad landing audit: a left-set inset
      above the calendar, so its note does not take the panel's centred
      .fine2 rule. */
-  #pick-a-time #bookFreeMonth{margin:0 auto 16px;max-width:760px;text-align:left}
+  #pick-a-time #bookFreeMonth{margin:0;text-align:left}
+  /* THE HOLD around it (funnel audit item 6): the card's measured open-state
+     height, kept until free-month.js has its answer so a late card pushes
+     no time slot down, and given back on every outcome. Measured with the
+     offer shown: 197px at 375 and 390 wide, 142px from 721 up (where the
+     offer fits one line). The margin lives here, not on the card, so a
+     closed answer leaves no gap the old layout did not have. */
+  #pick-a-time .fm-hold{max-width:760px;margin:0 auto 16px}
+  #pick-a-time .fm-hold[data-nv-free-month-hold]{min-height:197px}
+  @media(min-width:721px){#pick-a-time .fm-hold[data-nv-free-month-hold]{min-height:142px}}
   #pick-a-time #bookFreeMonth .fine2{text-align:left;max-width:none;margin:10px 0 0}
   /* The offer is the line a visitor came for; the terms under it are read by
      the ones who want them, so they sit a step smaller and the calendar
@@ -1007,6 +1034,25 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     font-size:14px;padding:10px 4px;min-height:44px;text-decoration:underline;text-underline-offset:3px}
   #pick-a-time .bk-pre[open] summary{margin-bottom:8px}
   #pick-a-time .bk-pre #bkPrefill{text-align:left;margin-bottom:0}
+  /* The Performance Partnership, by invitation, folded (funnel audit item
+     7): one quiet line in the "No pressure to decide" card, opened on
+     purpose, so its fee no longer sits above the floor price. */
+  .bk-invite{margin-top:12px}
+  .bk-invite summary{display:inline-block;cursor:pointer;color:var(--ink-3);font-size:var(--fs-fine);
+    padding:10px 0;min-height:44px;text-decoration:underline;text-underline-offset:3px}
+  .bk-invite[open] summary{margin-bottom:4px}
+  /* NO EMPTY BAND OVER THE CALENDAR ON A WIDE SCREEN (funnel audit item 13,
+     2026-10-09). Where the frame is 768px or wider (from a 900px viewport),
+     Cal lays the booker out side by side at a FIXED height and centres it
+     in the frame: 490px plus its 80px footer at 1,034px wide, 458px at
+     770px, the same for a six-row month and for the form after a time is
+     picked (measured inside the live frame, 2026-10-09). In the shared
+     1,080px frame that centring left 255px of blank booker page above the
+     calendar. 640px keeps every one of those states whole with about 35px
+     above it. Below 900px Cal stacks the booker into a ~2,400px document
+     the frame scrolls, and the shared height in site.css still applies.
+     tests/scheduler-frame.spec.js holds both heights to these numbers. */
+  @media(min-width:900px){#pick-a-time .nv-cal-frame{height:640px}}
 </style>
 <!-- generated:schema -->
 <script type="application/ld+json">
@@ -1099,15 +1145,22 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <h2>Three things, then you decide.</h2>
       </div>
       <div class="proc">
+        <!-- MISSED CALLS FIRST (funnel audit item 7, 2026-10-09). The ads
+             that land here are about the calls a business misses, and this
+             row opened on Lead Generation, then a cost card with no number,
+             while the only figure above the calendar was the Partnership's
+             fee. So the row leads with what the ad was about, the cost
+             card is one sentence that carries the floor, and Lead
+             Generation, by invitation, comes third. -->
+        <div class="reveal"><h3>The calls you miss</h3><p>The calls that ring out while you are on a job, the quotes that go quiet after, and exactly what Nevamis would handle for you.</p></div>
+        <!-- One sentence, with the floor (BOOK-3 lives on below: no buyer
+             page says every figure is published, and the Partnership's
+             recurring share is named as what it is, in its own disclosure in
+             "No pressure to decide"). #bookCostFrom renders from
+             pricing-config.js like #bookFrom over the calendar, and
+             tests/v7-booked.spec.js holds this copy equal to the render. -->
+        <div class="reveal"><h3>What it costs</h3><p><span id="bookCostFrom">Plans start at C$250 a month</span>, and on the call you see which plan or single automation fits, at its published price.</p></div>
         <div class="reveal"><h3>Who you want more of</h3><p>The kind of customer you would want more of this year. Lead Generation is by invitation, and this call is where it starts.</p></div>
-        <div class="reveal"><h3>What slips past you today</h3><p>The quotes that went quiet and the calls you miss, and exactly what Nevamis would handle for you.</p></div>
-        <!-- v7 (BOOK-3, 2026-10-03). This said "Every figure is published
-             before you decide" on staged v7, and the call this page books is
-             where the Performance Partnership starts, whose share of revenue
-             is a recurring charge at a rate kept in its agreement and never
-             published (engine ADR-015). So the published prices are said to
-             be published, and the share is named as what it is. -->
-        <div class="reveal"><h3>What it costs</h3><p>The plan or the single automation that fits, and its monthly. The published prices are set out before you decide, and on the three Front Desk sizes, The Works or a module bought on its own the monthly is all you pay to start, with overage past the included minutes on the plans that include minutes. The Performance Partnership, offered by invitation, also has a fee to start, set out below, and a share of attributable collected revenue that recurs, at a rate set in its agreement.</p></div>
       </div>
       <!-- The first-month-free card used to sit here, 2,600px above the
            scheduler on a phone. Every ad lands on #pick-a-time, so a visitor
@@ -1143,22 +1196,33 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
                a denial: scripts/lib/claims.mjs still reads "no Launch &
                Implementation fee" as the v6 false denial. And
                Buy now charges the first month (the first month free is given
-               on this call, in the card above, never by Buy now). The
+               on this call, in the card over the calendar, never by Buy now). The
                Partnership's figures render from pricing-config.js startLine()
                over this no-script copy, which tests/v7-booked.spec.js holds
                equal to it. -->
           <p>The prices are published. On the three Front Desk sizes, The Works or a module
             bought on its own you pay the monthly price alone: Buy now starts your plan and
             charges it the day you start and every month after.
-            <span id="bookPartnership">The Performance Partnership, offered by invitation, is C$5,000 Launch &amp; Implementation to start, then C$350 a month, plus an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, set in your agreement before anything is charged.</span>
             Past the start, the only recurring charges are the monthly price of your plan
-            and of any automation you add, any overage past your included minutes and, on
-            the Performance Partnership, the agreed share of
-            attributable collected revenue set in your agreement. There is no minimum term: your plan, and every
+            and of any automation you add, and any overage past your included minutes.
+            There is no minimum term: your plan, and every
             automation whether you buy it on its own or add it later, is month to month
             from the first month, and you end it yourself from your portal at any
             time, with service running to the end of the month you already paid for. If it is not a fit, we will say so rather than sell you
             something.</p>
+          <!-- BY INVITATION, BEHIND ITS OWN DISCLOSURE (funnel audit item 7,
+               2026-10-09). The Partnership's fee sat in this paragraph,
+               above the calendar and above the floor price, on the page every ad lands
+               on: a phone visitor read the invitation-only fee before the
+               price anyone can start on. Its figures still render from
+               pricing-config.js startLine() into #bookPartnership, whole, and
+               its recurring share is still named as what it is (BOOK-3), one
+               tap away for the few it is offered to. -->
+          <details class="bk-invite">
+            <summary>By invitation: the Performance Partnership</summary>
+            <p><span id="bookPartnership">The Performance Partnership, offered by invitation, is C$5,000 Launch &amp; Implementation to start, then C$350 a month, plus an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, set in your agreement before anything is charged.</span>
+              Its share of attributable collected revenue recurs, at a rate set in its agreement, beside the monthly and any overage.</p>
+          </details>
         </div>
       </div>
     </div>
@@ -1242,6 +1306,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              sentence, the note slot included, sits whole behind the native
              Full terms disclosure, so the calendar shows on a phone's first
              screen. -->
+        <!-- THE HOLD (funnel audit item 6, 2026-10-09). On slow 4G this card
+             appeared after 3.7 s in one run and 9.7 s in another, and it
+             pushed the calendar down by its own height while a visitor was
+             reaching for a time. The wrapper keeps the card's measured height
+             (CSS above) until free-month.js has its answer, and free-month.js
+             gives it back on every outcome: shown, closed, switched off or
+             the engine unreachable (when it shows the offer with "We confirm
+             on the call whether a place is still open."). -->
+        <div class="fm-hold" data-nv-free-month-hold>
         <div id="bookFreeMonth" class="card fm-card" data-nv-free-month hidden>
           <p class="fm-offer" data-nv-free-month-offer></p>
           <p id="bookFreeMonthShort" class="fm-short">Card at sign-up, nothing charged until your second month, cancel any time from your portal.</p>
@@ -1250,6 +1323,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             <p id="bookFreeMonthHow">If a place is still open when we talk, we reserve one for your business on this call. It is for a business new to Nevamis, once per business, on <span id="bookFreeMonthWho">Front Desk Starter, Front Desk Plus, the AI Front Desk, The Works or a module bought on its own</span>. The Performance Partnership is not included.</p>
             <p class="fine2" data-nv-free-month-note></p>
           </details>
+        </div>
         </div>
         <!-- The floor of the price list, rendered from pricing-config.js by
              the script under the page (the cheapest self-serve plan and its
@@ -1298,7 +1372,48 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              If Cal.com ever changes the booker's height this needs re-measuring
              because there is no signal that would tell us automatically. -->
         <iframe id="bkFrame" class="nv-cal-frame" src="https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1" title="Book a 15-minute intro call with Daren on the Cal.com scheduler" loading="lazy"></iframe>
-        <p class="fine2">Scheduler not loading, or prefer a full page? <a href="https://cal.com/daren-qvlah4/nevamis-intro" target="_blank" rel="noopener" data-evt="booking_start">Open booking in a new tab</a>.</p>
+        <p class="fine2">Scheduler not loading, or prefer a full page? <a id="bkNewTab" href="https://cal.com/daren-qvlah4/nevamis-intro" target="_blank" rel="noopener" data-evt="booking_start">Open booking in a new tab</a>.</p>
+        <!-- THE CAMPAIGN REACHES THE BOOKING (funnel audit item 12,
+             2026-10-09). The tags reached Cal.com only inside the prefill
+             notes, and only when a visitor opened the optional fold and typed
+             in it, so almost every booking from an ad arrived unattributed;
+             the new-tab link dropped them always. This runs straight after
+             the frame and that link are parsed, before the lazy frame loads,
+             so the first load already carries them and nothing reloads.
+
+             What is passed: the page's utm_ campaign tags only, never an ad
+             platform's click ID (fbclid is unique to one click and means
+             nothing to Cal.com: ad landing audit, 2026-10-08), each as Cal's
+             own UTM field (utm_source=..., which Cal records with the
+             booking) and as booking metadata (metadata[utm_source]=..., which
+             Cal attaches to the booking and its webhooks). KEYS is the utm_
+             part of site.js's NV_ATTRIB_KEYS, written here because site.js
+             loads deferred, after this frame has started loading;
+             scripts/check-consistency.js fails if the two lists part. Each
+             value is read through URLSearchParams and re-encoded, never
+             copied (the attribution boundary in site.js). -->
+        <script>
+        (function () {
+          "use strict";
+          try {
+            var KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
+            var q = new URLSearchParams(location.search), parts = [];
+            for (var i = 0; i < KEYS.length; i++) {
+              var v = q.get(KEYS[i]);
+              if (!v) continue;
+              v = encodeURIComponent(String(v).slice(0, 120));
+              parts.push(KEYS[i] + "=" + v, encodeURIComponent("metadata[" + KEYS[i] + "]") + "=" + v);
+            }
+            if (!parts.length) return;
+            var tail = parts.join("&");
+            window.nvCalTags = tail;
+            var frame = document.getElementById("bkFrame");
+            if (frame) frame.src = frame.getAttribute("src") + "&" + tail;
+            var tab = document.getElementById("bkNewTab");
+            if (tab) tab.href = tab.getAttribute("href") + "?" + tail;
+          } catch (e) { /* the frame books fine untagged */ }
+        })();
+        </script>
         <p class="fine2">Rather talk first? Call <a class="mono" href="tel:+15874130035">(587) 413-0035</a> and ask it to have Daren call you back, or email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
 
         <!-- A calendar is a commitment, and plenty of owners will not pick a
@@ -1411,6 +1526,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     fromEl.textContent = "Plans start at " + P.money(from.monthly) + " a month plus GST/HST (" + from.name
       + ", " + Number(from.includedMinutes).toLocaleString("en-CA") + " minutes).";
   }
+  /* The same floor in the cost card above the calendar (funnel audit item
+     7), the first figure the page shows. */
+  var costEl = document.getElementById("bookCostFrom");
+  if (costEl && from) costEl.textContent = "Plans start at " + P.money(from.monthly) + " a month";
 })();
 </script>
 <script src="free-month.js" defer></script>
@@ -1432,7 +1551,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     var fold = document.getElementById("bkPrefillWrap");
     if (fold) fold.hidden = false;
     row.hidden = false;
-    var base = "https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1";
+    /* The tags the script under the frame put on it stay on every rewrite
+       (funnel audit item 12): a prefill must never strip the campaign. */
+    var base = "https://cal.com/daren-qvlah4/nevamis-intro?hide_landing_page_details=1"
+      + (typeof window.nvCalTags === "string" && window.nvCalTags ? "&" + window.nvCalTags : "");
     var timer = null;
     var tracked = false;
 
@@ -1472,7 +1594,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          unique to that click, and it was being typed into this note, where
          it means nothing to Daren and reaches a third party for no use.
          Filtered from site.js's rebuilt string, so the allowlist stays the
-         one in site.js. */
+         one in site.js. The same tags already ride on the frame's address
+         as Cal's UTM fields and metadata (under the frame); this line puts
+         them where Daren reads them, in the booking's notes, for a visitor
+         who uses the fields. */
       attrib = attrib.split("&").filter(function (kv) { return /^utm_/.test(kv); }).join("&");
       if (attrib) notes.push("Source: " + attrib.slice(0, 200));
       var url = base;

@@ -2789,6 +2789,33 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
 }
 
 /* ============================================================
+   GUARD: the campaign tags book.html hands to Cal.com are the utm_ part of
+   the one allowlist (funnel audit item 12, 2026-10-09).
+
+   book.html writes the page's campaign tags onto the scheduler frame's
+   address before the frame loads, so every booking from an ad carries them.
+   site.js, where NV_ATTRIB_KEYS lives, loads deferred and runs after the
+   frame has started loading, so book.html carries its own short list. A
+   second list is how the funnel intake once lost fbclid, so this holds it to
+   exactly the utm_ members of NV_ATTRIB_KEYS: a click ID (unique to one ad
+   click) never reaches Cal.com, and a utm_ key added to the allowlist cannot
+   be forgotten here.
+   ============================================================ */
+{
+  const siteJs = fs.readFileSync(path.join(root, "site.js"), "utf8");
+  const book = fs.readFileSync(path.join(root, "book.html"), "utf8");
+  const list = (m) => (m ? [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]) : null);
+  const allow = list(siteJs.match(/var NV_ATTRIB_KEYS = \[([^\]]*)\]/));
+  const cal = list(book.match(/var KEYS = \[([^\]]*)\];/));
+  if (!allow) err("site.js: NV_ATTRIB_KEYS not found, so book.html's Cal.com tags cannot be checked against it");
+  else if (!cal) err("book.html: the campaign tags handed to Cal.com (var KEYS = [...]) are not found; every booking from an ad would arrive untagged");
+  else {
+    const want = allow.filter((k) => /^utm_/.test(k));
+    if (cal.join(",") !== want.join(",")) err("book.html: hands Cal.com the tags [" + cal.join(", ") + "], and the utm_ part of site.js NV_ATTRIB_KEYS is [" + want.join(", ") + "]; keep them equal, and never a click ID");
+  }
+}
+
+/* ============================================================
    GUARD: a description may not sell a capability that is not ready.
 
    THE SURFACES NOTHING WAS READING. Every visible sentence on the site was
