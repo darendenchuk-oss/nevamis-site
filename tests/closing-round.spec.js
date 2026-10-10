@@ -244,7 +244,7 @@ test('BD-F3: the invitation card is headed "By invitation", not a C$ figure, and
   /* A card never offers the month as a property of the plan. Its one
      mention is the gated booked-call line under Buy now (.buy-fm), beside
      "Buy now charges your first month", which free-month.js fills only while
-     a place may be open; tests/free-month-gate.spec.js holds that line. */
+     a place is open; tests/free-month-gate.spec.js holds that line. */
   const cards = await page.$$eval('#plans .plan', (cs) => cs.map((c) => {
     const x = c.cloneNode(true); x.querySelectorAll('.buy-fm').forEach((e) => e.remove()); return x.textContent.replace(/\s+/g, ' ');
   }));

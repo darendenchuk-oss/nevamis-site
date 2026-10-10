@@ -3351,29 +3351,6 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
 
     for (const p of carrierProblems(String(fc.offer || ""), String(fc.note || ""))) err("pricing-config.js " + p);
 
-    /* THE UNKNOWN ANSWER (funnel audit item 6, 2026-10-09). When the engine
-       cannot answer in time, free-month.js shows the offer followed by
-       foundingClient.unconfirmed instead of nothing. That sentence is shown
-       when nobody knows whether a place is left, so it must be true at a
-       count of zero: it asks the question ("whether") and sends it to the
-       call, and it never says a place is open, left or available. The
-       carrier's own rules (no trial, no pilot, no other count) hold for it
-       too. */
-    const unconfirmedProblems = (text) => {
-      const out = [];
-      if (!/\bwhether\b/i.test(text) || !/\bcall\b/i.test(text)) out.push("foundingClient.unconfirmed must leave the question open and send it to the call (\"whether ... on the call\"): \"" + text + "\"");
-      if (/\b(?:places?|spots?|seats?)\s+(?:is|are|remains?)\s+(?:still\s+)?(?:open|left|available)\b|\b(?:places?|spots?|seats?)\s+left\b|\bstill\s+(?:has|have)\s+(?:a\s+)?(?:place|spot|seat)\b/i.test(text.replace(/\bwhether\b[^.]*/gi, "")))
-        out.push("foundingClient.unconfirmed says a place is open, which nobody knows when it is shown: \"" + text + "\"");
-      for (const p of carrierProblems("First month free for our first " + N + " businesses, given on a booked call.", text)) out.push(p.replace("foundingClient.note", "foundingClient.unconfirmed"));
-      return out;
-    };
-    for (const bad of ["A place is still open: book now.", "Places left this month.", "Book the call."]) {
-      if (!unconfirmedProblems(bad).length) err("guard 7u unconfirmed: lets a claim of an open place through: " + bad);
-    }
-    const chosenUnconfirmed = unconfirmedProblems("We confirm on the call whether a place is still open.");
-    if (chosenUnconfirmed.length) err("guard 7u unconfirmed: refuses the wording the funnel audit chose: " + chosenUnconfirmed.join("; "));
-    if (typeof fc.unconfirmed !== "string" || !fc.unconfirmed) err("pricing-config.js foundingClient.unconfirmed is missing, so a page the engine cannot answer for says nothing of the offer the ad made");
-    else for (const p of unconfirmedProblems(fc.unconfirmed)) err("pricing-config.js " + p);
   }
   /* No other config string may say it. */
   const walkStrings = (v, at, out) => {
@@ -3424,13 +3401,13 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
       err("free-month.js must ask exactly one address, https://app.nevamis.ca/api/free-month, the engine's public route (v7 ENGINE-SPEC section 4); it names: " + (urls.join(", ") || "none"));
     }
     if (!/\bopen\s*===\s*true\b/.test(src) || !/\bstatus\s*!==\s*200\b/.test(src)) err("free-month.js must show the element only on a 200 with open === true, and fail closed on anything else");
-    /* The unknown answer says the offer only beside foundingClient.unconfirmed
-       (funnel audit item 6): a reveal of the bare offer on a failed request
-       would say "first month free" with nothing to qualify it. */
-    if (!/fc\.offer\s*\+\s*"\s"\s*\+\s*fc\.unconfirmed/.test(src)) err("free-month.js must show the offer on an unknown answer only followed by foundingClient.unconfirmed");
-    /* ...and only in elements that opted in: a gated element with static
-       wording and no offer slot would show it with nothing to qualify it. */
-    if (!/hasAttribute\("data-nv-free-month-unknown"\)/.test(src)) err("free-month.js must show an unknown answer only in elements marked data-nv-free-month-unknown");
+    /* Fail closed on everything but an affirmative answer (owner decision,
+       COMMERCIAL-MODEL: once the places are taken or held, the offer is not
+       said anywhere): the script must never reveal from a timeout or a
+       rejected request. */
+    if (/\.catch\(function[^)]*\)\s*\{[^}]*reveal\(/.test(src) || /setTimeout\(function\s*\(\)\s*\{[^}]*reveal\(/.test(src)) {
+      err("free-month.js reveals the offer from a timeout or a failed request; it must show it only on a 200 with open === true");
+    }
   }
 }
 

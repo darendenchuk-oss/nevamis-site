@@ -499,22 +499,9 @@ test('PRICING-7: rendered with scripts, no buyer page says pilot, trial, free pe
   const page = await ctx.newPage();
   for (const p of PAGES) {
     await page.goto('/' + p);
-    await page.waitForTimeout(300);
     const text = flat(await page.locator('body').innerText());
-    for (const re of BANNED_WORDS) expect(text, `${p} says ${re}`).not.toMatch(re);
-    /* "free" on a try-it page: everywhere but the gated offer, which v7
-       (owner amendment #66) puts on how-you-start and free-month.js shows
-       while a place may be open, or with "We confirm on the call whether a
-       place is still open." when the engine cannot answer, as this offline
-       run's 204 makes it (funnel audit item 6). The answer to "can I try
-       it" and the rest of the page still never say it. */
-    if (TRY_IT_PAGES.includes(p)) {
-      const outside = flat(await page.evaluate(() => {
-        document.querySelectorAll('[data-nv-free-month]').forEach((e) => { e.hidden = true; });
-        return document.body.innerText;
-      }));
-      expect(outside, `${p} says "free" outside the gated offer`).not.toMatch(/\bfree\b/i);
-    }
+    const rules = TRY_IT_PAGES.includes(p) ? [...BANNED_WORDS, /\bfree\b/i] : BANNED_WORDS;
+    for (const re of rules) expect(text, `${p} says ${re}`).not.toMatch(re);
   }
   await ctx.close();
 });

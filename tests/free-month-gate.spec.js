@@ -9,7 +9,9 @@
    pricing-config.js foundingClient. Before it asks, foundingClient.active
    must be true and foundingClient.spots must equal freeMonth.firstClients.
    Then GET https://app.nevamis.ca/api/free-month, waited on for eight
-   seconds, decides one of three outcomes. These tests answer the engine
+   seconds, must answer 200 with {"open": true, "cap": <the same number>};
+   anything else fails closed (owner decision: once the places are taken or
+   held, the offer is not said anywhere). These tests answer the engine
    route themselves, so no run asks production, and they hold:
 
      open      a 200 with {"open": true, "cap": <the same number>}: the banner
@@ -17,17 +19,15 @@
                each Buy now, beside "Buy now charges your first month", a
                line gives the booked-call offer; the structured data says
                nothing about a free month;
-     closed    a 200 the engine meant that is not open (open:false, another
-               cap, open as a string), the owner's switch off, or places that
-               do not equal the cap: hidden, and no visible text on the page
-               says the month is free;
-     unknown   a 503, a 500, a 404, an aborted request, a body that is not
-               JSON, or no answer inside eight seconds: the banner shows the
-               offer only followed by foundingClient.unconfirmed ("We confirm
-               on the call whether a place is still open."), never the bare
-               offer, so the page never claims an open place it cannot see;
+     closed    open:false, a 503, a 500, a 404, an aborted request, a body
+               that is not JSON, no answer inside eight seconds, a different
+               cap, the owner's switch off, or places that do not equal the
+               cap: hidden, and no visible text on the page says the month is
+               free;
      held      the banner's space is held while the answer is on its way, so
-               a late answer moves the plans under it by nothing;
+               a late open answer moves the plans by nothing; how far content
+               moves when the answer is closed is measured, and with the
+               owner's switch off nothing is held, so nothing moves;
      no JS     with scripts off, nothing says it either;
      widths    at 1440 and 390 wide, open and closed, the page does not
                scroll sideways and logs no console error.
@@ -130,10 +130,14 @@ test('open: the banner under the heading shows the config\'s offer and note besi
   await ctx.close();
 });
 
-/* Answers the engine MEANT: a 200 with JSON that is not "open, same cap". */
 const CLOSED = [
   ['the engine says no place is open', json(200, { open: false, cap: CAP })],
+  ['the engine fails (503, as its error path answers)', json(503, { open: false })],
+  ['any status but 200, even with open:true in the body', json(500, { open: true, cap: CAP })],
+  ['the route is missing (404)', (r) => r.fulfill({ status: 404, body: 'not found' })],
+  ['the request is aborted', (r) => r.abort('failed')],
   ['the engine names a different cap', json(200, { open: true, cap: CAP + 10 })],
+  ['the answer is not JSON', (r) => r.fulfill({ status: 200, contentType: 'text/html', headers: { 'access-control-allow-origin': '*' }, body: '<html>open</html>' })],
   ['open is the string "true", not true', json(200, { open: 'true', cap: CAP })],
 ];
 for (const [why, answer] of CLOSED) {
@@ -151,42 +155,7 @@ for (const [why, answer] of CLOSED) {
   });
 }
 
-/* No answer the engine meant (funnel audit item 6, 2026-10-09): the page
-   says the offer the ad made, and in the same breath that the call confirms
-   whether a place is left. Never the bare offer, which would claim a place. */
-const UNKNOWN = [
-  ['the engine fails (503, as its error path answers)', json(503, { open: false })],
-  ['any status but 200, even with open:true in the body', json(500, { open: true, cap: CAP })],
-  ['the route is missing (404)', (r) => r.fulfill({ status: 404, body: 'not found' })],
-  ['the request is aborted', (r) => r.abort('failed')],
-  ['the answer is not JSON', (r) => r.fulfill({ status: 200, contentType: 'text/html', headers: { 'access-control-allow-origin': '*' }, body: '<html>open</html>' })],
-];
-async function expectUnconfirmed(page) {
-  const banner = page.locator('#foundingBanner');
-  await expect(banner).toBeVisible();
-  await expect(page.locator('#foundingOffer')).toHaveText(P.foundingClient.offer + ' ' + P.foundingClient.unconfirmed);
-  /* The words that keep it true at any count: a question for the call. */
-  expect(P.foundingClient.unconfirmed).toMatch(/\bwhether\b/);
-  expect(P.foundingClient.unconfirmed).toMatch(/\bcall\b/);
-  /* Every visible offer on the page carries the qualifier. */
-  for (const t of await page.locator('[data-nv-free-month-offer]').allInnerTexts()) {
-    if (t) expect(t).toContain(P.foundingClient.unconfirmed);
-  }
-}
-for (const [why, answer] of UNKNOWN) {
-  test(`unknown when ${why}: the offer, never without "${P.foundingClient.unconfirmed}"`, async ({ browser }) => {
-    const ctx = await browser.newContext();
-    const asked = await engine(ctx, answer);
-    const page = await ctx.newPage();
-    await page.goto('/pricing.html');
-    await expect.poll(() => asked.length).toBe(1);
-    await settle(page);
-    await expectUnconfirmed(page);
-    await ctx.close();
-  });
-}
-
-test('unknown when the engine answers yes after the eight seconds have run out, and never upgraded by the late answer', async ({ browser }) => {
+test('closed when the engine answers yes after the eight seconds have run out', async ({ browser }) => {
   const ctx = await browser.newContext();
   await engine(ctx, async (r) => {
     await new Promise((res) => setTimeout(res, 9000));
@@ -194,14 +163,13 @@ test('unknown when the engine answers yes after the eight seconds have run out, 
   });
   const page = await ctx.newPage();
   await page.goto('/pricing.html');
-  await page.waitForTimeout(6000);
-  await expect(page.locator('#foundingBanner'), 'still waiting at six seconds').toBeHidden();
-  await page.waitForTimeout(3800);
-  await expectUnconfirmed(page);
+  await page.waitForTimeout(9800);
+  await expect(page.locator('#foundingBanner')).toBeHidden();
+  expect(await visibleFreeMonth(page)).toBeNull();
   await ctx.close();
 });
 
-test('open when the engine answers after five seconds: inside the eight-second wait, the confirmed offer', async ({ browser }) => {
+test('open when the engine answers after five seconds: inside the eight-second wait', async ({ browser }) => {
   const ctx = await browser.newContext();
   await engine(ctx, async (r) => {
     await new Promise((res) => setTimeout(res, 5000));

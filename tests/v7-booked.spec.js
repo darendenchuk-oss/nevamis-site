@@ -16,10 +16,8 @@
      gate      book.html, how-you-start.html and proposal.html say it only in
                one data-nv-free-month card, shipped hidden and empty, filled
                from foundingClient by free-month.js while the engine reports
-               a place open; closed or with scripts off, no visible text says
-               the month is free; when the engine cannot answer, the offer
-               shows only with foundingClient.unconfirmed beside it (funnel
-               audit item 6). pilot.html never says it.
+               a place open; closed, failed or with scripts off, no visible
+               text says the month is free. pilot.html never says it.
      who       the card names the plans the config gives a free month and
                leaves out the one it does not (the Partnership).
      proposal  the card stays only where no Start now sits beside it, so a
@@ -117,11 +115,7 @@ const json = (status, body) => (r) => r.fulfill({
 const OPEN = json(200, { open: true, cap: CAP });
 const CLOSED = [
   ['no place is open', json(200, { open: false, cap: CAP })],
-];
-/* No answer the engine meant: the offer, with the sentence that leaves the
-   question to the call (funnel audit item 6, 2026-10-09). */
-const UNKNOWN = [
-  ['the route is missing (404)', (r) => r.fulfill({ status: 404, body: 'not found' })],
+  ['the route does not exist yet (404)', (r) => r.fulfill({ status: 404, body: 'not found' })],
   ['the request fails', (r) => r.abort('failed')],
 ];
 async function withConfig(ctx, edit) {
@@ -362,21 +356,6 @@ for (const { page: file, id, url } of GATED) {
       await page.waitForTimeout(500);
       await expect(page.locator('#' + id)).toBeHidden();
       expect(await visibleFreeMonth(page)).toBeNull();
-      await ctx.close();
-    });
-  }
-
-  for (const [why, answer] of UNKNOWN) {
-    test(`gate unknown when ${why}: ${file} says the offer only beside "${P.foundingClient.unconfirmed}"`, async ({ browser }) => {
-      const ctx = await browser.newContext();
-      const asked = await engine(ctx, answer);
-      const page = await ctx.newPage();
-      await page.goto(url);
-      await expect.poll(() => asked.length).toBe(1);
-      await page.waitForTimeout(500);
-      const card = page.locator('#' + id);
-      await expect(card).toBeVisible();
-      await expect(card.locator('[data-nv-free-month-offer]')).toHaveText(P.foundingClient.offer + ' ' + P.foundingClient.unconfirmed);
       await ctx.close();
     });
   }

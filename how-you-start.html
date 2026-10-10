@@ -1069,11 +1069,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              business after the call, and Buy now never carries it. This card
              is the only thing on the page that says so. It ships hidden, its
              offer and note slots EMPTY, and free-month.js fills them from
-             pricing-config.js foundingClient: the offer and the note while
-             app.nevamis.ca/api/free-month answers that a place is open, the
-             offer and "We confirm on the call whether a place is still open."
-             when the engine cannot answer, and nothing when it says the
-             places are gone or the owner's switch is off.
+             pricing-config.js foundingClient only while
+             app.nevamis.ca/api/free-month answers that a place is open; an
+             answer that is late, failed or closed, or the owner's switch off,
+             leaves it hidden.
 
              It sat after the questions, and this page opened with "Buy now
              charges your first month" in the lede, so a visitor from an ad
@@ -1090,7 +1089,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              tests/v7-booked.spec.js holds the plans it names to the ones the
              config gives a free month. -->
         <div class="fm-hold" data-nv-free-month-hold>
-          <div id="hysFreeMonth" class="card fm-card" data-nv-free-month data-nv-free-month-unknown hidden>
+          <div id="hysFreeMonth" class="card fm-card" data-nv-free-month hidden>
             <p class="fm-offer" data-nv-free-month-offer></p>
             <details class="fm-terms">
               <summary>How it is given</summary>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-g2izOz8t72Uy+FCVrF1Xtm1+eU8mbkUZgMAUFMUVxjw=' 'sha256-axRS7jc1QYgkVLttG8JPZZTSMbo2FxDOE0J4aPh4zkA=' 'sha256-RZ2K5z1iHlrJKgRnirmCF9ue72N60yZqzkB5vluv/Ms=' 'sha256-udNYAIjxY0k//AfkfH0NNbhMewSNhgbMezSOFccrkxg='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3WUzg74H6NRj93D891W6bq9mn4sk7n678tsaeXT0VYM=' 'sha256-40FEHDGrSkuvDIu3tHbknccaXaN5oPGZiIDnRut6XyE=' 'sha256-RZ2K5z1iHlrJKgRnirmCF9ue72N60yZqzkB5vluv/Ms=' 'sha256-udNYAIjxY0k//AfkfH0NNbhMewSNhgbMezSOFccrkxg='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1133,7 +1133,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              its height until the answer, so nothing below moves. No label:
              "Founding clients" names a different engine arrangement. -->
         <div class="fm-hold" data-nv-free-month-hold>
-          <div id="foundingBanner" class="card fm-card" data-nv-free-month data-nv-free-month-unknown hidden>
+          <div id="foundingBanner" class="card fm-card" data-nv-free-month hidden>
             <p id="foundingOffer" class="fm-offer" data-nv-free-month-offer></p>
             <p class="fm-short">Card at sign-up, nothing charged until your second month, cancel any time from your portal.</p>
             <details class="fm-terms">
@@ -1658,7 +1658,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      data-nv-free-month element (guard 7u), filled by free-month.js. Its link
      sends plan_quote_click_<id>, so the funnel knows which card. */
   function buyFreeMonth(pl) {
-    return '<p class="buy-fm" data-nv-free-month data-nv-free-month-unknown hidden><span data-nv-free-month-offer></span> '
+    return '<p class="buy-fm" data-nv-free-month hidden><span data-nv-free-month-offer></span> '
       + '<a href="/book.html#pick-a-time" data-evt="plan_quote_click_' + String(pl.id).replace(/[^a-z0-9]+/gi, "_").toLowerCase() + '">Book a call first</a></p>';
   }
   /* THE FRONT DESK SIZES, one row under one heading, smallest first (owner
