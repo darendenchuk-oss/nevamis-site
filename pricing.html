@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-9NuL+H6KQEOUQr1Rqb88dvMTMXnVIMG9KybZ2vePaZ8=' 'sha256-OM04jpdsyzr+QKJ0jYHJDB2WG2jNhK9ZrIo0hkp4Ha0=' 'sha256-RZ2K5z1iHlrJKgRnirmCF9ue72N60yZqzkB5vluv/Ms=' 'sha256-udNYAIjxY0k//AfkfH0NNbhMewSNhgbMezSOFccrkxg='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-g2izOz8t72Uy+FCVrF1Xtm1+eU8mbkUZgMAUFMUVxjw=' 'sha256-axRS7jc1QYgkVLttG8JPZZTSMbo2FxDOE0J4aPh4zkA=' 'sha256-RZ2K5z1iHlrJKgRnirmCF9ue72N60yZqzkB5vluv/Ms=' 'sha256-udNYAIjxY0k//AfkfH0NNbhMewSNhgbMezSOFccrkxg='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1002,14 +1002,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
   /* The section blocks between the plans and the CTA. */
   #termsBanner{border-color:var(--line-accent)}
-  /* The first-month-free card under the heading (funnel audit item 1). Warm,
-     as on book.html, because it is the one time-limited thing on the page.
-     Ids, because the shared .card p rule's six :not() classes outrank any
-     two-class selector. The hold keeps its measured height while
-     free-month.js waits for the engine, so the plans below do not jump when
-     it shows: measured in the open state, 228px at 375 and 390 wide and
-     192px from 721 up (tests/free-month-gate.spec.js measures the shift).
-     The engine-unreachable state is a line or two taller, and rarer. */
+  /* The free-month card under the heading (funnel audit item 1); ids beat
+     the shared .card p rule. The hold is its measured open height: 228px to
+     720 wide, 192px above (tests/free-month-gate.spec.js). */
   .page-hero .fm-hold{margin-top:18px;max-width:760px}
   .page-hero .fm-hold[data-nv-free-month-hold]{min-height:228px}
   @media(min-width:721px){.page-hero .fm-hold[data-nv-free-month-hold]{min-height:192px}}
@@ -1022,9 +1017,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   #foundingBanner .fm-cta{margin-top:10px}
   @media(max-width:720px){#foundingBanner{padding:16px 18px}}
   .page-hero .fm-hold + .lede{margin-top:18px}
-  /* The booked-call offer under each Buy now, beside what Buy now charges.
-     The id, because the shared .card p rule's six :not() classes outrank any
-     selector made of classes alone. */
+  /* The booked-call line under each Buy now (an id beats .card p). */
   #plans .plan .buy-fm{text-align:center;margin:6px 0 0;font-size:var(--fs-fine);line-height:var(--lh-snug);color:var(--warm)}
   #plans .plan .buy-fm a{color:var(--mint);white-space:nowrap}
   #chooser #leaks{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
@@ -1134,55 +1127,27 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div>
         <p class="eyebrow mono">Pricing</p>
         <h1>Clear plans. Predictable usage.</h1>
-        <!-- THE FIRST MONTH FREE, DIRECTLY UNDER THE HEADING (funnel audit
-             item 1, 2026-10-09). It sat under the plans, and a phone visitor
-             from an ad that promised it reached it on the seventh screen,
-             after "Buy now charges your first month" and the Partnership's
-             fee.
-
-             It is still the only place on the page that says the offer in
-             full (v7, owner amendment #66): given on a booked call, never by
-             Buy now, and only while a place may be open. It ships hidden and
-             EMPTY: free-month.js writes P.foundingClient's offer and note
-             into it when app.nevamis.ca/api/free-month answers that a place
-             is open, writes the offer and foundingClient.unconfirmed when
-             the engine cannot answer, and leaves it hidden when the engine
-             says the places are gone, the owner's switch is off, or scripts
-             are off. Two lines and a disclosure, as on book.html, so the
-             plans still start on the first phone screen.
-
-             THE HOLD. The wrapper keeps the card's height while the answer is
-             on its way (data-nv-free-month-hold, released by free-month.js on
-             every outcome), so a card that shows late pushes nothing down:
-             the termsBanner note further down records what an empty block
-             that filled late did to this page's CLS. Its label used to read
-             "Founding clients", which is the name of a different arrangement
-             in the engine (a waiver nothing on this site offers), so it has
-             none. -->
+        <!-- The first month free, under the heading (funnel audit item 1,
+             2026-10-09; it was on the seventh phone screen). Gated (v7 #66):
+             ships hidden and empty, filled by free-month.js. The hold keeps
+             its height until the answer, so nothing below moves. No label:
+             "Founding clients" names a different engine arrangement. -->
         <div class="fm-hold" data-nv-free-month-hold>
-          <div id="foundingBanner" class="card fm-card" data-nv-free-month hidden>
+          <div id="foundingBanner" class="card fm-card" data-nv-free-month data-nv-free-month-unknown hidden>
             <p id="foundingOffer" class="fm-offer" data-nv-free-month-offer></p>
             <p class="fm-short">Card at sign-up, nothing charged until your second month, cancel any time from your portal.</p>
             <details class="fm-terms">
               <summary>Full terms</summary>
               <p class="fine2" id="foundingNote" data-nv-free-month-note></p>
             </details>
-            <!-- hero_book_call_click, the name the engine counts as the hero's
-                 Book a call: this is the only one in this page's hero, and
-                 pricing_book_call_click stays the closing CTA's alone, so the
-                 two placements are told apart in the funnel
-                 (tests/analytics.spec.js). -->
+            <!-- hero_book_call_click: the hero's one Book a call, kept apart
+                 from the closing CTA's name (tests/analytics.spec.js). -->
             <div class="fm-cta"><a class="btn btn-primary" href="/book.html#pick-a-time" data-evt="hero_book_call_click">Book a call</a></div>
           </div>
         </div>
-        <!-- Two sentences since 2026-09-24 (W6), and the floor first since the
-             funnel audit (2026-10-09): the floor first appeared on a phone's fifth
-             screen. #pricingFrom is rendered from pricing-config.js (the
-             cheapest self-serve plan, found by its flags) by the plan script
-             below; this copy is what a reader without scripts gets, and
-             tests/live-buyer-truth.spec.js holds it equal to the render.
-             Lead Generation's invitation is said after what the plans differ
-             by, not before it. -->
+        <!-- The floor first (funnel audit item 1). #pricingFrom renders from
+             pricing-config.js; tests/live-buyer-truth.spec.js holds this
+             no-script copy to the render. -->
         <p class="lede"><span id="pricingFrom">Plans start at C$250 a month, with Front Desk Starter.</span> Every plan runs the same front desk and the same client portal; the plans differ in the minutes included, in which automations are included and in how Nevamis is paid. Lead Generation is by invitation, and a short call is where it starts.</p>
       </div>
     </div>
@@ -1190,10 +1155,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
   <section class="tight">
     <div class="wrap">
-      <!-- The plans' own heading, for the outline a screen reader walks: the
-           plans follow the H1 directly since the funnel audit, and their h3s
-           would otherwise jump a level (tests/quality.spec.js). Visually the
-           sizes heading and the cards already say what this is. -->
+      <!-- For the outline: the plans follow the H1 directly, and their h3s
+           would jump a level (tests/quality.spec.js). -->
       <h2 class="sr-only">Plans and prices</h2>
       <!-- Static fallback: real HTML so crawlers and failed-config loads still
            see accurate plans. Removed by the renderer only after a successful
@@ -1205,10 +1168,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            and "then" on the Partnership, the one plan that carries one. No
            card says the first month is free: Buy now charges it, and the
            free month is given on a booked call (#foundingBanner, under the
-           heading). The order is the rendered page's (funnel audit item 1,
-           2026-10-09): the three Front Desk sizes together, smallest first,
-           under the sentence the rendered page heads them with, then The
-           Works, then the Performance Partnership last, by invitation. -->
+           heading). Same order as the render: the sizes smallest first, The
+           Works, then the Partnership last (funnel audit item 1). -->
       <div class="plans" id="plans"><div id="plansFallback">
         <p class="fine2 prose"><strong>The AI Front Desk, in three sizes.</strong> Same receptionist, answers 24/7. The three sizes differ only in the minutes included each month and the rate for each minute past them.</p>
         <div class="card">
@@ -1254,14 +1215,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            here pushed everything below it down 256px 745 ms after first
            paint, which was 0.093 of the page's 0.095 CLS.
 
-           UNDER THE PLANS, NOT OVER THEM (funnel audit items 1 and 9,
-           2026-10-09). It opened the page, headed "Buy now charges your first
-           month", so a visitor from an ad that promised the first month free
-           read that a charge was coming before reading a single price. Every
-           sentence below is still true and still here; the heading now says
-           what the band is, and the charge itself is said where it happens,
-           under each Buy now button, beside the booked-call offer (see
-           buyNote() in the plan script). -->
+           Under the plans since the funnel audit (item 1): it opened the page
+           headed "Buy now charges your first month". The charge is now said
+           under each Buy now, beside the booked-call offer (buyNote()). -->
       <div id="termsBanner" class="card band block-gap">
         <h2>What you pay, and when.</h2>
         <!-- THE ONE PLACE THE TERMS ARE STATED (2026-09-24, W6). The page used
@@ -1326,8 +1282,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div id="chooser" class="card band" hidden>
         <h2>Not sure what you need? Start with what is happening in your business.</h2>
         <p>Tick what is happening in your business. We will put the coverage together and show you what it costs, with nothing hidden underneath it.</p>
-        <!-- data-callbar-yield: the phone call bar steps aside while these
-             tick boxes pass under it (funnel audit item 16; site.js). -->
+        <!-- data-callbar-yield: the call bar steps aside (site.js). -->
         <div id="leaks" data-callbar-yield></div>
         <div id="chooserResult" aria-live="polite"></div>
       </div>
@@ -1373,13 +1328,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            fallback equal to what the script renders, and guard 7h still
            reads its figures, so the two copies cannot part company.
 
-           A REQUEST CONTROL ON EVERY ADD-ON SOLD ALONE (WALK-LIVE-2; labelled
-           "Request it" since the funnel audit, item 10, 2026-10-09: the
-           engine does not sell a module alone from a page. Its signup records
-           the request and says "we set it up with you under your agreement",
-           and /portal/activate says it is "not bought on this page, and we
-           will be in touch", so a "Start" pill promised a purchase that the
-           next page withdrew). The
+           A REQUEST CONTROL ON EVERY ADD-ON SOLD ALONE (WALK-LIVE-2; "Request
+           it" since the funnel audit, item 10: the engine records a module
+           alone as a request set up under an agreement, never a purchase). The
            paragraph says "buy one on its own" and nothing on the site led to
            buying Missed-Call Recovery alone: the chooser sends "People ring
            while I am on a job" to the front desk on purpose (BD-F5, an owner
@@ -1440,19 +1391,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <p class="fine2" id="referralHowTo">Clients get their own link in the portal. Send it yourself: we never email somebody just because you named them.</p>
       </div>
 
-      <!-- This asked four questions until 2026-08-09. Three of them decided
-           the answer on capability: locations or departments, and whether you
-           needed "Booking + CRM/automation connection". Neither is something
-           the plans differ by, and one of them is not something the product
-           does at all, so the tool was routing a buyer to a more expensive
-           plan on the strength of a feature nobody could have delivered.
-           The Works and the AI Front Desk carry the same allowance and differ
-           by automations; the three Front Desk sizes differ by minutes (v7).
-           So this only answers what the minutes cost, and it ranks the
-           self-serve plans only (fix plan A9, 2026-09-19). Since the funnel
-           audit (2026-10-09, item 11) it recommends the lowest total at the
-           estimate, extra minutes included, not the smallest allowance that
-           covers it: see the note on recommend() below. -->
+      <!-- Minutes only: until 2026-08-09 this routed on capabilities the plans
+           do not differ by. Self-serve plans only (A9); the lowest total at
+           the estimate since the funnel audit (item 11), see recommend(). -->
       <div class="card rc reveal" id="recommender">
         <h3>Which plan costs least for your calls?</h3>
         <div class="grid">
@@ -1556,10 +1497,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   if (partnerNoteEl && partnerNote !== null) {
     if (partnerNote) partnerNoteEl.textContent = partnerNote; else partnerNoteEl.hidden = true;
   }
-  /* THE FLOOR, in the lede (funnel audit item 1, 2026-10-09): the cheapest
-     plan a business can start on by itself, found by its flags (self-serve,
-     a monthly, no fee to start), never by name, as book.html finds it. While
-     prices are unpublished it says nothing rather than a stale figure. */
+  /* The floor in the lede: the cheapest self-serve plan with no fee, by its
+     flags, as book.html finds it. Nothing while prices are unpublished. */
   var fromEl = document.getElementById("pricingFrom");
   var floor = P.plans.filter(function (p) { return p.selfServe === true && p.monthly > 0 && !(p.launch > 0); })
     .sort(function (a, b) { return a.monthly - b.monthly; })[0];
@@ -1708,51 +1647,28 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     return "Your first " + months + " months are agreed up front, then month to month, cancelled "
       + cancelClause() + ".";
   }
-  /* WHAT BUY NOW CHARGES, SAID AT THE BUTTON (funnel audit item 1,
-     2026-10-09). "Buy now charges your first month" was the heading that
-     opened this page; it is true, and it belongs here, at the moment of
-     commitment, not over the price list. On a plan with no fee it is month
-     one; a fee (none on a buyable plan today) is named with it, in
-     launchPart()'s words, so the note can never undersell the charge. */
+  /* What Buy now charges, said at the button (funnel audit item 1), with a
+     fee named in launchPart()'s words if a buyable plan ever has one. */
   function buyNote(pl) {
     var lp = P.launchPart(pl);
     return (lp ? "Buy now charges " + lp.replace(/ to start$/, "").replace(/&/g, "&amp;") + " and your first month the day you start. "
       : "Buy now charges your first month the day you start. ") + startNote(pl);
   }
-  /* AND BESIDE IT, THE BOOKED-CALL OFFER: the first month free is given on a
-     booked call, never by Buy now (v7, owner amendment #66). The words are
-     foundingClient's, written in by free-month.js, so this element ships
-     hidden with an empty offer slot like every other gated element (guard
-     7u), shows only while a place may be open, and says nothing once the
-     places are gone. No sentence here says the month is free. */
-  /* Its link is plan_quote_click_<plan id>, the family the engine already
-     counts for "book a call about this plan" (the Talk to us cards), so the
-     funnel says which plan's card sent the booking, and no name is shared
-     with another placement on the page. */
+  /* Beside it, the booked-call offer (v7 #66): gated like every
+     data-nv-free-month element (guard 7u), filled by free-month.js. Its link
+     sends plan_quote_click_<id>, so the funnel knows which card. */
   function buyFreeMonth(pl) {
-    return '<p class="buy-fm" data-nv-free-month hidden><span data-nv-free-month-offer></span> '
+    return '<p class="buy-fm" data-nv-free-month data-nv-free-month-unknown hidden><span data-nv-free-month-offer></span> '
       + '<a href="/book.html#pick-a-time" data-evt="plan_quote_click_' + String(pl.id).replace(/[^a-z0-9]+/gi, "_").toLowerCase() + '">Book a call first</a></p>';
   }
-  /* THE THREE FRONT DESK SIZES, SIDE BY SIDE (owner amendment #67,
-     2026-10-03): Front Desk Starter, Front Desk Plus and the AI Front Desk
-     are one receptionist in three sizes, so they are set as one row under
-     one heading, smallest first, wherever the first of them falls in the
-     config's order. P.frontDeskTiers() says which plans they are; nothing
-     here names one. A config without it (a cached copy older than this page)
-     renders every plan as its own card, as before. */
+  /* THE FRONT DESK SIZES, one row under one heading, smallest first (owner
+     amendment #67); P.frontDeskTiers() names them, and a config without it
+     renders every plan as its own card. Then the other buyable plans by
+     monthly, then the invitation plans LAST (funnel audit item 1). Only this
+     list sorts; the config keeps the owner's door order for other pages. */
   var sizes = typeof P.frontDeskTiers === "function" ? P.frontDeskTiers() : [];
   if (sizes.length < 2) sizes = [];
   function isSize(pl) { return sizes.indexOf(pl) >= 0; }
-  /* SMALLEST FIRST, THE INVITATION LAST (funnel audit item 1, 2026-10-09).
-     This walked P.plans in the config's order, which puts the Performance
-     Partnership first (Lead Generation is door one, an owner decision about
-     what Nevamis leads with). On this page that meant a phone visitor from
-     an ad read the invitation's fee before the floor price, on the fifth
-     screen. The price list now
-     reads the way a buyer compares prices: the Front Desk sizes, smallest
-     first, then every other plan anyone can buy by its monthly, then the
-     plans offered by invitation. The config's order is untouched, so every
-     other page keeps the owner's door order; only this list sorts. */
   var invited = P.plans.filter(function (pl) { return pl.selfServe === false; });
   var open = P.plans.filter(function (pl) { return pl.selfServe !== false && !isSize(pl); })
     .sort(function (a, b) { return a.monthly - b.monthly; });
@@ -1786,16 +1702,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        flipped in both directions inside one calendar day. */
     if (P.publishedPricing) {
       if (pl.selfServe === false) {
-        /* AN INVITATION IS NOT AN ENTRY TIER (BD-F3, 2026-09-26). The
-           Performance Partnership is the first card (Lead Generation is door
-           one, an owner decision), and its headline was a bare monthly in the
-           same 38px type as the plans anyone can buy, the lowest figure on the
-           page, while "never the default" sat at the end of a fourteen-line
-           paragraph. canonical.ts names the hazard: a published cheap monthly
-           is read as the entry tier. So the headline is what the plan IS, the
-           words the homepage already heads it with. Its band sat under it in
-           small type until v7 fixed the Partnership's figures; a band in the
-           config would still be printed here, never typed. */
+        /* AN INVITATION IS NOT AN ENTRY TIER (BD-F3): a bare monthly in the
+           buyable plans' type is read as the entry tier (canonical.ts), so
+           the headline is what the plan IS. A band in the config is printed,
+           never typed. */
         h += '<div class="price price-invite">By invitation</div>';
         if (Array.isArray(pl.monthlyRange)) {
           h += '<div class="price-band">C$' + grp(pl.monthlyRange[0]) + " to C$" + grp(pl.monthlyRange[1]) + " a month</div>";
@@ -1807,24 +1717,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         if (isSize(pl)) h += '<div class="mins">' + grp(pl.includedMinutes) + "<span> minutes a month</span></div>";
         h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
       }
-      /* THE TERM, and it is derived, not typed. This sentence said "No
-         minimum term." from the day the page was written until 2026-08-25,
-         which was true of the old month-to-month model and became false the
-         moment v4 introduced the agreed start. It went on rendering on every
-         card, directly under the price and directly above a Buy button, on a
-         page whose own terms note said "Three-month start" two sections
-         lower: the page contradicted itself, and the half attached to the
-         money was the wrong one. On 2026-09-08 the owner removed the minimum
-         term entirely and this sentence is true again, which is exactly why
-         it is still read from P.terms and not typed back in: the page has now
-         been wrong in BOTH directions, and only the derivation was ever
-         right.
-         SINCE 2026-09-24 THE TERM IS NOT ON THIS LINE AT ALL (W6). It is
-         still derived, and still read from P.terms, but it is stated once in
-         the terms band (#termsNote) and as one short exit under the Buy
-         button (startNote), rather than a third time here on every card.
-         This line now carries only what differs by plan: the two figures,
-         the performance sentence and the invitation status. */
+      /* THE TERM IS NOT ON THIS LINE (W6, 2026-09-24): it is said once in
+         #termsNote and as one exit under Buy now (startNote), both read from
+         P.terms, because a term typed on the card was wrong in both
+         directions (2026-08-25, 2026-09-08). This line carries only what
+         differs by plan. */
       /* P.startLine, not the pair typed here (BD-4, 2026-09-25). Since v7 it
          is "C$X a month" on a plan with no fee, which is what Buy now
          charges, and on the Partnership its whole fixed sentence, the agreed
@@ -1896,9 +1793,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            the exact moment they committed. The note now states the start
            they are agreeing to, from the same terms block as the card. */
         + '<div class="buy-note">' + buyNote(pl) + "</div></div>"
-        /* After the .buy block, not inside it: ".buy a" is the card's one
-           buy control to every reader of it (the event rewrite below, the
-           tests), and the booked-call link is not that. */
+        /* After .buy: ".buy a" stays the card's one buy control. */
         + buyFreeMonth(pl);
     }
     d.innerHTML = h;
@@ -1963,27 +1858,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     entEl.hidden = false;
   }
   /* recommender */
-  /* THE LOWEST TOTAL FOR THE MINUTES ENTERED (funnel audit item 11,
-     2026-10-09). This picked the smallest SELF-SERVE plan whose included
-     minutes cover the estimate, so 150 calls of 2.5 minutes (375 minutes)
-     was told "Front Desk Plus" while the Why line under it worked out that
-     Front Desk Starter with its extra minutes comes to less. A buyer reading
-     both was being sold the dearer plan by the tool
-     that had just shown him the cheaper one. It now recommends whichever
-     self-serve plan costs least in total at that estimate, the monthly plus
-     the extra minutes at the plan's own rate, and says why:
-       - a pick that runs past its minutes names the extra minutes and the
-         total, and the next size up, whose minutes would cover the estimate,
-         with the minutes at which that size becomes the cheaper one;
-       - a pick that is bigger than the smallest plan says what the smaller
-         one would cost with its extra minutes, because that is the case
-         where overage is the reason a bigger plan is cheaper.
-     Ties go to the plan with more included minutes (the same money, more
-     room), then the lower monthly. The invitation-only plan is never ranked
-     (fix plan A9), and a plan carrying the same minutes as the pick (The
-     Works beside the AI Front Desk) is named as a choice about automations.
-     Every figure is derived from P.plans, so a repriced or added plan cannot
-     leave this behind. */
+  /* THE LOWEST TOTAL (funnel audit item 11). It picked the smallest
+     allowance that covers the estimate, and so recommended the dearer plan
+     its own Why line had just priced above a smaller one. It now picks the
+     least monthly plus extra minutes, and says why: the extra minutes and
+     where the next size takes over, or that overage makes a bigger plan
+     cheaper. Ties go to more minutes, then the lower monthly; the
+     invitation plan is never ranked (A9). */
   function money2(n) { return "C$" + n.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function recommend() {
     var vol = parseFloat(document.getElementById("rcVol").value) || 0;

@@ -25,8 +25,12 @@
               the offer, then foundingClient.unconfirmed ("We confirm on the
               call whether a place is still open."). That sentence is true
               whatever the count is, which is the whole test for a default.
-              A cached config without `unconfirmed` keeps the element hidden,
-              as every unknown answer did before (funnel audit, 2026-10-09).
+              Only an element marked data-nv-free-month-unknown is shown on
+              an unknown answer: its offer slot is where that sentence lands.
+              Every other gated element (the homepage's, the trade pages',
+              some with static wording and no slot for it) stays hidden, as
+              every unknown answer did before; so does everything when a
+              cached config has no `unconfirmed` (funnel audit, 2026-10-09).
 
    WHY THE WAIT IS EIGHT SECONDS AND THE UNKNOWN ANSWER IS NOT SILENCE (funnel
    audit item 6, 2026-10-09). On throttled 4G the answer took 3.7 s in one run
@@ -79,8 +83,9 @@
 
   /* `offer` is foundingClient.offer when the engine said a place is open, and
      the offer followed by foundingClient.unconfirmed when it could not say. */
-  function reveal(offer) {
+  function reveal(offer, optedIn) {
     for (var i = 0; i < gated.length; i++) {
+      if (optedIn && !gated[i].hasAttribute("data-nv-free-month-unknown")) continue;
       fill(gated[i], "data-nv-free-month-offer", offer);
       fill(gated[i], "data-nv-free-month-note", fc.note);
       gated[i].hidden = false;
@@ -93,7 +98,7 @@
   function unknown() {
     if (settled) return;
     settled = true;
-    if (typeof fc.unconfirmed === "string" && fc.unconfirmed) reveal(fc.offer + " " + fc.unconfirmed);
+    if (typeof fc.unconfirmed === "string" && fc.unconfirmed) reveal(fc.offer + " " + fc.unconfirmed, true);
     else release();
   }
 

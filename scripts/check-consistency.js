@@ -3428,6 +3428,9 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
        (funnel audit item 6): a reveal of the bare offer on a failed request
        would say "first month free" with nothing to qualify it. */
     if (!/fc\.offer\s*\+\s*"\s"\s*\+\s*fc\.unconfirmed/.test(src)) err("free-month.js must show the offer on an unknown answer only followed by foundingClient.unconfirmed");
+    /* ...and only in elements that opted in: a gated element with static
+       wording and no offer slot would show it with nothing to qualify it. */
+    if (!/hasAttribute\("data-nv-free-month-unknown"\)/.test(src)) err("free-month.js must show an unknown answer only in elements marked data-nv-free-month-unknown");
   }
 }
 
