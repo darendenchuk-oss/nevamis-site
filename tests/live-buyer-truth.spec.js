@@ -557,7 +557,7 @@ test('item 10: a module sold alone is requested, never started or bought, from t
   /* And sends no purchase event, rendered or not. */
   expect(await page.locator('#addOnList a.addon-start[data-evt]').count()).toBe(0);
   expect(list).not.toMatch(/addon-start[^>]*data-evt/);
-  expect(flat(await page.locator('#addOnList').locator('xpath=..').innerText())).toContain('nothing is charged until you have agreed to it');
+  expect(flat(await page.locator('#addOnList').locator('xpath=..').innerText())).toContain('you are charged only once you have agreed to it');
   await ctx.close();
 });
 
