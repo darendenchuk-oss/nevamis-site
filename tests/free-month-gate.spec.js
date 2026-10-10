@@ -182,31 +182,101 @@ test('open when the engine answers after five seconds: inside the eight-second w
   await ctx.close();
 });
 
-/* THE HOLD (funnel audit item 6): while the answer is on its way the
-   banner's space is held, so the plans under it do not move when it shows,
-   and a closed answer gives the space back. */
+/* THE HOLD (funnel audit item 6; PR #62 review, item 2). While the answer
+   is on its way the banner's space is held, so a late OPEN answer moves the
+   plans by nothing. A CLOSED answer gives the space back, and that moves
+   everything under it: measured here, per frame from first paint, not just
+   that the space came back. The hold is written by build-pages.mjs only while
+   foundingClient.active is true, so once the owner switches the offer off,
+   nothing is held and nothing moves; while the switch is on, the only
+   movement a closed answer may cause is the held height itself. */
+/* The element directly under the hold on each page. Its distance from the
+   hold's top edge is what the hold, the card and a closed answer can change;
+   the page's own late layout (a font swap, book.html's prefill fold) moves
+   both together and is not counted. */
+const PAGES_HELD = { '/pricing.html': '.page-hero .lede', '/how-you-start.html': '.page-hero .lede', '/book.html': '#pick-a-time .sched-price' };
+/* That distance on every frame from first paint to three seconds in, and the
+   height the hold kept on the first frame. */
+async function travel(browser, url, sel, { width, answer, config, html }) {
+  const ctx = await browser.newContext({ viewport: { width, height: 900 } });
+  await ctx.route(/cal\.com/, (r) => r.abort());
+  if (config) await ctx.route(/\/pricing-config\.js(?:\?.*)?$/, (r) => r.fulfill({ status: 200, contentType: 'application/javascript', body: config }));
+  if (html) await ctx.route(new RegExp(url.replace('.', '\\.') + '$'), (r) => r.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: html }));
+  await engine(ctx, async (r) => {
+    await new Promise((res) => setTimeout(res, 1500));
+    try { await answer(r); } catch { /* aborted */ }
+  });
+  const page = await ctx.newPage();
+  await page.addInitScript((s) => {
+    window.__ys = []; window.__held = null;
+    const tick = () => {
+      const el = document.querySelector(s), h = document.querySelector('.fm-hold');
+      if (el && h) {
+        if (window.__held === null) window.__held = parseFloat(getComputedStyle(h).minHeight) || 0;
+        window.__ys.push(el.getBoundingClientRect().top - h.getBoundingClientRect().top);
+      }
+      if (window.__ys.length < 400) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, sel);
+  await page.goto(url);
+  await page.waitForTimeout(3000);
+  const ys = await page.evaluate(() => window.__ys);
+  const held = await page.evaluate(() => window.__held || 0);
+  await ctx.close();
+  return { moved: Math.round(ys[ys.length - 1] - ys[0]), most: Math.round(Math.max(...ys) - Math.min(...ys)), held };
+}
+
 for (const width of [390, 1440]) {
-  test(`held at ${width} wide: a late open answer moves the plans by nothing, a closed one gives the space back`, async ({ browser }) => {
-    for (const open of [true, false]) {
-      const ctx = await browser.newContext({ viewport: { width, height: 900 } });
-      await engine(ctx, async (r) => {
-        await new Promise((res) => setTimeout(res, 1500));
-        try { await json(200, { open, cap: CAP })(r); } catch { /* aborted */ }
-      });
-      const page = await ctx.newPage();
-      await page.goto('/pricing.html');
-      await page.waitForTimeout(300);
-      const before = await page.evaluate(() => document.querySelector('#plans').getBoundingClientRect().top + scrollY);
-      await expect(page.locator('[data-nv-free-month-hold]')).toHaveCount(1);
-      await page.waitForTimeout(2000);
-      await expect(page.locator('[data-nv-free-month-hold]'), 'the hold is released').toHaveCount(0);
-      const after = await page.evaluate(() => document.querySelector('#plans').getBoundingClientRect().top + scrollY);
-      if (open) expect(Math.abs(after - before), `the plans moved ${after - before}px when the banner showed`).toBeLessThanOrEqual(2);
-      else expect(after, 'a closed answer gives the held space back').toBeLessThan(before - 100);
-      await ctx.close();
+  test(`held at ${width} wide: a late open answer moves what is under the card by nothing`, async ({ browser }) => {
+    for (const [url, sel] of Object.entries(PAGES_HELD)) {
+      const r = await travel(browser, url, sel, { width, answer: json(200, { open: true, cap: CAP }) });
+      expect(Math.abs(r.most), `${url}: moved ${r.most}px when the card showed`).toBeLessThanOrEqual(2);
+    }
+  });
+
+  test(`closed at ${width} wide with the owner's switch off: nothing is held, and nothing under the card moves`, async ({ browser }) => {
+    const config = read('pricing-config.js').replace(/(foundingClient:\s*\{\s*active:\s*)true/, '$1false');
+    const { applyFreeMonthHold } = await import('../scripts/lib/free-month-hold.mjs');
+    for (const [url, sel] of Object.entries(PAGES_HELD)) {
+      /* The page as build-pages.mjs writes it with the switch off. */
+      const html = applyFreeMonthHold(read(url.slice(1)), false);
+      expect(html, `${url}: built with the switch off, it carries no hold`).not.toMatch(/data-nv-free-month-hold>/);
+      const r = await travel(browser, url, sel, { width, answer: json(200, { open: false, cap: CAP }), config, html });
+      expect(r.held, `${url}: no space held`).toBe(0);
+      expect(Math.abs(r.most), `${url}: content under the card moved ${r.most}px`).toBeLessThanOrEqual(2);
+    }
+  });
+
+  test(`closed at ${width} wide with the switch on: content moves by the held height and its margin, and by nothing else`, async ({ browser }) => {
+    const config = read('pricing-config.js').replace(/(foundingClient:\s*\{\s*active:\s*)true/, '$1false');
+    const { applyFreeMonthHold } = await import('../scripts/lib/free-month-hold.mjs');
+    for (const [url, sel] of Object.entries(PAGES_HELD)) {
+      const on = await travel(browser, url, sel, { width, answer: json(200, { open: false, cap: CAP }) });
+      const off = await travel(browser, url, sel, { width, answer: json(200, { open: false, cap: CAP }), config, html: applyFreeMonthHold(read(url.slice(1)), false) });
+      expect(on.held, `${url}: the card's space is held while the switch is on`).toBeGreaterThan(0);
+      /* What the closed answer adds to the page's own late layout: the hold
+         coming down, plus the wrapper's margin collapsing once it is empty
+         (18px in the heroes, 16px over the calendar). Nothing more. */
+      const extra = off.moved - on.moved;
+      console.log(`closed, switch on, ${width}: ${url} content under the card moved ${on.moved}px (switch off: ${off.moved}px), hold ${on.held}px`);
+      expect(extra, `${url}: a closed answer moved content up ${extra}px beyond the page's own layout, against a ${on.held}px hold`).toBeGreaterThanOrEqual(on.held - 2);
+      expect(extra, `${url}: a closed answer moved content up ${extra}px beyond the page's own layout, against a ${on.held}px hold`).toBeLessThanOrEqual(on.held + 20);
     }
   });
 }
+
+/* The hold in the committed pages follows the switch: build-pages.mjs writes
+   it only while foundingClient.active is true, and a page carries it then. */
+test('the committed pages carry the hold exactly when the owner\'s switch is on', async () => {
+  const { applyFreeMonthHold, freeMonthActive } = await import('../scripts/lib/free-month-hold.mjs');
+  const active = freeMonthActive(P);
+  for (const url of Object.keys(PAGES_HELD)) {
+    const html = read(url.slice(1));
+    expect(applyFreeMonthHold(html, active), `${url} is not what build-pages.mjs writes for active=${active}`).toBe(html);
+    expect(/data-nv-free-month-hold>/.test(html), `${url}: hold present = switch on`).toBe(active);
+  }
+});
 
 /* The owner's switch and the cap are read before anything is asked: with
    either wrong, the engine is never even asked, so it cannot answer yes. */
