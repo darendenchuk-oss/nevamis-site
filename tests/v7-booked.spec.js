@@ -252,26 +252,41 @@ test('BOOK-3: no buyer page says every figure is published, and book.html names 
     if (m) bad.push(`${page}: "${text.slice(Math.max(0, m.index - 60), m.index + 80)}"`);
   }
   expect(bad, bad.join('\n')).toEqual([]);
-  const costs = read('book.html').match(/<h3>What it costs<\/h3><p>([\s\S]*?)<\/p>/);
-  expect(costs, 'book.html keeps its What it costs card').toBeTruthy();
-  const sentence = flat(decode(costs[1])).split(/(?<=\.)\s+/).find((s) => /\bPartnership\b/.test(s));
-  expect(sentence, 'the card names the Partnership').toBeTruthy();
-  expect(sentence).toMatch(/\bshare\b/);
-  expect(sentence).toMatch(/\brecur/);
+  /* The Partnership's share, named as what it is, now in its own "By
+     invitation" disclosure (funnel audit item 7). */
+  const invite = read('book.html').match(/<details class="bk-invite">([\s\S]*?)<\/details>/);
+  expect(invite, 'book.html keeps the Partnership behind its By invitation disclosure').toBeTruthy();
+  const sentence = flat(decode(readable(invite[1]))).split(/(?<=\.)\s+/).find((s) => /\bshare\b/.test(s) && /\brecur/.test(s));
+  expect(sentence, 'the disclosure names the recurring share').toBeTruthy();
   expect(sentence).toMatch(/\bset in its agreement\b/);
   expect(sentence, 'never a rate').not.toMatch(/\d+(?:\.\d+)?\s*(?:%|per ?cent)/i);
 });
 
-test('BOOK-3: book.html never calls the monthly the whole price beside overage, and puts overage only on the plans with minutes', () => {
-  const costs = read('book.html').match(/<h3>What it costs<\/h3><p>([\s\S]*?)<\/p>/);
+/* FUNNEL AUDIT ITEM 7 (2026-10-09): above the calendar, book.html leads with
+   missed calls, its cost card is one sentence that carries the floor, and
+   the Partnership's fee is behind a disclosure, so no figure on the page
+   reads above the floor. */
+test('item 7: book.html leads with missed calls, the cost card is one sentence with the floor, and the invitation\'s fee is folded', () => {
+  const html = read('book.html');
+  const rowAt = html.indexOf('<h2>Three things, then you decide.</h2>');
+  expect(rowAt, 'the "Three things" row is where it was').toBeGreaterThan(-1);
+  const row = html.slice(rowAt, html.indexOf('</section>', rowAt));
+  const heads = [...row.matchAll(/<h3>([^<]+)<\/h3>/g)].map((m) => m[1]);
+  expect(heads[0], 'the row leads with missed calls').toMatch(/\bcalls you miss\b/i);
+  expect(heads.indexOf('Who you want more of'), 'Lead Generation is not first').toBeGreaterThan(0);
+  const costs = html.match(/<h3>What it costs<\/h3><p>([\s\S]*?)<\/p>/);
   expect(costs, 'book.html keeps its What it costs card').toBeTruthy();
-  const sentence = flat(decode(costs[1])).split(/(?<=\.)\s+/).find((s) => /\bmodule bought on its own\b/.test(s));
-  expect(sentence, 'the card names a module bought on its own').toBeTruthy();
-  expect(sentence, 'a monthly with overage is not the whole price').not.toMatch(/\bwhole price\b/);
-  expect(sentence).toMatch(/\ball you pay to start\b/);
-  /* A module bought on its own has no included minutes, so the overage is
-     said of the plans that carry them, not of every item in the list. */
-  expect(sentence).toMatch(/\boverage past the included minutes on the plans that include minutes\b/);
+  const text = flat(decode(readable(costs[1])));
+  expect(text.split(/(?<=\.)\s+/).filter(Boolean), 'one sentence').toHaveLength(1);
+  expect(costs[1]).toMatch(/<span id="bookCostFrom">Plans start at C\$[\d,]+ a month, /);
+  expect(text, 'the cost card names no invitation and no fee').not.toMatch(/Partnership|Launch & Implementation/);
+  /* No figure on the page, before the scheduler, sits outside a disclosure
+     and above the floor. */
+  const before = readable(html.slice(0, html.indexOf('id="pick-a-time"')).replace(/<details class="bk-invite">[\s\S]*?<\/details>/, ' '));
+  const figures = [...before.matchAll(/C\$\s?([\d,]+)/g)].map((m) => Number(m[1].replace(/,/g, '')));
+  const floor = Math.min(...P.plans.filter((p) => p.selfServe === true && p.monthly > 0 && !(p.launch > 0)).map((p) => p.monthly));
+  expect(figures.length, 'the floor is above the calendar').toBeGreaterThan(0);
+  for (const n of figures) expect(n, 'no figure above the calendar but the floor').toBe(floor);
 });
 
 test('analytics: the free-month card on how-you-start books under a name of its own on that page, never the hero\'s', () => {
@@ -444,7 +459,10 @@ test('PROPOSAL-1: a module proposal states its monthly alone and, printed, never
   const qc = P.addOns.find((a) => a.id === 'quote_chase');
   await page.goto('/proposal.html?plan=quote_chase');
   await expect(page.locator('#planName')).toHaveText(qc.name.toUpperCase());
-  await expect(page.locator('#planMonthly')).toHaveText(P.startLine(qc).replace(/\.$/, '') + ', charged the day you start and every month after.');
+  /* Both cases (funnel audit item 3): a module carries a free month, so the
+     line says what a reserved spot changes, and promises no spot. */
+  await expect(page.locator('#planMonthly')).toHaveText(P.startLine(qc).replace(/\.$/, '') + ', charged the day you start and every month after.'
+    + ' If a first-month-free spot has been reserved for your business, nothing is charged until your second month; the portal shows which before you pay.');
   await expect(page.locator('#planMonthly')).not.toContainText('Launch & Implementation');
   await expect(page.locator('#propFreeMonth')).toBeVisible();
   await page.emulateMedia({ media: 'print' });
@@ -496,7 +514,7 @@ test('PROPOSAL-2: ?plan=starter, after-hours and after_hours render the Partners
 
 const SPANS = {
   'how-you-start.html': ['hysTiers', 'hysWorks', 'hysPartnership', 'hysEnterprise'],
-  'book.html': ['bookPartnership', 'bookFrom'],
+  'book.html': ['bookPartnership', 'bookFrom', 'bookCostFrom'],
 };
 for (const [file, ids] of Object.entries(SPANS)) {
   test(`prices: ${file} renders its figures from the config, and its no-script copy is the render`, async ({ browser }) => {
@@ -516,6 +534,20 @@ for (const [file, ids] of Object.entries(SPANS)) {
     await ctx.close();
   });
 }
+
+/* PR #62 review, item 4: with prices unpublished, book.html leaves no typed
+   floor figure on the page, as pricing.html does with its lede. */
+test('prices: with pricing unpublished, book.html carries no floor figure', async ({ browser }) => {
+  const ctx = await browser.newContext();
+  await engine(ctx, json(200, { open: false, cap: CAP }));
+  await withConfig(ctx, (s) => s.replace(/publishedPricing: true/, 'publishedPricing: false'));
+  const page = await ctx.newPage();
+  await page.goto('/book.html');
+  await expect(page.locator('#bookFrom')).toHaveText('');
+  await expect(page.locator('#bookCostFrom')).not.toContainText('C$');
+  await expect(page.locator('#bookCostFrom')).toContainText('On the call you see which plan or single automation fits');
+  await ctx.close();
+});
 
 test('prices: a moved Front Desk Plus price, rate and Partnership fee reach how-you-start and book', async ({ browser }) => {
   const ctx = await browser.newContext();

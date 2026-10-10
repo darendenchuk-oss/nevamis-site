@@ -1655,6 +1655,27 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     const ptNote = typeof cfg.partnerNote === "function" ? cfg.partnerNote() : null;
     if (ptNote === null) err("pricing-config.js: partnerNote() is missing, so #partnerNote on pricing.html has nothing to render");
     else if (ptNote) eq("pricing.html", "partnerNote", flat(textOf(ph, "partnerNote")), ptNote);
+    /* THE FLOOR LINES (PR #62 review, item 4). pricing.html's lede and
+       book.html's cost card and calendar line carry the cheapest self-serve
+       plan's figure as no-script copy, rendered over from the config at load.
+       A typed figure nothing compares is how a price drifts, so each static
+       copy is held to the sentence its page renders; with prices unpublished
+       none may carry a figure (the pages blank them then). */
+    {
+      const bk = fs.readFileSync(path.join(root, "book.html"), "utf8");
+      const floor = cfg.plans.filter((p) => p.selfServe === true && p.monthly > 0 && !(p.launch > 0))
+        .sort((a, b) => a.monthly - b.monthly)[0];
+      const lines = [
+        ["pricing.html", ph, "pricingFrom", floor && "Plans start at " + money(floor.monthly) + " a month, with " + floor.name + "."],
+        ["book.html", bk, "bookCostFrom", floor && "Plans start at " + money(floor.monthly) + " a month, and on the call you see which plan or single automation fits, at its published price."],
+        ["book.html", bk, "bookFrom", floor && "Plans start at " + money(floor.monthly) + " a month plus GST/HST (" + floor.name + ", "
+          + Number(floor.includedMinutes).toLocaleString("en-CA") + " minutes)."],
+      ];
+      for (const [where, html, id, rendered] of lines) {
+        if (cfg.publishedPricing && rendered) eq(where, id, flat(textOf(html, id)), rendered);
+        else if (/C\$\s?\d/.test(flat(textOf(html, id)) || "")) err(where + ": #" + id + " types a figure while pricing is unpublished");
+      }
+    }
     /* The same page quotes Enterprise's Launch & Implementation from a
        floor, so a note calling one plan "the one plan with" a fee must also
        name Enterprise and its floor, or a buyer reads the two as a
@@ -1723,10 +1744,19 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
        published pricing is back, so the static line a prospect reads with
        scripts blocked states the default plan's monthly. A real quote from
        ?quote= still overrides it at render time. */
+    /* BOTH CASES SINCE THE FUNNEL AUDIT (2026-10-09, item 3): the buyer
+       this document is sent to may hold a first-month-free spot, and
+       checkout then charges nothing until month two. The clause is written
+       out here, as PLAN_TERMS is, and only where the default plan carries a
+       free month; it promises no spot, it says what happens if one has been
+       reserved, and that the portal shows which before anything is paid. */
+    const RESERVED = dflt.freeMonths > 0
+      ? " If a first-month-free spot has been reserved for your business, nothing is charged until your second month; the portal shows which before you pay."
+      : "";
     eq("proposal.html", "planMonthly", flat(textOf(pr, "planMonthly")),
-      cfg.publishedPricing
+      (cfg.publishedPricing
         ? money(dflt.monthly) + "/month, charged the day you start and every month after."
-        : "Your monthly amount is quoted per client, then it is charged the day you start and every month after.");
+        : "Your monthly amount is quoted per client, then it is charged the day you start and every month after.") + RESERVED);
     eq("proposal.html", "planTerms", flat(textOf(pr, "planTerms")), PLAN_TERMS);
     eq("proposal.html", "planName", flat(textOf(pr, "planName")), dflt.name.toUpperCase());
     /* Grouped first, bare second: both are dflt.includedMinutes, and the page
@@ -2789,6 +2819,33 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
 }
 
 /* ============================================================
+   GUARD: the campaign tags book.html hands to Cal.com are the utm_ part of
+   the one allowlist (funnel audit item 12, 2026-10-09).
+
+   book.html writes the page's campaign tags onto the scheduler frame's
+   address before the frame loads, so every booking from an ad carries them.
+   site.js, where NV_ATTRIB_KEYS lives, loads deferred and runs after the
+   frame has started loading, so book.html carries its own short list. A
+   second list is how the funnel intake once lost fbclid, so this holds it to
+   exactly the utm_ members of NV_ATTRIB_KEYS: a click ID (unique to one ad
+   click) never reaches Cal.com, and a utm_ key added to the allowlist cannot
+   be forgotten here.
+   ============================================================ */
+{
+  const siteJs = fs.readFileSync(path.join(root, "site.js"), "utf8");
+  const book = fs.readFileSync(path.join(root, "book.html"), "utf8");
+  const list = (m) => (m ? [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]) : null);
+  const allow = list(siteJs.match(/var NV_ATTRIB_KEYS = \[([^\]]*)\]/));
+  const cal = list(book.match(/var KEYS = \[([^\]]*)\];/));
+  if (!allow) err("site.js: NV_ATTRIB_KEYS not found, so book.html's Cal.com tags cannot be checked against it");
+  else if (!cal) err("book.html: the campaign tags handed to Cal.com (var KEYS = [...]) are not found; every booking from an ad would arrive untagged");
+  else {
+    const want = allow.filter((k) => /^utm_/.test(k));
+    if (cal.join(",") !== want.join(",")) err("book.html: hands Cal.com the tags [" + cal.join(", ") + "], and the utm_ part of site.js NV_ATTRIB_KEYS is [" + want.join(", ") + "]; keep them equal, and never a click ID");
+  }
+}
+
+/* ============================================================
    GUARD: a description may not sell a capability that is not ready.
 
    THE SURFACES NOTHING WAS READING. Every visible sentence on the site was
@@ -3314,6 +3371,7 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     if (chosen.length) err("guard 7u carrier: refuses the wording owner decision #74 chose: " + chosen.join("; "));
 
     for (const p of carrierProblems(String(fc.offer || ""), String(fc.note || ""))) err("pricing-config.js " + p);
+
   }
   /* No other config string may say it. */
   const walkStrings = (v, at, out) => {
@@ -3364,6 +3422,13 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
       err("free-month.js must ask exactly one address, https://app.nevamis.ca/api/free-month, the engine's public route (v7 ENGINE-SPEC section 4); it names: " + (urls.join(", ") || "none"));
     }
     if (!/\bopen\s*===\s*true\b/.test(src) || !/\bstatus\s*!==\s*200\b/.test(src)) err("free-month.js must show the element only on a 200 with open === true, and fail closed on anything else");
+    /* Fail closed on everything but an affirmative answer (owner decision,
+       COMMERCIAL-MODEL: once the places are taken or held, the offer is not
+       said anywhere): the script must never reveal from a timeout or a
+       rejected request. */
+    if (/\.catch\(function[^)]*\)\s*\{[^}]*reveal\(/.test(src) || /setTimeout\(function\s*\(\)\s*\{[^}]*reveal\(/.test(src)) {
+      err("free-month.js reveals the offer from a timeout or a failed request; it must show it only on a 200 with open === true");
+    }
   }
 }
 

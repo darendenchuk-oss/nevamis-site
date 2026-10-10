@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-UzPlgzeV6yuI72dhDXhM2PnGOnWduxv1S9KzC2w69ic=' 'sha256-2XodkI8l/Dud4Rg6MMqbpzLoIYPmCYTgJqeVOs8NeMY=' 'sha256-JXqBjJZcnb6A53xDi4AUWLiyjToNB2HEuNrbMI/S+6c=' 'sha256-laZYsqKpVJKVr/E+iPK3GpwRZ6hiJ9BJcU7xAR4RjHQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Kui96Q2/rWNQ3wsPKkOlL7YRyMsK/JE5mFEr5O+jCgw=' 'sha256-CvkmChnk40u6bu1HkxRkouS9U5Hs0ZqvpbTff99LqS8=' 'sha256-uLOENpuAJ49DYOIhNginGzEFrBbngsoKiHeDVTFuMDc=' 'sha256-9V5tB9ht1DHQ6G/cWUaeI7Fi4EKVk8NA2wBijzXXuXw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -50,6 +50,17 @@
      Scoping it to wide viewports takes the best column of each. -->
 <link rel="preload" href="assets/fonts/atkinson-hyperlegible-400-latin.woff2" media="(min-width: 900px)" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/atkinson-hyperlegible-700-latin.woff2" media="(min-width: 900px)" as="font" type="font/woff2" crossorigin>
+<!-- THE FREE-MONTH ANSWER, CONNECTED EARLY (funnel audit item 6,
+     2026-10-09). free-month.js asks app.nevamis.ca/api/free-month after the
+     page has parsed; on slow 4G the DNS, TCP and TLS setup alone cost about a
+     second of the wait. A preconnect opens that connection while the page is
+     still arriving. crossorigin, because the request is a credential-less
+     CORS fetch, which does not share a connection opened without it. No
+     request is sent and nothing is counted until the script asks. -->
+<link rel="preconnect" href="https://app.nevamis.ca" crossorigin>
+<!-- With scripts off nothing will ever fill the held space (see
+     data-nv-free-month-hold), so it is held for nothing. -->
+<noscript><style>[data-nv-free-month-hold]{min-height:0!important}</style></noscript>
 <!-- generated:css -->
 <!-- GENERATED. Do not edit: run `node scripts/build-pages.mjs`.
      Source of truth is assets/fonts/fonts.css + assets/motion/site.css, which
@@ -991,9 +1002,24 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
 
   /* The section blocks between the plans and the CTA. */
   #termsBanner{border-color:var(--line-accent)}
-  #foundingBanner{border-color:rgba(240,180,98,.35)}
-  #foundingBanner #foundingOffer{font-size:15px;color:var(--warm);font-weight:700}
-  #foundingBanner .fm-cta{margin-top:14px}
+  /* The free-month card under the heading (funnel audit item 1); ids beat
+     the shared .card p rule. The hold is its measured open height: 228px to
+     720 wide, 192px above (tests/free-month-gate.spec.js). */
+  .page-hero .fm-hold{margin-top:18px;max-width:760px}
+  .page-hero .fm-hold[data-nv-free-month-hold]{min-height:228px}
+  @media(min-width:721px){.page-hero .fm-hold[data-nv-free-month-hold]{min-height:192px}}
+  #foundingBanner{border-color:rgba(240,180,98,.35);margin:0}
+  #foundingBanner #foundingOffer{font-size:15px;color:var(--warm);font-weight:700;margin:0}
+  #foundingBanner .fm-short{font-size:14px;line-height:1.45;margin:6px 0 0}
+  #foundingBanner .fm-terms summary{display:inline-block;cursor:pointer;color:var(--ink-3);
+    font-size:14px;padding:8px 0;min-height:44px;line-height:28px;text-decoration:underline;text-underline-offset:3px}
+  #foundingBanner .fm-terms .fine2{margin:4px 0 0}
+  #foundingBanner .fm-cta{margin-top:10px}
+  @media(max-width:720px){#foundingBanner{padding:16px 18px}}
+  .page-hero .fm-hold + .lede{margin-top:18px}
+  /* The booked-call line under each Buy now (an id beats .card p). */
+  #plans .plan .buy-fm{text-align:center;margin:6px 0 0;font-size:var(--fs-fine);line-height:var(--lh-snug);color:var(--warm)}
+  #plans .plan .buy-fm a{color:var(--mint);white-space:nowrap}
   #chooser #leaks{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
   .chooser-out{border-top:1px solid var(--line-soft);padding-top:14px}
   .chooser-out .lbl{font-family:var(--f-mono);font-size:var(--fs-label);
@@ -1101,24 +1127,99 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div>
         <p class="eyebrow mono">Pricing</p>
         <h1>Clear plans. Predictable usage.</h1>
-        <!-- Two sentences since 2026-09-24 (W6). This was a 60-word run-on that
-             restated the fee rule the terms band states directly below it. The
-             lede now says only what the cards differ by, so a buyer knows what
-             to compare before reading them. -->
-        <p class="lede">Lead Generation is by invitation, and a short call is where it starts. Every plan runs the same front desk and the same client portal; the plans differ in the minutes included, in which automations are included and in how Nevamis is paid.</p>
+        <!-- The first month free, under the heading (funnel audit item 1,
+             2026-10-09; it was on the seventh phone screen). Gated (v7 #66):
+             ships hidden and empty, filled by free-month.js. The hold keeps
+             its height until the answer, so nothing below moves. No label:
+             "Founding clients" names a different engine arrangement. -->
+        <div class="fm-hold" data-nv-free-month-hold>
+          <div id="foundingBanner" class="card fm-card" data-nv-free-month hidden>
+            <p id="foundingOffer" class="fm-offer" data-nv-free-month-offer></p>
+            <p class="fm-short">Card at sign-up, nothing charged until your second month, cancel any time from your portal.</p>
+            <details class="fm-terms">
+              <summary>Full terms</summary>
+              <p class="fine2" id="foundingNote" data-nv-free-month-note></p>
+            </details>
+            <!-- hero_book_call_click: the hero's one Book a call, kept apart
+                 from the closing CTA's name (tests/analytics.spec.js). -->
+            <div class="fm-cta"><a class="btn btn-primary" href="/book.html#pick-a-time" data-evt="hero_book_call_click">Book a call</a></div>
+          </div>
+        </div>
+        <!-- The floor first (funnel audit item 1). #pricingFrom renders from
+             pricing-config.js; tests/live-buyer-truth.spec.js holds this
+             no-script copy to the render. -->
+        <p class="lede"><span id="pricingFrom">Plans start at C$250 a month, with Front Desk Starter.</span> Every plan runs the same front desk and the same client portal; the plans differ in the minutes included, in which automations are included and in how Nevamis is paid. Lead Generation is by invitation, and a short call is where it starts.</p>
       </div>
     </div>
   </section>
 
   <section class="tight">
     <div class="wrap">
+      <!-- For the outline: the plans follow the H1 directly, and their h3s
+           would jump a level (tests/quality.spec.js). -->
+      <h2 class="sr-only">Plans and prices</h2>
+      <!-- Static fallback: real HTML so crawlers and failed-config loads still
+           see accurate plans. Removed by the renderer only after a successful
+           render. Validated against pricing-config.js by check-consistency.
+
+           Every plan in the config is here (guard 7 requires all of them),
+           each in its own startLine() sentence, verbatim: "C$X a month" on a
+           plan with no Launch & Implementation fee, and the fee, "to start"
+           and "then" on the Partnership, the one plan that carries one. No
+           card says the first month is free: Buy now charges it, and the
+           free month is given on a booked call (#foundingBanner, under the
+           heading). Same order as the render: the sizes smallest first, The
+           Works, then the Partnership last (funnel audit item 1). -->
+      <div class="plans" id="plans"><div id="plansFallback">
+        <p class="fine2 prose"><strong>The AI Front Desk, in three sizes.</strong> Same receptionist, answers 24/7. The three sizes differ only in the minutes included each month and the rate for each minute past them.</p>
+        <div class="card">
+          <h3>Front Desk Starter &middot; C$250/month</h3>
+          <p>C$250 a month. A lighter phone: the same receptionist as the AI Front Desk, answering 24/7, sized for fewer calls. No performance fee. 200 included AI minutes · C$1.10 per extra minute.</p>
+          <p><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
+        </div>
+        <div class="card">
+          <h3>Front Desk Plus &middot; C$500/month</h3>
+          <p>C$500 a month. A busier phone that does not yet need the full allowance: the same receptionist, answering 24/7, with more minutes than Front Desk Starter. No performance fee. 550 included AI minutes · C$0.95 per extra minute.</p>
+          <p><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
+        </div>
+        <div class="card">
+          <h3>AI Front Desk &middot; C$1,000/month, recommended</h3>
+          <p>C$1,000 a month. The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place. No performance fee. 1,400 included AI minutes · C$0.75 per extra minute.</p>
+          <p><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
+        </div>
+        <div class="card">
+          <h3>The Works &middot; C$2,100/month</h3>
+          <p>C$2,100 a month. The whole engine: the AI Front Desk plus every sellable automation (missed-call recovery, quote-chase, get-paid, review requests), priced under the sum of its parts. No performance fee. 1,400 included AI minutes · C$0.75 per extra minute.</p>
+          <p><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
+        </div>
+        <div class="card">
+          <h3>Performance Partnership &middot; C$350/month, by invitation</h3>
+          <p>C$5,000 Launch &amp; Implementation to start, then C$350 a month, plus an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, set in your agreement before anything is charged. Offered by invitation and approval. Nevamis takes on substantially more of the acquisition risk on it; it is not the default and not self-serve, and both figures are fixed. It is the plan that carries the growth stack, and each item on it is a separate choice: Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page; the Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement; Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own monthly, at the prices listed below; Search Rankings is coming and is not sold. 250 included AI minutes · C$1.10 per extra minute.</p>
+          <p><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
+        </div>
+        <p class="fine2 prose">The AI Front Desk is the same core system on every plan. Plans differ by the minutes included, by which automations are included and, on the Partnership, by whether Nevamis shares in the revenue it helps create. The terms are set out in the band below. Enterprise (multi-location, custom integrations, custom data pipelines) is quoted per client: Launch &amp; Implementation starting at C$5,000 or custom quoted, recurring custom. Prices in Canadian dollars, plus applicable GST/HST. Questions: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
+      </div></div>
+      <!-- ENTERPRISE (fix plan A26, 2026-09-19). The rendered cards replace
+           #plansFallback, and the fallback's closing paragraph was the only
+           place this page named Enterprise, so with scripts on, the page that
+           is meant to be the whole price list said nothing about it. This line
+           is rendered from P.enterprise and P.taxNote in the plan script
+           below, in the same task that removes the fallback, so no figure is
+           typed here; with scripts off, the fallback paragraph above states
+           the same thing. -->
+      <p id="enterpriseNote" class="fine2 prose" hidden></p>
+
       <!-- The terms band is static text on purpose: every sentence here is a
            commitment the billing system already keeps, so it needs no
            renderer. It is real text at full height because an empty block
            here pushed everything below it down 256px 745 ms after first
-           paint, which was 0.093 of the page's 0.095 CLS. -->
-      <div id="termsBanner" class="card band">
-        <h2>Buy now charges your first month. Then the same date, every month.</h2>
+           paint, which was 0.093 of the page's 0.095 CLS.
+
+           Under the plans since the funnel audit (item 1): it opened the page
+           headed "Buy now charges your first month". The charge is now said
+           under each Buy now, beside the booked-call offer (buyNote()). -->
+      <div id="termsBanner" class="card band block-gap">
+        <h2>What you pay, and when.</h2>
         <!-- THE ONE PLACE THE TERMS ARE STATED (2026-09-24, W6). The page used
              to say "month to month from the first month" seven times: here, in
              a term sentence on every plan card, under both Buy buttons and
@@ -1135,8 +1236,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              Implementation fee, and Buy now charges the first month the day
              a plan starts. The first month free for the first clients is
              given on a booked call only, so this band does not say it: it is
-             said in #foundingBanner below the plans, which ships hidden and
-             is shown by free-month.js only while the engine reports a place
+             said in #foundingBanner under the page heading, which ships
+             hidden and is shown by free-month.js only while a place may be
              open. The Partnership's fee is #partnerNote, rendered from
              P.partnerNote() and held to it by guard 7a. -->
         <p>The Works, the three Front Desk sizes and every add-on are priced as a monthly alone: the discovery call, configuration, testing and go-live are part of it. Buy now charges your plan's first month the day you start, and the same date every month after. The only other recurring charges are the monthly of any add-on you choose, overage past your included minutes and, on the Performance Partnership, offered by invitation, the agreed share of attributable collected revenue set in your agreement.</p>
@@ -1181,77 +1282,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <div id="chooser" class="card band" hidden>
         <h2>Not sure what you need? Start with what is happening in your business.</h2>
         <p>Tick what is happening in your business. We will put the coverage together and show you what it costs, with nothing hidden underneath it.</p>
-        <div id="leaks"></div>
+        <!-- data-callbar-yield: the call bar steps aside (site.js). -->
+        <div id="leaks" data-callbar-yield></div>
         <div id="chooserResult" aria-live="polite"></div>
-      </div>
-      <!-- Static fallback: real HTML so crawlers and failed-config loads still
-           see accurate plans. Removed by the renderer only after a successful
-           render. Validated against pricing-config.js by check-consistency.
-
-           Every plan in the config is here (guard 7 requires all of them),
-           each in its own startLine() sentence, verbatim: "C$X a month" on a
-           plan with no Launch & Implementation fee, and the fee, "to start"
-           and "then" on the Partnership, the one plan that carries one. No
-           card says the first month is free: Buy now charges it, and the
-           free month is given on a booked call (#foundingBanner, below). The
-           three Front Desk sizes sit together, smallest first, under the
-           sentence the rendered page heads them with. -->
-      <div class="plans" id="plans"><div id="plansFallback">
-        <div class="card">
-          <h3>Performance Partnership &middot; C$350/month, by invitation</h3>
-          <p>C$5,000 Launch &amp; Implementation to start, then C$350 a month, plus an agreed share of collected revenue directly attributable to a business Nevamis found or a quote Nevamis recovered, set in your agreement before anything is charged. Offered by invitation and approval. Nevamis takes on substantially more of the acquisition risk on it; it is not the default and not self-serve, and both figures are fixed. It is the plan that carries the growth stack, and each item on it is a separate choice: Lead Generation on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a business Nevamis found, subject to your agreement, and it is offered by invitation rather than sold from a page; the Quote-Chase Engine on the Performance Partnership is paid by an agreed share of collected revenue directly attributable to a quote Nevamis recovered, subject to your agreement; Missed-Call Recovery, Get-Paid Autopilot and Review Engine add their own monthly, at the prices listed below; Search Rankings is coming and is not sold. 250 included AI minutes · C$1.10 per extra minute.</p>
-          <p><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
-        </div>
-        <div class="card">
-          <h3>The Works &middot; C$2,100/month</h3>
-          <p>C$2,100 a month. The whole engine: the AI Front Desk plus every sellable automation (missed-call recovery, quote-chase, get-paid, review requests), priced under the sum of its parts. No performance fee. 1,400 included AI minutes · C$0.75 per extra minute.</p>
-          <p><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
-        </div>
-        <p class="fine2 prose"><strong>The AI Front Desk, in three sizes.</strong> Same receptionist, answers 24/7. The three sizes differ only in the minutes included each month and the rate for each minute past them.</p>
-        <div class="card">
-          <h3>Front Desk Starter &middot; C$250/month</h3>
-          <p>C$250 a month. A lighter phone: the same receptionist as the AI Front Desk, answering 24/7, sized for fewer calls. No performance fee. 200 included AI minutes · C$1.10 per extra minute.</p>
-          <p><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
-        </div>
-        <div class="card">
-          <h3>Front Desk Plus &middot; C$500/month</h3>
-          <p>C$500 a month. A busier phone that does not yet need the full allowance: the same receptionist, answering 24/7, with more minutes than Front Desk Starter. No performance fee. 550 included AI minutes · C$0.95 per extra minute.</p>
-          <p><a class="btn btn-ghost" href="/book.html">Talk to us</a></p>
-        </div>
-        <div class="card">
-          <h3>AI Front Desk &middot; C$1,000/month, recommended</h3>
-          <p>C$1,000 a month. The front desk on its own: it answers every call, and each automation is its own sale you can add whenever it earns its place. No performance fee. 1,400 included AI minutes · C$0.75 per extra minute.</p>
-          <p><a class="btn btn-primary" href="/book.html">Talk to us</a></p>
-        </div>
-        <p class="fine2 prose">The AI Front Desk is the same core system on every plan. Plans differ by the minutes included, by which automations are included and, on the Partnership, by whether Nevamis shares in the revenue it helps create. The terms are set out in the band above. Enterprise (multi-location, custom integrations, custom data pipelines) is quoted per client: Launch &amp; Implementation starting at C$5,000 or custom quoted, recurring custom. Prices in Canadian dollars, plus applicable GST/HST. Questions: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
-      </div></div>
-      <!-- ENTERPRISE (fix plan A26, 2026-09-19). The rendered cards replace
-           #plansFallback, and the fallback's closing paragraph was the only
-           place this page named Enterprise, so with scripts on, the page that
-           is meant to be the whole price list said nothing about it. This line
-           is rendered from P.enterprise and P.taxNote in the plan script
-           below, in the same task that removes the fallback, so no figure is
-           typed here; with scripts off, the fallback paragraph above states
-           the same thing. -->
-      <p id="enterpriseNote" class="fine2 prose" hidden></p>
-
-      <!-- THE FIRST MONTH FREE FOR THE FIRST CLIENTS (v7, owner amendment
-           #66, 2026-10-03): given on a booked call, never by Buy now, and only
-           while a place is open. This card is the only place on the page that
-           says it, and it ships hidden and EMPTY: free-month.js writes
-           P.foundingClient's offer and note into it and shows it only when
-           the owner's switch is on, the config's places equal the cap, and
-           app.nevamis.ca/api/free-month answers within three seconds that a
-           place is open. No script, a slow or failed answer, or a closed one
-           leaves it hidden, so the page never offers a month nobody will get.
-           It sits under the plans, not over them: shown after load, it moves
-           nothing a visitor is reading. Its label used to read "Founding
-           clients", which is the name of a different arrangement in the
-           engine (a waiver nothing on this site offers), so it has none. -->
-      <div id="foundingBanner" class="card band block-gap" data-nv-free-month hidden>
-        <p id="foundingOffer" data-nv-free-month-offer></p>
-        <p class="fine2" id="foundingNote" data-nv-free-month-note></p>
-        <div class="fm-cta"><a class="btn btn-primary" href="/book.html" data-evt="pricing_book_call_click">Book a call</a></div>
       </div>
 
       <!-- WHAT EVERY PLAN INCLUDES, printed once (2026-09-24, W6). These lines
@@ -1295,7 +1328,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            fallback equal to what the script renders, and guard 7h still
            reads its figures, so the two copies cannot part company.
 
-           A START CONTROL ON EVERY ADD-ON SOLD ALONE (WALK-LIVE-2). The
+           A REQUEST CONTROL ON EVERY ADD-ON SOLD ALONE (WALK-LIVE-2; "Request
+           it" since the funnel audit, item 10: the engine records a module
+           alone as a request set up under an agreement, never a purchase). The
            paragraph says "buy one on its own" and nothing on the site led to
            buying Missed-Call Recovery alone: the chooser sends "People ring
            while I am on a job" to the front desk on purpose (BD-F5, an owner
@@ -1312,13 +1347,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            two-number framing guard 7d refuses on every page. -->
       <div class="card reveal block-gap">
         <h3>Automation add-ons</h3>
-        <p>Each automation is its own product and its own sale: buy one on its own, or add it beside a plan, one at a time, at its own monthly. The four sellable ones are already included in The Works. On the Performance Partnership they are the growth stack, and two of them are paid out of what they produce instead of a monthly: see the Partnership above.</p>
+        <p>Each automation is its own product and its own sale: take one on its own, or add it beside a plan, one at a time, at its own monthly. On its own it is set up with you under an agreement: Request it records what you want, and nothing is charged until you have agreed to it. The four sellable ones are already included in The Works. On the Performance Partnership they are the growth stack, and two of them are paid out of what they produce instead of a monthly: see the Partnership above.</p>
         <ul id="addOnList" class="node-list">
           <li>Lead Generation &middot; on the Performance Partnership &middot; businesses that fit what you do, found for you, with the page each one came from and what came of it. You decide every row, and nobody on the list is contacted by us. Offered by invitation, under your own agreement, and not yet sellable from a page.</li>
-          <li>Quote-Chase Engine &middot; C$500/month &middot; every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=quote_chase" data-evt="plan_buy_click" aria-label="Start Quote-Chase Engine on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
-          <li>Missed-Call Recovery &middot; C$350/month &middot; a caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=missed_call_recovery" data-evt="plan_buy_click" aria-label="Start Missed-Call Recovery on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
-          <li>Get-Paid Autopilot &middot; C$500/month &middot; overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead, because past that point the judgment call belongs to a person.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=get_paid" data-evt="plan_buy_click" aria-label="Start Get-Paid Autopilot on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
-          <li>Review Engine &middot; C$300/month &middot; post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=review_engine" data-evt="plan_buy_click" aria-label="Start Review Engine on its own">Start <span class="arw" aria-hidden="true">›</span></a></li>
+          <li>Quote-Chase Engine &middot; C$500/month &middot; every estimate that goes quiet gets followed up: the day it stales, day four, day eleven, each touch approved by you.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=quote_chase" aria-label="Request it: Quote-Chase Engine on its own">Request it <span class="arw" aria-hidden="true">›</span></a></li>
+          <li>Missed-Call Recovery &middot; C$350/month &middot; a caller you missed gets one text back, between 8 a.m. and 8 p.m. your time, every day, with your name on it and a working opt-out.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=missed_call_recovery" aria-label="Request it: Missed-Call Recovery on its own">Request it <span class="arw" aria-hidden="true">›</span></a></li>
+          <li>Get-Paid Autopilot &middot; C$500/month &middot; overdue invoices get a gentle nudge, a firm one a week later, and at three weeks you get told instead, because past that point the judgment call belongs to a person.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=get_paid" aria-label="Request it: Get-Paid Autopilot on its own">Request it <span class="arw" aria-hidden="true">›</span></a></li>
+          <li>Review Engine &middot; C$300/month &middot; post-job review requests by text, policy-safe: one ask per finished job, with your own review link, and every request released by a person.<a class="addon-start" href="https://app.nevamis.ca/signup?coverage=review_engine" aria-label="Request it: Review Engine on its own">Request it <span class="arw" aria-hidden="true">›</span></a></li>
           <li>Search Rankings &middot; coming &middot; better search rankings for the work you want more of. Not built yet.</li>
           <li>Customer Reactivation &middot; coming &middot; a win-back campaign over your own past-customer list, inside the consent rules. Not sellable until it ships end to end.</li>
         </ul>
@@ -1356,20 +1391,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <p class="fine2" id="referralHowTo">Clients get their own link in the portal. Send it yourself: we never email somebody just because you named them.</p>
       </div>
 
-      <!-- This asked four questions until 2026-08-09. Three of them decided
-           the answer on capability: locations or departments, and whether you
-           needed "Booking + CRM/automation connection". Neither is something
-           the plans differ by, and one of them is not something the product
-           does at all, so the tool was routing a buyer to a more expensive
-           plan on the strength of a feature nobody could have delivered.
-           The Works and the AI Front Desk carry the same allowance and differ
-           by automations; the three Front Desk sizes differ by minutes (v7).
-           So this only answers whether the included minutes cover a
-           business, and it ranks the self-serve plans only (fix plan A9,
-           2026-09-19): smallest allowance that covers the estimate first,
-           the cheaper of two equal allowances before the dearer. -->
+      <!-- Minutes only: until 2026-08-09 this routed on capabilities the plans
+           do not differ by. Self-serve plans only (A9); the lowest total at
+           the estimate since the funnel audit (item 11), see recommend(). -->
       <div class="card rc reveal" id="recommender">
-        <h3>Will the included minutes cover you?</h3>
+        <h3>Which plan costs least for your calls?</h3>
         <div class="grid">
           <div>
             <label for="rcVol">Calls a month you expect us to answer</label>
@@ -1471,6 +1497,15 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   if (partnerNoteEl && partnerNote !== null) {
     if (partnerNote) partnerNoteEl.textContent = partnerNote; else partnerNoteEl.hidden = true;
   }
+  /* The floor in the lede: the cheapest self-serve plan with no fee, by its
+     flags, as book.html finds it. Nothing while prices are unpublished. */
+  var fromEl = document.getElementById("pricingFrom");
+  var floor = P.plans.filter(function (p) { return p.selfServe === true && p.monthly > 0 && !(p.launch > 0); })
+    .sort(function (a, b) { return a.monthly - b.monthly; })[0];
+  if (fromEl) {
+    if (P.publishedPricing && floor) fromEl.textContent = "Plans start at " + P.money(floor.monthly) + " a month, with " + floor.name + ".";
+    else fromEl.textContent = "";
+  }
   /* The terms line, rendered from pricing-config.js rather than left as a
      second hand-typed copy of it. It lived under the add-ons until
      2026-09-24 and is now the terms band's own paragraph, the one full
@@ -1505,12 +1540,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      A config without startLine (a cached copy older than this page) leaves
      the static list in place, which is correct, just not live.
 
-     The Start link (WALK-LIVE-2) goes on an item only when it is sellable,
-     sold alone, and the page is selling at all. Its event is the per-item
-     member of the plan_buy_click family the engine already accepts
-     (plan_buy_click_<id>, so the funnel says which module was reached for);
-     the no-script copy carries the flat parent name, which is allowlisted
-     and lands in the same stage. */
+     The Request link (WALK-LIVE-2): only on a sellable item sold alone,
+     while the page sells. No event: a request is not buying intent, and
+     the allowlist has no request name. Name starts "Request it" (2.5.3). */
   var addOnEl = document.getElementById("addOnList");
   /* The list is built whole before it replaces the static one, and inside a
      try, because the plan cards render after it in this same function: one
@@ -1546,9 +1578,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           var go = document.createElement("a");
           go.className = "addon-start";
           go.href = "https://app.nevamis.ca/signup?coverage=" + encodeURIComponent(a.id);
-          go.setAttribute("data-evt", "plan_buy_click_" + a.id);
-          go.setAttribute("aria-label", "Start " + a.name + " on its own");
-          go.innerHTML = 'Start <span class="arw" aria-hidden="true">›</span>';
+          go.setAttribute("aria-label", "Request it: " + a.name + " on its own");
+          go.innerHTML = 'Request it <span class="arw" aria-hidden="true">›</span>';
           li.appendChild(go);
         }
         return li;
@@ -1612,21 +1643,32 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     return "Your first " + months + " months are agreed up front, then month to month, cancelled "
       + cancelClause() + ".";
   }
-  /* THE THREE FRONT DESK SIZES, SIDE BY SIDE (owner amendment #67,
-     2026-10-03): Front Desk Starter, Front Desk Plus and the AI Front Desk
-     are one receptionist in three sizes, so they are set as one row under
-     one heading, smallest first, wherever the first of them falls in the
-     config's order. P.frontDeskTiers() says which plans they are; nothing
-     here names one. A config without it (a cached copy older than this page)
-     renders every plan as its own card, as before. */
+  /* What Buy now charges, said at the button (funnel audit item 1), with a
+     fee named in launchPart()'s words if a buyable plan ever has one. */
+  function buyNote(pl) {
+    var lp = P.launchPart(pl);
+    return (lp ? "Buy now charges " + lp.replace(/ to start$/, "").replace(/&/g, "&amp;") + " and your first month the day you start. "
+      : "Buy now charges your first month the day you start. ") + startNote(pl);
+  }
+  /* Beside it, the booked-call offer (v7 #66): gated like every
+     data-nv-free-month element (guard 7u), filled by free-month.js. Its link
+     sends plan_quote_click_<id>, so the funnel knows which card. */
+  function buyFreeMonth(pl) {
+    return '<p class="buy-fm" data-nv-free-month hidden><span data-nv-free-month-offer></span> '
+      + '<a href="/book.html#pick-a-time" data-evt="plan_quote_click_' + String(pl.id).replace(/[^a-z0-9]+/gi, "_").toLowerCase() + '">Book a call first</a></p>';
+  }
+  /* THE FRONT DESK SIZES, one row under one heading, smallest first (owner
+     amendment #67); P.frontDeskTiers() names them, and a config without it
+     renders every plan as its own card. Then the other buyable plans by
+     monthly, then the invitation plans LAST (funnel audit item 1). Only this
+     list sorts; the config keeps the owner's door order for other pages. */
   var sizes = typeof P.frontDeskTiers === "function" ? P.frontDeskTiers() : [];
   if (sizes.length < 2) sizes = [];
   function isSize(pl) { return sizes.indexOf(pl) >= 0; }
-  var ordered = [];
-  P.plans.forEach(function (pl) {
-    if (!isSize(pl)) ordered.push(pl);
-    else if (ordered.indexOf(sizes[0]) < 0) ordered = ordered.concat(sizes);
-  });
+  var invited = P.plans.filter(function (pl) { return pl.selfServe === false; });
+  var open = P.plans.filter(function (pl) { return pl.selfServe !== false && !isSize(pl); })
+    .sort(function (a, b) { return a.monthly - b.monthly; });
+  var ordered = sizes.filter(function (pl) { return pl.selfServe !== false; }).concat(open, invited);
   ordered.forEach(function (pl) {
     if (sizes.length && pl === sizes[0]) {
       var head = document.createElement("div");
@@ -1656,16 +1698,10 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        flipped in both directions inside one calendar day. */
     if (P.publishedPricing) {
       if (pl.selfServe === false) {
-        /* AN INVITATION IS NOT AN ENTRY TIER (BD-F3, 2026-09-26). The
-           Performance Partnership is the first card (Lead Generation is door
-           one, an owner decision), and its headline was a bare monthly in the
-           same 38px type as the plans anyone can buy, the lowest figure on the
-           page, while "never the default" sat at the end of a fourteen-line
-           paragraph. canonical.ts names the hazard: a published cheap monthly
-           is read as the entry tier. So the headline is what the plan IS, the
-           words the homepage already heads it with. Its band sat under it in
-           small type until v7 fixed the Partnership's figures; a band in the
-           config would still be printed here, never typed. */
+        /* AN INVITATION IS NOT AN ENTRY TIER (BD-F3): a bare monthly in the
+           buyable plans' type is read as the entry tier (canonical.ts), so
+           the headline is what the plan IS. A band in the config is printed,
+           never typed. */
         h += '<div class="price price-invite">By invitation</div>';
         if (Array.isArray(pl.monthlyRange)) {
           h += '<div class="price-band">C$' + grp(pl.monthlyRange[0]) + " to C$" + grp(pl.monthlyRange[1]) + " a month</div>";
@@ -1677,24 +1713,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         if (isSize(pl)) h += '<div class="mins">' + grp(pl.includedMinutes) + "<span> minutes a month</span></div>";
         h += '<div class="price">' + (pl.startingAt ? "from " : "") + "C$" + grp(pl.monthly) + "<span>/month</span></div>";
       }
-      /* THE TERM, and it is derived, not typed. This sentence said "No
-         minimum term." from the day the page was written until 2026-08-25,
-         which was true of the old month-to-month model and became false the
-         moment v4 introduced the agreed start. It went on rendering on every
-         card, directly under the price and directly above a Buy button, on a
-         page whose own terms note said "Three-month start" two sections
-         lower: the page contradicted itself, and the half attached to the
-         money was the wrong one. On 2026-09-08 the owner removed the minimum
-         term entirely and this sentence is true again, which is exactly why
-         it is still read from P.terms and not typed back in: the page has now
-         been wrong in BOTH directions, and only the derivation was ever
-         right.
-         SINCE 2026-09-24 THE TERM IS NOT ON THIS LINE AT ALL (W6). It is
-         still derived, and still read from P.terms, but it is stated once in
-         the terms band (#termsNote) and as one short exit under the Buy
-         button (startNote), rather than a third time here on every card.
-         This line now carries only what differs by plan: the two figures,
-         the performance sentence and the invitation status. */
+      /* THE TERM IS NOT ON THIS LINE (W6, 2026-09-24): it is said once in
+         #termsNote and as one exit under Buy now (startNote), both read from
+         P.terms, because a term typed on the card was wrong in both
+         directions (2026-08-25, 2026-09-08). This line carries only what
+         differs by plan. */
       /* P.startLine, not the pair typed here (BD-4, 2026-09-25). Since v7 it
          is "C$X a month" on a plan with no fee, which is what Buy now
          charges, and on the Partnership its whole fixed sentence, the agreed
@@ -1765,7 +1788,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
            on the page still promising the old model, and the buyer read it at
            the exact moment they committed. The note now states the start
            they are agreeing to, from the same terms block as the card. */
-        + '<div class="buy-note">' + startNote(pl) + "</div></div>";
+        + '<div class="buy-note">' + buyNote(pl) + "</div></div>"
+        /* After .buy: ".buy a" stays the card's one buy control. */
+        + buyFreeMonth(pl);
     }
     d.innerHTML = h;
     /* Which tier the prospect reached for. All three cards used to emit the
@@ -1829,51 +1854,55 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     entEl.hidden = false;
   }
   /* recommender */
-  /* Picks the smallest SELF-SERVE plan whose included minutes cover the
-     estimate, and nothing else. It used to route on locations, departments
-     and a "CRM/automation connection", which are not differences between
-     these plans and in one case not a thing the product does; a recommender
-     that upsells on an entitlement nobody can deliver is worse than no
-     recommender. Derived from P.plans rather than hardcoded, so adding or
-     repricing a plan cannot leave this behind.
-
-     Until 2026-09-19 it sorted on minutes alone. The Works and the AI Front
-     Desk carry the same allowance, so a tie went to The Works, the dearer
-     of the two for the same minutes, and a small estimate landed on the
-     Performance Partnership, which is by invitation and never self-serve.
-     Ties now break on the monthly, the invitation-only plan is never ranked,
-     and a plan carrying the same minutes is named as a choice about
-     automations (fix plan A9). */
+  /* THE LOWEST TOTAL (funnel audit item 11): least monthly plus extra
+     minutes, with why. Ties go to more minutes, then the lower monthly; the
+     invitation plan is never ranked (A9). */
+  function money2(n) { return "C$" + n.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function recommend() {
     var vol = parseFloat(document.getElementById("rcVol").value) || 0;
     var len = parseFloat(document.getElementById("rcLen").value) || 2.5;
-    var est = vol * len;
+    var est = Math.max(0, vol * len);
+    var mins = Math.round(est);
     var ladder = P.plans.filter(function (p) { return p.selfServe !== false; }).sort(function (a, b) { return (a.includedMinutes - b.includedMinutes) || (a.monthly - b.monthly); });
-    var pick = null;
-    for (var i = 0; i < ladder.length; i++) { if (ladder[i].includedMinutes >= est) { pick = ladder[i]; break; } }
-    var over = !pick;
-    if (!pick) { var maxMin = ladder[ladder.length - 1].includedMinutes; pick = ladder.filter(function (p) { return p.includedMinutes === maxMin; })[0]; }
-    var why = Math.round(est) + " estimated AI minutes a month"
-      + (over ? " is past every published allowance, so " + pick.name + " is the right base and the minutes beyond it bill at C$" + pick.overage.toFixed(2) + " each"
-             : " fits inside the " + grp(pick.includedMinutes) + " included on " + pick.name + ", at C$" + pick.overage.toFixed(2) + " for anything past that");
+    if (!ladder.length) return;
+    var extra = function (p) { return Math.max(0, est - p.includedMinutes); };
+    var totalAt = function (p) { return Math.round((p.monthly + extra(p) * p.overage) * 100) / 100; };
+    var pick = ladder.slice().sort(function (a, b) {
+      return (totalAt(a) - totalAt(b)) || (b.includedMinutes - a.includedMinutes) || (a.monthly - b.monthly);
+    })[0];
+    var why;
+    if (extra(pick) > 0) {
+      why = grp(mins) + " estimated AI minutes a month is " + grp(Math.round(extra(pick))) + " past the " + grp(pick.includedMinutes)
+        + " included on " + pick.name + ". At " + money2(pick.overage) + " each that comes to about " + money2(totalAt(pick))
+        + " a month, the lowest total for these minutes.";
+      /* The next size up whose minutes cover the estimate, and where it
+         takes over: monthly plus extra minutes equals its monthly at
+         pick.includedMinutes + (its monthly - pick's monthly) / pick's rate. */
+      var cover = ladder.filter(function (p) { return p.includedMinutes >= est && p.monthly > pick.monthly; })
+        .sort(function (a, b) { return a.monthly - b.monthly; })[0];
+      if (cover) {
+        var flip = Math.ceil(pick.includedMinutes + (cover.monthly - pick.monthly) / pick.overage);
+        why += " " + cover.name + " covers these minutes for " + P.money(cover.monthly) + " a month, so it costs more here; it becomes the cheaper of the two from about "
+          + grp(flip) + " minutes a month.";
+      }
+    } else {
+      why = grp(mins) + " estimated AI minutes a month fit inside the " + grp(pick.includedMinutes) + " included on " + pick.name
+        + ", at " + money2(pick.overage) + " for each minute past that.";
+    }
+    /* Overage is the reason a bigger plan is cheaper: say so with the
+       smaller plan's own total, the one directly below the pick. */
+    var below = ladder.filter(function (p) { return p.includedMinutes < pick.includedMinutes && p.monthly < pick.monthly; })
+      .sort(function (a, b) { return b.includedMinutes - a.includedMinutes; })[0];
+    if (below && totalAt(below) > totalAt(pick)) {
+      why += " A bigger plan is cheaper here because of overage: " + below.name + " is " + P.money(below.monthly) + " a month, but with "
+        + grp(Math.round(extra(below))) + " extra minutes at " + money2(below.overage) + " each it would come to about " + money2(totalAt(below)) + ".";
+    }
     document.getElementById("rcResult").innerHTML =
-      '<span class="mono">CLOSEST FIT</span><div class="pick"></div><p></p>';
+      '<span class="mono">LOWEST TOTAL</span><div class="pick"></div><p></p>';
     document.querySelector("#rcResult .pick").textContent = pick.name + " · " + P.startLine(pick).replace(/\.$/, "");
     var twins = ladder.filter(function (p) { return p !== pick && p.includedMinutes === pick.includedMinutes; });
-    var note = twins.length ? twins.map(function (p) { return p.name; }).join(" and ") + " carries the same minutes and adds automations, so choose between them for the automations, not for the minutes. " : "";
-    /* The pick is coverage-first: the smallest plan whose included minutes
-       cover the estimate. A smaller size plus its extra minutes can cost
-       less than that (docs/PRICING-CONFIG.md works an example), so when
-       one does, the Why line says so with its total and never leaves the
-       dearer pick unexplained. */
-    var totalAt = function (p) { return Math.round((p.monthly + Math.max(0, est - p.includedMinutes) * p.overage) * 100) / 100; };
-    var cheapest = ladder.slice().sort(function (a, b) { return totalAt(a) - totalAt(b); })[0];
-    var cheaper = cheapest && cheapest !== pick && totalAt(cheapest) < totalAt(pick)
-      ? "At this estimate, " + cheapest.name + " with its extra minutes would come to about C$" + totalAt(cheapest).toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-        + " a month, less than " + pick.name + "'s C$" + totalAt(pick).toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-        + ": this pick is the size whose minutes cover you, not the lowest total. "
-      : "";
-    document.querySelector("#rcResult p").textContent = "Why: " + why + ". " + note + cheaper + "Your real average shows up in the portal from your first week of calls, and you can change plan yourself from there.";
+    var note = twins.length ? " " + twins.map(function (p) { return p.name; }).join(" and ") + " carries the same minutes and adds automations, so choose between them for the automations, not for the minutes." : "";
+    document.querySelector("#rcResult p").textContent = "Why: " + why + note + " Your real average shows up in the portal from your first week of calls, and you can change plan yourself from there.";
   }
   ["rcVol", "rcLen"].forEach(function (id) {
     document.getElementById(id).addEventListener("input", recommend);
@@ -2211,8 +2240,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     }
     if (!useBundle && !alone) h += sizesClause();
     h += "</p>";
-    h += '<a class="btn btn-primary" data-evt="plan_buy_click" href="' + href
-      + '">Start with this <span class="arw" aria-hidden="true">&rsaquo;</span></a>';
+    /* "Request this" on a module-only answer (funnel audit item 10): that
+       link records a request the engine sets up under an agreement, and the
+       sentence above it says nothing is bought here, so "Start" promised a
+       purchase the next page does not make. A plan answer still starts. */
+    h += '<a class="btn btn-primary"' + (alone ? "" : ' data-evt="plan_buy_click"') + ' href="' + href
+      + '">' + (alone ? "Request this" : "Start with this") + ' <span class="arw" aria-hidden="true">&rsaquo;</span></a>';
     h += ' <a class="btn btn-ghost" href="/book.html" data-evt="pricing_book_call_click">Talk it through first</a>';
     h += "</div>";
     out.innerHTML = h;

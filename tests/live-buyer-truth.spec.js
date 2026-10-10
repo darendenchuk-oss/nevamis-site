@@ -408,9 +408,9 @@ test('PRICING-14: pricing renders the add-on list from the config, and the rende
   expect(rendered).toEqual(fallback);
   const hrefs = await page.locator('#addOnList a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
   expect(hrefs).toEqual([...list.matchAll(/href="([^"]+)"/g)].map((m) => m[1]));
-  /* The rendered Start link reports which module was reached for. */
-  await expect(page.locator('#addOnList a[href$="coverage=missed_call_recovery"]'))
-    .toHaveAttribute('data-evt', 'plan_buy_click_missed_call_recovery');
+  /* A module request is not a purchase: its link sends no plan_buy_click
+     (PR #62 review, item 7). */
+  await expect(page.locator('#addOnList a[href$="coverage=missed_call_recovery"]')).not.toHaveAttribute('data-evt', /.*/);
 
   const ctx2 = await browser.newContext();
   await offline(ctx2);
@@ -455,12 +455,12 @@ test('PRICING-14: an add-on with no blurb still renders, and the plan cards stil
   await page.goto('/pricing.html');
   await expect(page.locator('#plansFallback')).toHaveCount(0);
   expect(await page.locator('#plans > *').count()).toBeGreaterThan(0);
-  /* Rendered, not the static copy left in place: only the render writes the
-     per-item event name, and only the static copy carries the missing blurb. */
+  /* Rendered, not the static copy left in place: only the static copy
+     carries the missing blurb. */
   const row = page.locator('#addOnList > li', { hasText: 'Get-Paid Autopilot' });
   await expect(row).toContainText('C$500/month');
   await expect(row).not.toContainText('overdue invoices');
-  await expect(row.locator('a')).toHaveAttribute('data-evt', 'plan_buy_click_get_paid');
+  await expect(row.locator('a')).toHaveText(/Request it/);
   await ctx.close();
 });
 
@@ -531,3 +531,53 @@ for (const width of [1440, 390]) {
     await ctx.close();
   });
 }
+
+/* FUNNEL AUDIT ITEM 10 (2026-10-09). A module on its own is not bought from
+   a page: the engine's signup records the request ("we set it up with you
+   under your agreement") and /portal/activate says it is "not bought on
+   this page, and we will be in touch". So no module control may promise a
+   purchase: it says "Request it", in the no-script list and the render. */
+test('item 10: a module sold alone is requested, never started or bought, from the pricing page', async ({ browser }) => {
+  const html = read('pricing.html');
+  const list = html.match(/<ul id="addOnList"[^>]*>([\s\S]*?)<\/ul>/)[1];
+  const labels = [...list.matchAll(/<a\b[^>]*class="addon-start"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => flat(decode(m[1].replace(/<[^>]+>/g, ''))));
+  expect(labels.length).toBeGreaterThan(0);
+  for (const l of labels) expect(l).toBe('Request it ›');
+  const ctx = await browser.newContext();
+  await offline(ctx);
+  const page = await ctx.newPage();
+  await page.goto('/pricing.html');
+  for (const t of await page.locator('#addOnList a.addon-start').allTextContents()) {
+    expect(flat(t)).toBe('Request it ›');
+  }
+  for (const a of await page.locator('#addOnList a.addon-start').evaluateAll((as) => as.map((x) => x.getAttribute('aria-label')))) {
+    /* The accessible name starts with the visible label (WCAG 2.5.3). */
+    expect(a).toMatch(/^Request it: .+ on its own$/);
+  }
+  /* And sends no purchase event, rendered or not. */
+  expect(await page.locator('#addOnList a.addon-start[data-evt]').count()).toBe(0);
+  expect(list).not.toMatch(/addon-start[^>]*data-evt/);
+  expect(flat(await page.locator('#addOnList').locator('xpath=..').innerText())).toContain('nothing is charged until you have agreed to it');
+  await ctx.close();
+});
+
+/* FUNNEL AUDIT ITEM 1: the pricing lede opens with the floor, rendered from
+   the config, and its no-script copy is the render. */
+test('item 1: the pricing lede opens with the floor from the config, and follows a moved price', async ({ browser }) => {
+  const html = read('pricing.html');
+  const fallback = flat(decode(html.match(/<span id="pricingFrom">([\s\S]*?)<\/span>/)[1]));
+  const ctx = await browser.newContext();
+  await offline(ctx);
+  const page = await ctx.newPage();
+  await page.goto('/pricing.html');
+  await expect(page.locator('#pricingFrom')).toHaveText(fallback);
+  const lede = flat(await page.locator('.page-hero .lede').innerText());
+  expect(lede.startsWith(fallback), 'the lede opens with the floor').toBe(true);
+  const ctx2 = await browser.newContext();
+  await offline(ctx2);
+  await withMovedConfig(ctx2, (s) => s.replace(/(id: "front-desk-starter", name: "Front Desk Starter",\s*monthly: )\d+/, '$1275'));
+  const moved = await ctx2.newPage();
+  await moved.goto('/pricing.html');
+  await expect(moved.locator('#pricingFrom')).toHaveText('Plans start at C$275 a month, with Front Desk Starter.');
+  await ctx.close(); await ctx2.close();
+});

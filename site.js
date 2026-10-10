@@ -221,7 +221,23 @@
       return h === location.hostname || h === "nevamis.ca" || h === "www.nevamis.ca" || h === "app.nevamis.ca";
     } catch (e) { return false; }
   }
-  document.addEventListener("click", function (e) {
+  /* THE BOOKING PAGE OPENS AT ITS CALENDAR (funnel audit item 12,
+     2026-10-09). Every ad lands on book.html#pick-a-time, and the call bar
+     on every page has pointed there since BP6, but the "Book a call" buttons
+     in the header, the heroes and the closing rows link to /book.html bare,
+     which opens 2,600px above the scheduler on a phone. A link to this
+     site's booking page that names no anchor of its own now gets the
+     scheduler's, at the moment it is clicked, like the tags below: the
+     markup crawlers read stays as written. Not app.nevamis.ca, which has no
+     such page. */
+  function nvToScheduler(dest) {
+    var h = dest.hostname;
+    var own = h === location.hostname || h === "nevamis.ca" || h === "www.nevamis.ca";
+    if (!own || !/\/book\.html$/.test(dest.pathname) || dest.hash) return false;
+    dest.hash = "pick-a-time";
+    return true;
+  }
+  function nvDecorate(e) {
     try {
       var a = e.target.closest && e.target.closest("a[href]");
       if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
@@ -229,16 +245,19 @@
       if (/^(tel:|mailto:|#|javascript:)/i.test(href)) return;
       if (!nvSameProperty(href)) return;
 
+      var dest = new URL(href, location.href);
+      var moved = nvToScheduler(dest);
       var tags = nvParams();
       var keys = Object.keys(tags);
-      if (!keys.length) return;
-
-      var dest = new URL(href, location.href);
       // Never overwrite a tag the destination link set for itself.
-      keys.forEach(function (k) { if (!dest.searchParams.has(k)) dest.searchParams.set(k, tags[k]); });
-      a.setAttribute("href", dest.href);
+      keys.forEach(function (k) { if (!dest.searchParams.has(k)) { dest.searchParams.set(k, tags[k]); moved = true; } });
+      if (moved) a.setAttribute("href", dest.href);
     } catch (err) { /* attribution must never block a click */ }
-  }, true);
+  }
+  document.addEventListener("click", nvDecorate, true);
+  /* A middle click opens the link in a new tab without a click event, and
+     carried neither the tags nor the anchor. */
+  document.addEventListener("auxclick", nvDecorate, true);
   nvFunnel("landing_page_view");
 
   /* A tap on any phone link is intent to call the demo line: the
@@ -420,10 +439,52 @@
      back everywhere else. */
   var callbar = document.querySelector("a.callbar");
   var sched = document.getElementById("pick-a-time");
-  if (callbar && sched && typeof window.IntersectionObserver === "function") {
-    new IntersectionObserver(function (es) {
-      es.forEach(function (en) { callbar.classList.toggle("callbar-off", en.isIntersecting); });
-    }).observe(sched);
+  /* ...and for anything marked data-callbar-yield while it passes under the
+     bar (funnel audit item 16, 2026-10-09). On pricing.html the bar sat over
+     the first of the chooser's tick boxes as it scrolled through the bottom
+     of a phone screen, the one row of controls on the page that is tapped
+     rather than read. The bar's own strip is the observer's root (the
+     viewport less everything above the bar), so it steps aside only while a
+     marked element is behind it, and comes back as soon as it has passed.
+     Both reasons are kept apart, so one clearing cannot bring the bar back
+     over the other. */
+  if (callbar && typeof window.IntersectionObserver === "function") {
+    var hiddenFor = { sched: false, yield: false };
+    var applyBar = function () { callbar.classList.toggle("callbar-off", hiddenFor.sched || hiddenFor.yield); };
+    if (sched) {
+      new IntersectionObserver(function (es) {
+        es.forEach(function (en) { hiddenFor.sched = en.isIntersecting; });
+        applyBar();
+      }).observe(sched);
+    }
+    var yields = document.querySelectorAll("[data-callbar-yield]");
+    if (yields.length) {
+      var under = {};
+      var yieldIO = null;
+      var watchYields = function () {
+        if (yieldIO) yieldIO.disconnect();
+        /* The strip the bar covers: its height (it is display:none on wide
+           screens, where there is nothing to yield to), from the bottom. */
+        var barH = callbar.offsetHeight;
+        under = {};
+        hiddenFor.yield = false;
+        applyBar();
+        if (!barH) return;
+        var top = Math.max(0, window.innerHeight - barH);
+        yieldIO = new IntersectionObserver(function (es) {
+          es.forEach(function (en) { under[en.target.getAttribute("data-callbar-yield") || "x"] = en.isIntersecting; });
+          hiddenFor.yield = Object.keys(under).some(function (k) { return under[k]; });
+          applyBar();
+        }, { rootMargin: "-" + top + "px 0px 0px 0px" });
+        for (var y = 0; y < yields.length; y++) {
+          if (!yields[y].getAttribute("data-callbar-yield")) yields[y].setAttribute("data-callbar-yield", "y" + y);
+          yieldIO.observe(yields[y]);
+        }
+      };
+      watchYields();
+      var yieldTimer = null;
+      window.addEventListener("resize", function () { clearTimeout(yieldTimer); yieldTimer = setTimeout(watchYields, 200); });
+    }
   }
 
   /* ---------- same-page anchors ----------
