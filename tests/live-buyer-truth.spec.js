@@ -408,9 +408,9 @@ test('PRICING-14: pricing renders the add-on list from the config, and the rende
   expect(rendered).toEqual(fallback);
   const hrefs = await page.locator('#addOnList a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
   expect(hrefs).toEqual([...list.matchAll(/href="([^"]+)"/g)].map((m) => m[1]));
-  /* The rendered Start link reports which module was reached for. */
-  await expect(page.locator('#addOnList a[href$="coverage=missed_call_recovery"]'))
-    .toHaveAttribute('data-evt', 'plan_buy_click_missed_call_recovery');
+  /* A module request is not a purchase: its link sends no plan_buy_click
+     (PR #62 review, item 7). */
+  await expect(page.locator('#addOnList a[href$="coverage=missed_call_recovery"]')).not.toHaveAttribute('data-evt', /.*/);
 
   const ctx2 = await browser.newContext();
   await offline(ctx2);
@@ -455,12 +455,12 @@ test('PRICING-14: an add-on with no blurb still renders, and the plan cards stil
   await page.goto('/pricing.html');
   await expect(page.locator('#plansFallback')).toHaveCount(0);
   expect(await page.locator('#plans > *').count()).toBeGreaterThan(0);
-  /* Rendered, not the static copy left in place: only the render writes the
-     per-item event name, and only the static copy carries the missing blurb. */
+  /* Rendered, not the static copy left in place: only the static copy
+     carries the missing blurb. */
   const row = page.locator('#addOnList > li', { hasText: 'Get-Paid Autopilot' });
   await expect(row).toContainText('C$500/month');
   await expect(row).not.toContainText('overdue invoices');
-  await expect(row.locator('a')).toHaveAttribute('data-evt', 'plan_buy_click_get_paid');
+  await expect(row.locator('a')).toHaveText(/Request it/);
   await ctx.close();
 });
 
@@ -551,8 +551,12 @@ test('item 10: a module sold alone is requested, never started or bought, from t
     expect(flat(t)).toBe('Request it ›');
   }
   for (const a of await page.locator('#addOnList a.addon-start').evaluateAll((as) => as.map((x) => x.getAttribute('aria-label')))) {
-    expect(a).toMatch(/^Request .+ on its own$/);
+    /* The accessible name starts with the visible label (WCAG 2.5.3). */
+    expect(a).toMatch(/^Request it: .+ on its own$/);
   }
+  /* And sends no purchase event, rendered or not. */
+  expect(await page.locator('#addOnList a.addon-start[data-evt]').count()).toBe(0);
+  expect(list).not.toMatch(/addon-start[^>]*data-evt/);
   expect(flat(await page.locator('#addOnList').locator('xpath=..').innerText())).toContain('nothing is charged until you have agreed to it');
   await ctx.close();
 });

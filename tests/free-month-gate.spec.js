@@ -383,7 +383,7 @@ test('the three Front Desk sizes sit side by side under one heading, minutes fir
   expect(cheapest(375).id).toBe('front-desk-starter');
   await expect(pick).toHaveText('Front Desk Starter · ' + P.startLine(tiers[0]).replace(/\.$/, ''));
   await expect(why).toContainText('375 estimated AI minutes a month is 175 past the 200 included on Front Desk Starter. At C$1.10 each that comes to about C$442.50 a month, the lowest total for these minutes.');
-  await expect(why).toContainText('Front Desk Plus covers these minutes for C$500 a month, so it costs more here; it becomes the cheaper of the two past about 428 minutes a month.');
+  await expect(why).toContainText('Front Desk Plus covers these minutes for C$500 a month, so it costs more here; it becomes the cheaper of the two from about 428 minutes a month.');
   /* 240 calls is 600 minutes: Front Desk Plus (C$547.50 with 50 extra
      minutes) beats Starter (C$690 with 400), and overage is why. */
   await page.fill('#rcVol', '240');
@@ -395,6 +395,7 @@ test('the three Front Desk sizes sit side by side under one heading, minutes fir
   await page.fill('#rcVol', '400');
   expect(cheapest(1000).id).toBe('front-desk-plus');
   await expect(pick).toHaveText('Front Desk Plus · ' + P.startLine(tiers[1]).replace(/\.$/, ''));
+  await expect(why).toContainText('1,000 estimated AI minutes a month is 450 past the 550 included on Front Desk Plus');
   await expect(why).toContainText('about C$927.50 a month, the lowest total');
   /* 480 calls is 1,200 minutes: the AI Front Desk covers it for less than
      Plus with 650 extra minutes (C$1,117.50); The Works carries the same
@@ -402,7 +403,7 @@ test('the three Front Desk sizes sit side by side under one heading, minutes fir
   await page.fill('#rcVol', '480');
   expect(cheapest(1200).id).toBe('pro');
   await expect(pick).toHaveText('AI Front Desk · ' + P.startLine(tiers[2]).replace(/\.$/, ''));
-  await expect(why).toContainText('fit inside the 1,400 included on AI Front Desk');
+  await expect(why).toContainText('1,200 estimated AI minutes a month fit inside the 1,400 included on AI Front Desk');
   await expect(why).toContainText('A bigger plan is cheaper here because of overage: Front Desk Plus');
   await expect(why).toContainText('The Works carries the same minutes and adds automations');
   /* 60 calls is 150 minutes: Starter covers it, and nothing is explained. */
