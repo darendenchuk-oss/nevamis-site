@@ -278,7 +278,7 @@ test('item 7: book.html leads with missed calls, the cost card is one sentence w
   expect(costs, 'book.html keeps its What it costs card').toBeTruthy();
   const text = flat(decode(readable(costs[1])));
   expect(text.split(/(?<=\.)\s+/).filter(Boolean), 'one sentence').toHaveLength(1);
-  expect(costs[1]).toMatch(/<span id="bookCostFrom">Plans start at C\$[\d,]+ a month<\/span>/);
+  expect(costs[1]).toMatch(/<span id="bookCostFrom">Plans start at C\$[\d,]+ a month, /);
   expect(text, 'the cost card names no invitation and no fee').not.toMatch(/Partnership|Launch & Implementation/);
   /* No figure on the page, before the scheduler, sits outside a disclosure
      and above the floor. */
@@ -534,6 +534,20 @@ for (const [file, ids] of Object.entries(SPANS)) {
     await ctx.close();
   });
 }
+
+/* PR #62 review, item 4: with prices unpublished, book.html leaves no typed
+   floor figure on the page, as pricing.html does with its lede. */
+test('prices: with pricing unpublished, book.html carries no floor figure', async ({ browser }) => {
+  const ctx = await browser.newContext();
+  await engine(ctx, json(200, { open: false, cap: CAP }));
+  await withConfig(ctx, (s) => s.replace(/publishedPricing: true/, 'publishedPricing: false'));
+  const page = await ctx.newPage();
+  await page.goto('/book.html');
+  await expect(page.locator('#bookFrom')).toHaveText('');
+  await expect(page.locator('#bookCostFrom')).not.toContainText('C$');
+  await expect(page.locator('#bookCostFrom')).toContainText('On the call you see which plan or single automation fits');
+  await ctx.close();
+});
 
 test('prices: a moved Front Desk Plus price, rate and Partnership fee reach how-you-start and book', async ({ browser }) => {
   const ctx = await browser.newContext();

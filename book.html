@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-b4UXIchNugHjcgNxxrqh57Rs3aMMlZygKBwz9k3CdtI=' 'sha256-ATLwZeR9MihxbLDsn3EVdnLfJgC9L2DDYPiN0zRoYW0=' 'sha256-uYb/47LL+tmtIRTmQalibBhP3d+yxPzbPuEBS00zdQQ=' 'sha256-02jUoZw0PKQh33jRTN0BnWK/0eoEXs4Y1TlQPZRQxHg=' 'sha256-CiaZu42QZ8DgcwuI4SCqVofEx4YebkE2oNEoP1dxiZA=' 'sha256-wubUVsaSyBgY/U/r8NH9fWvoj21P30baXl+0Xac/EUQ=' 'sha256-6FTbj5AW5yA3sTm3XCH+In+bv3IbpswZKAu8lFI928E=' 'sha256-MV7RxEjOQDc1ifC8BvQpnh+ITAd0sgDxQQZ2ZYT+jr0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-b4UXIchNugHjcgNxxrqh57Rs3aMMlZygKBwz9k3CdtI=' 'sha256-ATLwZeR9MihxbLDsn3EVdnLfJgC9L2DDYPiN0zRoYW0=' 'sha256-wsd1x6ztt6twyTYnh0Vxo3m2ppPupvYJsioQdHMUonQ=' 'sha256-cAVQTxpL6w51/da6FLEvfbHUtt1AxkAj0Mwa9ID2Cao=' 'sha256-CiaZu42QZ8DgcwuI4SCqVofEx4YebkE2oNEoP1dxiZA=' 'sha256-wubUVsaSyBgY/U/r8NH9fWvoj21P30baXl+0Xac/EUQ=' 'sha256-6FTbj5AW5yA3sTm3XCH+In+bv3IbpswZKAu8lFI928E=' 'sha256-MV7RxEjOQDc1ifC8BvQpnh+ITAd0sgDxQQZ2ZYT+jr0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1159,7 +1159,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              "No pressure to decide"). #bookCostFrom renders from
              pricing-config.js like #bookFrom over the calendar, and
              tests/v7-booked.spec.js holds this copy equal to the render. -->
-        <div class="reveal"><h3>What it costs</h3><p><span id="bookCostFrom">Plans start at C$250 a month</span>, and on the call you see which plan or single automation fits, at its published price.</p></div>
+        <div class="reveal"><h3>What it costs</h3><p><span id="bookCostFrom">Plans start at C$250 a month, and on the call you see which plan or single automation fits, at its published price.</span></p></div>
         <div class="reveal"><h3>Who you want more of</h3><p>The kind of customer you would want more of this year. Lead Generation is by invitation, and this call is where it starts.</p></div>
       </div>
       <!-- The first-month-free card used to sit here, 2,600px above the
@@ -1511,6 +1511,16 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
    without scripts, and tests/v7-booked.spec.js holds the two equal. */
 (function () {
   var P = window.NV_PRICING;
+  /* PRICES OFF, NO TYPED PRICE LEFT (PR #62 review, item 4): the two floor
+     lines carry a figure as no-script copy, so with pricing unpublished they
+     are blanked as pricing.html blanks its own, the cost card keeping its
+     sentence without the figure. */
+  if (P && P.publishedPricing === false) {
+    var offFrom = document.getElementById("bookFrom");
+    if (offFrom) offFrom.textContent = "";
+    var offCost = document.getElementById("bookCostFrom");
+    if (offCost) offCost.textContent = "On the call you see which plan or single automation fits, and what it costs.";
+  }
   if (!P || !P.publishedPricing || !Array.isArray(P.plans) || typeof P.startLine !== "function") return;
   var inv = P.plans.filter(function (p) { return p.selfServe === false && p.launch > 0; })[0];
   var el = document.getElementById("bookPartnership");
@@ -1530,7 +1540,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   /* The same floor in the cost card above the calendar (funnel audit item
      7), the first figure the page shows. */
   var costEl = document.getElementById("bookCostFrom");
-  if (costEl && from) costEl.textContent = "Plans start at " + P.money(from.monthly) + " a month";
+  if (costEl && from) costEl.textContent = "Plans start at " + P.money(from.monthly) + " a month, and on the call you see which plan or single automation fits, at its published price.";
 })();
 </script>
 <script src="free-month.js" defer></script>

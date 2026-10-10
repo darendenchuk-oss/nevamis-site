@@ -1655,6 +1655,27 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     const ptNote = typeof cfg.partnerNote === "function" ? cfg.partnerNote() : null;
     if (ptNote === null) err("pricing-config.js: partnerNote() is missing, so #partnerNote on pricing.html has nothing to render");
     else if (ptNote) eq("pricing.html", "partnerNote", flat(textOf(ph, "partnerNote")), ptNote);
+    /* THE FLOOR LINES (PR #62 review, item 4). pricing.html's lede and
+       book.html's cost card and calendar line carry the cheapest self-serve
+       plan's figure as no-script copy, rendered over from the config at load.
+       A typed figure nothing compares is how a price drifts, so each static
+       copy is held to the sentence its page renders; with prices unpublished
+       none may carry a figure (the pages blank them then). */
+    {
+      const bk = fs.readFileSync(path.join(root, "book.html"), "utf8");
+      const floor = cfg.plans.filter((p) => p.selfServe === true && p.monthly > 0 && !(p.launch > 0))
+        .sort((a, b) => a.monthly - b.monthly)[0];
+      const lines = [
+        ["pricing.html", ph, "pricingFrom", floor && "Plans start at " + money(floor.monthly) + " a month, with " + floor.name + "."],
+        ["book.html", bk, "bookCostFrom", floor && "Plans start at " + money(floor.monthly) + " a month, and on the call you see which plan or single automation fits, at its published price."],
+        ["book.html", bk, "bookFrom", floor && "Plans start at " + money(floor.monthly) + " a month plus GST/HST (" + floor.name + ", "
+          + Number(floor.includedMinutes).toLocaleString("en-CA") + " minutes)."],
+      ];
+      for (const [where, html, id, rendered] of lines) {
+        if (cfg.publishedPricing && rendered) eq(where, id, flat(textOf(html, id)), rendered);
+        else if (/C\$\s?\d/.test(flat(textOf(html, id)) || "")) err(where + ": #" + id + " types a figure while pricing is unpublished");
+      }
+    }
     /* The same page quotes Enterprise's Launch & Implementation from a
        floor, so a note calling one plan "the one plan with" a fee must also
        name Enterprise and its floor, or a buyer reads the two as a
