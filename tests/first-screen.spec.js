@@ -39,6 +39,20 @@
                    to the end of its span, #close turns on and its Book a call
                    takes the tap.
 
+   SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09), each mutation made to the
+   served homepage (index.html) of the commit that introduced this file, three
+   tests each (390x844 motion, 360x640 no JavaScript, 1440x900 reduced
+   motion), then restored:
+     hero deleted          3 failed: "first frame: the hero's h1 is missing"
+     .reveal re-added      3 failed: "the h1 sits inside a .reveal block, so
+                           it waits for motion"
+     film back on top      3 failed: "the h1 is not inside the first viewport
+                           (top 2891, bottom 2997)" at 390x844
+     bar rule dropped      2 failed, 1 passed: "the bar must not double the
+                           hero's own Book a call" on both phones; at 1440 the
+                           bar is display:none whatever this rule says
+   and the whole file green again afterwards (12 passed).
+
    Run with the site served from this checkout on its own port, e.g.
      NV_PORT=3293 npx playwright test tests/first-screen.spec.js
    Nothing here reaches anything live: the engine origin is answered locally.
@@ -137,7 +151,10 @@ for (const vp of VIEWPORTS) {
 
         /* ---- the first frame ---- */
         await page.goto('/', { waitUntil: js ? 'commit' : 'load' });
-        await page.waitForSelector('#found a[href^="/book.html"]', { state: 'attached' });
+        /* The first film script's tag comes after </main>: once the parser has
+           reached it, the whole page above the film's scripts is in the
+           document, wherever the hero is or is not. */
+        await page.waitForSelector('script[src="/assets/film/film-1.js"]', { state: 'attached' });
         if (js) {
           /* The browser has painted the page as it stands: the film's script
              has not arrived, so whatever is on screen got there without it. */
