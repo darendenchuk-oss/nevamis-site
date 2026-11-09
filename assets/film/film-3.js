@@ -676,8 +676,11 @@ nav.addEventListener('click', function(e){
   if (openPane === pn) { closeCard(); return; }
   var scrollDiv = document.getElementById('scroll');
   var max = Math.max(1, scrollDiv.offsetHeight - (S.viewH ? S.viewH() : window.innerHeight)); /* same steady height as the film's own mapping */
+  /* ...measured from where the span starts on the page: the homepage's hero
+     sits above it (the film's SPAN_TOP; launch audit HERO-1, 2026-11-09) */
+  var spanTop = Math.max(0, Math.round(scrollDiv.getBoundingClientRect().top + (window.scrollY || 0)));
   progScroll = true;
-  window.scrollTo(0, Math.round(pn.viewP * max));
+  window.scrollTo(0, spanTop + Math.round(pn.viewP * max));
   openCard(pn);
 });
 

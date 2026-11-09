@@ -111,7 +111,10 @@ for (const page of PAGES) {
   test(`door: ${page} tells the #54 story in the film and leaves the scan's retired promises off the page`, () => {
     const html = read(page);
     const t = visibleText(html);
-    for (const line of ['Who would you want more of this year?', 'You decide every one. Nobody on it is contacted by us.',
+    /* The first beat asked "Who would you want more of this year?" until
+       2026-11-09 (launch audit STALE-1): seven weeks from year end, the time
+       word had gone stale, and the question needs none. */
+    for (const line of ['Who do you want more of?', 'You decide every one. Nobody on it is contacted by us.',
       'Tell us who you want more of.', 'Lead Generation is by invitation, and a short call is where it starts.']) {
       expect(t, `the film's #54 line "${line}"`).toContain(line);
     }
@@ -310,7 +313,9 @@ test('film ending: Book a call is the filled action and the scan link sits under
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/home.html?debug=1&nointro=1');
   await page.waitForFunction(() => window.__nv && window.__nv.dbg, null, { timeout: 60_000 });
-  await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, Math.ceil(d.spanH - d.vh)); });
+  /* The span starts below the hero since 2026-11-09 (launch audit HERO-1), so its
+     end is measured from the span's own top, which the film publishes as spanTop. */
+  await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, d.spanTop + Math.ceil(d.spanH - d.vh)); });
   await expect.poll(() => page.evaluate(() => document.getElementById('close').classList.contains('on')), { timeout: 60_000 }).toBe(true);
   await page.waitForTimeout(800);
   const r = await page.evaluate(() => {

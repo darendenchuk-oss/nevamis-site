@@ -116,3 +116,23 @@ test('a tracked click records the event locally before navigating away', async (
   const names = await page.evaluate(() => (window.nvEvents || []).map((e) => e.event));
   expect(names, 'nvTrack should have recorded the click').toContain('dayone_roi_click');
 });
+
+/* SECTION REACH COUNTS WHAT A VISITOR SCROLLED TO (launch audit HERO-1,
+   2026-11-09). <main> opens above the film now, with the hero, so the film's
+   story blocks (section.copy: #s1, #s2, #s3, #close) are inside it. They are
+   position:fixed at mid-screen with only their opacity changing, so an
+   observer saw all four "reached" the moment the page loaded, for everyone.
+   site.js leaves them out; the hero's own reach still counts, because it is
+   the first screen. */
+test('section reach never counts the film\'s fixed story blocks, and still counts the hero', async ({ page }) => {
+  await page.route('**/api/events', (r) => r.abort());
+  await page.route('**/api/mkt/events', (r) => r.abort());
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(PLAIN, { waitUntil: 'load' });
+  await page.waitForFunction(() => Array.isArray(window.nvEvents));
+  await page.waitForTimeout(1200);
+  const names = await page.evaluate(() => (window.nvEvents || []).map((e) => e.event));
+  expect(names, 'the hero is the first screen, so it is reached on load').toContain('section_reached_found');
+  const film = names.filter((n) => /^section_reached_(s1|s2|s3|close)$/.test(n));
+  expect(film, 'the film\'s fixed story blocks were counted as reached on load').toEqual([]);
+});

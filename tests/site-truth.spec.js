@@ -389,8 +389,9 @@ test('below the film, the button in the middle of the screen is the one a tap re
   const page = await ctx.newPage();
   await page.goto('/home.html?debug=1&nointro=1');
   await page.waitForFunction(() => window.__nv && window.__nv.dbg, null, { timeout: 60_000 });
-  /* play the film to its end, where #close turns on */
-  await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, Math.ceil(d.spanH - d.vh)); });
+  /* play the film to its end, where #close turns on. The span starts below the
+     hero since 2026-11-09 (launch audit HERO-1): spanTop is where it starts. */
+  await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, d.spanTop + Math.ceil(d.spanH - d.vh)); });
   await expect.poll(() => page.evaluate(() => { const d = window.__nv.dbg; return d.target > 0.999 && Math.abs(d.cur - d.target) < 0.002; }),
     { timeout: 60_000 }).toBe(true);
   await expect(page.locator('#close')).toHaveClass(/\bon\b/);

@@ -1914,6 +1914,18 @@ var stationW = -1, stationPF = -1, stationSpan = -1, stationIH = -1; /* what the
    the span. The nav rail reads the same value through S.viewH(). */
 var vhProbe = null;
 var SPAN_VH = Math.max(window.innerHeight, 500);
+/* WHERE THE SPAN STARTS ON THE PAGE (launch audit HERO-1, 2026-11-09).
+   On the composed homepage the hero (#found) sits ABOVE the film, so the span
+   no longer starts at scrollY 0, and every position the film reads or writes is
+   measured from the span's own top: readScroll() below, and the chapter rail's
+   jump in the interaction layer, which reads the same rect. Re-measured on every
+   layout(), which runs on resize, on the fonts arriving (they change the hero's
+   height), on a tab coming back and on the stage coming into view. In the
+   standalone film nothing precedes the span and it is 0, exactly as before. */
+var SPAN_TOP = 0;
+function measureSpanTop(){
+  SPAN_TOP = Math.max(0, Math.round(scrollEl.getBoundingClientRect().top + (window.scrollY || 0)));
+}
 function spanVH(){
   if (!vhProbe && document.body) {
     vhProbe = document.createElement('div');
@@ -1926,6 +1938,7 @@ function spanVH(){
   return h > 0 ? h : window.innerHeight;
 }
 function layout(){
+  measureSpanTop();
   var w = canvas.clientWidth || window.innerWidth;
   var h = canvas.clientHeight || window.innerHeight;
   if (document.hidden || w <= 0 || h <= 0) return; /* never size while hidden */
@@ -1998,7 +2011,7 @@ var target = 0, cur = 0;
 var mx = 0, my = 0, smx = 0, smy = 0;
 function readScroll(){
   var max = Math.max(1, spanH - SPAN_VH); /* the same steady height the span was built from */
-  target = clamp01((window.scrollY || 0) / max);
+  target = clamp01(((window.scrollY || 0) - SPAN_TOP) / max);
 }
 
 /* ---------- the film: everything derives from p ---------- */
@@ -2529,6 +2542,16 @@ function stepExit(dt){
 }
 if (DEBUG) window.__nv.exit = EXIT;
 var SHOWN = false; /* the poster comes down on the first composed frame, not before */
+/* THE FILM NEVER PARKS ON ITS FIRST FRAME (launch audit HERO-1, 2026-11-09).
+   The very first composed frame draws the glass panes with a blotchy, patchy
+   fill, and the second is clean: measured at 1440x900 on the real GPU, the
+   first show of the stage with no intro rendered once (needMore() had nothing
+   left to chase) and held that frame until the pointer moved. The ignition
+   always hid it, because the panes are still dark while the wake runs and it
+   renders for 1.9 seconds after. With the hero above the film there is no
+   ignition on the homepage, so the film owes two more frames after its first
+   one, whatever else is or is not moving. */
+var FIRST_FRAMES_OWED = 0;
 /* A FILM NOBODY CAN SEE STILL COST A FULL COMPOSE, ON EVERY SCROLL EVENT.
    #stage is sticky inside a ten-viewport #scroll, so once the visitor reaches
    the sections below it the canvas is off screen entirely. The scroll handler
@@ -2543,6 +2566,20 @@ var ON_SCREEN = true;
 function watchStage(){
   var stage = document.getElementById('stage');
   if (reduced || !stage || !window.IntersectionObserver) return;
+  /* MEASURED, NOT ASSUMED (launch audit HERO-1 and HERO-5, 2026-11-09). This
+     flag used to start true and wait for the observer's first report, which
+     arrives a frame later. In that gap the interaction layer pokes a render
+     while the parser is still running, so the expensive first composed frame
+     (the whole shader set compiling) went in at load whether or not the stage
+     was anywhere near the screen. With the hero above the film it never is at
+     load, so the flag starts from the stage's real place, with the observer's
+     own 15% margin: a phone that reads the hero and never scrolls never pays
+     for the first frame, and the hero's buttons are not queued behind it. Where
+     the stage IS on screen at load (the standalone film, a reload mid-film)
+     this is true and nothing changes. The observer below takes over from here,
+     and its first report brings the first frame the moment the stage nears. */
+  var sr = stage.getBoundingClientRect(), sm = window.innerHeight * 0.15;
+  ON_SCREEN = sr.bottom > -sm && sr.top < window.innerHeight + sm;
   new IntersectionObserver(function(entries){
     var vis = entries[entries.length - 1].isIntersecting;
     if (vis === ON_SCREEN) return;
@@ -2580,7 +2617,7 @@ var TOUCH_FOLLOW = 0.45, TOUCH_CAP = 1.5, TOUCH_SETTLE = 0.0003;
   else if (mq.addListener) mq.addListener(onPointerKind);
 })();
 function needMore(){
-  return EXIT.on || IW.on || HOLDS > 0 || GIX.busy || Math.abs(target - cur) > (COARSE ? TOUCH_SETTLE : 0.00004) ||
+  return EXIT.on || IW.on || HOLDS > 0 || GIX.busy || FIRST_FRAMES_OWED > 0 || Math.abs(target - cur) > (COARSE ? TOUCH_SETTLE : 0.00004) ||
          Math.abs(mx - smx) > 0.004 || Math.abs(my - smy) > 0.004;
 }
 function tick(t){
@@ -2638,10 +2675,11 @@ function tick(t){
   for (var fh = 0; fh < fhs.length; fh++) { try { fhs[fh](cur, camera, dt); } catch (e) {} }
   stepExit(dt); /* exit overrides ride on top of the pure-p frame */
   composer.render();
-  if (!SHOWN) { SHOWN = true; document.documentElement.classList.remove('nv-filmwait'); }
+  if (FIRST_FRAMES_OWED > 0) FIRST_FRAMES_OWED--;
+  if (!SHOWN) { SHOWN = true; FIRST_FRAMES_OWED = 2; document.documentElement.classList.remove('nv-filmwait'); }
   if (FPSU) FPSU(t, cur);
   if (DEBUG) {
-    window.__nv.dbg = { cur: cur, target: target, dt: dt, spanH: spanH, vh: SPAN_VH, cam: [camera.position.x, camera.position.y, camera.position.z], curveAt: (function(pp){var v=camCurve.getPoint(pp);return [v.x,v.y,v.z]})(clamp01(cur)) };
+    publishDbg(dt);
     window.__nv.renders++;
     window.__nv.frames.push(t);
     if (window.__nv.frames.length > 400) window.__nv.frames.splice(0, 100);
@@ -2649,6 +2687,13 @@ function tick(t){
   govFrame(dt * 1000);
   if (needMore() && ON_SCREEN) { GOV.chain = true; rafId = requestAnimationFrame(tick); }
   else { GOV.chain = false; }
+}
+/* The measurement seam (?debug=1). Published on every composed frame, and once
+   at start-up as well: with the hero above the film the stage starts off screen,
+   and a film that has not drawn yet must still tell a test where its span is
+   (spanTop, spanH, vh) so the test can scroll there and make it draw. */
+function publishDbg(dt){
+  window.__nv.dbg = { cur: cur, target: target, dt: dt, spanH: spanH, vh: SPAN_VH, spanTop: SPAN_TOP, cam: [camera.position.x, camera.position.y, camera.position.z], curveAt: (function(pp){var v=camCurve.getPoint(pp);return [v.x,v.y,v.z]})(clamp01(cur)) };
 }
 function requestRender(){
   if (reduced || rafId || document.hidden || !ON_SCREEN) return;
@@ -2766,10 +2811,26 @@ if (reduced) {
   readScroll();
   cur = target;
   watchStage();
-  if (target <= 0.02 && !(DEBUG && new URLSearchParams(location.search).get('nointro') === '1')) {
+  if (DEBUG) publishDbg(0);
+  /* THE IGNITION PLAYS ONLY WHERE SOMEONE WOULD SEE IT (launch audit HERO-1,
+     2026-11-09). On the composed homepage the hero sits above the film, so at
+     load the stage starts below the fold and nobody watches the orb wake: by
+     the time a visitor scrolls down to it, a 1.9-second cold open would have
+     run on a canvas off screen, or would hold the rail, the labels and the
+     hint dark while they arrive. So when the span starts more than half a
+     screen down, the film opens on its settled p=0 composition, the same frame
+     ?nointro=1 and a reload mid-journey already give. The standalone film, and
+     any page whose stage starts at the top, keep the ignition exactly as it was.
+     ?debug=1&introhold=1 still forces it on and freezes it wherever the stage
+     is: it is the measurement switch tests/can-always-act.spec.js uses to hold
+     the page in the ignition's worst state, which is still a state the code can
+     reach. */
+  var holdIntro = DEBUG && new URLSearchParams(location.search).get('introhold') === '1';
+  var stageBelowFold = SPAN_TOP > window.innerHeight * 0.5;
+  if (target <= 0.02 && (!stageBelowFold || holdIntro) && !(DEBUG && new URLSearchParams(location.search).get('nointro') === '1')) {
     IW.on = true; /* reload mid-journey (target beyond ~2%) never sees the intro */
     document.documentElement.classList.add('nv-intro');
-    if (DEBUG && new URLSearchParams(location.search).get('introhold') === '1') IW.rate = 0; /* measurement: freeze the first composed frame */
+    if (holdIntro) IW.rate = 0; /* measurement: freeze the first composed frame */
   }
   startFilm();
 }

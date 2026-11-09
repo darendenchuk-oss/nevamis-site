@@ -279,8 +279,9 @@ for (const vp of VIEWPORTS) {
     const failures = [];
     for (const l of links) {
       if (l.inClose) {
-        // the film settled at its end, where the ending copy and pill are parked
-        await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, Math.ceil(d.spanH - d.vh)); });
+        // the film settled at its end, where the ending copy and pill are parked;
+        // the span starts below the hero since 2026-11-09 (spanTop, launch audit HERO-1)
+        await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, d.spanTop + Math.ceil(d.spanH - d.vh)); });
         await expect.poll(() => page.evaluate(() => { const d = window.__nv.dbg; return d.target > 0.999 && Math.abs(d.cur - d.target) < 0.002; }),
           { message: 'the film never settled at its end', timeout: 60_000 }).toBe(true);
       } else {
@@ -310,6 +311,45 @@ for (const vp of VIEWPORTS) {
       failures.push(...await check(page, decoder, l.sel, l.where, 5));
     }
     expect(failures, `unreadable scan controls at ${vp.width}x${vp.height}:\n${failures.join('\n')}`).toEqual([]);
+    await context.close();
+  });
+}
+
+/* THE FILM'S STORY KICKERS READ OVER THE FLOOR GLOW (launch audit HERO-6,
+   2026-11-09). "ONE QUESTION" sits on the brightest part of the floor glow at
+   the first beat, and in emerald with only a text-shadow it all but vanished
+   there (the audit's 390x844 and 1440x900 captures). Each kicker now brings its
+   own dark plate, like the ending's scan pill. Graded the way every scan label
+   above is, on the real frame at each beat's middle: the label against every
+   pixel behind it with the label hidden, 4.5:1 because it is 11.5px text. Not
+   hovered and no boundary: it is a label, not a control, and it takes no
+   pointer (the story blocks are pointer-events:none). */
+for (const vp of VIEWPORTS) {
+  test(`the film's story kickers read over the floor glow (${vp.name})`, async ({ browser }) => {
+    test.setTimeout(240_000);
+    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
+    await contain(context);
+    const decoder = await context.newPage();
+    const page = await context.newPage();
+    await page.goto('/home.html?debug=1&nointro=1');
+    await page.waitForFunction(() => window.__nv && window.__nv.dbg, null, { timeout: 60_000 });
+    const failures = [];
+    for (const [id, at] of [['s1', 0.20], ['s2', 0.43], ['s3', 0.63]]) {
+      /* the middle of the beat, measured from where the span starts (spanTop) */
+      await page.evaluate((at) => { const d = window.__nv.dbg; window.scrollTo(0, d.spanTop + Math.round(at * (d.spanH - d.vh))); }, at);
+      await expect.poll(() => page.evaluate((id) => {
+        const d = window.__nv.dbg;
+        return document.getElementById(id).classList.contains('on') && Math.abs(d.cur - d.target) < 0.002;
+      }, id), { message: `the film never settled on #${id}`, timeout: 60_000 }).toBe(true);
+      const sel = `#${id} .kick`;
+      await settle(page, sel);
+      for (let f = 0; f < 3; f++) {
+        const r = await probe(page, decoder, sel);
+        if (r.text < r.needText) failures.push(`#${id} kicker f${f}: label ${r.text}:1 (need ${r.needText}:1) [${r.desc}]`);
+        await page.waitForTimeout(350);
+      }
+    }
+    expect(failures, `unreadable story kickers at ${vp.width}x${vp.height}:\n${failures.join('\n')}`).toEqual([]);
     await context.close();
   });
 }

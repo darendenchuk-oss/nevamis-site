@@ -272,7 +272,14 @@
      event per major section, plus depth milestones. Names only, no properties. */
   (function () {
     if (typeof window.IntersectionObserver !== "function") return;
-    var sections = document.querySelectorAll("main section[id]");
+    /* Not the film's story blocks (section.copy: #s1, #s2, #s3, #close). Since
+       the homepage hero moved above the film (launch audit HERO-1, 2026-11-09),
+       <main> opens before the film and holds them, and they are
+       position:fixed at mid-screen with only their opacity changing, so an
+       observer sees all four "reached" on load for every visitor: four events
+       that would mean nothing. The film's reach is the sections either side
+       of it, #found and #recover. */
+    var sections = document.querySelectorAll("main section[id]:not(.copy)");
     if (!sections.length) return;
     var seen = {};
     var secIO = new IntersectionObserver(function (entries) {

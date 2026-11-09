@@ -418,9 +418,10 @@ test('footer, callbar and every section land without console errors', async ({ b
     await expect(page.locator('#' + id), `#${id} is authored but not on the homepage`).toHaveCount(1);
   }
 
-  /* The phone call bar: hidden while the film owns the screen, by design
-     (scripts/film/compose.py, "html:not(.nv-below) .callbar"), and there to
-     tap once the visitor is into the page below it. */
+  /* The phone call bar: hidden while the hero's own Book a call is on
+     screen, so the page never shows it twice (scripts/film/compose.py,
+     nv-herocta; until 2026-11-09 it was hidden for the whole film), and there
+     to tap once the visitor is past the hero. */
   await expect(page.locator('.callbar')).toBeHidden();
   await page.locator('#faq').scrollIntoViewIfNeeded();
   await expect(page.locator('.callbar')).toBeVisible();
