@@ -277,9 +277,24 @@
        <main> opens before the film and holds them, and they are
        position:fixed at mid-screen with only their opacity changing, so an
        observer sees all four "reached" on load for every visitor: four events
-       that would mean nothing. The film's reach is the sections either side
-       of it, #found and #recover. */
-    var sections = document.querySelectorAll("main section[id]:not(.copy)");
+       that would mean nothing.
+       Not the homepage hero either (#found, launch review, 2026-11-09). It is
+       the page's first screen now, 1,063 to 1,371px tall, so 47% to 85% of it
+       is on screen before anyone scrolls, over the 0.35 below: it fired for
+       every visitor on load. The engine counts every section_reached_* towards
+       its "Looked at the offer" funnel stage (src/domain/funnel.ts), so that
+       stage read the same as "Landed" for homepage traffic and would hide a
+       homepage that persuades nobody. Arriving is landing_page_view's to
+       count; a reach is something the visitor scrolled to. So the homepage's
+       first reach is the first section past the film, #recover.
+       section_reached_found stops here rather than going on with a new
+       meaning: until the hero moved it meant "reached the Lead Generation
+       offer below the film", and firing on load for everyone it would have
+       read as a jump in that history at the deploy, not a change in
+       visitors. tests/analytics.spec.js holds both: nothing is reached on
+       load at 360x640, 390x844 or 1440x900, and #recover still is once
+       scrolled to. */
+    var sections = document.querySelectorAll("main section[id]:not(.copy):not(#found)");
     if (!sections.length) return;
     var seen = {};
     var secIO = new IntersectionObserver(function (entries) {

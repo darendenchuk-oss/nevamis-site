@@ -122,17 +122,35 @@ test('a tracked click records the event locally before navigating away', async (
    story blocks (section.copy: #s1, #s2, #s3, #close) are inside it. They are
    position:fixed at mid-screen with only their opacity changing, so an
    observer saw all four "reached" the moment the page loaded, for everyone.
-   site.js leaves them out; the hero's own reach still counts, because it is
-   the first screen. */
-test('section reach never counts the film\'s fixed story blocks, and still counts the hero', async ({ page }) => {
+   The hero (#found) did the same: it is the first screen and 1,063 to 1,371px
+   tall, so 47% to 85% of it is on screen at load, over site.js's 0.35, and
+   section_reached_found fired for every visitor. The engine counts every
+   section_reached_* towards "Looked at the offer" (src/domain/funnel.ts), so
+   that stage read the same as "Landed" (launch review, 2026-11-09). site.js
+   leaves both out, and the RULE held here is that nothing is reached before
+   the visitor scrolls, at every first-screen size the hero is built for.
+   The second half is the control that keeps the first honest: a broken
+   observer would also report nothing on load, so the first section past the
+   film must still be reached once it is scrolled to. */
+test('section reach counts nothing on load, not the hero nor the film\'s fixed story blocks, and still counts a section scrolled to', async ({ page }) => {
   await page.route('**/api/events', (r) => r.abort());
   await page.route('**/api/mkt/events', (r) => r.abort());
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(PLAIN, { waitUntil: 'load' });
-  await page.waitForFunction(() => Array.isArray(window.nvEvents));
-  await page.waitForTimeout(1200);
-  const names = await page.evaluate(() => (window.nvEvents || []).map((e) => e.event));
-  expect(names, 'the hero is the first screen, so it is reached on load').toContain('section_reached_found');
-  const film = names.filter((n) => /^section_reached_(s1|s2|s3|close)$/.test(n));
-  expect(film, 'the film\'s fixed story blocks were counted as reached on load').toEqual([]);
+  for (const vp of [{ width: 360, height: 640 }, { width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+    const at = `${vp.width}x${vp.height}`;
+    await page.setViewportSize(vp);
+    await page.goto(PLAIN, { waitUntil: 'load' });
+    await page.waitForFunction(() => Array.isArray(window.nvEvents));
+    /* the observer reports what is already on screen in its first callback,
+       a frame or two after observe(); this is many of those */
+    await page.waitForTimeout(1200);
+    expect(await page.evaluate(() => scrollY), `${at}: the page has not been scrolled`).toBe(0);
+    const names = await page.evaluate(() => (window.nvEvents || []).map((e) => e.event));
+    const reached = names.filter((n) => n.startsWith('section_reached_'));
+    expect(reached, `${at}: a section was counted as reached before the visitor scrolled`).toEqual([]);
+  }
+  /* the control, at the last size: past the film, the first section counts */
+  await page.evaluate(() => document.getElementById('recover').scrollIntoView({ block: 'start', behavior: 'instant' }));
+  await expect.poll(() => page.evaluate(() => (window.nvEvents || []).map((e) => e.event)),
+    { message: 'the first section past the film was scrolled to and never counted', timeout: 10_000 })
+    .toContain('section_reached_recover');
 });
