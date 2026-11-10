@@ -376,8 +376,10 @@ export const MUST_FIRE = [
   ['question-builder', 'Property managers and adjusters . Can be asked when you approve the question, with the answer in the call recording in your portal.'],
   ['question-builder', 'Can be asked when you approve the question, with the answer in the call recording in your portal, so you can handle each your own way.'],
   ['question-builder', 'It asks about the job, where it is and how urgent it is, and it can be set up to ask what you would ask, such as what stopped working.'],
-  /* "can be set up to ask" */
+  /* "can be set up to ask", on one line and wrapped across two: the second
+     fails if that alternative's \s+ goes back to a plain space. */
   ['question-builder', 'It asks about the job, where it is and how urgent it is, and it can be set up to ask more.'],
+  ['question-builder', 'It asks about the job, where it is and how urgent it is, and it can be set up to\n        ask more.'],
   /* "ask what you would ask" */
   ['question-builder', "Have it ask what you'd ask, such as whether the breaker has been reset."],
   /* "asked ... when you approve", the "can be" form no longer excused */
