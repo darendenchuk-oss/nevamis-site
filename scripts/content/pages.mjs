@@ -502,7 +502,10 @@ export const PAGES = {
     body: tradeBody({
       trade: 'restoration and property services',
       whenItRings: 'The call comes in at the worst moment of someone\'s week.',
-      urgency: 'Active loss is flagged urgent, not queued.',
+      /* "Active loss is flagged urgent, not queued." until the review of
+         launch-site-4 (2026-11-10): what is flagged is the summary, and
+         only for an active emergency (see NO "MARKED URGENT" above). */
+      urgency: 'An active loss is not a next-week call.',
       /* "Restoration work is won in the first hour." opened this until
          2026-10-03: stated as fact, measured by nobody (audit TRADES-5).
          "Calls that meet your emergency definition are handled as
