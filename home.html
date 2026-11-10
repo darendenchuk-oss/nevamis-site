@@ -1703,6 +1703,8 @@ body{
 #close:not(.on) a,#close:not(.on) .fine .cta-q,
 html.nv-below #close a,html.nv-below #close .fine .cta-q{pointer-events:none}
 
+#close:not(.on),body.card-open #close.on{visibility:hidden;transition:opacity .6s ease,visibility 0s linear .6s}
+
 #close .fine .cta-q{pointer-events:auto;display:inline-block;margin-bottom:.5rem;
   padding:.4rem 1rem;border-radius:999px;background:rgba(2,8,13,.78);
   border:2px solid rgba(159,240,206,.85);box-shadow:0 0 0 3px #02080D;

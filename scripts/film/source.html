@@ -131,6 +131,19 @@ body{
    is covered here (tests/site-truth.spec.js, "below the film"). */
 #close:not(.on) a,#close:not(.on) .fine .cta-q,
 html.nv-below #close a,html.nv-below #close .fine .cta-q{pointer-events:none}
+/* ...and no key reaches it either (post-launch sweep F3, 2026-11-09).
+   pointer-events stops a tap, not Tab: with focus left on the hero and the
+   page scrolled into the film, Tab went to the ending's Book a call and Scan
+   my website at opacity 0, two stops with no focus a visitor could see. The
+   page's nv-above and nv-below rules hide the block outside the film; this
+   hides it inside the film whenever it is not on, and while a pane card is
+   open, which fades it to 0 above (body.card-open .copy.on). visibility
+   takes it out of the tab order without moving anything, and waits for the
+   .6s fade so the block still fades out; turning on, it is visible at once
+   and fades in. Reduced motion and no WebGL switch every block on, so the
+   ending there stays ordinary text in the tab order.
+   tests/first-screen.spec.js presses Tab mid-film and with a card open. */
+#close:not(.on),body.card-open #close.on{visibility:hidden;transition:opacity .6s ease,visibility 0s linear .6s}
 /* The ending's quiet second action (decision #54): a small ghost pill on the
    small-print line under Book a call, never a second filled button. It sits
    over the arch's glow, where a bare mint text link measured 2.13:1, so it
