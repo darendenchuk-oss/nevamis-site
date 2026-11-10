@@ -143,7 +143,12 @@ export const CLAIM_RULES = [
      intake questions"), beside "qualifying" and "screening"; a bare
      "qualifying questions" or "screening questions" still fires, since those
      only ever mean a list the agent runs. The surface-wide scan now runs in
-     CI too, as scripts/check-consistency.js guard 7k2. */
+     CI too, as scripts/check-consistency.js guard 7k2. Mutation runs on
+     ef7cb7e: the four alternatives removed together, 9 MUST_FIRE lines
+     fail; one at a time, qualifying/screening 1, "questions you approved"
+     3, "written in your words" 1, "intake" in the asks group 1; "intake"
+     put back in the bare-noun alternative, the MUST_PASS intake sentence
+     fires. */
   { id: 'question-builder',
     re: /\bwe set it up to ask\b|\bqualified the way you would\b|\basks? (?:the|your)(?: own)? (?:qualifying |screening |intake )?questions\b|(?<!\bcan be )\basked\b[^.;?!]{0,40}\bwhen you approve\b|\b(?:qualifying|screening) questions?\b|\bquestions (?:that )?(?:you|the owner|owners?|the business|your team|we)(?: have| has| had)? (?:approv(?:e|es|ed)|set|chose|choose|wrote|write|picked|pick|signed off)\b|\bquestions (?:are |were )?(?:written|set|worded) (?:in|with) your\b/i,
     why: 'the client agent\'s prompt has no qualifying-questions field: it takes hours, services, area, the approved FAQ and a booking link, and captures name, callback number, job, location and urgency "in a question or two" (engine src/domain/agent-draft.ts, buildClientAgentPrompt). A trade question rides in only as approved text. Say what it asks, and that it "can be set up to ask" more' },
@@ -157,7 +162,10 @@ export const CLAIM_RULES = [
      page. A served sentence may say what the agent asks; it may not deny
      that it can be set up to ask more. scripts/check-consistency.js guard
      7k2 runs this rule and question-builder over every served surface in
-     CI; on eda54f6 it failed on that llms.txt sentence. */
+     CI; on eda54f6 it failed on that llms.txt sentence. Mutation runs on
+     ef7cb7e: the rule made to match nothing, 5 MUST_FIRE lines fail; one
+     alternative removed at a time, "nothing lets" 1, "cannot set the
+     questions" 2, "questions cannot be" 1, "cannot be set up to ask" 1. */
   { id: 'question-denial',
     re: /\bnothing (?:lets|allows|enables)\b[^.;?!]{0,40}\b(?:set|choose|change|add|edit|write)\b[^.;?!]{0,25}\bquestions\b|\b(?:can ?not|can't|(?:is|are)(?:n't| not) able to|unable to|no way to)\b[^.;?!]{0,30}\b(?:set|choose|change|add|edit|write)\b[^.;?!]{0,25}\bquestions\b|\bquestions\b[^.;?!]{0,30}\b(?:can ?not|can't) be (?:set|chosen|changed|added|edited|written)\b|\b(?:can ?not|can't) be set up to ask\b/i,
     why: 'the trade pages say the agent "can be set up to ask what you would ask" (scripts/content/pages.mjs, the hedge question-builder prescribes); a served sentence that says the questions cannot be set or changed contradicts them. Say what it asks, the job, where it is and how urgent it is, and leave out what cannot be set' },

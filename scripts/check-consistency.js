@@ -1335,7 +1335,10 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
        ("nothing lets the owner set the questions it asks"); on main 0fb6589
        it fails seven times, question-builder in home.html, how-you-start.html,
        index.html, pricing.html, proposal.html, pricing-config.js and
-       llms.txt. Green on the branch that added it. */
+       llms.txt. Green on the branch that added it. With its llms.txt unit
+       deleted (mutation run on eda54f6), it still fails, on its own
+       "produced no readable text" check, so a unit that stops being read
+       cannot go quiet. */
 {
   const QUESTION_RULES = new Set(["question-builder", "question-denial"]);
   const literalsOf = (js) => jsStringLiterals(stripJsComments(js)).map(renderedProse).filter(Boolean);
