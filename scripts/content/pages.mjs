@@ -214,12 +214,23 @@ export const PROOF_BLOCK = `
    those two things are: what the hours, services, area and FAQ do not
    cover, and each trade's own urgency line, which names the hours and
    services. A caller whose job is urgent work has the location and
-   callback number taken first and the call marked urgent; the text and
-   email the owner gets start "URGENT" or "Urgent" only when the caller
-   described an active emergency (client-notify.ts callSummarySms and
-   callSummaryEmail read urgency "emergency", which DRAFT_DATA_COLLECTION
-   sets only then), so no trade page says the summary is flagged for any
-   other urgent call.
+   callback number taken first. The text and email the owner gets start
+   "URGENT" or "Urgent" only when the caller described an active emergency
+   (client-notify.ts callSummarySms and callSummaryEmail read urgency
+   "emergency", which DRAFT_DATA_COLLECTION sets only then), so no trade
+   page says the summary is flagged for any other urgent call.
+
+   NO "MARKED URGENT" (review of launch-site-4, 2026-11-10). The first pass
+   of this leaf said an urgent-work call is "marked urgent" on all four
+   pages. The prompt's URGENT WORK line does say "mark it urgent", but
+   nothing records that mark: the only urgency the agent writes down is the
+   urgency field (routine, emergency or unknown, and emergency only for an
+   active emergency, agent-draft.ts DRAFT_DATA_COLLECTION), and the SMS,
+   the email and the portal's Emergency badge read only that field
+   (client-notify.ts, calls-section.tsx). An urgent-work call whose caller
+   describes no active emergency reaches the owner as routine or not
+   stated. So the pages say what is taken first, and say the URGENT summary
+   apart, for an active emergency only.
 
    "Tells them your team will confirm the time" is said only by a client with
    a booking link; with none, the agent takes a complete message and says the
@@ -346,15 +357,18 @@ export const PAGES = {
          business takes, so the two are said apart. "Captured as leads with
          the details you need" on Quotes and upgrades went the same day: it
          read as questions per trade, and what is captured is the same on
-         every call. */
+         every call. The card "Emergency triage: ... Then the urgent details
+         are captured and your team is alerted." went in the review of that
+         leaf: nothing triages, and the alert is the summary that starts
+         URGENT, sent to the owner's phone (see NO "MARKED URGENT" above). */
       afterHours: `If a caller describes a fire or a shock hazard, it tells them to hang up
         and call 9-1-1 before anything else. When the call is urgent work your hours and
-        services say you take, Nevamis takes the location and callback number first and marks
-        the call urgent. When the caller describes an active emergency, the summary sent to
-        your phone starts with URGENT.`,
+        services say you take, Nevamis takes the location and callback number first. When the
+        caller describes an active emergency, the summary sent to your phone starts with
+        URGENT.`,
       jobs: [
         { t: 'Service and repair calls', d: 'Dead outlets, tripped circuits, flickering lights, panel faults.' },
-        { t: 'Emergency triage', d: 'A fire or shock hazard gets the 9-1-1 advice first. Then the urgent details are captured and your team is alerted.' },
+        { t: 'Fire and shock hazards', d: 'A fire or shock hazard gets the 9-1-1 advice first. Then the details are written down, and the summary you get starts with URGENT.' },
         { t: 'Quotes and upgrades', d: 'Panel upgrades and rewires captured as leads: the job in the caller\'s own words, where it is, and their name and callback number.' },
         { t: 'Service-call pricing', d: 'Only the diagnostic or trip fee you approve, quoted as you wrote it and never estimated.' },
         { t: 'Service area', d: 'Out-of-area callers are told honestly instead of being taken on and cancelled later.' },
@@ -382,7 +396,9 @@ export const PAGES = {
     description: 'No-heat calls answered around the clock on your own line, the job and how urgent it is written down, and the summary sent to you within seconds.',
     heroProof: TRADE_HERO_PROOF,
     h1: 'The 11 PM no-heat call, answered',
-    lede: `A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, writes the job down, and sends you the summary.`,
+    /* "triages the call" until the review of launch-site-4 (2026-11-10):
+       nothing triages; it asks what the caller needs, the same on every call. */
+    lede: `A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, asks what the caller needs, writes the job down, and sends you the summary.`,
     body: tradeBody({
       trade: 'heating and cooling',
       /* "Your busiest calls arrive at the worst possible hour" until
@@ -392,8 +408,9 @@ export const PAGES = {
       afterHours: `If a caller smells gas, it tells them to hang up and call 9-1-1 or their
         gas utility's emergency line before anything else. When your hours and services say you
         take no-heat calls urgently, a caller who describes one has the location and callback
-        number taken first and the call marked urgent. Everything else is captured with the
-        times that suit the caller, for you to confirm.`,
+        number taken first. When the caller describes an active emergency, the summary you get
+        starts with URGENT. Everything else is captured with the times that suit the caller,
+        for you to confirm.`,
       /* THE SUMMARY HAS NO ACCOUNT-TYPE FIELD. Two of these said "marked on
          the summary" (plan holders, and "Commercial vs residential: Asked on
          every call and marked on the summary") until 2026-10-03. The text and
@@ -410,7 +427,7 @@ export const PAGES = {
          is in it, so that is all these say. They promise no question, no
          routing and no special handling: what happens next is the owner's. */
       jobs: [
-        { t: 'No-heat and no-cool calls', d: 'When your hours and services say you take them urgently, the location and callback number come first and the call is marked urgent.' },
+        { t: 'No-heat and no-cool calls', d: 'When your hours and services say you take them urgently, the location and callback number come first.' },
         { t: 'Seasonal tune-ups', d: 'Written down with the times that suit them, for you to confirm.' },
         { t: 'Maintenance plans', d: 'What a plan holder says on the call is in the call recording in your portal, so you can look after them your own way.' },
         { t: 'Equipment questions', d: 'Answered from your approved FAQ, or taken as a message.' },
@@ -436,12 +453,14 @@ export const PAGES = {
          set the line between the two when we set it up" until 2026-11-10
          (launch-site-4): the line is the business's own hours and services
          text (agent-draft.ts URGENT WORK), and what an urgent call gets is
-         the location and callback number first and the call marked urgent,
-         so it says those. */
+         the location and callback number first, so it says those. The
+         URGENT summary is said apart, for an active emergency only (see NO
+         "MARKED URGENT" above). */
       afterHours: `When your hours and services say you take active water urgently, a caller
-        who describes it has the location and callback number taken first and the call marked
-        urgent. Slow drains and fixture replacements are taken down normally. Your hours and
-        services, as you give them to us at setup, draw the line between the two.`,
+        who describes it has the location and callback number taken first. When the caller
+        describes an active emergency, the summary you get starts with URGENT. Slow drains and
+        fixture replacements are taken down normally. Your hours and services, as you give them
+        to us at setup, draw the line between the two.`,
       /* "Hot water tanks: Age, type, and symptoms captured" and "Property
          managers: Can be asked who they manage for when you approve the
          question" until 2026-11-10. Both named a question the agent is not
@@ -451,9 +470,12 @@ export const PAGES = {
          "Drains and blockages: Qualified and written up with the details
          your tech needs" went the same day, in launch-site-4: it read as
          questions a plumber's tech would ask, and what is written up is the
-         same on every call. */
+         same on every call. "Emergency leaks: ... then the urgent details
+         captured and your team alerted" went in the review of that leaf:
+         the alert is the summary that starts URGENT, for an active
+         emergency (see NO "MARKED URGENT" above). */
       jobs: [
-        { t: 'Emergency leaks', d: 'Shut-off guidance only from your approved FAQ, then the urgent details captured and your team alerted.' },
+        { t: 'Emergency leaks', d: 'Shut-off guidance only from your approved FAQ. When the caller describes an active emergency, the summary you get starts with URGENT.' },
         { t: 'Drains and blockages', d: 'The blockage in the caller\'s own words, where it is and how urgent it is, with their name and callback number.' },
         { t: 'Hot water tanks', d: 'The problem in the caller\'s own words, and the address, written down before anyone drives out.' },
         { t: 'Renovation quotes', d: 'Captured as leads rather than lost to voicemail.' },
@@ -464,14 +486,19 @@ export const PAGES = {
   },
 
   'restoration.html': {
-    description: 'Flood, fire and damage calls answered calmly at any hour. Nevamis gathers the incident details, flags priority calls, and texts you the request.',
+    /* "gathers the incident details, flags priority calls, and texts you the
+       request" here, and "flags the priority calls" in the lede, until the
+       review of launch-site-4 (2026-11-10): nothing ranks calls by priority.
+       It writes down the loss, where it is and how urgent it is, and the
+       summary starts URGENT only for an active emergency. */
+    description: 'Flood, fire and damage calls answered calmly at any hour. Nevamis writes down the loss, where it is and how urgent it is, and texts you the summary.',
     heroProof: TRADE_HERO_PROOF,
     h1: 'The first hour of a loss, answered calmly',
     /* "books the assessment" until 2026-08-09. Nothing books: a tenant agent
        is provisioned with no booking tool and no calendar credential, so the
        assessment slot is confirmed by a person on your side. What is real is
        the capture and the speed it reaches you at, and that is what is sold. */
-    lede: `Flood, fire, and damage calls arrive stressed and urgent, often at night. Nevamis answers calmly, gathers the incident details, flags the priority calls, and sends you the assessment request within seconds.`,
+    lede: `Flood, fire, and damage calls arrive stressed and urgent, often at night. Nevamis answers calmly, writes down the loss, where it is and how urgent it is, and sends you the summary within seconds.`,
     body: tradeBody({
       trade: 'restoration and property services',
       whenItRings: 'The call comes in at the worst moment of someone\'s week.',
@@ -482,11 +509,13 @@ export const PAGES = {
          emergencies" until 2026-11-10 (launch-site-4): there is no
          definition of the client's for the agent to test a call against
          beyond its hours and services text (agent-draft.ts URGENT WORK), so
-         it says that, and what an urgent call gets. */
+         it says that, and what an urgent call gets. The URGENT summary is
+         said apart, for an active emergency only (see NO "MARKED URGENT"
+         above). */
       afterHours: `When a caller describes a loss your hours and services say you take
-        urgently, Nevamis takes the location and callback number first and marks the call
-        urgent, and the loss is written down in the caller's own words, so nobody starts from
-        nothing.`,
+        urgently, Nevamis takes the location and callback number first, and the loss is written
+        down in the caller's own words, so nobody starts from nothing. When the caller describes
+        an active emergency, the summary you get starts with URGENT.`,
       /* "Fire and smoke: Handled with a calm, approved script" and
          "Assessment requests: The window they need captured and texted to
          you" until 2026-10-03. A live fire is not the owner's script: the
@@ -502,12 +531,16 @@ export const PAGES = {
          "Emergency alerts: For the calls you count as urgent, Nevamis
          captures the urgent details and alerts your team" until the same
          day's follow-up (launch-site-4): the calls counted as urgent are the
-         ones the hours and services text names, and nothing else sets them. */
+         ones the hours and services text names, and nothing else sets them.
+         Its title was "Emergency alerts" until the review of that leaf: what
+         an urgent loss gets is the location and callback number first, and
+         the only alert is the summary that starts URGENT, for an active
+         emergency (see NO "MARKED URGENT" above). */
       jobs: [
         { t: 'Water and flood loss', d: 'The loss in the caller\'s own words, where it is and how urgent it is, written down while it matters.' },
         { t: 'Fire and smoke', d: 'A fire still burning gets the 9-1-1 advice first. After it is out, questions are answered from your approved FAQ, not improvised.' },
         { t: 'Insurance questions', d: 'Answered only within what you approve, otherwise taken as a message.' },
-        { t: 'Emergency alerts', d: 'For a loss your hours and services say you take urgently, the location and callback number come first and the call is marked urgent.' },
+        { t: 'Urgent losses', d: 'For a loss your hours and services say you take urgently, the location and callback number come first. When the caller describes an active emergency, the summary you get starts with URGENT.' },
         { t: 'Assessment requests', d: 'The times that suit them are captured on the call and in your portal, so you confirm the slot.' },
         { t: 'Property managers and adjusters', d: 'What a property manager or adjuster says on the call is in the call recording in your portal, so you can handle them your own way.' },
       ],
@@ -539,11 +572,15 @@ export const PAGES = {
        own phone rings first and a call reaches Nevamis only after it goes
        unanswered, so a speed counted from the caller's first ring is not
        what happens here (audit MACHINE-25). "a per-call answering service"
-       stays: it names a kind of service, not what any provider charges. */
-    lede: `Evenings, weekends, and holidays covered without hiring a night shift or paying a per-call answering service. Your number, your rules, answered when you do not pick up.`,
+       stays: it names a kind of service, not what any provider charges.
+       "Your number, your rules" here, and "Your rules, and a summary of each
+       call." in the description, until the review of launch-site-4
+       (2026-11-10): nothing lets a client write rules for the agent (owner
+       decision #80), so neither says so. */
+    lede: `Evenings, weekends, and holidays covered without hiring a night shift or paying a per-call answering service. Your number, answered when you do not pick up.`,
     /* Its own, because the lede is longer than the 155-character cut and the
        cut ended this page's search snippet at "answered when you do". */
-    description: 'Evenings, weekends and holidays answered on your own number when nobody picks up, without a night shift. Your rules, and a summary of each call.',
+    description: 'Evenings, weekends and holidays answered on your own number when nobody picks up, without a night shift, and a summary of each call sent to you.',
     body: `
 <section class="tight">
   <div class="wrap">
@@ -703,6 +740,11 @@ export const PAGES = {
        - "Escalates an emergency | By your rules" read as a hand-off. Client
          agents have end_call and nothing else; what happens is the urgent
          details captured and the team alerted (COMPARE-8, decision #40).
+         That cell ended "by the rules you set" until the review of
+         launch-site-4 (2026-11-10): nothing lets a client set rules for the
+         agent (owner decision #80), and the alert is the summary that
+         starts URGENT, for an active emergency only (client-notify.ts reads
+         urgency "emergency"), so the cell says that.
        The price row and the foot-note changed with v7. Both said "a one-time
        Launch & Implementation fee to start, then a monthly plan", and no
        Front Desk size carries a fee since v7; #41 replaced it with "Your
@@ -721,7 +763,7 @@ export const PAGES = {
           <tr><th scope="row">Asks about the job, where it is, and how urgent</th><td class="no">No</td><td class="yes">Yes</td></tr>
           <tr><th scope="row">Writes the job down in full</th><td class="no">No</td><td class="yes">Yes</td></tr>
           <tr><th scope="row">Confirms the callback number</th><td class="no">No</td><td class="yes">Yes, and says your team will get back to them</td></tr>
-          <tr><th scope="row">Flags an emergency to you</th><td class="no">No</td><td class="yes">Captures the urgent details and alerts your team, by the rules you set</td></tr>
+          <tr><th scope="row">Flags an emergency to you</th><td class="no">No</td><td class="yes">When the caller describes an active emergency, the summary you get starts with URGENT</td></tr>
           <tr><th scope="row">Gives you a useful summary</th><td class="part">A recording</td><td class="yes">Who called, what they wanted, the callback number, urgency, outcome and next step</td></tr>
           <tr><th scope="row">Costs nothing</th><td class="yes">Yes</td><td class="part">From ${cad(ENTRY.monthly)} a month (${ENTRY.name}, ${count(ENTRY.includedMinutes)} minutes included)</td></tr>
         </tbody>
@@ -791,7 +833,12 @@ export const PAGES = {
        message in usage-policy.ts). On sell/v7-integration nextTierUp()
        exists but has no caller and the 100% email does not yet name the
        next size, so this sentence is true only once L5 lands: L5 is a
-       hard precondition for v7 go-live. */
+       hard precondition for v7 go-live.
+       Two more changed in the review of launch-site-4 (2026-11-10), for
+       saying a client writes rules for the agent (owner decision #80): the
+       service-area cell "Rules built with you" is what it answers from, and
+       "for anything outside the rules you approved" in the closing
+       paragraph is what the hours, services, area and FAQ do not cover. */
     body: `
 <section class="tight">
   <div class="wrap">
@@ -800,7 +847,7 @@ export const PAGES = {
         <thead><tr><th scope="col">Ask about</th><th scope="col">Ask the answering service</th><th scope="col">Nevamis</th></tr></thead>
         <tbody>
           <tr><th scope="row">A call at 2 AM</th><td class="ask">Does a call at 2 AM cost more?</td><td class="yes">Answered at the same rate</td></tr>
-          <tr><th scope="row">Your service area and prices</th><td class="ask">Do they work from your price list, or a general script?</td><td class="yes">Rules built with you</td></tr>
+          <tr><th scope="row">Your service area and prices</th><td class="ask">Do they work from your price list, or a general script?</td><td class="yes">Answered from your service area and the prices you approve</td></tr>
           <tr><th scope="row">What comes back to you</th><td class="ask">What do you get after each call?</td><td class="yes">Who called, what they wanted, the callback number, urgency, outcome and next step</td></tr>
           <tr><th scope="row">A genuine judgement call</th><td class="ask">Can the person on the line make a judgement call for you?</td><td class="part">Takes a message and flags it for you</td></tr>
           <tr><th scope="row">Cost as volume grows</th><td class="ask">Is it per call or per minute, and is there a monthly minimum?</td><td class="part">${SIZES.map((s) => `${s.name}: ${count(s.includedMinutes)} minutes for ${cad(s.monthly)} a month, then ${cad(s.overage)} a minute`).join(';<br>')}.<br>The same receptionist answers 24/7 on every size. Past the minutes, calls keep being answered, the email when you pass them names the rate and the next size up where there is one, and your plan changes only if you change it.</td></tr>
@@ -816,8 +863,8 @@ export const PAGES = {
       <p class="eyebrow mono">The honest version</p>
       <h2>Where a person still wins.</h2>
       <p>A trained person handles the unexpected better than software does, and some businesses
-        need that all the time. Nevamis is built to know its limits: for anything outside the rules
-        you approved, it takes a message rather than guessing. If most of your calls
+        need that all the time. Nevamis is built to know its limits: for anything your hours,
+        services, area and FAQ do not cover, it takes a message rather than guessing. If most of your calls
         are genuinely unpredictable, hire the person. If most are the same twenty questions and a
         job to write down, this does that part, inside the minutes your plan includes.</p>
     </div>
