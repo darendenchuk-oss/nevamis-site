@@ -108,8 +108,10 @@ export const CLAIM_RULES = [
     why: 'banned on every client and buyer surface, even in the negative (owner rule); say what is true, for example "no minimum term"' },
   /* The next three came from the review of PR #42 (2026-10-03): each was a
      sentence this leaf itself wrote, true for some clients and stated as if
-     true for all. A hedge ("often", "can be") is what lets the sentence
-     through, so the rule fires on the unhedged form only. */
+     true for all. A hedge ("often") is what lets the first one through, so
+     that rule fires on the unhedged form only. question-builder let a "can
+     be" hedge through as well until owner decision #80 (2026-11-10) retired
+     it; see that rule. */
   /* Each of the three was widened on 2026-10-03 (review of PR #42, polish
      leaf): as first written each caught its own example and missed the next
      wording of it. "by dialing" (the US spelling), "Your team confirms the
@@ -149,26 +151,60 @@ export const CLAIM_RULES = [
      3, "written in your words" 1, "intake" in the asks group 1; "intake"
      put back in the bare-noun alternative, the MUST_PASS intake sentence
      fires. */
+  /* NO QUESTION BUILDER, AND NO HEDGE FOR ONE (owner decision #80,
+     dev-control, 2026-11-10). Until that day this rule let one form through:
+     a negative lookbehind excused "can be asked ... when you approve", and
+     the four trade pages said the agent "can be set up to ask what you would
+     ask, such as ..." while four of their cards said a trade question "can be
+     asked when you approve the question". That was the hedge for a trade
+     question riding in as approved FAQ text, and it read as the very
+     question builder this rule refuses. The decision: nothing lets the
+     client, or Nevamis, set the questions the agent asks. On every call it
+     asks what the caller needs, the job, where it is and how urgent it is,
+     takes a name and a callback number and confirms the number back once,
+     and answers from the business's own hours, services, service area and
+     approved FAQ (engine src/domain/agent-draft.ts, ON EVERY CALL; canonical
+     ai_front_desk). So the hedge is now a finding in every spelling. The
+     alternatives added for it join their words with \s+ rather than a
+     space, so a sentence wrapped across a line in a source file reads the
+     same as one that is not. Saying the questions cannot be set is TRUE and
+     allowed: the question-denial rule that refused it, which existed only
+     to protect the hedge, was deleted the same day, and its examples are
+     MUST_PASS lines below. Each alternative is a line of its own, so a
+     mutation run can take out exactly one. */
   { id: 'question-builder',
-    re: /\bwe set it up to ask\b|\bqualified the way you would\b|\basks? (?:the|your)(?: own)? (?:qualifying |screening |intake )?questions\b|(?<!\bcan be )\basked\b[^.;?!]{0,40}\bwhen you approve\b|\b(?:qualifying|screening) questions?\b|\bquestions (?:that )?(?:you|the owner|owners?|the business|your team|we)(?: have| has| had)? (?:approv(?:e|es|ed)|set|chose|choose|wrote|write|picked|pick|signed off)\b|\bquestions (?:are |were )?(?:written|set|worded) (?:in|with) your\b/i,
-    why: 'the client agent\'s prompt has no qualifying-questions field: it takes hours, services, area, the approved FAQ and a booking link, and captures name, callback number, job, location and urgency "in a question or two" (engine src/domain/agent-draft.ts, buildClientAgentPrompt). A trade question rides in only as approved text. Say what it asks, and that it "can be set up to ask" more' },
-  /* THE OTHER WAY OF GETTING IT WRONG (review of PR #65, 2026-11-09). The
-     TRUTH-2 rewrite of llms.txt item 3 ended "nothing lets the owner set the
-     questions it asks". That is canonical's internal note, not copy: the
-     four trade pages (plumbers, electricians, hvac, restoration, from
-     scripts/content/pages.mjs) say "it can be set up to ask what you would
-     ask", the hedge question-builder above prescribes, so an answer engine
-     reading llms.txt would have told a trade owner the opposite of the trade
-     page. A served sentence may say what the agent asks; it may not deny
-     that it can be set up to ask more. scripts/check-consistency.js guard
-     7k2 runs this rule and question-builder over every served surface in
-     CI; on eda54f6 it failed on that llms.txt sentence. Mutation runs on
-     ef7cb7e: the rule made to match nothing, 5 MUST_FIRE lines fail; one
-     alternative removed at a time, "nothing lets" 1, "cannot set the
-     questions" 2, "questions cannot be" 1, "cannot be set up to ask" 1. */
-  { id: 'question-denial',
-    re: /\bnothing (?:lets|allows|enables)\b[^.;?!]{0,40}\b(?:set|choose|change|add|edit|write)\b[^.;?!]{0,25}\bquestions\b|\b(?:can ?not|can't|(?:is|are)(?:n't| not) able to|unable to|no way to)\b[^.;?!]{0,30}\b(?:set|choose|change|add|edit|write)\b[^.;?!]{0,25}\bquestions\b|\bquestions\b[^.;?!]{0,30}\b(?:can ?not|can't) be (?:set|chosen|changed|added|edited|written)\b|\b(?:can ?not|can't) be set up to ask\b/i,
-    why: 'the trade pages say the agent "can be set up to ask what you would ask" (scripts/content/pages.mjs, the hedge question-builder prescribes); a served sentence that says the questions cannot be set or changed contradicts them. Say what it asks, the job, where it is and how urgent it is, and leave out what cannot be set' },
+    re: new RegExp([
+      String.raw`\bwe set it up to ask\b`,
+      String.raw`\bqualified the way you would\b`,
+      String.raw`\basks? (?:the|your)(?: own)? (?:qualifying |screening |intake )?questions\b`,
+      /* "Can be asked (about it | who they manage for) when you approve the
+         question": the "can be" form is no longer excused. */
+      String.raw`\basked\b[^.;?!]{0,40}\bwhen\s+you\s+approve\b`,
+      String.raw`\b(?:qualifying|screening) questions?\b`,
+      String.raw`\bquestions (?:that )?(?:you|the owner|owners?|the business|your team|we)(?: have| has| had)? (?:approv(?:e|es|ed)|set|chose|choose|wrote|write|picked|pick|signed off)\b`,
+      String.raw`\bquestions (?:are |were )?(?:written|set|worded) (?:in|with) your\b`,
+      /* The hedge itself: "it can be set up to ask what you would ask", "it
+         can be set up to ask more". A modal is required, so "it is set up to
+         ask about the job" (what it does) and "it cannot be set up to ask
+         anything more" (true) both pass. */
+      String.raw`\b(?:can|could|will|may|would)(?:\s+(?:also|even|easily))?\s+be\s+(?:set\s+up|configured|programmed|trained|told|tuned)\s+to\s+ask\b`,
+      /* "ask what you would ask", in any sentence that does not deny it. */
+      String.raw`(?<!\b(?:not|never|cannot|can't)\s+)\bask\s+what\s+you(?:'d|’d|\s+would)(?:\s+(?:normally|usually))?\s+ask\b`,
+      /* "when you approve the question", with or without "asked" before it. */
+      String.raw`\b(?:once|when|after|if)\s+you\s+approve\s+(?:the|a|each|that|your)\s+questions?\b`,
+      /* "a plumbing company can have the AI ask about the type of job". */
+      String.raw`\b(?:can|could|will)\s+have\s+(?:it|the\s+AI|the\s+agent|your\s+agent|your\s+front\s+desk)\s+ask\b`,
+      /* "The questions it asks ... are set with the business during setup". */
+      String.raw`\bquestions\s+(?:it|the\s+agent|the\s+AI|your\s+agent)\s+asks\b[^.;?!]{0,40}\b(?:are|is|get|can\s+be|will\s+be)\s+(?:set|chosen|tuned|agreed|written|customi[sz]ed|configured|changed)\b`,
+      /* "Qualification rules are tuned per business during setup". */
+      String.raw`\bqualification\s+(?:rules|questions)\b`,
+    ].join('|'), 'i'),
+    why: 'nothing lets the client, or Nevamis, set the questions the agent asks (owner decision #80, 2026-11-10): on every call it asks what the caller needs, the job, where it is and how urgent it is, takes a name and a callback number, and answers from the business\'s own hours, services, service area and approved FAQ (engine src/domain/agent-draft.ts, ON EVERY CALL). Say what it asks and stop there. "It can be set up to ask" more is the hedge decision #80 retired; saying the questions cannot be set is true and allowed' },
+  /* question-denial, which refused "nothing lets the owner set the questions
+     it asks" and "it cannot be set up to ask anything more", was DELETED on
+     2026-11-10 (owner decision #80). It existed to protect the trade pages'
+     hedge, and the hedge is gone: those sentences are true, and they are
+     MUST_PASS lines below so nobody restores the rule by accident. */
   /* THE TIME A CALLER ASKS FOR IS A REQUEST, NOT AN APPOINTMENT (audit
      PRICING-9, 2026-10-03). These pages said the agent "takes the job and
      the time the caller wants", or a close wording, in eight places in
@@ -322,21 +358,43 @@ export const MUST_FIRE = [
   ['question-builder', 'With the questions written in your own words.'],
   ['question-builder', 'Qualifying questions tuned to your trade.'],
   /* Review of PR #65 (2026-11-09): "intake" fires only when the agent asks
-     them; and the denial llms.txt carried, as it was, with the next ways of
-     saying it. */
+     them. */
   ['question-builder', 'It asks your intake questions on every call.'],
-  ['question-denial', "It asks the caller what they need: the job, where it is and how urgent it is. What it knows about the business comes from the owner's hours, services, area and approved FAQ; nothing lets the owner set the questions it asks."],
-  ['question-denial', 'You cannot change the questions it asks.'],
-  ['question-denial', 'There is no way to set the questions it asks.'],
-  ['question-denial', 'The questions it asks cannot be changed.'],
-  ['question-denial', 'It cannot be set up to ask anything more.'],
+  /* Owner decision #80 (2026-11-10): the hedge as the four trade pages and
+     four of their cards served it until that day, the two MUST_PASS lines
+     that protected it, and then one line for each alternative added for it
+     that no other alternative catches, so a mutation run that takes one out
+     fails at least one line here. The first intro keeps the line breaks its
+     source had. */
+  ['question-builder', 'It asks about the job, where it is and how urgent it is, and it can be set up to\n        ask what you would ask, such as what stopped working,\n        whether anything is sparking, heating, or smells like burning, whether the breaker has\n        been reset, the service address, and when they can be home.'],
+  ['question-builder', 'It asks about the job, where it is and how urgent it is, and it can be set up to ask what you would ask, such as whether there is heat at all, what the thermostat reads, the age and type of the system, whether anyone vulnerable is in the home, the address, and what times work for them.'],
+  ['question-builder', 'It asks about the job, where it is and how urgent it is, and it can be set up to ask what you would ask, such as whether water is actively running, whether they have found the shut-off, what is affected, how long it has been happening, the address, and access details.'],
+  ['question-builder', 'It asks about the job, where it is and how urgent it is, and it can be set up to ask what you would ask, such as what happened, when it started, how much area is affected, whether the source is stopped, whether insurance is involved, and who is on site.'],
+  ['question-builder', 'Maintenance plans . Can be asked about when you approve the question, with the answer in the call recording in your portal.'],
+  ['question-builder', 'Commercial vs residential . Can be asked when you approve the question, with the answer in the call recording in your portal, so you can handle each your own way.'],
+  ['question-builder', 'Property managers . Can be asked who they manage for when you approve the question, with the answer in the call recording in your portal.'],
+  ['question-builder', 'Property managers and adjusters . Can be asked when you approve the question, with the answer in the call recording in your portal.'],
+  ['question-builder', 'Can be asked when you approve the question, with the answer in the call recording in your portal, so you can handle each your own way.'],
+  ['question-builder', 'It asks about the job, where it is and how urgent it is, and it can be set up to ask what you would ask, such as what stopped working.'],
+  /* "can be set up to ask" */
+  ['question-builder', 'It asks about the job, where it is and how urgent it is, and it can be set up to ask more.'],
+  /* "ask what you would ask" */
+  ['question-builder', "Have it ask what you'd ask, such as whether the breaker has been reset."],
+  /* "asked ... when you approve", the "can be" form no longer excused */
+  ['question-builder', 'Can be asked about it when you approve.'],
+  /* "when you approve the question" */
+  ['question-builder', 'It asks about plans once you approve the question.'],
+  /* "can have the AI ask" */
+  ['question-builder', 'A plumbing company can have the AI ask about the type of job and location.'],
+  /* "the questions it asks ... are set" */
+  ['question-builder', 'The questions it asks and what it treats as urgent are set with the business during setup.'],
+  /* "qualification rules" */
+  ['question-builder', 'Qualification rules are tuned per business during setup.'],
   ['speed-where-the-phone-rings-first', 'Your number, your rules, answered in seconds.', 'after-hours-answering.html'],
   ['speed-where-the-phone-rings-first', 'It answers in seconds, any hour. Try to stump it.', 'demo.html'],
 ];
 
 export const MUST_PASS = [
-  'Can be asked when you approve the question, with the answer in the call recording in your portal, so you can handle each your own way.',
-  'It asks about the job, where it is and how urgent it is, and it can be set up to ask what you would ask, such as what stopped working.',
   'Asks about the job, where it is, and how urgent',
   'The times that suit them are captured on the call and in your portal, so you confirm the slot.',
   'It writes down the job and the times that suit the caller, for you to confirm.',
@@ -366,9 +424,29 @@ export const MUST_PASS = [
   "Your line is answered around the clock, in your business's name, and the caller is asked about the job, where it is and how urgent it is.",
   'Its answers to the questions your callers ask most, written in your words and approved by you',
   'Your agent is configured from your own hours, services, prices, area and FAQs, in your words.',
+  /* Owner decision #80 (2026-11-10): what replaced the hedge, verbatim as
+     the trade pages and the hub now serve it (the intro is the line above),
+     the true denials the deleted question-denial rule used to refuse, and
+     the near misses for the alternatives added that day: what the agent
+     does, and a denial. */
+  'Maintenance plans . What a plan holder says on the call is in the call recording in your portal, so you can look after them your own way.',
+  'Commercial vs residential . What the caller says about the property is in the call recording in your portal, so you can handle homes and businesses your own way.',
+  'Property managers . What a property manager says on the call is in the call recording in your portal, so you can handle the account your own way.',
+  'Property managers and adjusters . What a property manager or adjuster says on the call is in the call recording in your portal, so you can handle them your own way.',
+  "Hot water tanks . The problem in the caller's own words, and the address, written down before anyone drives out.",
+  "Water and flood loss . The loss in the caller's own words, where it is and how urgent it is, written down while it matters.",
+  'The calls each trade gets, answered from your own hours, services and area.',
+  "Your agent's answers to the questions your callers ask most, written in your words and approved by you",
+  "It asks the caller what they need: the job, where it is and how urgent it is. What it knows about the business comes from the owner's hours, services, area and approved FAQ; nothing lets the owner set the questions it asks.",
+  'You cannot change the questions it asks.',
+  'There is no way to set the questions it asks.',
+  'The questions it asks cannot be changed.',
+  'It cannot be set up to ask anything more.',
+  'It is set up to ask about the job, where it is and how urgent it is.',
+  'It cannot ask what you would ask; it asks about the job, where it is and how urgent it is.',
   /* Review of PR #65 (2026-11-09): llms.txt item 3 without the denial; a
-     near miss for question-denial; and the onboarding intake, which the
-     narrowed question-builder no longer bans. */
+     sentence about what it cannot answer; and the onboarding intake, which
+     the narrowed question-builder no longer bans. */
   "It asks the caller what they need: the job, where it is and how urgent it is. What it knows about the business comes from the owner's hours, services, area and approved FAQ.",
   'If a caller asks something it cannot answer, it takes a message for your team.',
   'You answer the intake questions on the discovery call, before your agent is built.',
