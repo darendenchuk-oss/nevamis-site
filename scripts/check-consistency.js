@@ -2901,19 +2901,52 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
      coming-soon.html renders as PRIVATE TESTING. */
   const QUALIFIED = /in development|in progress|being built|we are building|coming soon|planned|not yet|researching|on the roadmap|by invitation|private testing/i;
 
+  /* NOT ONLY THE DESCRIPTION (post-launch truth sweep, TRUTH-3, 2026-11-09).
+     This read the top-level description of each static JSON-LD node and
+     nothing else, so pricing.html's Product node said
+     "category": "Lead generation, quote follow-up and phone answering for
+     service businesses" beside a priced AggregateOffer, with no "by
+     invitation", and passed twice over: category was never read, and that
+     node is built at runtime by an inline script, which the static scan
+     never sees. An answer engine quotes a category, a serviceType or the
+     name of the thing sold as readily as a description. So every node is
+     walked, nested ones included; description, category and serviceType
+     are read on all of them, and name on the nodes that are the thing sold
+     (a question, a breadcrumb or a page is allowed to name what it is
+     about); and an inline script that builds a JSON-LD node has its
+     literal "description", "category", "serviceType" and "name" strings
+     read the same way. SHOWN RED BEFORE IT WAS TRUSTED: on main 0fb6589
+     this fails on that category and on the homepage Service node's name,
+     "Lead Generation, Quote Recovery and call answering for Canadian
+     trades". */
+  const SOLD = /^(?:Product|Service|Offer|AggregateOffer|OfferCatalog)$/;
+  const READ_ALWAYS = ["description", "category", "serviceType"];
   for (const page of contentPages) {
     const html = fs.readFileSync(path.join(root, page), "utf8");
     const descriptions = [];
     const meta = html.match(/<meta\s+name="description"\s+content="([^"]*)"/i);
     if (meta) descriptions.push({ where: 'meta name="description"', text: meta[1] });
+    const walk = (node) => {
+      if (Array.isArray(node)) { node.forEach(walk); return; }
+      if (!node || typeof node !== "object") return;
+      const type = [].concat(node["@type"] ?? "node").join("/");
+      const keys = SOLD.test(type) ? [...READ_ALWAYS, "name"] : READ_ALWAYS;
+      for (const key of keys) {
+        for (const text of [].concat(node[key] ?? [])) {
+          if (typeof text === "string") descriptions.push({ where: `JSON-LD ${type} ${key}`, text });
+        }
+      }
+      for (const v of Object.values(node)) if (v && typeof v === "object") walk(v);
+    };
     for (const block of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
       let parsed;
       try { parsed = JSON.parse(block[1]); } catch { continue; }  /* guard 15 reports the parse */
-      for (const node of (Array.isArray(parsed) ? parsed : [parsed])) {
-        const text = node?.description;
-        if (typeof text === "string") {
-          descriptions.push({ where: `JSON-LD ${[].concat(node["@type"] ?? "node").join("/")} description`, text });
-        }
+      walk(parsed);
+    }
+    for (const s of html.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/g)) {
+      if (!/application\/ld\+json/.test(s[1])) continue;
+      for (const m of s[1].matchAll(/"(description|category|serviceType|name)"\s*:\s*"((?:[^"\\\n]|\\.)*)"/g)) {
+        descriptions.push({ where: `JSON-LD built by an inline script, ${m[1]}`, text: m[2] });
       }
     }
     for (const { where, text } of descriptions) {

@@ -263,8 +263,11 @@ const service = {
   /* The name said "Call Answering and Lead Capture Service" while the page it
      sits on leads with Lead Generation and Quote Recovery: the structured data
      described the third of three offers as the whole product. Owner ranking of
-     2026-09-12: customers found first, quotes second, the phone third. */
-  name: 'Lead Generation, Quote Recovery and call answering for Canadian trades',
+     2026-09-12: customers found first, quotes second, the phone third.
+     "by invitation" since 2026-11-09 (TRUTH-3): an answer engine can quote a
+     name on its own, and check-consistency's readiness guard now reads the
+     name of every Service, Product and Offer node, not only descriptions. */
+  name: 'Lead Generation by invitation, Quote Recovery and call answering for Canadian trades',
   /* Answer engines quote serviceType verbatim, so it may only name things the
      service actually provisions. It said "appointment booking" while a
      provisioned agent has no calendar credential and no booking tool: the
