@@ -45,6 +45,10 @@ const ROOT_FILES = new Set([
   /* Twilio's voice FALLBACK for a client number diverted to the engine's
      missed-call line: what a caller hears if the engine does not answer. */
   'missed-line.xml',
+  /* Twilio's voice FALLBACK for the demo line (owner-approved, 2026-11-09):
+     what a caller hears when ring.xml's hand-off fails, for instance while
+     the line is busy, instead of an error tone. */
+  'fallback.xml',
 ]);
 /* assets/ holds what pages load: media, fonts, scripts, styles and data. No
    documents. An HTML page (or an SVG carrying script) served from assets/ would
@@ -189,7 +193,7 @@ const DIRS = [
   { dir: 'brand/', ok: (f) => BRAND.has(f) },
 ];
 /* Must stay reachable, or a phone line, the domain or the security contact breaks. */
-const REQUIRED = ['ring.xml', 'missed-line.xml', 'CNAME', 'assets/ringback-tone.wav', '.well-known/security.txt', 'talk/index.html'];
+const REQUIRED = ['ring.xml', 'missed-line.xml', 'fallback.xml', 'CNAME', 'assets/ringback-tone.wav', '.well-known/security.txt', 'talk/index.html'];
 
 const published = publishedFiles(root);
 const set = new Set(published);
