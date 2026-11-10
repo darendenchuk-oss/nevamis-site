@@ -31,6 +31,22 @@
    waits are not in the number. Nothing here reaches anything live: the
    engine origin, scan page included, is answered locally.
 
+   Measured when it went in (2026-11-09, 1440x900 Chromium drawing the film in
+   software): 49 ms and 7 ms for the hero at load, 10 ms with the film drawn
+   just below the fold, 18 ms below the film.
+   SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09), each made to the served
+   assets/film/film-2.js of the commit that introduced this file, then
+   restored:
+     exitCanPlay() always true    4 failed, the ending passed: 1609, 1609,
+     (the old behaviour)          2055 and 1613 ms to leave the page
+     the half-viewport check      1 failed: "with the film drawn but out of
+     dropped (SHOWN and           sight, the hero's scan took 2151 ms"; the
+     ON_SCREEN alone)             case only that check catches
+     exitCanPlay() always false   1 failed: "the ending's scan link no longer
+                                  plays the film's exit" (the page had
+                                  already left)
+   and the whole file green again afterwards.
+
    Run with the site served from this checkout on its own port, e.g.
      NV_PORT=3293 npx playwright test tests/film-exit.spec.js
    ============================================================ */

@@ -131,7 +131,13 @@ test('a tracked click records the event locally before navigating away', async (
    the visitor scrolls, at every first-screen size the hero is built for.
    The second half is the control that keeps the first honest: a broken
    observer would also report nothing on load, so the first section past the
-   film must still be reached once it is scrolled to. */
+   film must still be reached once it is scrolled to.
+   SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09), each made to site.js of the
+   commit that introduced this rule, then restored: ":not(#found)" dropped,
+   the load half failed at 360x640 with ["section_reached_found"]; the
+   nvTrack call in the observer made a no-op, the load half passed and the
+   scroll half failed: "the first section past the film was scrolled to and
+   never counted". */
 test('section reach counts nothing on load, not the hero nor the film\'s fixed story blocks, and still counts a section scrolled to', async ({ page }) => {
   await page.route('**/api/events', (r) => r.abort());
   await page.route('**/api/mkt/events', (r) => r.abort());
