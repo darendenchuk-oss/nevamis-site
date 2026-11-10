@@ -286,12 +286,17 @@ const HAS_IT = /\b(?:invitation|offered|onboarded|signed up|using|uses|use it|wo
 const QUANTITY = /\b(?:a few|several|a handful of|a small number of|some|many|dozens of|hundreds of|\d+)\s+(?:of\s+(?:our|the)\s+)?(?:businesses|clients|companies|customers|trades|contractors)\b/i;
 
 test('PLATFORM-6: the Roadmap and the pages that tell its story put no number on who has a service', () => {
-  /* Pages owned by another leaf of this audit, and the sentence they still
-     carry until it lands: scripts/film/sections.html (and so home.html and
-     index.html), "offered by invitation, to a few businesses", is
-     site-live-home's. how-you-start.html's "We take on a few businesses at a
-     time" is capacity, not a count of clients, and is site-live-buyer's. */
-  const files = ['roadmap-config.js', 'coming-soon.html', 'revenue-engine.html', 'about.html'];
+  /* The homepage is read too, as its source and as both built copies: its
+     Lead Generation fine print said "offered by invitation, to a few
+     businesses under their own agreement" until the post-launch truth sweep
+     (TRUTH-1, 2026-11-09), while this test left it out as another leaf's.
+     how-you-start.html's "We take on a few businesses at a time" is capacity,
+     not a count of clients, and is not a sentence about who has a service.
+     SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09): with SITE_ROOT at main
+     0fb6589 this test failed on scripts/film/sections.html, home.html and
+     index.html, "a few businesses" in each, and passed on this branch. */
+  const files = ['roadmap-config.js', 'coming-soon.html', 'revenue-engine.html', 'about.html',
+    'scripts/film/sections.html', 'home.html', 'index.html'];
   const bad = [];
   for (const f of files) {
     const blocks = f.endsWith('.js') ? jsStrings(read(f)) : htmlBlocks(read(f));
