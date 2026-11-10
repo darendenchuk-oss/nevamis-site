@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-b4UXIchNugHjcgNxxrqh57Rs3aMMlZygKBwz9k3CdtI=' 'sha256-ATLwZeR9MihxbLDsn3EVdnLfJgC9L2DDYPiN0zRoYW0=' 'sha256-wsd1x6ztt6twyTYnh0Vxo3m2ppPupvYJsioQdHMUonQ=' 'sha256-cAVQTxpL6w51/da6FLEvfbHUtt1AxkAj0Mwa9ID2Cao=' 'sha256-CiaZu42QZ8DgcwuI4SCqVofEx4YebkE2oNEoP1dxiZA=' 'sha256-wubUVsaSyBgY/U/r8NH9fWvoj21P30baXl+0Xac/EUQ=' 'sha256-6FTbj5AW5yA3sTm3XCH+In+bv3IbpswZKAu8lFI928E=' 'sha256-MV7RxEjOQDc1ifC8BvQpnh+ITAd0sgDxQQZ2ZYT+jr0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-b4UXIchNugHjcgNxxrqh57Rs3aMMlZygKBwz9k3CdtI=' 'sha256-ATLwZeR9MihxbLDsn3EVdnLfJgC9L2DDYPiN0zRoYW0=' 'sha256-/h7hcq2+9dU1ORRlFI/uai0OKhYKrjIUPrqkglxgwF4=' 'sha256-5atpgdtSWqklpaho1kPPDpfj+xKOiUyXdXdgB5Rna9s=' 'sha256-wsd1x6ztt6twyTYnh0Vxo3m2ppPupvYJsioQdHMUonQ=' 'sha256-cAVQTxpL6w51/da6FLEvfbHUtt1AxkAj0Mwa9ID2Cao=' 'sha256-CiaZu42QZ8DgcwuI4SCqVofEx4YebkE2oNEoP1dxiZA=' 'sha256-wubUVsaSyBgY/U/r8NH9fWvoj21P30baXl+0Xac/EUQ=' 'sha256-6FTbj5AW5yA3sTm3XCH+In+bv3IbpswZKAu8lFI928E=' 'sha256-MV7RxEjOQDc1ifC8BvQpnh+ITAd0sgDxQQZ2ZYT+jr0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <!-- generated:preload -->
@@ -1421,6 +1421,25 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             var tab = document.getElementById("bkNewTab");
             if (tab) tab.href = tab.getAttribute("href") + "?" + tail;
           } catch (e) { /* the frame books fine untagged */ }
+        })();
+        </script>
+        <!-- THE AD LANDS ON THE CALENDAR, NOT ON THE TOP OF THE PAGE (launch
+             audit PERF-2, 2026-11-09). Every ad links to #pick-a-time, and a
+             browser scrolls to a fragment only once the whole page has been
+             parsed: on a throttled phone that was 5.3 s of the intro hero,
+             then a 2,854px jump under a visitor who had started reading. This
+             runs as soon as the calendar and the lines above it are parsed,
+             so the panel is on screen at about 1.5 s, and the browser's own
+             jump later finds it already there (one jump, measured, no jump
+             back). It only scrolls for this exact fragment. -->
+        <script>
+        (function () {
+          try {
+            if (location.hash === "#pick-a-time") {
+              var t = document.getElementById("pick-a-time");
+              if (t && t.scrollIntoView) t.scrollIntoView({ block: "start" });
+            }
+          } catch (e) { /* the browser's own fragment jump still runs */ }
         })();
         </script>
         <p class="fine2">Rather talk first? Call <a class="mono" href="tel:+15874130035">(587) 413-0035</a> and ask it to have Daren call you back, or email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>
