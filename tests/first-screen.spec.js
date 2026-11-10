@@ -46,6 +46,11 @@
                    in the tab order until the polish round of 2026-11-09. Once
                    the stage reaches the top of the screen the rail is back in
                    the tab order.
+     mid-film      (post-launch sweep F3, 2026-11-09) inside the film, Tab
+                   from the hero's last link lands only on stops a visitor
+                   can see, never on the ending's two links while the ending
+                   is off; at the ending both are in the tab order, and a
+                   pane card opened over the ending takes them out again.
 
    SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09), each mutation made to the
    served homepage (index.html) of the commit that introduced this file, three
@@ -67,6 +72,20 @@
      #ncard rule dropped   2 failed: "with the hero in view, ncardClose "✕"
                            is still in the tab order"
    and green again restored (14 passed).
+   The mid-film keyboard test (post-launch sweep F3, 2026-11-09), against
+   main 0fb6589's build served from a checkout of that commit: 2 failed,
+   "mid-film Tab 1 landed on a "Book a call" in #close, at opacity 0
+   (#close)" at 390x844 and 1440x900; green on the branch that hides #close
+   while it is not on. Then each mutation made to that branch's served
+   index.html, both viewports each time, and restored:
+     card-open selector dropped    2 failed: "with a pane card open the
+                                   ending is transparent and its links are
+                                   still in the tab order"
+     :not(.on) selector dropped    2 failed: "mid-film Tab 1 landed on a
+                                   "Book a call" in #close, at opacity 0"
+     #close hidden even when on    2 failed: "at the ending, Book a call and
+                                   Scan my website are in the tab order"
+   and green again restored.
 
    Run with the site served from this checkout on its own port, e.g.
      NV_PORT=3293 npx playwright test tests/first-screen.spec.js
@@ -325,6 +344,98 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
         return { visibility: getComputedStyle(b).visibility, focused: document.activeElement === b };
       });
       expect(back, 'in the film the rail is in the tab order again').toEqual({ visibility: 'visible', focused: true });
+    } finally {
+      await ctx.close();
+    }
+  });
+}
+
+/* ---------- the keyboard, inside the film (post-launch sweep F3) ----------
+   nv-above and nv-below take the film's chrome out of the tab order outside
+   the film. Inside it the ending (#close) is a fixed block at opacity 0 until
+   the film's last beat, and on 2026-11-09 the live site still let Tab reach
+   its two links there: focus left on the hero, the page scrolled into the
+   film, and Tab went to "Book a call" then "Scan my website", both at
+   opacity 0, with no focus a visitor could see. A pane card open over the
+   ending fades it to 0 the same way (body.card-open .copy.on). So: mid-film,
+   the next stops after the hero's last link are all things a visitor can
+   see (no stop, and nothing it sits inside, at computed opacity 0); at the
+   ending the two links are in the tab order; with a card open over the
+   ending they are not. */
+const transparentChain = () => {
+  const el = document.activeElement;
+  const zero = [];
+  for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
+    if (getComputedStyle(n).opacity === '0') zero.push(n.id ? `#${n.id}` : n.tagName.toLowerCase());
+  }
+  return {
+    what: `${el.tagName.toLowerCase()} "${el.textContent.trim().replace(/\s+/g, ' ').slice(0, 30)}" in #${(el.closest('[id]') || {}).id}`,
+    body: el === document.body,
+    visibility: getComputedStyle(el).visibility,
+    zero,
+  };
+};
+
+for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
+  test(`${vp.name} ${vp.width}x${vp.height}, motion: mid-film Tab lands only on what can be seen, and the ending leaves the tab order under a card`, async ({ browser, baseURL }) => {
+    test.setTimeout(180_000);
+    const ctx = await browser.newContext({ baseURL, viewport: { width: vp.width, height: vp.height }, reducedMotion: 'no-preference' });
+    await ctx.route(/^https:\/\/app\.nevamis\.ca\//, (r) => r.fulfill({ status: 204, body: '' }));
+    const page = await ctx.newPage();
+    try {
+      await page.goto('/', { waitUntil: 'load' });
+      await page.waitForFunction(() => document.documentElement.classList.contains('nv-live'), null, { timeout: 60_000 });
+      /* A fifth of the way into the film: the stage fills the screen, the
+         ending is off. */
+      await page.evaluate(() => {
+        const sc = document.getElementById('scroll');
+        const top = sc.getBoundingClientRect().top + scrollY;
+        window.scrollTo(0, Math.round(top + 0.2 * (sc.offsetHeight - innerHeight)));
+      });
+      await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains('nv-above')),
+        { message: 'the film never cleared nv-above', timeout: SLOW }).toBe(false);
+      expect(await page.evaluate(() => document.getElementById('close').classList.contains('on')),
+        'mid-film, the ending is off').toBe(false);
+      /* After the ignition. Where the stage starts within half a screen of
+         the top (1440x900) the film opens with its ignition, which holds the
+         rail at opacity 0 (html.nv-intro) until the wake brings it in, and
+         the rail then fades up on the page's animation clock; that transient
+         state is not what F3 is about, so it is waited out here. */
+      await expect.poll(() => page.evaluate(() => !document.documentElement.classList.contains('nv-intro')
+        && getComputedStyle(document.getElementById('paneNav')).opacity === '1'),
+      { message: 'the film\'s ignition never finished, or the rail never faded in', timeout: 90_000 }).toBe(true);
+
+      /* Focus stays where the visitor left it, on the hero's last link, while
+         the page scrolls into the film; then Tab. */
+      await page.evaluate(() => [...document.querySelectorAll('#found .hero-top a')].at(-1).focus({ preventScroll: true }));
+      for (let i = 1; i <= 3; i++) {
+        await page.keyboard.press('Tab');
+        await page.waitForTimeout(300);
+        const s = await page.evaluate(transparentChain);
+        expect(s.body, `mid-film Tab ${i} went nowhere`).toBe(false);
+        expect(s.zero, `mid-film Tab ${i} landed on ${s.what}, at opacity 0 (${s.zero.join(' in ')})`).toEqual([]);
+        expect(s.visibility, `mid-film Tab ${i} landed on ${s.what}, which is not visible`).toBe('visible');
+      }
+
+      /* The ending: on, so both links are in the tab order... */
+      await page.evaluate(() => {
+        const sc = document.getElementById('scroll');
+        const top = sc.getBoundingClientRect().top + scrollY;
+        window.scrollTo(0, Math.ceil(top + sc.offsetHeight - innerHeight));
+      });
+      await expect.poll(() => page.evaluate(() => document.getElementById('close').classList.contains('on')),
+        { message: 'the film never reached its ending', timeout: 90_000 }).toBe(true);
+      const ending = () => page.evaluate(() => [...document.querySelectorAll('#close a')].map((a) => getComputedStyle(a).visibility));
+      expect(await ending(), 'at the ending, Book a call and Scan my website are in the tab order').toEqual(['visible', 'visible']);
+      /* ...and a pane card opened over it fades it out and takes it out. */
+      await page.evaluate(() => window.NV_IX.open(document.querySelector('#paneNav button[data-pane]').getAttribute('data-pane')));
+      await expect.poll(() => page.evaluate(() => document.body.classList.contains('card-open')),
+        { message: 'the pane card never opened', timeout: SLOW }).toBe(true);
+      await expect.poll(ending, { message: 'with a pane card open the ending is transparent and its links are still in the tab order', timeout: SLOW })
+        .toEqual(['hidden', 'hidden']);
+      await page.evaluate(() => window.NV_IX.close());
+      await expect.poll(ending, { message: 'the card closed and the ending\'s links did not come back', timeout: SLOW })
+        .toEqual(['visible', 'visible']);
     } finally {
       await ctx.close();
     }

@@ -142,8 +142,12 @@
          It went on to say how Lead Generation is paid, and decision #54 lets
          Lead Generation copy carry "by invitation" and nothing else: no price,
          volume, guarantee, automation or contact claim. How it is paid is the
-         pricing page's to say. -->
-    <p class="fine2 reveal">Lead Generation is offered by invitation, to a few businesses under their own agreement, and the list is put together by hand.</p>
+         pricing page's to say. It said "to a few businesses" until the
+         post-launch truth sweep (TRUTH-1, 2026-11-09): a count of who has a
+         service no client has yet (decision #54, PLATFORM-6). The quantity is
+         gone; tests/site-live-platform.spec.js PLATFORM-6 reads this file and
+         the homepage built from it. -->
+    <p class="fine2 reveal">Lead Generation is offered by invitation, under its own agreement, and the list is put together by hand.</p>
     <!-- The action row that closed this section moved into the first screen
          above: Book a call leads and the scan follows there, at the film's
          ending and in the closing section (#54). The scan is "Scan my
@@ -188,7 +192,16 @@
     <div class="centre reveal">
       <p class="k">CAPTURE <span class="chip av">Available today</span></p>
       <h2>Your phone answered, any hour.</h2>
-      <p class="lede">Your line is answered around the clock, in your business's name, with the questions you approved.</p>
+      <!-- No question builder (TRUTH-2, 2026-11-09). This lede said "with the
+           questions you approved" and the list below "Asks the questions you
+           approved, in your words", and nothing lets a client set the
+           questions its agent asks: the agent is built from hours, services,
+           area, the approved FAQ and a booking link, and asks about the job,
+           where it is and how urgent it is (engine canonical ai_front_desk,
+           agent-draft.ts). scripts/content/claim-rules.mjs question-builder
+           holds every served surface to that (tests/site-live-platform.spec.js
+           TRUTH-2). -->
+      <p class="lede">Your line is answered around the clock, in your business's name, and the caller is asked about the job, where it is and how urgent it is.</p>
     </div>
 
     <div class="card card-featured offer-card reveal">
@@ -204,7 +217,7 @@
       </div>
       <ul class="node-list offer-list">
         <li>Answers around the clock, in your business's name <span class="tag mono">CAPTURE</span></li>
-        <li>Asks the questions you approved, in your words <span class="tag mono">CAPTURE</span></li>
+        <li>Asks about the job, where it is and how urgent it is <span class="tag mono">CAPTURE</span></li>
         <li>Every call recorded and playable in your portal <span class="tag mono">CAPTURE</span></li>
         <li>No calendar booking and no live transfer, and it says so <span class="tag mono">CAPTURE</span></li>
       </ul>

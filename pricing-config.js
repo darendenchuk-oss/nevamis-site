@@ -20,7 +20,7 @@
      lines made; docs/PRICING-CONFIG.md says why. */
   var EVERY_PLAN = [
     "Answers your line around the clock, configured from your own hours, services, service area, prices and FAQs",
-    "Asks the qualifying questions you approved, in your words",
+    "Asks the caller about the job, where it is and how urgent it is",
     "Captures the caller's name, callback number, what they want, the service, how urgent it is, how the call ended and what happens next, as one structured lead",
     "Texts and emails you that summary within seconds of the call ending, and records honestly whether each one was delivered",
     "Every call recorded and playable in your portal, with CSV export of the lead record",
