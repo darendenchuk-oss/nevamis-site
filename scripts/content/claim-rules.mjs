@@ -217,7 +217,11 @@ export const CLAIM_RULES = [
      never belongs on a served page, so the rule is not bent for it. */
   { id: 'question-builder',
     re: new RegExp([
-      String.raw`\bwe set it up to ask\b`,
+      /* "We set it up to ask", the first alternative here until 2026-11-10,
+         is read by the setter alternative below, which also lets a
+         prospect's question and a denial through ("Can we set it up to ask
+         about pets?", "We can't set it up to ask that."). A mutation run
+         that day took it out and no example failed, so it went. */
       String.raw`\bqualified the way you would\b`,
       String.raw`${NOT_DENIED}\basks? (?:the|your)(?: own)? (?:qualifying |screening |intake )?questions\b`,
       /* "Can be asked (about it | who they manage for) when you approve the
@@ -508,6 +512,7 @@ export const MUST_FIRE = [
   ['question-builder', 'It asks your custom questions.'],
   ['question-builder', 'Your questions, your rules'],
   ['question-builder', 'Tell us what you want it to ask and we add it.'],
+  ['question-builder', 'Send us the questions for your agent to ask.'],
   ['question-builder', 'Nobody sets the questions it asks but you.'],
   ['question-builder', 'No one chooses the questions it asks other than you.'],
   ['question-builder', 'It can be set up to ask about the job, where it is and how urgent it is, and about pets.'],
