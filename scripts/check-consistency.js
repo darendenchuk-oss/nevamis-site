@@ -73,6 +73,15 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
      and it does not, because y-o-u-r leaves no word boundary before "our".
      Retire this entry the day there is a real client, not before. */
   /\bour clients\b/i, /\bour customers\b/i,
+  /* The same noun, one word apart. Owner decision #74 (2026-10-08) counts the
+     first-month-free cap in BUSINESSES, because "our first 10 clients" was
+     heard as clients Nevamis already has. Guard 7u's carrier rule reads
+     "first N clients", so a sentence with no N got past it: privacy.html said
+     "the offer we make to our first clients" for a month after #74 (launch
+     audit STALE-2, 2026-11-09). The count is optional here for that reason.
+     "its first clients", the demo prompt's honest "taking on its first
+     clients now", is not "our" and does not trip it. */
+  /\bour first (?:\d+ |ten )?(?:new )?(?:clients|customers)\b/i,
   /* Popularity is a client-base claim wearing different clothes. "Growth —
      most trades pick this" sat on the one-page sheet handed across the
      counter, and on both cold-calling crib sheets, while no plan had ever
