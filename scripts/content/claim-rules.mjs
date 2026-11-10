@@ -196,7 +196,13 @@ export const CLAIM_RULES = [
        "customised" and "tailored", "You can tell it to ask", "Add your own
        questions for it to ask.", "You choose what it asks.", "Custom
        questions for your trade." and the deck's "Your questions, your
-       rules". Each is now a MUST_FIRE line.
+       rules". Each is now a MUST_FIRE line, with three more from the same
+       corpus: "Tell us what you want it to ask and we add it.", and a denial
+       with an exception after it, "Nobody sets the questions it asks but
+       you." (the retired claim itself).
+     - It refused one true future-tense line, "Your agent will be set up to
+       ask about the job, where it is and how urgent it is.", which now
+       passes only when nothing follows "how urgent it is".
      - It refused the FAQ, which a client does approve ("It answers the
        questions you approved, in your words.", "Once you approve the
        questions and answers in your FAQ, it answers from them."), and true
@@ -228,7 +234,12 @@ export const CLAIM_RULES = [
          customised to ask". A modal is required, so "it is set up to ask
          about the job" (what it does) and "it cannot be set up to ask
          anything more" (true) both pass. */
-      String.raw`(?:\b(?:can|could|will|may|might|would)|['’]ll)(?:\s+(?:also|even|easily))?\s+be\s+(?:easily\s+|also\s+)?(?:set\s+up|configured|programmed|trained|told|tuned|customi[sz]ed|tailored|adapted|adjusted)\s+to\s+(?:also\s+|even\s+)?ask\b`,
+      /* One future-tense sentence is what it does, said of an agent not yet
+         built: "Your agent will be set up to ask about the job, where it is
+         and how urgent it is." It passes only when that is the whole of what
+         it is set up to ask; anything after it ("..., and about pets") is
+         the hedge again. */
+      String.raw`(?:\b(?:can|could|will|may|might|would)|['’]ll)(?:\s+(?:also|even|easily))?\s+be\s+(?:easily\s+|also\s+)?(?:set\s+up|configured|programmed|trained|told|tuned|customi[sz]ed|tailored|adapted|adjusted)\s+to\s+(?:also\s+|even\s+)?ask\b(?!\s+(?:the\s+caller\s+)?about\s+the\s+job,?\s+where\s+it\s+is,?\s+and\s+how\s+urgent\s+it\s+is\s*(?:[.;!?]|$))`,
       /* The same hedge with somebody doing the setting: "we can set it up to
          ask about the breaker", "Nevamis sets the agent up to ask", "we'll
          set it up to ask", "it is easy to set it up to ask". Not a question
@@ -263,6 +274,12 @@ export const CLAIM_RULES = [
       String.raw`${NOT_DENIED}\bquestions\s+for\s+(?:it|the\s+agent|the\s+AI|your\s+agent)\s+to\s+ask\b`,
       String.raw`${NOT_DENIED}\bcustom(?:i[sz]ed)?\s+(?:qualifying\s+|screening\s+|intake\s+|trade\s+)?questions\b`,
       String.raw`\byour\s+questions,?\s+your\s+rules\b`,
+      /* "Tell us what you want it to ask and we add it." */
+      String.raw`${NOT_DENIED}\b(?:what|anything|whatever)\s+you\s+(?:want|would\s+like|need)\s+(?:it|the\s+agent|the\s+AI|your\s+agent)\s+to\s+ask\b`,
+      /* A denial with an exception after it is the claim again: "Nobody sets
+         the questions it asks but you." (the engine's second review found
+         its own rule excusing this one). */
+      String.raw`\b(?:nobody|no\s+one)\s+(?:sets?|picks?|chooses?|writes?|decides?|controls?)\s+(?:the\s+|which\s+|what\s+)?questions\s+(?:it|the\s+agent|the\s+AI|your\s+agent)\s+asks\s+(?:but|except|other\s+than|besides|apart\s+from|save\s+for|aside\s+from)\b`,
     ].join('|'), 'i'),
     why: 'nothing lets the client, or Nevamis, set the questions the agent asks (owner decision #80, 2026-11-10): on every call it asks what the caller needs, the job, where it is and how urgent it is, takes a name and a callback number, and answers from the business\'s own hours, services, service area and approved FAQ (engine src/domain/agent-draft.ts, ON EVERY CALL). Say what it asks and stop there. "It can be set up to ask" more is the hedge decision #80 retired; saying the questions cannot be set is true and allowed' },
   /* question-denial, which refused "nothing lets the owner set the questions
@@ -490,6 +507,10 @@ export const MUST_FIRE = [
   ['question-builder', 'Custom questions for your trade.'],
   ['question-builder', 'It asks your custom questions.'],
   ['question-builder', 'Your questions, your rules'],
+  ['question-builder', 'Tell us what you want it to ask and we add it.'],
+  ['question-builder', 'Nobody sets the questions it asks but you.'],
+  ['question-builder', 'No one chooses the questions it asks other than you.'],
+  ['question-builder', 'It can be set up to ask about the job, where it is and how urgent it is, and about pets.'],
   ['speed-where-the-phone-rings-first', 'Your number, your rules, answered in seconds.', 'after-hours-answering.html'],
   ['speed-where-the-phone-rings-first', 'It answers in seconds, any hour. Try to stump it.', 'demo.html'],
 ];
@@ -567,6 +588,8 @@ export const MUST_PASS = [
   'You cannot add your own questions.',
   'Nothing lets you choose what it asks.',
   'You cannot choose what it asks.',
+  'Your agent will be set up to ask about the job, where it is and how urgent it is.',
+  'Nobody sets the questions it asks.',
   /* What the four trade pages serve since the same day, verbatim. */
   'It answers from your hours, services, area and approved FAQ.',
   'Before it takes a single call we agree on what it is allowed to say: your hours, the services you do and do not do, the prices you approve, your service area, and the answers in your FAQ. Your hours and services also say which jobs you take as urgent.',
