@@ -322,5 +322,9 @@ test('fallback.xml tells a caller the demo line is busy, points them at a call w
      application/xml, which is what Twilio needs from a TwiML URL. */
   expect(publishedFiles(), 'fallback.xml is excluded from nevamis.ca').toContain('fallback.xml');
   expect(read('sitemap.xml'), 'the sitemap lists fallback.xml').not.toMatch(/fallback\.xml/);
-  expect(read('search-index.json'), 'the search index lists fallback.xml').not.toMatch(/fallback\.xml|line is busy/);
+  /* The search index carries page text, so it is searched for the file and
+     for its sentence; "your line is busy" is ordinary call-forwarding copy. */
+  const index = read('search-index.json').toLowerCase();
+  expect(index, 'the search index lists fallback.xml').not.toContain('fallback.xml');
+  expect(index, 'the search index carries the fallback\'s sentence').not.toContain(BUSY_SENTENCE.slice(0, 34).toLowerCase());
 });
