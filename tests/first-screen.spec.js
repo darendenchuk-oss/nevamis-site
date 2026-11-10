@@ -60,6 +60,13 @@
                            hero's own Book a call" on both phones; at 1440 the
                            bar is display:none whatever this rule says
    and the whole file green again afterwards (12 passed).
+   The keyboard tests, the same way (polish round, 2026-11-09), both
+   viewports each time:
+     nv-above rule without visibility:hidden   2 failed: "with the hero in
+                           view, close "Book a call" is still in the tab order"
+     #ncard rule dropped   2 failed: "with the hero in view, ncardClose "✕"
+                           is still in the tab order"
+   and green again restored (14 passed).
 
    Run with the site served from this checkout on its own port, e.g.
      NV_PORT=3293 npx playwright test tests/first-screen.spec.js

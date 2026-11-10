@@ -301,7 +301,8 @@ test('O24.3: missed-line.xml says the engine\'s no-name sentence with the 9-1-1 
    an error tone. Its words are the owner's, so they are pinned byte for byte.
    The rest is the rule a fallback has to keep: a static file served as XML,
    one Say with the default voice and one Hangup, nothing that hands the call
-   on, and nothing a search engine lists. */
+   on, and nothing a search engine lists. Shown red with a <Redirect> added
+   to fallback.xml ("Redirect" among the verbs), then restored. */
 const BUSY_SENTENCE = 'Sorry, our line is busy right now. Please book a call with Daren at nevamis dot C A. Goodbye.';
 
 test('fallback.xml tells a caller the demo line is busy, points them at a call with Daren, and hangs up once', () => {

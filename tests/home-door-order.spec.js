@@ -112,9 +112,10 @@ for (const page of PAGES) {
      the front desk, so the hero's sub opens with that promise; Lead
      Generation stays the h1 and its sentence still says "by invitation"
      (#54). The second button is the demo line, so a visitor from an ad can
-     hear the promise kept. Shown red on this checkout's previous sub ("By
-     invitation, we list businesses ... And we answer the calls you miss,
-     24/7.") and on the "Call it now" label. */
+     hear the promise kept. Shown red with SITE_ROOT on the previous
+     homepage (052f7d7: the sub opened "By invitation, we list businesses
+     that fit the work you want.") and on the new sub with the old "Call it
+     now: (587) 413-0035" label, 2 failed each. */
   test(`door: ${page}'s hero opens with the answering promise, keeps Lead Generation by invitation, and its second button dials the demo line`, () => {
     const html = read(page);
     const hero = /<div class="centre hero-top">([\s\S]*?)<p class="proof">/.exec(block(html, 'found') || '');
