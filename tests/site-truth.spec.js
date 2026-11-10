@@ -65,8 +65,11 @@ test('BD-4 (v7): the rendered Partnership card states its fixed figures, and no 
   expect(partner.monthlyRange, 'the Partnership carries no monthly band since v7').toBeUndefined();
   expect(partner.launchRange, 'the Partnership carries no fee band since v7').toBeUndefined();
   await page.goto('/pricing.html');
-  const card = page.locator('#plans .plan').first();
-  await expect(card.locator('h3')).toHaveText(/Performance Partnership/);
+  /* Found by its name: since the funnel audit (2026-10-09, item 1) the price
+     list renders smallest first and the Partnership, by invitation, last. */
+  const card = page.locator('#plans .plan').filter({ has: page.locator('h3', { hasText: partner.name }) });
+  await expect(card).toHaveCount(1);
+  await expect(page.locator('#plans .plan').last().locator('h3')).toHaveText(partner.name);
   const t = (await card.innerText()).replace(/\s+/g, ' ');
   expect(t).toContain(P.startLine(partner));
   expect(t).not.toMatch(RETIRED_SHAPE);
@@ -386,8 +389,9 @@ test('below the film, the button in the middle of the screen is the one a tap re
   const page = await ctx.newPage();
   await page.goto('/home.html?debug=1&nointro=1');
   await page.waitForFunction(() => window.__nv && window.__nv.dbg, null, { timeout: 60_000 });
-  /* play the film to its end, where #close turns on */
-  await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, Math.ceil(d.spanH - d.vh)); });
+  /* play the film to its end, where #close turns on. The span starts below the
+     hero since 2026-11-09 (launch audit HERO-1): spanTop is where it starts. */
+  await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, d.spanTop + Math.ceil(d.spanH - d.vh)); });
   await expect.poll(() => page.evaluate(() => { const d = window.__nv.dbg; return d.target > 0.999 && Math.abs(d.cur - d.target) < 0.002; }),
     { timeout: 60_000 }).toBe(true);
   await expect(page.locator('#close')).toHaveClass(/\bon\b/);

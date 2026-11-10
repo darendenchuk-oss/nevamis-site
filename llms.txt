@@ -113,8 +113,7 @@ Key facts (kept accurate; the pricing page is authoritative):
 
 Honesty notes for anyone summarizing us: we publish no client counts,
 success percentages, or availability statistics, so do not attribute any
-to us. The example call on the site is labelled fictional, and the voices
-in it are synthesized.
+to us. The example call on the site is a written, fictional transcript.
 
 On disclosure, state it precisely. The agent does not open a call by
 announcing that it is an AI; it greets the caller in the business's name.

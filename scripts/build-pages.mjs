@@ -18,6 +18,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { headCssBlock, readCssSources, applyHeadCss } from './lib/inline-css.mjs';
 import { applySelfCta, applySelfCallbar } from './lib/nav-cta.mjs';
+import { applyFreeMonthHold, freeMonthActive } from './lib/free-month-hold.mjs';
+import vm from 'node:vm';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
@@ -53,6 +55,12 @@ const PAGES = JSON.parse(read('content-map.json')).pages
  *  be styled. */
 const CSS_PAGES = JSON.parse(read('content-map.json')).pages.map((p) => p.file);
 const CSS_BLOCK = headCssBlock(readCssSources(fs, path, root));
+/** foundingClient.active, from pricing-config.js run as the browser runs it. */
+const FREE_MONTH_ACTIVE = (() => {
+  const w = {};
+  vm.runInNewContext(read('pricing-config.js'), { window: w }, { timeout: 1000 });
+  return freeMonthActive(w.NV_PRICING);
+})();
 
 /** Mark the current page inside the primary nav only. Footer links stay
  *  byte-identical across pages so the consistency guard can compare them.
@@ -81,7 +89,11 @@ for (const file of CSS_PAGES) {
   const full = path.join(root, file);
   if (!fs.existsSync(full)) { console.warn(`skip ${file} (missing)`); continue; }
   const before = fs.readFileSync(full, 'utf8');
-  const after = applyHeadCss(before, CSS_BLOCK);
+  const styled = applyHeadCss(before, CSS_BLOCK);
+  /* The free-month hold only while the owner's switch is on: see
+     scripts/lib/free-month-hold.mjs for why a switched-off offer must hold
+     nothing. Same pass as the stylesheet, because it covers the same pages. */
+  const after = styled === null ? null : applyFreeMonthHold(styled, FREE_MONTH_ACTIVE);
   if (after === null) {
     console.error(`\nERROR ${file}: no generated:css region and no stylesheet <link> to replace.\n` +
       `Refusing to write a page with no styles.\n`);

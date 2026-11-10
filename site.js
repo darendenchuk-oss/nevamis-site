@@ -221,7 +221,23 @@
       return h === location.hostname || h === "nevamis.ca" || h === "www.nevamis.ca" || h === "app.nevamis.ca";
     } catch (e) { return false; }
   }
-  document.addEventListener("click", function (e) {
+  /* THE BOOKING PAGE OPENS AT ITS CALENDAR (funnel audit item 12,
+     2026-10-09). Every ad lands on book.html#pick-a-time, and the call bar
+     on every page has pointed there since BP6, but the "Book a call" buttons
+     in the header, the heroes and the closing rows link to /book.html bare,
+     which opens 2,600px above the scheduler on a phone. A link to this
+     site's booking page that names no anchor of its own now gets the
+     scheduler's, at the moment it is clicked, like the tags below: the
+     markup crawlers read stays as written. Not app.nevamis.ca, which has no
+     such page. */
+  function nvToScheduler(dest) {
+    var h = dest.hostname;
+    var own = h === location.hostname || h === "nevamis.ca" || h === "www.nevamis.ca";
+    if (!own || !/\/book\.html$/.test(dest.pathname) || dest.hash) return false;
+    dest.hash = "pick-a-time";
+    return true;
+  }
+  function nvDecorate(e) {
     try {
       var a = e.target.closest && e.target.closest("a[href]");
       if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
@@ -229,16 +245,19 @@
       if (/^(tel:|mailto:|#|javascript:)/i.test(href)) return;
       if (!nvSameProperty(href)) return;
 
+      var dest = new URL(href, location.href);
+      var moved = nvToScheduler(dest);
       var tags = nvParams();
       var keys = Object.keys(tags);
-      if (!keys.length) return;
-
-      var dest = new URL(href, location.href);
       // Never overwrite a tag the destination link set for itself.
-      keys.forEach(function (k) { if (!dest.searchParams.has(k)) dest.searchParams.set(k, tags[k]); });
-      a.setAttribute("href", dest.href);
+      keys.forEach(function (k) { if (!dest.searchParams.has(k)) { dest.searchParams.set(k, tags[k]); moved = true; } });
+      if (moved) a.setAttribute("href", dest.href);
     } catch (err) { /* attribution must never block a click */ }
-  }, true);
+  }
+  document.addEventListener("click", nvDecorate, true);
+  /* A middle click opens the link in a new tab without a click event, and
+     carried neither the tags nor the anchor. */
+  document.addEventListener("auxclick", nvDecorate, true);
   nvFunnel("landing_page_view");
 
   /* A tap on any phone link is intent to call the demo line: the
@@ -253,7 +272,29 @@
      event per major section, plus depth milestones. Names only, no properties. */
   (function () {
     if (typeof window.IntersectionObserver !== "function") return;
-    var sections = document.querySelectorAll("main section[id]");
+    /* Not the film's story blocks (section.copy: #s1, #s2, #s3, #close). Since
+       the homepage hero moved above the film (launch audit HERO-1, 2026-11-09),
+       <main> opens before the film and holds them, and they are
+       position:fixed at mid-screen with only their opacity changing, so an
+       observer sees all four "reached" on load for every visitor: four events
+       that would mean nothing.
+       Not the homepage hero either (#found, launch review, 2026-11-09). It is
+       the page's first screen now, 1,063 to 1,371px tall, so 47% to 85% of it
+       is on screen before anyone scrolls, over the 0.35 below: it fired for
+       every visitor on load. The engine counts every section_reached_* towards
+       its "Looked at the offer" funnel stage (src/domain/funnel.ts), so that
+       stage read the same as "Landed" for homepage traffic and would hide a
+       homepage that persuades nobody. Arriving is landing_page_view's to
+       count; a reach is something the visitor scrolled to. So the homepage's
+       first reach is the first section past the film, #recover.
+       section_reached_found stops here rather than going on with a new
+       meaning: until the hero moved it meant "reached the Lead Generation
+       offer below the film", and firing on load for everyone it would have
+       read as a jump in that history at the deploy, not a change in
+       visitors. tests/analytics.spec.js holds both: nothing is reached on
+       load at 360x640, 390x844 or 1440x900, and #recover still is once
+       scrolled to. */
+    var sections = document.querySelectorAll("main section[id]:not(.copy):not(#found)");
     if (!sections.length) return;
     var seen = {};
     var secIO = new IntersectionObserver(function (entries) {
@@ -420,10 +461,52 @@
      back everywhere else. */
   var callbar = document.querySelector("a.callbar");
   var sched = document.getElementById("pick-a-time");
-  if (callbar && sched && typeof window.IntersectionObserver === "function") {
-    new IntersectionObserver(function (es) {
-      es.forEach(function (en) { callbar.classList.toggle("callbar-off", en.isIntersecting); });
-    }).observe(sched);
+  /* ...and for anything marked data-callbar-yield while it passes under the
+     bar (funnel audit item 16, 2026-10-09). On pricing.html the bar sat over
+     the first of the chooser's tick boxes as it scrolled through the bottom
+     of a phone screen, the one row of controls on the page that is tapped
+     rather than read. The bar's own strip is the observer's root (the
+     viewport less everything above the bar), so it steps aside only while a
+     marked element is behind it, and comes back as soon as it has passed.
+     Both reasons are kept apart, so one clearing cannot bring the bar back
+     over the other. */
+  if (callbar && typeof window.IntersectionObserver === "function") {
+    var hiddenFor = { sched: false, yield: false };
+    var applyBar = function () { callbar.classList.toggle("callbar-off", hiddenFor.sched || hiddenFor.yield); };
+    if (sched) {
+      new IntersectionObserver(function (es) {
+        es.forEach(function (en) { hiddenFor.sched = en.isIntersecting; });
+        applyBar();
+      }).observe(sched);
+    }
+    var yields = document.querySelectorAll("[data-callbar-yield]");
+    if (yields.length) {
+      var under = {};
+      var yieldIO = null;
+      var watchYields = function () {
+        if (yieldIO) yieldIO.disconnect();
+        /* The strip the bar covers: its height (it is display:none on wide
+           screens, where there is nothing to yield to), from the bottom. */
+        var barH = callbar.offsetHeight;
+        under = {};
+        hiddenFor.yield = false;
+        applyBar();
+        if (!barH) return;
+        var top = Math.max(0, window.innerHeight - barH);
+        yieldIO = new IntersectionObserver(function (es) {
+          es.forEach(function (en) { under[en.target.getAttribute("data-callbar-yield") || "x"] = en.isIntersecting; });
+          hiddenFor.yield = Object.keys(under).some(function (k) { return under[k]; });
+          applyBar();
+        }, { rootMargin: "-" + top + "px 0px 0px 0px" });
+        for (var y = 0; y < yields.length; y++) {
+          if (!yields[y].getAttribute("data-callbar-yield")) yields[y].setAttribute("data-callbar-yield", "y" + y);
+          yieldIO.observe(yields[y]);
+        }
+      };
+      watchYields();
+      var yieldTimer = null;
+      window.addEventListener("resize", function () { clearTimeout(yieldTimer); yieldTimer = setTimeout(watchYields, 200); });
+    }
   }
 
   /* ---------- same-page anchors ----------

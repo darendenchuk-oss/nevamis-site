@@ -9,6 +9,10 @@
      <Dial> reroutes real customers' callers. missed-line.xml is the voice
      fallback of a client number diverted to the engine's missed-call line,
      so it is what those callers hear whenever the engine does not answer.
+     fallback.xml is the demo line's voice fallback: what a caller hears
+     when ring.xml's hand-off fails, for instance while the line is busy.
+     A <Redirect> or <Dial> added to either would hand a caller to
+     whoever it names.
    - the vendored third-party code (GSAP, the ElevenLabs widget) runs inside
      the site. EVERY published file under assets/vendor/ is pinned by hash,
      so a vendor file that is new, changed or gone fails until the manifest
@@ -80,7 +84,7 @@ const PUBLISHED_SET = new Set(PUBLISHED);
 const VENDOR = 'assets/vendor/';
 /* The vendor part is the directory, not a hand-kept list: a list of four
    names let a fifth vendor file ship unpinned and unscanned. */
-const PINNED = ['ring.xml', 'missed-line.xml', 'assets/ringback-tone.wav', ...PUBLISHED.filter((f) => f.startsWith(VENDOR)).sort()];
+const PINNED = ['ring.xml', 'missed-line.xml', 'fallback.xml', 'assets/ringback-tone.wav', ...PUBLISHED.filter((f) => f.startsWith(VENDOR)).sort()];
 const FIRST_PARTY_SCRIPTS = [
   /^(site|motion|pricing-config|roadmap-config|free-month)\.js$/,
   /^assets\/film\/[^/]+\.js$/,

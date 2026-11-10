@@ -54,7 +54,7 @@ only. No properties, no identifiers, nothing personal.
 
 | Event | Trigger | Business question |
 |---|---|---|
-| section_reached_&lt;id&gt; | a `main section[id]` becomes 35% visible, once per visit | Which section is the last one people see? |
+| section_reached_&lt;id&gt; | a `main section[id]` becomes 35% visible, once per visit; never the film's fixed story blocks (`section.copy`) or the homepage hero (`#found`), which are on screen before anyone scrolls (2026-11-09) | Which section is the last one people see? |
 | scroll_depth_25 / _50 / _75 / _100 | page depth milestones, once each | How far down does the page actually get read? |
 | post_call_prompt_shown | visitor returns to the tab 25s+ after tapping a phone CTA | How many people actually place the demo call? |
 | post_call_book_click | the post-call prompt's booking CTA | Does hearing the AI convert to a booking? |

@@ -21,20 +21,49 @@
  * run buys a little coverage and a lot of flakiness. They pin the two things
  * that actually failed: the surfaces disagreeing, and the declared height
  * dropping below what a six-row month needs.
+ *
+ * REMEASURED 2026-10-09 (funnel audit item 13). Cal's booker changed under
+ * the numbers above. Where the frame is 768px or wider (from a 900px
+ * viewport) Cal now lays the booker out side by side at a FIXED height and
+ * centres it in the frame: 490px plus its ~80px footer at a 1,034px frame,
+ * 458px at 770px, the same for a six-row month (January 2027) and for the
+ * form after a time is picked (450px). In the 1,080px frame that centring
+ * left 255px of blank booker page over the calendar on every desktop. So
+ * book.html sets the wide frame to 640px: whole, with ~35px above it. Below
+ * 900px Cal stacks the booker into a ~2,400px document the frame scrolls,
+ * and the shared site.css height (1,080px, 1,120px narrow) still applies.
  */
 import { test, expect } from '@playwright/test';
 
-/** The worst requirement measured across both surfaces, at 1024px and wider. */
+/** The tallest side-by-side state measured inside the live frame on
+    2026-10-09: the booker (490px) and its footer (~80px). */
+const WIDE_NEEDED = 570;
+/** The empty band the 1,080px frame left over the calendar was 255px; the
+    wide frame must leave well under a third of that. */
+const WIDE_MAX = 700;
+/** The stacked layout, below 900px: the old floor, unchanged. */
 const NEEDED = 1015;
 
-const WIDE = { width: 1280, height: 900 };
 const NARROW = { width: 390, height: 844 };
 
-test('the booking page frame clears a six-row month', async ({ page }) => {
-  await page.setViewportSize(WIDE);
+test('the booking page frame holds the whole side-by-side booker on a wide screen, without the empty band', async ({ page }) => {
+  for (const width of [900, 1280, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/book.html');
+    const { h, w } = await page.locator('#bkFrame').evaluate((el) => {
+      const r = el.getBoundingClientRect(); return { h: r.height, w: r.width };
+    });
+    expect(w, `at ${width} the frame is wide enough for Cal's side-by-side booker`).toBeGreaterThanOrEqual(768);
+    expect(h, `${h}px at ${width} cuts the booker`).toBeGreaterThanOrEqual(WIDE_NEEDED);
+    expect(h, `${h}px at ${width} puts the empty band back over the calendar`).toBeLessThanOrEqual(WIDE_MAX);
+  }
+});
+
+test('between phone and desktop, where Cal stacks the booker, the frame keeps the tall height', async ({ page }) => {
+  await page.setViewportSize({ width: 820, height: 900 });
   await page.goto('/book.html');
   const h = await page.locator('#bkFrame').evaluate((el) => el.getBoundingClientRect().height);
-  expect(h, `${h}px leaves the last week of the month below the frame`).toBeGreaterThanOrEqual(NEEDED);
+  expect(h).toBeGreaterThanOrEqual(NEEDED);
 });
 
 /* The homepage embed is gone. The film homepage has no inline scheduler: its

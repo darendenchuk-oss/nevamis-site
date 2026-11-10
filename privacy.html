@@ -6,6 +6,12 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
+<!-- generated:preload -->
+<link rel="preload" href="assets/vendor/gsap.min.js" as="script">
+<link rel="preload" href="assets/vendor/ScrollTrigger.min.js" as="script">
+<link rel="preload" href="site.js" as="script">
+<link rel="preload" href="motion.js" as="script">
+<!-- /generated:preload -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy Policy | Nevamis | Edmonton</title>
 <meta name="description" content="What nevamis.ca collects, why, and how long it is kept. Written for PIPEDA and Alberta PIPA, covering the website, the demo line, and call handling.">
@@ -1020,7 +1026,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a class="nav-min" href="/coming-soon.html" data-nav>Roadmap</a></span>
       <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
       <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
-      <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
+      <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav title="Call (587) 413-0035 from any phone">Hear it answer</a></span>
       <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="nav_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
     </nav>
   </div>
@@ -1030,13 +1036,13 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="wrap">
       <p class="eyebrow"><span class="dot"></span>Legal</p>
       <h1>Privacy</h1>
-      <p>Last updated: October 3, 2026. This page describes what this website collects, and what we hold about businesses that have a Nevamis account. It is written to be read, not to hide things.</p>
+      <p>Last updated: November 9, 2026. This page describes what this website collects, and what we hold about businesses that have a Nevamis account. It is written to be read, not to hide things.</p>
       <h2>Who we are</h2>
       <p>This service is operated by Nevamis AI Inc., a federal corporation based in Edmonton, Alberta, Canada. We handle personal information under Alberta&rsquo;s Personal Information Protection Act (PIPA) and Canada&rsquo;s Personal Information Protection and Electronic Documents Act (PIPEDA) where it applies. This page is not legal advice.</p>
       <h2>What this website collects</h2>
       <p>This website does not use advertising trackers and does not set non-essential cookies. Its own pages store two small things in your browser, and neither ever leaves your device: your motion on/off choice, and a short-lived note that you tapped a call button, so that when you come back to the tab we can offer the obvious next step once instead of asking again. A browser call to the demo is the one addition, and what its software keeps is described in the next section. Fonts are self-hosted on nevamis.ca, so our pages, the browser call included, request no fonts from Google or any other font provider.</p>
       <p>We count page views, button clicks and how far down a page you scrolled, first-party on our own systems, to understand what works: each count records only the event name, the page path, the referring site&rsquo;s hostname, and campaign tags, including an ad platform&rsquo;s click ID when you arrive from an ad. No cookies and no IP addresses are stored, we set no identifier of our own, and the counts never leave Nevamis.</p>
-      <p>A page that can show the offer we make to our first clients, such as the pricing page, asks app.nevamis.ca, our own service, whether a place in that offer is still open, and shows the offer only if one is. The request sends no cookie and no identifier, our service reads none and records nothing about it, and the answer says only whether a place is open. Like any connection, our hosting provider receives your IP address while it answers. </p>
+      <p>A page that can show the offer we make to our first 10 businesses, such as the pricing page, asks app.nevamis.ca, our own service, whether a place in that offer is still open, and shows the offer only if one is. The request sends no cookie and no identifier, our service reads none and records nothing about it, and the answer says only whether a place is open. Like any connection, our hosting provider receives your IP address while it answers. </p>
       <div class="reveal">
       <h2 id="demo-calls">When you call the demo, by phone or in your browser</h2>
       <p>Calls to (587) 413-0035, and browser calls started on nevamis.ca/talk/, are handled by an AI voice agent running on third-party telephony and voice platforms. Every demo call is recorded, by phone or in the browser. Call audio, transcripts, and any details you share (such as your name or callback number) are processed to run the conversation and to follow up with you if you ask us to. Do not share sensitive personal information on a demo call.</p>
@@ -1044,7 +1050,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       </div>
       <div class="reveal">
       <h2>When you book a call</h2>
-      <p>Bookings are handled by our scheduling provider (Cal.com). The calendar on the booking page is Cal.com&rsquo;s own page, shown inside ours and loaded from cal.com when you scroll to it. The information you enter there (name, email, and anything you add) is used to run the meeting and follow up. Their own privacy terms apply to their processing.</p>
+      <p>Bookings are handled by our scheduling provider (Cal.com). The calendar on the booking page is Cal.com&rsquo;s own page, shown inside ours and loaded from cal.com when you scroll to it. The information you enter there (name, email, and anything you add) is used to run the meeting and follow up. Their own privacy terms apply to their processing. The booking page opens a connection to cal.com as it loads, before the calendar itself appears. If the link you arrived by carries campaign tags (the utm_ tags on our ads, never an ad platform&rsquo;s click ID), they are passed to Cal.com when the calendar loads and kept with any booking you make.</p>
+      <p>On the call itself, Daren, our founder, may use note-taking software that transcribes what is said, so he can follow up accurately. Its provider may store the transcript outside Canada. He tells you at the start of the call, and switches it off if you ask. We keep the transcript of a booked call until you ask us to delete it.</p>
       </div>
       <div class="reveal">
       <h2>When you ask us to call you back, or tell us what would help</h2>
@@ -1056,7 +1063,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       </div>
       <div class="reveal">
       <h2>Where your data is processed</h2>
-      <p>To run the demo line, scheduling, voice, text messages, email, and our website and database, we use service providers that may store and process personal information in the United States and other countries. They are ElevenLabs (the voice agent), Twilio (calls and texts), Resend (sending email, and receiving replies to Quote-Chase Engine follow-ups), Google (our nevamis.ca mailbox, which receives email you send us, our lead alerts and your customers&rsquo; replies to invoice reminders and estimate follow-ups; and the public business listings we look up for Lead Generation and business scans), Cal.com (booking a call with us), Vercel and Turso (hosting and our database), Trigger.dev (running a business scan you ask for), Activepieces (running some of the automations you switch on, inside Nevamis only: outside an Enterprise agreement, nothing is linked to your CRM, ad accounts or other tools), Stripe (billing), and Anthropic, whose AI model we use to review call summaries and transcripts, to check that the agent kept to the facts it was given. This means your information may be handled outside Canada and may be subject to the laws of those countries. We use providers that offer commercially reasonable safeguards, and we share only what is needed to deliver the service.</p>
+      <p>To run the demo line, scheduling, voice, text messages, email, and our website and database, we use service providers that may store and process personal information in the United States and other countries. They are ElevenLabs (the voice agent), Twilio (calls and texts), Resend (sending email, and receiving replies to Quote-Chase Engine follow-ups), Google (our nevamis.ca mailbox, which receives email you send us, our lead alerts and your customers&rsquo; replies to invoice reminders and estimate follow-ups; and the public business listings we look up for Lead Generation and business scans), Cal.com (booking a call with us), Vercel and Turso (hosting and our database), Trigger.dev (running a business scan you ask for), Activepieces (running some of the automations you switch on, inside Nevamis only: outside an Enterprise agreement, nothing is linked to your CRM, ad accounts or other tools), Stripe (billing), Anthropic, whose AI model we use to review call summaries and transcripts, to check that the agent kept to the facts it was given, and the provider of the note-taking software Daren may use on a booked call. This means your information may be handled outside Canada and may be subject to the laws of those countries. We use providers that offer commercially reasonable safeguards, and we share only what is needed to deliver the service.</p>
       </div>
       <div class="reveal">
       <h2>How long we keep it</h2>

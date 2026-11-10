@@ -157,3 +157,46 @@ test('the scheduler anchor clears the fixed header', async ({ page }) => {
     `"${r.headingText}" lands at ${r.headingTop}px, under the header's ${r.headerBottom}px edge`,
   ).toBeGreaterThanOrEqual(r.headerBottom);
 });
+
+/* FUNNEL AUDIT ITEM 16 (2026-10-09): on pricing.html the fixed phone bar sat
+   over the first of the chooser's tick boxes as they scrolled through the
+   bottom of the screen. The bar now steps aside while an element marked
+   data-callbar-yield is in the strip it covers, and comes back once it has
+   passed. Measured, not assumed: at every position the first tick box is
+   either clear of the bar or the bar is out of the way. */
+test('on pricing the phone bar never covers the first tick box of the chooser', async ({ browser }) => {
+  const ctx = await containPhone(browser);
+  const page = await ctx.newPage();
+  await page.goto('/pricing.html');
+  await expect(page.locator('#leaks button').first()).toBeAttached();
+  /* The free-month card under the heading settles first (its answer is
+     immediate here), so the chip's position is measured after it. */
+  await page.waitForTimeout(700);
+  const where = await page.evaluate(() => {
+    const chip = document.querySelector('#leaks button');
+    return chip.getBoundingClientRect().top + scrollY;
+  });
+  const covered = [];
+  let stepped = false;
+  /* Walk the chip up through the bottom of the screen in 12px steps. */
+  for (let off = -40; off <= 120; off += 12) {
+    await page.evaluate((y) => window.scrollTo(0, y), Math.max(0, where - 844 + off));
+    await page.waitForTimeout(350);
+    const r = await page.evaluate(() => {
+      const chip = document.querySelector('#leaks button').getBoundingClientRect();
+      const bar = document.querySelector('a.callbar');
+      const b = bar.getBoundingClientRect();
+      const out = bar.classList.contains('callbar-off') || getComputedStyle(bar).visibility === 'hidden';
+      return { overlap: chip.bottom > b.top && chip.top < b.bottom && chip.top < innerHeight, out };
+    });
+    if (r.out) stepped = true;
+    if (r.overlap && !r.out) covered.push(off);
+  }
+  expect(covered, 'scroll offsets at which the bar covered the first tick box').toEqual([]);
+  expect(stepped, 'the bar stepped aside at least once on the way').toBe(true);
+  /* Once the tick boxes are mid-screen, the bar is back. */
+  await page.evaluate((y) => window.scrollTo(0, y), Math.max(0, where - 400));
+  await page.waitForTimeout(500);
+  await expect(page.locator('a.callbar')).not.toHaveClass(/callbar-off/);
+  await ctx.close();
+});

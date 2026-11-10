@@ -198,8 +198,12 @@ test('a module sold on its own renders as itself, with its own pair and no buy b
     await page.goto(`/proposal.html?plan=${a.id}&to=Cedarview+Electric`);
     await expect(page.locator('#planName'), a.id).toHaveText(a.name.toUpperCase());
     await expect(page.locator('#planPrice'), a.id).toHaveText(cash(a.monthly) + '/month');
+    /* Both cases since the funnel audit (item 3): a module that carries a
+       free month says what a reserved first-month-free spot changes, and
+       promises no spot. */
     await expect(page.locator('#planMonthly'), a.id)
-      .toHaveText(P.startLine(a).replace(/\.$/, '') + ', charged the day you start and every month after.');
+      .toHaveText(P.startLine(a).replace(/\.$/, '') + ', charged the day you start and every month after.'
+        + (a.freeMonths > 0 ? ' If a first-month-free spot has been reserved for your business, nothing is charged until your second month; the portal shows which before you pay.' : ''));
     await expect(page.locator('#summaryLine'), a.id).toHaveText(a.blurb);
     /* Whether a module (the automatic text-back above all) may be
        recommended is the owner's open item O24/O12, so the heading names

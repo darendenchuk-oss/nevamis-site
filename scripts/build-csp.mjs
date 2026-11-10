@@ -36,6 +36,34 @@
    resampler worklet from jsDelivr, draws images from Google Cloud Storage and
    talks to ElevenLabs over websockets. Those allowances exist on that page only,
    so no other page can load third-party code even if something goes wrong.
+
+   SCRIPT PRELOADS, WRITTEN HERE TOO (launch audit PERF-1, 2026-11-09). A
+   <meta> Content-Security-Policy switches off Chrome's preload scanner, so
+   every page fetched its scripts one after another: on a throttled phone the
+   homepage's site.js (the mobile menu, the ad tags carried onto Book a call,
+   landing_page_view) arrived at about 8.1 s, and a menu tap at 3 s and at 5 s
+   did nothing. So each page also gets a generated:preload region, straight
+   after the policy, with one <link rel="preload" as="script"> per classic
+   <script src> the page itself carries, in document order. It is built from
+   the page's own tags, so there is no list to keep by hand, and --check fails
+   when the two part. Measured before it shipped (A/B against the live pages,
+   slow 4G and 4x CPU): site.js ready 1.6 to 3.5 s sooner, DOMContentLoaded
+   0.9 to 3.5 s sooner, first paint no later, and the film's settled frame
+   within pixel noise of the unpreloaded page.
+   Deliberately NOT preloaded:
+   - type="module" scripts: modulepreload for assets/motion/main.js and its
+     five imports gave no median gain and slowed site.js through bandwidth
+     contention;
+   - talk/index.html, whose widget is injected only when the visitor presses
+     start;
+   - the film's three scripts (assets/film/), about 255 KB compressed: at
+     preload priority they jumped ahead of a first screen (the hero) that
+     needs none of them. Dropping them cut simulated TBT but did not move
+     simulated LCP; scripts/lib/script-preloads.mjs NOT_PRELOADED has the
+     measurements.
+   The preload only starts the download earlier. The <script> tags stay where
+   they are, as they are: the film's three must never move, defer or go async
+   (scripts/film/compose.py, the PMREM lighting landmine).
    ============================================================ */
 
 import fs from 'node:fs';
@@ -43,6 +71,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { publishedFiles } from './lib/published-files.mjs';
+import { preloadRegion, PRELOAD_REGION } from './lib/script-preloads.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CHECK = process.argv.includes('--check');
@@ -216,29 +245,33 @@ for (const file of PAGES) {
   const raw = fs.readFileSync(full, 'utf8');
   const crlf = raw.includes('\r\n');
   const text = lf(raw);
-  const without = text.replace(/\n?<!-- generated:csp -->[\s\S]*?<!-- \/generated:csp -->/, '');
+  const without = text
+    .replace(/\n?<!-- generated:csp -->[\s\S]*?<!-- \/generated:csp -->/, '')
+    .replace(PRELOAD_REGION, '');
 
   const bad = problems(without);
   if (bad.length) { console.error(`ERROR ${file}: ${bad.join('; ')}`); failed++; continue; }
 
-  const block = region(file, without);
+  /* The policy, then the page's script preloads straight after it (PERF-1). */
+  const preloads = preloadRegion(file, without);
+  const block = region(file, without) + (preloads ? '\n' + preloads : '');
   let next;
   const charset = without.match(/<meta\s+charset=["']?utf-8["']?\s*\/?>/i);
-  if (charset) next = without.replace(charset[0], charset[0] + '\n' + block);
+  if (charset) next = without.replace(charset[0], () => charset[0] + '\n' + block);
   else if (/<head>/i.test(without)) next = without.replace(/<head>/i, (h) => h + '\n' + block);
   else { console.error(`ERROR ${file}: no <meta charset> or <head> to anchor the policy`); failed++; continue; }
 
   if (next === text) continue;
-  if (CHECK) { console.error(`STALE ${file}: its Content-Security-Policy does not match its inline scripts. Run node scripts/build-csp.mjs`); stale++; continue; }
+  if (CHECK) { console.error(`STALE ${file}: its Content-Security-Policy does not match its inline scripts, or its script preloads do not match its <script src> tags. Run node scripts/build-csp.mjs`); stale++; continue; }
   fs.writeFileSync(full, crlf ? next.replace(/\n/g, '\r\n') : next);
   changed++;
-  console.log(`${file}: policy written`);
+  console.log(`${file}: policy and preloads written`);
 }
 
 if (failed) process.exitCode = 1;
 if (CHECK) {
   if (stale) process.exitCode = 1;
-  else if (!failed) console.log(`CSP check passed: ${PAGES.length} pages carry a current policy.`);
+  else if (!failed) console.log(`CSP check passed: ${PAGES.length} pages carry a current policy and current script preloads.`);
 } else {
   console.log(`\n${changed} page(s) updated. Run node scripts/promote.mjs next.`);
 }

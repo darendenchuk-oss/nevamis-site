@@ -292,3 +292,40 @@ test('O24.3: missed-line.xml says the engine\'s no-name sentence with the 9-1-1 
   expect(say && say[1]).toBe(NO_AGENT_SENTENCE);
   expect(xml.trimEnd().endsWith('</Response>'), 'nothing after the Response').toBe(true);
 });
+
+/* ---------- the demo line's busy fallback ----------
+
+   fallback.xml is the demo line's Twilio voice fallback (owner-approved,
+   polish round 2026-11-09): what a caller to (587) 413-0035 hears when
+   ring.xml's hand-off fails, for instance while the line is busy, instead of
+   an error tone. Its words are the owner's, so they are pinned byte for byte.
+   The rest is the rule a fallback has to keep: a static file served as XML,
+   one Say with the default voice and one Hangup, nothing that hands the call
+   on, and nothing a search engine lists. Shown red with a <Redirect> added
+   to fallback.xml ("Redirect" among the verbs), then restored. */
+const BUSY_SENTENCE = 'Sorry, our line is busy right now. Please book a call with Daren at nevamis dot C A. Goodbye.';
+
+test('fallback.xml tells a caller the demo line is busy, points them at a call with Daren, and hangs up once', () => {
+  const xml = read('fallback.xml').replace(/\r\n?/g, '\n');
+  expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>\n<Response>\n'), 'an XML declaration, then <Response>').toBe(true);
+  const body = xml.slice(xml.indexOf('<Response>') + '<Response>'.length, xml.indexOf('</Response>'));
+  const verbs = [...body.matchAll(/<([A-Za-z]+)\b([^>]*)>/g)].map((m) => {
+    const attrs = m[2].replace(/\/\s*$/, '').trim();
+    return attrs ? `${m[1]} ${attrs}` : m[1];
+  });
+  /* No Redirect, Dial, Play, Gather, Record, Enqueue or message verb: a
+     fallback that hands the call on sends the caller wherever it names. */
+  expect(verbs).toEqual(['Say', 'Hangup']);
+  expect(body.trim().endsWith('<Hangup/>'), 'the Hangup is last').toBe(true);
+  expect((body.match(/<Say>([\s\S]*?)<\/Say>/) || [])[1]).toBe(BUSY_SENTENCE);
+  expect(xml.trimEnd().endsWith('</Response>'), 'nothing after the Response').toBe(true);
+  /* Served, the way ring.xml is: GitHub Pages sends a published .xml as
+     application/xml, which is what Twilio needs from a TwiML URL. */
+  expect(publishedFiles(), 'fallback.xml is excluded from nevamis.ca').toContain('fallback.xml');
+  expect(read('sitemap.xml'), 'the sitemap lists fallback.xml').not.toMatch(/fallback\.xml/);
+  /* The search index carries page text, so it is searched for the file and
+     for its sentence; "your line is busy" is ordinary call-forwarding copy. */
+  const index = read('search-index.json').toLowerCase();
+  expect(index, 'the search index lists fallback.xml').not.toContain('fallback.xml');
+  expect(index, 'the search index carries the fallback\'s sentence').not.toContain(BUSY_SENTENCE.slice(0, 34).toLowerCase());
+});

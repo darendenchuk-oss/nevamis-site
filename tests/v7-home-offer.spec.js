@@ -118,7 +118,9 @@ test('HOME-2: with a place open, every free-month block names the first N, the b
     said.push(flat(await el.innerText()));
   }
   expect(said.length, 'the plans card and the two FAQ lines').toBeGreaterThanOrEqual(3);
-  const firstN = new RegExp('\\bfirst ' + N + ' (?:clients|businesses)\\b', 'i');
+  /* Businesses only since owner decision #74 (2026-10-08): this accepted
+     "clients" too, the noun a caller heard as clients Nevamis already has. */
+  const firstN = new RegExp('\\bfirst ' + N + ' businesses\\b', 'i');
   for (const block of said) {
     expect(block, 'a gated block that does not say the month is free has no reason to be gated').toMatch(FREE_MONTH);
     expect(block, 'the cap').toMatch(firstN);
