@@ -7,9 +7,6 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <!-- generated:preload -->
-<link rel="preload" href="/assets/film/film-1.js" as="script">
-<link rel="preload" href="/assets/film/film-2.js" as="script">
-<link rel="preload" href="/assets/film/film-3.js" as="script">
 <link rel="preload" href="pricing-config.js" as="script">
 <link rel="preload" href="free-month.js" as="script">
 <link rel="preload" href="site.js" as="script">
@@ -1957,8 +1954,9 @@ html:not(.nv-filmwait) #found::after{content:"";position:absolute;left:0;right:0
 }
 
 body{overflow-x:clip}
-html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,html.nv-below .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;transition:opacity .35s ease}
-html.nv-above #labels,html.nv-above #paneNav,html.nv-above #hint,html.nv-above:not(.nv-rm) .copy,html.nv-above #nlabel{opacity:0 !important;pointer-events:none;transition:opacity .35s ease}
+html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,html.nv-below .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}
+html.nv-above #labels,html.nv-above #paneNav,html.nv-above #hint,html.nv-above:not(.nv-rm) .copy,html.nv-above #nlabel{opacity:0 !important;pointer-events:none;visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}
+#ncard:not(.on){visibility:hidden;transition:opacity .28s ease,visibility 0s linear .28s}
 html.nv-herocta .callbar,body.card-open .callbar{transform:translateY(110%);visibility:hidden;transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}
 @media(max-width:820px){#hint{bottom:calc(76px + env(safe-area-inset-bottom))}}
 @media(max-width:900px){#scroll .copy{display:block}}
@@ -2003,10 +2001,10 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
     <div class="centre hero-top">
       <p class="k">BUILT FOR THE TRADES</p>
       <h1>More of the customers you want.</h1>
-      <p class="lede">By invitation, we list businesses that fit the work you want. And we answer the calls you miss, 24/7.</p>
+      <p class="lede">We answer the calls you miss, 24/7, in your business's name. By invitation, we also find businesses that fit the work you want.</p>
       <div class="ctarow">
         <a class="btn btn-primary btn-lg" href="/book.html#pick-a-time" data-evt="hero_book_call_click">Book a call</a>
-        <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="hero_live_demo_call_click">Call it now: (587) 413-0035</a>
+        <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="hero_live_demo_call_click">Hear it answer: (587) 413-0035</a>
       </div>
       <p class="proof"><span>Call the line yourself, any hour.</span> <span>No minimum term.</span> <span>Founded and run by Daren in Edmonton.</span></p>
       <p class="hero-scan"><a class="more" href="https://app.nevamis.ca/scan" data-evt="hero_scan_click" data-film-exit>Scan my website</a></p>

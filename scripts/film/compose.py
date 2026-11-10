@@ -79,6 +79,21 @@ FILM_START_CSS = (
 # the reduced-motion and no-WebGL path (nv-rm), where they are ordinary text in
 # the document and must never be hidden (tests/can-always-act.spec.js).
 #
+# HIDDEN MEANS OUT OF THE TAB ORDER TOO (polish round, 2026-11-09). Opacity and
+# pointer-events hide the chrome from the eye and the mouse, not the keyboard:
+# Tab from the hero's last link went to the film ending's Book a call and scan
+# link, then the six rail buttons, then the node card's close button, nine
+# stops a sighted keyboard user could not see, all at opacity 0, before the
+# next real link. So the same rules also set visibility:hidden, which takes an
+# element out of the tab order without moving anything, and the visibility
+# change waits for the fade (0s linear .35s) so the chrome still fades out
+# rather than vanishing; coming back, it is visible at once and fades in. The
+# node card (#ncard) sits at opacity 0 whenever it is closed, film or no film,
+# so it is hidden the same way whenever it is not open. Geometry is unchanged,
+# so every measurement of the rail (tests/closing-round.spec.js) still holds.
+# tests/first-screen.spec.js presses Tab from the hero and fails on any stop
+# that cannot be seen.
+#
 # THE BOOKING BAR. It used to be display:none for the whole film
 # ("html:not(.nv-below) .callbar"), which left a phone with no tappable action
 # for about 7,400px. It now steps aside only while the hero's own action row is
@@ -94,10 +109,11 @@ film_style = film_style.replace('</style>',
     'body{overflow-x:clip}\n'
     'html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,'
     'html.nv-below .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;'
-    'transition:opacity .35s ease}\n'
+    'visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}\n'
     'html.nv-above #labels,html.nv-above #paneNav,html.nv-above #hint,'
     'html.nv-above:not(.nv-rm) .copy,html.nv-above #nlabel{opacity:0 !important;pointer-events:none;'
-    'transition:opacity .35s ease}\n'
+    'visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}\n'
+    '#ncard:not(.on){visibility:hidden;transition:opacity .28s ease,visibility 0s linear .28s}\n'
     'html.nv-herocta .callbar,body.card-open .callbar{transform:translateY(110%);visibility:hidden;'
     'transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}\n'
     '@media(max-width:820px){#hint{bottom:calc(76px + env(safe-area-inset-bottom))}}\n'

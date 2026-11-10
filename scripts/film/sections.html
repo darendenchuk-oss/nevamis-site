@@ -24,10 +24,12 @@
      the first thing in <main>, it paints in the first frame with no WebGL,
      no JavaScript and no motion, and the film runs unchanged below it for
      anyone who scrolls. tests/first-screen.spec.js holds all of it.
-     Decision #54 still holds too: the h1 is Lead Generation's promise and
-     the first clause of the sub says "by invitation". The front desk is
-     the second clause and the second button, which is what the November
-     ads sell, and what a visitor from them came to check.
+     Decision #54 still holds too: the h1 is Lead Generation's promise, and
+     the sentence that offers it says "by invitation". The sub opens with
+     the front desk and the second button dials it, because that is what
+     the November ads promise: a visitor from one reads the promise they
+     clicked on before anything else, then the invitation (polish round,
+     2026-11-09, owner-approved).
 
      NOTHING IN THE FIRST SCREEN CARRIES .reveal OR ANY OPACITY ANIMATION.
      A reveal on the hero is the "words wait for motion" defect this
@@ -79,8 +81,13 @@
     <!-- THE FIRST SCREEN. Every line is true today and already said
          elsewhere on the site: "businesses that fit the work you want" is
          the film's own Grow copy, the 24/7 answering is the plans lede and
-         the #answer section, "any hour" and the number are the honesty row
-         in #start, "no minimum term" is canonical terms.minimumMonths = 0
+         the #answer section, "in your business's name" is #answer's own
+         words and the greeting every client's receptionist is built with
+         (the engine's canonical.approvedGreeting, "Hi, you've reached
+         {business}.", which agent-draft.ts fills with the client's name;
+         checked at engine master 60ccaf5 on 2026-11-09), "any hour" and the
+         number are the honesty row in #start, "no minimum term" is
+         canonical terms.minimumMonths = 0
          for every shape of sale, and "Founded and run by Daren in Edmonton"
          is about.html. No price is typed here (compose.py refuses a C$ in
          the body) and no free-month sentence either: that one lives only in
@@ -92,17 +99,19 @@
          sending it; site.js sends any data-evt on click. On a desktop,
          site.js turns the tel: link into its dial pad, which shows the
          number and the browser call, so the label carries the number for
-         the visitor who will dial it from their own phone.
+         the visitor who will dial it from their own phone. It says "Hear it
+         answer" because that is what the call is for: the visitor hears the
+         same receptionist answer, not a salesperson.
          "Scan my website" stays, after Book a call and quieter than both
          buttons (#54), with data-film-exit like every scan link on the
          page (tests/home-door-order.spec.js counts them). -->
     <div class="centre hero-top">
       <p class="k">BUILT FOR THE TRADES</p>
       <h1>More of the customers you want.</h1>
-      <p class="lede">By invitation, we list businesses that fit the work you want. And we answer the calls you miss, 24/7.</p>
+      <p class="lede">We answer the calls you miss, 24/7, in your business's name. By invitation, we also find businesses that fit the work you want.</p>
       <div class="ctarow">
         <a class="btn btn-primary btn-lg" href="/book.html#pick-a-time" data-evt="hero_book_call_click">Book a call</a>
-        <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="hero_live_demo_call_click">Call it now: (587) 413-0035</a>
+        <a class="btn btn-ghost btn-lg" href="tel:+15874130035" data-evt="hero_live_demo_call_click">Hear it answer: (587) 413-0035</a>
       </div>
       <p class="proof"><span>Call the line yourself, any hour.</span> <span>No minimum term.</span> <span>Founded and run by Daren in Edmonton.</span></p>
       <p class="hero-scan"><a class="more" href="https://app.nevamis.ca/scan" data-evt="hero_scan_click" data-film-exit>Scan my website</a></p>

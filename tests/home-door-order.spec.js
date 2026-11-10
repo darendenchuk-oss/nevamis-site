@@ -108,6 +108,34 @@ for (const page of PAGES) {
     expect(bad, bad.join('\n')).toEqual([]);
   });
 
+  /* "Both ways in" (owner-approved, polish round 2026-11-09). The ads sell
+     the front desk, so the hero's sub opens with that promise; Lead
+     Generation stays the h1 and its sentence still says "by invitation"
+     (#54). The second button is the demo line, so a visitor from an ad can
+     hear the promise kept. Shown red on this checkout's previous sub ("By
+     invitation, we list businesses ... And we answer the calls you miss,
+     24/7.") and on the "Call it now" label. */
+  test(`door: ${page}'s hero opens with the answering promise, keeps Lead Generation by invitation, and its second button dials the demo line`, () => {
+    const html = read(page);
+    const hero = /<div class="centre hero-top">([\s\S]*?)<p class="proof">/.exec(block(html, 'found') || '');
+    expect(hero, 'the hero\'s first screen').not.toBeNull();
+    const sub = /<\/h1>\s*<p class="lede">([\s\S]*?)<\/p>/.exec(hero[1]);
+    expect(sub, 'the sub straight under the h1').not.toBeNull();
+    const text = visibleText('<body>' + sub[1]).trim();
+    const said = sentences(text);
+    for (const re of [/\banswer/i, /\bcalls?\b/i, /24\/7/]) {
+      expect(said[0], `the sub opens with what the ads promise, the calls you miss answered 24/7 (${re})`).toMatch(re);
+    }
+    const lg = said.filter((s) => /\bbusinesses\b/i.test(s));
+    expect(lg.length, 'the sub still offers Lead Generation').toBeGreaterThan(0);
+    for (const s of lg) expect(s, 'a Lead Generation sentence without "by invitation" (#54)').toMatch(/\bby invitation\b/i);
+    expect(text.split(/\s+/).length, `the sub is ${text.split(/\s+/).length} words`).toBeLessThanOrEqual(26);
+    const row = anchors((/<div class="ctarow">([\s\S]*?)<\/div>/.exec(hero[1]) || [, ''])[1]);
+    expect(row.length, 'the hero carries two buttons').toBe(2);
+    expect({ href: row[1].href, evt: row[1].evt, text: row[1].text }).toEqual({
+      href: 'tel:+15874130035', evt: 'hero_live_demo_call_click', text: 'Hear it answer: (587) 413-0035' });
+  });
+
   test(`door: ${page} tells the #54 story in the film and leaves the scan's retired promises off the page`, () => {
     const html = read(page);
     const t = visibleText(html);

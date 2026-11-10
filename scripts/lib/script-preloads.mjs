@@ -20,6 +20,14 @@
      by competing for the same bandwidth;
    - talk/index.html, whose widget is injected only when the visitor presses
      start;
+   - the film's own scripts (assets/film/, on every page that carries them),
+     about 255 KB compressed. Preloaded, they took the high priority a
+     render-blocking script gets and were fetched ahead of everything else
+     the first screen needs, and Lighthouse 12's simulated mobile LCP on the
+     homepage rose from 2.9 s (main, served from the same local server) to
+     4.4 to 4.8 s (polish round, 2026-11-09). The first screen is the hero,
+     plain HTML above the film that needs none of it, and the film's tags
+     sit after </main> where the parser reaches them anyway;
    - anything a comment or an inline script merely mentions.
    ============================================================ */
 
@@ -28,6 +36,9 @@ export const PRELOAD_END = '<!-- /generated:preload -->';
 /* The region as build-csp.mjs writes it, with the newline before it. */
 export const PRELOAD_REGION = /\n?<!-- generated:preload -->[\s\S]*?<!-- \/generated:preload -->/;
 export const NO_PRELOAD = new Set(['talk/index.html']);
+/* A script the page loads but no page preloads: the film's, wherever it is
+   carried, with or without the leading slash. */
+export const NOT_PRELOADED = /^(?:\.?\/)?assets\/film\//i;
 
 const CLASSIC_TYPES = new Set(['', 'text/javascript', 'application/javascript']);
 /* Attributes that decide how the browser fetches a script. A preload made
@@ -85,7 +96,7 @@ export function preloadRegion(file, html) {
   const links = [];
   for (const a of classicScripts(html)) {
     const src = a.src.trim();
-    if (seen.has(src)) continue;
+    if (seen.has(src) || NOT_PRELOADED.test(src)) continue;
     seen.add(src);
     const extra = FETCH_ATTRS.filter((k) => k in a)
       .map((k) => (a[k] === '' ? ` ${k}` : ` ${k}="${escAttr(a[k])}"`)).join('');

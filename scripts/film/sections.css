@@ -45,7 +45,7 @@
    min-height:100vh, so it is laid out and painted in the document's first
    frame whatever the film is doing. The budget is a 360x640 phone (decision
    #51's test size): kicker, h1, sub and Book a call inside the first screen,
-   Call it now and the proof line with them on anything taller.
+   Hear it answer and the proof line with them on anything taller.
    tests/first-screen.spec.js measures it at 360x640, 390x844 and 1440x900.
    #found clears the fixed 68px header by its own padding, since it is now
    the first thing under it. */

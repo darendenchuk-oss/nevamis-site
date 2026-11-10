@@ -10,10 +10,14 @@
    holds:
      the rule      on every published page the preloads are exactly the
                    page's own classic scripts, in document order, sitting
-                   straight after the policy; no type="module" script is ever
-                   preloaded, and talk/index.html carries none;
+                   straight after the policy; no type="module" script and no
+                   film script (assets/film/) is ever preloaded, and
+                   talk/index.html carries none;
      the audit's   the homepage and book.html preload exactly the lists the
-     lists         audit measured (the film's three first on the homepage);
+     lists         audit measured, less the film's three on the homepage:
+                   preloaded, they raised Lighthouse 12's simulated mobile
+                   LCP there from 2.9 s to 4.4-4.8 s (polish round,
+                   2026-11-09) for a first screen that needs none of them;
      no waste      in a real browser each preloaded script is fetched once,
                    is used (Chrome reports a preload nobody used), and the
                    policy blocks nothing.
@@ -35,7 +39,7 @@ import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { classicScripts, NO_PRELOAD } from '../scripts/lib/script-preloads.mjs';
+import { classicScripts, preloadRegion, NO_PRELOAD, NOT_PRELOADED } from '../scripts/lib/script-preloads.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8').replace(/\r\n/g, '\n');
@@ -54,17 +58,23 @@ test('every page preloads exactly its own classic scripts, in order, straight af
   const sample = '<!-- <script src="quoted.js"></script> --><script>var s = "<script src=\\"built.js\\">";</script>'
     + '<script type="module" src="m.js"></script><script src="a.js" defer></script><script src="b.js"></script>';
   expect(classicScripts(sample).map((a) => a.src)).toEqual(['a.js', 'b.js']);
+  /* The film's scripts are loaded, never preloaded, however the path is spelt. */
+  const film = '<script src="/assets/film/film-1.js"></script><script src="assets/film/film-2.js"></script>'
+    + '<script src="./assets/film/film-3.js"></script><script src="site.js" defer></script>';
+  expect(classicScripts(film).length).toBe(4);
+  expect(preloadsOf(preloadRegion('index.html', film))).toEqual(['site.js']);
 
   for (const f of PAGES) {
     const html = read(f);
     const links = preloadsOf(html);
     const modules = [...html.matchAll(/<script\b[^>]*\btype="module"[^>]*\bsrc="([^"]+)"/g)].map((m) => m[1]);
     for (const m of modules) expect(links, `${f} preloads the module ${m}`).not.toContain(m);
+    for (const l of links) expect(l, `${f} preloads a film script`).not.toMatch(NOT_PRELOADED);
     if (NO_PRELOAD.has(f)) {
       expect(links, `${f} carries script preloads`).toEqual([]);
       continue;
     }
-    const srcs = [...new Set(classicScripts(html).map((a) => a.src.trim()))];
+    const srcs = [...new Set(classicScripts(html).map((a) => a.src.trim()))].filter((s) => !NOT_PRELOADED.test(s));
     expect(srcs.length, `${f} loads no classic script, so this proves nothing there`).toBeGreaterThan(0);
     expect(links, `${f}: its preloads are not its own classic scripts in order (run node scripts/build-csp.mjs)`).toEqual(srcs);
     expect(html, `${f}: the preloads do not sit straight after the policy`).toContain('<!-- /generated:csp -->\n<!-- generated:preload -->');
@@ -74,8 +84,10 @@ test('every page preloads exactly its own classic scripts, in order, straight af
 
 test('the homepage and the ad landing preload what the audit measured', () => {
   for (const f of ['index.html', 'home.html']) {
-    expect(preloadsOf(read(f)), f).toEqual(['/assets/film/film-1.js', '/assets/film/film-2.js', '/assets/film/film-3.js',
-      'pricing-config.js', 'free-month.js', 'site.js']);
+    expect(preloadsOf(read(f)), f).toEqual(['pricing-config.js', 'free-month.js', 'site.js']);
+    /* and still loads the film, after </main>, where it always was */
+    expect(classicScripts(read(f)).map((a) => a.src).filter((s) => NOT_PRELOADED.test(s)), f)
+      .toEqual(['/assets/film/film-1.js', '/assets/film/film-2.js', '/assets/film/film-3.js']);
   }
   expect(preloadsOf(read('book.html'))).toEqual(['pricing-config.js', 'free-month.js', 'assets/vendor/gsap.min.js',
     'assets/vendor/ScrollTrigger.min.js', 'site.js', 'motion.js']);

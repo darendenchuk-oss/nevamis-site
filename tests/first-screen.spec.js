@@ -38,6 +38,14 @@
      the film      the film still plays to its ending below the hero: scrolled
                    to the end of its span, #close turns on and its Book a call
                    takes the tap.
+     the keyboard  while the hero is in view (nv-above), the film's fixed
+                   chrome is out of the tab order, not only transparent: Tab
+                   from the hero's last link lands on a control a visitor can
+                   see, never on a rail button, the film ending's two links or
+                   the node card's close button, all of which sat at opacity 0
+                   in the tab order until the polish round of 2026-11-09. Once
+                   the stage reaches the top of the screen the rail is back in
+                   the tab order.
 
    SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09), each mutation made to the
    served homepage (index.html) of the commit that introduced this file, three
@@ -243,4 +251,75 @@ for (const vp of VIEWPORTS) {
       }
     });
   }
+}
+
+/* ---------- the keyboard ----------
+   Motion only: that is the path on which the rail is laid out (nv-live) and
+   the film ending is a fixed block at opacity 0. On the reduced-motion and
+   no-WebGL path the ending is ordinary text in the document, and Tab landing
+   on its Book a call there is right. */
+const FILM_CHROME = '#paneNav, #close, #ncard, #labels, #hint, #nlabel';
+
+for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
+  test(`${vp.name} ${vp.width}x${vp.height}, motion: Tab from the hero's last link skips the film's hidden chrome, and the rail is back once the film is on screen`, async ({ browser, baseURL }) => {
+    test.setTimeout(150_000);
+    const ctx = await browser.newContext({ baseURL, viewport: { width: vp.width, height: vp.height }, reducedMotion: 'no-preference' });
+    await ctx.route(/^https:\/\/app\.nevamis\.ca\//, (r) => r.fulfill({ status: 204, body: '' }));
+    const page = await ctx.newPage();
+    try {
+      await page.goto('/', { waitUntil: 'load' });
+      await page.waitForFunction(() => document.documentElement.classList.contains('nv-live'), null, { timeout: 60_000 });
+      const at = await page.evaluate(() => {
+        const de = document.documentElement;
+        const hidden = [...document.querySelectorAll('#paneNav button, #close a, #ncardClose')].map((el) => ({
+          what: `${el.closest('[id]').id} "${el.textContent.trim().replace(/\s+/g, ' ').slice(0, 24)}"`,
+          visibility: getComputedStyle(el).visibility,
+        }));
+        return { above: de.classList.contains('nv-above'), rail: document.querySelectorAll('#paneNav button').length, hidden };
+      });
+      expect(at.above, 'the page opens with the hero in view (nv-above)').toBe(true);
+      expect(at.rail, 'the film draws its six-button rail').toBe(6);
+      for (const h of at.hidden) expect(h.visibility, `with the hero in view, ${h.what} is still in the tab order`).toBe('hidden');
+
+      /* Tab from the hero's last link, the way a keyboard visitor leaves it. */
+      await page.evaluate(() => [...document.querySelectorAll('#found .hero-top a')].at(-1).focus());
+      expect(await page.evaluate(() => document.activeElement.textContent.trim())).toBe('Scan my website');
+      await page.keyboard.press('Tab');
+      const next = await page.evaluate((sel) => {
+        const el = document.activeElement;
+        return { what: `${el.tagName.toLowerCase()} "${el.textContent.trim().replace(/\s+/g, ' ').slice(0, 40)}" in #${(el.closest('[id]') || {}).id}`,
+          chrome: !!el.closest(sel), rail: !!el.closest('#paneNav'), body: el === document.body };
+      }, FILM_CHROME);
+      expect(next.body, 'Tab from the hero went nowhere').toBe(false);
+      expect(next.rail, `Tab from the hero's last link landed on a hidden rail button: ${next.what}`).toBe(false);
+      expect(next.chrome, `Tab from the hero's last link landed on the film's hidden chrome: ${next.what}`).toBe(false);
+      /* The stop is something a visitor can see: a scroll-reveal block fades
+         in once focus has scrolled it into view, on the page's animation
+         clock, so it is waited for. */
+      await expect.poll(() => page.evaluate(() => {
+        const el = document.activeElement;
+        let o = 1;
+        for (let n = el; n && n.nodeType === 1; n = n.parentElement) o *= +getComputedStyle(n).opacity;
+        return getComputedStyle(el).visibility === 'visible' && o > 0.9;
+      }), { message: `the stop after the hero (${next.what}) never became visible`, timeout: SLOW }).toBe(true);
+
+      /* Into the film: the stage at the top of the screen clears nv-above, and
+         the rail is visible and focusable again. */
+      await page.evaluate(() => {
+        const sc = document.getElementById('scroll');
+        const top = sc.getBoundingClientRect().top + scrollY;
+        window.scrollTo(0, Math.round(top + 0.2 * (sc.offsetHeight - innerHeight)));
+      });
+      await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains('nv-above')),
+        { message: 'the film never cleared nv-above', timeout: SLOW }).toBe(false);
+      const back = await page.evaluate(() => {
+        const b = document.querySelector('#paneNav button');
+        b.focus();
+        return { visibility: getComputedStyle(b).visibility, focused: document.activeElement === b };
+      });
+      expect(back, 'in the film the rail is in the tab order again').toEqual({ visibility: 'visible', focused: true });
+    } finally {
+      await ctx.close();
+    }
+  });
 }
