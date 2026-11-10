@@ -3,9 +3,17 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-b4UXIchNugHjcgNxxrqh57Rs3aMMlZygKBwz9k3CdtI=' 'sha256-ATLwZeR9MihxbLDsn3EVdnLfJgC9L2DDYPiN0zRoYW0=' 'sha256-wsd1x6ztt6twyTYnh0Vxo3m2ppPupvYJsioQdHMUonQ=' 'sha256-cAVQTxpL6w51/da6FLEvfbHUtt1AxkAj0Mwa9ID2Cao=' 'sha256-CiaZu42QZ8DgcwuI4SCqVofEx4YebkE2oNEoP1dxiZA=' 'sha256-wubUVsaSyBgY/U/r8NH9fWvoj21P30baXl+0Xac/EUQ=' 'sha256-6FTbj5AW5yA3sTm3XCH+In+bv3IbpswZKAu8lFI928E=' 'sha256-MV7RxEjOQDc1ifC8BvQpnh+ITAd0sgDxQQZ2ZYT+jr0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-b4UXIchNugHjcgNxxrqh57Rs3aMMlZygKBwz9k3CdtI=' 'sha256-ATLwZeR9MihxbLDsn3EVdnLfJgC9L2DDYPiN0zRoYW0=' 'sha256-/h7hcq2+9dU1ORRlFI/uai0OKhYKrjIUPrqkglxgwF4=' 'sha256-5atpgdtSWqklpaho1kPPDpfj+xKOiUyXdXdgB5Rna9s=' 'sha256-wsd1x6ztt6twyTYnh0Vxo3m2ppPupvYJsioQdHMUonQ=' 'sha256-cAVQTxpL6w51/da6FLEvfbHUtt1AxkAj0Mwa9ID2Cao=' 'sha256-CiaZu42QZ8DgcwuI4SCqVofEx4YebkE2oNEoP1dxiZA=' 'sha256-wubUVsaSyBgY/U/r8NH9fWvoj21P30baXl+0Xac/EUQ=' 'sha256-6FTbj5AW5yA3sTm3XCH+In+bv3IbpswZKAu8lFI928E=' 'sha256-MV7RxEjOQDc1ifC8BvQpnh+ITAd0sgDxQQZ2ZYT+jr0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src https://cal.com; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
+<!-- generated:preload -->
+<link rel="preload" href="pricing-config.js" as="script">
+<link rel="preload" href="free-month.js" as="script">
+<link rel="preload" href="assets/vendor/gsap.min.js" as="script">
+<link rel="preload" href="assets/vendor/ScrollTrigger.min.js" as="script">
+<link rel="preload" href="site.js" as="script">
+<link rel="preload" href="motion.js" as="script">
+<!-- /generated:preload -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Book a call | Nevamis</title>
 <meta name="description" content="Book a short call with Daren at Nevamis: who you want more of, the quotes and calls that slip past you today, and what it costs at published prices.">
@@ -1007,11 +1015,17 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      height, kept until free-month.js has its answer so a late card pushes
      no time slot down, and given back on every outcome. Measured with the
      offer shown: 197px at 375 and 390 wide, 142px from 721 up (where the
-     offer fits one line). The margin lives here, not on the card, so a
-     closed answer leaves no gap the old layout did not have. */
+     offer fits one line). The margin lives here, not on the card. Given
+     back only when the card shows: when the offer is not shown,
+     free-month.js keeps the hold and writes pricing-config.js
+     foundingClient.closedLine into it, filling the held height, so a
+     closed, failed or slow answer pulls no time slot up under a finger
+     either (launch audit PERF-5). Centred, as the panel's other notes are. */
   #pick-a-time .fm-hold{max-width:760px;margin:0 auto 16px}
   #pick-a-time .fm-hold[data-nv-free-month-hold]{min-height:197px}
   @media(min-width:721px){#pick-a-time .fm-hold[data-nv-free-month-hold]{min-height:142px}}
+  #pick-a-time .fm-hold .fm-closed{min-height:inherit;margin:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;color:var(--ink-2);font-size:var(--fs-card);line-height:var(--lh-body)}
   #pick-a-time #bookFreeMonth .fine2{text-align:left;max-width:none;margin:10px 0 0}
   /* The offer is the line a visitor came for; the terms under it are read by
      the ones who want them, so they sit a step smaller and the calendar
@@ -1120,7 +1134,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
       <span class="navitem"><a class="nav-min" href="/coming-soon.html" data-nav>Roadmap</a></span>
       <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
       <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
-      <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav>Hear it answer</a></span>
+      <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav title="Call (587) 413-0035 from any phone">Hear it answer</a></span>
       <span class="navitem"><a class="btn btn-primary" href="#pick-a-time" aria-current="page" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
     </nav>
   </div>
@@ -1160,7 +1174,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              pricing-config.js like #bookFrom over the calendar, and
              tests/v7-booked.spec.js holds this copy equal to the render. -->
         <div class="reveal"><h3>What it costs</h3><p><span id="bookCostFrom">Plans start at C$250 a month, and on the call you see which plan or single automation fits, at its published price.</span></p></div>
-        <div class="reveal"><h3>Who you want more of</h3><p>The kind of customer you would want more of this year. Lead Generation is by invitation, and this call is where it starts.</p></div>
+        <div class="reveal"><h3>Who you want more of</h3><p>The kind of customer you want more of. Lead Generation is by invitation, and this call is where it starts.</p></div>
       </div>
       <!-- The first-month-free card used to sit here, 2,600px above the
            scheduler on a phone. Every ad lands on #pick-a-time, so a visitor
@@ -1185,7 +1199,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         </div>
         <div class="reveal">
           <h3>Nothing to prepare</h3>
-          <p>Useful if you have it: the kind of customer you want more of this year, roughly
+          <p>Useful if you have it: the kind of customer you want more of, roughly
             how many quotes go quiet or calls you miss in a week, and what an average job is
             worth. If you do not know, we work it out together.</p>
         </div>
@@ -1312,9 +1326,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              appeared after 3.7 s in one run and 9.7 s in another, and it
              pushed the calendar down by its own height while a visitor was
              reaching for a time. The wrapper keeps the card's measured height
-             (CSS above) until free-month.js has its answer, and free-month.js
-             gives it back on every outcome. scripts/build-pages.mjs writes
-             the mark only while foundingClient.active is true. -->
+             (CSS above) until free-month.js has its answer. An open answer
+             puts the card in it; any other answer keeps the height and puts
+             foundingClient.closedLine in it (launch audit PERF-5).
+             scripts/build-pages.mjs writes the mark only while
+             foundingClient.active is true. -->
         <div class="fm-hold" data-nv-free-month-hold>
         <div id="bookFreeMonth" class="card fm-card" data-nv-free-month hidden>
           <p class="fm-offer" data-nv-free-month-offer></p>
@@ -1413,6 +1429,25 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
             var tab = document.getElementById("bkNewTab");
             if (tab) tab.href = tab.getAttribute("href") + "?" + tail;
           } catch (e) { /* the frame books fine untagged */ }
+        })();
+        </script>
+        <!-- THE AD LANDS ON THE CALENDAR, NOT ON THE TOP OF THE PAGE (launch
+             audit PERF-2, 2026-11-09). Every ad links to #pick-a-time, and a
+             browser scrolls to a fragment only once the whole page has been
+             parsed: on a throttled phone that was 5.3 s of the intro hero,
+             then a 2,854px jump under a visitor who had started reading. This
+             runs as soon as the calendar and the lines above it are parsed,
+             so the panel is on screen at about 1.5 s, and the browser's own
+             jump later finds it already there (one jump, measured, no jump
+             back). It only scrolls for this exact fragment. -->
+        <script>
+        (function () {
+          try {
+            if (location.hash === "#pick-a-time") {
+              var t = document.getElementById("pick-a-time");
+              if (t && t.scrollIntoView) t.scrollIntoView({ block: "start" });
+            }
+          } catch (e) { /* the browser's own fragment jump still runs */ }
         })();
         </script>
         <p class="fine2">Rather talk first? Call <a class="mono" href="tel:+15874130035">(587) 413-0035</a> and ask it to have Daren call you back, or email <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a>.</p>

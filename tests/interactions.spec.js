@@ -346,18 +346,28 @@ test('funnel diagnostics fire without leaking anything personal', async ({ page 
   await page.goto(PLAIN);
   await page.waitForFunction(() => Array.isArray(window.nvEvents));
 
-  // walk the page so section + depth events accumulate. Seven stops, not
-  // four: the film homepage runs many viewports tall (a full-height film
-  // opening, then a dozen-plus sections under it), and a four-teleport walk across a
-  // page that long can land between sections, which says nothing about
-  // whether events fire on a real read-through. Depth milestones are
-  // unaffected either way.
-  for (const pct of [0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1]) {
-    await page.evaluate((p) => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      window.scrollTo({ top: max * p, behavior: 'instant' });
-    }, pct);
-    await page.waitForTimeout(450);
+  // walk the page so section + depth events accumulate, the way a visitor
+  // reads it. Not by fixed fractions of the page: the film is ten viewports
+  // of one sticky stage between the hero and #recover, and none of it is a
+  // counted section (site.js leaves out its fixed story blocks, and the hero,
+  // which is on screen before anyone scrolls). A seven-stop walk at 15% to
+  // 100% put four stops inside the film and stepped over most sections below
+  // it: measured at 1440x900 it reached #roi, #start and #next and nothing
+  // else, and it met the four below only because the hero counted itself on
+  // load, which was the defect (launch review, 2026-11-09). So the walk goes
+  // from the top of #recover to the end, half a viewport at a time. The jump
+  // to #recover crosses every depth milestone up to 50% in one scroll, which
+  // is how a fast scroll through the film reports too.
+  const from = await page.evaluate(() => Math.round(document.getElementById('recover').getBoundingClientRect().top + scrollY));
+  for (let y = from; ; ) {
+    const max = await page.evaluate((top) => {
+      const end = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo({ top: Math.min(top, end), behavior: 'instant' });
+      return end;
+    }, y);
+    await page.waitForTimeout(250);
+    if (y >= max) break;
+    y += Math.round(page.viewportSize().height / 2);
   }
 
   const events = await page.evaluate(() => window.nvEvents.map((e) => e.event));
@@ -418,9 +428,10 @@ test('footer, callbar and every section land without console errors', async ({ b
     await expect(page.locator('#' + id), `#${id} is authored but not on the homepage`).toHaveCount(1);
   }
 
-  /* The phone call bar: hidden while the film owns the screen, by design
-     (scripts/film/compose.py, "html:not(.nv-below) .callbar"), and there to
-     tap once the visitor is into the page below it. */
+  /* The phone call bar: hidden while the hero's own Book a call is on
+     screen, so the page never shows it twice (scripts/film/compose.py,
+     nv-herocta; until 2026-11-09 it was hidden for the whole film), and there
+     to tap once the visitor is past the hero. */
   await expect(page.locator('.callbar')).toBeHidden();
   await page.locator('#faq').scrollIntoViewIfNeeded();
   await expect(page.locator('.callbar')).toBeVisible();

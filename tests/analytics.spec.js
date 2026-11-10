@@ -116,3 +116,47 @@ test('a tracked click records the event locally before navigating away', async (
   const names = await page.evaluate(() => (window.nvEvents || []).map((e) => e.event));
   expect(names, 'nvTrack should have recorded the click').toContain('dayone_roi_click');
 });
+
+/* SECTION REACH COUNTS WHAT A VISITOR SCROLLED TO (launch audit HERO-1,
+   2026-11-09). <main> opens above the film now, with the hero, so the film's
+   story blocks (section.copy: #s1, #s2, #s3, #close) are inside it. They are
+   position:fixed at mid-screen with only their opacity changing, so an
+   observer saw all four "reached" the moment the page loaded, for everyone.
+   The hero (#found) did the same: it is the first screen and 1,063 to 1,371px
+   tall, so 47% to 85% of it is on screen at load, over site.js's 0.35, and
+   section_reached_found fired for every visitor. The engine counts every
+   section_reached_* towards "Looked at the offer" (src/domain/funnel.ts), so
+   that stage read the same as "Landed" (launch review, 2026-11-09). site.js
+   leaves both out, and the RULE held here is that nothing is reached before
+   the visitor scrolls, at every first-screen size the hero is built for.
+   The second half is the control that keeps the first honest: a broken
+   observer would also report nothing on load, so the first section past the
+   film must still be reached once it is scrolled to.
+   SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09), each made to site.js of the
+   commit that introduced this rule, then restored: ":not(#found)" dropped,
+   the load half failed at 360x640 with ["section_reached_found"]; the
+   nvTrack call in the observer made a no-op, the load half passed and the
+   scroll half failed: "the first section past the film was scrolled to and
+   never counted". */
+test('section reach counts nothing on load, not the hero nor the film\'s fixed story blocks, and still counts a section scrolled to', async ({ page }) => {
+  await page.route('**/api/events', (r) => r.abort());
+  await page.route('**/api/mkt/events', (r) => r.abort());
+  for (const vp of [{ width: 360, height: 640 }, { width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+    const at = `${vp.width}x${vp.height}`;
+    await page.setViewportSize(vp);
+    await page.goto(PLAIN, { waitUntil: 'load' });
+    await page.waitForFunction(() => Array.isArray(window.nvEvents));
+    /* the observer reports what is already on screen in its first callback,
+       a frame or two after observe(); this is many of those */
+    await page.waitForTimeout(1200);
+    expect(await page.evaluate(() => scrollY), `${at}: the page has not been scrolled`).toBe(0);
+    const names = await page.evaluate(() => (window.nvEvents || []).map((e) => e.event));
+    const reached = names.filter((n) => n.startsWith('section_reached_'));
+    expect(reached, `${at}: a section was counted as reached before the visitor scrolled`).toEqual([]);
+  }
+  /* the control, at the last size: past the film, the first section counts */
+  await page.evaluate(() => document.getElementById('recover').scrollIntoView({ block: 'start', behavior: 'instant' }));
+  await expect.poll(() => page.evaluate(() => (window.nvEvents || []).map((e) => e.event)),
+    { message: 'the first section past the film was scrolled to and never counted', timeout: 10_000 })
+    .toContain('section_reached_recover');
+});

@@ -108,10 +108,42 @@ for (const page of PAGES) {
     expect(bad, bad.join('\n')).toEqual([]);
   });
 
+  /* "Both ways in" (owner-approved, polish round 2026-11-09). The ads sell
+     the front desk, so the hero's sub opens with that promise; Lead
+     Generation stays the h1 and its sentence still says "by invitation"
+     (#54). The second button is the demo line, so a visitor from an ad can
+     hear the promise kept. Shown red with SITE_ROOT on the previous
+     homepage (052f7d7: the sub opened "By invitation, we list businesses
+     that fit the work you want.") and on the new sub with the old "Call it
+     now: (587) 413-0035" label, 2 failed each. */
+  test(`door: ${page}'s hero opens with the answering promise, keeps Lead Generation by invitation, and its second button dials the demo line`, () => {
+    const html = read(page);
+    const hero = /<div class="centre hero-top">([\s\S]*?)<p class="proof">/.exec(block(html, 'found') || '');
+    expect(hero, 'the hero\'s first screen').not.toBeNull();
+    const sub = /<\/h1>\s*<p class="lede">([\s\S]*?)<\/p>/.exec(hero[1]);
+    expect(sub, 'the sub straight under the h1').not.toBeNull();
+    const text = visibleText('<body>' + sub[1]).trim();
+    const said = sentences(text);
+    for (const re of [/\banswer/i, /\bcalls?\b/i, /24\/7/]) {
+      expect(said[0], `the sub opens with what the ads promise, the calls you miss answered 24/7 (${re})`).toMatch(re);
+    }
+    const lg = said.filter((s) => /\bbusinesses\b/i.test(s));
+    expect(lg.length, 'the sub still offers Lead Generation').toBeGreaterThan(0);
+    for (const s of lg) expect(s, 'a Lead Generation sentence without "by invitation" (#54)').toMatch(/\bby invitation\b/i);
+    expect(text.split(/\s+/).length, `the sub is ${text.split(/\s+/).length} words`).toBeLessThanOrEqual(26);
+    const row = anchors((/<div class="ctarow">([\s\S]*?)<\/div>/.exec(hero[1]) || [, ''])[1]);
+    expect(row.length, 'the hero carries two buttons').toBe(2);
+    expect({ href: row[1].href, evt: row[1].evt, text: row[1].text }).toEqual({
+      href: 'tel:+15874130035', evt: 'hero_live_demo_call_click', text: 'Hear it answer: (587) 413-0035' });
+  });
+
   test(`door: ${page} tells the #54 story in the film and leaves the scan's retired promises off the page`, () => {
     const html = read(page);
     const t = visibleText(html);
-    for (const line of ['Who would you want more of this year?', 'You decide every one. Nobody on it is contacted by us.',
+    /* The first beat asked "Who would you want more of this year?" until
+       2026-11-09 (launch audit STALE-1): seven weeks from year end, the time
+       word had gone stale, and the question needs none. */
+    for (const line of ['Who do you want more of?', 'You decide every one. Nobody on it is contacted by us.',
       'Tell us who you want more of.', 'Lead Generation is by invitation, and a short call is where it starts.']) {
       expect(t, `the film's #54 line "${line}"`).toContain(line);
     }
@@ -310,7 +342,9 @@ test('film ending: Book a call is the filled action and the scan link sits under
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/home.html?debug=1&nointro=1');
   await page.waitForFunction(() => window.__nv && window.__nv.dbg, null, { timeout: 60_000 });
-  await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, Math.ceil(d.spanH - d.vh)); });
+  /* The span starts below the hero since 2026-11-09 (launch audit HERO-1), so its
+     end is measured from the span's own top, which the film publishes as spanTop. */
+  await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, d.spanTop + Math.ceil(d.spanH - d.vh)); });
   await expect.poll(() => page.evaluate(() => document.getElementById('close').classList.contains('on')), { timeout: 60_000 }).toBe(true);
   await page.waitForTimeout(800);
   const r = await page.evaluate(() => {

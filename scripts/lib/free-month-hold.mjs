@@ -5,8 +5,12 @@
    card's height while free-month.js asks the engine (a wrapper marked
    data-nv-free-month-hold), so a card that shows late pushes nothing a
    visitor is about to tap (funnel audit item 6, 2026-10-09). The price of
-   that is the closed case: when the answer is no, the space is given back
-   and everything under it moves up, 118 to 268px measured on those pages.
+   that was the closed case: when the answer was no, the space was given
+   back and everything under it moved up, 118 to 268px measured on those
+   pages. Since launch audit PERF-5 (2026-11-09) a closed, failed or slow
+   answer keeps the space instead, and free-month.js writes
+   foundingClient.closedLine into it, so nothing moves on any answer; the
+   cost is that space spent on one line about the terms.
 
    So the mark is written by scripts/build-pages.mjs, and only while
    pricing-config.js foundingClient.active is true. Nothing flips it on its

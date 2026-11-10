@@ -10,8 +10,8 @@
  *   motion fully on;
  *   on a phone, the sticky .callbar reaches booking (/book.html#pick-a-time)
  *   in plain CSS with no animation, so a next step is live from first paint
- *   on every content page (the film homepage hides the bar until the film
- *   ends, by design: scripts/film/compose.py);
+ *   on every content page (the homepage hides the bar only while its own
+ *   hero action row is on screen, since 2026-11-09: scripts/film/compose.py);
  *   on desktop, the navigation is clickable within a second.
  *
  * If someone re-gates the header behind the film's ignition, the first test
@@ -35,6 +35,15 @@
  * is in the worst state the ignition can put it in, for as long as the test
  * likes, on any machine. The old 1.6s ran on the film's own clock for the same
  * reason: so a slow CI machine could not turn a regression into a flake.
+ *
+ * SINCE THE HERO MOVED ABOVE THE FILM (launch audit HERO-1, 2026-11-09) the
+ * homepage does not play the ignition at all: the stage starts below the fold,
+ * so the film opens on its settled frame. The ignition is still reachable (any
+ * page whose stage starts at the top), and introhold=1 still forces it on and
+ * freezes it wherever the stage is, so the first test below keeps holding the
+ * nv-late pin. The bar test further down holds the hero's half of the new
+ * contract: hidden while the hero's own Book a call is on screen, there
+ * everywhere else, the film included.
  */
 import { test, expect } from '@playwright/test';
 
@@ -101,10 +110,11 @@ test.describe('a visitor can act before the intro finishes', () => {
   }
 
   /* The bar dialled the demo line until 2026-09-15, when the owner made it the
-     phone's booking action. A content page, not /index.html: the film homepage
-     hides the bar until the film ends (compose.py), so the homepage cannot
-     prove first paint. The demo line stays in the nav drawer, the page heroes
-     and the footer number. */
+     phone's booking action. A content page, not /index.html: the homepage
+     hides the bar while its own hero Book a call is on screen (compose.py), so
+     the homepage cannot prove the bar at first paint; its hero proves the
+     action instead (tests/first-screen.spec.js). The demo line stays in the
+     nav drawer, the page heroes and the footer number. */
   test('a phone visitor can reach booking from first paint', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/electricians.html', { waitUntil: 'domcontentloaded' });
@@ -129,26 +139,43 @@ test.describe('a visitor can act before the intro finishes', () => {
     expect(style.visibility).toBe('visible');
   });
 
-  /* The homepage cannot prove first paint, so the test above moved to a content
-     page. This one holds the homepage's half of the same contract, which that
-     move would otherwise have dropped: the film owns the screen first and the
-     bar is hidden under it (compose.py), and the moment the visitor is past the
-     film it is the same booking bar as everywhere else. */
-  test('the homepage bar hides under the film and books below it', async ({ page }) => {
+  /* The homepage cannot prove the bar at first paint, so the test above moved
+     to a content page. This one holds the homepage's half of the contract.
+     REWRITTEN 2026-11-09 (launch audit HERO-1 and HERO-2). It used to pin "the
+     bar is hidden while the film owns the screen": the film was the first
+     screen, and a phone had no tappable action for about 7,400px. The hero
+     (#found) is the first screen now, with its own Book a call, and the new
+     rule is the bar steps aside ONLY while that action row is on screen, so
+     the page never shows Book a call twice, and it is there everywhere else:
+     through the whole film, and below it. */
+  test("the homepage bar steps aside for the hero's own Book a call and books everywhere else", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
     const bar = page.locator('a.callbar');
     await expect(bar, 'the homepage carries exactly one sticky bar').toHaveCount(1);
-    await expect(bar, 'hidden while the film owns the screen').toBeHidden();
+    await expect(page.locator('#found .ctarow a[href^="/book.html"]'),
+      "the premise: the hero's own Book a call is on the first screen").toBeInViewport();
+    await expect(bar, "hidden while the hero's own Book a call is on screen").toBeHidden();
+
+    /* Into the film, a screen and a half below where its span starts: the
+       film owns the screen here, and the bar is there all the same. */
+    await page.evaluate(() => {
+      const sc = document.getElementById('scroll');
+      window.scrollTo(0, sc.getBoundingClientRect().top + scrollY + innerHeight * 1.5);
+    });
+    await expect(page.locator('#found .ctarow'), 'the premise: the hero is behind you').not.toBeInViewport();
+    await expect(bar, 'present through the film').toBeVisible();
+    await expect(bar).toHaveAttribute('href', '/book.html#pick-a-time');
+    await expect(bar).toHaveAttribute('data-evt', 'callbar_book_click');
 
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
     await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains('nv-below')),
       { message: 'the page never reported itself past the film', timeout: 30_000 }).toBe(true);
+    await expect(bar, 'and below it').toBeVisible();
 
-    await expect(bar, 'and present once the film is behind you').toBeVisible();
-    await expect(bar).toHaveAttribute('href', '/book.html#pick-a-time');
-    await expect(bar).toHaveAttribute('data-evt', 'callbar_book_click');
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expect(bar, 'back at the hero, it steps aside again').toBeHidden();
   });
 
   test('a desktop visitor has working navigation within a second', async ({ page }) => {
@@ -206,8 +233,8 @@ test.describe('a visitor can act before the intro finishes', () => {
     expect(state.hasNoJs, 'no-js must survive when site.js never ran').toBe(true);
 
     /* And the booking bar is still there, because it is plain CSS. Checked on a
-       content page with site.js still blocked: the film homepage hides the bar
-       until the film ends, by design, so its top cannot show it. */
+       content page with site.js still blocked: the homepage hides the bar
+       while its own hero Book a call is on screen, so its top cannot show it. */
     await page.goto('/electricians.html', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('.callbar')).toBeVisible();
     await expect(page.locator('.callbar')).toHaveAttribute('href', '/book.html#pick-a-time');

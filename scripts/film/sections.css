@@ -23,17 +23,75 @@
    token, so a station cannot drift from a card again.
    ============================================================ */
 
-/* The two sections the film hands the page to carry no rule above them: the
-   seam and the ending are their own boundaries. */
-#found,#next{border-top:none}
+/* The page's first section, the section the film hands the page to, and the
+   ending carry no rule above them: the header, the seam and the ending are
+   their own boundaries. */
+#found,#recover,#next{border-top:none}
 
-/* THE SEAM: a pool of emerald light bleeding up out of the first section, and
-   the site's hairline sweep drawn across the top of it. */
-#found{padding-top:64px}
-#found::before{content:"";position:absolute;left:0;right:0;top:-60px;height:120px;
+/* THE SEAM: a pool of emerald light bleeding up out of the first section
+   after the film, and the site's hairline sweep drawn across the top of it.
+   It was #found's until the hero moved above the film (launch audit HERO-1,
+   2026-11-09); it stays with the seam, not with the section, because a pool
+   of light at the top of the page would sit behind the hero, and the owner
+   has asked more than once for nothing to brighten that ground. */
+#recover{padding-top:64px}
+#recover::before{content:"";position:absolute;left:0;right:0;top:-60px;height:120px;
   background:var(--glow-pool);pointer-events:none}
-#found::after{content:"";position:absolute;left:20%;right:20%;top:0;height:1px;
+#recover::after{content:"";position:absolute;left:20%;right:20%;top:0;height:1px;
   background:var(--glow-lit)}
+
+/* THE FIRST SCREEN (launch audit HERO-1, 2026-11-09). Plain HTML above the
+   film, on the flat page ground: no glow, no gradient, no reveal, no
+   min-height:100vh, so it is laid out and painted in the document's first
+   frame whatever the film is doing. The budget is a 360x640 phone (decision
+   #51's test size): kicker, h1, sub and Book a call inside the first screen,
+   Hear it answer and the proof line with them on anything taller.
+   tests/first-screen.spec.js measures it at 360x640, 390x844 and 1440x900.
+   #found clears the fixed 68px header by its own padding, since it is now
+   the first thing under it. */
+#found{padding-top:calc(var(--head-h) + clamp(24px,5.5vh,64px))}
+/* Wider than a section head's 640px column, so the headline sets in two lines
+   on a desktop instead of three; the sub keeps a reading measure of its own. */
+#found .hero-top{max-width:min(100%,880px)}
+/* Each word stays whole from 320px to 1920px (tests/hero-headline-fits.spec.js
+   walks seven widths): at the 34px floor "customers", the longest word, is
+   about 180px against a 280px column at 320px. text-wrap:balance sets two even
+   lines rather than a one-word orphan ("want." alone on a desktop line); words
+   still never break, and a browser without it wraps normally. */
+#found .hero-top h1{font-size:clamp(34px,5.4vw,64px);line-height:1.04;margin:0 auto 18px;
+  text-wrap:balance}
+#found .hero-top .lede{font-size:clamp(17px,1.4vw,19px);color:var(--ink-2);max-width:46ch;
+  text-wrap:pretty}
+#found .hero-top .ctarow{margin-top:26px}
+/* The proof: three facts, each true today, each its own item so a phone
+   breaks between them rather than inside one. --ink-3 is 10.80:1 on --bg.
+   The dots are the site's label dot without its glow. */
+#found .proof{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 20px;
+  margin:20px auto 0;max-width:46rem;font-size:14px;line-height:1.5;color:var(--ink-3)}
+#found .proof span{display:inline-flex;align-items:center;gap:8px}
+#found .proof span::before{content:"";flex:none;width:5px;height:5px;border-radius:50%;
+  background:var(--emerald)}
+#found .hero-scan{margin:8px 0 0}
+/* Where the page meets the film. The film's own ground comes out of its tone
+   mapping and vignette at about rgb(0,0,2), a shade darker than the page's
+   #02080D, and with the film now BELOW a section that step drew a hard
+   horizontal edge across the screen as the stage scrolled up. The bottom
+   padding of #found fades to the film's ground instead. It darkens and never
+   brightens anything, it sits in the padding under the last line of copy, and
+   it waits for the film's first frame (nv-filmwait gone): until then the stage
+   shows the poster, whose edge IS #02080D, and the fade would draw a dark band
+   between two grounds that already match. With no WebGL there is no frame, so
+   no fade either. */
+html:not(.nv-filmwait) #found::after{content:"";position:absolute;left:0;right:0;bottom:0;
+  height:var(--sec-y);background:linear-gradient(to bottom,rgba(0,0,2,0),#000002);pointer-events:none}
+/* The Lead Generation card's own head, under the first screen. */
+#found .lg-head{margin-top:clamp(56px,9vh,104px)}
+@media(max-width:420px){
+  /* Buttons stack edge to edge below 760px (site.css); here they also keep a
+     48px floor, the phone tap target the hero's two actions are held to. */
+  #found .hero-top .ctarow{gap:12px}
+  #found .hero-top .ctarow .btn{min-height:48px}
+}
 
 /* THE SIX STATIONS. #doc is the film's own documentation section, which the
    composed page shows in every mode. source.html styles it for the standalone

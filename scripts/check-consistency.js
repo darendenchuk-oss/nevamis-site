@@ -73,6 +73,15 @@ const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\
      and it does not, because y-o-u-r leaves no word boundary before "our".
      Retire this entry the day there is a real client, not before. */
   /\bour clients\b/i, /\bour customers\b/i,
+  /* The same noun, one word apart. Owner decision #74 (2026-10-08) counts the
+     first-month-free cap in BUSINESSES, because "our first 10 clients" was
+     heard as clients Nevamis already has. Guard 7u's carrier rule reads
+     "first N clients", so a sentence with no N got past it: privacy.html said
+     "the offer we make to our first clients" for a month after #74 (launch
+     audit STALE-2, 2026-11-09). The count is optional here for that reason.
+     "its first clients", the demo prompt's honest "taking on its first
+     clients now", is not "our" and does not trip it. */
+  /\bour first (?:\d+ |ten )?(?:new )?(?:clients|customers)\b/i,
   /* Popularity is a client-base claim wearing different clothes. "Growth —
      most trades pick this" sat on the one-page sheet handed across the
      counter, and on both cold-calling crib sheets, while no plan had ever
@@ -3371,6 +3380,45 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     if (chosen.length) err("guard 7u carrier: refuses the wording owner decision #74 chose: " + chosen.join("; "));
 
     for (const p of carrierProblems(String(fc.offer || ""), String(fc.note || ""))) err("pricing-config.js " + p);
+
+    /* THE CLOSED LINE (launch audit PERF-5, 2026-11-09). free-month.js keeps
+       the held space whenever the offer is NOT shown, a closed answer, an
+       error or no answer in time, and writes foundingClient.closedLine into
+       it, so nothing under the space moves. That makes it the one string in
+       foundingClient a visitor reads exactly when there is no place, so it
+       may never be the offer, never name the cap, and say only what
+       pricing-config.js terms carry. Required while the switch is on:
+       without it free-month.js gives the space back and the page jumps, by
+       up to 268px, under whatever the visitor was reaching for. */
+    const closedProblems = (line, terms) => {
+      const out = [];
+      if (typeof line !== "string" || !line.trim()) return ["is missing, so a closed answer gives the held space back and moves the page"];
+      if (claims(line).length) out.push("says the first month is free, in the line shown when no place is");
+      for (const [re, what] of [[/\btrials?\b/i, "trial"], [/\bpilots?\b/i, "pilot"], [/\bdiscount/i, "discount"],
+        [/\bno (?:credit )?card\b/i, "no card required"], [/\bfirst \d+\b|\bfirst ten\b|\bplaces?\b|\bspots?\b/i, "the cap"],
+        [/C\$|\$\s?\d/, "a price (a price here is printed beside no plan)"]]) {
+        if (re.test(line)) out.push("says " + what);
+      }
+      if (/\bno minimum term\b/i.test(line) && terms.minimumMonths !== 0) out.push("says there is no minimum term, and terms.minimumMonths is " + terms.minimumMonths);
+      if (/\bcancel any ?time\b/i.test(line) && terms.cancellationNoticeDays !== 0) out.push("says cancel any time, and terms.cancellationNoticeDays is " + terms.cancellationNoticeDays);
+      return out;
+    };
+    {
+      const OPEN_TERMS = { minimumMonths: 0, cancellationNoticeDays: 0 };
+      for (const [why, line, terms] of [
+        ["the offer itself", "First month free for our first " + N + " businesses, given on a booked call.", OPEN_TERMS],
+        ["the cap", "All " + N + " places are taken.", OPEN_TERMS],
+        ["no minimum term against a three-month minimum", "No minimum term. Cancel any time in your portal.", { minimumMonths: 3, cancellationNoticeDays: 0 }],
+        ["cancel any time against a notice period", "No minimum term. Cancel any time in your portal.", { minimumMonths: 0, cancellationNoticeDays: 30 }],
+        ["nothing at all", "", OPEN_TERMS]]) {
+        if (!closedProblems(line, terms).length) err("guard 7u closed line: lets " + why + " through: \"" + line + "\"");
+      }
+      const fine = closedProblems("No minimum term. Cancel any time in your portal.", OPEN_TERMS);
+      if (fine.length) err("guard 7u closed line: refuses the line PERF-5 chose: " + fine.join("; "));
+    }
+    if (fc.active === true) {
+      for (const p of closedProblems(fc.closedLine, cfg.terms || {})) err("pricing-config.js foundingClient.closedLine " + p + ": \"" + String(fc.closedLine || "") + "\"");
+    }
 
   }
   /* No other config string may say it. */

@@ -17,7 +17,9 @@ async function openScanPane(page) {
   await page.goto('/home.html?debug=1&nointro=1');
   await page.waitForFunction(() => window.NV_SCENE && window.__nv && window.__nv.dbg, null, { timeout: 60000 });
   await page.waitForTimeout(1500);
-  await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, 0.2 * (d.spanH - (d.vh || innerHeight))); });
+  /* The span starts below the hero since 2026-11-09 (launch audit HERO-1), so its
+     place is measured from the span's own top, which the film publishes as spanTop. */
+  await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, d.spanTop + 0.2 * (d.spanH - (d.vh || innerHeight))); });
   await page.waitForTimeout(1500);
   await page.locator('#paneNav button[data-pane="scan"]').click();
   await expect(page.locator('#card')).toHaveClass(/\bon\b/);
