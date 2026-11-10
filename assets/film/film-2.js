@@ -2481,7 +2481,9 @@ if (DEBUG) { window.__nv.gov = GOV; window.__nv.bloomPass = bloom; window.__nv.s
        (uWash in the grain pass).
    Link honesty: the anchor keeps its real href at all times; modified
    clicks, middle clicks, right clicks and anything opening a new tab are
-   never intercepted; a ~1.6s safety timeout navigates even if rendering
+   never intercepted; a click while the film is not on screen is never
+   intercepted either (exitCanPlay, by the link wiring at the end of this
+   script); a ~1.6s safety timeout navigates even if rendering
    stalls (hidden tab included), and a throw during start-up falls through
    to immediate navigation. Scroll is NOT preventDefault-ed during the
    window: apply(p) still runs and the overrides simply win until the page
@@ -2841,7 +2843,34 @@ if (reduced) {
    2026-10-03): this used to pick links whose text matched "Scan my business",
    so renaming the button to what the scan actually reads would have silently
    dropped the flourish, and that is why the homepage kept the old label after
-   every other page had changed. */
+   every other page had changed.
+
+   THE FLOURISH PLAYS ONLY WHERE THE VISITOR CAN SEE IT (launch review of the
+   hero, 2026-11-09). The flourish lives entirely on the canvas, and
+   requestRender() draws nothing while the stage is off screen, so a click on
+   a link marked data-film-exit anywhere but over the film cancelled the
+   browser's navigation, started an exit no frame would ever play, and sat
+   there until the 1.6s safety timer left the page. The scan links below the
+   film had always done that; the hero's "Scan my website" put it on the first
+   screen, where it measured 1,677 ms from tap to leaving at 390x844 and 1,652 ms
+   at 1440x900 with zero frames drawn, which reads as a dead button and gets
+   tapped again. So the click is only taken over when the film has drawn
+   (SHOWN, or the exit would also pay the first frame's shader compile), is
+   being drawn (ON_SCREEN), and at that moment fills at least half the viewport
+   (ON_SCREEN carries the observer's 15% margin, so a stage just below the
+   fold counts as on screen while showing nothing). Everywhere else the click
+   is left alone and the browser follows the real href at once, exactly as
+   with reduced motion. The ending's two actions sit over the full-screen
+   stage, so they keep the flourish. tests/film-exit.spec.js holds both
+   halves: the hero's scan link and the one below the film leave in under
+   300 ms, and the ending's still plays the exit. */
+function exitCanPlay(){
+  if (!SHOWN || !ON_SCREEN) return false;
+  var st = document.getElementById('stage');
+  if (!st) return false;
+  var r = st.getBoundingClientRect(), vh = window.innerHeight;
+  return Math.min(r.bottom, vh) - Math.max(r.top, 0) >= vh * 0.5;
+}
 (function(){
   var scanLinks = Array.prototype.slice.call(document.querySelectorAll('a[data-film-exit]'));
   scanLinks.forEach(function(a){
@@ -2853,6 +2882,7 @@ if (reduced) {
       if (ev.defaultPrevented) return;
       if (ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;
       if (reduced) return; /* reduced motion: native navigation, immediately, no transition */
+      if (!exitCanPlay()) return; /* the film is not on screen: native navigation, now (see below) */
       ev.preventDefault();
       try { startExit(a.href); } catch (err) { location.href = a.href; }
     });
