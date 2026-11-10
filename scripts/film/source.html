@@ -7817,7 +7817,7 @@ function exitCanPlay(){
       if (ev.defaultPrevented) return;
       if (ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;
       if (reduced) return; /* reduced motion: native navigation, immediately, no transition */
-      if (!exitCanPlay()) return; /* the film is not on screen: native navigation, now (see below) */
+      if (!exitCanPlay()) return; /* the film is not on screen: native navigation, now (exitCanPlay, above) */
       ev.preventDefault();
       try { startExit(a.href); } catch (err) { location.href = a.href; }
     });
