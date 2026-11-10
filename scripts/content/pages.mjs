@@ -193,7 +193,11 @@ export const PROOF_BLOCK = `
    questions the agent asks, and the hedge read as the very question builder
    it was written to avoid. So the card says what it asks, which is the same
    on every call and every trade, and stops there (TRADE_ASKS below), and
-   claim-rules.mjs question-builder refuses the hedge in every spelling.
+   claim-rules.mjs question-builder refuses the hedge in every spelling. The
+   card list in "Built around" was labelled "What we configure for <trade>"
+   until the same day; a screen reader read every card under it as something
+   set up per client, including the ones that only say what is in the call
+   recording, so it is labelled for what the agent does instead.
 
    "Tells them your team will confirm the time" is said only by a client with
    a booking link; with none, the agent takes a complete message and says the
@@ -247,7 +251,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, afterHours }) => `
         area, your hours, your job types, the prices you approve, and what counts as an
         emergency for your business.</p>
     </div>
-    <div class="stack" aria-label="What we configure for ${trade}">
+    <div class="stack" aria-label="What it does on calls for ${trade}">
       ${jobs.map((j) => `<div class="layer"><strong>${j.t}</strong><span>${j.d}</span></div>`).join('\n      ')}
     </div>
   </div>
