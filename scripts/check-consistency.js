@@ -1345,7 +1345,9 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
        whole; an XML or SVG file without its tags; a stylesheet's content
        strings. Media and fonts are not read. A published file of any other
        kind fails this guard until a reader for it is added here, so a new
-       kind of file cannot be skipped quietly.
+       kind of file cannot be skipped quietly. Since 2026-11-10 it also
+       reads config/elevenlabs/, which is not published but is what the
+       agent speaks from (see the block at the end of this guard).
 
        THE SELF-CHECK, AND IT CAN FAIL. Until 2026-11-10 it asked only
        whether a unit LABELLED index.html existed, and one always did: a
@@ -1408,6 +1410,34 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     if (!published.includes(k)) err("guard 7k2: key file " + k + " is not in the published set, so the question rule does not reach it");
     else if (!/[a-z]{3}/i.test(textOf.get(k) || "")) err("guard 7k2: key file " + k + " produced no readable text, so the question rule does not reach it");
   }
+  /* AND THE AGENT'S OWN DOCUMENTS (2026-11-10, follow-up leaf
+     launch-site-4). config/elevenlabs/ is excluded from the deploy, so the
+     published set above never reaches it, yet it is what the demo agent
+     speaks from and what every client agent is built from: the knowledge
+     base, the prompts, the test cases and the vertical template. Guards 6b,
+     7e and 7q read it for banned phrases, retired prices and retired
+     promises, and none of them for a question builder. The review of site
+     PR #66 put the old Qualification paragraph back into
+     nevamis-knowledge-base.md with "It can be set up to ask what you would
+     ask." and every check here exited 0. So every .md and .txt under it is
+     read whole, as the agent's upload reads it, and held to the same rule.
+     The knowledge base is the key file: if it is missing, empty or skipped
+     this guard fails rather than going quiet. Shown red before it was
+     trusted: that sentence planted in the knowledge base exits 1 here, and
+     exits 0 again once it is removed. */
+  const agentDocs = walk(path.join(root, "config", "elevenlabs"));
+  const AGENT_KEY = "config/elevenlabs/nevamis-knowledge-base.md";
+  if (!agentDocs.length) err("guard 7k2: config/elevenlabs/ has no .md or .txt documents, so the question rule does not reach the agent's knowledge, prompts or templates");
+  let agentKeyRead = false;
+  for (const file of agentDocs) {
+    const label = path.relative(root, file).replace(/\\/g, "/");
+    let text;
+    try { text = fs.readFileSync(file, "utf8"); }
+    catch (e) { err("guard 7k2: " + label + " could not be read (" + e.message + "), so the question rule does not reach it"); continue; }
+    if (label === AGENT_KEY && /[a-z]{3}/i.test(text)) agentKeyRead = true;
+    units.push({ label, text });
+  }
+  if (!agentKeyRead) err("guard 7k2: key file " + AGENT_KEY + " was not read or produced no readable text, so the question rule does not reach the agent's knowledge base");
   for (const { label, text } of units) {
     for (const f of claimFindings(text.replace(/\s+/g, " "), label)) {
       if (!QUESTION_RULES.has(f.id)) continue;
