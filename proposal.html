@@ -823,6 +823,7 @@ html.motion-off .faq details p{animation:none}
 .callbar.callbar-off{transform:translateY(110%);visibility:hidden;
   transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}
 @media(max-width:820px){
+  html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom))}
   .callbar{display:block}
   .site-footer{padding-bottom:96px}
 }
