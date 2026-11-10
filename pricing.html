@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- generated:csp -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Kui96Q2/rWNQ3wsPKkOlL7YRyMsK/JE5mFEr5O+jCgw=' 'sha256-CvkmChnk40u6bu1HkxRkouS9U5Hs0ZqvpbTff99LqS8=' 'sha256-uLOENpuAJ49DYOIhNginGzEFrBbngsoKiHeDVTFuMDc=' 'sha256-9V5tB9ht1DHQ6G/cWUaeI7Fi4EKVk8NA2wBijzXXuXw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ZSc/RUulTcEjjPi+ydQofAOBRqPOZMbZwxJ8/jP1ZuI=' 'sha256-lW78svqqqJkj3GpKQrsP7PB4ZHunyYmr2jJbRpfaY+g=' 'sha256-uLOENpuAJ49DYOIhNginGzEFrBbngsoKiHeDVTFuMDc=' 'sha256-9V5tB9ht1DHQ6G/cWUaeI7Fi4EKVk8NA2wBijzXXuXw='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self' data:; media-src 'self'; connect-src 'self' https://app.nevamis.ca; frame-src 'none'; worker-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- /generated:csp -->
 <!-- generated:preload -->
@@ -832,6 +832,7 @@ html.motion-off .faq details p{animation:none}
 .callbar.callbar-off{transform:translateY(110%);visibility:hidden;
   transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}
 @media(max-width:820px){
+  html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom))}
   .callbar{display:block}
   .site-footer{padding-bottom:96px}
 }
@@ -1315,7 +1316,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <ul id="everyPlan" class="node-list">
           <li>One business phone line</li>
           <li>Answers your line around the clock, configured from your own hours, services, service area, prices and FAQs</li>
-          <li>Asks the qualifying questions you approved, in your words</li>
+          <li>Asks the caller about the job, where it is and how urgent it is</li>
           <li>Captures the caller's name, callback number, what they want, the service, how urgent it is, how the call ended and what happens next, as one structured lead</li>
           <li>Texts and emails you that summary within seconds of the call ending, and records honestly whether each one was delivered</li>
           <li>Every call recorded and playable in your portal, with CSV export of the lead record</li>
@@ -2000,7 +2001,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
          owner confirms the slot, as how-you-start.html says. */
       "description": "A configured voice agent that answers a business phone line 24/7, qualifies the caller, captures the request and the times that suit them, and sends the owner a summary of every call within seconds.",
       "brand": { "@id": "https://nevamis.ca/#organization" },
-      "category": "Lead generation, quote follow-up and phone answering for service businesses",
+      "category": "Lead Generation by invitation, quote follow-up and phone answering for service businesses",
       "offers": {
         "@type": "AggregateOffer",
         "priceCurrency": P.currency,

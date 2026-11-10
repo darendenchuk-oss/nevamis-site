@@ -857,6 +857,7 @@ html.motion-off .faq details p{animation:none}
 .callbar.callbar-off{transform:translateY(110%);visibility:hidden;
   transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}
 @media(max-width:820px){
+  html{scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom))}
   .callbar{display:block}
   .site-footer{padding-bottom:96px}
 }
@@ -1080,7 +1081,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     "@context": "https://schema.org",
     "@type": "Service",
     "@id": "https://nevamis.ca/#service",
-    "name": "Lead Generation, Quote Recovery and call answering for Canadian trades",
+    "name": "Lead Generation by invitation, Quote Recovery and call answering for Canadian trades",
     "serviceType": "Lead Generation by invitation, quote follow-up, and 24/7 call answering with structured lead capture",
     "description": "Nevamis finds a trades or service business more of the customers it wants (Lead Generation, by invitation: a person reads public pages and builds the list, the owner decides every row, and nobody on it is contacted), follows up the quotes it already sent with the owner's approval, and answers its phone around the clock, texting and emailing the owner each call's details within seconds.",
     "provider": {
@@ -1702,6 +1703,8 @@ body{
 #close:not(.on) a,#close:not(.on) .fine .cta-q,
 html.nv-below #close a,html.nv-below #close .fine .cta-q{pointer-events:none}
 
+#close:not(.on),body.card-open #close.on{visibility:hidden;transition:opacity .6s ease,visibility 0s linear .6s}
+
 #close .fine .cta-q{pointer-events:auto;display:inline-block;margin-bottom:.5rem;
   padding:.4rem 1rem;border-radius:999px;background:rgba(2,8,13,.78);
   border:2px solid rgba(159,240,206,.85);box-shadow:0 0 0 3px #02080D;
@@ -2027,7 +2030,7 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
       </ul>
     </div>
 
-    <p class="fine2 reveal">Lead Generation is offered by invitation, to a few businesses under their own agreement, and the list is put together by hand.</p>
+    <p class="fine2 reveal">Lead Generation is offered by invitation, under its own agreement, and the list is put together by hand.</p>
     
   </div>
 </section>
@@ -2107,7 +2110,8 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
     <div class="centre reveal">
       <p class="k">CAPTURE <span class="chip av">Available today</span></p>
       <h2>Your phone answered, any hour.</h2>
-      <p class="lede">Your line is answered around the clock, in your business's name, with the questions you approved.</p>
+      
+      <p class="lede">Your line is answered around the clock, in your business's name, and the caller is asked about the job, where it is and how urgent it is.</p>
     </div>
 
     <div class="card card-featured offer-card reveal">
@@ -2118,7 +2122,7 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
       </div>
       <ul class="node-list offer-list">
         <li>Answers around the clock, in your business's name <span class="tag mono">CAPTURE</span></li>
-        <li>Asks the questions you approved, in your words <span class="tag mono">CAPTURE</span></li>
+        <li>Asks about the job, where it is and how urgent it is <span class="tag mono">CAPTURE</span></li>
         <li>Every call recorded and playable in your portal <span class="tag mono">CAPTURE</span></li>
         <li>No calendar booking and no live transfer, and it says so <span class="tag mono">CAPTURE</span></li>
       </ul>

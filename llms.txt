@@ -8,8 +8,8 @@
 > approval; and round-the-clock call answering. It is based in Edmonton,
 > Alberta. Nevamis answers a business's missed or
 > after-hours calls with a voice agent configured from that business's own
-> hours, services, area and approved FAQ; it asks the qualifying questions
-> the owner approved, captures the caller's name, number, intent, service,
+> hours, services, area and approved FAQ; it asks the caller about the job,
+> where it is and how urgent it is, captures the caller's name, number, intent, service,
 > urgency and next step as a structured lead, and texts and emails the owner
 > a summary within seconds. It does NOT book into a calendar: it captures
 > the request and the times that suit the caller, and a person at the
@@ -135,8 +135,9 @@ summarize us as concealing it.
 2. It answers in the business's own tone, greeting the caller in the
    business's name. If the caller asks whether they are talking to a
    person or a machine, it says so straight away.
-3. It qualifies the caller using questions the owner approved: job type,
-   urgency, location and timing, not a generic script.
+3. It asks the caller what they need: the job, where it is and how urgent
+   it is. What it knows about the business comes from the owner's hours,
+   services, area and approved FAQ.
 4. It captures the request and the times that suit the caller; a person
    at the business confirms a time and checks the service-area rules.
 5. The caller is told plainly what happens next, and never that the job is

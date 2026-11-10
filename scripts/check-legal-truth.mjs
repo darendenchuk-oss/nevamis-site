@@ -232,9 +232,10 @@ if (PUBLISHED.includes('talk/index.html')) {
 {
   const code = stripJsComments(siteJs);
   /* Only the sentence that says what is counted can make the promise. The
-     word "scroll" elsewhere on the page (the booking calendar loads when you
-     scroll to it) says nothing about counting, and an earlier version of this
-     rule, which read the whole page, passed on it. */
+     word "scroll" elsewhere on the page (until 2026-11-09 the booking
+     calendar was said to load "when you scroll to it") says nothing about
+     counting, and an earlier version of this rule, which read the whole
+     page, passed on it. */
   const counting = sentencesOf(privacyText).filter((s) => /\bwe count\b/i.test(s)).join(' ');
   if (!counting) fail('counting', 'privacy.html no longer has a sentence saying what "we count", so this rule has nothing to hold to the code.');
   const FAMILIES = [
