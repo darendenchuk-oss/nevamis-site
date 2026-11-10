@@ -33,10 +33,12 @@ import { sitemapPages } from "./lib/sitemap.mjs";
    scope rule; see scripts/check-claims-classifier.mjs for the fixtures. */
 import { DENIAL, ADDITIVE, RETIRED_OFFERS, UNBUILT_PROMISES, statesBanned, offendingClause } from "./lib/claims.mjs";
 import { stripHtmlComments, stripJsComments, jsStringLiterals, renderedProse, clauses } from "./lib/rendered-text.mjs";
-/* The two question rules of the content layer, run over every served
-   surface by guard 7k2 below rather than restated here. */
+/* The content layer's question-builder rule, run over every served surface
+   by guard 7k2 below rather than restated here, and the published set it
+   runs over, derived the way the deploy derives it. */
 import { claimFindings, renderedText } from "./content/claim-rules.mjs";
-const root =path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+import { publishedFiles } from "./lib/published-files.mjs";
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
    had no shared chrome, and that exemption is exactly why its hand-copied nav
    lost the Solutions link and kept the h1 -> h4 footer heading skip. A page
@@ -1310,66 +1312,101 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
   }
 }
 
-/* 7k2. NO QUESTION BUILDER, AND NO DENIAL OF THE HEDGE, ON ANY SERVED SURFACE.
+/* 7k2. NO QUESTION BUILDER, AND NO HEDGE FOR ONE, ON ANY SERVED SURFACE.
 
-       Added 2026-11-09 (review of PR #65). The client agent asks about the
-       job, where it is and how urgent it is, and nothing lets a client set
-       its questions; the trade pages hedge that as "it can be set up to ask
-       what you would ask". scripts/content/claim-rules.mjs holds both edges:
-       question-builder (no "qualifying questions you approved") and
-       question-denial (no "nothing lets the owner set the questions"). Those
-       rules ran only over the pages build-content.mjs writes, and the
-       surface-wide scan of question-builder lived in
-       tests/site-live-platform.spec.js (TRUTH-2), a Playwright spec this
-       repo's CI does not run. So pricing-config.js, the homepage, How you
-       start, the proposal and llms.txt each said there was a question
-       builder while CI was green, and the TRUTH-2 rewrite of llms.txt then
-       denied the trade pages' hedge, also green. Here, in CI, both rules run
-       over every published page (its rendered text and JSON-LD, then the
-       string literals of its inline scripts), the scripts that render copy,
-       llms.txt (its "> " quote marks dropped, so a wrapped sentence reads
-       whole) and search-index.json. The rules are imported, not restated.
-       SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09), this file and
-       claim-rules.mjs copied onto a checkout of each commit: on eda54f6, the
-       PR's head before the review, it fails once, llms.txt question-denial
-       ("nothing lets the owner set the questions it asks"); on main 0fb6589
-       it fails seven times, question-builder in home.html, how-you-start.html,
-       index.html, pricing.html, proposal.html, pricing-config.js and
-       llms.txt. Green on the branch that added it. With its llms.txt unit
-       deleted (mutation run on eda54f6), it still fails, on its own
-       "produced no readable text" check, so a unit that stops being read
-       cannot go quiet. */
+       Added 2026-11-09 (review of PR #65). Rewritten 2026-11-10 for owner
+       decision #80 (dev-control): nothing lets the client, or Nevamis, set
+       the questions the agent asks. On every call it asks what the caller
+       needs, the job, where it is and how urgent it is, takes a name and a
+       callback number and confirms the number back once, and answers from
+       the business's own hours, services, service area and approved FAQ
+       (engine src/domain/agent-draft.ts, ON EVERY CALL).
+       question-builder in scripts/content/claim-rules.mjs refuses every way
+       of saying otherwise, including the hedge the four trade pages carried
+       until that day ("it can be set up to ask what you would ask", "can be
+       asked when you approve the question"). This guard used to run a second
+       rule, question-denial, which refused the TRUE sentence "nothing lets
+       the owner set the questions it asks" only because it contradicted that
+       hedge; the hedge and the rule went together. The rule is imported, not
+       restated.
+
+       WHERE IT LOOKS: every file GitHub Pages publishes, derived the way the
+       deploy derives it (scripts/lib/published-files.mjs: the tracked files,
+       Jekyll's hidden-path rule, and _config.yml's exclude and include), not
+       a list kept by hand. The hand-kept list this replaced read the
+       top-level pages, six named scripts, llms.txt and search-index.json,
+       and never saw talk/index.html, talk/talk.js, free-month.js,
+       content-map.json or the three TwiML files a caller hears (ring.xml,
+       missed-line.xml, fallback.xml). Each file is read as a visitor or an
+       answer engine reads it: a page's rendered text, meta and JSON-LD, then
+       the string literals of its inline scripts; a script's string literals,
+       comments stripped; every string in a JSON file; a text file whole,
+       with llms.txt's "> " quote marks dropped so a wrapped sentence reads
+       whole; an XML or SVG file without its tags; a stylesheet's content
+       strings. Media and fonts are not read. A published file of any other
+       kind fails this guard until a reader for it is added here, so a new
+       kind of file cannot be skipped quietly.
+
+       THE SELF-CHECK, AND IT CAN FAIL. Until 2026-11-10 it asked only
+       whether a unit LABELLED index.html existed, and one always did: a
+       page pushed its unit whether or not any text came out of it. Now every
+       published text file must have been read, and each key file below must
+       be in the published set and must yield readable text. A key file
+       emptied, taken out of the published set, or skipped by the loop fails
+       here instead of going quiet.
+
+       SHOWN RED BEFORE IT WAS TRUSTED. 2026-11-09: on main 0fb6589 the first
+       version failed seven times, question-builder in home.html,
+       how-you-start.html, index.html, pricing.html, proposal.html,
+       pricing-config.js and llms.txt. 2026-11-10: this version, with the
+       widened question-builder, copied onto origin/main 09e3a95, fails four
+       times, once for each trade page (a file reports its first finding;
+       sentence by sentence the rule fires on all four intros and all four
+       "can be asked when you approve the question" cards), and is green on
+       the branch that rewrote it. */
 {
-  const QUESTION_RULES = new Set(["question-builder", "question-denial"]);
+  const QUESTION_RULES = new Set(["question-builder"]);
+  const KEY_FILES = [
+    "index.html", "electricians.html", "hvac.html", "plumbers.html", "restoration.html",
+    "talk/index.html", "talk/talk.js", "free-month.js", "pricing-config.js",
+    "llms.txt", "content-map.json", "search-index.json",
+    "ring.xml", "missed-line.xml", "fallback.xml",
+  ];
+  const MEDIA = /\.(?:png|gif|jpe?g|webp|avif|ico|mp4|webm|mp3|wav|ogg|m4a|woff2?|ttf|otf)$/i;
   const literalsOf = (js) => jsStringLiterals(stripJsComments(js)).map(renderedProse).filter(Boolean);
+  const stringsOf = (v, out = []) => {
+    if (typeof v === "string") out.push(v);
+    else if (v && typeof v === "object") for (const x of Object.values(v)) stringsOf(x, out);
+    return out;
+  };
+  const INLINE_SCRIPT = /<script\b(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/gi;
+  const READERS = [
+    [/\.html?$/i, (src) => [renderedText(src), ...[...src.matchAll(INLINE_SCRIPT)].flatMap((m) => literalsOf(m[1]))]],
+    [/\.m?js$/i, literalsOf],
+    [/\.(?:json|webmanifest)$/i, (src) => stringsOf(JSON.parse(src))],
+    [/\.(?:xml|svg)$/i, (src) => [renderedText(src)]],
+    [/\.css$/i, (src) => [...src.replace(/\/\*[\s\S]*?\*\//g, " ").matchAll(/\bcontent\s*:\s*(["'])((?:\\.|(?!\1)[^\\])*)\1/g)].map((m) => m[2])],
+    /* A text file, or a file with no extension at all (CNAME). */
+    [/(?:\.txt|(?:^|\/)[^./]+)$/i, (src) => [src.replace(/^>[ \t]?/gm, "")]],
+  ];
+  const published = publishedFiles(root);
+  const textFiles = published.filter((f) => !MEDIA.test(f));
+  const textOf = new Map();
   const units = [];
-  for (const p of contentPages) {
-    const src = fs.readFileSync(path.join(root, p), "utf8");
-    units.push({ label: p, text: renderedText(src) });
-    for (const m of src.matchAll(/<script\b(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/gi)) {
-      for (const lit of literalsOf(m[1])) units.push({ label: p + " (inline script)", text: lit });
-    }
+  for (const f of textFiles) {
+    const reader = READERS.find(([re]) => re.test(f));
+    if (!reader) { err("guard 7k2: " + f + " is published and this guard does not know how a visitor reads it, so the question rule does not reach it; add a reader for it here"); continue; }
+    let texts;
+    try { texts = reader[1](fs.readFileSync(path.join(root, f), "utf8")); }
+    catch (e) { err("guard 7k2: " + f + " could not be read (" + e.message + "), so the question rule does not reach it"); continue; }
+    textOf.set(f, texts.join(" "));
+    for (const t of texts) units.push({ label: f, text: t });
   }
-  const jsSurfaces = ["site.js", "motion.js", "pricing-config.js", "roadmap-config.js"];
-  for (const d of ["assets/motion", "assets/film"]) {
-    const abs = path.join(root, d);
-    if (fs.existsSync(abs)) for (const f of fs.readdirSync(abs)) if (f.endsWith(".js")) jsSurfaces.push(d + "/" + f);
-  }
-  for (const f of jsSurfaces) {
-    const abs = path.join(root, f);
-    if (fs.existsSync(abs)) for (const lit of literalsOf(fs.readFileSync(abs, "utf8"))) units.push({ label: f, text: lit });
-  }
-  const llms = path.join(root, "llms.txt");
-  if (fs.existsSync(llms)) units.push({ label: "llms.txt", text: fs.readFileSync(llms, "utf8").replace(/^>[ \t]?/gm, "") });
-  const index = path.join(root, "search-index.json");
-  if (fs.existsSync(index)) {
-    const strings = [];
-    const walkJson = (v) => (typeof v === "string" ? strings.push(v) : v && typeof v === "object" && Object.values(v).forEach(walkJson));
-    walkJson(JSON.parse(fs.readFileSync(index, "utf8")));
-    for (const s of strings) units.push({ label: "search-index.json", text: s });
-  }
-  for (const must of ["llms.txt", "pricing-config.js", "index.html"]) {
-    if (!units.some((u) => u.label === must)) err("guard 7k2: " + must + " produced no readable text, so the question rules do not reach it");
+  const unread = textFiles.filter((f) => !textOf.has(f));
+  if (unread.length) err("guard 7k2: " + unread.length + " published text file(s) were not read, so the question rule does not reach them: " + unread.join(", "));
+  for (const k of KEY_FILES) {
+    if (!published.includes(k)) err("guard 7k2: key file " + k + " is not in the published set, so the question rule does not reach it");
+    else if (!/[a-z]{3}/i.test(textOf.get(k) || "")) err("guard 7k2: key file " + k + " produced no readable text, so the question rule does not reach it");
   }
   for (const { label, text } of units) {
     for (const f of claimFindings(text.replace(/\s+/g, " "), label)) {

@@ -379,8 +379,13 @@ ${relatedFor(file)}
 // ---------------------------------------------------------------
 // The hub: every content page in one crawlable, human-usable place
 // ---------------------------------------------------------------
+/* The trade heading read "The platform, tuned to how your trade actually
+   works." until 2026-11-10. Nothing is tuned per trade: one prompt asks every
+   caller about the job, where it is and how urgent it is, and answers from
+   the business's own hours, services, area and approved FAQ (engine
+   agent-draft.ts; owner decision #80). */
 const CLUSTERS = [
-  { key: 'trade', label: 'By trade', blurb: 'The platform, tuned to how your trade actually works.' },
+  { key: 'trade', label: 'By trade', blurb: 'The calls each trade gets, answered from your own hours, services and area.' },
   { key: 'situation', label: 'By situation', blurb: 'The moments you lose revenue, and what closes each one.' },
   { key: 'compare', label: 'Compared to', blurb: 'Honest comparisons, including where the alternative wins.' },
 ];

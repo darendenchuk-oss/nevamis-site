@@ -185,12 +185,24 @@ export const PROOF_BLOCK = `
    read as a question builder. There is none: the client agent's prompt takes
    hours, services, area, the approved FAQ and a booking link, and tells it to
    capture the name, callback number, job, location and urgency "in a question
-   or two" (engine src/domain/agent-draft.ts, buildClientAgentPrompt). A trade
-   question can only ride in as approved text, so the copy says what it asks
-   and that it CAN be set up to ask more. "Tells them your team will confirm
-   the time" is said only by a client with a booking link; with none, the
-   agent takes a complete message and says the business will get back to them
-   in general terms. "Will get back to them" is true on both.
+   or two" (engine src/domain/agent-draft.ts, buildClientAgentPrompt). Until
+   2026-11-10 the card went on "and it can be set up to ask what you would
+   ask, such as ..." with a list of trade questions, a hedge for a trade
+   question riding in as approved text. Owner decision #80 (dev-control,
+   2026-11-10) retired it: nothing lets the client, or Nevamis, set the
+   questions the agent asks, and the hedge read as the very question builder
+   it was written to avoid. So the card says what it asks, which is the same
+   on every call and every trade, and stops there (TRADE_ASKS below), and
+   claim-rules.mjs question-builder refuses the hedge in every spelling. The
+   card list in "Built around" was labelled "What we configure for <trade>"
+   until the same day; a screen reader read every card under it as something
+   set up per client, including the ones that only say what is in the call
+   recording, so it is labelled for what the agent does instead.
+
+   "Tells them your team will confirm the time" is said only by a client with
+   a booking link; with none, the agent takes a complete message and says the
+   business will get back to them in general terms. "Will get back to them"
+   is true on both.
 
    "It takes the job and any time they ask for" opened "Written down, not
    lost" until the same day's polish pass (audit PRICING-9): the time with no
@@ -205,7 +217,11 @@ export const PROOF_BLOCK = `
    answers 24/7" sentence, then Buy now to the sizes on pricing.html. The
    first month free sits under them only behind the gate (freeMonth above),
    with the booked call as its link, never the Buy now. */
-const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours }) => `
+/** What the agent asks, on every trade page: the job, where it is and how
+    urgent it is (agent-draft.ts "ON EVERY CALL"). One sentence for all four
+    pages because it is one prompt for every client (owner decision #80). */
+const TRADE_ASKS = 'It asks about the job, where it is and how urgent it is.';
+const tradeBody = ({ trade, urgency, jobs, whenItRings, afterHours }) => `
 <section class="tight">
   <div class="wrap">
     <div class="section-head reveal">
@@ -218,7 +234,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
     <div class="proc">
       <div class="reveal"><h3>Answered in seconds</h3><p>Nevamis picks up in your
         business's tone, day or night, while you stay on the tools.</p></div>
-      <div class="reveal"><h3>Asks what the job needs</h3><p>${questions}</p></div>
+      <div class="reveal"><h3>Asks what the job needs</h3><p>${TRADE_ASKS}</p></div>
       <div class="reveal"><h3>Written down, not lost</h3><p>It writes down the job and the
         times that suit the caller, for you to confirm. It confirms their callback number and
         tells them your team will get back to them.</p></div>
@@ -235,7 +251,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, questions, afterHours })
         area, your hours, your job types, the prices you approve, and what counts as an
         emergency for your business.</p>
     </div>
-    <div class="stack" aria-label="What we configure for ${trade}">
+    <div class="stack" aria-label="What it does on calls for ${trade}">
       ${jobs.map((j) => `<div class="layer"><strong>${j.t}</strong><span>${j.d}</span></div>`).join('\n      ')}
     </div>
   </div>
@@ -288,10 +304,6 @@ export const PAGES = {
     body: tradeBody({
       trade: 'electrical work',
       whenItRings: 'The phone rings when both your hands are in a panel.',
-      questions: `It asks about the job, where it is and how urgent it is, and it can be set up to
-        ask what you would ask, such as what stopped working,
-        whether anything is sparking, heating, or smells like burning, whether the breaker has
-        been reset, the service address, and when they can be home.`,
       urgency: 'A burning smell is not a next-Tuesday call.',
       /* Until 2026-10-03: "Hazard questions run on every call. If a caller
          reports sparks, heat, or a burning smell, that call is escalated the
@@ -329,10 +341,6 @@ export const PAGES = {
       /* "Your busiest calls arrive at the worst possible hour" until
          2026-10-03: a measurement nobody made (audit TRADES-5). */
       whenItRings: 'A no-heat call does not wait for opening hours.',
-      questions: `It asks about the job, where it is and how urgent it is, and it can be set up to
-        ask what you would ask, such as whether there is heat at
-        all, what the thermostat reads, the age and type of the system, whether anyone
-        vulnerable is in the home, the address, and what times work for them.`,
       urgency: 'No heat with a newborn in the house is a different call.',
       afterHours: `You define what an emergency means for your business: a temperature
         threshold, no heat at all, or vulnerable occupants. Calls that meet it are handled as
@@ -346,16 +354,20 @@ export const PAGES = {
          and the next step, and nothing else; the agent's data collection
          (agent-draft.ts DRAFT_DATA_COLLECTION) has no account-type, plan or
          property-manager field, and nothing makes a client's question get
-         asked "on every call". What is true is that a question the client
-         approves can be asked and its answer is in the call and its
-         recording in the portal (audit TRADES-1). */
+         asked "on every call" (audit TRADES-1). From then until 2026-11-10
+         the two said each "can be asked when you approve the question",
+         which owner decision #80 retired: nothing lets the client, or
+         Nevamis, set the questions the agent asks. What is true is that
+         every call has a recording in the portal and what the caller said
+         is in it, so that is all these say. They promise no question, no
+         routing and no special handling: what happens next is the owner's. */
       jobs: [
         { t: 'No-heat and no-cool calls', d: 'Triaged by your emergency criteria, not a generic script.' },
         { t: 'Seasonal tune-ups', d: 'Written down with the times that suit them, for you to confirm.' },
-        { t: 'Maintenance plans', d: 'Can be asked about when you approve the question, with the answer in the call recording in your portal.' },
+        { t: 'Maintenance plans', d: 'What a plan holder says on the call is in the call recording in your portal, so you can look after them your own way.' },
         { t: 'Equipment questions', d: 'Answered from your approved FAQ, or taken as a message.' },
         { t: 'Diagnostic fee', d: 'Quoted as you wrote it and never estimated.' },
-        { t: 'Commercial vs residential', d: 'Can be asked when you approve the question, with the answer in the call recording in your portal, so you can handle each your own way.' },
+        { t: 'Commercial vs residential', d: 'What the caller says about the property is in the call recording in your portal, so you can handle homes and businesses your own way.' },
       ],
     }),
   },
@@ -368,10 +380,6 @@ export const PAGES = {
     body: tradeBody({
       trade: 'plumbing',
       whenItRings: 'Water damage does not leave a voicemail and wait.',
-      questions: `It asks about the job, where it is and how urgent it is, and it can be set up to
-        ask what you would ask, such as whether water is actively
-        running, whether they have found the shut-off, what is affected, how long it has been
-        happening, the address, and access details.`,
       urgency: 'Active flooding gets treated as active flooding.',
       /* "Active water gets your emergency path immediately ... it holds on
          every call at every hour" until 2026-10-03: an "emergency path" the
@@ -379,13 +387,19 @@ export const PAGES = {
       afterHours: `When active water is urgent work you take, Nevamis captures the urgent
         details and alerts your team. Slow drains and fixture replacements are taken down
         normally. You set the line between the two when we set it up.`,
+      /* "Hot water tanks: Age, type, and symptoms captured" and "Property
+         managers: Can be asked who they manage for when you approve the
+         question" until 2026-11-10. Both named a question the agent is not
+         set up to ask: it asks about the job, where it is and how urgent it
+         is, and nothing lets the client, or Nevamis, set more (owner
+         decision #80). What a caller volunteers is in the call recording. */
       jobs: [
         { t: 'Emergency leaks', d: 'Shut-off guidance only from your approved FAQ, then the urgent details captured and your team alerted.' },
         { t: 'Drains and blockages', d: 'Qualified and written up with the details your tech needs.' },
-        { t: 'Hot water tanks', d: 'Age, type, and symptoms captured before anyone drives out.' },
+        { t: 'Hot water tanks', d: 'The problem in the caller\'s own words, and the address, written down before anyone drives out.' },
         { t: 'Renovation quotes', d: 'Captured as leads rather than lost to voicemail.' },
         { t: 'Trip and diagnostic fees', d: 'Quoted as you approved them and never estimated.' },
-        { t: 'Property managers', d: 'Can be asked who they manage for when you approve the question, with the answer in the call recording in your portal.' },
+        { t: 'Property managers', d: 'What a property manager says on the call is in the call recording in your portal, so you can handle the account your own way.' },
       ],
     }),
   },
@@ -402,10 +416,6 @@ export const PAGES = {
     body: tradeBody({
       trade: 'restoration and property services',
       whenItRings: 'The call comes in at the worst moment of someone\'s week.',
-      questions: `It asks about the job, where it is and how urgent it is, and it can be set up to
-        ask what you would ask, such as what happened, when it
-        started, how much area is affected, whether the source is stopped, whether insurance is
-        involved, and who is on site.`,
       urgency: 'Active loss is flagged urgent, not queued.',
       /* "Restoration work is won in the first hour." opened this until
          2026-10-03: stated as fact, measured by nobody (audit TRADES-5). */
@@ -418,14 +428,19 @@ export const PAGES = {
          agent's fixed LIFE SAFETY rule sends the caller to 9-1-1 first
          (engine agent-draft.ts). And no field carries a time window into the
          text (client-notify.ts callSummarySms): the time is taken on the
-         call and is in the portal (audit TRADES-2, TRADES-3). */
+         call and is in the portal (audit TRADES-2, TRADES-3).
+         "Water and flood loss: Source, spread, and timing captured" and
+         "Property managers and adjusters: Can be asked when you approve the
+         question" until 2026-11-10, retired with the question hedge (owner
+         decision #80): the agent asks about the job, where it is and how
+         urgent it is, and what else a caller says is in the recording. */
       jobs: [
-        { t: 'Water and flood loss', d: 'Source, spread, and timing captured while it matters.' },
+        { t: 'Water and flood loss', d: 'The loss in the caller\'s own words, where it is and how urgent it is, written down while it matters.' },
         { t: 'Fire and smoke', d: 'A fire still burning gets the 9-1-1 advice first. After it is out, questions are answered from your approved FAQ, not improvised.' },
         { t: 'Insurance questions', d: 'Answered only within what you approve, otherwise taken as a message.' },
         { t: 'Emergency alerts', d: 'For the calls you count as urgent, Nevamis captures the urgent details and alerts your team.' },
         { t: 'Assessment requests', d: 'The times that suit them are captured on the call and in your portal, so you confirm the slot.' },
-        { t: 'Property managers and adjusters', d: 'Can be asked when you approve the question, with the answer in the call recording in your portal.' },
+        { t: 'Property managers and adjusters', d: 'What a property manager or adjuster says on the call is in the call recording in your portal, so you can handle them your own way.' },
       ],
     }),
   },
