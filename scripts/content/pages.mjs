@@ -199,6 +199,28 @@ export const PROOF_BLOCK = `
    set up per client, including the ones that only say what is in the call
    recording, so it is labelled for what the agent does instead.
 
+   Three more lines here went the same day, in a follow-up leaf
+   (launch-site-4), each for saying the business sets more than it does.
+   The card heading "Asks what the job needs" read as a question per trade;
+   it asks every caller what they need (canonical ai_front_desk), so it says
+   that. The heading "It answers with your rules, not a generic script."
+   and its "what counts as an emergency for your business" read as rules a
+   client writes for the agent; what the agent is built from is the
+   business's hours, services, service area and approved FAQ, and urgent
+   work is what the HOURS and SERVICES sections say the business handles
+   urgently (agent-draft.ts EMERGENCIES, URGENT WORK), so the heading and
+   paragraph say that. And the urgency paragraph's "anything outside the
+   rules you approved" and "You decide what counts as urgent" became what
+   those two things are: what the hours, services, area and FAQ do not
+   cover, and each trade's own urgency line, which names the hours and
+   services. A caller whose job is urgent work has the location and
+   callback number taken first and the call marked urgent; the text and
+   email the owner gets start "URGENT" or "Urgent" only when the caller
+   described an active emergency (client-notify.ts callSummarySms and
+   callSummaryEmail read urgency "emergency", which DRAFT_DATA_COLLECTION
+   sets only then), so no trade page says the summary is flagged for any
+   other urgent call.
+
    "Tells them your team will confirm the time" is said only by a client with
    a booking link; with none, the agent takes a complete message and says the
    business will get back to them in general terms. "Will get back to them"
@@ -234,7 +256,7 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, afterHours }) => `
     <div class="proc">
       <div class="reveal"><h3>Answered in seconds</h3><p>Nevamis picks up in your
         business's tone, day or night, while you stay on the tools.</p></div>
-      <div class="reveal"><h3>Asks what the job needs</h3><p>${TRADE_ASKS}</p></div>
+      <div class="reveal"><h3>Asks what they need</h3><p>${TRADE_ASKS}</p></div>
       <div class="reveal"><h3>Written down, not lost</h3><p>It writes down the job and the
         times that suit the caller, for you to confirm. It confirms their callback number and
         tells them your team will get back to them.</p></div>
@@ -246,10 +268,10 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, afterHours }) => `
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow mono">Built around ${trade}</p>
-      <h2>It answers with your rules, not a generic script.</h2>
-      <p>Before it takes a single call we agree on what it is allowed to say. Your service
-        area, your hours, your job types, the prices you approve, and what counts as an
-        emergency for your business.</p>
+      <h2>It answers from your hours, services, area and approved FAQ.</h2>
+      <p>Before it takes a single call we agree on what it is allowed to say: your hours, the
+        services you do and do not do, the prices you approve, your service area, and the
+        answers in your FAQ. Your hours and services also say which jobs you take as urgent.</p>
     </div>
     <div class="stack" aria-label="What it does on calls for ${trade}">
       ${jobs.map((j) => `<div class="layer"><strong>${j.t}</strong><span>${j.d}</span></div>`).join('\n      ')}
@@ -262,9 +284,9 @@ const tradeBody = ({ trade, urgency, jobs, whenItRings, afterHours }) => `
     <div class="section-head reveal">
       <p class="eyebrow mono">Urgency handled properly</p>
       <h2>${urgency}</h2>
-      <p>${afterHours} For anything outside the rules you approved, it takes a message and
-        flags it for you rather than inventing an answer. You decide what counts as urgent
-        for your business, and everything else is taken down for the morning.</p>
+      <p>${afterHours} For anything your hours, services, area and FAQ do not cover, it takes
+        a message rather than inventing an answer, and a call that is not urgent is taken down
+        for the morning.</p>
       <p class="start-line">${TRADE_LINE}, plus applicable GST/HST. ${SIZES_NOTE}</p>
     </div>
     <div class="midcta reveal">
@@ -315,15 +337,25 @@ export const PAGES = {
          the summary marked URGENT and sent to the alert phone
          (client-notify.ts). What a client does set is what counts as urgent
          work, through the services it describes, so that is what this says
-         (audit TRADES-2). */
+         (audit TRADES-2).
+         "With the summary flagged urgent and sent straight to your phone"
+         after "urgent work you take" until 2026-11-10 (launch-site-4): the
+         summary starts "URGENT" only when the caller described an active
+         emergency (client-notify.ts reads urgency "emergency", which
+         DRAFT_DATA_COLLECTION sets only then), not for every urgent job the
+         business takes, so the two are said apart. "Captured as leads with
+         the details you need" on Quotes and upgrades went the same day: it
+         read as questions per trade, and what is captured is the same on
+         every call. */
       afterHours: `If a caller describes a fire or a shock hazard, it tells them to hang up
-        and call 9-1-1 before anything else. When the call is urgent work you take, Nevamis
-        captures the urgent details and alerts your team, with the summary flagged urgent and
-        sent straight to your phone.`,
+        and call 9-1-1 before anything else. When the call is urgent work your hours and
+        services say you take, Nevamis takes the location and callback number first and marks
+        the call urgent. When the caller describes an active emergency, the summary sent to
+        your phone starts with URGENT.`,
       jobs: [
         { t: 'Service and repair calls', d: 'Dead outlets, tripped circuits, flickering lights, panel faults.' },
         { t: 'Emergency triage', d: 'A fire or shock hazard gets the 9-1-1 advice first. Then the urgent details are captured and your team is alerted.' },
-        { t: 'Quotes and upgrades', d: 'Panel upgrades and rewires captured as leads with the details you need.' },
+        { t: 'Quotes and upgrades', d: 'Panel upgrades and rewires captured as leads: the job in the caller\'s own words, where it is, and their name and callback number.' },
         { t: 'Service-call pricing', d: 'Only the diagnostic or trip fee you approve, quoted as you wrote it and never estimated.' },
         { t: 'Service area', d: 'Out-of-area callers are told honestly instead of being taken on and cancelled later.' },
         { t: 'Permits and inspections', d: 'Common questions answered from your approved FAQ, not improvised.' },
@@ -331,8 +363,23 @@ export const PAGES = {
     }),
   },
 
+  /* NO EMERGENCY CRITERIA OF ITS OWN (2026-11-10, launch-site-4). Until
+     then this page said no-heat calls were "triaged by your emergency rules"
+     (the description) and "by your emergency criteria" (the first card),
+     headed its urgency section "No heat with a newborn in the house is a
+     different call.", and said "You define what an emergency means for your
+     business: a temperature threshold, no heat at all, or vulnerable
+     occupants." The agent asks no temperature and no occupants question: it
+     asks every caller about the job, where it is and how urgent it is
+     (agent-draft.ts, ON EVERY CALL), and an urgent job is one the
+     business's HOURS and SERVICES sections say it handles urgently (URGENT
+     WORK). Those three lines were the retired question hedge's examples
+     ("what the thermostat reads", "whether anyone vulnerable is in the
+     home") surviving as criteria, so each now says only that. A gas smell
+     gets "hang up and call 911, or the utility's emergency line" first,
+     whatever the business does (LIFE SAFETY). */
   'hvac.html': {
-    description: 'No-heat calls answered around the clock on your own line, triaged by your emergency rules, and the summary sent to you within seconds.',
+    description: 'No-heat calls answered around the clock on your own line, the job and how urgent it is written down, and the summary sent to you within seconds.',
     heroProof: TRADE_HERO_PROOF,
     h1: 'The 11 PM no-heat call, answered',
     lede: `A furnace out at 11 PM in January does not wait for opening hours. Nevamis answers your line around the clock, triages the call, writes the job down, and sends you the summary.`,
@@ -341,11 +388,12 @@ export const PAGES = {
       /* "Your busiest calls arrive at the worst possible hour" until
          2026-10-03: a measurement nobody made (audit TRADES-5). */
       whenItRings: 'A no-heat call does not wait for opening hours.',
-      urgency: 'No heat with a newborn in the house is a different call.',
-      afterHours: `You define what an emergency means for your business: a temperature
-        threshold, no heat at all, or vulnerable occupants. Calls that meet it are handled as
-        emergencies: Nevamis captures the urgent details and alerts your team. Everything else
-        is captured with the times that suit the caller, for you to confirm.`,
+      urgency: 'No heat at night is not a next-week call.',
+      afterHours: `If a caller smells gas, it tells them to hang up and call 9-1-1 or their
+        gas utility's emergency line before anything else. When your hours and services say you
+        take no-heat calls urgently, a caller who describes one has the location and callback
+        number taken first and the call marked urgent. Everything else is captured with the
+        times that suit the caller, for you to confirm.`,
       /* THE SUMMARY HAS NO ACCOUNT-TYPE FIELD. Two of these said "marked on
          the summary" (plan holders, and "Commercial vs residential: Asked on
          every call and marked on the summary") until 2026-10-03. The text and
@@ -362,7 +410,7 @@ export const PAGES = {
          is in it, so that is all these say. They promise no question, no
          routing and no special handling: what happens next is the owner's. */
       jobs: [
-        { t: 'No-heat and no-cool calls', d: 'Triaged by your emergency criteria, not a generic script.' },
+        { t: 'No-heat and no-cool calls', d: 'When your hours and services say you take them urgently, the location and callback number come first and the call is marked urgent.' },
         { t: 'Seasonal tune-ups', d: 'Written down with the times that suit them, for you to confirm.' },
         { t: 'Maintenance plans', d: 'What a plan holder says on the call is in the call recording in your portal, so you can look after them your own way.' },
         { t: 'Equipment questions', d: 'Answered from your approved FAQ, or taken as a message.' },
@@ -383,19 +431,30 @@ export const PAGES = {
       urgency: 'Active flooding gets treated as active flooding.',
       /* "Active water gets your emergency path immediately ... it holds on
          every call at every hour" until 2026-10-03: an "emergency path" the
-         client does not configure and an absolute nobody measured. */
-      afterHours: `When active water is urgent work you take, Nevamis captures the urgent
-        details and alerts your team. Slow drains and fixture replacements are taken down
-        normally. You set the line between the two when we set it up.`,
+         client does not configure and an absolute nobody measured.
+         "Nevamis captures the urgent details and alerts your team ... You
+         set the line between the two when we set it up" until 2026-11-10
+         (launch-site-4): the line is the business's own hours and services
+         text (agent-draft.ts URGENT WORK), and what an urgent call gets is
+         the location and callback number first and the call marked urgent,
+         so it says those. */
+      afterHours: `When your hours and services say you take active water urgently, a caller
+        who describes it has the location and callback number taken first and the call marked
+        urgent. Slow drains and fixture replacements are taken down normally. Your hours and
+        services, as you give them to us at setup, draw the line between the two.`,
       /* "Hot water tanks: Age, type, and symptoms captured" and "Property
          managers: Can be asked who they manage for when you approve the
          question" until 2026-11-10. Both named a question the agent is not
          set up to ask: it asks about the job, where it is and how urgent it
          is, and nothing lets the client, or Nevamis, set more (owner
-         decision #80). What a caller volunteers is in the call recording. */
+         decision #80). What a caller volunteers is in the call recording.
+         "Drains and blockages: Qualified and written up with the details
+         your tech needs" went the same day, in launch-site-4: it read as
+         questions a plumber's tech would ask, and what is written up is the
+         same on every call. */
       jobs: [
         { t: 'Emergency leaks', d: 'Shut-off guidance only from your approved FAQ, then the urgent details captured and your team alerted.' },
-        { t: 'Drains and blockages', d: 'Qualified and written up with the details your tech needs.' },
+        { t: 'Drains and blockages', d: 'The blockage in the caller\'s own words, where it is and how urgent it is, with their name and callback number.' },
         { t: 'Hot water tanks', d: 'The problem in the caller\'s own words, and the address, written down before anyone drives out.' },
         { t: 'Renovation quotes', d: 'Captured as leads rather than lost to voicemail.' },
         { t: 'Trip and diagnostic fees', d: 'Quoted as you approved them and never estimated.' },
@@ -418,10 +477,16 @@ export const PAGES = {
       whenItRings: 'The call comes in at the worst moment of someone\'s week.',
       urgency: 'Active loss is flagged urgent, not queued.',
       /* "Restoration work is won in the first hour." opened this until
-         2026-10-03: stated as fact, measured by nobody (audit TRADES-5). */
-      afterHours: `Calls that meet your emergency definition are handled as emergencies:
-        Nevamis captures the urgent details and alerts your team, with the incident details
-        already collected so nobody starts from nothing.`,
+         2026-10-03: stated as fact, measured by nobody (audit TRADES-5).
+         "Calls that meet your emergency definition are handled as
+         emergencies" until 2026-11-10 (launch-site-4): there is no
+         definition of the client's for the agent to test a call against
+         beyond its hours and services text (agent-draft.ts URGENT WORK), so
+         it says that, and what an urgent call gets. */
+      afterHours: `When a caller describes a loss your hours and services say you take
+        urgently, Nevamis takes the location and callback number first and marks the call
+        urgent, and the loss is written down in the caller's own words, so nobody starts from
+        nothing.`,
       /* "Fire and smoke: Handled with a calm, approved script" and
          "Assessment requests: The window they need captured and texted to
          you" until 2026-10-03. A live fire is not the owner's script: the
@@ -433,12 +498,16 @@ export const PAGES = {
          "Property managers and adjusters: Can be asked when you approve the
          question" until 2026-11-10, retired with the question hedge (owner
          decision #80): the agent asks about the job, where it is and how
-         urgent it is, and what else a caller says is in the recording. */
+         urgent it is, and what else a caller says is in the recording.
+         "Emergency alerts: For the calls you count as urgent, Nevamis
+         captures the urgent details and alerts your team" until the same
+         day's follow-up (launch-site-4): the calls counted as urgent are the
+         ones the hours and services text names, and nothing else sets them. */
       jobs: [
         { t: 'Water and flood loss', d: 'The loss in the caller\'s own words, where it is and how urgent it is, written down while it matters.' },
         { t: 'Fire and smoke', d: 'A fire still burning gets the 9-1-1 advice first. After it is out, questions are answered from your approved FAQ, not improvised.' },
         { t: 'Insurance questions', d: 'Answered only within what you approve, otherwise taken as a message.' },
-        { t: 'Emergency alerts', d: 'For the calls you count as urgent, Nevamis captures the urgent details and alerts your team.' },
+        { t: 'Emergency alerts', d: 'For a loss your hours and services say you take urgently, the location and callback number come first and the call is marked urgent.' },
         { t: 'Assessment requests', d: 'The times that suit them are captured on the call and in your portal, so you confirm the slot.' },
         { t: 'Property managers and adjusters', d: 'What a property manager or adjuster says on the call is in the call recording in your portal, so you can handle them your own way.' },
       ],
