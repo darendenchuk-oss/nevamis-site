@@ -31,6 +31,14 @@
      MACHINE-24    two BreadcrumbList blocks per page, one hand-written.
      CHECK-RUNNER-7 meta descriptions over 160 characters.
 
+   The post-launch truth sweep (2026-11-09) added two:
+     TRUTH-1       the homepage's Lead Generation fine print still said
+                   "to a few businesses", because PLATFORM-6 did not read
+                   the homepage. It reads it now.
+     TRUTH-2       pricing, the homepage, How you start, the proposal and
+                   llms.txt said the receptionist asks "the qualifying
+                   questions you approved". There is no question builder.
+
    Each test asserts the RULE, not the sentence that broke it, so the next
    page that says the same thing fails too. Where a rule reaches a page
    another leaf of the same audit owns, that page is named in a PENDING list
@@ -301,6 +309,36 @@ test('PLATFORM-6: the Roadmap and the pages that tell its story put no number on
   for (const f of files) {
     const blocks = f.endsWith('.js') ? jsStrings(read(f)) : htmlBlocks(read(f));
     for (const b of blocks) if (QUANTITY.test(b) && HAS_IT.test(b)) bad.push(`${f}: "${b.match(QUANTITY)[0]}" in "${b.slice(0, 140)}"`);
+  }
+  expect(bad, bad.join('\n')).toEqual([]);
+});
+
+/* ---------- TRUTH-2: no question builder, on any served surface ---------- */
+
+/* The client agent is built from hours, services, area, the approved FAQ and
+   a booking link, and asks about the job, where it is and how urgent it is
+   (engine canonical ai_front_desk, agent-draft.ts buildClientAgentPrompt).
+   Nothing lets a client set the questions it asks. The rule that says so,
+   question-builder in scripts/content/claim-rules.mjs, ran only over the
+   pages that file builds, so pricing.html's "What every plan includes"
+   (from pricing-config.js), the homepage, How you start, the proposal and
+   llms.txt said the opposite while it was green (post-launch truth sweep,
+   TRUTH-2, 2026-11-09). This runs the same rule, imported rather than
+   restated, over every surface surfaces() reads. llms.txt's "> " quote
+   marks are dropped first, so a sentence wrapped across them reads whole.
+   SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09): with SITE_ROOT at main
+   0fb6589 it failed with 13 findings, two each in scripts/film/sections.html,
+   home.html, index.html, proposal.html and llms.txt, and one each in
+   pricing-config.js, pricing.html and how-you-start.html; green on this
+   branch. */
+test('TRUTH-2: no served surface says the owner sets or approves the questions the receptionist asks', async () => {
+  const { claimFindings } = await import('../scripts/content/claim-rules.mjs');
+  const bad = [];
+  for (const [file, blocks] of surfaces()) {
+    for (const raw of blocks) {
+      const b = raw.replace(/(^|\s)>(?=\s)/g, ' ');
+      for (const f of claimFindings(b, file)) if (f.id === 'question-builder') bad.push(`${file}: "${f.excerpt}"`);
+    }
   }
   expect(bad, bad.join('\n')).toEqual([]);
 });

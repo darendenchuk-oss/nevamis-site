@@ -122,8 +122,19 @@ export const CLAIM_RULES = [
   { id: 'confirm-time-promise',
     re: /\b(?:team|office|someone|person|they|we)\b[^.;?!]{0,25}\bconfirms? (?:the|a|an|any|your|their)\b[^.;?!]{0,20}\b(?:times?|appointment|slot|window)\b/i,
     why: 'only a client with a booking link has the agent say a person will confirm the time; with none it takes a complete message and says the business will get back to them in general terms (engine src/domain/agent-draft.ts, BOOKING). Say "your team will get back to them"' },
+  /* Widened on 2026-11-09 (post-launch truth sweep, TRUTH-2). The pattern
+     only knew "asks the questions", so four served sentences that say the
+     same thing passed: the homepage's "with the questions you approved", How
+     you start's "The qualifying questions written in your words", the
+     proposal's "with the qualifying questions written in your words" and
+     llms.txt's "using questions the owner approved". A qualifying or
+     screening question list is the feature that does not exist, whatever
+     verb carries it; so is a set of questions somebody on the client's side
+     approved, chose or wrote. Each is now a MUST_FIRE line, and
+     tests/site-live-platform.spec.js runs this rule over every served
+     surface, not only the pages this file owns. */
   { id: 'question-builder',
-    re: /\bwe set it up to ask\b|\bqualified the way you would\b|\basks? (?:the|your)(?: own)? (?:qualifying |screening )?questions\b|(?<!\bcan be )\basked\b[^.;?!]{0,40}\bwhen you approve\b/i,
+    re: /\bwe set it up to ask\b|\bqualified the way you would\b|\basks? (?:the|your)(?: own)? (?:qualifying |screening )?questions\b|(?<!\bcan be )\basked\b[^.;?!]{0,40}\bwhen you approve\b|\b(?:qualifying|screening|intake) questions?\b|\bquestions (?:that )?(?:you|the owner|owners?|the business|your team|we)(?: have| has| had)? (?:approv(?:e|es|ed)|set|chose|choose|wrote|write|picked|pick|signed off)\b|\bquestions (?:are |were )?(?:written|set|worded) (?:in|with) your\b/i,
     why: 'the client agent\'s prompt has no qualifying-questions field: it takes hours, services, area, the approved FAQ and a booking link, and captures name, callback number, job, location and urgency "in a question or two" (engine src/domain/agent-draft.ts, buildClientAgentPrompt). A trade question rides in only as approved text. Say what it asks, and that it "can be set up to ask" more' },
   /* THE TIME A CALLER ASKS FOR IS A REQUEST, NOT AN APPOINTMENT (audit
      PRICING-9, 2026-10-03). These pages said the agent "takes the job and
@@ -267,6 +278,16 @@ export const MUST_FIRE = [
   ['caller-wants-time', 'It notes the window they prefer, for you to confirm.'],
   ['question-builder', 'Commercial vs residential . Asked when you approve the question, with the answer in the call recording in your portal.'],
   ['question-builder', 'Maintenance plans . Asked about when you approve the question.'],
+  /* TRUTH-2 (2026-11-09): the four served sentences the pattern missed, as
+     they were live, and the next way of saying each. */
+  ['question-builder', "Your line is answered around the clock, in your business's name, with the questions you approved."],
+  ['question-builder', 'The qualifying questions written in your words, and approved by you'],
+  ['question-builder', 'Your agent is configured from your own hours, services, prices, area and FAQs, with the qualifying questions written in your words.'],
+  ['question-builder', 'It qualifies the caller using questions the owner approved: job type, urgency, location and timing, not a generic script.'],
+  ['question-builder', 'It runs the screening questions your team signed off.'],
+  ['question-builder', 'Callers get the questions you chose, every one.'],
+  ['question-builder', 'With the questions written in your own words.'],
+  ['question-builder', 'Qualifying questions tuned to your trade.'],
   ['speed-where-the-phone-rings-first', 'Your number, your rules, answered in seconds.', 'after-hours-answering.html'],
   ['speed-where-the-phone-rings-first', 'It answers in seconds, any hour. Try to stump it.', 'demo.html'],
 ];
@@ -298,6 +319,12 @@ export const MUST_PASS = [
   'It confirms their callback number and tells them your team will get back to them.',
   'The times that suit them are captured on the call and in your portal, and the assessment slot is confirmed by a person on your side.',
   'It asks about the job, where it is and how urgent it is.',
+  /* TRUTH-2 (2026-11-09): what replaced the four sentences above. */
+  'Asks the caller about the job, where it is and how urgent it is',
+  "Your line is answered around the clock, in your business's name, and the caller is asked about the job, where it is and how urgent it is.",
+  'Its answers to the questions your callers ask most, written in your words and approved by you',
+  'Your agent is configured from your own hours, services, prices, area and FAQs, in your words.',
+  "It asks the caller what they need: the job, where it is and how urgent it is. What it knows about the business comes from the owner's hours, services, area and approved FAQ; nothing lets the owner set the questions it asks.",
   'The AI Front Desk has two forwarding modes. Overflow sends it the calls you do not answer.',
   'With overflow forwarding, the front desk picks up only when you do not.',
   'An unanswered call can be a customer who rings the next name on the list.',
