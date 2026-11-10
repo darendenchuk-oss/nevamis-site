@@ -23,11 +23,15 @@
    - the film's own scripts (assets/film/, on every page that carries them),
      about 255 KB compressed. Preloaded, they took the high priority a
      render-blocking script gets and were fetched ahead of everything else
-     the first screen needs, and Lighthouse 12's simulated mobile LCP on the
-     homepage rose from 2.9 s (main, served from the same local server) to
-     4.4 to 4.8 s (polish round, 2026-11-09). The first screen is the hero,
-     plain HTML above the film that needs none of it, and the film's tags
-     sit after </main> where the parser reaches them anyway;
+     the first screen needs. Dropping them is a small win, not an LCP fix
+     (Lighthouse 12, mobile, 2026-11-09, medians of 3): simulated TBT fell
+     from 449 to 302 ms and the score rose from 0.62 to 0.66, but simulated
+     LCP stayed at about 4.5 s against main's 2.9 s. That gap is the
+     simulation counting the film's script build as blocking the hero's
+     first paint; with real throttling the homepage LCP is about 1.1 s,
+     ahead of main's 1.25 s. The first screen is the hero, plain HTML above
+     the film that needs none of it, and the film's tags sit after </main>
+     where the parser reaches them anyway;
    - anything a comment or an inline script merely mentions.
    ============================================================ */
 

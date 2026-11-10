@@ -57,9 +57,10 @@
    - talk/index.html, whose widget is injected only when the visitor presses
      start;
    - the film's three scripts (assets/film/), about 255 KB compressed: at
-     preload priority they raised Lighthouse's simulated mobile LCP on the
-     homepage from 2.9 s to 4.4-4.8 s, for a first screen (the hero) that
-     needs none of them. scripts/lib/script-preloads.mjs NOT_PRELOADED.
+     preload priority they jumped ahead of a first screen (the hero) that
+     needs none of them. Dropping them cut simulated TBT but did not move
+     simulated LCP; scripts/lib/script-preloads.mjs NOT_PRELOADED has the
+     measurements.
    The preload only starts the download earlier. The <script> tags stay where
    they are, as they are: the film's three must never move, defer or go async
    (scripts/film/compose.py, the PMREM lighting landmine).

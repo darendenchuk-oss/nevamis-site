@@ -15,9 +15,10 @@
                    talk/index.html carries none;
      the audit's   the homepage and book.html preload exactly the lists the
      lists         audit measured, less the film's three on the homepage:
-                   preloaded, they raised Lighthouse 12's simulated mobile
-                   LCP there from 2.9 s to 4.4-4.8 s (polish round,
-                   2026-11-09) for a first screen that needs none of them.
+                   preloaded, they jumped ahead of a first screen that
+                   needs none of them (the measurements, including why
+                   simulated LCP did not move, are in
+                   scripts/lib/script-preloads.mjs).
                    Shown red on the previous homepage (052f7d7), which still
                    preloaded them: "index.html preloads a film script";
      no waste      in a real browser each preloaded script is fetched once,
