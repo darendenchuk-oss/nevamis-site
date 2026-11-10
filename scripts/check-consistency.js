@@ -33,7 +33,10 @@ import { sitemapPages } from "./lib/sitemap.mjs";
    scope rule; see scripts/check-claims-classifier.mjs for the fixtures. */
 import { DENIAL, ADDITIVE, RETIRED_OFFERS, UNBUILT_PROMISES, statesBanned, offendingClause } from "./lib/claims.mjs";
 import { stripHtmlComments, stripJsComments, jsStringLiterals, renderedProse, clauses } from "./lib/rendered-text.mjs";
-const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+/* The two question rules of the content layer, run over every served
+   surface by guard 7k2 below rather than restated here. */
+import { claimFindings, renderedText } from "./content/claim-rules.mjs";
+const root =path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
    had no shared chrome, and that exemption is exactly why its hand-copied nav
    lost the Solutions link and kept the h1 -> h4 footer heading skip. A page
@@ -1303,6 +1306,72 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
         err(label + ": says something nothing in the product does (" + (name || re) + ").\n      clause: \"" + clause.slice(0, 180) + "\"\n      "
           + "Why it is false: " + why + ".");
       }
+    }
+  }
+}
+
+/* 7k2. NO QUESTION BUILDER, AND NO DENIAL OF THE HEDGE, ON ANY SERVED SURFACE.
+
+       Added 2026-11-09 (review of PR #65). The client agent asks about the
+       job, where it is and how urgent it is, and nothing lets a client set
+       its questions; the trade pages hedge that as "it can be set up to ask
+       what you would ask". scripts/content/claim-rules.mjs holds both edges:
+       question-builder (no "qualifying questions you approved") and
+       question-denial (no "nothing lets the owner set the questions"). Those
+       rules ran only over the pages build-content.mjs writes, and the
+       surface-wide scan of question-builder lived in
+       tests/site-live-platform.spec.js (TRUTH-2), a Playwright spec this
+       repo's CI does not run. So pricing-config.js, the homepage, How you
+       start, the proposal and llms.txt each said there was a question
+       builder while CI was green, and the TRUTH-2 rewrite of llms.txt then
+       denied the trade pages' hedge, also green. Here, in CI, both rules run
+       over every published page (its rendered text and JSON-LD, then the
+       string literals of its inline scripts), the scripts that render copy,
+       llms.txt (its "> " quote marks dropped, so a wrapped sentence reads
+       whole) and search-index.json. The rules are imported, not restated.
+       SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09), this file and
+       claim-rules.mjs copied onto a checkout of each commit: on eda54f6, the
+       PR's head before the review, it fails once, llms.txt question-denial
+       ("nothing lets the owner set the questions it asks"); on main 0fb6589
+       it fails seven times, question-builder in home.html, how-you-start.html,
+       index.html, pricing.html, proposal.html, pricing-config.js and
+       llms.txt. Green on the branch that added it. */
+{
+  const QUESTION_RULES = new Set(["question-builder", "question-denial"]);
+  const literalsOf = (js) => jsStringLiterals(stripJsComments(js)).map(renderedProse).filter(Boolean);
+  const units = [];
+  for (const p of contentPages) {
+    const src = fs.readFileSync(path.join(root, p), "utf8");
+    units.push({ label: p, text: renderedText(src) });
+    for (const m of src.matchAll(/<script\b(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/gi)) {
+      for (const lit of literalsOf(m[1])) units.push({ label: p + " (inline script)", text: lit });
+    }
+  }
+  const jsSurfaces = ["site.js", "motion.js", "pricing-config.js", "roadmap-config.js"];
+  for (const d of ["assets/motion", "assets/film"]) {
+    const abs = path.join(root, d);
+    if (fs.existsSync(abs)) for (const f of fs.readdirSync(abs)) if (f.endsWith(".js")) jsSurfaces.push(d + "/" + f);
+  }
+  for (const f of jsSurfaces) {
+    const abs = path.join(root, f);
+    if (fs.existsSync(abs)) for (const lit of literalsOf(fs.readFileSync(abs, "utf8"))) units.push({ label: f, text: lit });
+  }
+  const llms = path.join(root, "llms.txt");
+  if (fs.existsSync(llms)) units.push({ label: "llms.txt", text: fs.readFileSync(llms, "utf8").replace(/^>[ \t]?/gm, "") });
+  const index = path.join(root, "search-index.json");
+  if (fs.existsSync(index)) {
+    const strings = [];
+    const walkJson = (v) => (typeof v === "string" ? strings.push(v) : v && typeof v === "object" && Object.values(v).forEach(walkJson));
+    walkJson(JSON.parse(fs.readFileSync(index, "utf8")));
+    for (const s of strings) units.push({ label: "search-index.json", text: s });
+  }
+  for (const must of ["llms.txt", "pricing-config.js", "index.html"]) {
+    if (!units.some((u) => u.label === must)) err("guard 7k2: " + must + " produced no readable text, so the question rules do not reach it");
+  }
+  for (const { label, text } of units) {
+    for (const f of claimFindings(text.replace(/\s+/g, " "), label)) {
+      if (!QUESTION_RULES.has(f.id)) continue;
+      err(label + ": " + f.id + ".\n      near: \"" + f.excerpt.slice(0, 200) + "\"\n      Why it is false: " + f.why + ".");
     }
   }
 }

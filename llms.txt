@@ -137,8 +137,7 @@ summarize us as concealing it.
    person or a machine, it says so straight away.
 3. It asks the caller what they need: the job, where it is and how urgent
    it is. What it knows about the business comes from the owner's hours,
-   services, area and approved FAQ; nothing lets the owner set the
-   questions it asks.
+   services, area and approved FAQ.
 4. It captures the request and the times that suit the caller; a person
    at the business confirms a time and checks the service-area rules.
 5. The caller is told plainly what happens next, and never that the job is
