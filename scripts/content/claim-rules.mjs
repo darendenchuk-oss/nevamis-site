@@ -67,8 +67,11 @@ const CALLER_TIME = String.raw`\b(?:times?|time window|window|slots?) (?:the cal
  *  two words before it ("it does not ask questions you approve", "it won't
  *  ask what you'd ask", "there are no qualification rules to set", "there
  *  is no way to set it up to ask more", "nothing lets the owner set the
- *  questions it asks"). Added 2026-11-10 (launch-site-4). */
-const NOT_DENIED = String.raw`(?<!\b(?:not|never|cannot|can['’]t|doesn['’]t|don['’]t|won['’]t|wouldn['’]t|isn['’]t|aren['’]t|no|nobody|no\s+one|nothing|unable|impossible)\s+(?:[\w'’]+\s+){0,2})`;
+ *  questions it asks"). Added 2026-11-10 (launch-site-4). The two words
+ *  never include a conjunction, since the review of that leaf: "It never
+ *  sleeps and asks what you would ask." and "No contract and you choose what
+ *  it asks." passed, the negation governing the clause before the "and". */
+const NOT_DENIED = String.raw`(?<!\b(?:not|never|cannot|can['’]t|doesn['’]t|don['’]t|won['’]t|wouldn['’]t|isn['’]t|aren['’]t|no|nobody|no\s+one|nothing|unable|impossible)\s+(?:(?!(?:and|but|or|so|then|yet)\b)[\w'’]+\s+){0,2})`;
 /** In front of "questions you approved": not the FAQ, whose answers a
  *  client does approve ("it answers the common questions you approved").
  *  The engine's NOT_THE_FAQ, the same words. */
@@ -214,7 +217,33 @@ export const CLAIM_RULES = [
      doesn't, won't, no, nobody, nothing and their kin) up to two words in
      front of the claim. A rep's or a visitor's own speech ("Ring the demo
      line and ask what you'd ask any receptionist.") is still refused: it
-     never belongs on a served page, so the rule is not bent for it. */
+     never belongs on a served page, so the rule is not bent for it.
+
+     WIDENED AND NARROWED AGAIN THE SAME DAY (review of launch-site-4).
+     Planted in a served page, "You approve the questions it asks.",
+     "Nobody but you sets the questions it asks.", "You tell it what to
+     ask." and seven more spellings passed this rule and failed the engine
+     row, so a site edit could leave site CI green and turn engine CI red.
+     Each is a MUST_FIRE line now, with the setter verbs the engine row reads
+     ("customise", "tailor") and the ones neither read ("configure", "train",
+     "made to", "taught to"), "they" and "our team" as setters, "have it set
+     up to ask", and the spellings the review found nothing refusing ("Your
+     agent, your questions.", "It asks trade-specific questions.", "Add
+     anything you want asked"). NOT_DENIED no longer reaches across a
+     conjunction ("It never sleeps and asks what you would ask."). And two
+     true lines the engine row passes are allowed: a prospect's question
+     with its answer, "Can you choose what it asks? No: ..." and "Can it ask
+     what I would ask? No. ...". A mutation run took out each alternative,
+     each lookaround, each NOT_DENIED word and conjunction, and each word of
+     the lists on the lines this pass touched. Of 301, the 50 that survive
+     each take a word out of a prospect's-question or lookahead excuse,
+     which only makes the rule stricter (47), or out of a list another
+     alternative also reads ("qualifying", "screening" or "custom" before
+     "questions", 3). Every one that loosened the rule has a line below.
+     Still refused here and by the engine row, though true: a denial that
+     opens "Nothing about the setup lets you ...", and "Neither you nor we
+     can set it up to ask more." Excusing them here alone would let a page
+     pass the site and fail the engine. */
   { id: 'question-builder',
     re: new RegExp([
       /* "We set it up to ask", the first alternative here until 2026-11-10,
@@ -243,17 +272,32 @@ export const CLAIM_RULES = [
          and how urgent it is." It passes only when that is the whole of what
          it is set up to ask; anything after it ("..., and about pets") is
          the hedge again. */
-      String.raw`(?:\b(?:can|could|will|may|might|would)|['’]ll)(?:\s+(?:also|even|easily))?\s+be\s+(?:easily\s+|also\s+)?(?:set\s+up|configured|programmed|trained|told|tuned|customi[sz]ed|tailored|adapted|adjusted)\s+to\s+(?:also\s+|even\s+)?ask\b(?!\s+(?:the\s+caller\s+)?about\s+the\s+job,?\s+where\s+it\s+is,?\s+and\s+how\s+urgent\s+it\s+is\s*(?:[.;!?]|$))`,
+      String.raw`(?:\b(?:can|could|will|may|might|would)|['’]ll)(?:\s+(?:also|even|easily))?\s+be\s+(?:easily\s+|also\s+)?(?:set\s+up|configured|programmed|trained|told|tuned|customi[sz]ed|tailored|adapted|adjusted|made|instructed|taught)\s+to\s+(?:also\s+|even\s+)?ask\b(?!\s+(?:the\s+caller\s+)?about\s+the\s+job,?\s+where\s+it\s+is,?\s+and\s+how\s+urgent\s+it\s+is\s*(?:[.;!?]|$))`,
       /* The same hedge with somebody doing the setting: "we can set it up to
          ask about the breaker", "Nevamis sets the agent up to ask", "we'll
          set it up to ask", "it is easy to set it up to ask". Not a question
          a prospect asks ("Can you set it up to ask about pets?"), and not a
          denial ("we can't set it up to ask that", "there is no way to set it
          up to ask more"). */
-      String.raw`${NOT_DENIED}(?<!\b(?:can|could|will|would|do|does|did|should)\s+)\b(?:i|we|you|nevamis|to)(?:['’]ll)?\s+(?:(?:can|could|will|would|may|might|also|just|easily|simply|then|always)\s+)*set(?:s|ting)?\s+(?:it|them|the\s+(?:agent|assistant|AI|front\s+desk|receptionist)|your\s+(?:agent|assistant|AI|front\s+desk|receptionist))\s+up\s+to\s+(?:also\s+|even\s+)?ask\b`,
+      String.raw`${NOT_DENIED}(?<!\b(?:can|could|will|would|do|does|did|should)\s+)\b(?:i|we|you|nevamis|they|(?:our|the)\s+team|to)(?:['’]ll)?\s+(?:(?:can|could|will|would|may|might|also|just|easily|simply|then|always)\s+)*sets?\s+(?:it|them|the\s+(?:agent|assistant|AI|front\s+desk|receptionist)|your\s+(?:agent|assistant|AI|front\s+desk|receptionist))\s+up\s+to\s+(?:also\s+|even\s+)?ask\b`,
+      /* The same with another verb, since the review of launch-site-4: "We
+         customise it to ask about pets." and "Nevamis tailors it to ask
+         about pets." (the engine row refused both), and "We configure it to
+         ask", "We train it to ask", which nothing refused. */
+      String.raw`${NOT_DENIED}(?<!\b(?:can|could|will|would|do|does|did|should)\s+)\b(?:i|we|you|nevamis|they|(?:our|the)\s+team|to)(?:['’]ll)?\s+(?:(?:can|could|will|would|may|might|also|just|easily|simply|then|always)\s+)*(?:customi[sz](?:e|es|ed|ing)|configur(?:e|es|ed|ing)|tailor(?:s|ed|ing)?|train(?:s|ed|ing)?|program(?:s|med|ming)?|instruct(?:s|ed|ing)?|teach(?:es|ing)?|taught)\s+(?:it|them|the\s+(?:agent|assistant|AI|front\s+desk|receptionist)|your\s+(?:agent|assistant|AI|front\s+desk|receptionist))\s+to\s+(?:also\s+|even\s+)?ask\b`,
+      /* "We'll have it set up to ask about pets"; not a prospect asking ("Can
+         we have it set up to ask about pets?"), and not what it does ("We'll
+         have it set up to ask about the job, where it is and how urgent it
+         is."). */
+      String.raw`${NOT_DENIED}(?<!\b(?:can|could|will|would|do|does|did|should)\s+(?:i|we|you)\s+)\b(?:have|get|had|got)\s+(?:it|them|the\s+(?:agent|assistant|AI|front\s+desk|receptionist)|your\s+(?:agent|assistant|AI|front\s+desk|receptionist))\s+set\s+up\s+to\s+(?:also\s+|even\s+)?ask\b(?!\s+(?:the\s+caller\s+)?about\s+the\s+job,?\s+where\s+it\s+is,?\s+and\s+how\s+urgent\s+it\s+is\s*(?:[.;!?]|$))`,
+      /* The imperative, opening a sentence: "Set it up to ask about access
+         codes." */
+      String.raw`(?:^|(?<=[.!?:]\s{1,3}))set\s+(?:it|them|the\s+(?:agent|assistant|AI|front\s+desk|receptionist)|your\s+(?:agent|assistant|AI|front\s+desk|receptionist))\s+up\s+to\s+(?:also\s+|even\s+)?ask\b`,
       /* "ask what you would ask", and "asks", "asks callers", "asks what he
-         would ask": in any sentence that does not deny it. */
-      String.raw`${NOT_DENIED}\basks?(?:\s+(?:the\s+|every\s+|each\s+)?(?:callers?|customers?|people|them))?\s+what\s+(?:you|he|she|they|I|we)(?:'d|’d|\s+would)(?:\s+(?:normally|usually))?\s+ask\b`,
+         would ask": in any sentence that does not deny it, and not a
+         prospect's question ("Can it ask what I would ask? No. ..."), since
+         the review of launch-site-4. */
+      String.raw`${NOT_DENIED}(?<!\b(?:can|could|will|would|do|does)\s+(?:it|the\s+agent|your\s+agent)\s+)\basks?(?:\s+(?:the\s+|every\s+|each\s+)?(?:callers?|customers?|people|them))?\s+what\s+(?:you|he|she|they|I|we)(?:'d|’d|\s+would)(?:\s+(?:normally|usually))?\s+ask\b`,
       /* "when you approve the question", with or without "asked" before it;
          not "the questions and answers" of the FAQ, which a client does
          approve. */
@@ -262,6 +306,13 @@ export const CLAIM_RULES = [
          can make it ask about pets", "you can tell it to ask about pets". */
       String.raw`(?:\b(?:can|could|will)|['’]ll)\s+(?:have|make|get)\s+(?:it|the\s+AI|the\s+agent|your\s+agent|your\s+front\s+desk)\s+(?:to\s+)?ask\b`,
       String.raw`(?:\b(?:can|could|will|just)|['’]ll)\s+tell\s+(?:it|the\s+AI|the\s+agent|your\s+agent|your\s+front\s+desk)\s+to\s+(?:also\s+)?ask\b`,
+      /* "You tell it what to ask.", "Tell it what to ask." and "It asks
+         whatever you tell it to ask." (review of launch-site-4: the engine
+         row refused the three, this rule passed them). Not a prospect's
+         question ("Can you tell it what to ask? No: ..."), and not a denial
+         ("You cannot tell it what to ask."). */
+      String.raw`${NOT_DENIED}(?<!\b(?:can|could|will|would|do|does|did|should)\s+(?:i|we|you)\s+)\btell\s+(?:it|the\s+AI|the\s+agent|your\s+agent|your\s+front\s+desk)\s+(?:what|which\s+questions?)\s+to\s+ask\b`,
+      String.raw`${NOT_DENIED}\basks?\s+(?:about\s+)?(?:whatever|what|anything)\s+you\s+tell\s+it\b`,
       /* "The questions it asks ... are set with the business during setup";
          not "set by its prompt, the same for every business". */
       String.raw`\bquestions\s+(?:it|the\s+agent|the\s+AI|your\s+agent)\s+asks\b[^.;?!]{0,40}\b(?:are|is|get|can\s+be|will\s+be)\s+(?:set|chosen|tuned|agreed|written|customi[sz]ed|configured|changed)\b(?!\s+(?:by\s+(?:its|the|one)\s+prompt|in\s+its\s+prompt|the\s+same\b))`,
@@ -270,8 +321,12 @@ export const CLAIM_RULES = [
       String.raw`${NOT_DENIED}\bqualification\s+(?:rules|questions)\b`,
       /* The client choosing them: "you choose what it asks", "you pick the
          questions it asks". Not "nothing lets the owner set the questions it
-         asks", and not "you cannot change the questions it asks". */
-      String.raw`${NOT_DENIED}\b(?:you|the\s+owner|the\s+client|owners|clients)\s+(?:can\s+|get\s+to\s+|also\s+)?(?:choose|chooses|decide|decides|pick|picks|set|sets|control|controls|write|writes|customi[sz]e|customi[sz]es|tailor|tailors|change|changes|edit|edits)\s+(?:what|which\s+questions|the\s+questions)\s+(?:it|the\s+agent|the\s+AI|your\s+agent|your\s+front\s+desk)\s+(?:asks|will\s+ask|should\s+ask)\b`,
+         asks", and not "you cannot change the questions it asks". Since the
+         review of launch-site-4, the client approving them too ("You approve
+         the questions it asks.", "You approve every question it asks."),
+         and not a prospect's question with its answer ("Can you choose what
+         it asks? No: ..."), which the engine row lets through. */
+      String.raw`${NOT_DENIED}(?<!\b(?:can|could|will|would|do|does|did|should)\s+)\b(?:you|the\s+owner|the\s+client|owners|clients)\s+(?:can\s+|get\s+to\s+|also\s+)?(?:choose|chooses|decide|decides|pick|picks|set|sets|control|controls|write|writes|customi[sz]e|customi[sz]es|tailor|tailors|change|changes|edit|edits|approve|approves)\s+(?:what|which\s+questions|the\s+questions|every\s+question|each\s+question)\s+(?:it|the\s+agent|the\s+AI|your\s+agent|your\s+front\s+desk)\s+(?:asks|will\s+ask|should\s+ask)\b`,
       /* "Add your own questions for it to ask", "custom questions for your
          trade", and the deck's QUALIFY card, "Your questions, your rules". */
       String.raw`${NOT_DENIED}\badd\s+(?:your\s+own|custom|extra|more|new)\s+questions\b`,
@@ -284,6 +339,24 @@ export const CLAIM_RULES = [
          the questions it asks but you." (the engine's second review found
          its own rule excusing this one). */
       String.raw`\b(?:nobody|no\s+one)\s+(?:sets?|picks?|chooses?|writes?|decides?|controls?)\s+(?:the\s+|which\s+|what\s+)?questions\s+(?:it|the\s+agent|the\s+AI|your\s+agent)\s+asks\s+(?:but|except|other\s+than|besides|apart\s+from|save\s+for|aside\s+from)\b`,
+      /* The exception first, since the review of launch-site-4: "Nobody but
+         you sets the questions it asks.", "No one but you picks what it
+         asks." Only about the questions: "No one but you approves the
+         answers in your FAQ." is true. */
+      String.raw`\b(?:nobody|no\s+one)\s+(?:but|except|other\s+than|besides|apart\s+from|save\s+for|aside\s+from)\s+(?:you|the\s+owner|the\s+client|the\s+business)\b[^.;?!]{0,30}?\b(?:sets?|picks?|chooses?|writes?|decides?|controls?|approves?|changes?|edits?)\s+(?:(?:the|which|every|each)\s+)?(?:questions?\b|what\s+(?:it|the\s+agent|the\s+AI|your\s+agent|your\s+front\s+desk)\s+(?:asks|will\s+ask|should\s+ask)\b)`,
+      /* "It asks callers your questions" (review of launch-site-4: the engine
+         row refused it, this rule read only "asks your questions"). */
+      String.raw`${NOT_DENIED}\basks?\s+(?:(?:the|every|each)\s+)?(?:callers?|customers?|people|them)\s+your(?:\s+own)?\s+(?:qualifying\s+|screening\s+|intake\s+|custom\s+)?questions\b`,
+      /* Spellings no rule read until the review of launch-site-4 found them:
+         "Your agent, your questions.", "It asks trade-specific questions.",
+         "Questions tailored to your trade.", "Add anything you want asked as
+         well." (the onboarding intake form's own line) and "It asks about
+         whatever you want." */
+      String.raw`\byour\s+(?:agent|front\s+desk|receptionist|AI),?\s+your\s+questions\b`,
+      String.raw`${NOT_DENIED}\basks?\s+(?:(?:the|every|each)\s+)?(?:(?:callers?|customers?|them)\s+)?(?:[\w]+-specific|trade|industry)\s+questions\b`,
+      String.raw`${NOT_DENIED}\bquestions\s+(?:tailored|customi[sz]ed|tuned|adapted)\s+(?:to|for)\s+(?:your|each|every)\b`,
+      String.raw`${NOT_DENIED}\b(?:anything|whatever|any\s+questions?|what)\s+(?:else\s+)?you\s+(?:want|would\s+like|need)\s+asked\b`,
+      String.raw`${NOT_DENIED}\basks?\s+about\s+(?:whatever|anything)\s+you\s+(?:want|like|need)\b`,
     ].join('|'), 'i'),
     why: 'nothing lets the client, or Nevamis, set the questions the agent asks (owner decision #80, 2026-11-10): on every call it asks what the caller needs, the job, where it is and how urgent it is, takes a name and a callback number, and answers from the business\'s own hours, services, service area and approved FAQ (engine src/domain/agent-draft.ts, ON EVERY CALL). Say what it asks and stop there. "It can be set up to ask" more is the hedge decision #80 retired; saying the questions cannot be set is true and allowed' },
   /* question-denial, which refused "nothing lets the owner set the questions
@@ -516,6 +589,132 @@ export const MUST_FIRE = [
   ['question-builder', 'Nobody sets the questions it asks but you.'],
   ['question-builder', 'No one chooses the questions it asks other than you.'],
   ['question-builder', 'It can be set up to ask about the job, where it is and how urgent it is, and about pets.'],
+  /* Review of launch-site-4 (2026-11-10): the spellings that review planted
+     in a served page or found by variant, which this rule passed, one line
+     for each alternative or word added for them. The first eight the engine
+     row refused, so site CI went green where engine CI would go red. */
+  ['question-builder', 'You approve the questions it asks.'],
+  ['question-builder', 'The owner approves the questions it asks.'],
+  ['question-builder', 'You approve every question it asks.'],
+  ['question-builder', 'Nobody but you, the owner, sets the questions it asks.'],
+  ['question-builder', 'No one but you picks what it asks.'],
+  ['question-builder', 'You tell it what to ask.'],
+  ['question-builder', 'Tell it what to ask.'],
+  ['question-builder', 'It asks whatever you tell it to ask.'],
+  ['question-builder', 'It asks callers your questions.'],
+  ['question-builder', 'We customise it to ask about pets.'],
+  ['question-builder', 'Nevamis tailors it to ask about pets.'],
+  ['question-builder', 'We configure it to ask about pets.'],
+  ['question-builder', 'We train it to ask about pets.'],
+  ['question-builder', 'Our team will set it up to ask about pets.'],
+  ['question-builder', 'They set it up to ask about gate codes.'],
+  ["question-builder", "We'll have it set up to ask about pets."],
+  ['question-builder', 'Set it up to ask about access codes.'],
+  ['question-builder', 'It can be made to ask about pets.'],
+  ['question-builder', 'It can be instructed to ask about pets.'],
+  ['question-builder', 'It can be taught to ask about pets.'],
+  ['question-builder', 'It can be adapted to ask about pets.'],
+  ['question-builder', 'It can be adjusted to ask about pets.'],
+  ["question-builder", "We'll make it ask about pets."],
+  /* NOT_DENIED stops at a conjunction: the negation is the clause before. */
+  ['question-builder', 'It never sleeps and asks what you would ask.'],
+  ['question-builder', 'No contract and you choose what it asks.'],
+  ['question-builder', 'Your agent, your questions.'],
+  ['question-builder', 'It asks trade-specific questions.'],
+  ['question-builder', 'Questions tailored to your trade.'],
+  ['question-builder', 'Add anything you want asked as well.'],
+  ['question-builder', 'It asks about whatever you want.'],
+  /* From the mutation run on this pass: a line for each alternative, and
+     each word added to one, that no other line caught. "Qualifying questions
+     tuned to your trade." is read by the "questions tailored to your"
+     alternative too, so the bare-noun alternative has its own line again. */
+  ['question-builder', 'It runs qualifying questions on every call.'],
+  ['question-builder', 'Want more? Set it up to ask about access codes.'],
+  ['question-builder', 'No contract but you choose what it asks.'],
+  ['question-builder', 'No contract or you choose what it asks.'],
+  ['question-builder', 'No contract so you choose what it asks.'],
+  ['question-builder', 'No contract then you choose what it asks.'],
+  ['question-builder', 'No contract yet you choose what it asks.'],
+  ['question-builder', 'It can be configured to ask about pets.'],
+  ['question-builder', 'It can be programmed to ask about pets.'],
+  ['question-builder', 'It can be trained to ask about pets.'],
+  ['question-builder', 'It can be told to ask about pets.'],
+  ['question-builder', 'It can be tuned to ask about pets.'],
+  ['question-builder', 'It can be easily set up to ask about pets.'],
+  ['question-builder', 'It can be set up to even ask about pets.'],
+  ['question-builder', 'We program it to ask about pets.'],
+  ['question-builder', 'We instruct it to ask about pets.'],
+  ['question-builder', 'We teach it to ask about pets.'],
+  ['question-builder', 'We taught it to ask about pets.'],
+  ['question-builder', 'The team will configure it to ask about pets.'],
+  ['question-builder', 'We can get it set up to ask about pets.'],
+  ['question-builder', 'We had it set up to ask about pets.'],
+  ['question-builder', 'We got it set up to ask about pets.'],
+  ['question-builder', 'It asks what I would ask.'],
+  ['question-builder', 'It asks what we would ask.'],
+  ['question-builder', 'You tell your agent which questions to ask.'],
+  ['question-builder', 'It asks what you tell it to.'],
+  ['question-builder', 'It asks anything you tell it to.'],
+  ['question-builder', 'You approve each question it asks.'],
+  ['question-builder', 'No one except you, the owner, picks what it asks.'],
+  ['question-builder', 'Nobody other than you, the owner, chooses the questions.'],
+  ['question-builder', 'Nobody besides the owner, in the portal, writes the questions.'],
+  ['question-builder', 'It asks each caller your intake questions.'],
+  ['question-builder', 'It asks customers your qualifying questions.'],
+  ['question-builder', 'Your front desk, your questions.'],
+  ['question-builder', 'It asks every caller trade questions.'],
+  ['question-builder', 'Questions customised for each trade.'],
+  ['question-builder', 'Any question you want asked, it asks.'],
+  ['question-builder', 'Tell us what you would like asked.'],
+  ['question-builder', 'It asks about anything you need.'],
+  /* The rest of that run's survivors that loosened the rule: a word in a
+     list with no line of its own. One line can pin a word from each list at
+     once, since taking any one out stops it matching. The "you choose"
+     alternative's verbs, subjects and objects were from the first pass. */
+  ['question-builder', 'It can be also set up to ask about pets.'],
+  ['question-builder', 'We can set it up to also ask about pets.'],
+  ['question-builder', 'We can set it up to even ask about pets.'],
+  ['question-builder', 'We customise it to also ask about pets.'],
+  ['question-builder', 'We customise it to even ask about pets.'],
+  ['question-builder', 'Set it up to also ask about pets.'],
+  ['question-builder', 'Set it up to even ask about pets.'],
+  ['question-builder', 'The client chooses which questions the agent will ask.'],
+  ['question-builder', 'Owners can set what the AI should ask.'],
+  ['question-builder', 'Clients get to control what your agent asks.'],
+  ['question-builder', 'The owner also decides what your front desk asks.'],
+  ['question-builder', 'The owner picks what it asks.'],
+  ['question-builder', 'The owner sets what it asks.'],
+  ['question-builder', 'The owner controls what it asks.'],
+  ['question-builder', 'You write what it asks.'],
+  ['question-builder', 'The owner writes what it asks.'],
+  ['question-builder', 'You customise what it asks.'],
+  ['question-builder', 'The owner customises what it asks.'],
+  ['question-builder', 'You tailor what it asks.'],
+  ['question-builder', 'The owner tailors what it asks.'],
+  ['question-builder', 'You change what it asks.'],
+  ['question-builder', 'The owner changes what it asks.'],
+  ['question-builder', 'You edit what it asks.'],
+  ['question-builder', 'The owner edits what it asks.'],
+  ['question-builder', 'Nobody apart from the client decides what it asks.'],
+  ['question-builder', 'Nobody save for the business controls the questions.'],
+  ['question-builder', 'Nobody aside from you approves the questions.'],
+  ['question-builder', 'No one but you changes the questions.'],
+  ['question-builder', 'No one but you edits the questions.'],
+  ['question-builder', 'It asks customers your questions.'],
+  ['question-builder', 'It asks people your questions.'],
+  ['question-builder', 'It asks them your questions.'],
+  ['question-builder', 'Your receptionist, your questions.'],
+  ['question-builder', 'Your AI, your questions.'],
+  ['question-builder', 'It asks industry questions.'],
+  ['question-builder', 'Questions tuned for every trade.'],
+  ['question-builder', 'Questions adapted to your trade.'],
+  ['question-builder', 'Whatever you need asked, it asks.'],
+  ['question-builder', 'It asks about anything you like.'],
+  ['question-builder', 'We will have it set up to also ask about pets.'],
+  ['question-builder', 'We will have it set up to even ask about pets.'],
+  ['question-builder', 'You tell the AI what to ask.'],
+  ['question-builder', 'You tell the agent what to ask.'],
+  ['question-builder', 'You tell your front desk what to ask.'],
   ['speed-where-the-phone-rings-first', 'Your number, your rules, answered in seconds.', 'after-hours-answering.html'],
   ['speed-where-the-phone-rings-first', 'It answers in seconds, any hour. Try to stump it.', 'demo.html'],
 ];
@@ -536,9 +735,13 @@ export const MUST_PASS = [
   'If a caller describes a fire or a shock hazard, it tells them to hang up and call 9-1-1 before anything else.',
   /* The electricians page's urgency line since 2026-11-10 (launch-site-4),
      verbatim; until then it ended "with the summary flagged urgent and sent
-     straight to your phone". */
-  'When the call is urgent work your hours and services say you take, Nevamis takes the location and callback number first and marks the call urgent. When the caller describes an active emergency, the summary sent to your phone starts with URGENT.',
-  'Captures the urgent details and alerts your team, by the rules you set',
+     straight to your phone", and in that leaf's first pass it said Nevamis
+     "marks the call urgent", which nothing records (pages.mjs, NO "MARKED
+     URGENT"). */
+  'When the call is urgent work your hours and services say you take, Nevamis takes the location and callback number first. When the caller describes an active emergency, the summary sent to your phone starts with URGENT.',
+  /* vs-voicemail's emergency cell since the review of launch-site-4; it
+     ended "by the rules you set" until then. */
+  'When the caller describes an active emergency, the summary you get starts with URGENT',
   'Takes a message and flags it for you',
   '1,400 minutes included on the AI Front Desk, then C$0.75 a minute, and calls keep being answered',
   "You set the mode with your phone provider, often by dialling short codes on your phone, or in your provider's portal for a hosted business line, and we can walk you through it.",
@@ -595,15 +798,72 @@ export const MUST_PASS = [
   'You cannot choose what it asks.',
   'Your agent will be set up to ask about the job, where it is and how urgent it is.',
   'Nobody sets the questions it asks.',
+  /* Review of launch-site-4 (2026-11-10). A prospect's question with its
+     true answer, which the engine row lets through and this rule refused;
+     the same shape for the tell-it alternative; what "nobody but you" may
+     still truly say; and what it is set up to do, with a setter in front. */
+  'Can you choose what it asks? No: it asks about the job, where it is and how urgent it is.',
+  'Can it ask what I would ask? No. It asks every caller about the job, where it is and how urgent it is.',
+  'Can you tell it what to ask? No: it asks every caller about the job, where it is and how urgent it is.',
+  'Do you approve the questions it asks? No: you approve the answers in your FAQ.',
+  'You cannot tell it what to ask.',
+  'No one but you approves the answers in your FAQ.',
+  "We'll have it set up to ask about the job, where it is and how urgent it is.",
+  /* One denial for each alternative that reads NOT_DENIED, and for each
+     word in it, so a mutation run that drops either fails a line here (the
+     review's run found 21 of 54 lookaround mutations survived). The second
+     line has the negation two words before the claim. */
+  'It does not ask your questions.',
+  'You cannot send us questions for it to ask.',
+  "It doesn't ask qualifying questions.",
+  'There are no custom questions.',
+  "You can't add anything you want it to ask.",
+  "It can't ask your questions.",
+  "You don't add your own questions.",
+  "It wouldn't ask your questions.",
+  "That isn't a qualifying question; it is what every caller is asked.",
+  "These aren't qualifying questions: it asks every caller about the job, where it is and how urgent it is.",
+  'Nobody writes qualifying questions for it.',
+  'No one ever writes qualifying questions for it.',
+  'It is unable to ask your questions.',
+  'It is impossible to set qualifying questions.',
+  'It answers the usual questions you approved.',
+  'It answers the frequent questions you approved.',
+  'It answers the same questions you approved.',
+  'It does not ask callers your questions.',
+  'It never asks trade-specific questions.',
+  'There are no questions tailored to your trade.',
+  'You cannot add anything you want asked.',
+  'It is not possible to customise it to ask about pets.',
+  'Can we customise it to ask about pets? No: it asks every caller about the job, where it is and how urgent it is.',
+  'There is no way to have it set up to ask about pets.',
+  'Can we have it set up to ask about pets? No: it asks every caller about the job, where it is and how urgent it is.',
+  'It does not ask about anything you want; it asks about the job.',
+  "It doesn't ask whatever you tell it.",
   /* What the four trade pages serve since the same day, verbatim. */
   'It answers from your hours, services, area and approved FAQ.',
   'Before it takes a single call we agree on what it is allowed to say: your hours, the services you do and do not do, the prices you approve, your service area, and the answers in your FAQ. Your hours and services also say which jobs you take as urgent.',
   'For anything your hours, services, area and FAQ do not cover, it takes a message rather than inventing an answer, and a call that is not urgent is taken down for the morning.',
-  "If a caller smells gas, it tells them to hang up and call 9-1-1 or their gas utility's emergency line before anything else. When your hours and services say you take no-heat calls urgently, a caller who describes one has the location and callback number taken first and the call marked urgent.",
-  'No-heat and no-cool calls . When your hours and services say you take them urgently, the location and callback number come first and the call is marked urgent.',
+  /* "and the call (is) marked urgent" left these and the plumbers' and
+     restoration's urgency lines in the review of launch-site-4: nothing
+     records that mark (pages.mjs, NO "MARKED URGENT"). */
+  "If a caller smells gas, it tells them to hang up and call 9-1-1 or their gas utility's emergency line before anything else. When your hours and services say you take no-heat calls urgently, a caller who describes one has the location and callback number taken first. When the caller describes an active emergency, the summary you get starts with URGENT. Everything else is captured with the times that suit the caller, for you to confirm.",
+  'No-heat and no-cool calls . When your hours and services say you take them urgently, the location and callback number come first.',
+  "When your hours and services say you take active water urgently, a caller who describes it has the location and callback number taken first. When the caller describes an active emergency, the summary you get starts with URGENT. Slow drains and fixture replacements are taken down normally. Your hours and services, as you give them to us at setup, draw the line between the two.",
+  "When a caller describes a loss your hours and services say you take urgently, Nevamis takes the location and callback number first, and the loss is written down in the caller's own words, so nobody starts from nothing. When the caller describes an active emergency, the summary you get starts with URGENT.",
   "Drains and blockages . The blockage in the caller's own words, where it is and how urgent it is, with their name and callback number.",
   "Quotes and upgrades . Panel upgrades and rewires captured as leads: the job in the caller's own words, where it is, and their name and callback number.",
-  'Emergency alerts . For a loss your hours and services say you take urgently, the location and callback number come first and the call is marked urgent.',
+  'Urgent losses . For a loss your hours and services say you take urgently, the location and callback number come first. When the caller describes an active emergency, the summary you get starts with URGENT.',
+  'Fire and shock hazards . A fire or shock hazard gets the 9-1-1 advice first. Then the details are written down, and the summary you get starts with URGENT.',
+  'Emergency leaks . Shut-off guidance only from your approved FAQ. When the caller describes an active emergency, the summary you get starts with URGENT.',
+  /* The client-rules wording the review of launch-site-4 found outside the
+     trade pages, as served since: how-you-start, vs-answering-service and
+     the proposal. */
+  'A discovery call: your hours, services, service area, prices and the answers to the questions your callers ask most',
+  'It takes a message and flags the summary as urgent, and it never invents an answer outside your hours, services, area and FAQ.',
+  'Your service area and prices . Do they work from your price list, or a general script? . Answered from your service area and the prices you approve',
+  'Nevamis is built to know its limits: for anything your hours, services, area and FAQ do not cover, it takes a message rather than guessing.',
+  'Your line answered around the clock by a front desk configured around your hours, service area, job types and the FAQ answers you approve.',
   /* Review of PR #65 (2026-11-09): llms.txt item 3 without the denial; a
      sentence about what it cannot answer; and the onboarding intake, which
      the narrowed question-builder no longer bans. */
