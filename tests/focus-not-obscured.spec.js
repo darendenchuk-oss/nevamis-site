@@ -33,7 +33,9 @@
      /pricing.html   failed, 4 stops: stop 24 "Request it: Get-Paid
                      Autopilot on its own" at y 800, and the footer's
                      Pricing, Terms and Security
-   and both green on the branch that added the scroll padding.
+   and both green on the branch that added the scroll padding. On that
+   branch, the scroll-padding-bottom line deleted from the served index.html
+   and pricing.html: both failed again on the same 9 stops; restored, green.
 
    Run with the site served from this checkout on its own port, e.g.
      NV_PORT=3412 npx playwright test tests/focus-not-obscured.spec.js

@@ -132,7 +132,11 @@ export const CLAIM_RULES = [
      verb carries it; so is a set of questions somebody on the client's side
      approved, chose or wrote. Each is now a MUST_FIRE line, and
      tests/site-live-platform.spec.js runs this rule over every served
-     surface, not only the pages this file owns. */
+     surface, not only the pages this file owns. Mutation runs that day:
+     the three new alternatives removed together, 8 MUST_FIRE lines fail;
+     removed one at a time, the qualifying/screening/intake one fails 1,
+     the "questions you approved" one 3, the "written in your words" one 1,
+     so each carries a line no other alternative catches. */
   { id: 'question-builder',
     re: /\bwe set it up to ask\b|\bqualified the way you would\b|\basks? (?:the|your)(?: own)? (?:qualifying |screening )?questions\b|(?<!\bcan be )\basked\b[^.;?!]{0,40}\bwhen you approve\b|\b(?:qualifying|screening|intake) questions?\b|\bquestions (?:that )?(?:you|the owner|owners?|the business|your team|we)(?: have| has| had)? (?:approv(?:e|es|ed)|set|chose|choose|wrote|write|picked|pick|signed off)\b|\bquestions (?:are |were )?(?:written|set|worded) (?:in|with) your\b/i,
     why: 'the client agent\'s prompt has no qualifying-questions field: it takes hours, services, area, the approved FAQ and a booking link, and captures name, callback number, job, location and urgency "in a question or two" (engine src/domain/agent-draft.ts, buildClientAgentPrompt). A trade question rides in only as approved text. Say what it asks, and that it "can be set up to ask" more' },

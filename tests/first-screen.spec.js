@@ -76,7 +76,16 @@
    main 0fb6589's build served from a checkout of that commit: 2 failed,
    "mid-film Tab 1 landed on a "Book a call" in #close, at opacity 0
    (#close)" at 390x844 and 1440x900; green on the branch that hides #close
-   while it is not on.
+   while it is not on. Then each mutation made to that branch's served
+   index.html, both viewports each time, and restored:
+     card-open selector dropped    2 failed: "with a pane card open the
+                                   ending is transparent and its links are
+                                   still in the tab order"
+     :not(.on) selector dropped    2 failed: "mid-film Tab 1 landed on a
+                                   "Book a call" in #close, at opacity 0"
+     #close hidden even when on    2 failed: "at the ending, Book a call and
+                                   Scan my website are in the tab order"
+   and green again restored.
 
    Run with the site served from this checkout on its own port, e.g.
      NV_PORT=3293 npx playwright test tests/first-screen.spec.js
