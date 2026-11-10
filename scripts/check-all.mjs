@@ -78,8 +78,12 @@ run('consistency', process.execPath, ['scripts/check-consistency.js']);
 /* Security surface: pure file reads, as fast as consistency. Each one fails
    on a change that would otherwise reach nevamis.ca silently: an inline
    script the page policy would block, a working file Jekyll would publish,
-   or a changed call route, vendor file or outside destination. */
-run('content security policy', process.execPath, ['scripts/build-csp.mjs', '--check']);
+   or a changed call route, vendor file or outside destination. The policy
+   step also holds every page's generated script preloads to its own
+   <script src> tags (launch audit PERF-1): a page whose preloads have parted
+   from its scripts downloads a script it never runs, or runs one it never
+   preloaded, serially again. */
+run('content security policy and script preloads', process.execPath, ['scripts/build-csp.mjs', '--check']);
 run('published surface', process.execPath, ['scripts/check-published-surface.mjs']);
 run('critical surface', process.execPath, ['scripts/check-critical-surface.mjs']);
 /* The legal pages against the code they describe: the browser call, fonts,
