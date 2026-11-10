@@ -3372,6 +3372,45 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
 
     for (const p of carrierProblems(String(fc.offer || ""), String(fc.note || ""))) err("pricing-config.js " + p);
 
+    /* THE CLOSED LINE (launch audit PERF-5, 2026-11-09). free-month.js keeps
+       the held space whenever the offer is NOT shown, a closed answer, an
+       error or no answer in time, and writes foundingClient.closedLine into
+       it, so nothing under the space moves. That makes it the one string in
+       foundingClient a visitor reads exactly when there is no place, so it
+       may never be the offer, never name the cap, and say only what
+       pricing-config.js terms carry. Required while the switch is on:
+       without it free-month.js gives the space back and the page jumps, by
+       up to 268px, under whatever the visitor was reaching for. */
+    const closedProblems = (line, terms) => {
+      const out = [];
+      if (typeof line !== "string" || !line.trim()) return ["is missing, so a closed answer gives the held space back and moves the page"];
+      if (claims(line).length) out.push("says the first month is free, in the line shown when no place is");
+      for (const [re, what] of [[/\btrials?\b/i, "trial"], [/\bpilots?\b/i, "pilot"], [/\bdiscount/i, "discount"],
+        [/\bno (?:credit )?card\b/i, "no card required"], [/\bfirst \d+\b|\bfirst ten\b|\bplaces?\b|\bspots?\b/i, "the cap"],
+        [/C\$|\$\s?\d/, "a price (a price here is printed beside no plan)"]]) {
+        if (re.test(line)) out.push("says " + what);
+      }
+      if (/\bno minimum term\b/i.test(line) && terms.minimumMonths !== 0) out.push("says there is no minimum term, and terms.minimumMonths is " + terms.minimumMonths);
+      if (/\bcancel any ?time\b/i.test(line) && terms.cancellationNoticeDays !== 0) out.push("says cancel any time, and terms.cancellationNoticeDays is " + terms.cancellationNoticeDays);
+      return out;
+    };
+    {
+      const OPEN_TERMS = { minimumMonths: 0, cancellationNoticeDays: 0 };
+      for (const [why, line, terms] of [
+        ["the offer itself", "First month free for our first " + N + " businesses, given on a booked call.", OPEN_TERMS],
+        ["the cap", "All " + N + " places are taken.", OPEN_TERMS],
+        ["no minimum term against a three-month minimum", "No minimum term. Cancel any time in your portal.", { minimumMonths: 3, cancellationNoticeDays: 0 }],
+        ["cancel any time against a notice period", "No minimum term. Cancel any time in your portal.", { minimumMonths: 0, cancellationNoticeDays: 30 }],
+        ["nothing at all", "", OPEN_TERMS]]) {
+        if (!closedProblems(line, terms).length) err("guard 7u closed line: lets " + why + " through: \"" + line + "\"");
+      }
+      const fine = closedProblems("No minimum term. Cancel any time in your portal.", OPEN_TERMS);
+      if (fine.length) err("guard 7u closed line: refuses the line PERF-5 chose: " + fine.join("; "));
+    }
+    if (fc.active === true) {
+      for (const p of closedProblems(fc.closedLine, cfg.terms || {})) err("pricing-config.js foundingClient.closedLine " + p + ": \"" + String(fc.closedLine || "") + "\"");
+    }
+
   }
   /* No other config string may say it. */
   const walkStrings = (v, at, out) => {

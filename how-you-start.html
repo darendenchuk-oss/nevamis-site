@@ -962,11 +962,17 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .fm-card{border-color:rgba(240,180,98,.35)}
   /* Under the heading since the funnel audit (item 9): the hold keeps the
      card's measured open-state height while free-month.js waits, 150px at
-     375 and 390 wide and 135px from 721 up, and is given back on every
-     outcome. */
+     375 and 390 wide and 135px from 721 up. It is given back only when the
+     card shows. */
   .page-hero .fm-hold{margin-top:18px;max-width:760px}
   .page-hero .fm-hold[data-nv-free-month-hold]{min-height:150px}
   @media(min-width:721px){.page-hero .fm-hold[data-nv-free-month-hold]{min-height:135px}}
+  /* When the offer is not shown, free-month.js keeps the hold and writes
+     pricing-config.js foundingClient.closedLine into it. The line fills the
+     held height, so a closed, failed or slow answer moves nothing under it
+     (launch audit PERF-5). */
+  .page-hero .fm-hold .fm-closed{min-height:inherit;margin:0;display:flex;align-items:center;
+    color:var(--ink-2);font-size:var(--fs-card);line-height:var(--lh-body)}
   .page-hero .fm-hold + .lede{margin-top:18px}
   #hysFreeMonth{margin:0}
   #hysFreeMonth .fm-offer{color:var(--warm);font-weight:700;margin:0}

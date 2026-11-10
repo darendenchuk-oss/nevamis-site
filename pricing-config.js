@@ -266,7 +266,14 @@
       active: true,
       spots: 10,
       offer: "First month free for our first 10 businesses, given on a booked call.",
-      note: "We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. Buy now starts your plan and charges your first month."
+      note: "We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. Buy now starts your plan and charges your first month.",
+      /* What the held space says when the offer is not shown: a closed
+         answer, an error, or no answer within the wait. It is a line about
+         the terms, true whatever the answer, so the space the card would
+         have taken stays and nothing under it moves (launch audit PERF-5).
+         It is never the offer, and scripts/check-consistency.js holds it to
+         terms.minimumMonths and terms.cancellationNoticeDays. */
+      closedLine: "No minimum term. Cancel any time in your portal."
     },
     annual: {
       active: false,

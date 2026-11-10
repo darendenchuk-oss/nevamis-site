@@ -1016,6 +1016,12 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   .page-hero .fm-hold{margin-top:18px;max-width:760px}
   .page-hero .fm-hold[data-nv-free-month-hold]{min-height:228px}
   @media(min-width:721px){.page-hero .fm-hold[data-nv-free-month-hold]{min-height:192px}}
+  /* When the offer is not shown, free-month.js keeps the hold and writes
+     pricing-config.js foundingClient.closedLine into it. The line fills the
+     held height, so a closed, failed or slow answer moves nothing under it
+     (launch audit PERF-5). */
+  .page-hero .fm-hold .fm-closed{min-height:inherit;margin:0;display:flex;align-items:center;
+    color:var(--ink-2);font-size:var(--fs-card);line-height:var(--lh-body)}
   #foundingBanner{border-color:rgba(240,180,98,.35);margin:0}
   #foundingBanner #foundingOffer{font-size:15px;color:var(--warm);font-weight:700;margin:0}
   #foundingBanner .fm-short{font-size:14px;line-height:1.45;margin:6px 0 0}

@@ -25,9 +25,10 @@
                cap: hidden, and no visible text on the page says the month is
                free;
      held      the banner's space is held while the answer is on its way, so
-               a late open answer moves the plans by nothing; how far content
-               moves when the answer is closed is measured, and with the
-               owner's switch off nothing is held, so nothing moves;
+               a late open answer moves the plans by nothing; a closed or
+               failed answer keeps the space and says foundingClient.closedLine
+               in it, so it moves nothing either (launch audit PERF-5); and
+               with the owner's switch off nothing is held, so nothing moves;
      no JS     with scripts off, nothing says it either;
      widths    at 1440 and 390 wide, open and closed, the page does not
                scroll sideways and logs no console error.
@@ -165,6 +166,9 @@ test('closed when the engine answers yes after the eight seconds have run out', 
   await page.goto('/pricing.html');
   await page.waitForTimeout(9800);
   await expect(page.locator('#foundingBanner')).toBeHidden();
+  /* No answer in time keeps the space too, and says the closed line in it
+     (PERF-5), which is never the offer: the line below proves that. */
+  await expect(page.locator('[data-nv-free-month-closed]')).toHaveText(P.foundingClient.closedLine);
   expect(await visibleFreeMonth(page)).toBeNull();
   await ctx.close();
 });
@@ -223,8 +227,16 @@ async function travel(browser, url, sel, { width, answer, config, html }) {
   await page.waitForTimeout(3000);
   const ys = await page.evaluate(() => window.__ys);
   const held = await page.evaluate(() => window.__held || 0);
+  /* What the held space says once the answer is in, and whether it still
+     fits the space it was given. */
+  const closed = await page.evaluate(() => {
+    const el = document.querySelector('[data-nv-free-month-closed]'), h = document.querySelector('.fm-hold');
+    if (!el || !h) return null;
+    const e = el.getBoundingClientRect(), b = h.getBoundingClientRect();
+    return { text: el.textContent, inside: e.top >= b.top - 1 && e.bottom <= b.bottom + 1 && e.height > 0 };
+  });
   await ctx.close();
-  return { moved: Math.round(ys[ys.length - 1] - ys[0]), most: Math.round(Math.max(...ys) - Math.min(...ys)), held };
+  return { moved: Math.round(ys[ys.length - 1] - ys[0]), most: Math.round(Math.max(...ys) - Math.min(...ys)), held, closed };
 }
 
 for (const width of [390, 1440]) {
@@ -248,20 +260,23 @@ for (const width of [390, 1440]) {
     }
   });
 
-  test(`closed at ${width} wide with the switch on: content moves by the held height and its margin, and by nothing else`, async ({ browser }) => {
-    const config = read('pricing-config.js').replace(/(foundingClient:\s*\{\s*active:\s*)true/, '$1false');
-    const { applyFreeMonthHold } = await import('../scripts/lib/free-month-hold.mjs');
+  /* Until launch audit PERF-5 (2026-11-09) a closed answer gave the held
+     space back, and everything under it moved up by the held height: a
+     layout shift of 0.19 on pricing.html on a phone with the engine slow, and
+     on book.html the calendar pulled up under a finger. Now the space stays
+     and says foundingClient.closedLine, a line about the terms, whichever
+     way the answer goes: a closed answer and a failed one alike. */
+  test(`closed at ${width} wide with the switch on: the space stays, says the closed line, and nothing under it moves`, async ({ browser }) => {
+    expect(P.foundingClient.closedLine, 'pricing-config.js foundingClient.closedLine').toBeTruthy();
     for (const [url, sel] of Object.entries(PAGES_HELD)) {
-      const on = await travel(browser, url, sel, { width, answer: json(200, { open: false, cap: CAP }) });
-      const off = await travel(browser, url, sel, { width, answer: json(200, { open: false, cap: CAP }), config, html: applyFreeMonthHold(read(url.slice(1)), false) });
-      expect(on.held, `${url}: the card's space is held while the switch is on`).toBeGreaterThan(0);
-      /* What the closed answer adds to the page's own late layout: the hold
-         coming down, plus the wrapper's margin collapsing once it is empty
-         (18px in the heroes, 16px over the calendar). Nothing more. */
-      const extra = off.moved - on.moved;
-      console.log(`closed, switch on, ${width}: ${url} content under the card moved ${on.moved}px (switch off: ${off.moved}px), hold ${on.held}px`);
-      expect(extra, `${url}: a closed answer moved content up ${extra}px beyond the page's own layout, against a ${on.held}px hold`).toBeGreaterThanOrEqual(on.held - 2);
-      expect(extra, `${url}: a closed answer moved content up ${extra}px beyond the page's own layout, against a ${on.held}px hold`).toBeLessThanOrEqual(on.held + 20);
+      for (const [why, answer] of [['open:false', json(200, { open: false, cap: CAP })], ['a 503', json(503, { open: false })]]) {
+        const r = await travel(browser, url, sel, { width, answer });
+        console.log(`closed (${why}), switch on, ${width}: ${url} content under the card moved ${r.most}px at most, hold ${r.held}px`);
+        expect(r.held, `${url} (${why}): the card's space is held while the switch is on`).toBeGreaterThan(0);
+        expect(Math.abs(r.most), `${url} (${why}): content under the card moved ${r.most}px on a closed answer`).toBeLessThanOrEqual(2);
+        expect(r.closed && r.closed.text, `${url} (${why}): the held space says foundingClient.closedLine`).toBe(P.foundingClient.closedLine);
+        expect(r.closed.inside, `${url} (${why}): the closed line fits inside the held space`).toBe(true);
+      }
     }
   });
 }

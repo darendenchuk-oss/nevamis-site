@@ -31,9 +31,16 @@
    card's height while the answer is on its way, so a card that shows late
    pushes nothing a visitor is about to tap. scripts/build-pages.mjs writes
    the mark only while foundingClient.active is true, so a switched-off offer
-   holds nothing at all; this script removes the mark on every way out, so a
-   closed answer gives the space back. With scripts off, a <noscript> rule
-   on the page sets the hold to nothing.
+   holds nothing at all. An open answer shows the card and removes the mark
+   (the card is the height that was held). Every other way out KEEPS the
+   space and writes foundingClient.closedLine into it, a line about the terms
+   that is never the offer (launch audit PERF-5, 2026-11-09): giving the
+   space back moved everything under it up by the held height, a layout
+   shift of 0.19 measured on pricing.html on a phone with the engine slow,
+   and the same jump would meet every visitor between the last place going
+   and the rebuild with the switch off. With no closedLine configured the
+   space is given back as before. With scripts off, a <noscript> rule on the
+   page sets the hold to nothing.
 
    The words come from foundingClient: an element marked
    data-nv-free-month-offer gets the offer and one marked
@@ -45,26 +52,44 @@
   var WAIT_MS = 8000;
 
   var holds = document.querySelectorAll("[data-nv-free-month-hold]");
-  /* Gives the reserved space back, on every way out of this script. */
+  /* Gives the reserved space back: once the card is showing, or when there
+     is no line to keep the space with. */
   function release() {
     for (var i = 0; i < holds.length; i++) holds[i].removeAttribute("data-nv-free-month-hold");
   }
 
-  var gated = document.querySelectorAll("[data-nv-free-month]");
-  if (!gated.length) { release(); return; }
   var P = window.NV_PRICING;
   var fc = P && P.foundingClient;
   var fm = P && P.freeMonth;
-  if (!fc || fc.active !== true || !fm) { release(); return; }
-  if (typeof fc.spots !== "number" || fc.spots <= 0 || fc.spots !== fm.firstClients) { release(); return; }
-  if (!fc.offer || typeof window.fetch !== "function") { release(); return; }
+
+  /* The offer is not shown: keep the space, and say the closed line in it.
+     The line fills the held height (each page's .fm-closed rule), so the
+     page does not move by a pixel whichever way the answer goes. */
+  function closed() {
+    var line = fc && typeof fc.closedLine === "string" ? fc.closedLine : "";
+    if (!line || !holds.length) { release(); return; }
+    for (var i = 0; i < holds.length; i++) {
+      if (holds[i].querySelector("[data-nv-free-month-closed]")) continue;
+      var p = document.createElement("p");
+      p.className = "fm-closed";
+      p.setAttribute("data-nv-free-month-closed", "");
+      p.textContent = line;
+      holds[i].appendChild(p);
+    }
+  }
+
+  var gated = document.querySelectorAll("[data-nv-free-month]");
+  if (!gated.length) { release(); return; }
+  if (!fc || fc.active !== true || !fm) { closed(); return; }
+  if (typeof fc.spots !== "number" || fc.spots <= 0 || fc.spots !== fm.firstClients) { closed(); return; }
+  if (!fc.offer || typeof window.fetch !== "function") { closed(); return; }
 
   var settled = false;
   var ctrl = typeof window.AbortController === "function" ? new window.AbortController() : null;
   var timer = setTimeout(function () {
     settled = true;
     if (ctrl) ctrl.abort();
-    release();
+    closed();
   }, WAIT_MS);
 
   function fill(root, attr, text) {
@@ -91,12 +116,13 @@
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      if (body && body.open === true && body.cap === fc.spots) reveal();
-      release();
+      if (body && body.open === true && body.cap === fc.spots) { reveal(); release(); }
+      else closed();
     })
     .catch(function () {
+      if (settled) return;
       settled = true;
       clearTimeout(timer);
-      release();
+      closed();
     });
 })();
