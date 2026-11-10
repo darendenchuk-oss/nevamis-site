@@ -389,10 +389,12 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
         'mid-film, the ending is off').toBe(false);
       /* After the ignition. Where the stage starts within half a screen of
          the top (1440x900) the film opens with its ignition, which holds the
-         rail at opacity 0 (html.nv-intro) until the wake brings it in; that
-         transient state is not what F3 is about, and is waited out here. */
-      await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains('nv-intro')),
-        { message: 'the film\'s ignition never finished', timeout: 90_000 }).toBe(false);
+         rail at opacity 0 (html.nv-intro) until the wake brings it in, and
+         the rail then fades up on the page's animation clock; that transient
+         state is not what F3 is about, so it is waited out here. */
+      await expect.poll(() => page.evaluate(() => !document.documentElement.classList.contains('nv-intro')
+        && getComputedStyle(document.getElementById('paneNav')).opacity === '1'),
+      { message: 'the film\'s ignition never finished, or the rail never faded in', timeout: 90_000 }).toBe(true);
 
       /* Focus stays where the visitor left it, on the hero's last link, while
          the page scrolls into the film; then Tab. */
