@@ -695,7 +695,7 @@ ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
    here because this stylesheet is inlined into the homepage and the film
    source is maintained separately; html.nv-below is the film's own
    below-the-film state. */
-html.nv-below #close .cta{pointer-events:none}
+html.nv-below:not(.nv-rm) #close .cta{pointer-events:none}
 .prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:rgba(159,240,206,.45)}

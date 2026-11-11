@@ -278,20 +278,23 @@
        homepage hero (#hero) either: it is the first screen, on screen
        before anyone scrolls, and arriving is landing_page_view's to count.
        A reach is something the visitor scrolled to. */
+    /* A page with no such section still counts its scroll depth below: the
+       homepage since decision #81 is the hero and the film, nothing else. */
     var sections = document.querySelectorAll("main section[id]:not(.copy):not(#hero)");
-    if (!sections.length) return;
-    var seen = {};
-    var secIO = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        var id = en.target.id;
-        if (seen[id]) return;
-        seen[id] = 1;
-        window.nvTrack("section_reached_" + id.replace(/-/g, "_"));
-        secIO.unobserve(en.target);
-      });
-    }, { threshold: 0.35 });
-    sections.forEach(function (s) { secIO.observe(s); });
+    if (sections.length) {
+      var seen = {};
+      var secIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          var id = en.target.id;
+          if (seen[id]) return;
+          seen[id] = 1;
+          window.nvTrack("section_reached_" + id.replace(/-/g, "_"));
+          secIO.unobserve(en.target);
+        });
+      }, { threshold: 0.35 });
+      sections.forEach(function (s) { secIO.observe(s); });
+    }
 
     var marks = [25, 50, 75, 100], hit = {};
     var onDepth = function () {

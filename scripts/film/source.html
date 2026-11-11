@@ -130,7 +130,7 @@ body{
    (html.nv-below): assets/motion/site.css covers .cta there, and the scan pill
    is covered here (tests/site-truth.spec.js, "below the film"). */
 #close:not(.on) a,#close:not(.on) .fine .cta-q,
-html.nv-below #close a,html.nv-below #close .fine .cta-q{pointer-events:none}
+html.nv-below:not(.nv-rm) #close a,html.nv-below:not(.nv-rm) #close .fine .cta-q{pointer-events:none}
 /* ...and no key reaches it either (post-launch sweep F3, 2026-11-09).
    pointer-events stops a tap, not Tab: with focus left on the hero and the
    page scrolled into the film, Tab went to the ending's Book a call and Scan

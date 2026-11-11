@@ -66,6 +66,13 @@ FILM_START_CSS = (
 # Also: once the visitor scrolls past the film span into the page sections, the
 # film's fixed chrome (labels, rail, hint) yields instead of floating over them.
 #
+# ON THE STATIC PATH THE STORY IS ORDINARY TEXT, BELOW THE FILM TOO (owner
+# decision #81, 2026-11-10). With nothing left under the film but the footer,
+# a reduced-motion or no-WebGL visitor who scrolled to the ending reached
+# nv-below and the ending's text and its Book button faded to nothing; the
+# nv-below .copy rule now spares nv-rm the way the nv-above one always has
+# (tests/first-screen.spec.js).
+#
 # THE SAME CHROME YIELDS ABOVE THE FILM (launch audit HERO-1, 2026-11-09). The
 # hero (#found) sits above the film now, and the film's fixed chrome is laid out
 # for a stage pinned at the top of the screen: the pane labels are projected
@@ -108,7 +115,7 @@ film_style = film_style.replace('</style>',
     '\n' + SECTIONS_CSS + '\n'
     'body{overflow-x:clip}\n'
     'html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,'
-    'html.nv-below .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;'
+    'html.nv-below:not(.nv-rm) .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;'
     'visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}\n'
     'html.nv-above #labels,html.nv-above #paneNav,html.nv-above #hint,'
     'html.nv-above:not(.nv-rm) .copy,html.nv-above #nlabel{opacity:0 !important;pointer-events:none;'

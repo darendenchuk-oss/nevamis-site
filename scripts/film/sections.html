@@ -18,7 +18,10 @@
      Desk sizes from pricing-config.js into the generated prices region. The
      free month is said only inside the data-nv-free-month line, which ships
      hidden and which only free-month.js shows, while the engine reports a
-     place open. Nothing in the first screen carries .reveal. No em dashes.
+     place open. The button comes straight after the message, so a 360x640
+     phone has the headline, the sub and the button in its first screen
+     (decision #51, tests/first-screen.spec.js). Nothing in the first screen
+     carries .reveal. No em dashes.
      ============================================================ -->
 
 <section id="hero">
@@ -28,10 +31,10 @@
       <h1>We answer the calls you miss.</h1>
       <p class="lede">24/7, in your business's name, on your own number.</p>
       <p class="gets">You get the caller's name, number, the job, where it is and how urgent it is, by text and email within seconds.</p>
+      <div class="ctarow"><a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-minute call</a></div>
       <p class="demo">Call <a href="tel:+15874130035" data-evt="hero_live_demo_call_click">(587) 413-0035</a> and hear it answer.</p>
       <!-- generated:prices --><!-- /generated:prices -->
       <p class="terms">Plus GST/HST. No setup fee. Month to month, cancel any time.</p>
-      <div class="ctarow"><a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-minute call</a></div>
       <p class="fm" data-nv-free-month hidden><span data-nv-free-month-offer></span></p>
     </div>
   </div>

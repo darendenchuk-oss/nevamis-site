@@ -2741,6 +2741,17 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     for (const o of service.offers || []) {
       if (!names.has(o.name)) err(`index.html JSON-LD: offers ${o.name}, which the homepage does not sell (only the three Front Desk sizes)`);
     }
+    /* The Organization's priceRange is typed in scripts/film/chrome-source.html,
+       so it is held here to the sizes' smallest and largest monthly. */
+    let org = null;
+    for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+      let parsed; try { parsed = JSON.parse(m[1]); } catch { continue; }
+      org = [].concat(parsed).find((x) => x && String(x["@id"] || "").endsWith("#organization")) || org;
+    }
+    const monthlies = tiers.map((t) => t.monthly);
+    const range = monthlies.length ? NV.money(Math.min(...monthlies)) + "-" + NV.money(Math.max(...monthlies)) : null;
+    if (!org) err("index.html JSON-LD: no Organization node, so its priceRange is unjudged");
+    else if (org.priceRange !== range) err(`index.html JSON-LD: the Organization's priceRange is ${JSON.stringify(org.priceRange)}; the three Front Desk sizes run ${range} (scripts/film/chrome-source.html)`);
   }
 }
 

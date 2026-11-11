@@ -26,7 +26,7 @@
 #hero .hero-top .lede{font-size:clamp(17px,1.4vw,19px);color:var(--ink-2);max-width:46ch;
   text-wrap:pretty}
 #hero .gets{margin:14px auto 0;max-width:46ch;color:var(--ink-2);text-wrap:pretty}
-#hero .demo{margin:14px auto 0;color:var(--ink-2)}
+#hero .demo{margin:18px auto 0;color:var(--ink-2)}
 #hero .demo a{color:var(--mint);font-weight:700;white-space:nowrap}
 #hero .terms{margin:12px auto 0;font-size:14px;color:var(--ink-3)}
 #hero .hero-top .ctarow{margin-top:24px}

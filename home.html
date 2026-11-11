@@ -48,6 +48,7 @@
     "email": "Sales@nevamis.ca",
     "telephone": "+1-587-413-0035",
     "currenciesAccepted": "CAD",
+    "priceRange": "C$250-C$1,000",
     "knowsLanguage": "en-CA",
     "foundingLocation": { "@type": "Place", "name": "Edmonton, Alberta, Canada" },
     "areaServed": [
@@ -483,7 +484,7 @@ ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
   .more{display:inline-flex;align-items:center;min-height:44px}
   #paneNav button{min-height:44px}
 }
-html.nv-below #close .cta{pointer-events:none}
+html.nv-below:not(.nv-rm) #close .cta{pointer-events:none}
 .prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:rgba(159,240,206,.45)}
@@ -1288,7 +1289,7 @@ body{
   transition:transform .09s ease,box-shadow .09s ease,filter .09s ease}
 
 #close:not(.on) a,#close:not(.on) .fine .cta-q,
-html.nv-below #close a,html.nv-below #close .fine .cta-q{pointer-events:none}
+html.nv-below:not(.nv-rm) #close a,html.nv-below:not(.nv-rm) #close .fine .cta-q{pointer-events:none}
 
 #close:not(.on),body.card-open #close.on{visibility:hidden;transition:opacity .6s ease,visibility 0s linear .6s}
 
@@ -1457,7 +1458,7 @@ html.nv-intro.nv-on #labels{opacity:1;transition:opacity .9s ease .24s}
 #hero .hero-top .lede{font-size:clamp(17px,1.4vw,19px);color:var(--ink-2);max-width:46ch;
   text-wrap:pretty}
 #hero .gets{margin:14px auto 0;max-width:46ch;color:var(--ink-2);text-wrap:pretty}
-#hero .demo{margin:14px auto 0;color:var(--ink-2)}
+#hero .demo{margin:18px auto 0;color:var(--ink-2)}
 #hero .demo a{color:var(--mint);font-weight:700;white-space:nowrap}
 #hero .terms{margin:12px auto 0;font-size:14px;color:var(--ink-3)}
 #hero .hero-top .ctarow{margin-top:24px}
@@ -1490,7 +1491,7 @@ html:not(.nv-filmwait) #hero::after{content:"";position:absolute;left:0;right:0;
 @media (max-aspect-ratio:3/4){#paneNav{top:74px}}
 
 body{overflow-x:clip}
-html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,html.nv-below .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}
+html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,html.nv-below:not(.nv-rm) .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}
 html.nv-above #labels,html.nv-above #paneNav,html.nv-above #hint,html.nv-above:not(.nv-rm) .copy,html.nv-above #nlabel{opacity:0 !important;pointer-events:none;visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}
 #ncard:not(.on){visibility:hidden;transition:opacity .28s ease,visibility 0s linear .28s}
 html.nv-herocta .callbar,body.card-open .callbar{transform:translateY(110%);visibility:hidden;transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}
@@ -1528,10 +1529,10 @@ html.nv-late.nv-intro #hint:not(.off){opacity:1}
       <h1>We answer the calls you miss.</h1>
       <p class="lede">24/7, in your business's name, on your own number.</p>
       <p class="gets">You get the caller's name, number, the job, where it is and how urgent it is, by text and email within seconds.</p>
+      <div class="ctarow"><a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-minute call</a></div>
       <p class="demo">Call <a href="tel:+15874130035" data-evt="hero_live_demo_call_click">(587) 413-0035</a> and hear it answer.</p>
       <!-- generated:prices --><ul class="prices"><li><b>Front Desk Starter</b><span>C$250 a month</span><span>200 minutes</span></li><li><b>Front Desk Plus</b><span>C$500 a month</span><span>550 minutes</span></li><li><b>AI Front Desk</b><span>C$1,000 a month</span><span>1,400 minutes</span></li></ul><!-- /generated:prices -->
       <p class="terms">Plus GST/HST. No setup fee. Month to month, cancel any time.</p>
-      <div class="ctarow"><a class="btn btn-primary btn-lg" href="/book.html" data-evt="hero_book_call_click">Book a 15-minute call</a></div>
       <p class="fm" data-nv-free-month hidden><span data-nv-free-month-offer></span></p>
     </div>
   </div>

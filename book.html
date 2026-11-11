@@ -472,7 +472,7 @@ ol.proc>li::before,ol.steps>li::before{counter-increment:nvstep;
   .more{display:inline-flex;align-items:center;min-height:44px}
   #paneNav button{min-height:44px}
 }
-html.nv-below #close .cta{pointer-events:none}
+html.nv-below:not(.nv-rm) #close .cta{pointer-events:none}
 .prose a,.faq details a,.card p a,.lede a,td a{color:var(--mint);
   text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:rgba(159,240,206,.45)}
@@ -1158,8 +1158,9 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
              script, a slow or failed answer, or a closed one leaves it hidden.
              The sentence between the slots says no free-month words of its
              own (guard 7u reads the slots, a crawler reads the rest), and the
-             plans it names are the ones pricing-config.js gives freeMonths
-             to: tests/v7-booked.spec.js holds the list to the config. It has
+             plans it names are the three Front Desk sizes, each of which
+             pricing-config.js gives a free month: tests/v7-booked.spec.js
+             holds the list to the config. It has
              no button of its own: the calendar it introduces is directly
              under it.
              TWO LINES, THEN THE FULL TERMS (owner QC of PR #60, 2026-10-08):
@@ -1186,7 +1187,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
           <p id="bookFreeMonthShort" class="fm-short">Card at sign-up, nothing charged until your second month, cancel any time from your portal.</p>
           <details class="fm-terms">
             <summary>Full terms</summary>
-            <p id="bookFreeMonthHow">If a place is still open when we talk, we reserve one for your business on this call. It is for a business new to Nevamis, once per business, on <span id="bookFreeMonthWho">Front Desk Starter, Front Desk Plus, the AI Front Desk, The Works or a module bought on its own</span>. The Performance Partnership is not included.</p>
+            <p id="bookFreeMonthHow">If a place is still open when we talk, we reserve one for your business on this call. It is for a business new to Nevamis, once per business, on <span id="bookFreeMonthWho">Front Desk Starter, Front Desk Plus or the AI Front Desk</span>.</p>
             <p class="fine2" data-nv-free-month-note></p>
           </details>
         </div>
