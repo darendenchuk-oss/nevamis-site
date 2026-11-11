@@ -1,180 +1,70 @@
 /* ============================================================
-   THE FILM'S OWN CSS. Nothing else belongs in this file.
+   THE HOMEPAGE'S OWN CSS. Nothing else belongs in this file.
 
    Inlined into home.html by scripts/film/compose.py, inside the film's own
    <style> block, which scripts/lib/inline-css.mjs places AFTER
-   assets/motion/site.css. That last position is why this file has to be
-   small: anything declared here beats the shared stylesheet on the homepage
-   and on the homepage alone.
+   assets/motion/site.css. Anything declared here beats the shared
+   stylesheet on the homepage and on the homepage alone, so it stays small
+   and uses site.css tokens only.
 
-   It used to be 200 lines - a second copy of the component library (section,
-   .k, h1/h2, p.lede, .card and its crown, .card-featured, .chip, .node-list,
-   .tag, .more, .fine2, .faq, .btn-primary, .ind-*, .plan-*, .steps) scoped to
-   `main`. Every one of those rules restated a value site.css already owned, in
-   a literal instead of a token, and won. That is how the homepage came to
-   carry smaller chips, smaller tags and a different mono face than the 21
-   pages that were moved onto its system, and it meant every future edit to
-   site.css would reach those 21 pages and skip this one.
-
-   What is left is what no other page has: the seam where the film's world ends
-   and the page begins, and the six DOM stations (#doc), whose rules exist to
-   keep the film's floating pane styling (scripts/film/source.html, which
-   shares the .pane-doc class) out of them. Every value below is a site.css
-   token, so a station cannot drift from a card again.
+   The page is the hero (one message, the price, one button: owner decision
+   #81, 2026-11-10), then the film. The film's #doc section stays in the
+   document, because the film reads its station cards and named dots from
+   it, and it is not shown as a section of the page.
    ============================================================ */
 
-/* The page's first section, the section the film hands the page to, and the
-   ending carry no rule above them: the header, the seam and the ending are
-   their own boundaries. */
-#found,#recover,#next{border-top:none}
+#hero{border-top:none}
 
-/* THE SEAM: a pool of emerald light bleeding up out of the first section
-   after the film, and the site's hairline sweep drawn across the top of it.
-   It was #found's until the hero moved above the film (launch audit HERO-1,
-   2026-11-09); it stays with the seam, not with the section, because a pool
-   of light at the top of the page would sit behind the hero, and the owner
-   has asked more than once for nothing to brighten that ground. */
-#recover{padding-top:64px}
-#recover::before{content:"";position:absolute;left:0;right:0;top:-60px;height:120px;
-  background:var(--glow-pool);pointer-events:none}
-#recover::after{content:"";position:absolute;left:20%;right:20%;top:0;height:1px;
-  background:var(--glow-lit)}
-
-/* THE FIRST SCREEN (launch audit HERO-1, 2026-11-09). Plain HTML above the
-   film, on the flat page ground: no glow, no gradient, no reveal, no
-   min-height:100vh, so it is laid out and painted in the document's first
-   frame whatever the film is doing. The budget is a 360x640 phone (decision
-   #51's test size): kicker, h1, sub and Book a call inside the first screen,
-   Hear it answer and the proof line with them on anything taller.
-   tests/first-screen.spec.js measures it at 360x640, 390x844 and 1440x900.
-   #found clears the fixed 68px header by its own padding, since it is now
-   the first thing under it. */
-#found{padding-top:calc(var(--head-h) + clamp(24px,5.5vh,64px))}
-/* Wider than a section head's 640px column, so the headline sets in two lines
-   on a desktop instead of three; the sub keeps a reading measure of its own. */
-#found .hero-top{max-width:min(100%,880px)}
-/* Each word stays whole from 320px to 1920px (tests/hero-headline-fits.spec.js
-   walks seven widths): at the 34px floor "customers", the longest word, is
-   about 180px against a 280px column at 320px. text-wrap:balance sets two even
-   lines rather than a one-word orphan ("want." alone on a desktop line); words
-   still never break, and a browser without it wraps normally. */
-#found .hero-top h1{font-size:clamp(34px,5.4vw,64px);line-height:1.04;margin:0 auto 18px;
+/* THE FIRST SCREEN. Plain HTML above the film, on the flat page ground: no
+   glow, no reveal, no min-height:100vh, so it paints in the document's first
+   frame whatever the film is doing. #hero clears the fixed header by its own
+   padding, since it is the first thing under it. */
+#hero{padding-top:calc(var(--head-h) + clamp(24px,5.5vh,64px))}
+#hero .hero-top{max-width:min(100%,760px)}
+#hero .hero-top h1{font-size:clamp(34px,5.4vw,64px);line-height:1.04;margin:0 auto 14px;
   text-wrap:balance}
-#found .hero-top .lede{font-size:clamp(17px,1.4vw,19px);color:var(--ink-2);max-width:46ch;
+#hero .hero-top .lede{font-size:clamp(17px,1.4vw,19px);color:var(--ink-2);max-width:46ch;
   text-wrap:pretty}
-#found .hero-top .ctarow{margin-top:26px}
-/* The proof: three facts, each true today, each its own item so a phone
-   breaks between them rather than inside one. --ink-3 is 10.80:1 on --bg.
-   The dots are the site's label dot without its glow. */
-#found .proof{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 20px;
-  margin:20px auto 0;max-width:46rem;font-size:14px;line-height:1.5;color:var(--ink-3)}
-#found .proof span{display:inline-flex;align-items:center;gap:8px}
-#found .proof span::before{content:"";flex:none;width:5px;height:5px;border-radius:50%;
-  background:var(--emerald)}
-#found .hero-scan{margin:8px 0 0}
-/* Where the page meets the film. The film's own ground comes out of its tone
-   mapping and vignette at about rgb(0,0,2), a shade darker than the page's
-   #02080D, and with the film now BELOW a section that step drew a hard
-   horizontal edge across the screen as the stage scrolled up. The bottom
-   padding of #found fades to the film's ground instead. It darkens and never
-   brightens anything, it sits in the padding under the last line of copy, and
-   it waits for the film's first frame (nv-filmwait gone): until then the stage
-   shows the poster, whose edge IS #02080D, and the fade would draw a dark band
-   between two grounds that already match. With no WebGL there is no frame, so
-   no fade either. */
-html:not(.nv-filmwait) #found::after{content:"";position:absolute;left:0;right:0;bottom:0;
-  height:var(--sec-y);background:linear-gradient(to bottom,rgba(0,0,2,0),#000002);pointer-events:none}
-/* The Lead Generation card's own head, under the first screen. */
-#found .lg-head{margin-top:clamp(56px,9vh,104px)}
+#hero .gets{margin:14px auto 0;max-width:46ch;color:var(--ink-2);text-wrap:pretty}
+#hero .demo{margin:18px auto 0;color:var(--ink-2)}
+#hero .demo a{color:var(--mint);font-weight:700;white-space:nowrap}
+#hero .terms{margin:12px auto 0;font-size:14px;color:var(--ink-3)}
+#hero .hero-top .ctarow{margin-top:24px}
+#hero .fm{margin:14px auto 0;font-size:14px;color:var(--ink-2)}
 @media(max-width:420px){
-  /* Buttons stack edge to edge below 760px (site.css); here they also keep a
-     48px floor, the phone tap target the hero's two actions are held to. */
-  #found .hero-top .ctarow{gap:12px}
-  #found .hero-top .ctarow .btn{min-height:48px}
+  #hero .hero-top .ctarow .btn{min-height:48px}
 }
 
-/* THE SIX STATIONS. #doc is the film's own documentation section, which the
-   composed page shows in every mode. source.html styles it for the standalone
-   film, where it is a 680px column on the film's ground; here it is a section
-   of the site. */
-#doc{display:block;padding:var(--sec-y) 0;background:transparent}
-#doc .wrap{max-width:var(--col-wide)}
-#doc .doc-sub{margin-bottom:34px}
-#doc .stations{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap-stations);
-  align-items:start}
-/* the node list belongs to the film's hover cards, not to this section */
-#doc #doc-nodes{display:none}
-
-/* A station is a card. It cannot say `.card` and inherit one, because the
-   floating pane the film opens over the canvas carries the same .pane-doc
-   class and is a different object - so the card recipe is restated here for
-   the stations only, in the same tokens site.css builds a card from. */
-#doc .pane-doc{margin:0;background:var(--surface);border:1px solid var(--line);
-  border-radius:var(--r-card);padding:var(--pad-card);position:relative;overflow:hidden;
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-#doc .pane-doc::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
-  background:var(--glow-lit);opacity:.55}
-/* The highlighted station follows the lead offer: Grow carries Lead
-   Generation, which the owner ranked first on 2026-09-12. It was Convert. */
-#doc #doc-grow{border-color:var(--line-accent);box-shadow:var(--glow-bloom);
-  background-image:var(--surface-sheen),var(--surface)}
-/* The station's type is the card's type. These four rules exist only to
-   outrank source.html's pane styling, which sets a 24px title and a 15.2px
-   intro for a card that floats over the film at reading distance. */
-#doc .pane-doc h3{font-size:var(--fs-h3);font-weight:700;letter-spacing:var(--tr-h3);
-  color:var(--ink);margin:0 0 12px}
-#doc .pane-doc .intro{font-size:var(--fs-card);color:var(--ink-2);margin:0 0 12px}
-#doc .svc{margin:0 0 12px}
-#doc .svc:last-child{margin-bottom:0}
-#doc .svc p{font-size:var(--fs-card);line-height:var(--lh-body);color:var(--ink-2)}
-/* the "sold as" line under a module: the price-list name and what it needs, one step quieter */
-#doc .svc .sold{margin-top:8px;color:var(--ink-3)}
-/* The station CTA keeps the film card's filled mint pill (.pane-doc .cta2 in
-   source.html) and its dark label. This rule used to restyle only the TEXT in
-   the transparent text-link idiom (11px uppercase mono, emerald) while the pill
-   stayed filled, so the label measured 1.76:1 on its own fill and 1.00:1 on
-   hover (mint on mint). --on-mint on mint is 12.53:1 in both states. The ID
-   selector outranks the source rule, so everything the pill needs to read as a
-   button is restated here rather than inherited by accident. min-height keeps
-   the tap target above 44px on a phone (it was 39.4px). */
-#doc .cta2{font-family:inherit;font-size:var(--fs-card);font-weight:700;letter-spacing:.01em;
-  text-transform:none;color:var(--on-mint);background:var(--mint);text-decoration:none;
-  min-height:44px;line-height:var(--lh-snug)}
-#doc .cta2:hover,#doc .cta2:focus-visible{color:var(--on-mint);background:var(--mint)}
-
-/* HOMEPAGE LAYOUT. Geometry no other page has: the three offer blocks, the
-   split inside them, the four-up step strip and the plans strip site.js
-   renders. Grids and gaps only - no colour, no type, no surface. */
-.offer-card{display:grid;grid-template-columns:3fr 2fr;gap:var(--gap-offer);
-  align-items:start;margin:34px 0 18px}
-.twin{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap);margin-bottom:var(--gap)}
-.plan-row{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);margin-bottom:var(--gap)}
-/* the typed fallback list is for the visitor whose JS never runs */
-#plansStrip:not(:empty)+#plansFallbackHome{display:none}
-
-@media(max-width:1000px){
-  .steps{grid-template-columns:repeat(2,1fr)}
-  #doc .stations{grid-template-columns:repeat(2,1fr)}
-  .plan-row{grid-template-columns:1fr}
-}
-@media(max-width:760px){
-  .offer-card{grid-template-columns:1fr;gap:18px;padding:22px}
-  .twin,.steps{grid-template-columns:1fr}
-  #doc{padding:64px 0}
-  #doc .stations{grid-template-columns:1fr}
+/* THE PRICE: the three Front Desk sizes, smallest first, written by
+   scripts/build-pages.mjs from pricing-config.js. The same list sits in the
+   film's Plans card, so it is styled wherever it appears. */
+.prices{list-style:none;margin:22px auto 0;padding:0;display:grid;
+  grid-template-columns:repeat(3,1fr);gap:12px;max-width:640px;text-align:center}
+.prices li{display:flex;flex-direction:column;gap:2px;padding:14px 12px;margin:0;
+  border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface)}
+.prices b{color:var(--ink);font-size:15px}
+.prices span{color:var(--ink-2);font-size:14px}
+.pane-doc .prices{grid-template-columns:1fr;margin:12px 0}
+/* A phone: one compact row per size, the name on the left and its monthly
+   over its minutes on the right, so the button stays near the first screen. */
+@media(max-width:560px){
+  .prices{grid-template-columns:1fr;gap:8px;margin-top:18px}
+  .prices li{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px;
+    padding:10px 16px;text-align:left}
+  .prices li b{grid-row:1 / span 2}
+  .prices li span{text-align:right}
 }
 
-/* portrait: the chapter rail drops below the site header (the standalone film parked it top right,
-   where the composed page puts the menu button) */
+/* Where the page meets the film. The film's own ground comes out of its tone
+   mapping at about rgb(0,0,2), a shade darker than the page's #02080D, so the
+   bottom padding of #hero fades to it once the film has drawn its first
+   frame. It only ever darkens. */
+html:not(.nv-filmwait) #hero::after{content:"";position:absolute;left:0;right:0;bottom:0;
+  height:var(--sec-y);background:linear-gradient(to bottom,rgba(0,0,2,0),#000002);pointer-events:none}
+
+/* The film's documentation section: the station cards' source, not a
+   section of the page. */
+#doc{display:none}
+
+/* portrait: the chapter rail drops below the site header */
 @media (max-aspect-ratio:3/4){#paneNav{top:74px}}
-
-/* Touch screens: no backdrop blur on the station cards, the same trade
-   site.css makes for every other card (measured 2026-09-15: over a flat ground
-   a blur changes nothing that can be seen to change, and the alphas are
-   re-solved so the painted colour is unchanged). */
-@media (pointer:coarse){
-  #doc .pane-doc{backdrop-filter:none;-webkit-backdrop-filter:none;
-    background:var(--surface-coarse)}
-  #doc #doc-grow{background-image:var(--surface-sheen),var(--surface-coarse)}
-}

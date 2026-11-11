@@ -25,9 +25,8 @@ const CONTROLS = [
   ['/book.html', '#cbName', 'callback form'],
   /* Folded behind a summary since the ad landing audit (2026-10-08): opened first. */
   ['/book.html', '#bkName', 'scheduler prefill', '#bkPrefillWrap summary'],
-  ['/coming-soon.html', '#ifName', 'interest form'],
-  ['/', '#roiMissed', 'homepage calculator'],
-  ['/pricing.html', '.rc input', 'plan fit calculator'],
+  /* The interest form, the homepage calculator and the plan fit calculator
+     left the site with owner decision #81 (2026-11-10). */
 ];
 
 /** Contrast of the settled focus indicator against the surface behind it. */

@@ -66,11 +66,12 @@ const flat = (s) => s.replace(/\s+/g, ' ').trim();
    proposal's card is seen on a module's proposal. */
 const GATED = [
   { page: 'book.html', id: 'bookFreeMonth', url: '/book.html' },
-  { page: 'how-you-start.html', id: 'hysFreeMonth', url: '/how-you-start.html' },
-  { page: 'proposal.html', id: 'propFreeMonth', url: '/proposal.html?plan=quote_chase&to=Cedarview+Electric' },
 ];
-const BUYER_PAGES = ['book.html', 'how-you-start.html', 'pilot.html', 'proposal.html'];
-
+/* Since owner decision #81 (2026-11-10) the booking page is the one buyer
+   page left: how-you-start, the try-it page and the proposal redirect to the
+   homepage, and the homepage's own free-month line is held by
+   tests/home-simple.spec.js. */
+const BUYER_PAGES = ['book.html'];
 /* The element carrying data-nv-free-month, whole, by depth on its own tag. */
 function gatedElements(html) {
   const out = [];
@@ -134,7 +135,7 @@ async function visibleFreeMonth(page) {
    FILE TESTS: no browser, no network
    ============================================================ */
 
-test('gate: book, how-you-start and the proposal each carry one hidden, empty free-month card, wired to its carrier', () => {
+test('gate: book.html carries one hidden, empty free-month card, wired to its carrier', () => {
   for (const { page, id } of GATED) {
     const html = read(page);
     const cards = gatedElements(html);
@@ -153,7 +154,7 @@ test('gate: book, how-you-start and the proposal each carry one hidden, empty fr
   }
 });
 
-test('gate: no free-month words on the four pages outside the card, in the body, the meta, the og or the JSON-LD', () => {
+test('gate: no free-month words on book.html outside the card, in the body, the meta, the og or the JSON-LD', () => {
   const bad = [];
   for (const page of BUYER_PAGES) {
     let html = read(page);
@@ -176,47 +177,21 @@ test('gate: no free-month words on the four pages outside the card, in the body,
   expect(bad, bad.join('\n')).toEqual([]);
 });
 
-test('PILOT-2: the try-it page says no free month, gated or not, and its first action is the booked call', () => {
-  const html = read('pilot.html');
-  expect(gatedElements(html), 'pilot.html carries no free-month card').toEqual([]);
-  expect(html).not.toMatch(/free-month\.js/);
-  const cta = html.match(/<div class="cta-row">([\s\S]*?)<\/div>/);
-  expect(cta, 'pilot.html has its call-to-action row').toBeTruthy();
-  const first = cta[1].match(/<a\b[^>]*href="([^"]+)"[^>]*>/);
-  expect(first[1], 'the first action is the booked call').toBe('/book.html');
-  expect(first[0]).toMatch(/\bbtn-primary\b/);
-  /* It says what Buy now does, so nobody reads the page as an offer. */
-  expect(flat(readable(html))).toMatch(/Buy now charges your first month/);
-});
-
-test('PRICING-3: "Can I try it before I commit?" is answered without the free month, and the card is not among the questions', () => {
-  const html = read('how-you-start.html');
-  const qa = html.match(/<dl class="qa[^"]*">([\s\S]*?)<\/dl>/);
-  expect(qa, 'how-you-start.html has its questions').toBeTruthy();
-  expect(qa[1], 'the card sits outside the questions').not.toMatch(/data-nv-free-month/);
-  const tryIt = qa[1].match(/<dt>([^<]*try it[^<]*)<\/dt>\s*<dd>([\s\S]*?)<\/dd>/i);
-  expect(tryIt, 'the try-it question is still answered').toBeTruthy();
-  expect(tryIt[2]).not.toMatch(/\bfree\b/i);
-  expect(tryIt[2]).not.toMatch(/^\s*yes\b/i);
-  expect(tryIt[2]).toMatch(/Buy now charges your first month/);
-});
-
-test('who: each card names the plans the config gives a free month, and leaves out the one it does not', () => {
-  const given = P.plans.filter((p) => p.freeMonths > 0);
-  const none = P.plans.filter((p) => !(p.freeMonths > 0));
-  expect(none.map((p) => p.id), 'the Partnership carries no free month').toContain('starter');
-  const modulesGiven = P.addOns.some((a) => a.sellable && a.soldAlone && a.freeMonths > 0);
-  for (const [page, span] of [['book.html', 'bookFreeMonthWho'], ['how-you-start.html', 'hysFreeMonthWho']]) {
-    const html = read(page);
-    const card = gatedElements(html)[0].whole;
-    const who = card.match(new RegExp(`<span id="${span}">([\\s\\S]*?)</span>`));
-    expect(who, `${page}: #${span}`).toBeTruthy();
-    const list = flat(decode(who[1]));
-    for (const p of given) expect(list, `${page}: names ${p.name}`).toContain(p.name);
-    for (const p of none) expect(list, `${page}: does not offer it on ${p.name}`).not.toContain(p.name);
-    if (modulesGiven) expect(list, `${page}: names a module bought on its own`).toMatch(/\bmodule bought on its own\b/);
-    for (const p of none) expect(flat(readable(card)), `${page}: says ${p.name} is not included`).toContain(`${p.name} is not included`);
+/* Since owner decision #81 the site sells the three Front Desk sizes and
+   nothing else, so the card names those three, each one a plan the config
+   gives a free month, and no plan it does not. */
+test('who: the card names the three Front Desk sizes, each given a free month by the config', () => {
+  const sizes = P.frontDeskTiers();
+  expect(sizes.length).toBe(3);
+  const card = gatedElements(read('book.html'))[0].whole;
+  const who = card.match(/<span id="bookFreeMonthWho">([^<]*)<[/]span>/);
+  expect(who, 'book.html: #bookFreeMonthWho').toBeTruthy();
+  const list = flat(decode(who[1]));
+  for (const s of sizes) {
+    expect(list, 'names ' + s.name).toContain(s.name);
+    expect(s.freeMonths, s.name + ' carries a free month in the config').toBeGreaterThan(0);
   }
+  for (const p of P.plans.filter((x) => !sizes.includes(x))) expect(list, 'names only the sizes, not ' + p.name).not.toContain(p.name);
 });
 
 test('BOOK-1: book.html says the place is reserved for the business on this call', () => {
@@ -244,83 +219,40 @@ test('BOOK-1: the short line under the offer states only what freeMonth and term
   expect(terms[1]).toMatch(/id="bookFreeMonthWho"/);
 });
 
-test('BOOK-3: no buyer page says every figure is published, and book.html names the share as recurring, its rate in the agreement', () => {
+test('BOOK-3: book.html never says every figure is published, and offers no Partnership, Lead Generation or invitation', () => {
   const bad = [];
   for (const page of BUYER_PAGES) {
     const text = flat(readable(read(page)));
     const m = text.match(/\b(?:every|all|both)\s+(?:of\s+the\s+)?(?:figures?|prices?|numbers?)\s+(?:is|are)\s+published\b/i);
     if (m) bad.push(`${page}: "${text.slice(Math.max(0, m.index - 60), m.index + 80)}"`);
+    for (const re of [/Partnership/, /Lead Generation/i, /by invitation/i, /who you want more of/i]) {
+      const hit = text.match(re);
+      if (hit) bad.push(`${page}: says "${text.slice(Math.max(0, hit.index - 40), hit.index + 60)}"`);
+    }
   }
   expect(bad, bad.join('\n')).toEqual([]);
-  /* The Partnership's share, named as what it is, now in its own "By
-     invitation" disclosure (funnel audit item 7). */
-  const invite = read('book.html').match(/<details class="bk-invite">([\s\S]*?)<\/details>/);
-  expect(invite, 'book.html keeps the Partnership behind its By invitation disclosure').toBeTruthy();
-  const sentence = flat(decode(readable(invite[1]))).split(/(?<=\.)\s+/).find((s) => /\bshare\b/.test(s) && /\brecur/.test(s));
-  expect(sentence, 'the disclosure names the recurring share').toBeTruthy();
-  expect(sentence).toMatch(/\bset in its agreement\b/);
-  expect(sentence, 'never a rate').not.toMatch(/\d+(?:\.\d+)?\s*(?:%|per ?cent)/i);
 });
 
-/* FUNNEL AUDIT ITEM 7 (2026-10-09): above the calendar, book.html leads with
-   missed calls, its cost card is one sentence that carries the floor, and
-   the Partnership's fee is behind a disclosure, so no figure on the page
-   reads above the floor. */
-test('item 7: book.html leads with missed calls, the cost card is one sentence with the floor, and the invitation\'s fee is folded', () => {
+/* OWNER DECISION #81 (2026-11-10): the page the ads land on is a short
+   headline, three short lines on what happens on the 15-minute call, and the
+   calendar. Nothing before the calendar carries a figure; the floor is said
+   once, inside the scheduler panel. */
+test('decision #81: book.html is a headline, three lines on the call, and the calendar', () => {
   const html = read('book.html');
-  const rowAt = html.indexOf('<h2>Three things, then you decide.</h2>');
-  expect(rowAt, 'the "Three things" row is where it was').toBeGreaterThan(-1);
-  const row = html.slice(rowAt, html.indexOf('</section>', rowAt));
-  const heads = [...row.matchAll(/<h3>([^<]+)<\/h3>/g)].map((m) => m[1]);
-  expect(heads[0], 'the row leads with missed calls').toMatch(/\bcalls you miss\b/i);
-  expect(heads.indexOf('Who you want more of'), 'Lead Generation is not first').toBeGreaterThan(0);
-  const costs = html.match(/<h3>What it costs<\/h3><p>([\s\S]*?)<\/p>/);
-  expect(costs, 'book.html keeps its What it costs card').toBeTruthy();
-  const text = flat(decode(readable(costs[1])));
-  expect(text.split(/(?<=\.)\s+/).filter(Boolean), 'one sentence').toHaveLength(1);
-  expect(costs[1]).toMatch(/<span id="bookCostFrom">Plans start at C\$[\d,]+ a month, /);
-  expect(text, 'the cost card names no invitation and no fee').not.toMatch(/Partnership|Launch & Implementation/);
-  /* No figure on the page, before the scheduler, sits outside a disclosure
-     and above the floor. */
-  const before = readable(html.slice(0, html.indexOf('id="pick-a-time"')).replace(/<details class="bk-invite">[\s\S]*?<\/details>/, ' '));
-  const figures = [...before.matchAll(/C\$\s?([\d,]+)/g)].map((m) => Number(m[1].replace(/,/g, '')));
-  const floor = Math.min(...P.plans.filter((p) => p.selfServe === true && p.monthly > 0 && !(p.launch > 0)).map((p) => p.monthly));
-  expect(figures.length, 'the floor is above the calendar').toBeGreaterThan(0);
-  for (const n of figures) expect(n, 'no figure above the calendar but the floor').toBe(floor);
-});
-
-test('analytics: the free-month card on how-you-start books under a name of its own on that page, never the hero\'s', () => {
-  const html = read('how-you-start.html');
-  const card = gatedElements(html).find((g) => /\bid="hysFreeMonth"/.test(g.whole));
-  expect(card, 'how-you-start keeps #hysFreeMonth').toBeTruthy();
-  const evts = [...card.whole.matchAll(/data-evt="([^"]+)"/g)].map((m) => m[1]);
-  expect(evts, 'the card has one tracked Book a call').toHaveLength(1);
-  const [evt] = evts;
-  expect(evt, 'a click from the card is not counted as a click in the hero').not.toBe('hero_book_call_click');
-  /* Allowlisted by the engine on master and on sell/v7-integration
-     (src/app/api/events/route.ts): an unknown name is dropped silently. */
-  expect(['pricing_book_call_click']).toContain(evt);
-  const outside = html.slice(0, card.start) + html.slice(card.end);
-  expect(outside.match(new RegExp('data-evt="' + evt + '"', 'g')), 'the name fires nowhere else on the page').toBeNull();
-});
-
-test('LEGAL-18: how-you-start calls the Partnership the one PUBLISHED plan with a fee, and names Enterprise\'s floor', () => {
-  const text = flat(readable(read('how-you-start.html')));
-  expect(text).not.toMatch(/\bthe one plan with a Launch & Implementation fee\b/);
-  expect(text).toMatch(/\bthe one published plan with a Launch & Implementation fee\b/);
-  expect(text).toContain(`${P.enterprise.name} is quoted per client, its Launch & Implementation starting at ${P.money(P.enterprise.launchFrom)}.`);
-});
-
-test('PROPOSAL-2: the proposal maps "starter" and "after-hours" to the Partnership on purpose, and resolves the sizes by their own ids', () => {
-  const html = read('proposal.html');
-  const legacy = html.match(/var LEGACY = (\{[^}]*\});/);
-  expect(legacy, 'the legacy map is where it was').toBeTruthy();
-  const map = JSON.parse(legacy[1]);
-  expect(map['after-hours']).toBe('starter');
-  expect(Object.values(map), 'no legacy id points at a Front Desk size').not.toContain('front-desk-starter');
-  const partner = P.plans.find((p) => p.id === 'starter');
-  expect(partner.selfServe, '"starter" is still the Partnership\'s key').toBe(false);
-  for (const id of ['front-desk-starter', 'front-desk-plus']) expect(P.plans.some((p) => p.id === id), id).toBe(true);
+  const main = html.slice(html.indexOf('<main id="main">'), html.indexOf('</main>'));
+  expect((main.match(/<h1\b/g) || []).length).toBe(1);
+  expect(flat(readable((/<h1>([\s\S]*?)<\/h1>/.exec(main) || [])[1] || ''))).toBe('Book a 15-minute call.');
+  const lines = [...((/<ul class="bk-call">([\s\S]*?)<\/ul>/.exec(main) || [])[1] || '').matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => flat(readable(m[1])));
+  expect(lines).toEqual([
+    'Tell Daren about the calls you miss.',
+    'Hear what the agent does and what it costs.',
+    'No pressure. If it is not a fit, he will say so.',
+  ]);
+  /* Two sections: the headline, then the calendar. */
+  expect((main.match(/<section\b/g) || []).length).toBe(2);
+  const before = readable(main.slice(0, main.indexOf('id="pick-a-time"')));
+  expect(before.match(/C\$\s?\d/), 'no figure above the calendar').toBeNull();
+  for (const id of ['bkFrame', 'bkNewTab', 'bookFreeMonth', 'bookFrom', 'cbWrap']) expect(main, `#${id} stays`).toContain(`id="${id}"`);
 });
 
 /* ============================================================
@@ -384,137 +316,10 @@ for (const { page: file, id, url } of GATED) {
   });
 }
 
-test('pilot.html, open gate or not, never says the month is free', async ({ browser }) => {
-  const ctx = await browser.newContext();
-  const asked = await engine(ctx, OPEN);
-  const page = await ctx.newPage();
-  await page.goto('/pilot.html');
-  await page.waitForTimeout(600);
-  expect(asked, 'the try-it page never asks').toEqual([]);
-  expect(await visibleFreeMonth(page)).toBeNull();
-  expect(flat(await page.locator('main').innerText())).not.toMatch(/\bfree\b/i);
-  await ctx.close();
-});
-
-test('PRICING-3: with the gate open, the try-it answer on how-you-start still says no free month', async ({ browser }) => {
-  const ctx = await browser.newContext();
-  await engine(ctx, OPEN);
-  const page = await ctx.newPage();
-  await page.goto('/how-you-start.html');
-  await expect(page.locator('#hysFreeMonth')).toBeVisible();
-  const answer = page.locator('dl.qa dt:has-text("try it") + dd');
-  await expect(answer).toHaveCount(1);
-  expect(await answer.innerText()).not.toMatch(/\bfree\b/i);
-  expect(await page.locator('dl.qa [data-nv-free-month]').count()).toBe(0);
-  await ctx.close();
-});
-
-/* ---------- PROPOSAL-1: never beside a self-serve link ---------- */
-
-const FDS = P.plans.find((p) => p.id === 'front-desk-starter');
-const FDP = P.plans.find((p) => p.id === 'front-desk-plus');
-const PARTNER = P.plans.find((p) => p.id === 'starter');
-const cash = (n) => 'C$' + (Number.isInteger(n) ? n.toLocaleString('en-CA') : n.toFixed(2));
-
-for (const [qs, why] of [
-  ['?plan=pro', 'the recommended plan, with Start now'],
-  ['?plan=front-desk-starter', 'Front Desk Starter, with Start now'],
-  ['?plan=growth', 'The Works, with Start now'],
-  ['?plan=starter', 'the Partnership, which has no free month'],
-  ['?plan=bogus', 'a link that names nothing'],
-  ['', 'a bare link'],
-]) {
-  test(`PROPOSAL-1: ${why} carries no free-month card, even with the gate open, and the engine is not asked`, async ({ browser }) => {
-    const ctx = await browser.newContext();
-    const asked = await engine(ctx, OPEN);
-    const page = await ctx.newPage();
-    await page.goto('/proposal.html' + qs);
-    await page.waitForTimeout(600);
-    expect(await page.locator('#propFreeMonth').count(), 'the card is taken out of the page').toBe(0);
-    expect(asked, 'free-month.js found nothing to show, so it asked nothing').toEqual([]);
-    expect(await visibleFreeMonth(page)).toBeNull();
-    await ctx.close();
-  });
-}
-
-test('PROPOSAL-1: a plan proposal with no Start now (checkout shut) keeps the card, which shows only while a place is open', async ({ browser }) => {
-  for (const open of [true, false]) {
-    const ctx = await browser.newContext();
-    await withConfig(ctx, (s) => s.replace(/\bsellable: true,(\s*\/\* Whether a plan price)/, 'sellable: false,$1'));
-    await engine(ctx, json(200, { open, cap: CAP }));
-    const page = await ctx.newPage();
-    await page.goto('/proposal.html?plan=front-desk-plus');
-    await expect(page.locator('a[data-buy]')).toHaveCount(0);
-    await page.waitForTimeout(500);
-    if (open) await expect(page.locator('#propFreeMonth')).toBeVisible();
-    else await expect(page.locator('#propFreeMonth')).toBeHidden();
-    await ctx.close();
-  }
-});
-
-test('PROPOSAL-1: a module proposal states its monthly alone and, printed, never carries the free month', async ({ browser }) => {
-  const ctx = await browser.newContext();
-  await engine(ctx, OPEN);
-  const page = await ctx.newPage();
-  const qc = P.addOns.find((a) => a.id === 'quote_chase');
-  await page.goto('/proposal.html?plan=quote_chase');
-  await expect(page.locator('#planName')).toHaveText(qc.name.toUpperCase());
-  /* Both cases (funnel audit item 3): a module carries a free month, so the
-     line says what a reserved spot changes, and promises no spot. */
-  await expect(page.locator('#planMonthly')).toHaveText(P.startLine(qc).replace(/\.$/, '') + ', charged the day you start and every month after.'
-    + ' If a first-month-free spot has been reserved for your business, nothing is charged until your second month; the portal shows which before you pay.');
-  await expect(page.locator('#planMonthly')).not.toContainText('Launch & Implementation');
-  await expect(page.locator('#propFreeMonth')).toBeVisible();
-  await page.emulateMedia({ media: 'print' });
-  await expect(page.locator('#propFreeMonth')).toBeHidden();
-  await ctx.close();
-});
-
-test('PROPOSAL-2: the Front Desk sizes render by their own ids, with minutes and overage, and buy themselves', async ({ browser }) => {
-  const ctx = await browser.newContext();
-  await engine(ctx, json(200, { open: false, cap: CAP }));
-  const page = await ctx.newPage();
-  for (const [qs, pl] of [['front-desk-starter', FDS], ['front-desk-plus', FDP], ['front_desk_plus', FDP]]) {
-    await page.goto('/proposal.html?plan=' + qs + '&to=Cedarview+Electric');
-    await expect(page.locator('#planName'), qs).toHaveText(pl.name.toUpperCase());
-    await expect(page.locator('#planPrice'), qs).toHaveText(cash(pl.monthly) + '/month');
-    await expect(page.locator('#planIncludes'), qs).toHaveText(
-      pl.includedMinutes.toLocaleString('en-CA') + ' included AI minutes per month' + (pl.callRange ? ', about ' + pl.callRange : '')
-      + '. Additional minutes ' + cash(pl.overage) + ' each.');
-    await expect(page.locator('#planIncludes'), qs).not.toContainText('undefined');
-    await expect(page.locator('#planTerms'), qs).not.toContainText(/One-time|Launch & Implementation/);
-    const buys = await page.locator('a[data-buy]').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
-    expect(buys.length, qs).toBeGreaterThan(0);
-    for (const h of buys) expect(h, qs).toBe('https://app.nevamis.ca/signup?plan=' + pl.id);
-    /* Never the Partnership's copy. */
-    expect(await page.locator('main').innerText(), qs).not.toContain(PARTNER.name.toUpperCase());
-  }
-  await ctx.close();
-});
-
-test('PROPOSAL-2: ?plan=starter, after-hours and after_hours render the Partnership, its fee in one sentence with its share', async ({ browser }) => {
-  const ctx = await browser.newContext();
-  await engine(ctx, json(200, { open: false, cap: CAP }));
-  const page = await ctx.newPage();
-  /* after_hours: underscores become hyphens BEFORE the legacy map is read,
-     the same spelling rule as front_desk_plus. */
-  for (const qs of ['starter', 'after-hours', 'after_hours']) {
-    await page.goto('/proposal.html?plan=' + qs);
-    await expect(page.locator('#planName'), qs).toHaveText(PARTNER.name.toUpperCase());
-    const terms = flat(await page.locator('#planTerms').innerText());
-    expect(terms, qs).toContain('One-time ' + P.launchPart(PARTNER) + ', ' + PARTNER.performanceNote + '.');
-    expect(terms, qs).not.toMatch(/\.\s+plus\b/);
-    expect(await page.locator('a[data-buy]').count(), `${qs}: the Partnership is agreed, not bought`).toBe(0);
-    expect(await page.locator('main').innerText(), qs).not.toContain(FDS.name.toUpperCase());
-  }
-  await ctx.close();
-});
-
 /* ---------- every figure renders from the config ---------- */
 
 const SPANS = {
-  'how-you-start.html': ['hysTiers', 'hysWorks', 'hysPartnership', 'hysEnterprise'],
-  'book.html': ['bookPartnership', 'bookFrom', 'bookCostFrom'],
+  'book.html': ['bookFrom'],
 };
 for (const [file, ids] of Object.entries(SPANS)) {
   test(`prices: ${file} renders its figures from the config, and its no-script copy is the render`, async ({ browser }) => {
@@ -544,24 +349,18 @@ test('prices: with pricing unpublished, book.html carries no floor figure', asyn
   const page = await ctx.newPage();
   await page.goto('/book.html');
   await expect(page.locator('#bookFrom')).toHaveText('');
-  await expect(page.locator('#bookCostFrom')).not.toContainText('C$');
-  await expect(page.locator('#bookCostFrom')).toContainText('On the call you see which plan or single automation fits');
+  expect(await page.locator('main').innerText()).not.toMatch(/C\$\s?\d/);
   await ctx.close();
 });
 
-test('prices: a moved Front Desk Plus price, rate and Partnership fee reach how-you-start and book', async ({ browser }) => {
+test('prices: a moved Front Desk Starter price and minutes reach the floor line on book.html', async ({ browser }) => {
   const ctx = await browser.newContext();
   await engine(ctx, json(200, { open: false, cap: CAP }));
   await withConfig(ctx, (s) => s
-    .replace(/(id: "front-desk-plus", name: "Front Desk Plus",\s*monthly: )\d+/, '$1555')
-    .replace(/(includedMinutes: 550,\s*overage: )0\.95/, '$10.9')
-    .replace(/(id: "starter", name: "Performance Partnership",\s*monthly: 350, launch: )\d+/, '$14321'));
+    .replace(/(id: "front-desk-starter", name: "Front Desk Starter",\s*monthly: )\d+(, launch: 0, freeMonths: 1, includedMinutes: )\d+/, '$1275$2210'));
   const page = await ctx.newPage();
-  await page.goto('/how-you-start.html');
-  await expect(page.locator('#hysTiers')).toContainText('Front Desk Plus, C$555 a month with 550 minutes, then C$0.90 for each extra minute');
-  await expect(page.locator('#hysPartnership')).toContainText('C$4,321 Launch & Implementation to start');
   await page.goto('/book.html');
-  await expect(page.locator('#bookPartnership')).toContainText('C$4,321 Launch & Implementation to start');
+  await expect(page.locator('#bookFrom')).toHaveText('Plans start at C$275 a month plus GST/HST (Front Desk Starter, 210 minutes).');
   await ctx.close();
 });
 
@@ -569,11 +368,6 @@ test('prices: a moved Front Desk Plus price, rate and Partnership fee reach how-
 
 const LOOK = [
   ['book', '/book.html'],
-  ['how-you-start', '/how-you-start.html'],
-  ['pilot', '/pilot.html'],
-  ['proposal-module', '/proposal.html?plan=quote_chase&to=Cedarview+Electric'],
-  ['proposal-front-desk-plus', '/proposal.html?plan=front-desk-plus&to=Cedarview+Electric'],
-  ['proposal-partnership', '/proposal.html?plan=starter&to=Cedarview+Electric'],
 ];
 for (const width of [1440, 390]) {
   for (const open of [true, false]) {

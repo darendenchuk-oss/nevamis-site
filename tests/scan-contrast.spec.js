@@ -260,61 +260,9 @@ async function tagScanLinks(page, root) {
   }, { src: SCAN.source, root: root || null });
 }
 
-for (const vp of VIEWPORTS) {
-  test(`every scan control on the homepage is readable (${vp.name})`, async ({ browser }) => {
-    test.setTimeout(240_000);
-    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
-    await contain(context);
-    const decoder = await context.newPage();
-    const page = await context.newPage();
-    await page.goto('/home.html?debug=1&nointro=1');
-    await page.waitForFunction(() => window.__nv && window.__nv.dbg, null, { timeout: 60_000 });
-
-    const links = await tagScanLinks(page);
-    /* The film ending's quiet link, the Lead Generation ghost, the station
-       pill and the closing ghost. Fewer means a placement was removed or
-       renamed. */
-    expect(links.length, `scan links found: ${links.map((l) => l.where).join(', ')}`).toBeGreaterThanOrEqual(4);
-
-    const failures = [];
-    for (const l of links) {
-      if (l.inClose) {
-        // the film settled at its end, where the ending copy and pill are parked;
-        // the span starts below the hero since 2026-11-09 (spanTop, launch audit HERO-1)
-        await page.evaluate(() => { const d = window.__nv.dbg; window.scrollTo(0, d.spanTop + Math.ceil(d.spanH - d.vh)); });
-        await expect.poll(() => page.evaluate(() => { const d = window.__nv.dbg; return d.target > 0.999 && Math.abs(d.cur - d.target) < 0.002; }),
-          { message: 'the film never settled at its end', timeout: 60_000 }).toBe(true);
-      } else {
-        await page.evaluate((sel) => document.querySelector(sel).scrollIntoView({ block: 'center' }), l.sel);
-      }
-      await settle(page, l.sel);
-      failures.push(...await check(page, decoder, l.sel, l.where, l.inClose ? 3 : 2, l.textOnly));
-    }
-    expect(failures, `unreadable scan controls at ${vp.width}x${vp.height}:\n${failures.join('\n')}`).toEqual([]);
-    await context.close();
-  });
-
-  test(`the scan control over the aurora on solutions.html is readable (${vp.name})`, async ({ browser }) => {
-    test.setTimeout(120_000);
-    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
-    await contain(context);
-    const decoder = await context.newPage();
-    const page = await context.newPage();
-    await page.goto('/solutions.html');
-    const links = await tagScanLinks(page, '.page-hero');
-    expect(links.length, 'the hub hero offers the scan').toBeGreaterThanOrEqual(1);
-    const failures = [];
-    for (const l of links) {
-      await page.evaluate((sel) => { const e = document.querySelector(sel); if (e.getBoundingClientRect().bottom > innerHeight) e.scrollIntoView({ block: 'center' }); }, l.sel);
-      await settle(page, l.sel);
-      await page.waitForTimeout(1500);   // let the aurora reach its resting drift
-      failures.push(...await check(page, decoder, l.sel, l.where, 5));
-    }
-    expect(failures, `unreadable scan controls at ${vp.width}x${vp.height}:\n${failures.join('\n')}`).toEqual([]);
-    await context.close();
-  });
-}
-
+/* The scan links this file graded on the homepage and on solutions.html left
+   the site with owner decision #81 (2026-11-10); the film's story kickers
+   below are what is left of it to grade. */
 /* THE FILM'S STORY KICKERS READ OVER THE FLOOR GLOW (launch audit HERO-6,
    2026-11-09). "ONE QUESTION" sits on the brightest part of the floor glow at
    the first beat, and in emerald with only a text-shadow it all but vanished

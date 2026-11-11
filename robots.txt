@@ -1,9 +1,3 @@
-# /proposal.html is NOT disallowed, on purpose (PROPOSAL-4, 2026-10-03).
-# It carries <meta name="robots" content="noindex, nofollow">, and a crawler
-# barred from fetching a page never reads its noindex: it may still list the
-# bare URL from links alone, including a ?to= link with a business name in it.
-# Letting crawlers fetch it is what keeps it out of the index.
-
 User-agent: *
 Allow: /
 

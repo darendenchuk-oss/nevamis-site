@@ -272,42 +272,29 @@
      event per major section, plus depth milestones. Names only, no properties. */
   (function () {
     if (typeof window.IntersectionObserver !== "function") return;
-    /* Not the film's story blocks (section.copy: #s1, #s2, #s3, #close). Since
-       the homepage hero moved above the film (launch audit HERO-1, 2026-11-09),
-       <main> opens before the film and holds them, and they are
-       position:fixed at mid-screen with only their opacity changing, so an
-       observer sees all four "reached" on load for every visitor: four events
-       that would mean nothing.
-       Not the homepage hero either (#found, launch review, 2026-11-09). It is
-       the page's first screen now, 1,063 to 1,371px tall, so 47% to 85% of it
-       is on screen before anyone scrolls, over the 0.35 below: it fired for
-       every visitor on load. The engine counts every section_reached_* towards
-       its "Looked at the offer" funnel stage (src/domain/funnel.ts), so that
-       stage read the same as "Landed" for homepage traffic and would hide a
-       homepage that persuades nobody. Arriving is landing_page_view's to
-       count; a reach is something the visitor scrolled to. So the homepage's
-       first reach is the first section past the film, #recover.
-       section_reached_found stops here rather than going on with a new
-       meaning: until the hero moved it meant "reached the Lead Generation
-       offer below the film", and firing on load for everyone it would have
-       read as a jump in that history at the deploy, not a change in
-       visitors. tests/analytics.spec.js holds both: nothing is reached on
-       load at 360x640, 390x844 or 1440x900, and #recover still is once
-       scrolled to. */
-    var sections = document.querySelectorAll("main section[id]:not(.copy):not(#found)");
-    if (!sections.length) return;
-    var seen = {};
-    var secIO = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        var id = en.target.id;
-        if (seen[id]) return;
-        seen[id] = 1;
-        window.nvTrack("section_reached_" + id.replace(/-/g, "_"));
-        secIO.unobserve(en.target);
-      });
-    }, { threshold: 0.35 });
-    sections.forEach(function (s) { secIO.observe(s); });
+    /* Not the film's story blocks (section.copy: #s1, #s2, #s3, #close):
+       they are position:fixed at mid-screen with only their opacity
+       changing, so an observer sees all four "reached" on load. Not the
+       homepage hero (#hero) either: it is the first screen, on screen
+       before anyone scrolls, and arriving is landing_page_view's to count.
+       A reach is something the visitor scrolled to. */
+    /* A page with no such section still counts its scroll depth below: the
+       homepage since decision #81 is the hero and the film, nothing else. */
+    var sections = document.querySelectorAll("main section[id]:not(.copy):not(#hero)");
+    if (sections.length) {
+      var seen = {};
+      var secIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          var id = en.target.id;
+          if (seen[id]) return;
+          seen[id] = 1;
+          window.nvTrack("section_reached_" + id.replace(/-/g, "_"));
+          secIO.unobserve(en.target);
+        });
+      }, { threshold: 0.35 });
+      sections.forEach(function (s) { secIO.observe(s); });
+    }
 
     var marks = [25, 50, 75, 100], hit = {};
     var onDepth = function () {
@@ -417,40 +404,6 @@
     var headerState = function () { siteHeader.classList.toggle("scrolled", window.scrollY > 40); };
     window.addEventListener("scroll", headerState, { passive: true });
     headerState();
-  }
-
-  /* ---------- mobile nav ----------
-     While the menu is open it owns the screen (BP9, 2026-09-25): the page
-     behind it is locked (html.nav-locked, so a swipe on the menu cannot
-     scroll the page out from under it), Escape closes it and puts focus
-     back on the button, and a link tap closes it. It also closes if the
-     window widens past the width the menu exists at, which would otherwise
-     leave the page locked behind a row of links. */
-  var navBtn = document.querySelector(".nav-toggle");
-  var nav = document.querySelector(".main-nav");
-  if (navBtn && nav) {
-    var setNav = function (open) {
-      nav.classList.toggle("open", open);
-      document.documentElement.classList.toggle("nav-locked", open);
-      navBtn.setAttribute("aria-expanded", String(open));
-      navBtn.textContent = open ? "✕" : "☰";
-    };
-    navBtn.addEventListener("click", function () { setNav(!nav.classList.contains("open")); });
-    nav.addEventListener("click", function (e) {
-      if (e.target.closest && e.target.closest("a") && nav.classList.contains("open")) setNav(false);
-    });
-    document.addEventListener("keydown", function (e) {
-      if ((e.key === "Escape" || e.key === "Esc") && nav.classList.contains("open")) {
-        setNav(false);
-        navBtn.focus();
-      }
-    });
-    if (typeof window.matchMedia === "function") {
-      var menuWidth = window.matchMedia("(max-width:1080px)");
-      var onWidth = function () { if (!menuWidth.matches && nav.classList.contains("open")) setNav(false); };
-      if (menuWidth.addEventListener) menuWidth.addEventListener("change", onWidth);
-      else if (menuWidth.addListener) menuWidth.addListener(onWidth);
-    }
   }
 
   /* ---------- the call bar steps aside for the scheduler ----------
@@ -792,272 +745,6 @@
     }, { threshold: .3 }).observe(psteps[0]);
   } else { psteps.forEach(function (p) { p.classList.add("active"); }); }
 
-  /* ---------- ROI calculator ---------- */
-  /* ROI-MATH BEGIN. The calculator's arithmetic, pure: raw field values in,
-     figures out, no DOM. check-consistency guard 7n cuts this block out of
-     site.js and runs it, so keep it self-contained (no outside names).
-
-     Every input is clamped before anything else, as revenue-engine.html's
-     copy of the same formula already was: counts and dollars to >= 0, the two
-     percentages to 0..100. Until 2026-09-25 this took the fields as typed, so
-     -10 missed calls rendered "$-5,196" and a 150% close rate was accepted.
-
-     Two break-evens, each under its own name. "won" is the fewest WON jobs
-     whose value covers the plan, so the close rate is not in it; "inquiries"
-     is the real inquiries you must answer to win that many at your close
-     rate. One row showed the second under the first's name until 2026-09-24
-     (5 "won jobs" at the defaults, where 3 cover the plan). Either is null
-     when it cannot be reached (no job value; a 0% close rate), never 0.
-
-     "inquiries" is derived FROM "won", as its row says: the inquiries you
-     must answer to win that many jobs at your close rate. Until 2026-09-25
-     it was worked out from the dollars instead (plan / (job value x close
-     rate)), which assumes you can win half a job, so at the defaults the
-     page said 3 won jobs and then 5 inquiries, and 5 inquiries at 50% win
-     2.5 jobs, not 3 (BD-6). */
-  function roiFigures(raw) {
-    function num(v) { var n = parseFloat(v); return isFinite(n) ? n : 0; }
-    function count(v) { return Math.max(0, num(v)); }
-    function share(v) { return Math.min(100, Math.max(0, num(v))) / 100; }
-    var missed = count(raw.missed), real = share(raw.real), value = count(raw.value);
-    var close = share(raw.close), quote = count(raw.quote);
-    var opp = missed * 4.33 * real * value * close;
-    var won = value > 0 ? Math.ceil(quote / value) : null;
-    return {
-      missed: missed, value: value, close: close, quote: quote,
-      opp: opp,
-      recovered: opp * 0.5, /* conservative: capture half of what currently hits voicemail */
-      won: won,
-      /* Less a hair before rounding up: 3 / 0.3 is 10.000000000000002 in
-         binary, and ceil() of that would ask for one inquiry too many. */
-      inquiries: won !== null && close > 0 ? Math.ceil(won / close - 1e-9) : null
-    };
-  }
-  /* ROI-MATH END */
-  var roiForm = document.getElementById("roiForm");
-  if (roiForm) {
-    var out = {
-      opp: document.getElementById("roiOpp"),
-      rec: document.getElementById("roiRec"),
-      be: document.getElementById("roiBe"),
-      beRow: document.getElementById("roiBeRow"),
-      inq: document.getElementById("roiInq"),
-      inqRow: document.getElementById("roiInqRow"),
-      /* The narrow-screen compact estimate. A second PRESENTATION of the same
-         number, never a second calculation: it is written from the oppValue
-         computed below, in the same pass, so the two can never disagree. */
-      mini: document.getElementById("roiMini")
-    };
-    var announced = document.getElementById("roiLive");
-    function money(v) { return "$" + Math.round(v).toLocaleString("en-CA"); }
-    function field(id) { var el = document.getElementById(id); return el ? el.value : ""; }
-    var NO_VALUE = "Not reachable: enter an average job value";
-    var NO_CLOSE = "Not reachable at a 0% close rate";
-    function calc() {
-      var f = roiFigures({
-        missed: field("roiMissed"), real: field("roiReal"), value: field("roiValue"),
-        close: field("roiClose"), quote: field("roiQuote")
-      });
-      var oppValue = f.opp, recovered = f.recovered;
-      if (out.opp) out.opp.textContent = money(oppValue);
-      if (out.mini) out.mini.textContent = money(oppValue);
-      if (out.rec) out.rec.textContent = money(recovered);
-      var showBe = f.quote > 0;
-      var wonText = f.won === null ? NO_VALUE
-        : f.won + (f.won === 1 ? " won job" : " won jobs") + " per month";
-      var inqText = f.inquiries === null ? (f.value > 0 ? NO_CLOSE : NO_VALUE)
-        : f.inquiries + (f.inquiries === 1 ? " real inquiry" : " real inquiries") + " per month";
-      if (out.beRow) { out.beRow.hidden = !showBe; if (out.be && showBe) out.be.textContent = wonText; }
-      if (out.inqRow) { out.inqRow.hidden = !showBe; if (out.inq && showBe) out.inq.textContent = inqText; }
-      if (announced) {
-        announced.textContent = "Estimated opportunity " + money(oppValue) + " per month, conservative recovery "
-          + money(recovered) + " per month."
-          + (showBe ? " Won jobs that cover the monthly: " + wonText + ". Real inquiries needed at your close rate: " + inqText + "." : "");
-      }
-    }
-    /* The comparison figure is PREFILLED FROM pricing-config.js, not from the
-       markup. The markup literal is only the no-JS fallback. This existed as a
-       hardcoded value="449" and shipped a price retired 2026-08-06 to
-       production, under a label that named it "the Growth plan": invisible to
-       every guard, because none of them read input attributes and none of the
-       pricing renderers touched this field. Reading it from the same record
-       the price cards read means the two cannot disagree again. Runs BEFORE
-       the first calc() so the break-even row is computed from the real
-       figure. */
-    var quoteEl = document.getElementById("roiQuote");
-    var NVP = window.NV_PRICING;
-    if (quoteEl && NVP && NVP.approved && Array.isArray(NVP.plans)) {
-      var recPlan = NVP.plans.filter(function (pl) { return pl.recommended; })[0]
-        || NVP.plans[0];
-      if (recPlan && Number(recPlan.monthly) > 0) {
-        quoteEl.value = String(Number(recPlan.monthly));
-        var planLabel = document.getElementById("roiQuotePlan");
-        if (planLabel && recPlan.name) planLabel.textContent = recPlan.name;
-      }
-    }
-
-    roiForm.addEventListener("input", calc);
-    roiForm.addEventListener("submit", function (e) { e.preventDefault(); calc(); });
-    /* roi_calculator_complete means a VISITOR used the calculator: it is sent
-       once, on their first edit. Until 2026-09-25 it was sent from inside
-       calc(), and the first calc() below runs on load with the defaults
-       (missed > 0 and value > 0), so every homepage load counted as "ran the
-       calculator" in the engine's funnel. The name is unchanged because the
-       engine's events allowlist accepts only that one; the dated note in
-       docs/analytics-events.md says which rows before this change are page
-       loads. */
-    roiForm.addEventListener("input", function roiFirstEdit() {
-      roiForm.removeEventListener("input", roiFirstEdit);
-      window.nvTrack("roi_calculator_complete");
-    });
-    calc();
-  }
-
-  /* ---------- the homepage plans strip ----------
-     Every figure here is rendered from window.NV_PRICING at runtime. No price
-     is ever typed into the homepage HTML: a retired figure once shipped to
-     production inside an input attribute because nothing that read
-     pricing-config.js was looking at the markup. The sentence shape and the
-     grouping helper are copied from pricing.html so the two pages cannot say
-     the same number differently. A plan with selfServe:false shows no monthly
-     and no percentage: it is offered by invitation, never as a price.
-     Add-on rows are derived from the stations actually on the page, so an
-     add-on the page does not describe can never be priced here. */
-  var PS = document.getElementById("plansStrip");
-  var NVP2 = window.NV_PRICING;
-  if (PS && NVP2 && NVP2.approved && Array.isArray(NVP2.plans)) {
-    var grp = function (n) { return Number(n).toLocaleString("en-CA"); };
-    /* NV_PRICING.startLine's sentence, without its full stop: "C$X a month"
-       for a plan or module with no Launch & Implementation fee, and the fee,
-       "to start" and "then" where there is one (v7). It is what Buy now
-       charges, so it never says the first month is free: that is given on a
-       booked call, and only free-month.js may say it. A config without the
-       helper (a stale cached copy) falls back to the monthly alone rather
-       than to a fee that no longer exists. */
-    var sentence = function (x) {
-      return typeof NVP2.startLine === "function" ? NVP2.startLine(x).replace(/\.$/, "")
-        : "C$" + grp(x.monthly) + " a month";
-    };
-    var esc = function (s) {
-      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    };
-    /* The three Front Desk sizes are one receptionist in three sizes (owner
-       amendment #67), so the strip gives them one card, smallest first, with
-       the minutes leading each line, where the first of them falls in the
-       config's order. NVP2.frontDeskTiers() says which plans they are. */
-    var sizes = typeof NVP2.frontDeskTiers === "function" ? NVP2.frontDeskTiers() : [];
-    if (sizes.length < 2) sizes = [];
-    var sizesCard = function () {
-      var fs = NVP2.frontDeskSizes || {};
-      var c = '<div class="card' + (sizes.some(function (s) { return s.recommended; }) ? " card-featured" : "") + '">';
-      c += "<h3>" + esc(fs.heading || "The front desk") + "</h3>";
-      if (fs.note) c += "<p>" + esc(fs.note) + "</p>";
-      c += '<ul class="node-list">';
-      sizes.forEach(function (s) {
-        c += "<li><span><strong>" + esc(s.name) + "</strong>"
-          + ": " + grp(s.includedMinutes) + " included minutes, " + esc(sentence(s))
-          + ", C$" + s.overage.toFixed(2) + " per extra minute."
-          + (s.recommended && NVP2.recommendedLabel ? ' <span class="chip rec">' + esc(NVP2.recommendedLabel) + "</span>" : "")
-          + "</span></li>";
-      });
-      c += "</ul><p>No performance fee.</p></div>";
-      return c;
-    };
-    var html = '<div class="plan-row">';
-    var sizesDone = false;
-    NVP2.plans.forEach(function (pl) {
-      if (sizes.indexOf(pl) >= 0) {
-        if (!sizesDone) { html += sizesCard(); sizesDone = true; }
-        return;
-      }
-      html += '<div class="card' + (pl.recommended ? " card-featured" : "") + '">';
-      html += "<h3>" + esc(pl.name)
-        + (pl.recommended && NVP2.recommendedLabel ? ' <span class="chip rec">' + esc(NVP2.recommendedLabel) + "</span>" : "")
-        + "</h3>";
-      if (pl.selfServe === false) {
-        /* Still no figure on an invitation-only card: the share in words,
-           from its performanceNote clause, and its inviteNote. The pricing
-           page states its figures. */
-        html += '<p class="price">By invitation.</p>';
-        var share = String(pl.performanceNote || "").replace(/^plus /, "");
-        if (share) html += "<p>" + esc(share.charAt(0).toUpperCase() + share.slice(1)) + ".</p>";
-        if (pl.inviteNote) html += "<p>" + esc(pl.inviteNote) + "</p>";
-      } else {
-        html += '<p class="price">' + esc(sentence(pl)) + ".</p>";
-        if (pl.bestFor) html += "<p>" + esc(pl.bestFor) + "</p>";
-        if (pl.performanceNote == null) html += "<p>No performance fee.</p>";
-      }
-      html += "</div>";
-    });
-    html += "</div>";
-    if (NVP2.enterprise) {
-      html += '<div class="card"><h3>' + esc(NVP2.enterprise.name) + "</h3>";
-      if (NVP2.enterprise.launchFrom) {
-        html += '<p class="price">Launch &amp; Implementation starting at C$'
-          + grp(NVP2.enterprise.launchFrom) + ".</p>";
-      }
-      if (NVP2.enterprise.note) html += "<p>" + esc(NVP2.enterprise.note) + "</p>";
-      html += "</div>";
-    }
-    var onPage = [].slice.call(document.querySelectorAll("#doc .svc[data-addon]"))
-      .map(function (el) { return el.getAttribute("data-addon"); });
-    var rows = (NVP2.addOns || []).filter(function (a) {
-      return a.sellable && a.monthly && onPage.indexOf(a.id) >= 0;
-    }).sort(function (a, b) {
-      return (a.id === "quote_chase" ? -1 : 0) - (b.id === "quote_chase" ? -1 : 0);
-    });
-    if (rows.length) {
-      html += '<div class="card"><ul class="node-list">';
-      rows.forEach(function (a) {
-        html += "<li>" + esc(a.name) + ": " + esc(sentence(a))
-          + '<span class="tag mono">ADD-ON</span></li>';
-      });
-      /* "Every other add-on" is only true while one is left out. Since
-         2026-09-24 the stations describe all four sold modules, so every
-         priced add-on is already in this list, and the sentence would point
-         a buyer at a pricing page for modules that do not exist. It follows
-         the list instead of assuming it. */
-      var leftOut = (NVP2.addOns || []).filter(function (a) {
-        return a.sellable && a.monthly && onPage.indexOf(a.id) < 0;
-      }).length;
-      html += '</ul><p class="fine2">'
-        + (leftOut ? "Every other add-on is on the " : "Every plan and add-on, side by side, is on the ")
-        + '<a class="more" href="/pricing.html">pricing page</a>.</p></div>';
-    }
-    if (NVP2.terms && NVP2.terms.note) {
-      html += '<p class="fine2">' + esc(NVP2.terms.note)
-        + (NVP2.taxNote ? " " + esc(NVP2.taxNote) : "") + "</p>";
-    }
-    PS.innerHTML = html;
-
-    /* The film's own PLANS station carried these four figures as typed HTML.
-       They were invisible while .nv-live hid #doc, and went live the moment
-       that section became the page's six stations. They matched the config on
-       the day, which is exactly how a retired figure reached production once
-       before: nothing was keeping them in sync. They render from the same
-       record as the strip now, so there is one source and no drift. */
-    [].slice.call(document.querySelectorAll("[data-plan-price]")).forEach(function (el) {
-      var key = el.getAttribute("data-plan-price");
-      if (key === "enterprise") {
-        var ent = NVP2.enterprise;
-        if (ent && ent.launchFrom) {
-          el.textContent = "Launch & Implementation starting at C$" + grp(ent.launchFrom)
-            + " or custom quoted; the recurring amount and any performance component are quoted per client.";
-        }
-        return;
-      }
-      var pl = NVP2.plans.filter(function (p) { return p.id === key; })[0];
-      if (!pl) return;
-      el.textContent = (pl.selfServe === false) ? "By invitation." : sentence(pl) + ".";
-    });
-
-    /* the wedge's own price line, same record, same sentence */
-    var qr = document.getElementById("qrPrice");
-    var qa = (NVP2.addOns || []).filter(function (a) {
-      return a.id === "quote_chase" && a.sellable && a.monthly;
-    })[0];
-    if (qr && qa) qr.textContent = qa.name + ": " + sentence(qa) + ".";
-  }
   } catch (err) {
     /* Fail open: restore the CSS safety state so all content is visible. */
     try { document.documentElement.classList.add("no-js"); } catch (e2) {}

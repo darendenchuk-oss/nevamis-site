@@ -102,15 +102,16 @@ test('PRICING-9: llms.txt never has the agent take the job or the time the calle
   const booking = /\btakes? (?:the job|the time|the slot)\b|\b(?:the )?times? (?:they|the caller) wants?\b/i;
   const bad = llmsSentences().filter((s) => booking.test(s));
   expect(bad, bad.join('\n')).toEqual([]);
-  /* The true statement is still made: it does not book, and a person at the
-     business confirms. */
-  expect(llmsSentences().some((s) => /\bdoes NOT book into a calendar\b/.test(s) && /\bconfirms\b/.test(s))).toBe(true);
+  /* The true statement is still made: it books nothing (owner decision #81
+     cut llms.txt to what the agent does, and nothing else). */
+  expect(llmsSentences().some((s) => /\bit books nothing\b/.test(s))).toBe(true);
 });
 
 test('MACHINE-24: every sitemap page but the homepage carries one BreadcrumbList and one page node', () => {
   const PAGE_TYPES = new Set(['WebPage', 'AboutPage', 'ContactPage', 'CollectionPage']);
   const locs = [...read('sitemap.xml').matchAll(/<loc>https:\/\/nevamis\.ca\/([^<]*)<\/loc>/g)].map((m) => m[1]);
-  expect(locs.length, 'sitemap.xml lists its pages').toBeGreaterThan(15);
+  const mapped = JSON.parse(read('content-map.json')).pages.filter((p) => p.url && p.sitemap !== false);
+  expect(locs.length, 'sitemap.xml lists every sitemap page in content-map.json').toBe(mapped.length);
   const bad = [];
   for (const loc of locs) {
     if (loc === '') continue; // the homepage: Organization, Service, FAQPage

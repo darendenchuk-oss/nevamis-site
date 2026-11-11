@@ -147,8 +147,12 @@ if (fs.existsSync(FREE_MONTH_SRC)) {
   }
 }
 
+const CONTENT_MAP = JSON.parse(fs.readFileSync(path.join(root, 'content-map.json'), 'utf8'));
 const PAGES = [
-  ...JSON.parse(fs.readFileSync(path.join(root, 'content-map.json'), 'utf8')).pages.map((p) => p.file),
+  ...CONTENT_MAP.pages.map((p) => p.file),
+  /* The retired pages' redirect stubs (scripts/build-content.mjs): each
+     carries one inline script, which its policy has to allow. */
+  ...(CONTENT_MAP.redirects || []),
   'talk/index.html',
 ];
 

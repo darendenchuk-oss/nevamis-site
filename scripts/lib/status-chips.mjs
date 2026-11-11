@@ -26,6 +26,13 @@
    and both are true of an available entry. Nothing else may widen a status. */
 export const STATUS_SYNONYMS = { available: ["available today"] };
 
+/* The words the Roadmap page (coming-soon.html) showed for each status, as
+   its renderer had them on the day owner decision #81 (2026-11-10) retired
+   that page to a redirect. The film's station cards on the homepage still
+   carry roadmap chips, so the labels they are held to live here now. */
+export const STATUS_LABELS = { available: "AVAILABLE NOW", private_pilot: "BY INVITATION", planned: "PLANNED",
+  researching: "BEING RESEARCHED", paused: "PAUSED" };
+
 const norm = (s) => String(s).replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&")
   .replace(/\s+/g, " ").trim().toLowerCase();
 

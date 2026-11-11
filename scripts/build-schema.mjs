@@ -105,11 +105,6 @@ function inject(html, json) {
 // Homepage: the service itself, its plans, and the FAQ
 // ---------------------------------------------------------------
 const home = fs.readFileSync('home.html', 'utf8');
-const faq = faqFrom(home);
-if (faq.length < 5) {
-  console.error(`Only found ${faq.length} FAQ entries — refusing to write a thin FAQPage.`);
-  process.exit(1);
-}
 
 /* Derived, never typed. `desc` states the included minutes and the plan's own
    "best for" line, both of which already live in the config. */
@@ -190,7 +185,14 @@ function priceSpecFor(item) {
   };
 }
 
-const PLANS = NV.plans.map((p) => ({
+/* The homepage sells the three Front Desk sizes and nothing else (owner
+   decision #81, 2026-11-10), so the structured data offers exactly those. */
+const TIERS = typeof NV.frontDeskTiers === 'function' ? NV.frontDeskTiers() : [];
+if (TIERS.length !== 3) {
+  console.error('pricing-config.js did not yield three Front Desk sizes; refusing to write the homepage offers from that.');
+  process.exit(1);
+}
+const PLANS = TIERS.map((p) => ({
   name: p.name,
   selfServe: p.selfServe,
   spec: priceSpecFor(p),
@@ -215,34 +217,6 @@ const PLANS = NV.plans.map((p) => ({
     + ` ${p.includedMinutes.toLocaleString('en-CA')} included minutes. ${p.bestFor}`,
 }));
 
-/* Every module the config sells with nothing beside it gets its own Offer
-   (MACHINE-17: Quote Recovery, door two, was invisible to machines). Read off
-   the catalog's own flags and never listed by hand, so a module that becomes
-   sellable appears on the next build and one that is not sold alone never
-   does: Lead Generation is by invitation and has no pair of its own, and
-   Search Rankings and Customer Reactivation are coming. Walked in the
-   catalog's order, which is the order the pricing page lists them in. */
-const MODULES = (NV.addOns || [])
-  .filter((a) => a.sellable === true && a.soldAlone === true)
-  .map((a) => {
-    /* A monthly is required; a fee is not, since v7 put every module's at
-       0. Until then this refused a module without both. */
-    if (!(a.monthly > 0) || typeof a.launch !== 'number') {
-      console.error(`pricing-config.js sells ${a.id} alone but gives it no monthly, or no launch field; refusing to publish an Offer without its price.`);
-      process.exit(1);
-    }
-    return {
-      name: a.name,
-      selfServe: true,
-      spec: priceSpecFor(a),
-      desc: `${NV.startLine(a)} Sold on its own, month to month, with no plan required. ${a.blurb}`,
-    };
-  });
-if (!MODULES.length) {
-  console.error('pricing-config.js sells no module on its own, which is not the catalog this was written for; refusing to drop every module Offer silently.');
-  process.exit(1);
-}
-
 const offerOf = (p, category) => ({
   '@type': 'Offer',
   name: p.name,
@@ -253,37 +227,25 @@ const offerOf = (p, category) => ({
   availability: p.selfServe === false
     ? 'https://schema.org/LimitedAvailability'
     : 'https://schema.org/InStock',
-  url: `${SITE}/pricing.html`,
+  url: `${SITE}/`,
 });
 
 const service = {
   '@context': 'https://schema.org',
   '@type': 'Service',
   '@id': `${SITE}/#service`,
-  /* The name said "Call Answering and Lead Capture Service" while the page it
-     sits on leads with Lead Generation and Quote Recovery: the structured data
-     described the third of three offers as the whole product. Owner ranking of
-     2026-09-12: customers found first, quotes second, the phone third.
-     "by invitation" since 2026-11-09 (TRUTH-3): an answer engine can quote a
-     name on its own, and check-consistency's readiness guard now reads the
-     name of every Service, Product and Offer node, not only descriptions. */
-  name: 'Lead Generation by invitation, Quote Recovery and call answering for Canadian trades',
-  /* Answer engines quote serviceType verbatim, so it may only name things the
-     service actually provisions. It said "appointment booking" while a
-     provisioned agent has no calendar credential and no booking tool: the
-     structured data was making a promise the phone line refuses to keep, on
-     the one surface a prospect never gets to sanity-check. */
-  serviceType: 'Lead Generation by invitation, quote follow-up, and 24/7 call answering with structured lead capture',
-  /* "by invitation" is load-bearing, not decoration: check-consistency's
-     readiness guard reads every JSON-LD description on this page and fails any
-     that names a capability roadmap-config.js does not mark available without a
-     word saying it is not here yet. lead-generation is private_pilot. */
+  /* Answer engines quote these verbatim, so they say what the agent does and
+     nothing else: it answers the calls a business misses, on the business's
+     own number through call forwarding, 24/7, asks what the caller needs,
+     where and how urgent, takes their name and number, and texts and emails
+     the owner within seconds. It books nothing. */
+  name: 'Missed-call answering for Canadian trades',
+  serviceType: "24/7 answering of missed calls, with the caller's details texted and emailed to the owner",
   description:
-    'Nevamis finds a trades or service business more of the customers it wants ' +
-    '(Lead Generation, by invitation: a person reads public pages and builds the list, ' +
-    'the owner decides every row, and nobody on it is contacted), follows up the quotes ' +
-    'it already sent with the owner\'s approval, and answers its phone around the clock, ' +
-    'texting and emailing the owner each call\'s details within seconds.',
+    "Nevamis answers the calls a trades or service business misses, 24/7, in the business's name, " +
+    'on its own number through call forwarding. It asks the caller what they need, where it is and ' +
+    'how urgent it is, takes their name and callback number, and texts and emails the owner those ' +
+    'details within seconds.',
   provider: { '@id': `${SITE}/#organization` },
   areaServed: [
     { '@type': 'Country', name: 'Canada' },
@@ -293,65 +255,30 @@ const service = {
     '@type': 'BusinessAudience',
     name: 'Service businesses and trades: electrical, HVAC, plumbing, restoration, automotive',
   },
-  offers: [
-    ...PLANS.map((p) => offerOf(p, 'Plan')),
-    ...MODULES.map((m) => offerOf(m, 'Module sold on its own')),
-  ],
+  offers: PLANS.map((p) => offerOf(p, 'Plan')),
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
-    name: 'Nevamis plans and modules',
-    itemListElement: [
-      ...PLANS.map((p) => ({
-        '@type': 'Offer',
-        itemOffered: { '@type': 'Service', name: `${p.name} plan`, description: p.desc },
-      })),
-      ...MODULES.map((m) => ({
-        '@type': 'Offer',
-        itemOffered: { '@type': 'Service', name: m.name, description: m.desc },
-      })),
-    ],
+    name: 'Nevamis Front Desk sizes',
+    itemListElement: PLANS.map((p) => ({
+      '@type': 'Offer',
+      itemOffered: { '@type': 'Service', name: `${p.name} plan`, description: p.desc },
+    })),
   },
 };
 
-const faqPage = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  '@id': `${SITE}/#faq`,
-  mainEntity: faq.map((f) => ({
-    '@type': 'Question',
-    name: f.q,
-    acceptedAnswer: { '@type': 'Answer', text: f.a },
-  })),
-};
-
-fs.writeFileSync('home.html', inject(home, [service, faqPage]));
-console.log(`home.html: Service (${PLANS.length} plans, ${MODULES.length} modules sold alone) + FAQPage (${faq.length} questions)`);
+fs.writeFileSync('home.html', inject(home, [service]));
+console.log(`home.html: Service (${PLANS.length} Front Desk sizes)`);
 
 // ---------------------------------------------------------------
 // Secondary pages: breadcrumb trail + a typed WebPage
 // ---------------------------------------------------------------
 const PAGES = [
-  { file: 'pricing.html', name: 'Pricing', type: 'WebPage' },
-  /* Was '7-Day Live Pilot' at /pilot.html. The breadcrumb stopped naming the
-     retired offer on 2026-08-09 and the page itself left that URL on
-     2026-09-19, because the filename was the last place the word still showed
-     to a reader. /pilot.html is still served, as a noindex holding page that
-     answers "can I try it first" and points here, and it is deliberately NOT
-     in this list: a page that asks not to be indexed has no use for a
-     breadcrumb trail. */
-  { file: 'how-you-start.html', name: 'How you start', type: 'WebPage' },
-  { file: 'demo.html', name: 'Demo', type: 'WebPage' },
   { file: 'book.html', name: 'Book a call', type: 'ContactPage' },
-  { file: 'about.html', name: 'About', type: 'AboutPage' },
-  { file: 'coming-soon.html', name: 'Roadmap', type: 'WebPage' },
-  { file: 'revenue-engine.html', name: 'Revenue Engine', type: 'WebPage' },
   { file: 'privacy.html', name: 'Privacy', type: 'WebPage' },
   { file: 'terms.html', name: 'Terms', type: 'WebPage' },
-  /* The page /.well-known/security.txt names as its Policy. That line pointed
-     at SECURITY.md on github.com until 2026-09-24, which is not a nevamis.ca
-     address and stops resolving the day the repository goes private. */
+  /* The page /.well-known/security.txt names as its Policy. */
   { file: 'security.html', name: 'Security', type: 'WebPage' },
-];
+]
 
 for (const p of PAGES) {
   if (!fs.existsSync(p.file)) { console.warn(`skip ${p.file} (missing)`); continue; }

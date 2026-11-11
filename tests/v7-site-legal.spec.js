@@ -254,7 +254,8 @@ for (const url of PAGES) {
         if (await foot.count()) {
           const text = await foot.innerText();
           for (const t of TIERS) expect(text, `the footer names ${t.name}`).not.toContain(t.name);
-          expect(text).toMatch(/\bthe front desk answers the calls you cannot\b/);
+          /* The footer's one line since owner decision #81 (2026-11-10). */
+          expect(text).toContain("We answer the calls you miss, 24/7, in your business's name.");
         }
         await ctx.close();
       });

@@ -59,32 +59,17 @@ function config() {
 }
 const RETIRED_SHAPE = /\bmonthly band\b|\bfrom C\$2,500 Launch\b|C\$2,500 Launch (?:&|and) Implementation|C\$250 to C\$500/i;
 
-test('BD-4 (v7): the rendered Partnership card states its fixed figures, and no band', async ({ page }) => {
-  const P = config();
-  const partner = P.plans.find((p) => p.selfServe === false);
-  expect(partner.monthlyRange, 'the Partnership carries no monthly band since v7').toBeUndefined();
-  expect(partner.launchRange, 'the Partnership carries no fee band since v7').toBeUndefined();
-  await page.goto('/pricing.html');
-  /* Found by its name: since the funnel audit (2026-10-09, item 1) the price
-     list renders smallest first and the Partnership, by invitation, last. */
-  const card = page.locator('#plans .plan').filter({ has: page.locator('h3', { hasText: partner.name }) });
-  await expect(card).toHaveCount(1);
-  await expect(page.locator('#plans .plan').last().locator('h3')).toHaveText(partner.name);
-  const t = (await card.innerText()).replace(/\s+/g, ' ');
-  expect(t).toContain(P.startLine(partner));
-  expect(t).not.toMatch(RETIRED_SHAPE);
-});
-
 test('BD-4 (v7): no surface this leaf writes for a crawler or an answer engine states a Partnership band or a retired fee', () => {
-  const P = config();
-  const partner = P.plans.find((p) => p.selfServe === false);
-  for (const f of ['pricing.html', 'llms.txt']) {
+  /* Since owner decision #81 (2026-11-10) llms.txt and the homepage's
+     structured data state the three Front Desk sizes and no Partnership at
+     all; the retired shapes must stay gone from both. */
+  for (const f of ['llms.txt']) {
     const raw = fs.readFileSync(f, 'utf8').replace(/&amp;/g, '&').replace(/\s+/g, ' ');
     expect(raw, `${f} states a retired Partnership shape`).not.toMatch(RETIRED_SHAPE);
   }
   const blocks = [...fs.readFileSync('index.html', 'utf8').matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]).join(' ');
-  expect(blocks, 'the homepage structured data carries the fixed sentence').toContain(P.startLine(partner));
   expect(blocks).not.toMatch(RETIRED_SHAPE);
+  expect(blocks, 'the homepage structured data offers no Partnership').not.toMatch(/Partnership/);
 });
 
 /* ---------- BD-1: nothing connects to a CRM outside Enterprise ---------- */
@@ -113,14 +98,6 @@ test('BD-11: the privacy page names Missed-Call Recovery, not a retired name', (
 
 /* ---------- BD-2: the example greeting is the approved one ---------- */
 
-test('BD-2: the demo transcript opens with the approved greeting and names no persona', () => {
-  const t = textOf('demo.html');
-  /* canonical.ts approvedGreeting with {business} = Cedarview Electric. */
-  expect(t).toContain("Hi, you've reached Cedarview Electric. This call may be recorded to help us handle your requests and improve services. How can we help you?");
-  expect(t).not.toMatch(/\bAva\b/);
-  expect(t).not.toMatch(/\bThis is [A-Z][a-z]+\b/);
-});
-
 /* ---------- BD-7: the book page promises what the scheduler offers ---------- */
 
 test('BD-7: the book page promises video, points phone callers to the callback, and drops "optional prefill"', () => {
@@ -130,29 +107,11 @@ test('BD-7: the book page promises video, points phone callers to the callback, 
   const placeholders = [...fs.readFileSync('book.html', 'utf8').matchAll(/placeholder="([^"]*)"/g)].map((m) => m[1]);
   expect(placeholders.length).toBeGreaterThan(0);
   for (const p of placeholders) expect(p, 'a placeholder is what goes in the field, not a note about it').not.toMatch(/optional|prefill/i);
-  expect(t).toMatch(/Prefer the phone\?/);
+  /* Phone callers are pointed at the callback, under the calendar. */
+  expect(t).toMatch(/Leave your number instead/);
 });
 
 /* ---------- BD-9: the roadmap's true status ---------- */
-
-test('BD-9: the roadmap lists the Review Engine as available, and the Revenue Engine carries one status', async ({ page }) => {
-  await page.goto('/coming-soon.html');
-  const now = page.locator('#gridNow .svc', { has: page.locator('h3', { hasText: /^Review Engine$/ }) });
-  await expect(now).toHaveCount(1);
-  await expect(now.locator('.status')).toHaveText('AVAILABLE NOW');
-  const re = page.locator('.svc', { has: page.locator('h3', { hasText: /^Revenue Engine$/ }) });
-  await expect(re).toHaveCount(1);
-  /* Every status the page gives the Revenue Engine: its card chip, its
-     journey button and the scenario's link. One string, in any case. */
-  const said = [
-    await re.locator('.status').innerText(),
-    (await page.locator('.j-mod[data-mod="revenue"]').innerText()).match(/\(([^)]+)\)/)[1],
-    await page.locator('.scenario a[href="/revenue-engine.html"]').innerText(),
-  ].map((s) => s.trim().toLowerCase());
-  expect(new Set(said), `the Revenue Engine is labelled ${said.join(' / ')}`).toEqual(new Set(['in development']));
-  const body = (await page.locator('main').innerText()).replace(/\s+/g, ' ');
-  expect(body).not.toMatch(/\bpilot\b/i);
-});
 
 /* ---------- BP1: the homepage header turns solid ---------- */
 
@@ -178,134 +137,12 @@ test('BP1: on a phone the homepage header is solid once the page has scrolled', 
 
 /* ---------- BP2: the chooser's coverage lines ---------- */
 
-test('BP2: each "Your coverage" line reads as one line, and each price appears once', async ({ browser }) => {
-  const ctx = await phone(browser);
-  const page = await ctx.newPage();
-  await page.goto('/pricing.html');
-  const leaks = page.locator('#leaks button');
-  const read = () => page.evaluate(() => {
-    const out = document.querySelector('.chooser-out');
-    const lis = [...out.querySelectorAll('.node-list li')].map((li) => {
-      const kids = [...li.childNodes].filter((n) => n.nodeType === 1 || n.textContent.trim());
-      const strong = li.querySelector('strong');
-      const lh = strong ? parseFloat(getComputedStyle(strong).lineHeight) || 24 : 0;
-      return { kids: kids.length, text: li.textContent.trim(), name: strong ? strong.textContent : null,
-        strongW: strong ? strong.getBoundingClientRect().width : null,
-        strongLines: strong ? Math.round(strong.getBoundingClientRect().height / lh) : null };
-    });
-    return { lis, text: out.textContent.replace(/\s+/g, ' ') };
-  });
-  const check = (r) => {
-    for (const li of r.lis) {
-      expect(li.kids, `"${li.text}" is one text box`).toBe(1);
-      expect(li.text[0], `"${li.text}" starts with a comma`).not.toBe(',');
-      if (li.strongW === null) continue;
-      /* The defect was the name squeezed into a 37px column three lines
-         tall. A name sits on one line, and a long one is not narrow. */
-      expect(li.strongLines, `the name in "${li.text}" wraps into a column`).toBeLessThanOrEqual(1);
-      if (li.name.length >= 12) expect(li.strongW, `the name in "${li.text}" is a squeezed column`).toBeGreaterThan(80);
-    }
-    const prices = r.text.match(/C\$[\d,]+ Launch & Implementation to start, then C\$[\d,]+ a month/g) || [];
-    expect(new Set(prices).size, `a price is stated twice: ${prices.join(' | ')}`).toBe(prices.length);
-  };
-  await leaks.nth(0).click();              /* the front desk alone */
-  check(await read());
-  await leaks.nth(2).click();              /* plus one automation */
-  check(await read());
-  for (let i = 1; i < 5; i++) if (i !== 2) await leaks.nth(i).click(); /* everything: the bundle */
-  check(await read());
-  await ctx.close();
-});
-
 /* ---------- BP3 and BD-8: the menu ---------- */
 
-async function menuRows(page) {
-  return page.evaluate(() => [...document.querySelectorAll('.main-nav.open a:not(.btn)')].map((a) => {
-    const b = a.getBoundingClientRect();
-    return { t: a.textContent.trim(), d: getComputedStyle(a).display, top: b.top, bottom: b.bottom, h: b.height };
-  }));
-}
-
-for (const url of ['/', '/pricing.html']) {
-  test(`BP3: every phone-menu link on ${url} is its own row at least 44px tall`, async ({ browser }) => {
-    const ctx = await phone(browser);
-    const page = await ctx.newPage();
-    await page.goto(url, { waitUntil: 'load' });
-    await page.locator('.nav-toggle').click();
-    const rows = await menuRows(page);
-    expect(rows.length).toBeGreaterThanOrEqual(8);
-    rows.forEach((r, i) => {
-      expect(['block', 'flex'], `${r.t} is ${r.d}`).toContain(r.d);
-      expect(r.h, `${r.t} is ${r.h}px tall`).toBeGreaterThanOrEqual(44);
-      if (i) expect(r.top, `${r.t} overlaps ${rows[i - 1].t}`).toBeGreaterThanOrEqual(rows[i - 1].bottom - 0.5);
-    });
-    await ctx.close();
-  });
-}
-
-for (const width of [900, 1024, 1080]) {
-  test(`BD-8: at ${width}px Roadmap, About and Client login are reachable`, async ({ browser }) => {
-    const ctx = await browser.newContext({ viewport: { width, height: 800 } });
-    await ctx.route(/^https:\/\/app\.nevamis\.ca\//, (r) => r.fulfill({ status: 204, body: '' }));
-    const page = await ctx.newPage();
-    await page.goto('/pricing.html');
-    const mins = page.locator('.main-nav a.nav-min');
-    await expect(mins).toHaveCount(3);
-    if (!(await mins.first().isVisible())) {
-      await expect(page.locator('.nav-toggle'), 'the links are hidden, so the menu button must be there').toBeVisible();
-      await page.locator('.nav-toggle').click();
-    }
-    for (const t of ['Roadmap', 'About', 'Client login']) {
-      await expect(page.locator('.main-nav a.nav-min', { hasText: t })).toBeVisible();
-    }
-    await ctx.close();
-  });
-}
-
+/* The menu left the header with owner decision #81 (2026-11-10): the header
+   is the wordmark and the one Book button, and the pages the menu reached
+   redirect to the homepage. */
 /* ---------- BP9: the open menu owns the screen ---------- */
-
-test('BP9: a swipe does not scroll the page behind the open menu, and Escape closes it', async ({ browser }) => {
-  const ctx = await phone(browser);
-  const page = await ctx.newPage();
-  await page.goto('/pricing.html', { waitUntil: 'load' });
-  await page.locator('.nav-toggle').tap();
-  await expect(page.locator('.main-nav')).toHaveClass(/open/);
-  const cdp = await ctx.newCDPSession(page);
-  const swipe = async (x, y0, y1) => {
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y: y0 }] });
-    for (let i = 1; i <= 10; i++) {
-      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y0 + (y1 - y0) * i / 10 }] });
-      await page.waitForTimeout(16);
-    }
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-    await page.waitForTimeout(600);
-  };
-  const s0 = await page.evaluate(() => scrollY);
-  await swipe(200, 300, 100);   /* on the menu */
-  await swipe(200, 780, 300);   /* on the page below it */
-  expect(await page.evaluate(() => scrollY), 'the page scrolled behind the open menu').toBe(s0);
-  await page.keyboard.press('Escape');
-  await expect(page.locator('.main-nav')).not.toHaveClass(/open/);
-  await expect(page.locator('.nav-toggle')).toHaveAttribute('aria-expanded', 'false');
-  expect(await page.evaluate(() => document.activeElement && document.activeElement.classList.contains('nav-toggle')),
-    'focus goes back to the menu button').toBe(true);
-  /* and the page scrolls again */
-  await swipe(200, 700, 300);
-  expect(await page.evaluate(() => scrollY)).toBeGreaterThan(s0);
-  await ctx.close();
-});
-
-test('BP9: a link tap closes the menu and unlocks the page', async ({ browser }) => {
-  const ctx = await phone(browser);
-  const page = await ctx.newPage();
-  await page.goto('/', { waitUntil: 'load' });
-  await page.locator('.nav-toggle').click();
-  await expect(page.locator('html')).toHaveClass(/nav-locked/);
-  await page.locator('.main-nav a[href="/#how"]').click();
-  await expect(page.locator('.main-nav')).not.toHaveClass(/open/);
-  await expect(page.locator('html')).not.toHaveClass(/nav-locked/);
-  await ctx.close();
-});
 
 /* ---------- BP4: tap targets ---------- */
 
@@ -326,35 +163,17 @@ test('BP4: the named phone tap targets are at least 44px tall, and footer links 
   };
   await page.goto('/', { waitUntil: 'load' });
   await tall('#paneNav button', 'the homepage chapter numerals');
-  await tall('main a.more', 'the homepage text CTAs');
+  await tall('#hero a.btn', 'the homepage Book button');
   await tall('.site-footer .cols a', 'the footer links');
   const foot = await page.evaluate(() => [...document.querySelectorAll('.site-footer .cols > div')].map((col) =>
     [...col.querySelectorAll('a')].map((a) => { const b = a.getBoundingClientRect(); return { t: a.textContent.trim(), top: b.top, bottom: b.bottom }; })));
   for (const col of foot) {
     col.forEach((r, i) => { if (i) expect(r.top, `${r.t} overlaps ${col[i - 1].t}`).toBeGreaterThanOrEqual(col[i - 1].bottom - 0.5); });
   }
-  await page.goto('/revenue-engine.html', { waitUntil: 'load' });
-  await tall('main a.more', 'the revenue page card links');
   await ctx.close();
 });
 
 /* ---------- BP5: a jump clears the header ---------- */
-
-test('BP5: "What every plan includes" lands its heading below the fixed header', async ({ browser }) => {
-  const ctx = await phone(browser);
-  const page = await ctx.newPage();
-  await page.goto('/pricing.html', { waitUntil: 'load' });
-  const link = page.locator('a[href="#everyPlanCard"]').first();
-  await link.scrollIntoViewIfNeeded();
-  await link.tap();
-  await page.waitForTimeout(1200);
-  const r = await page.evaluate(() => ({
-    top: document.getElementById('everyPlanCard').getBoundingClientRect().top,
-    head: document.querySelector('.site-header').getBoundingClientRect().height,
-  }));
-  expect(r.top, `the heading sits at ${r.top}px under a ${r.head}px header`).toBeGreaterThanOrEqual(r.head);
-  await ctx.close();
-});
 
 /* ---------- BP6: the call bar and the scheduler ---------- */
 
@@ -365,14 +184,14 @@ test('BP6: on the book page the call bar steps aside while the scheduler is on s
   const bar = page.locator('a.callbar');
   const shown = () => bar.evaluate((el) => getComputedStyle(el).visibility === 'visible'
     && el.getBoundingClientRect().top < innerHeight);
+  /* Since owner decision #81 the scheduler is on a phone's first screen, so
+     the bar is out of the way from the top of the page, and stays so over
+     the frame. */
   await page.waitForTimeout(400);
-  expect(await shown(), 'at the top of the page the bar is there').toBe(true);
+  expect(await shown(), 'at the top of the page the scheduler is on screen, so the bar is out of the way').toBe(false);
   await page.evaluate(() => document.getElementById('bkFrame').scrollIntoView({ block: 'center' }));
   await page.waitForTimeout(800);
   expect(await shown(), 'over the scheduler the bar is out of the way').toBe(false);
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.waitForTimeout(800);
-  expect(await shown(), 'back at the top it returns').toBe(true);
   await ctx.close();
 });
 
@@ -400,7 +219,8 @@ test('below the film, the button in the middle of the screen is the one a tap re
     const film = document.getElementById('close').closest('[id]');
     const out = [];
     let tested = 0;
-    const links = [...document.querySelectorAll('main a.btn')].filter((a) => !a.closest('#close') && a.offsetParent);
+    /* Below the film there is only the footer since owner decision #81. */
+    const links = [...document.querySelectorAll('footer.site-footer a')].filter((a) => a.offsetParent);
     for (const a of links) {
       a.scrollIntoView({ block: 'center' });
       await new Promise((r) => setTimeout(r, 120));
@@ -415,7 +235,7 @@ test('below the film, the button in the middle of the screen is the one a tap re
   });
   /* Without this an empty page, or one where nv-below never turns on, would
      measure nothing and pass. */
-  expect(hits.tested, 'no button below the film was measured with the film scrolled past').toBeGreaterThan(0);
-  expect(hits.out, 'buttons below the film whose centre the hidden film CTA takes').toEqual([]);
+  expect(hits.tested, 'no link below the film was measured with the film scrolled past').toBeGreaterThan(0);
+  expect(hits.out, 'links below the film whose centre the hidden film CTA takes').toEqual([]);
   await ctx.close();
 });

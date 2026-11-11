@@ -47,9 +47,9 @@ import path from 'node:path';
 const OUT = path.resolve('artifacts/motion-proof');
 const PLAIN = '/home.html';
 /* A secondary page that loads the motion layer (assets/motion/main.js), which
-   the film homepage deliberately does not. pricing.html is the page a buyer
-   is most likely to reach, so it is the one worth proving. */
-const MOTION_PAGE = '/pricing.html';
+   the film homepage deliberately does not. book.html is the page a buyer
+   reaches from every Book button, so it is the one worth proving. */
+const MOTION_PAGE = '/book.html';
 
 test.beforeAll(() => { fs.mkdirSync(OUT, { recursive: true }); });
 
@@ -64,137 +64,6 @@ function watchErrors(page, sink) {
   page.on('console', (m) => { if (m.type() === 'error') sink.push(`console: ${m.text()}`); });
   page.on('pageerror', (e) => sink.push(`pageerror: ${e.message}`));
 }
-
-test('the homepage plans strip renders every plan from the single source of truth', async ({ page }) => {
-  const errors = [];
-  watchErrors(page, errors);
-  await page.goto(PLAIN);
-
-  /* Every assertion below reads the config. The previous version pinned
-     "After Hours", "C$249", "C$449", "from C$849" and "two months free" into
-     the test: five retired facts, four of them retired prices and one an
-     annual offer that has been switched off since 2026-08-06. The plan names
-     and the numbers had all moved on, so this test could only ever fail, and
-     while it failed it was still the thing standing guard over the homepage's
-     price cards. A test that hardcodes the answer stops being a guard the
-     first time the answer legitimately changes.
-
-     REPOINTED 2026-09-25 (FP3): the cards it read, #pricePreview .price-card,
-     left with the pre-film homepage. The film homepage prices its plans in
-     #plansStrip, rendered by site.js from the same NV_PRICING, so that is
-     where the same rules are proved now. */
-  const cfg = await page.evaluate(() => {
-    const P = window.NV_PRICING;
-    /* Every figure the config charges anywhere: a plan's, an add-on's, or the
-       Enterprise floor. A number on the retired list below that the config
-       charges again today is not retired, and sweeping for it would fail the
-       correct page (C$750 was a retired monthly and is an add-on launch fee
-       now). */
-    const charged = new Set();
-    for (const x of [...P.plans, ...(P.addOns || [])]) {
-      for (const k of ['monthly', 'launch']) if (x[k]) charged.add(Number(x[k]));
-    }
-    if (P.enterprise && P.enterprise.launchFrom) charged.add(Number(P.enterprise.launchFrom));
-    /* The Front Desk sizes (v7, owner amendment #67) share one card, so the
-       cards are the other plans in order with that card where the first
-       size falls. */
-    const sizes = typeof P.frontDeskTiers === 'function' ? P.frontDeskTiers() : [];
-    const sizeIds = sizes.length > 1 ? sizes.map((s) => s.id) : [];
-    return {
-      plans: P.plans.filter((p) => !sizeIds.includes(p.id)).map((p) => ({
-        name: p.name, monthly: p.monthly, launch: p.launch,
-        recommended: !!p.recommended, selfServe: p.selfServe !== false,
-      })),
-      sizes: sizeIds.length ? sizes.map((p) => ({
-        name: p.name, monthly: p.monthly, minutes: p.includedMinutes, overage: p.overage,
-      })) : [],
-      sizesAt: sizeIds.length ? P.plans.filter((p, i) => !sizeIds.includes(p.id) && i < P.plans.findIndex((x) => sizeIds.includes(x.id))).length : -1,
-      recommendedLabel: P.recommendedLabel,
-      recommendedName: (P.plans.find((p) => p.recommended) || {}).name,
-      annualActive: !!(P.annual && P.annual.active),
-      charged: [...charged],
-      /* 150 and 850 joined the list on 2026-08-09 with the paid pilot and the
-         old Pro price. The list only ever grows: every entry is a number a
-         real page published, and the reason C$249, C$449 and C$849 lingered is
-         that the sweep once checked C$49 alone. */
-      retired: [49, 150, 197, 249, 397, 449, 450, 499, 750, 797, 849, 850, 1800],
-    };
-  });
-
-  const cards = page.locator('#plansStrip .plan-row .card');
-  await expect(cards).toHaveCount(cfg.plans.length + (cfg.sizes.length ? 1 : 0));
-
-  const grp = (n) => Number(n).toLocaleString('en-CA');
-  const figures = (s) => [...s.matchAll(/C\$([\d,]+(?:\.\d+)?)/g)].map((m) => Number(m[1].replace(/,/g, '')));
-  if (cfg.sizes.length) {
-    /* One card, every size smallest first, minutes leading each line, and
-       no figure but each size's own monthly and overage. */
-    const card = cards.nth(cfg.sizesAt);
-    await expect(card).toContainText('Same receptionist, answers 24/7');
-    const text = await card.innerText();
-    let at = -1;
-    for (const s of cfg.sizes) {
-      const line = `${s.name}: ${grp(s.minutes)} included minutes, C$${grp(s.monthly)} a month, C$${s.overage.toFixed(2)} per extra minute.`;
-      expect(text, `the sizes card states ${s.name} as "${line}"`).toContain(line);
-      expect(text.indexOf(line), 'the sizes run smallest first').toBeGreaterThan(at);
-      at = text.indexOf(line);
-    }
-    const allowed = new Set(cfg.sizes.flatMap((s) => [s.monthly, s.overage]));
-    expect(figures(text).filter((n) => !allowed.has(n)), 'the sizes card carries a figure no size charges').toEqual([]);
-  }
-  for (const [j, plan] of cfg.plans.entries()) {
-    const i = cfg.sizes.length && j >= cfg.sizesAt ? j + 1 : j;
-    const card = cards.nth(i);
-    await expect(card).toContainText(plan.name);
-    const text = await card.innerText();
-    if (!plan.selfServe) {
-      /* A plan offered by invitation is never shown as a price: a figure
-         beside it reads as something a visitor can buy. */
-      await expect(card, `${plan.name} is by invitation`).toContainText(/by invitation/i);
-      expect(figures(text), `${plan.name} is by invitation and must carry no price`).toEqual([]);
-      continue;
-    }
-    /* Its own two figures, and nothing else. This pair of assertions was
-       inverted twice while the model changed underneath it (monthly alone,
-       then setup plus monthly, then one price). What survived every version
-       is the rule: the card states what this plan charges and puts no other
-       figure beside it for a reader to add up. */
-    await expect(card, `${plan.name} must state its monthly price`).toContainText(`C$${grp(plan.monthly)} a month`);
-    /* A fee only where the plan carries one (v7: none on a self-serve plan). */
-    if (plan.launch > 0) await expect(card, `${plan.name} must state its launch fee`).toContainText(`C$${grp(plan.launch)}`);
-    expect(figures(text).filter((n) => n !== plan.monthly && n !== plan.launch),
-      `${plan.name} carries a figure the config does not charge for it`).toEqual([]);
-  }
-
-  /* The badge used to say "MOST COMMON", a statistic about a client base that
-     does not exist. Asserting the CONFIGURED label proves the badge renders
-     from the single source of truth without insisting on any claim, and the
-     card is found by the FLAG, not by a plan name that can be renamed. */
-  expect(cfg.recommendedLabel, 'pricing-config must define recommendedLabel').toBeTruthy();
-  /* One badge, beside the recommended plan's own name: on its card, or on
-     its line in the sizes card when it is a Front Desk size (v7). */
-  expect(cfg.recommendedName, 'a plan must be marked recommended').toBeTruthy();
-  const badges = await page.evaluate(() => [...document.querySelectorAll('#plansStrip .chip.rec')]
-    .map((c) => ({ text: c.textContent.trim(), around: (c.closest('li') || c.closest('h3') || c).textContent })));
-  expect(badges.length, 'exactly one recommended badge').toBe(1);
-  expect(badges[0].text).toBe(cfg.recommendedLabel);
-  expect(badges[0].around, 'the badge sits beside the recommended plan').toContain(cfg.recommendedName);
-
-  /* Annual prepay is suspended. Advertising "two months free" against a yearly
-     figure nobody approved is inventing a price. */
-  if (!cfg.annualActive) {
-    await expect(page.locator('#plansStrip')).not.toContainText('two months free');
-  }
-
-  /* Every retired price, in one sweep over the whole page. */
-  const body = await page.locator('body').innerText();
-  for (const n of cfg.retired.filter((x) => !cfg.charged.includes(x))) {
-    expect(body, `retired price C$${n} must not appear on the homepage`)
-      .not.toMatch(new RegExp(`C\\$${grp(n)}(?!,?\\d)`));
-  }
-  await expect(page.locator('body')).not.toContainText('Pay As You Go');
-  expect(errors, errors.join('\n')).toEqual([]);
-});
 
 /* THE CALL PLAYER IS GONE, AND THIS TEST NO LONGER PRETENDS OTHERWISE.
    2026-09-19, owner decision B1(b).
@@ -223,89 +92,6 @@ test('the homepage plans strip renders every plan from the single source of trut
    data-audio lines and the chips back, restore the block from this file's
    history (it was the body of this test) and point it at /demo.html rather
    than at the homepage. */
-test('the demo transcript is the corrected call, with no half-wired player left behind', async ({ page }) => {
-  await page.goto('/demo.html');
-  const card = page.locator('#callCard');
-  await card.scrollIntoViewIfNeeded();
-  await expect(card).toBeVisible();
-
-  // the eleven turns are all there and readable, audio or no audio
-  await expect(card.locator('.line')).toHaveCount(11);
-  await expect(card.locator('.line p').first()).toBeVisible();
-
-  /* The correction itself: the agent notes the time the caller asked for and
-     says the office will get back to them. Since 2026-10-03 (site PR #42) it no
-     longer says the office "will confirm the exact time": only a client with a
-     booking link has the agent say that (engine agent-draft.ts, BOOKING), and
-     the content guard's confirm-time-promise rule now refuses it. The retired
-     lines are asserted against by name, because they are what the deleted
-     recording and the earlier correction said. */
-  await expect(card).toContainText('someone from the office will get back to you');
-  await expect(card).not.toContainText(/will confirm the exact time/i);
-  await expect(card).not.toContainText(/you'?re booked/i);
-  await expect(card).not.toContainText(/we'?ll see you tomorrow/i);
-
-  /* Nothing left that invites a press. Each of these is a piece of the player:
-     the button, its label, the waveform, the timer, the per-line audio the
-     player reads, and the highlight it paints. */
-  for (const url of ['/demo.html', PLAIN]) {
-    await page.goto(url);
-    for (const sel of ['#playBtn', '#playLabel', '#callWave', '#callTimer', '[data-audio]', '.line.speaking']) {
-      await expect(page.locator(sel), `${url} still carries ${sel} from the retired call player`).toHaveCount(0);
-    }
-  }
-
-  await page.goto('/demo.html');
-  await card.scrollIntoViewIfNeeded();
-  await page.screenshot({ path: path.join(OUT, 'section-call-proof.png') });
-});
-
-test('the ROI calculator computes and shows break-even with a quote', async ({ page }) => {
-  await page.goto(PLAIN);
-  await page.locator('#roiMissed').scrollIntoViewIfNeeded();
-
-  // defaults: 10 × 4.33 × .6 × 400 × .5 = 5196
-  await expect(page.locator('#roiOpp')).toHaveText('$5,196');
-  await expect(page.locator('#roiRec')).toHaveText('$2,598');
-
-  /* The default is PREFILLED FROM pricing-config.js by site.js, so assert it
-     against the config rather than against a literal. The markup carried
-     value="449" - a price retired 2026-08-06 - into production, and this test
-     could not have noticed, because it opened by TYPING 449 into the field.
-     A suite that types a retired figure onto the page it is guarding poisons
-     any page-wide scan for that figure, so the typed value is now 675: a
-     number this business has never charged, which is the point of it. */
-  const growth = await page.evaluate(() =>
-    (window.NV_PRICING.plans.find((p) => p.recommended) || window.NV_PRICING.plans[0]).monthly);
-  await expect(page.locator('#roiQuote')).toHaveValue(String(growth));
-  const recName = await page.evaluate(() =>
-    (window.NV_PRICING.plans.find((p) => p.recommended) || window.NV_PRICING.plans[0]).name);
-  await expect(page.locator('#roiQuotePlan')).toHaveText(recName);
-
-  await page.locator('#roiQuote').fill('675');
-  await expect(page.locator('#roiBeRow')).toBeVisible();
-  await expect(page.locator('#roiBe')).toContainText('won jobs per month');
-});
-
-test('FAQ items open, close, and stay keyboard operable', async ({ page }) => {
-  await page.goto(PLAIN);
-  const first = page.locator('.faq details').first();
-  await first.scrollIntoViewIfNeeded();
-
-  await first.locator('summary').click();
-  await expect(first).toHaveAttribute('open', '');
-  await expect(first.locator('p')).toBeVisible();
-
-  await first.locator('summary').click();
-  await expect(first).not.toHaveAttribute('open', '');
-
-  // keyboard: focus + Enter opens
-  await first.locator('summary').focus();
-  await page.keyboard.press('Enter');
-  await expect(first).toHaveAttribute('open', '');
-  await page.screenshot({ path: path.join(OUT, 'section-faq.png') });
-});
-
 /* REPOINTED 2026-09-25 (FP3): it waited on window.__heroTL on the film
    homepage, which never loads the motion layer, so it timed out on every
    run. The rings are installed by assets/motion/sonar.js on the pages that
@@ -346,35 +132,26 @@ test('funnel diagnostics fire without leaking anything personal', async ({ page 
   await page.goto(PLAIN);
   await page.waitForFunction(() => Array.isArray(window.nvEvents));
 
-  // walk the page so section + depth events accumulate, the way a visitor
-  // reads it. Not by fixed fractions of the page: the film is ten viewports
-  // of one sticky stage between the hero and #recover, and none of it is a
-  // counted section (site.js leaves out its fixed story blocks, and the hero,
-  // which is on screen before anyone scrolls). A seven-stop walk at 15% to
-  // 100% put four stops inside the film and stepped over most sections below
-  // it: measured at 1440x900 it reached #roi, #start and #next and nothing
-  // else, and it met the four below only because the hero counted itself on
-  // load, which was the defect (launch review, 2026-11-09). So the walk goes
-  // from the top of #recover to the end, half a viewport at a time. The jump
-  // to #recover crosses every depth milestone up to 50% in one scroll, which
-  // is how a fast scroll through the film reports too.
-  const from = await page.evaluate(() => Math.round(document.getElementById('recover').getBoundingClientRect().top + scrollY));
-  for (let y = from; ; ) {
+  /* Walk the page the way a visitor reads it, half a viewport at a time,
+     from the top to the end. Since owner decision #81 (2026-11-10) the page
+     is the hero, the film and the footer: no section a visitor scrolls to is
+     counted (site.js leaves out the hero and the film's fixed story blocks),
+     so what a walk reports is how far it got. */
+  for (let y = 0; ; ) {
     const max = await page.evaluate((top) => {
       const end = document.documentElement.scrollHeight - window.innerHeight;
       window.scrollTo({ top: Math.min(top, end), behavior: 'instant' });
       return end;
     }, y);
-    await page.waitForTimeout(250);
+    await page.waitForTimeout(150);
     if (y >= max) break;
     y += Math.round(page.viewportSize().height / 2);
   }
 
   const events = await page.evaluate(() => window.nvEvents.map((e) => e.event));
-  expect(events.filter((e) => e.startsWith('section_reached_')).length,
-    'section reach events should fire').toBeGreaterThanOrEqual(4);
-  expect(events, 'depth milestones should fire').toContain('scroll_depth_50');
-  expect(events).toContain('scroll_depth_100');
+  expect(events.filter((e) => e.startsWith('section_reached_')),
+    'no section is counted on the homepage').toEqual([]);
+  for (const m of [25, 50, 75, 100]) expect(events, 'depth milestones should fire').toContain('scroll_depth_' + m);
 
   // the taxonomy forbids personal data: names only, empty props
   const payloads = await page.evaluate(() => window.nvEvents.map((e) => JSON.stringify(e.data || {})));
@@ -415,15 +192,13 @@ test('footer, callbar and every section land without console errors', async ({ b
   watchErrors(page, errors);
   await page.goto(PLAIN);
 
-  /* Every section the composer puts below the film, read from its source
-     rather than typed here. The list this replaced (2026-09-25, FP3) named
-     fourteen sections of the pre-film homepage, and twelve of them had been
-     gone for weeks: a hand-kept list of what a page contains is stale the
-     first time the page changes. The film's own #doc and the <main> that
+  /* Every section the composer puts around the film, read from its source
+     rather than typed here: since owner decision #81 (2026-11-10) that is
+     the hero alone. The film's own #doc and the <main> that
      scripts/film/compose.py wraps around it are the two it adds itself. */
   const src = fs.readFileSync(new URL('../scripts/film/sections.html', import.meta.url), 'utf8');
   const ids = [...src.matchAll(/<section\b[^>]*\bid="([^"]+)"/g)].map((m) => m[1]);
-  expect(ids.length, 'scripts/film/sections.html should define the sections below the film').toBeGreaterThan(4);
+  expect(ids, 'scripts/film/sections.html defines the hero and nothing else').toEqual(['hero']);
   for (const id of [...ids, 'doc', 'main']) {
     await expect(page.locator('#' + id), `#${id} is authored but not on the homepage`).toHaveCount(1);
   }
@@ -433,15 +208,17 @@ test('footer, callbar and every section land without console errors', async ({ b
      nv-herocta; until 2026-11-09 it was hidden for the whole film), and there
      to tap once the visitor is past the hero. */
   await expect(page.locator('.callbar')).toBeHidden();
-  await page.locator('#faq').scrollIntoViewIfNeeded();
+  await page.evaluate(() => {
+    const sc = document.getElementById('scroll');
+    window.scrollTo(0, sc.getBoundingClientRect().top + scrollY + innerHeight);
+  });
   await expect(page.locator('.callbar')).toBeVisible();
   await expect(page.locator('.callbar')).toHaveAttribute('href', /\/book\.html/);
 
-  // mobile menu opens
+  // no menu: on a phone the header is the wordmark, and the bar books
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.locator('.nav-toggle').click();
-  await expect(page.locator('.main-nav')).toHaveClass(/open/);
-  await expect(page.locator('.main-nav a', { hasText: 'Pricing' })).toBeVisible();
+  await expect(page.locator('.nav-toggle')).toHaveCount(0);
+  await expect(page.locator('.main-nav')).toBeHidden();
 
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   await page.waitForTimeout(600);
