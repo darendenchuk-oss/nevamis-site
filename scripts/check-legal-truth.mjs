@@ -670,8 +670,13 @@ if (PUBLISHED.includes('free-month.js')) {
     if (!entry || iso(entry[1]) !== effective) {
       fail('v7-date', `terms.html is version ${top[1]}, effective ${top[2]}, and its change-history entry for that version is dated ${entry ? entry[1] : '(missing)'}.`);
     }
+    /* The knowledge base dates the retired one-time fees in its ledger of
+       retired prices, without naming the plans they were charged on: since
+       owner decision #83 (2026-11-11) the demo line names no plan but the
+       three Front Desk sizes, so The Works and the modules are not named
+       there, and the day is read from that ledger instead. */
     const said = [
-      ['config/elevenlabs/nevamis-knowledge-base.md', /\bLaunch & Implementation fees on the AI Front Desk, The Works and the modules were retired on (\d{4}-\d{2}-\d{2})/],
+      ['config/elevenlabs/nevamis-knowledge-base.md', /\bone-time fees retired on (\d{4}-\d{2}-\d{2}), with every add-on's one-time fee\b/],
       ['config/elevenlabs/nevamis-agent-test-cases.md', /\bany Launch and Implementation fee on a plan other than the Partnership, retired (\d{4}-\d{2}-\d{2})/],
     ];
     for (const [f, re] of said) {

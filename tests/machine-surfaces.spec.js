@@ -159,7 +159,11 @@ test('MACHINE-9..16: every agent document states only what the product does, and
   expect(findings).toEqual([]);
   /* The two facts the audit led with, read straight off the files. */
   const kb = fs.readFileSync(path.join(dir, 'nevamis-knowledge-base.md'), 'utf8');
-  expect(kb).toContain('between 8 a.m. and 8 p.m. your time, every day');
+  /* The demo line names no module since owner decision #83 (2026-11-11),
+     so the missed-call text's hours are held wherever it names one. */
+  if (/\b(?:Missed-Call Recovery|Instant Lead Follow-Up)\b/i.test(kb.replace(/<!--[\s\S]*?-->/g, ' '))) {
+    expect(kb).toContain('between 8 a.m. and 8 p.m. your time, every day');
+  }
   expect(kb).not.toMatch(/during business hours/i);
   const support = fs.readFileSync(path.join(dir, 'client-support-knowledge.md'), 'utf8');
   expect(support).not.toMatch(/\b\d+\s?%/);

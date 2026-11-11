@@ -2601,7 +2601,12 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
       Lead Generation, which is off the demo line since decision #81's
       follow-up of 2026-11-11; never AI first) on the knowledge base's
       opening and the catalogue's
-      first row. err(), not wait(): every file is in this repository. */
+      first row. err(), not wait(): every file is in this repository.
+      Since owner decision #83 (2026-11-11) the demo line sells the front
+      desk only: its knowledge base names no module, so the module figures
+      are required of the support knowledge base alone, the missed-call
+      hours only where the demo knowledge base names that module, and the
+      front desk is the one door it must name (quotes, if named, after it). */
 {
   let judged = true;
   for (const [f, t] of AGENT_FIXTURES.mustFire) {
@@ -2612,10 +2617,11 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     if (b.length) { err(`agent-truth judge: refused a true sentence: ${b[0]}`); judged = false; }
   }
   /* The whole catalog, served file plus config/pricing-catalog.js (owner
-     decision #83): the agent documents still price the modules, The Works
-     and the Partnership for the clients who hold them, so their figures are
-     held to the catalog. Whether the demo line should still SAY them is the
-     demo line's own change, not this guard's. */
+     decision #83): the support knowledge base and the test catalogue still
+     price the modules, The Works and the Partnership for the clients who
+     hold them, so their figures are held to the catalog. The demo line's
+     knowledge base names none of them since its 2026-11-11 push, and is
+     held only to what it says. */
   const NV = catalogPricing("guard 7q");
   const files = walk(path.join(root, "config", "elevenlabs"));
   if (!files.length) err("guard 7q: config/elevenlabs/ has no documents, so the agent's knowledge, tests and templates are unjudged");
@@ -2752,7 +2758,9 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
                   cut llms.txt to the three Front Desk sizes.) */
 {
   /* The whole catalog, served file plus config/pricing-catalog.js (owner
-     decision #83): terms.html (counsel's text) and the agent documents still
+     decision #83): terms.html (counsel's text) and the agent documents that
+     serve existing clients (the support knowledge base, the test catalogue;
+     not the demo line's knowledge base since its 2026-11-11 push) still
      state the Partnership's fee and Enterprise's floor, so the fees this
      guard accepts, and the Partnership sentence it holds, come from the
      catalog. What the site SELLS is held to the served file by guards 7j,
