@@ -175,7 +175,8 @@ const MUST_NOT_FIRE = [
      term patterns must never redden. */
   ["the homepage Plans station, as rewritten",
     "The build takes days, not weeks: your line is answered inside the first week. There is no minimum term: month to month from the first month, cancelled from your own portal at any time."],
-  ["pricing-config.js terms note", "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing."],
+  ["pricing-config.js terms note", "There is no minimum term. Every plan is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing."],
+  ["the terms note before owner decision #83, as the agent documents still say it", "There is no minimum term. Every plan and every add-on, bought on its own or added later, is month to month from the first month: cancel any time from your own portal, service running to the end of the month you already paid for, and your price locked for 12 months from signing."],
   ["the retired minimum, recorded as retired", "The 3-month minimum term was retired on 2026-09-08 and is no longer offered."],
   ["a price lock is not a term", "Your price is locked for 12 months from signing."],
   /* The owner's decision with "the term" as its subject (2026-09-25): a

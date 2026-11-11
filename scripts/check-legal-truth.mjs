@@ -325,15 +325,21 @@ for (const f of LEGAL.filter((x) => x !== 'terms.html')) {
 /* =====================================================================
    8. ONE NAME FOR THE QUOTE PRODUCT ON THE LEGAL PAGES (LEGAL-17)
 
-   Terms and pricing sell the add-on under its pricing-config.js name; the
+   Terms and pricing sell the add-on under its price-data name; the
    homepage calls the capability "Quote Recovery". On a legal page the sold
    name is the one that binds, so the capability name may appear only as a
    gloss on it: "<sold name> (Quote Recovery)". The footer is outside <main>
    and speaks the homepage's language on every page, which is fine.
+
+   The name is read from the served file and the unpublished catalog
+   together: owner decision #83 (2026-11-11) moved the add-on catalog to
+   config/pricing-catalog.js, and the Terms still name the add-on for the
+   clients who hold it. Wherever the record lives, its name binds.
    ===================================================================== */
 {
-  const sold = (read('pricing-config.js').match(/id:\s*"quote_chase",\s*name:\s*"([^"]+)"/) || [])[1];
-  if (!sold) fail('product-name', 'pricing-config.js has no quote_chase add-on name to hold the legal pages to.');
+  const priceData = read('pricing-config.js') + '\n' + read('config/pricing-catalog.js');
+  const sold = (priceData.match(/id:\s*"quote_chase",\s*name:\s*"([^"]+)"/) || [])[1];
+  if (!sold) fail('product-name', 'neither pricing-config.js nor config/pricing-catalog.js has a quote_chase add-on name to hold the legal pages to.');
   else {
     for (const f of LEGAL) {
       const t = textOf(mainOf(read(f))).split(`${sold} (Quote Recovery)`).join('');

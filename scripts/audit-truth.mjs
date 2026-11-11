@@ -49,6 +49,21 @@ const approvedAnnual = new Set(numbersFor("annual"));
    printing it should be asked about, not waved through. */
 const approvedLaunch = new Set([...numbersFor("launch"), ...numbersFor("launchFrom")].filter((n) => n > 0));
 const approvedBands = new Set(rangeFor("monthlyRange"));
+/* THE OFFERS OWNER DECISION #83 HID (2026-11-11). The Works, the Performance
+   Partnership, Enterprise and the add-on catalog left the served price file
+   for config/pricing-catalog.js, which is not served. Their figures are
+   approved ONLY on the legal pages, which are counsel's text and still
+   describe them for the clients who hold them; on any other page a figure
+   only the catalog carries is a hidden offer being sold again, and is
+   reported. Read by the same scan, so a figure the catalog does not carry is
+   approved nowhere. No catalog file means no extra approvals: the audit
+   then reports more, never less. */
+const LEGAL_TEXT = new Set(["terms.html", "privacy.html"]);
+const catalogPath = path.join(root, "config", "pricing-catalog.js");
+const catalogSrc = fs.existsSync(catalogPath) ? fs.readFileSync(catalogPath, "utf8") : "";
+const catalogNumbersFor = (key) =>
+  [...catalogSrc.matchAll(new RegExp(`\\b${key}:\\s*(\\d+(?:\\.\\d+)?)`, "g"))].map((m) => Number(m[1]));
+const approvedOnLegalPages = new Set(["monthly", "launch", "launchFrom", "perCampaign"].flatMap(catalogNumbersFor).filter((n) => n > 0));
 /* `setup` was read here and required to be non-empty. On 2026-08-09 the key
    was deleted from pricing-config.js rather than zeroed, so this scan returned
    nothing and the WHOLE AUDITOR aborted on its first check with "could not
@@ -114,6 +129,7 @@ for (const f of pages) {
     if (n < 40) continue;                      // small numbers are job values / examples
     if (approvedMonthly.has(n) || approvedSetup.has(n) || approvedAnnual.has(n) || approvedDerived.has(n)
       || approvedLaunch.has(n) || approvedBands.has(n)) continue;
+    if (LEGAL_TEXT.has(f) && approvedOnLegalPages.has(n)) continue;
     const ctx = text.slice(Math.max(0, m.index - 90), m.index + 60).replace(/\s+/g, " ").trim();
     // Buyer-entered assumptions, job-value illustrations, and the fictional
     // trade prices spoken inside example call transcripts are not our pricing.

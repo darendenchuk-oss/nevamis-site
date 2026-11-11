@@ -23,6 +23,7 @@ import { spawnSync } from 'node:child_process';
 import { agentTruthFindings, agentRequiredFindings, llmsPageFindings, offerFindings } from '../scripts/lib/machine-surfaces.mjs';
 import { cardAlt, cardLines } from '../scripts/lib/og-card.mjs';
 import { sitemapPages, pageHash, readSidecar, readSitemapLastmods } from '../scripts/lib/sitemap.mjs';
+import { loadPricing } from '../scripts/lib/pricing-catalog.mjs';
 
 const ROOT = process.cwd();
 const MAP = JSON.parse(fs.readFileSync('content-map.json', 'utf8'));
@@ -42,7 +43,9 @@ test('MACHINE-17: the homepage Service JSON-LD gives each Front Desk size both f
      sizes and nothing else, so those are the items held to both figures, and
      a module sold alone has no Offer here. */
   const tiers = NV.frontDeskTiers();
-  const sold = { ...NV, plans: tiers, addOns: NV.addOns.filter((a) => !(a.sellable === true && a.soldAlone === true)) };
+  /* The served file carries no add-on catalog since owner decision #83
+     (2026-11-11), so there may be none to filter. */
+  const sold = { ...NV, plans: tiers, addOns: (NV.addOns || []).filter((a) => !(a.sellable === true && a.soldAlone === true)) };
   expect(offerFindings(service, sold)).toEqual([]);
   expect(service.offers.map((o) => o.name)).toEqual(tiers.map((t) => t.name));
   /* The rule in plain terms, for whoever reads a red run: no parser can read
@@ -145,9 +148,13 @@ test('MACHINE-9..16: every agent document states only what the product does, and
   const dir = 'config/elevenlabs';
   const files = fs.readdirSync(dir).filter((f) => f.endsWith('.md'));
   expect(files.length).toBeGreaterThanOrEqual(8);
+  /* The whole catalog, as guard 7q reads it: the agent documents still price
+     the offers owner decision #83 (2026-11-11) took off the served file, for
+     the clients who hold them (config/pricing-catalog.js). */
+  const CATALOG = loadPricing(ROOT, { catalog: true });
   const findings = files.flatMap((f) => {
     const t = fs.readFileSync(path.join(dir, f), 'utf8');
-    return [...agentTruthFindings(`${dir}/${f}`, t), ...agentRequiredFindings(`${dir}/${f}`, t, NV)];
+    return [...agentTruthFindings(`${dir}/${f}`, t), ...agentRequiredFindings(`${dir}/${f}`, t, CATALOG)];
   });
   expect(findings).toEqual([]);
   /* The two facts the audit led with, read straight off the files. */
@@ -163,14 +170,18 @@ test('MACHINE-9..16: every agent document states only what the product does, and
 /* A throwaway site with one page, so each auditor can be run against a
    page written to trip exactly one rule. The auditor is copied in, not
    imported: it reads its root from its own location. */
-function miniSite(script, pageHtml) {
+function miniSite(script, pageHtml, file = 'a.html') {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'nv-audit-'));
   fs.mkdirSync(path.join(dir, 'scripts'));
+  fs.mkdirSync(path.join(dir, 'config'));
   fs.copyFileSync(path.join(ROOT, 'scripts', script), path.join(dir, 'scripts', script));
   fs.copyFileSync(path.join(ROOT, 'pricing-config.js'), path.join(dir, 'pricing-config.js'));
-  fs.writeFileSync(path.join(dir, '_config.yml'), 'exclude:\n  - scripts/\n');
-  fs.writeFileSync(path.join(dir, 'sitemap.xml'), '<urlset><url><loc>https://nevamis.ca/a.html</loc></url></urlset>');
-  fs.writeFileSync(path.join(dir, 'a.html'), pageHtml);
+  /* The offers owner decision #83 hid, unpublished as on the real site:
+     audit-truth approves their figures on the legal pages only. */
+  fs.copyFileSync(path.join(ROOT, 'config', 'pricing-catalog.js'), path.join(dir, 'config', 'pricing-catalog.js'));
+  fs.writeFileSync(path.join(dir, '_config.yml'), 'exclude:\n  - scripts/\n  - config/\n');
+  fs.writeFileSync(path.join(dir, 'sitemap.xml'), `<urlset><url><loc>https://nevamis.ca/${file}</loc></url></urlset>`);
+  fs.writeFileSync(path.join(dir, file), pageHtml);
   const r = spawnSync(process.execPath, [path.join(dir, 'scripts', script)], { encoding: 'utf8' });
   fs.rmSync(dir, { recursive: true, force: true });
   return r;
@@ -178,15 +189,27 @@ function miniSite(script, pageHtml) {
 const page_ = (body) => `<!doctype html><html lang="en"><head><title>a</title></head><body><a class="skip" href="#m">Skip to content</a><h1>A</h1>${body}</body></html>`;
 
 test('CHECK-RUNNER-8: audit-truth approves every figure pricing-config publishes and support@, and exits non-zero on a HIGH', async () => {
-  /* Today's figures (v7, 2026-10-03): a module at its monthly alone, the
-     Partnership's fixed fee and monthly, the three Front Desk sizes. */
-  const published = page_(`<p>Quote-Chase Engine C$500 a month. `
-    + `C$5,000 Launch &amp; Implementation to start, then C$350 a month. `
-    + `Front Desk Starter C$250 a month, Front Desk Plus C$500 a month, the AI Front Desk C$1,000 a month. `
-    + `Enterprise from C$5,000. Email support at support@nevamis.ca or Sales@nevamis.ca.</p>`);
+  /* Today's figures: since owner decision #83 (2026-11-11) the served file
+     publishes the three Front Desk sizes and nothing else. */
+  const published = page_(`<p>Front Desk Starter C$250 a month, Front Desk Plus C$500 a month, the AI Front Desk C$1,000 a month. `
+    + `Email support at support@nevamis.ca or Sales@nevamis.ca.</p>`);
   const ok = miniSite('audit-truth.mjs', published);
   expect(ok.stdout).toContain('no findings');
   expect(ok.status).toBe(0);
+
+  /* The offers #83 hid (config/pricing-catalog.js): a module at its monthly
+     alone, The Works, the Partnership's fixed fee and monthly, Enterprise's
+     floor. Their figures are approved on the legal pages, which still
+     describe them for the clients who hold them, and reported anywhere else. */
+  const hidden = page_(`<p>Quote-Chase Engine C$500 a month. The Works C$2,100 a month. `
+    + `C$5,000 Launch &amp; Implementation to start, then C$350 a month. Enterprise from C$5,000.</p>`);
+  const onTerms = miniSite('audit-truth.mjs', hidden, 'terms.html');
+  expect(onTerms.stdout, 'the Terms may still state a hidden offer\'s figures').toContain('no findings');
+  expect(onTerms.status).toBe(0);
+  const onPage = miniSite('audit-truth.mjs', hidden);
+  expect(onPage.stdout, 'a buyer page may not state The Works\' monthly').toMatch(/HIGH .*unapproved price \$2100/);
+  expect(onPage.stdout, 'or the Partnership\'s').toMatch(/HIGH .*unapproved price \$350/);
+  expect(onPage.status).toBe(1);
 
   const retired = miniSite('audit-truth.mjs', page_('<p>The Works is C$1,800 a month.</p>'));
   expect(retired.stdout, 'a grouped figure is read whole').toMatch(/HIGH .*unapproved price \$1800/);

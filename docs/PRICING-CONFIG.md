@@ -1,11 +1,11 @@
 # pricing-config.js: developer notes
 
-`pricing-config.js` is served at nevamis.ca because `pricing.html`,
-`proposal.html`, `site.js` and `scripts/build-schema.mjs` render from it. Anything
-written in it, comments included, is readable by anyone who opens the file. So
-the file carries data and short notes about how to read that data, and the
-reasoning behind it lives here, in `docs/`, which `_config.yml` keeps off the
-site.
+`pricing-config.js` is served at nevamis.ca because `index.html`, `book.html`,
+`free-month.js` and the build scripts (`scripts/build-pages.mjs`,
+`scripts/build-schema.mjs`) render from it. Anything written in it, comments
+included, is readable by anyone who opens the file. So the file carries data
+and short notes about how to read that data, and the reasoning behind it lives
+here, in `docs/`, which `_config.yml` keeps off the site.
 
 `scripts/check-published-surface.mjs` enforces the split: a served file may not
 carry a money figure, a revenue-share rate, or internal readiness or
@@ -208,3 +208,56 @@ owner says publish; the branch is `sell/v7-site`.
   Plus. When that happens the result's Why line names the cheaper size and
   both totals, so the pick is never the dearer one without saying so.
   Ranking on lowest total instead is an owner decision.
+
+## Front Desk only: the served file and the catalog (owner decision #83)
+
+Owner decision #83 (2026-11-11), "Front Desk only everywhere": every surface a
+prospect or a new client sees sells only the three Front Desk sizes. The served
+`pricing-config.js` therefore carries the three sizes, the free-month terms
+(`freeMonth`, and `foundingClient`, still shown only by `free-month.js`), the
+term, the referral reward and the usage notes, and nothing else. The size
+cards no longer carry the add-on line, and `terms.note` no longer says "every
+add-on".
+
+The Works (`growth`), the Performance Partnership (`starter`), Enterprise's
+floor and the add-on catalog are still built and still priced in the engine's
+`canonical.ts`, and a client who already holds one keeps it. Their records, as
+they stood in the served file before #83, moved to `config/pricing-catalog.js`,
+which `_config.yml` excludes (all of `config/`). It is not a second price list
+for anyone to read: it runs after `pricing-config.js` in the same window and
+puts the hidden records back, together with the fee-aware `startLine()`,
+`launchPart()`, `monthlyBand()`, `monthlyBounds()`, `partnershipTerms()` and
+`partnerNote()` that only those records need. The served `startLine()` is the
+fee-free case of it and gives the same sentence for every size.
+
+`scripts/lib/pricing-catalog.mjs` is the one loader. `loadPricing(root)` is the
+served file; `loadPricing(root, { catalog: true })` is the whole catalog. Which
+one a check reads is the decision it encodes:
+
+- **Served only**, because they judge what is SOLD or PUBLISHED: llms.txt's
+  prices (guard 7j), book.html's floor (7a), form defaults (7f), the demo
+  prompt and PLAYBOOK tables (8, 9), the homepage's structured data (7s),
+  llms.txt's term (7p), the free month (7u), `scripts/build-pages.mjs` and
+  `scripts/build-schema.mjs`.
+- **The whole catalog**, because they judge text that still DESCRIBES the
+  hidden offers for the clients who hold them: guard 7t (terms.html and the
+  agent documents state the Partnership's fee and Enterprise's floor), guard
+  7q (the agent documents price the modules), the docs/PROPOSAL-LINKS.md
+  guard, `scripts/check-legal-truth.mjs` rule 8 (the Terms name the quote
+  add-on), and `scripts/audit-truth.mjs`, which approves a catalog figure on
+  terms.html and privacy.html only and reports it on any other page.
+
+Guard 7v of `scripts/check-consistency.js` holds the split: every plan the
+served file carries is a Front Desk size, it carries no `addOns` and no
+`enterprise`, no name the catalog adds (and no add-on, automation, Partnership
+or Launch & Implementation wording) appears anywhere in it, comments included,
+the catalog stays under an `exclude:` entry, and no id is in both files.
+
+**To sell an offer again**, after the owner decides it: add its key to
+`SOLD_NOW` in the engine's `canonical.ts`; move its record from
+`config/pricing-catalog.js` into `pricing-config.js` (numeric fields first, as
+"Where the numbers come from" says), deleting it from the catalog; move the fee-aware helpers back if it
+carries a fee; and widen guard 7v's sizes rule in the same change. The
+engine's cross-repo check compares only the served file with canonical, so a
+figure changed in canonical for a hidden offer must be changed in the catalog
+by hand in the same train.

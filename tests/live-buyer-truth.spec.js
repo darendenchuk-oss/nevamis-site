@@ -32,8 +32,9 @@
           Partnership's agreement exception (v7: its figures are fixed, so
           the exception is that its share is set in the agreement, and the
           retired "within published ranges" is no longer required).
-     LEGAL-9     the terms note says the one-time fee is charged when the plan
-          or add-on starts, because it covers an add-on added later.
+     LEGAL-9     the terms note states the term alone: since owner decision
+          #83 it names no add-on, and it names no one-time fee and no free
+          month.
      PROPOSAL-4  robots.txt lets crawlers read the proposal's noindex.
      MACHINE-24  one BreadcrumbList per page, the generated one.
      MACHINE-25  the indexable pages carry og:url (their canonical), og:type
@@ -204,16 +205,19 @@ test('BOOK-5: "published before you decide" never stands without the Partnership
   expect(bad, bad.join('\n')).toEqual([]);
 });
 
-test('LEGAL-9: the terms note charges the one-time fee when the plan or add-on starts, not beside the first month', () => {
+test('LEGAL-9: the terms note states the term alone: no add-on, no one-time fee, no free month', () => {
   const note = config().terms.note;
-  expect(note).toMatch(/\badd-on\b/);
-  expect(note, 'an add-on added later is not charged "beside your first month"').not.toMatch(/\bbeside (?:your|the) first month\b/i);
-  /* v7 (2026-10-03): only the Performance Partnership carries a fee, and
-     its card and the terms band state it, so the term note names no fee at
-     all. Where a note does name one, it is charged when the plan or add-on
-     starts. And the note says nothing about a first month free: every
-     renderer prints it to every buyer, and that offer is gated. */
-  if (/Launch & Implementation/.test(note)) expect(note).toMatch(/\bcharged once when the plan or add-on starts\b/);
+  expect(note).toMatch(/\bno minimum term\b/i);
+  /* Owner decision #83 (2026-11-11): the price file nevamis.ca serves sells
+     only the three Front Desk sizes, so its term note covers plans and names
+     no add-on (until #83 it said "every plan and every add-on, bought on its
+     own or added later"). */
+  expect(note, 'the served note names no add-on (#83)').not.toMatch(/\badd-?ons?\b/i);
+  expect(note, 'nothing is charged "beside your first month"').not.toMatch(/\bbeside (?:your|the) first month\b/i);
+  /* No size carries a one-time fee, so the note names none. And it says
+     nothing about a first month free: every renderer prints it to every
+     buyer, and that offer is gated. */
+  expect(note).not.toMatch(/\bLaunch (?:&|and) Implementation\b/i);
   expect(note).not.toMatch(/\bfree month\b|\bfirst month (?:is )?free\b|\bmonths? free\b/i);
 });
 

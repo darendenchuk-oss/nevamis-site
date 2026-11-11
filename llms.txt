@@ -13,9 +13,9 @@
 In Canadian dollars, plus GST/HST. No setup fee. The same front desk in three
 sizes:
 
-- Front Desk Starter: C$250 a month, 200 included minutes.
-- Front Desk Plus: C$500 a month, 550 included minutes.
-- AI Front Desk: C$1,000 a month, 1,400 included minutes.
+- Front Desk Starter: C$250 a month, 200 included minutes, C$1.10 per extra minute.
+- Front Desk Plus: C$500 a month, 550 included minutes, C$0.95 per extra minute.
+- AI Front Desk: C$1,000 a month, 1,400 included minutes, C$0.75 per extra minute.
 
 Month to month from the first month: no minimum term and no cancellation
 notice. Cancel any time from the portal and keep the month you paid for.

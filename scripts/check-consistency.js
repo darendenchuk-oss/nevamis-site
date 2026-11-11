@@ -37,7 +37,8 @@ import { stripHtmlComments, stripJsComments, jsStringLiterals, renderedProse, cl
    by guard 7k2 below rather than restated here, and the published set it
    runs over, derived the way the deploy derives it. */
 import { claimFindings, renderedText } from "./content/claim-rules.mjs";
-import { publishedFiles } from "./lib/published-files.mjs";
+import { publishedFiles, jekyllLists } from "./lib/published-files.mjs";
+import { loadPricing, CATALOG_FILE } from "./lib/pricing-catalog.mjs";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
    had no shared chrome, and that exemption is exactly why its hand-copied nav
@@ -162,6 +163,15 @@ const bannedView = (label, text) => {
 };
 let fail = 0;
 const err = (m) => { console.error("FAIL: " + m); fail++; };
+/* The whole priced catalog: the served pricing-config.js with the unpublished
+   config/pricing-catalog.js run after it (owner decision #83; see
+   scripts/lib/pricing-catalog.mjs). A catalog that will not evaluate is one
+   FAIL naming it, and the guard that asked judges against nothing rather
+   than crashing every guard after it. */
+const catalogPricing = (who) => {
+  try { return loadPricing(root, { catalog: true }); }
+  catch (e) { err(who + ": " + CATALOG_FILE + " did not evaluate after pricing-config.js (" + e.message + ")"); return null; }
+};
 
 /* Some findings are true but nobody here can fix them, because the thing that
    is wrong is outside this repository: the prompt running on the live phone
@@ -597,8 +607,13 @@ for (const p of contentPages) {
     const ln = raw.slice(0, map[idx] ?? 0).split(/\n/).length;
     return "llms.txt:" + ln + ' near "' + flat.slice(Math.max(0, idx - 55), idx + 55).trim() + '"';
   };
-  if (!cfg || !Array.isArray(cfg.plans) || !Array.isArray(cfg.addOns)) {
-    err("pricing-config.js: NV_PRICING.plans or .addOns not found, so llms.txt's prices are unguarded");
+  /* The SERVED file, on purpose (owner decision #83, 2026-11-11): llms.txt is
+     published, and nevamis.ca sells only the three Front Desk sizes, so it
+     may state no figure the served file does not carry. The served file has
+     no add-on catalog and no Enterprise floor since #83, so a price of a
+     hidden offer in llms.txt fails the stray rule below. */
+  if (!cfg || !Array.isArray(cfg.plans)) {
+    err("pricing-config.js: NV_PRICING.plans not found, so llms.txt's prices are unguarded");
   } else if (!cfg.publishedPricing) {
     if (/C\$/.test(raw)) err("llms.txt: states a C$ figure while pricing-config.js has publishedPricing false. "
       + "An answer engine would publish a price the business has not.");
@@ -608,7 +623,7 @@ for (const p of contentPages) {
        requiring one would have dropped every module out of the check. A fee
        of 0 is no figure, so only fees above zero (the Partnership's, and the
        Enterprise floor) may be written as a Launch & Implementation fee. */
-    const modules = cfg.addOns.filter((a) => a.sellable && a.monthly > 0);
+    const modules = (cfg.addOns || []).filter((a) => a.sellable && a.monthly > 0);
     const launches = new Set([...cfg.plans.map((p) => p.launch), ...modules.map((a) => a.launch)].filter((n) => n > 0));
     if (cfg.enterprise && cfg.enterprise.launchFrom) launches.add(cfg.enterprise.launchFrom);
     for (const p of cfg.plans) (p.launchRange || []).forEach((n) => launches.add(n));
@@ -2243,8 +2258,11 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
   const docPath = path.join(root, docRel);
   if (!fs.existsSync(docPath)) err(`${docRel} is missing: the proposal send instructions are not optional`);
   else {
-    const w = {};
-    vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
+    /* The whole catalog, served file plus config/pricing-catalog.js (owner
+       decision #83): the document's links still name the plans #83 hid, and
+       the proposal page they open has redirected to the homepage since #81,
+       so this holds the record to the ids that exist, not to what is sold. */
+    const w = { NV_PRICING: catalogPricing("docs/PROPOSAL-LINKS.md guard") };
     const ids = new Set((w.NV_PRICING?.plans ?? []).map((p) => p.id));
     /* Since BD-F7 (2026-09-26) a proposal can also be for a module sold on
        its own: the ids proposal.html renders as a module, by the same rule it
@@ -2593,13 +2611,16 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     const b = agentTruthFindings(f, t);
     if (b.length) { err(`agent-truth judge: refused a true sentence: ${b[0]}`); judged = false; }
   }
-  const w = {};
-  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
-  const NV = w.NV_PRICING;
+  /* The whole catalog, served file plus config/pricing-catalog.js (owner
+     decision #83): the agent documents still price the modules, The Works
+     and the Partnership for the clients who hold them, so their figures are
+     held to the catalog. Whether the demo line should still SAY them is the
+     demo line's own change, not this guard's. */
+  const NV = catalogPricing("guard 7q");
   const files = walk(path.join(root, "config", "elevenlabs"));
   if (!files.length) err("guard 7q: config/elevenlabs/ has no documents, so the agent's knowledge, tests and templates are unjudged");
   if (!NV || !Array.isArray(NV.addOns) || typeof NV.startLine !== "function") {
-    err("guard 7q: pricing-config.js did not yield NV_PRICING with addOns and startLine, so the agent's figures are unjudged");
+    err("guard 7q: pricing-config.js and " + CATALOG_FILE + " did not yield NV_PRICING with addOns and startLine, so the agent's figures are unjudged");
   } else if (judged) {
     for (const file of files) {
       const label = path.relative(root, file).replace(/\\/g, "/");
@@ -2730,11 +2751,15 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
                   one until owner decision #81 retired the pricing page and
                   cut llms.txt to the three Front Desk sizes.) */
 {
-  const w = {};
-  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
-  const cfg = w.NV_PRICING;
+  /* The whole catalog, served file plus config/pricing-catalog.js (owner
+     decision #83): terms.html (counsel's text) and the agent documents still
+     state the Partnership's fee and Enterprise's floor, so the fees this
+     guard accepts, and the Partnership sentence it holds, come from the
+     catalog. What the site SELLS is held to the served file by guards 7j,
+     7s and 7v. */
+  const cfg = catalogPricing("guard 7t");
   if (!cfg || !Array.isArray(cfg.plans) || !Array.isArray(cfg.addOns)) {
-    err("guard 7t: pricing-config.js NV_PRICING.plans or .addOns not found, so the v7 model is unchecked");
+    err("guard 7t: pricing-config.js and " + CATALOG_FILE + " did not yield NV_PRICING.plans and .addOns, so the v7 model is unchecked");
   } else {
     const money = (n) => "C$" + Number(n).toLocaleString("en-CA");
     const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -3061,6 +3086,87 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
   }
 }
 
+/* 7v. THE SERVED PRICE FILE SELLS ONLY THE FRONT DESK (owner decision #83,
+       2026-11-11, "Front Desk only everywhere"; audit WEB-07).
+
+       Every surface a prospect or a new client sees sells only the three
+       Front Desk sizes. pricing-config.js is downloaded by every homepage and
+       book.html visitor and read by crawlers and answer engines, and until
+       #83 it published The Works, the Performance Partnership, Enterprise's
+       floor and the add-on prices although no page showed them. Those
+       records moved to config/pricing-catalog.js, which is not served and
+       which the checks of text still describing them read (see
+       scripts/lib/pricing-catalog.mjs). This holds the split:
+
+         sizes    every plan the served file carries is a Front Desk size
+                  (its frontDeskTiers()), and it carries no addOns and no
+                  enterprise record. This rule IS #83 on the site: selling
+                  another offer again is an owner decision, and the change
+                  that makes it (canonical's SOLD_NOW, the record moved out of
+                  the catalog) changes this rule with it.
+         names    no name the catalog adds (a plan, an add-on, Enterprise),
+                  and no add-on, automation, Partnership or Launch &
+                  Implementation wording, appears anywhere in the served file,
+                  comments included: a comment is served too. The names are
+                  read from the catalog, so a record hidden later is covered
+                  without an edit here.
+         unserved the catalog sits under an `exclude:` entry of _config.yml.
+         once     no id is in both files, so an offer brought back is moved,
+                  not copied (two records drift).
+
+       SHOWN RED BEFORE IT WAS TRUSTED (2026-11-11): each rule fails on its
+       own mutation of the tree (a hidden name in a served comment, an add-on
+       line back in a size's features, NV_PRICING.addOns served again, The
+       Works copied back into plans, config/ dropped from _config.yml). */
+{
+  let S = null, C = null;
+  try { S = loadPricing(root); } catch (e) { err("guard 7v: pricing-config.js did not evaluate (" + e.message + ")"); }
+  try { C = loadPricing(root, { catalog: true }); } catch (e) {
+    err("guard 7v: " + CATALOG_FILE + " did not evaluate after pricing-config.js (" + e.message + "), so the offers #83 hid are unjudged");
+  }
+  if (S && C) {
+    const tiers = typeof S.frontDeskTiers === "function" ? S.frontDeskTiers() : [];
+    if (!tiers.length) err("guard 7v: pricing-config.js yields no Front Desk sizes, so what it serves is unjudged");
+    for (const p of S.plans || []) {
+      if (!tiers.includes(p)) err(`pricing-config.js serves "${p.name}" (${p.id}), which is not a Front Desk size. Since owner decision #83 nevamis.ca sells only the three sizes; its record belongs in ${CATALOG_FILE}.`);
+    }
+    for (const k of ["addOns", "enterprise"]) {
+      if (k in S) err(`pricing-config.js serves NV_PRICING.${k}. Since owner decision #83 nevamis.ca sells only the three Front Desk sizes; it belongs in ${CATALOG_FILE}, which is not served.`);
+    }
+    const servedIds = new Set((S.plans || []).map((p) => p.id));
+    const hidden = [
+      ...(C.plans || []).filter((p) => !servedIds.has(p.id)),
+      ...(C.addOns || []),
+      ...(C.enterprise ? [C.enterprise] : []),
+    ].map((x) => x.name).filter(Boolean);
+    if (!hidden.length) err("guard 7v: " + CATALOG_FILE + " adds no offer, so the names the served file may not carry are unknown");
+    const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const words = [
+      ...hidden.map((n) => [new RegExp("\\b" + esc(n) + "\\b", "i"), `"${n}", an offer #83 took off nevamis.ca`]),
+      [/\badd-?ons?\b/i, "add-on wording"],
+      [/\bautomations?\b/i, "automation wording"],
+      [/\bPartnership\b/i, "the Partnership"],
+      [/\bLaunch\s+(?:&|&amp;|and)\s+Implementation\b/i, "a Launch & Implementation fee"],
+    ];
+    const lines = fs.readFileSync(path.join(root, "pricing-config.js"), "utf8").split(/\r?\n/);
+    lines.forEach((line, i) => {
+      for (const [re, what] of words) {
+        const m = line.match(re);
+        if (m) { err(`pricing-config.js:${i + 1} carries ${what} ("${m[0]}"). It is served to every visitor, comments included; since owner decision #83 it carries the three Front Desk sizes only. Move it to ${CATALOG_FILE} or docs/PRICING-CONFIG.md.`); break; }
+      }
+    });
+    const { exclude } = jekyllLists(root);
+    if (!exclude.some((e) => { const d = e.replace(/\/$/, ""); return CATALOG_FILE === d || CATALOG_FILE.startsWith(d + "/"); })) {
+      err(`${CATALOG_FILE} is not under an exclude: entry of _config.yml, so nevamis.ca would serve the offers #83 hid. Keep config/ excluded.`);
+    }
+    const seen = new Map();
+    for (const x of [...(C.plans || []), ...(C.addOns || [])]) seen.set(x.id, (seen.get(x.id) || 0) + 1);
+    for (const [id, n] of seen) {
+      if (n > 1) err(`"${id}" is in both pricing-config.js and ${CATALOG_FILE}. An offer sold again is MOVED into the served file, not copied: delete its catalog record.`);
+    }
+  }
+}
+
 /* The BANNED_PENDING ledger reports on itself every run: what it is still
    excusing and who owns the fix, and which entries have stopped matching and
    should be deleted.
@@ -3081,7 +3187,7 @@ for (const p of BANNED_PENDING) {
   else if (fs.existsSync(path.join(root, p.file))) console.log(`NOTE: ${p.file} no longer says "${p.text}". Delete its BANNED_PENDING entry in scripts/check-consistency.js.`);
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, every retired page a redirect stub, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan, every roadmap status chip reads its roadmap status, llms.txt states the term pricing-config.js carries, the agent documents state only what the product does, llms.txt lists every sitemap page, the homepage offers carry both figures.");
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, every retired page a redirect stub, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan, every roadmap status chip reads its roadmap status, llms.txt states the term pricing-config.js carries, the agent documents state only what the product does, llms.txt lists every sitemap page, the homepage offers carry both figures, the served price file sells only the Front Desk.");
 /* 1 = something here is broken. 2 = nothing here is broken but the live
    phone agent needs a change only the owner can make. 0 = clean. */
 if (fail === 0 && waiting > 0) console.error(`

@@ -192,6 +192,14 @@ if (TIERS.length !== 3) {
   console.error('pricing-config.js did not yield three Front Desk sizes; refusing to write the homepage offers from that.');
   process.exit(1);
 }
+/* Each offer states its rate for every minute past the included ones, as the
+   homepage price list does. Written with two decimals ("C$1.10"), not
+   NV.money(), which prints 1.1 as "C$1.1". */
+const missingRate = TIERS.find((p) => typeof p.overage !== 'number' || !(p.overage > 0));
+if (missingRate) {
+  console.error(`pricing-config.js gives ${missingRate.name} no per-minute rate; refusing to write the homepage offers without it.`);
+  process.exit(1);
+}
 const PLANS = TIERS.map((p) => ({
   name: p.name,
   selfServe: p.selfServe,
@@ -214,7 +222,7 @@ const PLANS = TIERS.map((p) => ({
     + (p.selfServe === false ? ` ${p.inviteNote || 'Offered by invitation and approval.'}` : '')
     /* Grouped, because it is read aloud and quoted verbatim: "1400 included
        AI minutes" is the one number on this line a person reads as a typo. */
-    + ` ${p.includedMinutes.toLocaleString('en-CA')} included minutes. ${p.bestFor}`,
+    + ` ${p.includedMinutes.toLocaleString('en-CA')} included minutes, C$${p.overage.toFixed(2)} per extra minute. ${p.bestFor}`,
 }));
 
 const offerOf = (p, category) => ({
