@@ -28,7 +28,10 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 /* The intended public surface. Root pages come from content-map.json, so a
    page registered there is allowed without touching this file. */
-const PAGES = new Set(JSON.parse(fs.readFileSync(path.join(root, 'content-map.json'), 'utf8')).pages.map((p) => p.file));
+const CONTENT_MAP = JSON.parse(fs.readFileSync(path.join(root, 'content-map.json'), 'utf8'));
+/* The retired pages' redirect stubs (scripts/build-content.mjs) are served
+   too: an old link lands on the homepage instead of the 404. */
+const PAGES = new Set([...CONTENT_MAP.pages.map((p) => p.file), ...(CONTENT_MAP.redirects || [])]);
 const ROOT_FILES = new Set([
   'CNAME', 'favicon.ico', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png',
   'site.js', 'motion.js', 'pricing-config.js', 'roadmap-config.js',
