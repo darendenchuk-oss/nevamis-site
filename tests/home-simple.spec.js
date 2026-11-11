@@ -149,6 +149,21 @@ for (const page of PAGES) {
     const css = [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join('\n');
     expect(css.match(/\/\*[\s\S]*?\*\//g) || [], 'CSS comments still served').toEqual([]);
   });
+
+  /* #doc is never shown as a section, but pressing a station in the film's
+     menu opens #card with that station's markup, so a visitor reads it. */
+  test(`cards: the film's station cards in ${page} send no one to a page the site no longer has`, () => {
+    const html = read(page);
+    const a = html.indexOf('<section id="doc"');
+    expect(a, 'the film reads its cards from #doc').toBeGreaterThan(0);
+    const doc = html.slice(a, html.indexOf('</section>', a));
+    expect(text(doc)).not.toMatch(/pricing page|roadmap page|The Works/i);
+    const retired = JSON.parse(read('content-map.json')).redirects;
+    for (const l of anchors(doc)) {
+      const file = l.href.replace(/^https:\/\/nevamis\.ca/, '').replace(/^\//, '').replace(/[?#].*$/, '');
+      expect(retired, `${l.text} -> ${l.href}`).not.toContain(file);
+    }
+  });
 }
 
 /* ---------- in the browser ---------- */

@@ -179,15 +179,21 @@ test('no page records an analytics event that is never sent', () => {
 });
 
 /* Every retired page is a stub that sends the visitor to the homepage, so an
-   old link, an old ad or a search result never lands on a dead end. */
+   old link, an old ad or a search result never lands on a dead end.
+   The homepage is answered here with an empty page: the test is where each
+   stub sends the visitor, and seventeen loads of the film did not fit the
+   timeout on the CI runner (run 42949583065). The film homepage has its own
+   test above. */
 test('every retired page sends the visitor to the homepage', async ({ browser }) => {
+  test.setTimeout(180_000);
   expect(REDIRECTS.length, 'content-map.json lists the retired pages').toBeGreaterThan(10);
   const ctx = await browser.newContext({ viewport: PHONE });
   await offline(ctx);
+  await ctx.route((u) => u.pathname === '/', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>home</title>' }));
   const page = await ctx.newPage();
   for (const file of REDIRECTS) {
-    await page.goto('/' + file + '?to=Test%20Person');
-    await page.waitForURL((u) => u.pathname === '/' && !u.search, { timeout: 10_000 });
+    await page.goto('/' + file + '?to=Test%20Person', { waitUntil: 'commit' });
+    await page.waitForURL((u) => u.pathname === '/' && !u.search, { timeout: 10_000, waitUntil: 'commit' });
   }
   await ctx.close();
 });
