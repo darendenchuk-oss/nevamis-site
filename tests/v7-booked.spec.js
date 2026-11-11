@@ -39,6 +39,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
+import { loadPricing } from '../scripts/lib/pricing-catalog.mjs';
 
 const root = process.env.SITE_ROOT
   ? path.resolve(process.env.SITE_ROOT)
@@ -191,7 +192,12 @@ test('who: the card names the three Front Desk sizes, each given a free month by
     expect(list, 'names ' + s.name).toContain(s.name);
     expect(s.freeMonths, s.name + ' carries a free month in the config').toBeGreaterThan(0);
   }
-  for (const p of P.plans.filter((x) => !sizes.includes(x))) expect(list, 'names only the sizes, not ' + p.name).not.toContain(p.name);
+  /* Every other plan Nevamis has priced, the ones owner decision #83
+     (2026-11-11) took off the served file included: they are in
+     config/pricing-catalog.js, so the card is held to name none of them. */
+  const others = loadPricing(root, { catalog: true }).plans.filter((x) => !sizes.some((t) => t.id === x.id));
+  expect(others.length, 'the catalog still prices the plans #83 hid, so this rule judges them').toBeGreaterThan(0);
+  for (const p of others) expect(list, 'names only the sizes, not ' + p.name).not.toContain(p.name);
 });
 
 test('BOOK-1: book.html says the place is reserved for the business on this call', () => {

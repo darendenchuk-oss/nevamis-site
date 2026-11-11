@@ -6,6 +6,9 @@
 # on them).
 exclude:
   - docs/
+  # config/ also holds pricing-catalog.js: the offers owner decision #83
+  # (2026-11-11) took off nevamis.ca, kept for the checks. It must never be
+  # served; scripts/check-consistency.js guard 7v fails if it is.
   - config/
   - scripts/
   # Creative source of truth for the cinematic identity: briefs, prompts,

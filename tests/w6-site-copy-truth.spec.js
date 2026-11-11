@@ -42,8 +42,8 @@
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
-import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
+import { loadPricing } from '../scripts/lib/pricing-catalog.mjs';
 
 const root = process.env.SITE_ROOT
   ? path.resolve(process.env.SITE_ROOT)
@@ -223,8 +223,11 @@ test('O40: no published surface puts the missed-call text in business hours', ()
    film's station copy, which left the page with owner decision #81's
    follow-up (2026-11-10); the homepage no longer describes the text, and
    the rule above still judges it if it ever does again. roadmap-config.js
-   said it too, and is no longer published. */
-const STATES_THE_WINDOW = ['pricing-config.js'];
+   said it too, and is no longer published. pricing-config.js said it in the
+   Missed-Call Recovery blurb until owner decision #83 (2026-11-11) moved the
+   add-on catalog to config/pricing-catalog.js, which is not served; the
+   blurb is held to the window by the test after next. */
+const STATES_THE_WINDOW = [];
 
 test('O40: a block about the missed-call text that names a time names 8 a.m. and 8 p.m., never another hour', () => {
   const wrong = [];
@@ -247,10 +250,11 @@ test('O40: nothing promises the missed-call text arrives in time to win the job'
 });
 
 test('O40: the add-on blurb states the window every day', () => {
-  const sandbox = { window: {} };
-  vm.runInNewContext(read('pricing-config.js'), sandbox);
-  const mcr = sandbox.window.NV_PRICING.addOns.find((a) => a.id === 'missed_call_recovery');
-  expect(mcr, 'pricing-config.js sells Missed-Call Recovery').toBeTruthy();
+  /* The catalog, since owner decision #83 (2026-11-11): the add-on is no
+     longer on the served price file, and its blurb is what the agent
+     documents are held to (guard 7q). */
+  const mcr = (loadPricing(root, { catalog: true }).addOns || []).find((a) => a.id === 'missed_call_recovery');
+  expect(mcr, 'the price data still prices Missed-Call Recovery').toBeTruthy();
   expect(clock(mcr.blurb), 'the blurb states the window, every day').toMatch(/\b8 am and 8 pm\b[^.]*\bevery day\b/i);
 });
 
