@@ -336,8 +336,12 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
         const top = sc.getBoundingClientRect().top + scrollY;
         window.scrollTo(0, Math.round(top + 0.2 * (sc.offsetHeight - innerHeight)));
       });
-      await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains('nv-above')),
-        { message: 'the film never cleared nv-above', timeout: SLOW }).toBe(false);
+      /* Neither above nor below: since owner decision #81 the stop after the
+         hero is in the footer, past the film, so the page arrives here from
+         nv-below as well as from nv-above, and both must have cleared. */
+      await expect.poll(() => page.evaluate(() => ['nv-above', 'nv-below']
+        .filter((c) => document.documentElement.classList.contains(c))),
+        { message: 'the film never cleared nv-above and nv-below', timeout: SLOW }).toEqual([]);
       const back = await page.evaluate(() => {
         const b = document.querySelector('#paneNav button');
         b.focus();
