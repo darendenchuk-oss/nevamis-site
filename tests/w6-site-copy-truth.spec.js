@@ -190,11 +190,13 @@ const NO_AGENT_SENTENCE = 'Sorry, nobody can take your call right now. If this i
 test('the scan reads every surface these rules are about', () => {
   const files = publishedFiles();
   /* The pricing, roadmap, Revenue Engine and missed-calls pages redirect to
-     the homepage since owner decision #81 (2026-11-10). */
-  for (const f of ['home.html', 'index.html', 'book.html', 'pricing-config.js', 'roadmap-config.js', 'llms.txt',
+     the homepage since owner decision #81 (2026-11-10), so roadmap-config.js,
+     which only the roadmap page loaded, is no longer published. */
+  for (const f of ['home.html', 'index.html', 'book.html', 'pricing-config.js', 'llms.txt',
     'search-index.json', ...SOURCES]) {
     expect(files, `${f} is published or a generator source, so it must be scanned`).toContain(f);
   }
+  expect(files, 'roadmap-config.js is excluded in _config.yml: no published page loads it').not.toContain('roadmap-config.js');
   for (const f of files) expect(f, 'an excluded working file was scanned as published').not.toMatch(/^(?:docs|config|tests|creative|film-v2)\//);
   /* The homepage's JSON-LD is copy too: answer engines quote it. */
   const ld = everyUnit().filter((u) => u.file === 'home.html' && /texts and emails the owner those details within seconds/.test(u.text));
@@ -220,8 +222,9 @@ test('O40: no published surface puts the missed-call text in business hours', ()
    judge proves nothing. The homepage and the film's source said it in the
    film's station copy, which left the page with owner decision #81's
    follow-up (2026-11-10); the homepage no longer describes the text, and
-   the rule above still judges it if it ever does again. */
-const STATES_THE_WINDOW = ['pricing-config.js', 'roadmap-config.js'];
+   the rule above still judges it if it ever does again. roadmap-config.js
+   said it too, and is no longer published. */
+const STATES_THE_WINDOW = ['pricing-config.js'];
 
 test('O40: a block about the missed-call text that names a time names 8 a.m. and 8 p.m., never another hour', () => {
   const wrong = [];

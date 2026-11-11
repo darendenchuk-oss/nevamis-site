@@ -2,8 +2,8 @@
   "_comment": "Written by scripts/gen-sitemap.mjs; do not edit by hand. Per sitemap page: sha256 of the file with \\r removed, and the <lastmod> sitemap.xml gives it. scripts/check-generator-drift.mjs fails when a page no longer matches its hash. Fix: node scripts/gen-sitemap.mjs, then commit sitemap.xml and this file.",
   "pages": {
     "index.html": {
-      "sha256": "17d6be86eceb37e37be2c003fcd97d7e411a39ec539a6ac1e4c8d9b7f74f2a3a",
-      "lastmod": "2026-11-10"
+      "sha256": "b58ebd0707c5bb91258e15ab18d4ff1b5f43b8516983a5210ce4b63b48f11d5d",
+      "lastmod": "2026-11-11"
     },
     "book.html": {
       "sha256": "117ae614f4b4c7be096e8fcda6032a0e2415e458319a6a2371b8dc6ef5250f26",

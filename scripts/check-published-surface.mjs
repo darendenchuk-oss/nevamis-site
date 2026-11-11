@@ -34,7 +34,7 @@ const CONTENT_MAP = JSON.parse(fs.readFileSync(path.join(root, 'content-map.json
 const PAGES = new Set([...CONTENT_MAP.pages.map((p) => p.file), ...(CONTENT_MAP.redirects || [])]);
 const ROOT_FILES = new Set([
   'CNAME', 'favicon.ico', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png',
-  'site.js', 'motion.js', 'pricing-config.js', 'roadmap-config.js',
+  'site.js', 'motion.js', 'pricing-config.js',
   /* Shows the first month free only while the engine reports a place open
      (v7, owner amendment #66). */
   'free-month.js',

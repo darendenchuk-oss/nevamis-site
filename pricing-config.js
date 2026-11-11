@@ -100,21 +100,11 @@
        may be described as coming and never sold, with no Buy control.
        `launch` is 0 on every module, and `freeMonths` mirrors canonical.
        ORDER IS DISPLAY ORDER, as it is for `plans`: pricing.html renders
-       #addOnList by walking this array (PRICING-14, 2026-10-03), so the doors
-       come first, Lead Generation then the Quote-Chase Engine (owner
-       decision), then the modules sold alone, then what is coming. Every
-       other reader finds an item by its id. */
+       #addOnList by walking this array (PRICING-14, 2026-10-03), so the
+       Quote-Chase Engine comes first (owner decision), then the modules sold
+       alone, then what is coming. Every other reader finds an item by its
+       id. */
     addOns: [
-      /* Lead Generation is offered by invitation on the Performance Partnership
-         only, so it has no standalone pair. `sellable` follows the engine's
-         capability record for it, and the site may say less than the engine,
-         never more. */
-      {
-        id: "lead_generation", name: "Lead Generation",
-        monthly: 0, launch: 0, freeMonths: 0, sellable: false, soldAlone: false,
-        partnership: { launch: 0, monthly: 0, attributableTo: "a business Nevamis found" },
-        blurb: "Businesses that fit what you do, found for you, with the page each one came from and what came of it. You decide every row, and nobody on the list is contacted by us. Offered by invitation, under your own agreement, and not yet sellable from a page."
-      },
       /* `partnership` is what this item costs on the Performance Partnership.
          Bought on its own, or beside any other plan, it is its own figure. */
       {
@@ -266,7 +256,7 @@
       active: true,
       spots: 10,
       offer: "First month free for our first 10 businesses, given on a booked call.",
-      note: "We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge. Buy now starts your plan and charges your first month.",
+      note: "We take your card when you start and charge nothing until your second month begins; cancel in your portal before then and you pay nothing. We remind you a week before and a day before your first charge.",
       /* What the held space says when the offer is not shown: a closed
          answer, an error, or no answer within the wait. It is a line about
          the terms, true whatever the answer, so the space the card would
@@ -323,11 +313,11 @@
         inviteNote: "Offered by invitation and approval.",
         /* Names the items that can be added on this plan. The figures live on
            the add-ons above and the share in the executed agreement. */
-        bestFor: "A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: Lead Generation, the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose. Its Launch & Implementation fee and its monthly are fixed; what the items you choose change is the agreed share and the monthly of each item you add. Not suitable for every business, and never the default.",
+        bestFor: "A partnership we offer by invitation, where Nevamis takes on substantially more of the acquisition risk. It is the plan that carries the growth stack: the Quote-Chase Engine, Missed-Call Recovery, Get-Paid Autopilot and Review Engine are each a separate item you choose. Its Launch & Implementation fee and its monthly are fixed; what the items you choose change is the agreed share and the monthly of each item you add. Not suitable for every business, and never the default.",
         features: [
           "One business phone line",
           /* The agreed-share sentence lives once, in performanceNote. */
-          "The growth stack, each item added on its own: Lead Generation (offered by invitation) and the Quote-Chase Engine, paid on this plan's agreed-share terms, and Missed-Call Recovery, Get-Paid Autopilot and Review Engine, each at its own listed monthly. Search Rankings is coming and is not sold."
+          "The growth stack, each item added on its own: the Quote-Chase Engine, paid on this plan's agreed-share terms, and Missed-Call Recovery, Get-Paid Autopilot and Review Engine, each at its own listed monthly. Search Rankings is coming and is not sold."
         ].concat(EVERY_PLAN)
       },
       {

@@ -30,6 +30,12 @@ exclude:
   - package.json
   - package-lock.json
   - playwright.config.js
+  # The roadmap's data. Its only page, coming-soon.html, has been a redirect
+  # stub since owner decision #81, so no published page loads it, and served
+  # it still described services the site no longer offers. The checks read it
+  # from the checkout (scripts/check-consistency.js and the engine's
+  # scripts/check-consistency.mjs), so the file stays in the repository.
+  - roadmap-config.js
   # Security policy for this repository, shown in GitHub's Security tab. The
   # served copy is security.html, which is what security.txt's Policy names:
   # a github.com Policy URL stops resolving the day this repository is private.
