@@ -4,10 +4,10 @@
 
      ONE MESSAGE, THE PRICE, ONE BUTTON (owner decision #81, 2026-11-10).
      Everything before the film marker below is the hero, the page's first
-     screen, ABOVE the film. After the film comes only the film's own #doc
-     section, which the film reads for its station cards and which the page
-     keeps hidden. compose.py splits this file on the marker, so it must
-     appear exactly once and nowhere else, including in prose.
+     screen, ABOVE the film. Nothing follows the film but the footer: the
+     film carries no menu, labels or cards. compose.py splits this file on
+     the marker, so it must appear exactly once and nowhere else, including
+     in prose.
 
      What the agent does, and nothing else: it answers the calls the owner
      misses, on the owner's own number through call forwarding, 24/7, asks
@@ -15,7 +15,9 @@
      number, and texts and emails the owner those details within seconds.
 
      No figure is typed here. scripts/build-pages.mjs writes the three Front
-     Desk sizes from pricing-config.js into the generated prices region. The
+     Desk sizes from pricing-config.js into the generated prices region, each
+     with its monthly, its included minutes and its rate per extra minute
+     (terms.html says those rates are stated on this page). The
      free month is said only inside the data-nv-free-month line, which ships
      hidden and which only free-month.js shows, while the engine reports a
      place open. The button comes straight after the message, so a 360x640

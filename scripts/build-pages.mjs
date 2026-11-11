@@ -66,21 +66,24 @@ const FREE_MONTH_ACTIVE = freeMonthActive(NV);
 
 /* THE PRICE, WRITTEN FROM pricing-config.js (owner decision #81, 2026-11-10).
    The homepage says the three Front Desk sizes and nothing else: each one's
-   name, monthly and included minutes, smallest first, in a list between the
-   generated:prices markers. It is written here, at build time, so a visitor
-   with no script and a crawler both read it, and no page types a figure:
-   change pricing-config.js, run npm run build, and the drift guard fails
-   until the pages are rebuilt. */
+   name, monthly, included minutes and rate per extra minute (its overage,
+   which terms.html says is stated here), smallest first, in a list between
+   the generated:prices markers. It is written here, at build time, so a
+   visitor with no script and a crawler both read it, and no page types a
+   figure: change pricing-config.js, run npm run build, and the drift guard
+   fails until the pages are rebuilt. */
 const PRICES_RE = /<!-- generated:prices -->[\s\S]*?<!-- \/generated:prices -->/g;
 const PRICES_BLOCK = (() => {
   const tiers = NV && typeof NV.frontDeskTiers === 'function' ? NV.frontDeskTiers() : [];
-  if (tiers.length !== 3 || tiers.some((t) => !(t.monthly > 0) || !(t.includedMinutes > 0))) {
-    console.error('pricing-config.js did not yield three Front Desk sizes with a monthly and included minutes; refusing to write a price list from that.');
+  if (tiers.length !== 3 || tiers.some((t) => !(t.monthly > 0) || !(t.includedMinutes > 0) || !(t.overage > 0))) {
+    console.error('pricing-config.js did not yield three Front Desk sizes with a monthly, included minutes and an overage; refusing to write a price list from that.');
     process.exit(1);
   }
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  /* The overage is a number of dollars (1.1); a per-minute rate is shown with its cents (C$1.10). */
   const items = tiers.map((t) => `<li><b>${esc(t.name)}</b><span>${esc(NV.money(t.monthly))} a month</span>`
-    + `<span>${Number(t.includedMinutes).toLocaleString('en-CA')} minutes</span></li>`);
+    + `<span>${Number(t.includedMinutes).toLocaleString('en-CA')} minutes</span>`
+    + `<span>${esc(NV.money(Number(t.overage).toFixed(2)))} per extra minute</span></li>`);
   return `<!-- generated:prices --><ul class="prices">${items.join('')}</ul><!-- /generated:prices -->`;
 })();
 

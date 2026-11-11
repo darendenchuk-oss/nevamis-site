@@ -24,9 +24,6 @@
  *             removing the hero's ring does fail this spec.
  *
  * Both at rest and on hover, over several frames where a canvas is behind it.
- * The film's slide-in card copy (#cardBody) is created only when a visitor
- * opens it, so it is not in the DOM this test enumerates; it inherits no #doc
- * rule and measured 12.53:1 when this was written.
  */
 import { test, expect } from '@playwright/test';
 

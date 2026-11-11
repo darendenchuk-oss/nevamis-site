@@ -28,8 +28,8 @@
      still there   after the film's scripts and site.js have run, the same
                    three are still in the first viewport, still opaque, and
                    Book a call still takes the tap at its own centre (the
-                   film's fixed chrome, the rail, the labels and the hint,
-                   must not float over it).
+                   film's fixed chrome, the hint and the story, must not
+                   float over it).
      the bar       on a phone the sticky booking bar is hidden while the
                    hero's own action row is on screen, so Book a call never
                    shows twice, and it is there once the row has scrolled
@@ -41,16 +41,16 @@
      the keyboard  while the hero is in view (nv-above), the film's fixed
                    chrome is out of the tab order, not only transparent: Tab
                    from the hero's last link lands on a control a visitor can
-                   see, never on a rail button, the film ending's two links or
-                   the node card's close button, all of which sat at opacity 0
-                   in the tab order until the polish round of 2026-11-09. Once
-                   the stage reaches the top of the screen the rail is back in
-                   the tab order.
+                   see, never on the film ending's link, which sat at opacity
+                   0 in the tab order until the polish round of 2026-11-09.
      mid-film      (post-launch sweep F3, 2026-11-09) inside the film, Tab
                    from the hero's last link lands only on stops a visitor
-                   can see, never on the ending's two links while the ending
-                   is off; at the ending both are in the tab order, and a
-                   pane card opened over the ending takes them out again.
+                   can see, never on the ending's link while the ending is
+                   off; at the ending it is in the tab order.
+
+   The film's rail, its node card and its pane cards left the page with
+   owner decision #81's follow-up (2026-11-10), and with them the parts of
+   the keyboard tests that pressed them; the record below is kept as it was.
 
    SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09), each mutation made to the
    served homepage (index.html) of the commit that introduced this file, three
@@ -280,14 +280,14 @@ for (const vp of VIEWPORTS) {
 }
 
 /* ---------- the keyboard ----------
-   Motion only: that is the path on which the rail is laid out (nv-live) and
-   the film ending is a fixed block at opacity 0. On the reduced-motion and
+   Motion only: that is the path on which the film runs (nv-live) and the
+   film ending is a fixed block at opacity 0. On the reduced-motion and
    no-WebGL path the ending is ordinary text in the document, and Tab landing
    on its Book a call there is right. */
-const FILM_CHROME = '#paneNav, #close, #ncard, #labels, #hint, #nlabel';
+const FILM_CHROME = '#close, #hint';
 
 for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
-  test(`${vp.name} ${vp.width}x${vp.height}, motion: Tab from the hero's last link skips the film's hidden chrome, and the rail is back once the film is on screen`, async ({ browser, baseURL }) => {
+  test(`${vp.name} ${vp.width}x${vp.height}, motion: Tab from the hero's last link skips the film's hidden chrome, and the film takes the screen`, async ({ browser, baseURL }) => {
     test.setTimeout(150_000);
     const ctx = await browser.newContext({ baseURL, viewport: { width: vp.width, height: vp.height }, reducedMotion: 'no-preference' });
     await ctx.route(/^https:\/\/app\.nevamis\.ca\//, (r) => r.fulfill({ status: 204, body: '' }));
@@ -297,14 +297,13 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
       await page.waitForFunction(() => document.documentElement.classList.contains('nv-live'), null, { timeout: 60_000 });
       const at = await page.evaluate(() => {
         const de = document.documentElement;
-        const hidden = [...document.querySelectorAll('#paneNav button, #close a, #ncardClose')].map((el) => ({
+        const hidden = [...document.querySelectorAll('#close a')].map((el) => ({
           what: `${el.closest('[id]').id} "${el.textContent.trim().replace(/\s+/g, ' ').slice(0, 24)}"`,
           visibility: getComputedStyle(el).visibility,
         }));
-        return { above: de.classList.contains('nv-above'), rail: document.querySelectorAll('#paneNav button').length, hidden };
+        return { above: de.classList.contains('nv-above'), hidden };
       });
       expect(at.above, 'the page opens with the hero in view (nv-above)').toBe(true);
-      expect(at.rail, 'the film draws its six-button rail').toBe(6);
       for (const h of at.hidden) expect(h.visibility, `with the hero in view, ${h.what} is still in the tab order`).toBe('hidden');
 
       /* Tab from the hero's last link, the way a keyboard visitor leaves it. */
@@ -314,10 +313,9 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
       const next = await page.evaluate((sel) => {
         const el = document.activeElement;
         return { what: `${el.tagName.toLowerCase()} "${el.textContent.trim().replace(/\s+/g, ' ').slice(0, 40)}" in #${(el.closest('[id]') || {}).id}`,
-          chrome: !!el.closest(sel), rail: !!el.closest('#paneNav'), body: el === document.body };
+          chrome: !!el.closest(sel), body: el === document.body };
       }, FILM_CHROME);
       expect(next.body, 'Tab from the hero went nowhere').toBe(false);
-      expect(next.rail, `Tab from the hero's last link landed on a hidden rail button: ${next.what}`).toBe(false);
       expect(next.chrome, `Tab from the hero's last link landed on the film's hidden chrome: ${next.what}`).toBe(false);
       /* The stop is something a visitor can see: a scroll-reveal block fades
          in once focus has scrolled it into view, on the page's animation
@@ -329,8 +327,7 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
         return getComputedStyle(el).visibility === 'visible' && o > 0.9;
       }), { message: `the stop after the hero (${next.what}) never became visible`, timeout: SLOW }).toBe(true);
 
-      /* Into the film: the stage at the top of the screen clears nv-above, and
-         the rail is visible and focusable again. */
+      /* Into the film: the stage at the top of the screen clears nv-above. */
       await page.evaluate(() => {
         const sc = document.getElementById('scroll');
         const top = sc.getBoundingClientRect().top + scrollY;
@@ -342,12 +339,6 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
       await expect.poll(() => page.evaluate(() => ['nv-above', 'nv-below']
         .filter((c) => document.documentElement.classList.contains(c))),
         { message: 'the film never cleared nv-above and nv-below', timeout: SLOW }).toEqual([]);
-      const back = await page.evaluate(() => {
-        const b = document.querySelector('#paneNav button');
-        b.focus();
-        return { visibility: getComputedStyle(b).visibility, focused: document.activeElement === b };
-      });
-      expect(back, 'in the film the rail is in the tab order again').toEqual({ visibility: 'visible', focused: true });
     } finally {
       await ctx.close();
     }
@@ -360,12 +351,10 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
    the film's last beat, and on 2026-11-09 the live site still let Tab reach
    its two links there: focus left on the hero, the page scrolled into the
    film, and Tab went to "Book a call" then "Scan my website", both at
-   opacity 0, with no focus a visitor could see. A pane card open over the
-   ending fades it to 0 the same way (body.card-open .copy.on). So: mid-film,
-   the next stops after the hero's last link are all things a visitor can
-   see (no stop, and nothing it sits inside, at computed opacity 0); at the
-   ending the two links are in the tab order; with a card open over the
-   ending they are not. */
+   opacity 0, with no focus a visitor could see. So: mid-film, the next
+   stops after the hero's last link are all things a visitor can see (no
+   stop, and nothing it sits inside, at computed opacity 0), and at the
+   ending its link is in the tab order. */
 const transparentChain = () => {
   const el = document.activeElement;
   const zero = [];
@@ -381,7 +370,7 @@ const transparentChain = () => {
 };
 
 for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
-  test(`${vp.name} ${vp.width}x${vp.height}, motion: mid-film Tab lands only on what can be seen, and the ending leaves the tab order under a card`, async ({ browser, baseURL }) => {
+  test(`${vp.name} ${vp.width}x${vp.height}, motion: mid-film Tab lands only on what can be seen, and the ending's link is in the tab order at the ending`, async ({ browser, baseURL }) => {
     test.setTimeout(180_000);
     const ctx = await browser.newContext({ baseURL, viewport: { width: vp.width, height: vp.height }, reducedMotion: 'no-preference' });
     await ctx.route(/^https:\/\/app\.nevamis\.ca\//, (r) => r.fulfill({ status: 204, body: '' }));
@@ -401,13 +390,11 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
       expect(await page.evaluate(() => document.getElementById('close').classList.contains('on')),
         'mid-film, the ending is off').toBe(false);
       /* After the ignition. Where the stage starts within half a screen of
-         the top (1440x900) the film opens with its ignition, which holds the
-         rail at opacity 0 (html.nv-intro) until the wake brings it in, and
-         the rail then fades up on the page's animation clock; that transient
-         state is not what F3 is about, so it is waited out here. */
-      await expect.poll(() => page.evaluate(() => !document.documentElement.classList.contains('nv-intro')
-        && getComputedStyle(document.getElementById('paneNav')).opacity === '1'),
-      { message: 'the film\'s ignition never finished, or the rail never faded in', timeout: 90_000 }).toBe(true);
+         the top (1440x900) the film opens with its ignition (html.nv-intro),
+         a transient state that is not what F3 is about, so it is waited out
+         here. */
+      await expect.poll(() => page.evaluate(() => !document.documentElement.classList.contains('nv-intro')),
+        { message: 'the film\'s ignition never finished', timeout: 90_000 }).toBe(true);
 
       /* Focus stays where the visitor left it, on the hero's last link, while
          the page scrolls into the film; then Tab. */
@@ -421,7 +408,19 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
         expect(s.visibility, `mid-film Tab ${i} landed on ${s.what}, which is not visible`).toBe('visible');
       }
 
-      /* The ending: on, so both links are in the tab order... */
+      /* Nothing in the film takes focus since decision #81's follow-up, so
+         those Tabs left it for the footer, and a page that comes back up to
+         the ending from below keeps nv-below for its last 5% of a screen
+         (compose.py's hysteresis). Back into the film first, as a visitor
+         scrolling down to the ending would be. */
+      await page.evaluate(() => {
+        const sc = document.getElementById('scroll');
+        const top = sc.getBoundingClientRect().top + scrollY;
+        window.scrollTo(0, Math.round(top + 0.5 * (sc.offsetHeight - innerHeight)));
+      });
+      await expect.poll(() => page.evaluate(() => ['nv-above', 'nv-below'].filter((c) => document.documentElement.classList.contains(c))),
+        { message: 'the film never took the screen again', timeout: SLOW }).toEqual([]);
+      /* The ending: on, so its link is in the tab order. */
       await page.evaluate(() => {
         const sc = document.getElementById('scroll');
         const top = sc.getBoundingClientRect().top + scrollY;
@@ -429,17 +428,8 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
       });
       await expect.poll(() => page.evaluate(() => document.getElementById('close').classList.contains('on')),
         { message: 'the film never reached its ending', timeout: 90_000 }).toBe(true);
-      const ending = () => page.evaluate(() => [...document.querySelectorAll('#close a')].map((a) => getComputedStyle(a).visibility));
-      expect(await ending(), 'at the ending, its Book a 15-minute call is in the tab order').toEqual(['visible']);
-      /* ...and a pane card opened over it fades it out and takes it out. */
-      await page.evaluate(() => window.NV_IX.open(document.querySelector('#paneNav button[data-pane]').getAttribute('data-pane')));
-      await expect.poll(() => page.evaluate(() => document.body.classList.contains('card-open')),
-        { message: 'the pane card never opened', timeout: SLOW }).toBe(true);
-      await expect.poll(ending, { message: 'with a pane card open the ending is transparent and its link is still in the tab order', timeout: SLOW })
-        .toEqual(['hidden']);
-      await page.evaluate(() => window.NV_IX.close());
-      await expect.poll(ending, { message: 'the card closed and the ending\'s link did not come back', timeout: SLOW })
-        .toEqual(['visible']);
+      expect(await page.evaluate(() => [...document.querySelectorAll('#close a')].map((a) => getComputedStyle(a).visibility)),
+        'at the ending, its Book a 15-minute call is in the tab order').toEqual(['visible']);
     } finally {
       await ctx.close();
     }

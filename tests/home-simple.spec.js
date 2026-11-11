@@ -11,11 +11,16 @@
 
      message   one h1, the sentence of what the owner gets, the demo line
      price     the three sizes, smallest first, figures from the config,
-               and the one line of terms
+               each with its rate per extra minute (terms.html says the
+               rates are stated here), and the one line of terms
      one       every action a visitor can see books the call or dials the
                demo line, and each Book button sends its own event
      truth     no Lead Generation, no invitation, no pilot, trial or
-               discount, no question builder, no booking, no em dash
+               discount, no question builder, no booking, no em dash, and
+               none of the other products the film's stations described
+     film      the film plays with no station menu, no pane or dot labels,
+               no station or node card and no scan link: nothing on the
+               page names or opens anything but the answered call
      machine   the meta description, the Organization and the offers say
                the same, and publish no FAQ
      weight    the served homepage carries no source comments
@@ -39,13 +44,15 @@ const P = (() => {
    nevamis.ca serves. */
 const PAGES = ['home.html', 'index.html'];
 
-/* The page a visitor reads: <main> without the film's #doc section, which
-   the film reads for its station cards and the page never shows. */
-function shown(html) {
-  const main = html.slice(html.indexOf('<main id="main">'), html.indexOf('</main>'));
-  const doc = main.indexOf('<section id="doc"');
-  return doc < 0 ? main : main.slice(0, doc);
-}
+/* The page a visitor reads: all of <main>, which holds nothing hidden. */
+const shown = (html) => html.slice(html.indexOf('<main id="main">'), html.indexOf('</main>'));
+/* What the film's station menu, labels and cards were made of. None of it is
+   on the page since decision #81's follow-up: the film plays without them. */
+const FILM_MENU = ['paneNav', 'labels', 'nlabel', 'card', 'cardBody', 'ncard', 'ncardBody', 'doc'];
+/* The products the station cards described. The homepage sells the answered
+   call and names nothing else. */
+const OTHER_PRODUCTS = [/\bPULSE\b/, /Quote Recovery/i, /Quote-Chase/i, /Missed-Call Recovery/i, /Automatic Lead Tracking/i,
+  /Get-Paid Autopilot/i, /Daily (?:Business )?Brief/i, /Inbox Assistant/i, /Revenue Engine/i, /Review Engine/i, /Search Rankings/i];
 const text = (markup) => markup
   .replace(/<!--[\s\S]*?-->/g, ' ')
   .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
@@ -79,19 +86,22 @@ for (const page of PAGES) {
     expect(tel.map((a) => [a.href, a.evt])).toEqual([['tel:+15874130035', 'hero_live_demo_call_click']]);
   });
 
-  test(`price: ${page} states the three Front Desk sizes from pricing-config.js, smallest first, and the terms`, () => {
-    const h = hero(read(page));
+  test(`price: ${page} states the three Front Desk sizes from pricing-config.js, smallest first, each with its extra-minute rate, and the terms`, () => {
+    const html = read(page);
+    const h = hero(html);
     const list = (/<!-- generated:prices --><ul class="prices">([\s\S]*?)<\/ul><!-- \/generated:prices -->/.exec(h) || [])[1];
     expect(list, 'the generated price list is in the hero').toBeTruthy();
     const rows = [...list.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => text(m[1].replace(/<\/(?:b|span)>/g, ' | ')));
-    const want = P.frontDeskTiers().map((t) => `${t.name} | ${P.money(t.monthly)} a month | ${t.includedMinutes.toLocaleString('en-CA')} minutes |`);
+    /* The rate is the config's overage, in cents: terms.html says each
+       size's rate for a minute past its allowance is stated here. */
+    const want = P.frontDeskTiers().map((t) => `${t.name} | ${P.money(t.monthly)} a month | ${t.includedMinutes.toLocaleString('en-CA')} minutes | `
+      + `C$${t.overage.toFixed(2)} per extra minute |`);
     expect(want.length).toBe(3);
+    for (const t of P.frontDeskTiers()) expect(typeof t.overage, `${t.name} has an overage in pricing-config.js`).toBe('number');
     expect(rows).toEqual(want);
     expect(text(h)).toContain('Plus GST/HST. No setup fee. Month to month, cancel any time.');
-    /* The film's Plans card shows the same generated list. */
-    const plans = (/<article class="pane-doc" id="doc-plans">([\s\S]*?)<\/article>/.exec(read(page)) || [])[1] || '';
-    expect(plans).toContain(`<ul class="prices">${list}</ul>`);
-    expect(text(plans)).not.toMatch(/Partnership|The Works|Enterprise|Launch (?:&|and) Implementation/);
+    /* One price list on the page, the hero's. */
+    expect(html.split('<!-- generated:prices -->').length - 1).toBe(1);
   });
 
   test(`one: every action ${page} shows books the 15-minute call or dials the demo line`, () => {
@@ -113,7 +123,8 @@ for (const page of PAGES) {
     const html = read(page);
     const t = text(html.slice(html.indexOf('<body')));
     for (const re of [/lead generation/i, /by invitation/i, /customers you want/i, /\bpilot\b/i, /\btrials?\b/i,
-      /\bdiscount/i, /\bqualif/i, /Launch (?:&|and) Implementation/i, /\bbooks? (?:the )?jobs?\b/i, /questions you (?:approve|choose|set)/i, /—|&mdash;/]) {
+      /\bdiscount/i, /\bqualif/i, /Launch (?:&|and) Implementation/i, /\bbooks? (?:the )?jobs?\b/i, /questions you (?:approve|choose|set)/i, /\u2014|&mdash;/,
+      /rules you approve/i, ...OTHER_PRODUCTS]) {
       expect(t, `${re} on the served page`).not.toMatch(re);
     }
     /* No section of the old page is left: no offers, calculator, FAQ,
@@ -150,19 +161,18 @@ for (const page of PAGES) {
     expect(css.match(/\/\*[\s\S]*?\*\//g) || [], 'CSS comments still served').toEqual([]);
   });
 
-  /* #doc is never shown as a section, but pressing a station in the film's
-     menu opens #card with that station's markup, so a visitor reads it. */
-  test(`cards: the film's station cards in ${page} send no one to a page the site no longer has`, () => {
+  /* Until this rule the film carried a six-station menu (01 The scan to 06
+     Plans), a "+ open" label on each pane and a label on each named dot, and
+     pressing any of them opened a card filled from a hidden #doc section that
+     described ten other products and linked to the scan. */
+  test(`film: ${page} carries no station menu, label, card or scan link, and no hidden station text`, () => {
     const html = read(page);
-    const a = html.indexOf('<section id="doc"');
-    expect(a, 'the film reads its cards from #doc').toBeGreaterThan(0);
-    const doc = html.slice(a, html.indexOf('</section>', a));
-    expect(text(doc)).not.toMatch(/pricing page|roadmap page|The Works/i);
-    const retired = JSON.parse(read('content-map.json')).redirects;
-    for (const l of anchors(doc)) {
-      const file = l.href.replace(/^https:\/\/nevamis\.ca/, '').replace(/^\//, '').replace(/[?#].*$/, '');
-      expect(retired, `${l.text} -> ${l.href}`).not.toContain(file);
-    }
+    for (const id of FILM_MENU) expect(html, `#${id}`).not.toContain(`id="${id}"`);
+    expect(html).not.toMatch(/class="(?:pane-doc|plabel|doc-sub|node-list)\b/);
+    expect(html).not.toMatch(/data-pane=/);
+    expect(html).not.toMatch(/\+ open|\+ what it does/);
+    expect(html).not.toContain('app.nevamis.ca/scan');
+    expect(html).not.toMatch(/\bScan my (?:website|business)\b/i);
   });
 }
 
@@ -202,6 +212,69 @@ test('gate: the hero says the first month free only while the engine has a place
     await expect(page.locator(line)).toBeHidden();
     expect(await page.locator('body').innerText()).not.toMatch(/month free|free month/i);
     await ctx.close();
+  }
+});
+
+test('price: the hero shows each size\'s rate per extra minute, as pricing-config.js has it, at 1440 and 390', async ({ browser }) => {
+  for (const width of [1440, 390]) {
+    const { ctx, page } = await homeWith(browser, reply(503, { open: false }), { width, height: width > 400 ? 900 : 844 });
+    const rows = page.locator('#hero .prices li');
+    const tiers = P.frontDeskTiers();
+    await expect(rows).toHaveCount(tiers.length);
+    for (let i = 0; i < tiers.length; i++) {
+      await expect(rows.nth(i)).toBeVisible();
+      await expect(rows.nth(i)).toContainText(tiers[i].name);
+      await expect(rows.nth(i)).toContainText(`C$${tiers[i].overage.toFixed(2)} per extra minute`);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    await ctx.close();
+  }
+});
+
+/* With motion, inside the film: nothing of the old station menu is in the
+   document, and pressing the panes and the floor opens nothing. */
+test('film: with motion the film plays at 1440x900 and 390x844 with no station menu, label or card to show', async ({ browser }) => {
+  test.setTimeout(240_000);
+  for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    const ctx = await browser.newContext({ viewport: vp, reducedMotion: 'no-preference' });
+    await ctx.route(/^https:\/\/app\.nevamis\.ca\//, (r) => r.fulfill({ status: 204, body: '' }));
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    try {
+      await page.goto('/', { waitUntil: 'load' });
+      await page.waitForFunction(() => document.documentElement.classList.contains('nv-live'), null, { timeout: 90_000 });
+      const menu = FILM_MENU.map((id) => '#' + id).concat(['.pane-doc', '.plabel', '[data-pane]', '[role="dialog"]']).join(', ');
+      for (const at of [0.2, 0.5, 0.8]) {
+        await page.evaluate((at) => {
+          const sc = document.getElementById('scroll');
+          const top = sc.getBoundingClientRect().top + scrollY;
+          window.scrollTo(0, Math.round(top + at * (sc.offsetHeight - innerHeight)));
+        }, at);
+        await expect.poll(() => page.evaluate(() => ['nv-above', 'nv-below'].filter((c) => document.documentElement.classList.contains(c))),
+          { message: `the film never took the screen at ${at}`, timeout: 30_000 }).toEqual([]);
+        expect(await page.locator(menu).count(), `film chrome in the document at ${at} of the film (${vp.width}x${vp.height})`).toBe(0);
+        for (const [fx, fy] of [[0.5, 0.5], [0.3, 0.4], [0.7, 0.4], [0.5, 0.65]]) {
+          await page.mouse.click(Math.round(vp.width * fx), Math.round(vp.height * fy));
+        }
+        await page.waitForTimeout(400);
+        expect(await page.evaluate(() => document.body.classList.contains('card-open')), 'a press on the film opened a card').toBe(false);
+        expect(await page.locator(menu).count(), 'a press on the film added a menu, label or card').toBe(0);
+        expect(await page.locator('a[href*="app.nevamis.ca/scan"]').count()).toBe(0);
+      }
+      /* The film still plays to its ending and its one action. */
+      await page.evaluate(() => {
+        const sc = document.getElementById('scroll');
+        const top = sc.getBoundingClientRect().top + scrollY;
+        window.scrollTo(0, Math.ceil(top + sc.offsetHeight - innerHeight));
+      });
+      await expect.poll(() => page.evaluate(() => document.getElementById('close').classList.contains('on')),
+        { message: 'the film never reached its ending', timeout: 90_000 }).toBe(true);
+      await expect(page.locator('#close a')).toHaveText('Book a 15-minute call');
+      expect(errors).toEqual([]);
+    } finally {
+      await ctx.close();
+    }
   }
 });
 

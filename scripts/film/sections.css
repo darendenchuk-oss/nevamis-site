@@ -8,9 +8,7 @@
    and uses site.css tokens only.
 
    The page is the hero (one message, the price, one button: owner decision
-   #81, 2026-11-10), then the film. The film's #doc section stays in the
-   document, because the film reads its station cards and named dots from
-   it, and it is not shown as a section of the page.
+   #81, 2026-11-10), then the film, which carries no menu, labels or cards.
    ============================================================ */
 
 #hero{border-top:none}
@@ -35,23 +33,23 @@
   #hero .hero-top .ctarow .btn{min-height:48px}
 }
 
-/* THE PRICE: the three Front Desk sizes, smallest first, written by
-   scripts/build-pages.mjs from pricing-config.js. The same list sits in the
-   film's Plans card, so it is styled wherever it appears. */
+/* THE PRICE: the three Front Desk sizes, smallest first, each with its
+   monthly, its included minutes and its rate per extra minute, written by
+   scripts/build-pages.mjs from pricing-config.js. */
 .prices{list-style:none;margin:22px auto 0;padding:0;display:grid;
   grid-template-columns:repeat(3,1fr);gap:12px;max-width:640px;text-align:center}
 .prices li{display:flex;flex-direction:column;gap:2px;padding:14px 12px;margin:0;
   border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface)}
 .prices b{color:var(--ink);font-size:15px}
 .prices span{color:var(--ink-2);font-size:14px}
-.pane-doc .prices{grid-template-columns:1fr;margin:12px 0}
-/* A phone: one compact row per size, the name on the left and its monthly
-   over its minutes on the right, so the button stays near the first screen. */
+/* A phone: one compact row per size, the name on the left and its monthly,
+   minutes and extra-minute rate stacked on the right, so the button stays
+   near the first screen. */
 @media(max-width:560px){
   .prices{grid-template-columns:1fr;gap:8px;margin-top:18px}
   .prices li{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px;
     padding:10px 16px;text-align:left}
-  .prices li b{grid-row:1 / span 2}
+  .prices li b{grid-row:1 / span 3}
   .prices li span{text-align:right}
 }
 
@@ -61,10 +59,3 @@
    frame. It only ever darkens. */
 html:not(.nv-filmwait) #hero::after{content:"";position:absolute;left:0;right:0;bottom:0;
   height:var(--sec-y);background:linear-gradient(to bottom,rgba(0,0,2,0),#000002);pointer-events:none}
-
-/* The film's documentation section: the station cards' source, not a
-   section of the page. */
-#doc{display:none}
-
-/* portrait: the chapter rail drops below the site header */
-@media (max-aspect-ratio:3/4){#paneNav{top:74px}}
