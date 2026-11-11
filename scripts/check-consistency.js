@@ -2579,8 +2579,10 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
       held to the claims it may not make, the priced knowledge bases to the
       figures pricing-config.js derives (every module sold alone with its two
       figures, the Partnership through startLine, the missed-call hours from
-      its blurb), and the door order (Lead Generation, quotes, the front desk;
-      never AI first) on the knowledge base's opening and the catalogue's
+      its blurb), and the door order (the front desk, then quotes, and no
+      Lead Generation, which is off the demo line since decision #81's
+      follow-up of 2026-11-11; never AI first) on the knowledge base's
+      opening and the catalogue's
       first row. err(), not wait(): every file is in this repository. */
 {
   let judged = true;
