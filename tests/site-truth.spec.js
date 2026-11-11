@@ -162,7 +162,6 @@ test('BP4: the named phone tap targets are at least 44px tall, and footer links 
     for (const b of boxes) expect(Math.round(b.h), `${what}: "${b.t}" is ${b.h}px tall`).toBeGreaterThanOrEqual(44);
   };
   await page.goto('/', { waitUntil: 'load' });
-  await tall('#paneNav button', 'the homepage chapter numerals');
   await tall('#hero a.btn', 'the homepage Book button');
   await tall('.site-footer .cols a', 'the footer links');
   const foot = await page.evaluate(() => [...document.querySelectorAll('.site-footer .cols > div')].map((col) =>

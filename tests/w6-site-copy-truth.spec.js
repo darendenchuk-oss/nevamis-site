@@ -217,9 +217,11 @@ test('O40: no published surface puts the missed-call text in business hours', ()
 
 /* Every surface this leaf reworded describes when the text goes out, so
    each must be seen stating the window; a rule that finds no window to
-   judge proves nothing. */
-const STATES_THE_WINDOW = ['pricing-config.js', 'home.html', 'index.html', 'roadmap-config.js',
-  'scripts/film/source.html'];
+   judge proves nothing. The homepage and the film's source said it in the
+   film's station copy, which left the page with owner decision #81's
+   follow-up (2026-11-10); the homepage no longer describes the text, and
+   the rule above still judges it if it ever does again. */
+const STATES_THE_WINDOW = ['pricing-config.js', 'roadmap-config.js'];
 
 test('O40: a block about the missed-call text that names a time names 8 a.m. and 8 p.m., never another hour', () => {
   const wrong = [];

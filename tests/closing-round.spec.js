@@ -77,29 +77,9 @@ test("BPH-1: with WebGL unavailable, the copy blocks do not overlap and the endi
 
 /* ---------- BPH-2: the chapter rail's targets ---------- */
 
-test('BPH-2: at 390 every chapter-rail button is at least 44x44, none overlap, and the rail clears the header', async ({ browser }) => {
-  const ctx = await context(browser, PHONE);
-  const page = await ctx.newPage();
-  await page.goto('/', { waitUntil: 'load' });
-  await page.waitForFunction(() => document.documentElement.classList.contains('nv-live'), null, { timeout: 30000 });
-  const r = await page.evaluate(() => ({
-    head: document.querySelector('.site-header').getBoundingClientRect().bottom,
-    btns: [...document.querySelectorAll('#paneNav button')].map((b) => {
-      const x = b.getBoundingClientRect();
-      return { t: b.textContent.trim().slice(0, 12), left: x.left, right: x.right, top: x.top, bottom: x.bottom, w: x.width, h: x.height };
-    }),
-  }));
-  expect(r.btns.length).toBe(6);
-  r.btns.forEach((b, i) => {
-    expect(b.w, `"${b.t}" is ${b.w}px wide`).toBeGreaterThanOrEqual(44);
-    expect(b.h, `"${b.t}" is ${b.h}px tall`).toBeGreaterThanOrEqual(44);
-    expect(b.left, `"${b.t}" runs off the left edge`).toBeGreaterThanOrEqual(0);
-    expect(b.right, `"${b.t}" runs off the right edge`).toBeLessThanOrEqual(390);
-    expect(b.top, `"${b.t}" sits under the header`).toBeGreaterThanOrEqual(r.head - 0.5);
-    for (let j = i + 1; j < r.btns.length; j++) expect(overlap(b, r.btns[j]), `"${b.t}" overlaps "${r.btns[j].t}"`).toBe(false);
-  });
-  await ctx.close();
-});
+/* The film's chapter rail left the homepage with owner decision #81's
+   follow-up (2026-11-10): the film plays with no station menu, and
+   tests/home-simple.spec.js fails if one comes back. */
 
 /* ---------- BPH-3: the header's two controls ---------- */
 
@@ -174,14 +154,10 @@ test('BD-F2: at 1024 the header shows the one action, Book a 15-minute call; at 
 
 test('BD-F6: the eyebrow numbers left on the homepage increase in document order', async ({ page }) => {
   await page.goto('/');
-  const nums = await page.$$eval('p.k i', (is) => is.filter((i) => !i.closest('#paneNav')).map((i) => Number(i.textContent.trim())));
+  const nums = await page.$$eval('p.k i', (is) => is.map((i) => Number(i.textContent.trim())));
   for (let i = 1; i < nums.length; i++) expect(nums[i], `eyebrow ${nums.join(', ')} runs backwards`).toBeGreaterThan(nums[i - 1]);
 });
 
-test('BD-F4: the Review Engine carries "Available today", and the Brief and the Inbox Assistant carry their roadmap status', async ({ page }) => {
-  await page.goto('/');
-  const chip = (name) => page.locator('#doc .svc h4', { hasText: name }).locator('.chip');
-  await expect(chip('Review Engine')).toHaveText('Available today');
-  await expect(chip('Your Daily Business Brief')).toHaveText('Planned');
-  await expect(chip('Inbox Assistant')).toHaveText('Being researched');
-});
+/* BD-F4's homepage chips were in the film's hidden station copy, which left
+   the page with owner decision #81's follow-up (2026-11-10). The chip rule
+   itself still runs on every page in scripts/check-consistency.js (7o). */

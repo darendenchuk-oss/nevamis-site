@@ -19,7 +19,7 @@ fe = film.find('</style>') + len('</style>')
 film_style = film[fs:fe]
 
 # the intro cold-open must hide the site header too, and ignite it with the chrome
-key = 'html.nv-intro #brand,html.nv-intro #hint,html.nv-intro #paneNav,html.nv-intro #labels,html.nv-intro #nlabel,html.nv-intro #ncard{opacity:0}'
+key = 'html.nv-intro #brand,html.nv-intro #hint{opacity:0}'
 assert key in film_style
 film_style = film_style.replace(key,
     key + '\nhtml.nv-intro .site-header{opacity:0}\n'
@@ -48,11 +48,10 @@ film_style = film_style.replace(key,
 #                first paint were the same moment, and would be a blink now that
 #                the header and the scroll hint are on screen a second earlier.
 #                Only those two are visible before the film draws: #brand is
-#                dropped by this composer, and #paneNav, #labels, #nlabel and
-#                #ncard are display:none until film-3 adds nv-live. So nv-late
-#                pins exactly those two opaque and leaves every other ignition
-#                rule, and every line of the film's own JavaScript (uiAwake()
-#                reads nv-intro), exactly as it was.
+#                dropped by this composer, and the film has no other fixed
+#                chrome. So nv-late pins exactly those two opaque and leaves
+#                every other ignition rule, and every line of the film's own
+#                JavaScript, exactly as it was.
 FILM_START_CSS = (
     'html.nv-filmwait #stage{background:radial-gradient(ellipse at 50% 40%,#0A2A1F 0%,var(--bg1) 70%)}\n'
     'html.nv-late.nv-intro .site-header{opacity:1}\n'
@@ -64,7 +63,8 @@ FILM_START_CSS = (
 # with the page and the world went black past the first viewport). clip clips
 # the same horizontal overflow without creating a scroll container.
 # Also: once the visitor scrolls past the film span into the page sections, the
-# film's fixed chrome (labels, rail, hint) yields instead of floating over them.
+# film's fixed chrome (the hint and the story blocks) yields instead of
+# floating over them.
 #
 # ON THE STATIC PATH THE STORY IS ORDINARY TEXT, BELOW THE FILM TOO (owner
 # decision #81, 2026-11-10). With nothing left under the film but the footer,
@@ -75,12 +75,10 @@ FILM_START_CSS = (
 #
 # THE SAME CHROME YIELDS ABOVE THE FILM (launch audit HERO-1, 2026-11-09). The
 # hero (#found) sits above the film now, and the film's fixed chrome is laid out
-# for a stage pinned at the top of the screen: the pane labels are projected
-# into viewport coordinates, the rail floats at the left or under the header,
-# and the "Scroll" hint sits at the bottom edge. Over the hero they would float
-# across the headline and its buttons, and the labels would sit up to a screen
-# away from the panes they name while the stage is still scrolling up into
-# place. So nv-above (set in the markup, so the very first paint has it, and
+# for a stage pinned at the top of the screen: the story blocks sit at mid-screen
+# and the "Scroll" hint at the bottom edge. Over the hero they would float
+# across the headline and its buttons. So nv-above (set in the markup, so the
+# very first paint has it, and
 # cleared by the script below once the stage reaches the top of the screen)
 # hides them the way nv-below does. The story blocks are hidden too, except on
 # the reduced-motion and no-WebGL path (nv-rm), where they are ordinary text in
@@ -94,10 +92,9 @@ FILM_START_CSS = (
 # next real link. So the same rules also set visibility:hidden, which takes an
 # element out of the tab order without moving anything, and the visibility
 # change waits for the fade (0s linear .35s) so the chrome still fades out
-# rather than vanishing; coming back, it is visible at once and fades in. The
-# node card (#ncard) sits at opacity 0 whenever it is closed, film or no film,
-# so it is hidden the same way whenever it is not open. Geometry is unchanged,
-# so every measurement of the rail (tests/closing-round.spec.js) still holds.
+# rather than vanishing; coming back, it is visible at once and fades in.
+# Geometry is unchanged. The rail and the node card, seven of those nine stops,
+# left the page with owner decision #81's follow-up (2026-11-10).
 # tests/first-screen.spec.js presses Tab from the hero and fails on any stop
 # that cannot be seen.
 #
@@ -107,21 +104,17 @@ FILM_START_CSS = (
 # on screen (nv-herocta, set in the markup and kept by an IntersectionObserver
 # below), so the two never show the same Book a call twice, and it is there
 # everywhere else, through the film included. It hides the way the book page's
-# bar steps aside for its scheduler (.callbar-off in site.css), and it also
-# steps aside while a pane card is open, whose foot it would otherwise cover.
-# With the bar up through the film, a phone's "Scroll" hint rides above it.
+# bar steps aside for its scheduler (.callbar-off in site.css). With the bar up
+# through the film, a phone's "Scroll" hint rides above it.
 SECTIONS_CSS = open('scripts/film/sections.css', encoding='utf-8').read()
 film_style = film_style.replace('</style>',
     '\n' + SECTIONS_CSS + '\n'
     'body{overflow-x:clip}\n'
-    'html.nv-below #labels,html.nv-below #paneNav,html.nv-below #hint,'
-    'html.nv-below:not(.nv-rm) .copy,html.nv-below #nlabel{opacity:0 !important;pointer-events:none;'
+    'html.nv-below #hint,html.nv-below:not(.nv-rm) .copy{opacity:0 !important;pointer-events:none;'
     'visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}\n'
-    'html.nv-above #labels,html.nv-above #paneNav,html.nv-above #hint,'
-    'html.nv-above:not(.nv-rm) .copy,html.nv-above #nlabel{opacity:0 !important;pointer-events:none;'
+    'html.nv-above #hint,html.nv-above:not(.nv-rm) .copy{opacity:0 !important;pointer-events:none;'
     'visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}\n'
-    '#ncard:not(.on){visibility:hidden;transition:opacity .28s ease,visibility 0s linear .28s}\n'
-    'html.nv-herocta .callbar,body.card-open .callbar{transform:translateY(110%);visibility:hidden;'
+    'html.nv-herocta .callbar{transform:translateY(110%);visibility:hidden;'
     'transition:transform var(--t-base) var(--e-out),visibility 0s linear var(--t-base)}\n'
     '@media(max-width:820px){#hint{bottom:calc(76px + env(safe-area-inset-bottom))}}\n'
     '@media(max-width:900px){#scroll .copy{display:block}}\n'
@@ -138,18 +131,13 @@ assert mbrand and len(mbrand.group(0)) < 200, 'brand div not where expected'
 film_body = film_body[:mbrand.start()] + film_body[mbrand.end():]
 
 # <main id="main"> opens above the film, with the hero in it, so the skip link
-# lands on the page's first screen. The film's #doc stays in the document,
-# because the film reads its station cards and named dots from it, and
-# sections.css keeps it from showing as a section of the page.
-assert film_body.count('<section id="doc"') == 1
+# lands on the page's first screen, and closes after the film span. The film
+# carries nothing else into the page: no station menu, no labels, no cards and
+# no hidden #doc copy (owner decision #81, 2026-11-10).
 assert film_body.count('<div id="scroll">') == 1, 'the film span not where expected'
-# the six stations are a grid, so the run of .pane-doc articles needs one parent
-_a = film_body.find('<article class="pane-doc"')
-_z = film_body.rfind('</article>') + len('</article>')
-assert 0 < _a < _z, 'pane-doc articles not found'
-film_body = film_body[:_a] + '<div class="stations">' + film_body[_a:_z] + '</div>' + film_body[_z:]
-close = re.search(r'</section>\s*(?=<script)', film_body)
-assert close, 'doc close not found before scripts'
+_s = film_body.find('<script>')
+assert _s > film_body.find('<div id="scroll">') and film_body[:_s].rstrip().endswith('</div>'), \
+    'the film span must be the last thing before the film scripts'
 # The page around the film is authored in scripts/film/sections.html: the hero,
 # then one <!--FILM--> marker, then nothing (owner decision #81, 2026-11-10:
 # one message, the price, one button).
@@ -158,7 +146,7 @@ assert SECTIONS.count('<!--FILM-->') == 1, 'sections.html needs exactly one <!--
 sec_hero, sec_rest = SECTIONS.split('<!--FILM-->')
 assert not sec_rest.strip(), 'nothing follows the film marker in sections.html'
 assert 'id="hero"' in sec_hero and '<h1' in sec_hero, 'the hero (#hero and the one h1) goes above the film'
-film_body = film_body[:close.end()] + '\n</main>\n' + film_body[close.end():]
+film_body = film_body[:_s].rstrip() + '\n</main>\n\n' + film_body[_s:]
 film_body = film_body.replace('<div id="scroll">', '<main id="main">' + sec_hero + '\n<div id="scroll">', 1)
 
 # --- site chrome from the old page ---
@@ -262,9 +250,10 @@ assert '<meta name="robots" content="noindex, nofollow">' in out
 assert out.count('<header class="site-header">') == 1
 assert out.count('<footer class="site-footer">') == 1
 assert '/privacy.html' in out and '/terms.html' in out
-assert 'id="paneNav"' in out and 'id="doc"' in out
+for _gone in ('id="paneNav"', 'id="labels"', 'id="nlabel"', 'id="card"', 'id="ncard"', 'id="doc"', 'app.nevamis.ca/scan'):
+    assert _gone not in out, 'the film carries its station menu, cards or scan link again: ' + _gone
 assert out.count('<h1') == 1, 'the page needs exactly one h1'
-assert '<!-- generated:prices --><!-- /generated:prices -->' in out, 'the hero price region is missing'
+assert out.count('<!-- generated:prices --><!-- /generated:prices -->') == 1, 'the hero price region is missing, or not the only one'
 assert 'data-evt="hero_book_call_click"' in out and 'data-evt="hero_live_demo_call_click"' in out, \
     'the hero must carry the Book button and the demo line, each with its own event'
 assert '—' not in out[out.find('<body'):], 'em dash in page copy'
@@ -279,7 +268,7 @@ _found = out.find('id="hero"')
 _scroll = out.find('<div id="scroll">')
 _main = out.find('<main id="main">')
 assert 0 < _main < _found < out.find('<h1') < _scroll, 'the hero (#hero and the h1) must open <main>, above the film'
-assert out.find('</main>') > out.find('id="doc-nodes"'), '</main> closes before the film documentation'
+assert out.find('</main>') > out.find('<div id="scroll">'), '</main> closes before the film span'
 _hero = out[_found:out.find('</section>', _found)]
 assert not re.search(r'class="[^"]*\breveal\b', _hero), 'a .reveal on the first screen makes the hero wait for motion'
 

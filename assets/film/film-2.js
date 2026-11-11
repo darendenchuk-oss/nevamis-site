@@ -548,40 +548,28 @@ PANE_DEFS.forEach(function(d){
     envBase: pMat.envMapIntensity, lq: lq });
 });
 
-/* ---------- BRAIN NODES: named parts of the brain, promoted from the terrain ----------
-   Thirteen service items become named dots. Names, one-liners and availability
-   are read verbatim from the plain-DOM truth copy (#doc), never retyped here,
-   so the strings cannot drift from the truth files. Each item claims the free
-   terrain node nearest its pillar's pane station (spread apart, never inside
-   the core, and NEVER a leak: the gold leak stems keep their own role). */
+/* ---------- BRAIN NODES: named dots, promoted from the terrain ----------
+   Eleven terrain nodes stand a step larger than the crowd, with a brighter
+   floor spot. They used to be read off the hidden #doc copy, one per product
+   it described, and each opened a card naming that product. The homepage
+   names nothing but the answered call now (owner decision #81, 2026-11-10),
+   so #doc and the cards are gone, and the film keeps the dots as scenery: the
+   count per pillar below is the count the copy had, in the same order, so
+   every dot lands on the node it always did. Each claims the free terrain
+   node nearest its pillar's pane station (spread apart, never inside the
+   core, and NEVER a leak: the gold leak stems keep their own role). */
 var brains = [];
 var brainOf = {};
 (function(){
-  var order = ['scan', 'capture', 'convert', 'operate', 'grow'];
+  var DOTS = [['scan', 1], ['capture', 1], ['convert', 2], ['operate', 4], ['grow', 3]];
   var used = {};
   LEAKS.forEach(function(li){ used[li] = true; });
-  order.forEach(function(pid){
+  DOTS.forEach(function(d){
+    var pid = d[0];
     var pn = null;
     for (var i = 0; i < panes.length; i++) if (panes[i].id === pid) pn = panes[i];
-    var art = document.getElementById('doc-' + pid);
-    if (!pn || !art) return;
-    var h3 = art.querySelector('h3');
-    var pillar = h3 ? h3.textContent : pid;
-    var svcs = art.querySelectorAll('.svc');
-    for (var s = 0; s < svcs.length; s++) {
-      var h4 = svcs[s].querySelector('h4');
-      var chip = h4 ? h4.querySelector('.chip') : null;
-      if (!h4) continue;
-      var name = '';
-      for (var cn = h4.firstChild; cn; cn = cn.nextSibling) {
-        if (cn.nodeType === 3) name += cn.textContent;
-      }
-      name = name.replace(/\s+/g, ' ').replace(/^ +| +$/g, '');
-      var desc = '';
-      var ps = svcs[s].querySelectorAll('p');
-      for (var q = 0; q < ps.length; q++) {
-        if (!ps[q].className) { desc = ps[q].textContent; break; }
-      }
+    if (!pn) return;
+    for (var s = 0; s < d[1]; s++) {
       /* nearest free node to this pillar's pane station, kept apart from siblings */
       var best = -1, bd = 1e9;
       for (var j = 0; j < N; j++) {
@@ -598,18 +586,7 @@ var brainOf = {};
       if (best < 0) continue;
       used[best] = true;
       nodes[best].brain = true;
-      var br = {
-        ni: best, pane: pid, pillar: pillar, name: name, desc: desc,
-        avail: chip ? chip.textContent : '',
-        /* The chip's own modifier class, carried through rather than collapsed
-           to a dev/not-dev boolean. There are three states now (av, dev, inv)
-           and a boolean can only ever repaint the third as one of the other
-           two, which is how a third chip state would have rendered in the
-           node card wearing the filled mint of AVAILABLE TODAY. */
-        availClass: chip ? (String(chip.className).split(/\s+/)
-          .filter(function(c){ return c && c !== 'chip'; })[0] || 'dev') : '',
-        pos: nodes[best].pos, wpos: nodes[best].pos.clone(), boost: 0
-      };
+      var br = { ni: best, pane: pid, pos: nodes[best].pos, wpos: nodes[best].pos.clone(), boost: 0 };
       brainOf[best] = br;
       brains.push(br);
     }

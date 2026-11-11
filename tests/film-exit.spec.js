@@ -59,7 +59,6 @@ test('the only exit hook on the page is the film ending\'s Book a 15-minute call
   const { ctx, page } = await open(browser, baseURL, { width: 1440, height: 900 });
   try {
     const hooked = await page.evaluate(() => [...document.querySelectorAll('a[data-film-exit]')]
-      .filter((a) => !a.closest('#doc'))
       .map((a) => [a.getAttribute('href'), a.getAttribute('data-evt'), a.textContent.trim()]));
     expect(hooked).toEqual([['/book.html#pick-a-time', 'film_book_click', 'Book a 15-minute call']]);
   } finally { await ctx.close(); }

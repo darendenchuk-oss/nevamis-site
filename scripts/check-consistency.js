@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 import { promoteHtml } from "./promote.mjs";
 import { headCssBlock, readCssSources, CSS_OPEN, CSS_CLOSE, LINK_FONTS, LINK_SITE } from "./lib/inline-css.mjs";
 import { applySelfCta } from "./lib/nav-cta.mjs";
-import { chipsOf, chipFindings, STATUS_LABELS, CHIP_FIXTURES } from "./lib/status-chips.mjs";
+import { chipFindings, STATUS_LABELS, CHIP_FIXTURES } from "./lib/status-chips.mjs";
 import { termFindings, TERM_FIXTURES } from "./lib/llms-terms.mjs";
 import { agentTruthFindings, agentRequiredFindings, doorOrderFindings, AGENT_FIXTURES, llmsPageFindings, LLMS_PAGE_FIXTURES, offerFindings, OFFER_FIXTURES } from "./lib/machine-surfaces.mjs";
 import { sitemapPages } from "./lib/sitemap.mjs";
@@ -1157,78 +1157,16 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
   }
 }
 
-/* 7m. THE HOMEPAGE MUST SHOW WHAT IS SOLD AND NAME WHAT IT DRAWS.
+/* 7m. RETIRED (owner decision #81, 2026-11-10).
 
-       Added 2026-09-24 for two homepage findings, both in a file a person
-       composes by hand (scripts/film/source.html) and both green under every
-       rule above, because each is about what the page LEAVES OUT, and every
-       rule above reads the words that are there.
-
-       a) Every module sold on its own must have a station. Get-Paid
-          Autopilot was available in canonical, sold alone, inside The Works
-          and priced on pricing.html, and was absent from every station and
-          from the brain map, so "less office admin" read as one live thing
-          and two unbuilt ones. The stations mark a sold module with
-          data-addon, which is also what puts its price in the plans strip
-          (site.js), so the check is on that attribute: a station without it
-          is not priced, and a price without a station cannot render.
-          Derived from pricing-config.js (sellable && soldAlone), so a
-          module that goes on sale tomorrow fails here until the homepage
-          describes it.
-       b) The brain-node list says "each named dot is a part of the brain"
-          and states no count because "the list is the count". The film draws
-          one dot per station module (film source, the BRAIN NODES block,
-          which reads the #doc stations), so the list is only true while it
-          names exactly the stations' modules under their own pillars. It
-          went stale once by count (a typed "thirteen dots") and again by name
-          on 2026-09-24, when the stations had been renamed and the list had
-          not. */
-{
-  const page = "index.html";
-  const html = fs.existsSync(path.join(root, page)) ? fs.readFileSync(path.join(root, page), "utf8") : "";
-  if (!html) err("guard 7m: index.html is missing");
-  else {
-    const noComments = html.replace(/<!--[\s\S]*?-->/g, " ");
-    const plain = (s) => s.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
-    /* The six stations, as the film reads them: an <article> per pillar, its
-       h3 the pillar, each .svc's h4 text minus its chip the module name. */
-    const stations = [];
-    const onPage = new Set();
-    for (const id of ["scan", "capture", "convert", "operate", "grow"]) {
-      const art = (noComments.match(new RegExp(`<article class="pane-doc" id="doc-${id}">([\\s\\S]*?)</article>`)) || [])[1];
-      if (!art) { err(`guard 7m: the #doc-${id} station is missing from index.html`); continue; }
-      const pillar = plain((art.match(/<h3>([\s\S]*?)<\/h3>/) || [, id])[1]);
-      for (const svc of art.matchAll(/<div class="svc"([^>]*)>([\s\S]*?)<\/div>/g)) {
-        const addon = (svc[1].match(/data-addon="([^"]+)"/) || [])[1];
-        if (addon) onPage.add(addon);
-        const h4 = (svc[2].match(/<h4>([\s\S]*?)<\/h4>/) || [])[1];
-        if (h4) stations.push(plain(h4.replace(/<span class="chip[\s\S]*?<\/span>/g, "")) + " | " + pillar);
-      }
-    }
-
-    /* a) */
-    const w = {};
-    vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
-    const soldAlone = (w.NV_PRICING?.addOns ?? []).filter((a) => a.sellable && a.soldAlone);
-    if (!soldAlone.length) err("guard 7m: pricing-config.js lists no module sold alone, so the homepage cannot be checked against it");
-    for (const a of soldAlone) {
-      if (!onPage.has(a.id)) {
-        err(`${page}: ${a.name} is sold on its own (pricing-config.js ${a.id}) but no station carries data-addon="${a.id}".\n`
-          + `       A buyer reading the homepage never learns it exists, and the plans strip cannot price it.\n`
-          + `       Add a .svc for it to its pillar in scripts/film/source.html, then recompose.`);
-      }
-    }
-
-    /* b) */
-    const nodesBlock = (noComments.match(/<article class="pane-doc" id="doc-nodes">([\s\S]*?)<\/article>/) || [])[1] || "";
-    const listed = [...nodesBlock.matchAll(/<li><b>([\s\S]*?)<\/b>\s*<span>([\s\S]*?)<\/span><\/li>/g)]
-      .map((m) => plain(m[1]) + " | " + plain(m[2]));
-    if (!listed.length) err(`guard 7m: ${page} has no brain-node list to check`);
-    const drawn = new Set(stations), named = new Set(listed);
-    for (const s of stations) if (!named.has(s)) err(`${page}: the film draws a dot for "${s}" but the brain-node list does not name it (the list is the count)`);
-    for (const l of listed) if (!drawn.has(l)) err(`${page}: the brain-node list names "${l}", which no station describes, so no dot is drawn for it`);
-  }
-}
+       This guard held the homepage to the opposite of what it is now: every
+       module sold alone needed a station in the film's hidden #doc copy, and
+       the copy's brain-node list had to name every dot the film drew. The
+       homepage is one message, the price and one button; the film carries no
+       station menu, labels, cards or #doc, and draws its named dots from a
+       fixed count in its own source. tests/home-simple.spec.js holds the page
+       to naming nothing but the answered call, and fails if the menu, a card
+       or the hidden copy comes back. */
 
 /* 7z. The inlined stylesheet must equal its sources.
 
@@ -2574,16 +2512,18 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
   if (!labels) err("scripts/lib/status-chips.mjs: STATUS_LABELS was not found, so no page's roadmap chips can be checked");
   else if (!Array.isArray(services) || !services.length) err("roadmap-config.js: NV_ROADMAP.services not found, so no page's roadmap chips can be checked");
   else if (judged) {
-    let chips = 0;
+    /* No published page carries a roadmap chip since decision #81: the
+       homepage's were in the film's #doc copy, which is gone, so this no
+       longer demands one. The judge is still proved on its fixtures above
+       and still reads every page, so a chip that comes back is held to
+       roadmap-config.js the day it lands. */
     for (const page of contentPages) {
       const html = fs.readFileSync(path.join(root, page), "utf8");
-      chips += chipsOf(html).length;
       for (const b of chipFindings(html, services, labels)) {
         err(`${page}: a chip reads "${b.chip}" for ${b.name}, whose roadmap-config.js status is "${b.status}". `
           + `It must read ${b.want.map((x) => '"' + x + '"').join(" or ")} (case aside), the words the Roadmap shows for it.`);
       }
     }
-    if (!chips) err("no page carries a status chip, so guard 7o proves nothing: has the chip markup changed?");
   }
 }
 

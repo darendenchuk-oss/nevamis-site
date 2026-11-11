@@ -194,12 +194,12 @@ test('footer, callbar and every section land without console errors', async ({ b
 
   /* Every section the composer puts around the film, read from its source
      rather than typed here: since owner decision #81 (2026-11-10) that is
-     the hero alone. The film's own #doc and the <main> that
-     scripts/film/compose.py wraps around it are the two it adds itself. */
+     the hero alone. The <main> that scripts/film/compose.py wraps around
+     it is the one it adds itself. */
   const src = fs.readFileSync(new URL('../scripts/film/sections.html', import.meta.url), 'utf8');
   const ids = [...src.matchAll(/<section\b[^>]*\bid="([^"]+)"/g)].map((m) => m[1]);
   expect(ids, 'scripts/film/sections.html defines the hero and nothing else').toEqual(['hero']);
-  for (const id of [...ids, 'doc', 'main']) {
+  for (const id of [...ids, 'main']) {
     await expect(page.locator('#' + id), `#${id} is authored but not on the homepage`).toHaveCount(1);
   }
 

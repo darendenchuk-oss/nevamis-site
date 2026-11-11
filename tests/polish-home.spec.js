@@ -37,10 +37,9 @@
    JSON-LD, and the search index's records for "/": their title (t), text (d)
    and page-body keywords (k), which build-search-index.mjs builds from this
    page, so a rule broken in a stale index fails here as well as in
-   check-generator-drift. The film's cards carry no copy of their own:
-   film-3.js reads every caption verbatim from the plain-DOM truth copy in the
-   markup (source.html's pane docs), which the visible text above already
-   reads.
+   check-generator-drift. The film carries no cards or labels since owner
+   decision #81's follow-up (2026-11-10); its words are the story blocks in
+   the markup, which the visible text above already reads.
 
    WHERE THIS RUNS: locally, as a proof spec (npx playwright test, or the
    command below), like tests/home-door-order.spec.js. The site's CI
@@ -141,19 +140,20 @@ const sentences = (text) => text.split(/(?<=[.!?])\s+(?=[A-Z(])/).map(flat).filt
 
 test('the surfaces are really read: both pages, their JSON-LD FAQ and the search index', () => {
   /* A reader that silently finds nothing would pass every rule below. */
-  /* Since owner decision #81 (2026-11-10) the page is the hero, the film and
-     the film's station cards, with no FAQ, so the search index carries one
-     record for "/" (its title, text and keywords). */
+  /* Since owner decision #81 (2026-11-10) the page is the hero and the film,
+     with no FAQ and, since its follow-up, no station cards, so the search
+     index carries one record for "/" (its title, text and keywords), and the
+     page reads as 26 visible blocks. */
   const all = surfaces();
   for (const p of PAGES) {
-    expect(all.filter((s) => s.page === p && s.where === 'visible text').length, `${p} visible blocks`).toBeGreaterThan(30);
+    expect(all.filter((s) => s.page === p && s.where === 'visible text').length, `${p} visible blocks`).toBeGreaterThan(20);
     expect(all.filter((s) => s.page === p && /^JSON-LD /.test(s.where)).length, `${p} JSON-LD strings`).toBeGreaterThan(20);
   }
   expect(all.filter((s) => s.page === 'search-index.json').length, 'search-index strings for /').toBe(3);
   expect(all.filter((s) => s.where === '/ keywords').length, "the search index's page-body keywords for /").toBe(1);
-  /* The hero and the film's pane docs are part of what is read. */
+  /* The hero and the film's story are part of what is read. */
   expect(all.some((s) => s.page === 'index.html' && s.text === 'We answer the calls you miss.'), 'the hero h1').toBe(true);
-  expect(all.some((s) => s.page === 'index.html' && /^Answers the calls you miss, 24\/7\b/.test(s.text)), "the film's Capture pane").toBe(true);
+  expect(all.some((s) => s.page === 'index.html' && /The phone rings while you are on a job\./.test(s.text)), "the film's first beat").toBe(true);
 });
 
 test('PRICING-9: no homepage sentence has the agent take the job, the time or the slot the caller wants, even beside "you confirm"', () => {

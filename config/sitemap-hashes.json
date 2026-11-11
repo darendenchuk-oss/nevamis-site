@@ -2,23 +2,23 @@
   "_comment": "Written by scripts/gen-sitemap.mjs; do not edit by hand. Per sitemap page: sha256 of the file with \\r removed, and the <lastmod> sitemap.xml gives it. scripts/check-generator-drift.mjs fails when a page no longer matches its hash. Fix: node scripts/gen-sitemap.mjs, then commit sitemap.xml and this file.",
   "pages": {
     "index.html": {
-      "sha256": "da1d38e83e94843a8fa53de479f3e35d5851249ab56aa62029f0956e0525dc1d",
+      "sha256": "17d6be86eceb37e37be2c003fcd97d7e411a39ec539a6ac1e4c8d9b7f74f2a3a",
       "lastmod": "2026-11-10"
     },
     "book.html": {
-      "sha256": "386de24282bd4d2497d09c74aea995ff4b7a763aaf2fcbedebcef5b632cec45c",
+      "sha256": "117ae614f4b4c7be096e8fcda6032a0e2415e458319a6a2371b8dc6ef5250f26",
       "lastmod": "2026-11-10"
     },
     "privacy.html": {
-      "sha256": "fe6e5fb4cf8affa162f33f7dcf05fa547f084fc2fda6c852f1a6d07565d6c4fe",
+      "sha256": "e3a729b52764a6e0656678077741245d4901e449c62578e7269ceb4c7857762a",
       "lastmod": "2026-11-10"
     },
     "terms.html": {
-      "sha256": "150a19dd089dcb0ff3a9fd55d66f7d40cb21840d180290afff4beaf3d145135f",
+      "sha256": "61ed805746908ef41429b69075cee6db502ed8c1d44db782ae7631358c4fa858",
       "lastmod": "2026-11-10"
     },
     "security.html": {
-      "sha256": "10fb21a974a279ec1c61215651a635c31611fc4ad57b4ee2b59d13fcd5524a54",
+      "sha256": "4bb279c00466f2441c3561347ea6b284406e1185a093d0484c51b38a10706917",
       "lastmod": "2026-11-10"
     }
   }
