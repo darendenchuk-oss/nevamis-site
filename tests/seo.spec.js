@@ -9,11 +9,13 @@ import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
-const PUBLIC_PAGES = [
-  '/', '/pricing.html', '/how-you-start.html', '/demo.html', '/book.html',
-  '/about.html', '/coming-soon.html', '/privacy.html', '/terms.html',
-  '/revenue-engine.html',
-];
+/* The public pages since owner decision #81 (2026-11-10). */
+const PUBLIC_PAGES = ['/', '/book.html', '/privacy.html', '/terms.html', '/security.html'];
+const NV = (() => {
+  const sandbox = { window: {} };
+  vm.runInNewContext(fs.readFileSync('pricing-config.js', 'utf8'), sandbox, { timeout: 1000 });
+  return sandbox.window.NV_PRICING;
+})();
 
 /** Every JSON-LD block on the page, parsed. Throws on invalid JSON. */
 async function schemaOf(page) {
@@ -56,7 +58,7 @@ test('every public page has valid JSON-LD, one h1, and complete metadata', async
 
 function betterMax() { return 185; }
 
-test('homepage publishes Organization, Service, FAQ and resolvable @id links', async ({ page }) => {
+test('homepage publishes Organization, Service and resolvable @id links, and no FAQ', async ({ page }) => {
   await page.goto('/');
   const schema = await schemaOf(page);
   // a node may declare several types (Organization is also a ProfessionalService)
@@ -65,7 +67,8 @@ test('homepage publishes Organization, Service, FAQ and resolvable @id links', a
   expect(types).toContain('Organization');
   expect(types).toContain('WebSite');
   expect(types).toContain('Service');
-  expect(types).toContain('FAQPage');
+  /* The FAQ left the homepage with owner decision #81. */
+  expect(types).not.toContain('FAQPage');
 
   const org = schema.find((s) => [].concat(s['@type']).includes('Organization'));
   expect(org['@id'], 'Organization needs an @id for other nodes to reference').toBeTruthy();
@@ -81,15 +84,11 @@ test('homepage publishes Organization, Service, FAQ and resolvable @id links', a
      `price`: the monthly alone was the figure a parser read as the whole
      cost. tests/machine-surfaces.spec.js checks every figure against
      pricing-config.js; this holds the shape. */
-  /* Every plan in the config, not a literal: amendment #67 (v7) made it
-     five, with Front Desk Starter and Front Desk Plus. */
-  const planCount = (() => {
-    const sandbox = { window: {} };
-    vm.runInNewContext(fs.readFileSync('pricing-config.js', 'utf8'), sandbox, { timeout: 1000 });
-    return sandbox.window.NV_PRICING.plans.length;
-  })();
-  expect(service.offers.filter((o) => o.category === 'Plan').length, 'every plan should be listed').toBe(planCount);
-  expect(service.offers.filter((o) => o.category === 'Module sold on its own').length, 'every module sold alone has an Offer').toBeGreaterThan(0);
+  /* The three Front Desk sizes the homepage sells, and nothing else (owner
+     decision #81), read from the config, not a literal. */
+  const sizes = NV.frontDeskTiers();
+  expect(service.offers.filter((o) => o.category === 'Plan').map((o) => o.name), 'the three sizes are listed').toEqual(sizes.map((x) => x.name));
+  expect(service.offers.length, 'no other plan or module is offered').toBe(sizes.length);
   for (const o of service.offers) {
     expect(o.priceCurrency).toBe('CAD');
     expect(o.price, `${o.name} has no single price`).toBeUndefined();
@@ -102,14 +101,6 @@ test('homepage publishes Organization, Service, FAQ and resolvable @id links', a
     expect(Number.isFinite(Number(parts[0].price ?? parts[0].minPrice)), `${o.name}: the fee component is a number`).toBe(true);
   }
 
-  // FAQ markup must mirror the visible FAQ, not a separate hand-written list
-  const faq = schema.find((s) => s['@type'] === 'FAQPage');
-  const visible = await page.locator('.faq details').count();
-  expect(faq.mainEntity.length, 'FAQ schema must match the visible questions').toBe(visible);
-  for (const q of faq.mainEntity) {
-    expect(q.name.length).toBeGreaterThan(5);
-    expect(q.acceptedAnswer.text.length).toBeGreaterThan(20);
-  }
 });
 
 test('secondary pages carry breadcrumbs back to the homepage', async ({ page }) => {
@@ -145,7 +136,7 @@ test('robots.txt, sitemap and llms.txt agree with the real page set', async ({ p
 
   const sitemap = await (await page.request.get('/sitemap.xml')).text();
   const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  expect(locs.length).toBeGreaterThanOrEqual(10);
+  expect(locs.length).toBe(PUBLIC_PAGES.length);
   // the staging twin must never be advertised
   expect(locs.join(' ')).not.toContain('home.html');
   for (const path of PUBLIC_PAGES) {
@@ -159,181 +150,23 @@ test('robots.txt, sitemap and llms.txt agree with the real page set', async ({ p
   expect(llms.toLowerCase()).toContain('no client counts');
 });
 
-test('pricing publishes a parseable price table for answer engines', async ({ page }) => {
-  await page.goto('/pricing.html');
-  const schema = await schemaOf(page);
-  const product = schema.find((s) => s['@type'] === 'Product');
-  expect(product, 'pricing needs Product/Offer markup').toBeTruthy();
-
-  const agg = product.offers;
-  expect(agg['@type']).toBe('AggregateOffer');
-  expect(agg.priceCurrency).toBe('CAD');
-  expect(Number(agg.offerCount)).toBe(await page.evaluate(() => window.NV_PRICING.plans.length));
-
-  // prices must match the config, never a hardcoded copy
-  const cfg = await page.evaluate(() => ({
-    plans: window.NV_PRICING.plans.map((p) => ({
-      name: p.name, monthly: p.monthly, selfServe: p.selfServe,
-    })),
-  }));
-  for (const plan of cfg.plans) {
-    const offer = agg.offers.find((o) => o.name === plan.name);
-    expect(offer, `offer missing for ${plan.name}`).toBeTruthy();
-    expect(offer.price).toBe(String(plan.monthly));
-  }
-  /* lowPrice was asserted against Pay As You Go's C$49. That is the number the
-     schema advertised to crawlers while no human could see it anywhere on the
-     page. The plan was removed 2026-08-07; the floor a crawler is told is now
-     the floor a buyer is shown. */
-  /* The LOWEST of the offers, which is what schema.org means by lowPrice -
-     not plans[0]. Those were the same number only while the ladder happened
-     to be sorted ascending; the 2026-08-15 evening model leads with Operate
-     at the TOP of the range, and this started demanding that the cheapest
-     plan cost C$1,000. Order-independent now, so reordering the ladder is
-     not a test failure. */
-  /* OVER THE SELF-SERVE PLANS ONLY (fix plan A26). The range used to run over
-     every plan, so the floor a crawler was told was the Performance
-     Partnership's monthly: a plan that is offered by invitation and that
-     checkout refuses, which made the cheapest advertised way into the product
-     one nobody could buy. `selfServe !== false`, not `=== true`, so a plan
-     that never sets the flag keeps counting as buyable; only an explicit
-     `selfServe: false` is held out. The Partnership keeps its own Offer, with
-     LimitedAvailability, which is how a crawler learns it exists without
-     reading it as the entry price. */
-  const monthlies = cfg.plans.filter((p) => p.selfServe !== false).map((p) => p.monthly);
-  expect(monthlies.length).toBeGreaterThan(0);
-  expect(Number(agg.lowPrice)).toBe(Math.min(...monthlies));
-  expect(Number(agg.highPrice)).toBe(Math.max(...monthlies));
-  /* The literal is the second opinion on the derived line above: it moves
-     only when a directive moves the ladder. 250 was the Partnership monthly
-     through v4; v5 (owner-authored, 2026-08-24) made 350 the published
-     default, and the C$250-500 band's floor is an agreement matter, not an
-     offer. Since A26 the floor is the cheapest plan a buyer can actually
-     check out on, which was the AI Front Desk at C$1,000 until v7 (owner
-     amendment #67, 2026-10-03, held for counsel) added Front Desk Starter at
-     C$250. */
-  expect(Number(agg.lowPrice)).toBe(250);
-});
-
-test('every price promised to a crawler is visible to a buyer', async ({ page }) => {
-  /* The schema and the page used to disagree in the worst direction. The
-     AggregateOffer advertised lowPrice 49 to Google and the answer engines,
-     and the Offer list named Pay As You Go, but the page rendered cards only
-     from NV_PRICING.plans - which does not include it. So the cheapest way
-     into the product was published to crawlers and hidden from the human who
-     came to buy, and the visible floor was $249/mo plus $500 setup.
-
-     The existing test above compares schema to config, and passed throughout,
-     because both were right. What nobody checked was whether the page SHOWS
-     what it promises. */
-  await page.goto('/pricing.html');
-  await page.waitForSelector('#plans .plan');
-
-  const schema = await schemaOf(page);
-  const agg = schema.find((s) => s['@type'] === 'Product').offers;
-
-  const cards = await page.$$eval('#plans .plan', (els) => els.map((el) => ({
-    name: el.querySelector('h3')?.textContent.trim(),
-    /* The headline and the figure lines under it. Since BD-F3 (2026-09-26)
-       the invitation card's headline is "By invitation" and its figures sit
-       in the band and fee lines below it, still on the card, still in front
-       of the buyer, which is what this test is about. */
-    price: [...el.querySelectorAll('.price, .price-band, .setup')].map((n) => n.textContent).join(' ').replace(/\s+/g, ' ').trim(),
-    href: el.querySelector('.buy a')?.getAttribute('href'),
-  })));
-
-  for (const offer of agg.offers) {
-    const card = cards.find((c) => c.name === offer.name);
-    expect(card, `schema offers "${offer.name}" but no card renders it`).toBeTruthy();
-    /* Compared with thousands separators stripped from both sides. The card
-       groups its figure ("C$1,000/month") because "C$1000" reads like a typo
-       on the one page where a misread number costs a sale, and schema.org
-       requires the raw number ("1000"). Comparing the strings verbatim made
-       this test enforce a formatting choice it has no opinion about, and it
-       failed on the Pro card for exactly that reason. A wrong NUMBER still
-       fails. */
-    const digits = (s) => String(s).replace(/,/g, '');
-    expect(digits(card.price), `"${offer.name}" card must show ${offer.price}`)
-      .toContain(digits(offer.price));
-    // Every card must lead somewhere. A price with no way to act on it is
-    // the same lost sale in a quieter form.
-    expect(card.href, `"${offer.name}" has no call to action`).toBeTruthy();
-  }
-
-  // And the advertised floor must be a price someone can actually read.
-  expect(cards.some((c) => c.price.replace(/,/g, '').includes(String(agg.lowPrice))),
-    `lowPrice ${agg.lowPrice} is advertised but appears on no card`).toBe(true);
-});
-
-test('every page with real Q&A publishes it, except claims under review', async ({ page }) => {
-  // coming-soon carries 12 genuine questions and honest forward-looking answers
-  await page.goto('/coming-soon.html');
-  let schema = await schemaOf(page);
-  const faq = schema.find((s) => s['@type'] === 'FAQPage');
-  expect(faq, 'coming-soon Q&A should be answerable').toBeTruthy();
-  expect(faq.mainEntity.length).toBeGreaterThanOrEqual(10);
-  // the status answer must survive extraction out of context.
-  // The product name lost its "AI " prefix on 2026-08-09 with the rest of the
-  // brand pass; the sentence this pins is the same sentence, and it still has
-  // to say "only" and "available today" so a quoted fragment cannot read as a
-  // catalogue of shipped services.
-  const answers = faq.mainEntity.map((q) => q.acceptedAnswer.text).join(' ').toLowerCase();
-  /* THE FACT CHANGED 2026-08-19 AND THE GUARD DID NOT. Six services are
-     available now, not one, so "only the front desk is available today"
-     stopped being true — but the PROPERTY this test defends is unchanged:
-     an answer engine quoting a fragment of this must not read as a
-     catalogue of shipped services. So the assertion pins the property,
-     not the sentence: the answer has to qualify what is live (rather than
-     implying all of it is) AND has to say the rest is unbuilt. Both
-     halves, because either alone can be quoted into a lie. */
-  expect(answers, 'the status answer must qualify what is live').toMatch(
-    /\b(some are|marked available now|available now on this page)\b/);
-  expect(answers, 'the status answer must say the rest is unbuilt').toContain(
-    'planned or being researched');
-
-  // revenue-engine sells something that does not exist yet, so its Q&A is the
-  // most quotable place on the site to accidentally claim traction. It is now
-  // published, which means the guard has to bite on the wording rather than on
-  // the presence of the block: an answer engine repeating this must tell the
-  // reader the product is unbuilt and unbought.
-  await page.goto('/revenue-engine.html');
-  schema = await schemaOf(page);
-  const reFaq = schema.find((s) => s['@type'] === 'FAQPage');
-  expect(reFaq, 'revenue-engine Q&A should be answerable').toBeTruthy();
-  const reAnswers = reFaq.mainEntity.map((q) => q.acceptedAnswer.text).join(' ').toLowerCase();
-  expect(reAnswers, 'the unbuilt status must survive extraction out of context')
-    .toContain('no clients onboarded yet');
-  // any phrasing that implies the pilot already has customers
-  for (const lie of ['with a small number of clients', 'our clients', 'existing clients', 'current clients']) {
-    expect(reAnswers, `structured data must not imply clients that do not exist: "${lie}"`).not.toContain(lie);
-  }
-});
-
 test('the organization is typed and priced for local answer results', async ({ page }) => {
   await page.goto('/');
   const schema = await schemaOf(page);
   const org = schema.find((s) => String(s['@type']).includes('Organization'));
   expect(String(org['@type'])).toContain('ProfessionalService');
-  expect(org.priceRange).toMatch(/C\$/);
+  /* The range of the three Front Desk sizes, smallest to largest monthly. */
+  const monthlies = NV.frontDeskTiers().map((x) => x.monthly);
+  expect(org.priceRange).toBe(NV.money(Math.min(...monthlies)) + '-' + NV.money(Math.max(...monthlies)));
   expect(org.areaServed.length, 'name the towns actually served').toBeGreaterThan(3);
   expect(org.knowsAbout.join(' ')).toContain('AI receptionist');
 });
 
-test('answer engines are welcomed, and the proposal page is kept out by its own noindex', async ({ page }) => {
+test('answer engines are welcomed', async ({ page }) => {
   const robots = await (await page.request.get('/robots.txt')).text();
   for (const bot of ['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended', 'OAI-SearchBot']) {
     expect(robots, `${bot} should have an explicit stance`).toContain(bot);
   }
-  /* The per-prospect proposal stays out of the index by its own noindex,
-     which a crawler can only read if robots.txt lets it fetch the page
-     (PROPOSAL-4, 2026-10-03). Until then every block here disallowed it,
-     so its noindex was never read and the bare URL could be listed from
-     links alone. */
-  expect(robots, 'robots.txt must not bar crawlers from reading the proposal\'s noindex')
-    .not.toMatch(/^\s*Disallow:\s*\/proposal\.html/im);
-  await page.goto('/proposal.html');
-  const meta = await page.evaluate(() => document.querySelector('meta[name=robots]')?.content || '');
-  expect(meta).toContain('noindex');
 });
 
 test('the staging twin stays out of the index', async ({ page }) => {

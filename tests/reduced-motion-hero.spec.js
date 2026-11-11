@@ -13,8 +13,8 @@
  * this asserts what that visitor reads:
  *   - every story block and the ending are visible, in reading order, none
  *     on top of another
- *   - the ending offers Book a call first (decision #54) and both its actions
- *     take a tap
+ *   - the ending's one action, Book a 15-minute call (owner decision #81),
+ *     takes a tap
  *   - the page's one headline is whole
  *   - nothing is left animating
  */
@@ -50,14 +50,13 @@ test('the film reads as text: every block is visible, in order, and none overlap
   }
 });
 
-test('the ending offers Book a call first, and both of its actions take a tap', async ({ page }) => {
+test('the ending offers the one action, Book a 15-minute call, and it takes a tap', async ({ page }) => {
   await page.goto('/', { waitUntil: 'load' });
   await page.waitForTimeout(1500);
   const acts = page.locator('#close a');
-  expect(await acts.count()).toBe(2);
-  expect((await acts.nth(0).textContent()).trim()).toBe('Book a call');
-  expect((await acts.nth(1).textContent()).trim()).toBe('Scan my website');
-  for (let i = 0; i < 2; i++) {
+  expect(await acts.count()).toBe(1);
+  expect((await acts.nth(0).textContent()).trim()).toBe('Book a 15-minute call');
+  for (let i = 0; i < 1; i++) {
     const a = acts.nth(i);
     await a.scrollIntoViewIfNeeded();
     const hit = await a.evaluate((el) => {
@@ -71,16 +70,16 @@ test('the ending offers Book a call first, and both of its actions take a tap', 
 
 test('the headline is whole', async ({ page }) => {
   await page.goto('/', { waitUntil: 'load' });
-  await page.locator('#found h1').scrollIntoViewIfNeeded();
+  await page.locator('#hero h1').scrollIntoViewIfNeeded();
   await page.waitForTimeout(600);
   const r = await page.evaluate(() => {
-    const h1 = document.querySelector('#found h1');
+    const h1 = document.querySelector('#hero h1');
     const b = h1.getBoundingClientRect();
     let o = 1;
     for (let n = h1; n && n.nodeType === 1; n = n.parentElement) o *= parseFloat(getComputedStyle(n).opacity || '1');
     return { text: h1.textContent.trim(), opacity: o, clipped: h1.scrollWidth > h1.clientWidth + 1, inside: b.right <= document.documentElement.clientWidth };
   });
-  expect(r).toEqual({ text: 'More of the customers you want.', opacity: 1, clipped: false, inside: true });
+  expect(r).toEqual({ text: 'We answer the calls you miss.', opacity: 1, clipped: false, inside: true });
 });
 
 /* The reason the branch exists. If this ever fails, something is animating for

@@ -63,7 +63,7 @@ function excludes() {
 const TEXT = /\.(?:html|js|mjs|txt|xml|json|webmanifest)$/i;
 /* The sources the published pages are generated from (compose.py and
    build-content.mjs), scanned although scripts/ itself is not served. */
-const SOURCES = ['scripts/film/sections.html', 'scripts/film/source.html', 'scripts/content/pages.mjs'];
+const SOURCES = ['scripts/film/sections.html', 'scripts/film/source.html'];
 
 function publishedFiles() {
   const ex = excludes();
@@ -189,14 +189,16 @@ const NO_AGENT_SENTENCE = 'Sorry, nobody can take your call right now. If this i
 
 test('the scan reads every surface these rules are about', () => {
   const files = publishedFiles();
-  for (const f of ['home.html', 'index.html', 'pricing.html', 'pricing-config.js', 'roadmap-config.js', 'llms.txt',
-    'revenue-engine.html', 'coming-soon.html', 'missed-calls.html', 'search-index.json', ...SOURCES]) {
+  /* The pricing, roadmap, Revenue Engine and missed-calls pages redirect to
+     the homepage since owner decision #81 (2026-11-10). */
+  for (const f of ['home.html', 'index.html', 'book.html', 'pricing-config.js', 'roadmap-config.js', 'llms.txt',
+    'search-index.json', ...SOURCES]) {
     expect(files, `${f} is published or a generator source, so it must be scanned`).toContain(f);
   }
   for (const f of files) expect(f, 'an excluded working file was scanned as published').not.toMatch(/^(?:docs|config|tests|creative|film-v2)\//);
-  /* The homepage's FAQPage JSON-LD is copy too: search engines show it. */
-  const ld = everyUnit().filter((u) => u.file === 'home.html' && /threshold you set without an answer/.test(u.text));
-  expect(ld.length, 'the quiet-quote answer is read from both the FAQ and its JSON-LD').toBeGreaterThanOrEqual(2);
+  /* The homepage's JSON-LD is copy too: answer engines quote it. */
+  const ld = everyUnit().filter((u) => u.file === 'home.html' && /texts and emails the owner those details within seconds/.test(u.text));
+  expect(ld.length, 'the Service description is read from the JSON-LD').toBeGreaterThanOrEqual(1);
 });
 
 /* ---------- QC-14 ---------- */
@@ -204,19 +206,6 @@ test('the scan reads every surface these rules are about', () => {
 test('QC-14: no published surface says quotes are recorded as jobs', () => {
   const hits = everyUnit().filter((u) => ABOUT_QUOTES.test(u.text) && AS_JOBS.test(u.text));
   expect(hits, report(hits)).toEqual([]);
-});
-
-test('QC-14: the homepage says where quotes come from: added on the Quotes page, or imported from a spreadsheet', () => {
-  for (const f of ['home.html', 'index.html']) {
-    const units = blocksOfMarkup(read(f));
-    /* Get-Paid Autopilot's fine print opens with the same go-ahead; the
-       Quote Recovery one is the block that names the Quote-Chase Engine. */
-    const needs = units.filter((u) => /written go-ahead to email your own customers/i.test(u) && /Quote-Chase Engine/.test(u));
-    expect(needs.length, `${f}: the Quote Recovery fine print`).toBeGreaterThan(0);
-    for (const u of needs) expect(u, `${f}: what Quote Recovery needs names the Quotes page and a spreadsheet`).toMatch(/Quotes page[^.]*spreadsheet/i);
-    const crm = units.filter((u) => /Quotes page of your Nevamis portal/i.test(u));
-    expect(crm.length, `${f}: the CRM answer says quotes are added on the portal's Quotes page (FAQ and JSON-LD)`).toBeGreaterThanOrEqual(2);
-  }
 });
 
 /* ---------- O40 ---------- */
@@ -229,9 +218,8 @@ test('O40: no published surface puts the missed-call text in business hours', ()
 /* Every surface this leaf reworded describes when the text goes out, so
    each must be seen stating the window; a rule that finds no window to
    judge proves nothing. */
-const STATES_THE_WINDOW = ['pricing-config.js', 'pricing.html', 'home.html', 'index.html', 'roadmap-config.js',
-  'revenue-engine.html', 'coming-soon.html', 'missed-calls.html', 'llms.txt',
-  'scripts/film/source.html', 'scripts/content/pages.mjs'];
+const STATES_THE_WINDOW = ['pricing-config.js', 'home.html', 'index.html', 'roadmap-config.js',
+  'scripts/film/source.html'];
 
 test('O40: a block about the missed-call text that names a time names 8 a.m. and 8 p.m., never another hour', () => {
   const wrong = [];
@@ -253,23 +241,12 @@ test('O40: nothing promises the missed-call text arrives in time to win the job'
   expect(hits, report(hits)).toEqual([]);
 });
 
-test('O40: the add-on blurb states the window every day, and the static pricing list says the same sentence', () => {
+test('O40: the add-on blurb states the window every day', () => {
   const sandbox = { window: {} };
   vm.runInNewContext(read('pricing-config.js'), sandbox);
   const mcr = sandbox.window.NV_PRICING.addOns.find((a) => a.id === 'missed_call_recovery');
   expect(mcr, 'pricing-config.js sells Missed-Call Recovery').toBeTruthy();
   expect(clock(mcr.blurb), 'the blurb states the window, every day').toMatch(/\b8 am and 8 pm\b[^.]*\bevery day\b/i);
-  /* pricing.html's #addOnList is the no-JavaScript copy of the same list,
-     "name · price · price sentence · description". Its description is the
-     blurb, first letter lower-cased. */
-  const list = read('pricing.html').match(/<ul id="addOnList"[\s\S]*?<\/ul>/);
-  expect(list, 'pricing.html carries #addOnList').toBeTruthy();
-  const li = [...list[0].matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => m[1]).find((t) => t.startsWith('Missed-Call Recovery'));
-  expect(li, 'the static list has a Missed-Call Recovery entry').toBeTruthy();
-  /* Since 2026-10-03 (WALK-LIVE-2) a module sold alone ends its line with
-     its own Start link; the description is the text before it. */
-  const described = li.replace(/<a\b[\s\S]*?<\/a>/g, '').split('&middot;').pop().trim().replace(/&amp;/g, '&');
-  expect(described).toBe(mcr.blurb.charAt(0).toLowerCase() + mcr.blurb.slice(1));
 });
 
 /* ---------- O24.3 ---------- */

@@ -66,8 +66,11 @@ const root = process.env.SITE_ROOT
 const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 
 /* The pages this leaf owns, and the two that answer "can I try it first". */
-const PAGES = ['how-you-start.html', 'pilot.html', 'pricing.html', 'book.html', 'proposal.html'];
-const TRY_IT_PAGES = ['how-you-start.html', 'pilot.html'];
+/* The buyer pages since owner decision #81 (2026-11-10): the homepage and
+   the booking page. How you start, the try-it page, pricing and the proposal
+   redirect to the homepage. */
+const PAGES = ['index.html', 'book.html'];
+const TRY_IT_PAGES = [];
 
 /* Words a buyer page never says, in any sense. "Autopilot" is a product
    name and is not the word "pilot", which \b keeps apart. */
@@ -160,50 +163,12 @@ test('PRICING-7, MACHINE-19, PILOT-1: no buyer page says pilot, trial, free peri
    own sentence is one of the sizes now. */
 const HYS_SPANS = ['hysTiers', 'hysWorks', 'hysPartnership', 'hysEnterprise'];
 
-test('PRICING-8: how-you-start loads pricing-config.js and types no figure outside the lines it rewrites', () => {
-  const html = read('how-you-start.html');
-  expect(html, 'how-you-start.html must load the config every price renders from').toMatch(/<script src="pricing-config\.js"><\/script>/);
-  /* Take out the sentences the script rewrites; nothing left may be a price. */
-  const rest = html.replace(new RegExp(`<span id="(?:${HYS_SPANS.join('|')})">[\\s\\S]*?</span>`, 'g'), ' ');
-  const typed = [...visibleText(rest).matchAll(/C\$\s?[\d,]+/g)].map((m) => m[0]);
-  expect(typed, `figures typed outside the rendered lines: ${typed.join(', ')}`).toEqual([]);
-  expect(visibleText(html), 'the page still states the two figures, rendered').toMatch(/C\$[\d,]+/);
-});
-
-test('PRICING-8: how-you-start\'s no-script figures equal what the config renders', () => {
-  const P = config();
-  const html = read('how-you-start.html');
-  const span = (id) => {
-    const m = html.match(new RegExp(`<span id="${id}">([\\s\\S]*?)</span>`));
-    return m && flat(decode(m[1]));
-  };
-  /* Every figure the config holds for what each sentence names, found by
-     the plans' flags the way the page finds them. The exact sentence is held
-     to the render in tests/v7-booked.spec.js; this holds the FIGURES, so a
-     price that moves in the config and not in the page fails here too. */
-  const rate = (n) => (Number.isInteger(n) ? P.money(n) : 'C$' + n.toFixed(2));
-  for (const t of P.frontDeskTiers()) {
-    expect(span('hysTiers'), t.name).toContain(`${t.name}${t.recommended ? ', the recommended size,' : ','} ${P.money(t.monthly)} a month with ${t.includedMinutes.toLocaleString('en-CA')} minutes, then ${rate(t.overage)} for each extra minute`);
-  }
-  const works = P.plans.find((p) => p.includesAutomations);
-  expect(span('hysWorks')).toContain(P.startLine(works));
-  const inv = P.plans.find((p) => p.selfServe === false);
-  expect(span('hysPartnership')).toContain(P.startLine(inv));
-  expect(span('hysEnterprise')).toContain(P.money(P.enterprise.launchFrom));
-});
-
 test('PRICING-9: no sentence a machine or a buyer reads has the agent take the job or the time the caller wants, even beside "you confirm"', () => {
   const booking = /\btakes? (?:the job|the time|the slot)\b|\b(?:the )?times? (?:they|the caller) wants?\b/i;
   const bad = [];
   for (const s of surfaces()) {
     for (const sentence of sentences(s.text)) {
       if (booking.test(sentence)) bad.push(`${s.page} ${s.where}: "${sentence.slice(0, 200)}"`);
-    }
-  }
-  /* The proposal writes its summary line from script too. */
-  for (const lit of read('proposal.html').matchAll(/"([^"\n]{40,})"/g)) {
-    for (const sentence of sentences(lit[1])) {
-      if (booking.test(sentence)) bad.push(`proposal.html script: "${sentence.slice(0, 200)}"`);
     }
   }
   expect(bad, bad.join('\n')).toEqual([]);
@@ -224,24 +189,6 @@ test('PRICING-10: a refusal only a published plan makes is scoped to the publish
     }
   }
   expect(bad, bad.join('\n')).toEqual([]);
-});
-
-test('BOOK-2: every "only recurring charges" sentence names the Partnership\'s agreed share, and never a rate', () => {
-  const only = /\bonly (?:other )?(?:recurring )?charges?\b/i;
-  const bad = [];
-  let seen = 0;
-  for (const s of surfaces()) {
-    for (const sentence of sentences(s.text)) {
-      if (!only.test(sentence)) continue;
-      seen++;
-      if (!/\bPerformance Partnership\b/.test(sentence) || !/\bagreed share\b/i.test(sentence)) {
-        bad.push(`${s.page} ${s.where}: leaves out the Partnership's share: "${sentence.slice(0, 220)}"`);
-      }
-      if (/\d+(?:\.\d+)?\s*(?:%|per ?cent\b)/i.test(sentence)) bad.push(`${s.page} ${s.where}: publishes a rate: "${sentence.slice(0, 220)}"`);
-    }
-  }
-  expect(bad, bad.join('\n')).toEqual([]);
-  expect(seen, 'the pages still state what recurs past the start').toBeGreaterThan(2);
 });
 
 test('BOOK-5: "published before you decide" never stands without the Partnership\'s agreement', () => {
@@ -268,15 +215,6 @@ test('LEGAL-9: the terms note charges the one-time fee when the plan or add-on s
      renderer prints it to every buyer, and that offer is gated. */
   if (/Launch & Implementation/.test(note)) expect(note).toMatch(/\bcharged once when the plan or add-on starts\b/);
   expect(note).not.toMatch(/\bfree month\b|\bfirst month (?:is )?free\b|\bmonths? free\b/i);
-  /* The pricing page's no-script copy says the same words. */
-  const m = read('pricing.html').match(/<p id="termsNote"[^>]*>([\s\S]*?)<\/p>/);
-  expect(m && flat(decode(m[1]))).toBe(note);
-});
-
-test('PROPOSAL-4: robots.txt lets crawlers fetch the proposal, so its noindex is read', () => {
-  const robots = read('robots.txt');
-  expect(robots).not.toMatch(/^\s*Disallow:\s*\/proposal\.html/im);
-  expect(read('proposal.html')).toMatch(/<meta name="robots" content="noindex[^"]*">/);
 });
 
 test('MACHINE-24: each page carries one BreadcrumbList, the generated one', () => {
@@ -303,7 +241,6 @@ test('MACHINE-25: indexable pages carry og:url, og:type and og:site_name, and th
     expect(meta(html, 'og:type'), `${p} og:type`).toBe('website');
     expect(meta(html, 'og:site_name'), `${p} og:site_name`).toBe('Nevamis');
   }
-  expect(read('pricing.html').match(/<title>([^<]*)<\/title>/)[1]).not.toMatch(/Edmonton/);
 });
 
 test('CHECK-RUNNER-7: every meta description is 160 characters or fewer', () => {
@@ -321,39 +258,6 @@ test('CHECK-RUNNER-10: every page, the proposal included, has a skip link to an 
     expect(skip, `${p} has a skip link`).toBeTruthy();
     expect(html, `${p}: the skip link's target #${skip[1]} exists`).toMatch(new RegExp(`\\bid="${skip[1]}"`));
   }
-});
-
-test('PRICING-14, WALK-LIVE-2: the no-script add-on list is the config, line for line, with a Start link on every module sold alone', () => {
-  const P = config();
-  const list = read('pricing.html').match(/<ul id="addOnList"[^>]*>([\s\S]*?)<\/ul>/);
-  expect(list, 'pricing.html carries #addOnList').toBeTruthy();
-  const items = [...list[1].matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => m[1]);
-  expect(items.length, 'one line per add-on in the config').toBe(P.addOns.length);
-  const selling = P.sellable && P.publishedPricing;
-  P.addOns.forEach((a, i) => {
-    /* The renderer's own rule: a figure only while prices are published,
-       "quoted per client" for a sellable add-on while they are not. */
-    const sellableNow = a.sellable === true && a.monthly > 0;
-    const priced = sellableNow && !!P.publishedPricing;
-    const parts = [a.name];
-    /* The whole sentence only where it says more than the label (v7: a
-       module's fee is 0, and the label is then the whole price). */
-    if (priced) parts.push(P.money(a.monthly) + '/month', ...(P.launchPart(a) ? [P.startLine(a).replace(/\.$/, '')] : []));
-    else if (sellableNow) parts.push('quoted per client');
-    else parts.push(a.partnership ? 'on the Performance Partnership' : 'coming');
-    parts.push(a.blurb.charAt(0).toLowerCase() + a.blurb.slice(1));
-    const text = flat(decode(items[i].replace(/<a\b[\s\S]*?<\/a>/g, '')));
-    expect(text, `line ${i + 1}, ${a.name}`).toBe(parts.join(' · '));
-    const links = [...items[i].matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((m) => m[1]);
-    if (priced && a.soldAlone === true && selling) {
-      expect(links, `${a.name} is sold alone, so its line links to its own signup`)
-        .toEqual([`https://app.nevamis.ca/signup?coverage=${a.id}`]);
-    } else {
-      expect(links, `${a.name} is not sold alone, so its line carries no Start link`).toEqual([]);
-    }
-  });
-  /* The one the audit found unreachable. */
-  expect(list[1]).toContain('href="https://app.nevamis.ca/signup?coverage=missed_call_recovery"');
 });
 
 /* ============================================================
@@ -377,122 +281,12 @@ async function withMovedConfig(ctx, edit) {
   await ctx.route(/\/pricing-config\.js(?:\?.*)?$/, (r) => r.fulfill({ status: 200, contentType: 'application/javascript', body: moved }));
 }
 
-test('PRICING-8: how-you-start renders a moved price from the config, and with the real one renders its own static copy', async ({ browser }) => {
-  const ctx = await browser.newContext();
-  await offline(ctx);
-  const page = await ctx.newPage();
-  await page.goto('/how-you-start.html');
-  const html = read('how-you-start.html');
-  for (const id of HYS_SPANS) {
-    const fallback = flat(decode(html.match(new RegExp(`<span id="${id}">([\\s\\S]*?)</span>`))[1]));
-    await expect(page.locator('#' + id), `#${id} renders exactly its no-script copy`).toHaveText(fallback);
-  }
-  /* Move the recommended plan's monthly; the page must follow it. */
-  const ctx2 = await browser.newContext();
-  await offline(ctx2);
-  await withMovedConfig(ctx2, (s) => s.replace(/(id: "pro", name: "AI Front Desk", recommended: true,\s*monthly: )\d+/, '$11234'));
-  const moved = await ctx2.newPage();
-  await moved.goto('/how-you-start.html');
-  await expect(moved.locator('#hysTiers')).toContainText('the AI Front Desk, the recommended size, C$1,234 a month');
-  await ctx.close(); await ctx2.close();
-});
-
-test('PRICING-14: pricing renders the add-on list from the config, and the render is the no-script copy', async ({ browser }) => {
-  const ctx = await browser.newContext();
-  await offline(ctx);
-  const page = await ctx.newPage();
-  await page.goto('/pricing.html');
-  const list = read('pricing.html').match(/<ul id="addOnList"[^>]*>([\s\S]*?)<\/ul>/)[1];
-  const fallback = [...list.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => flat(decode(m[1].replace(/<[^>]+>/g, ''))));
-  const rendered = (await page.locator('#addOnList > li').allTextContents()).map(flat);
-  expect(rendered).toEqual(fallback);
-  const hrefs = await page.locator('#addOnList a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
-  expect(hrefs).toEqual([...list.matchAll(/href="([^"]+)"/g)].map((m) => m[1]));
-  /* A module request is not a purchase: its link sends no plan_buy_click
-     (PR #62 review, item 7). */
-  await expect(page.locator('#addOnList a[href$="coverage=missed_call_recovery"]')).not.toHaveAttribute('data-evt', /.*/);
-
-  const ctx2 = await browser.newContext();
-  await offline(ctx2);
-  await withMovedConfig(ctx2, (s) => s.replace(/(id: "missed_call_recovery", name: "Missed-Call Recovery",\s*monthly: )\d+/, '$1999'));
-  const moved = await ctx2.newPage();
-  await moved.goto('/pricing.html');
-  await expect(moved.locator('#addOnList > li', { hasText: 'Missed-Call Recovery' })).toContainText('C$999/month');
-  await ctx.close(); await ctx2.close();
-});
-
 /* The page's heading and its meta answer the same question: you start on a
    plan or on one automation sold alone, so the heading does not drop one. */
-test('PRICING-7: how-you-start\'s heading names both ways to start that its meta names', () => {
-  const html = read('how-you-start.html');
-  const h1 = flat(decode(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)[1].replace(/<[^>]+>/g, '')));
-  const meta = html.match(/<meta name="description" content="([^"]*)"/)[1];
-  expect(meta).toMatch(/\bsingle automation\b/);
-  expect(h1).toMatch(/\bplan\b/);
-  expect(h1).toMatch(/\bsingle automation\b/);
-});
-
 /* Each blurb is read after the item's status ("coming", or its price), so a
    coming item's blurb does not say "coming" again, and no blurb shouts. */
-test('PRICING-14: an add-on line says "coming" once and shouts no word', () => {
-  const bad = [];
-  for (const a of config().addOns) {
-    const priced = a.sellable === true && a.monthly > 0;
-    if (!priced && !a.partnership && /\bcoming\b/i.test(a.blurb)) bad.push(`${a.id}: says "coming" twice`);
-    const shout = (a.blurb || '').match(/\b(?!CRM\b|SMS\b|SEO\b)[A-Z]{2,}\b/);
-    if (shout) bad.push(`${a.id}: "${shout[0]}" in capitals`);
-  }
-  expect(bad, bad.join('\n')).toEqual([]);
-});
-
 /* The add-on list renders before the plan cards, in the same script, so a bad
    catalog entry must cost at most the list, never the cards a buyer pays from. */
-test('PRICING-14: an add-on with no blurb still renders, and the plan cards still render', async ({ browser }) => {
-  const ctx = await browser.newContext();
-  await offline(ctx);
-  await withMovedConfig(ctx, (s) => s.replace(/(id: "get_paid", name: "Get-Paid Autopilot",[\s\S]*?soldAlone: true),\s*blurb: "[^"]*"/, '$1'));
-  const page = await ctx.newPage();
-  await page.goto('/pricing.html');
-  await expect(page.locator('#plansFallback')).toHaveCount(0);
-  expect(await page.locator('#plans > *').count()).toBeGreaterThan(0);
-  /* Rendered, not the static copy left in place: only the static copy
-     carries the missing blurb. */
-  const row = page.locator('#addOnList > li', { hasText: 'Get-Paid Autopilot' });
-  await expect(row).toContainText('C$500/month');
-  await expect(row).not.toContainText('overdue invoices');
-  await expect(row.locator('a')).toHaveText(/Request it/);
-  await ctx.close();
-});
-
-test('PRICING-14: an add-on entry that throws leaves the static list and still lets the plan cards render', async ({ browser }) => {
-  const ctx = await browser.newContext();
-  await offline(ctx);
-  /* Appended after the config: the last entry throws the moment the
-     renderer reads whether it is sellable. */
-  await withMovedConfig(ctx, (s) => s + '\nwindow.NV_PRICING.addOns.push(Object.defineProperty({ id: "broken", name: "Broken" }, "sellable", { get: function () { throw new Error("bad entry"); } }));\n');
-  const page = await ctx.newPage();
-  await page.goto('/pricing.html');
-  await expect(page.locator('#plansFallback')).toHaveCount(0);
-  expect(await page.locator('#plans > *').count()).toBeGreaterThan(0);
-  const list = read('pricing.html').match(/<ul id="addOnList"[^>]*>([\s\S]*?)<\/ul>/)[1];
-  const fallback = [...list.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => flat(decode(m[1].replace(/<[^>]+>/g, ''))));
-  expect((await page.locator('#addOnList > li').allTextContents()).map(flat)).toEqual(fallback);
-  await ctx.close();
-});
-
-test('PRICING-9: the Product structured data the pricing page writes does not read as a booking', async ({ browser }) => {
-  const ctx = await browser.newContext();
-  await offline(ctx);
-  const page = await ctx.newPage();
-  await page.goto('/pricing.html');
-  const product = await page.evaluate(() => [...document.querySelectorAll('script[type="application/ld+json"]')]
-    .map((s) => { try { return JSON.parse(s.textContent); } catch { return null; } })
-    .flat().find((x) => x && x['@type'] === 'Product'));
-  expect(product, 'the page writes its Product node').toBeTruthy();
-  expect(product.description).not.toMatch(/\btakes? (?:the job|the time)\b|\bthe time they want\b|\bbooks?\b|\bbooking\b|\bschedul/i);
-  await ctx.close();
-});
-
 test('PRICING-7: rendered with scripts, no buyer page says pilot, trial, free period or discount', async ({ browser }) => {
   const ctx = await browser.newContext();
   await offline(ctx);
@@ -517,7 +311,7 @@ for (const width of [1440, 390]) {
     page.on('console', (m) => { if (m.type() === 'error') errors.push(`console: ${m.text()}`); });
     page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
     for (const p of PAGES) {
-      await page.goto('/' + p + (p === 'proposal.html' ? '?plan=pro&to=Example%20Plumbing' : ''));
+      await page.goto('/' + p);
       await page.waitForLoadState('networkidle');
       const sideways = await page.evaluate(() => document.scrollingElement.scrollWidth - document.documentElement.clientWidth);
       expect(sideways, `${p} at ${width}: scrolls sideways by ${sideways}px`).toBeLessThanOrEqual(0);
@@ -537,47 +331,5 @@ for (const width of [1440, 390]) {
    under your agreement") and /portal/activate says it is "not bought on
    this page, and we will be in touch". So no module control may promise a
    purchase: it says "Request it", in the no-script list and the render. */
-test('item 10: a module sold alone is requested, never started or bought, from the pricing page', async ({ browser }) => {
-  const html = read('pricing.html');
-  const list = html.match(/<ul id="addOnList"[^>]*>([\s\S]*?)<\/ul>/)[1];
-  const labels = [...list.matchAll(/<a\b[^>]*class="addon-start"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => flat(decode(m[1].replace(/<[^>]+>/g, ''))));
-  expect(labels.length).toBeGreaterThan(0);
-  for (const l of labels) expect(l).toBe('Request it ›');
-  const ctx = await browser.newContext();
-  await offline(ctx);
-  const page = await ctx.newPage();
-  await page.goto('/pricing.html');
-  for (const t of await page.locator('#addOnList a.addon-start').allTextContents()) {
-    expect(flat(t)).toBe('Request it ›');
-  }
-  for (const a of await page.locator('#addOnList a.addon-start').evaluateAll((as) => as.map((x) => x.getAttribute('aria-label')))) {
-    /* The accessible name starts with the visible label (WCAG 2.5.3). */
-    expect(a).toMatch(/^Request it: .+ on its own$/);
-  }
-  /* And sends no purchase event, rendered or not. */
-  expect(await page.locator('#addOnList a.addon-start[data-evt]').count()).toBe(0);
-  expect(list).not.toMatch(/addon-start[^>]*data-evt/);
-  expect(flat(await page.locator('#addOnList').locator('xpath=..').innerText())).toContain('you are charged only once you have agreed to it');
-  await ctx.close();
-});
-
 /* FUNNEL AUDIT ITEM 1: the pricing lede opens with the floor, rendered from
    the config, and its no-script copy is the render. */
-test('item 1: the pricing lede opens with the floor from the config, and follows a moved price', async ({ browser }) => {
-  const html = read('pricing.html');
-  const fallback = flat(decode(html.match(/<span id="pricingFrom">([\s\S]*?)<\/span>/)[1]));
-  const ctx = await browser.newContext();
-  await offline(ctx);
-  const page = await ctx.newPage();
-  await page.goto('/pricing.html');
-  await expect(page.locator('#pricingFrom')).toHaveText(fallback);
-  const lede = flat(await page.locator('.page-hero .lede').innerText());
-  expect(lede.startsWith(fallback), 'the lede opens with the floor').toBe(true);
-  const ctx2 = await browser.newContext();
-  await offline(ctx2);
-  await withMovedConfig(ctx2, (s) => s.replace(/(id: "front-desk-starter", name: "Front Desk Starter",\s*monthly: )\d+/, '$1275'));
-  const moved = await ctx2.newPage();
-  await moved.goto('/pricing.html');
-  await expect(moved.locator('#pricingFrom')).toHaveText('Plans start at C$275 a month, with Front Desk Starter.');
-  await ctx.close(); await ctx2.close();
-});

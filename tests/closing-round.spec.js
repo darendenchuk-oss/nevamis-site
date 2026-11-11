@@ -57,9 +57,9 @@ test("BPH-1: with WebGL unavailable, the copy blocks do not overlap and the endi
         expect(overlap(blocks[i], blocks[j]), `#${blocks[i].id} sits on top of #${blocks[j].id}`).toBe(false);
       }
     }
-    /* Both of the ending's actions since decision #54: Book a call, and the
-       quiet "Scan my website" link under it. */
-    for (const [sel, name] of [['#close .cta', 'Book a call'], ['#close .cta-q', 'Scan my website']]) {
+    /* The ending's one action since owner decision #81 (2026-11-10). */
+    await expect(page.locator('#close a')).toHaveCount(1);
+    for (const [sel, name] of [['#close .cta', 'Book a 15-minute call']]) {
       const cta = page.locator(sel);
       await cta.scrollIntoViewIfNeeded();
       const hit = await cta.evaluate((a) => {
@@ -103,17 +103,18 @@ test('BPH-2: at 390 every chapter-rail button is at least 44x44, none overlap, a
 
 /* ---------- BPH-3: the header's two controls ---------- */
 
-for (const url of ['/', '/pricing.html', '/book.html', '/404.html']) {
-  test(`BPH-3: on ${url} at 390 the menu button is 44x44 and the wordmark 44 tall, in the same header`, async ({ browser }) => {
+/* Since owner decision #81 (2026-11-10) the header has no menu: on a phone it
+   is the wordmark alone, and the call bar carries the one action. */
+for (const url of ['/', '/book.html', '/privacy.html', '/404.html']) {
+  test(`BPH-3: on ${url} at 390 the wordmark is 44 tall in the header, and there is no menu button`, async ({ browser }) => {
     const ctx = await context(browser, PHONE);
     const page = await ctx.newPage();
     await page.goto(url, { waitUntil: 'load' });
     const r = await page.evaluate(() => {
       const box = (s) => { const b = document.querySelector(s).getBoundingClientRect(); return { w: b.width, h: b.height, top: b.top, bottom: b.bottom }; };
-      return { toggle: box('.site-header .nav-toggle'), mark: box('.site-header .wordmark'), head: box('.site-header .wrap') };
+      return { toggles: document.querySelectorAll('.nav-toggle').length, mark: box('.site-header .wordmark'), head: box('.site-header .wrap') };
     });
-    expect(r.toggle.w).toBeGreaterThanOrEqual(44);
-    expect(r.toggle.h).toBeGreaterThanOrEqual(44);
+    expect(r.toggles, 'no menu button').toBe(0);
     expect(r.mark.h, 'the link home is a 44px target').toBeGreaterThanOrEqual(44);
     expect(r.head.h, 'the header keeps its 68px height').toBe(68);
     expect(r.mark.top).toBeGreaterThanOrEqual(r.head.top);
@@ -127,42 +128,12 @@ for (const url of ['/', '/pricing.html', '/book.html', '/404.html']) {
 const CRUMB_PAGES = ['electricians', 'hvac', 'plumbers', 'restoration', 'after-hours-answering', 'missed-calls',
   'vs-voicemail', 'vs-answering-service', 'solutions'];
 
-test('BPH-4: on all nine breadcrumb pages at 390, each crumb link is at least 24 tall, none overlap, and the row does not grow', async ({ browser }) => {
-  const ctx = await context(browser, PHONE);
-  const page = await ctx.newPage();
-  for (const p of CRUMB_PAGES) {
-    await page.goto(`/${p}.html`, { waitUntil: 'load' });
-    const r = await page.evaluate(() => {
-      const row = document.querySelector('.crumb');
-      if (!row) return null;
-      const lh = parseFloat(getComputedStyle(row).lineHeight) || 18;
-      return {
-        rowH: row.getBoundingClientRect().height, lh,
-        links: [...row.querySelectorAll('a')].map((a) => {
-          const b = a.getBoundingClientRect();
-          return { t: a.textContent.trim(), left: b.left, right: b.right, top: b.top, bottom: b.bottom, h: b.height };
-        }),
-      };
-    });
-    expect(r, `${p}: no breadcrumb`).not.toBeNull();
-    expect(r.links.length, `${p}: the crumb has its links`).toBeGreaterThanOrEqual(1);
-    for (const [i, l] of r.links.entries()) {
-      expect(l.h, `${p}: "${l.t}" is ${l.h}px tall`).toBeGreaterThanOrEqual(24);
-      for (const m of r.links.slice(i + 1)) expect(overlap(l, m), `${p}: "${l.t}" overlaps "${m.t}"`).toBe(false);
-    }
-    /* The padding is given back by a negative margin, so the row is still
-       one line of 11px type and nothing under it has moved. */
-    expect(r.rowH, `${p}: the crumb row grew to ${r.rowH}px`).toBeLessThanOrEqual(r.lh + 1);
-  }
-  await ctx.close();
-});
-
 /* ---------- BD-F2: a primary action in the first screen at 1024 ---------- */
 
-test('BD-F2: at 1024 about, pricing and a trade page show a primary "Book a call" in the header; at 390 the header is unchanged', async ({ browser }) => {
+test('BD-F2: at 1024 the header shows the one action, Book a 15-minute call; at 390 the header carries no button', async ({ browser }) => {
   const ctx = await context(browser, TABLET);
   const page = await ctx.newPage();
-  for (const url of ['/about.html', '/pricing.html', '/electricians.html']) {
+  for (const url of ['/', '/privacy.html', '/404.html']) {
     await page.goto(url, { waitUntil: 'load' });
     const r = await page.evaluate(() => {
       const a = [...document.querySelectorAll('.site-header a.btn-primary')].find((x) => getComputedStyle(x).display !== 'none'
@@ -170,27 +141,21 @@ test('BD-F2: at 1024 about, pricing and a trade page show a primary "Book a call
       if (!a) return null;
       const b = a.getBoundingClientRect();
       const el = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
-      const t = document.querySelector('.site-header .nav-toggle').getBoundingClientRect();
       return { text: a.textContent.trim(), href: a.getAttribute('href'), inView: b.top >= 0 && b.bottom <= innerHeight && b.right <= innerWidth,
-        hit: !!el && (el === a || a.contains(el)), rightOfToggle: b.left >= t.right, toggleShown: t.width > 0, h: b.height };
+        hit: !!el && (el === a || a.contains(el)), h: b.height };
     });
     expect(r, `${url}: no primary action in the header at 1024`).not.toBeNull();
-    expect(r.text).toMatch(/Book a call/);
+    expect(r.text).toBe('Book a 15-minute call');
+    expect(r.href).toBe('/book.html');
     expect(r.inView, `${url}: the button is in the first screen`).toBe(true);
     expect(r.hit, `${url}: the button takes a click`).toBe(true);
-    expect(r.toggleShown, `${url}: the menu button is still there`).toBe(true);
-    expect(r.rightOfToggle, `${url}: the button sits before the menu button`).toBe(false);
     expect(r.h).toBeGreaterThanOrEqual(44);
   }
-  /* The menu still opens to the whole list, the button included. */
-  await page.locator('.site-header .nav-toggle').click();
-  await expect(page.locator('.main-nav.open a[href="/about.html"]')).toBeVisible();
-  await expect(page.locator('.main-nav.open a.btn-primary')).toBeVisible();
   await ctx.close();
 
   const phone = await context(browser, PHONE);
   const p2 = await phone.newPage();
-  await p2.goto('/about.html', { waitUntil: 'load' });
+  await p2.goto('/privacy.html', { waitUntil: 'load' });
   expect(await p2.evaluate(() => [...document.querySelectorAll('.site-header a.btn')]
     .filter((a) => a.getBoundingClientRect().width > 0).length), 'at 390 the header carries no button; the call bar does').toBe(0);
   await phone.close();
@@ -203,72 +168,7 @@ test('BD-F2: at 1024 about, pricing and a trade page show a primary "Book a call
    reads C$250 before the Partnership's fee. The config's order, the owner's
    door order on every other page, is untouched. The rule here is unchanged:
    the invitation card is headed "By invitation", never a C$ figure. */
-test('BD-F3: the invitation card is headed "By invitation", not a C$ figure, and sits last, after the plans anyone can buy, smallest first', async ({ page }) => {
-  const P = pricing();
-  await page.goto('/pricing.html');
-  await page.waitForSelector('#plans .plan');
-  const names = await page.$$eval('#plans .plan h3', (hs) => hs.map((h) => h.textContent.trim()));
-  const invited = P.plans.filter((p) => p.selfServe === false);
-  expect(names.slice(-invited.length), 'the invitation plans come last').toEqual(invited.map((p) => p.name));
-  const buyable = names.slice(0, -invited.length).map((n) => P.plans.find((p) => p.name === n));
-  expect(buyable.map((p) => p.monthly), 'the plans anyone can buy, cheapest first').toEqual(buyable.map((p) => p.monthly).sort((a, b) => a - b));
-  const first = invited[0];
-  expect(first.selfServe, 'the card this rule is about is the invitation plan').toBe(false);
-  const inviteCard = page.locator('#plans .plan').filter({ has: page.locator('h3', { hasText: first.name }) });
-  const biggest = await inviteCard.evaluate((card) => {
-    let best = null;
-    for (const el of card.querySelectorAll('*')) {
-      const own = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim();
-      if (!own) continue;
-      const size = parseFloat(getComputedStyle(el).fontSize);
-      if (!best || size > best.size) best = { size, text: own };
-    }
-    return best;
-  });
-  expect(biggest.text, 'the largest type on the card').toBe('By invitation');
-  expect(biggest.text).not.toMatch(/C\$/);
-  const t = (await inviteCard.innerText()).replace(/\s+/g, ' ');
-  const cash = (n) => 'C$' + n.toLocaleString('en-CA');
-  /* Re-pointed 2026-10-03 (v7, ported from draft PR #41 and corrected to
-     owner amendment #66). The card used to carry the Partnership's monthly
-     band under its headline. Its figures are fixed now, so the card must
-     state them, the Launch & Implementation fee and the monthly, in
-     startLine()'s words, under the same "By invitation" headline, and carry
-     no band. No plan card says the first month is free: that is given to the
-     first freeMonth.firstClients businesses on a booked call, never by the
-     Buy now a card leads to, and only free-month.js may say it. */
-  expect(t, 'the fixed figures are on the card').toContain(P.startLine(first).replace(/\.$/, ''));
-  expect(t, 'the Partnership states its fee').toContain(cash(first.launch) + ' Launch & Implementation');
-  expect(t, 'the card says it is by invitation').toContain(first.inviteNote);
-  expect(t, 'no band on the card').not.toMatch(/monthly band| to C\$\d/);
-  /* A card never offers the month as a property of the plan. Its one
-     mention is the gated booked-call line under Buy now (.buy-fm), beside
-     "Buy now charges your first month", which free-month.js fills only while
-     a place is open; tests/free-month-gate.spec.js holds that line. */
-  const cards = await page.$$eval('#plans .plan', (cs) => cs.map((c) => {
-    const x = c.cloneNode(true); x.querySelectorAll('.buy-fm').forEach((e) => e.remove()); return x.textContent.replace(/\s+/g, ' ');
-  }));
-  for (const c of cards) expect(c, 'a plan card offers a free month to every buyer').not.toMatch(/free\s+(?:first\s+)?months?|first\s+month\s+(?:is\s+)?free|months?\s+free/i);
-  /* The buyable plans keep their monthly as the headline. */
-  for (const pl of P.plans) {
-    if (pl.selfServe === false) continue;
-    const card = page.locator('#plans .plan').filter({ has: page.locator('h3', { hasText: new RegExp('^' + pl.name + '$') }) });
-    await expect(card.locator('.price')).toContainText(cash(pl.monthly));
-  }
-});
-
 /* ---------- BD-F5: "on a job" is a phone nobody answers ---------- */
-
-test('BD-F5: ticking only "People ring while I am on a job" recommends the AI Front Desk', async ({ page }) => {
-  const P = pricing();
-  const desk = P.plans.find((p) => p.id === 'pro');
-  await page.goto('/pricing.html');
-  await page.locator('#leaks button', { hasText: 'People ring while I am on a job' }).click();
-  const out = page.locator('#chooserResult');
-  await expect(out).toContainText(desk.name);
-  await expect(out).not.toContainText('Missed-Call Recovery');
-  expect(await out.locator('a.btn-primary').getAttribute('href')).toBe('https://app.nevamis.ca/signup?plan=pro');
-});
 
 /* ---------- BD-F6 and BD-F4 on the homepage ---------- */
 
@@ -284,6 +184,4 @@ test('BD-F4: the Review Engine carries "Available today", and the Brief and the 
   await expect(chip('Review Engine')).toHaveText('Available today');
   await expect(chip('Your Daily Business Brief')).toHaveText('Planned');
   await expect(chip('Inbox Assistant')).toHaveText('Being researched');
-  await page.goto('/revenue-engine.html');
-  await expect(page.locator('.card', { hasText: 'Inbox Assistant' }).locator('.chip')).toHaveText('Being researched');
 });

@@ -55,8 +55,9 @@ const root = process.env.SITE_ROOT
   : path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 
-const PAGES = ['pricing.html', 'how-you-start.html', 'pilot.html', 'proposal.html', 'book.html',
-  'about.html', 'coming-soon.html', 'revenue-engine.html'];
+/* The owned pages left since owner decision #81 (2026-11-10): the booking
+   page. The others redirect to the homepage. */
+const PAGES = ['book.html'];
 const CONFIGS = ['pricing-config.js', 'roadmap-config.js'];
 
 function config() {
@@ -152,13 +153,6 @@ test('PRICING-9: no surface of any owned file has the front desk take the job or
 /* The rule above would pass on a page that said nothing about the front
    desk. These are the sentences the hand-over named, so each still says
    what the front desk does, in the true words. */
-test('PRICING-9: each surface the hand-over named still describes the front desk, as capturing the request', () => {
-  const said = (file) => surfacesOf(file).map((s) => s.text).join(' ');
-  for (const file of ['about.html', 'coming-soon.html', 'revenue-engine.html', 'roadmap-config.js', 'proposal.html']) {
-    expect(said(file), `${file} says what the front desk captures`).toMatch(/\b(?:captures? the request|request captured)\b/i);
-  }
-});
-
 /* "discount" passes only when a negation governs it: the negation, at most
    four plain words with no "and", "but", "plus", "with" or punctuation
    between (so a new clause cannot start), an optional "or"/"nor", then the
@@ -272,42 +266,6 @@ async function withConfig(ctx, edit) {
   await ctx.route(/\/pricing-config\.js(?:\?.*)?$/, (r) => r.fulfill({ status: 200, contentType: 'application/javascript', body: moved }));
 }
 
-test('polish-1: with prices unpublished, the add-on list hides its figures and Start links, as the plan cards do', async ({ browser }) => {
-  const P = config();
-  expect(P.publishedPricing, 'the live config publishes prices; this test flips it').toBe(true);
-  const sellableAlone = P.addOns.filter((a) => a.sellable === true && a.monthly > 0);
-  expect(sellableAlone.length, 'the config sells at least one add-on').toBeGreaterThan(0);
-
-  /* Published: the list prints each sellable add-on's monthly. */
-  const live = await browser.newContext();
-  await offline(live);
-  const on = await live.newPage();
-  await on.goto('/pricing.html');
-  for (const a of sellableAlone) {
-    await expect(on.locator('#addOnList > li', { hasText: a.name })).toContainText(P.money(a.monthly) + '/month');
-  }
-
-  /* Unpublished: no figure anywhere in the list or on the cards. */
-  const ctx = await browser.newContext();
-  await offline(ctx);
-  await withConfig(ctx, (s) => s.replace(/publishedPricing:\s*true/, 'publishedPricing: false'));
-  const off = await ctx.newPage();
-  await off.goto('/pricing.html');
-  await expect(off.locator('#plansFallback')).toHaveCount(0);
-  const list = flat(await off.locator('#addOnList').innerText());
-  expect(list, 'the add-on list prints no price while prices are unpublished').not.toMatch(/C\$\s?\d/);
-  await expect(off.locator('#addOnList a.addon-start')).toHaveCount(0);
-  for (const a of sellableAlone) {
-    await expect(off.locator('#addOnList > li', { hasText: a.name })).toContainText('quoted per client');
-  }
-  /* The cards' price lines, the half of the switch that already held: what
-     the list now matches. (Their overage rate is a separate line.) */
-  const priceLines = (await off.locator('#plans .price').allInnerTexts()).map(flat);
-  expect(priceLines.length, 'the cards rendered their price lines').toBeGreaterThan(0);
-  for (const line of priceLines) expect(line, 'a plan card price line').not.toMatch(/C\$\s?\d/);
-  await live.close(); await ctx.close();
-});
-
 /* G4: each owned page at 1440 and 390, with no sideways scroll and no
    console error. Screenshots go to NV_SHOTS when it is set. */
 for (const width of [1440, 390]) {
@@ -319,7 +277,7 @@ for (const width of [1440, 390]) {
     page.on('console', (m) => { if (m.type() === 'error') errors.push(`console: ${m.text()}`); });
     page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
     for (const p of PAGES) {
-      await page.goto('/' + p + (p === 'proposal.html' ? '?plan=pro&to=Example%20Plumbing' : ''));
+      await page.goto('/' + p);
       await page.waitForLoadState('networkidle');
       const sideways = await page.evaluate(() => document.scrollingElement.scrollWidth - document.documentElement.clientWidth);
       expect(sideways, `${p} at ${width}: scrolls sideways by ${sideways}px`).toBeLessThanOrEqual(0);

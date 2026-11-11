@@ -17,34 +17,19 @@ const PLAIN = '/home.html';
    which counts captured leads rather than clicks, and a data-evt beside it
    would double count and fire on failed validation. */
 const REQUIRED = [
-  /* The call simulator (#simWatch / #simStepMode, sim_watch_click /
-     sim_step_click) was the old homepage's hero. The homepage is now the scan
-     film, which has no simulator, so those two surfaces are gone rather than
-     unmeasured. Their names stay in the engine allowlist and are not reused.
-     The surfaces below are the ones the film homepage actually offers. */
-  { page: '/home.html', sel: 'a[href="/demo.html"][data-evt]', evt: 'compare_demo_click' },
-  { page: '/home.html', sel: 'a[href="#roi"][data-evt]', evt: 'dayone_roi_click' },
-  { page: '/home.html', sel: 'a[href="/book.html"][data-evt="roi_book_click"]', evt: 'roi_book_click' },
-  { page: '/home.html', sel: '#found a[href="https://app.nevamis.ca/scan"][data-evt]', evt: 'hero_scan_click' },
-  /* Decision #54's placements, split 2026-10-03 (audit HOME-8): each Book a
-     call and each scan on the homepage has its own name, allowlisted by the
-     engine before the site sends it. The hero keeps hero_book_call_click. */
-  { page: '/home.html', sel: '#found a[href^="/book.html"][data-evt]', evt: 'hero_book_call_click' },
+  /* Owner decision #81 (2026-11-10): the site is the homepage, the booking
+     page and the legal pages, and every action books the 15-minute call or
+     dials the demo line. Each Book button keeps its own name, allowlisted by
+     the engine before the site sent it: the header pill, the hero, the film
+     ending and the phone bar. The demo line in the hero keeps its own too. */
+  { page: '/home.html', sel: '#hero a[href^="/book.html"][data-evt]', evt: 'hero_book_call_click' },
+  { page: '/home.html', sel: '#hero a[href^="tel:"][data-evt]', evt: 'hero_live_demo_call_click' },
   { page: '/home.html', sel: '.site-header a.btn-primary[href^="/book.html"][data-evt]', evt: 'nav_book_call_click' },
   { page: '/home.html', sel: '#close a[href^="/book.html"][data-evt]', evt: 'film_book_click' },
-  { page: '/home.html', sel: '#close a[href="https://app.nevamis.ca/scan"][data-evt]', evt: 'film_scan_click' },
-  { page: '/home.html', sel: '#next a[href^="/book.html"][data-evt]', evt: 'closing_book_call_click' },
-  { page: '/home.html', sel: '#next a[href="https://app.nevamis.ca/scan"][data-evt]', evt: 'platform_scan_click' },
-  { page: '/pricing.html', sel: 'a[href="/book.html"][data-evt="pricing_book_call_click"]', evt: 'pricing_book_call_click' },
-  { page: '/pricing.html', sel: 'a[data-evt="pricing_demo_call_click"]', evt: 'pricing_demo_call_click' },
-  { page: '/electricians.html', sel: 'a[data-evt="trade_pricing_click"]', evt: 'trade_pricing_click' },
-  { page: '/missed-calls.html', sel: 'a[data-evt="situation_roi_click"]', evt: 'situation_roi_click' },
-  { page: '/after-hours-answering.html', sel: 'a[data-evt="situation_compare_click"]', evt: 'situation_compare_click' },
-  { page: '/about.html', sel: 'a[data-evt="about_demo_click"]', evt: 'about_demo_click' },
-  /* The phone sticky bar books (owner decision 2026-09-15). Its own name, so
-     the bar is distinguishable from the header, hero and closing booking
-     buttons; the engine allowlist and funnel carry it before the site ships. */
-  { page: '/electricians.html', sel: 'a.callbar[data-evt]', evt: 'callbar_book_click' },
+  /* The phone sticky bar books (owner decision 2026-09-15), under its own
+     name on every page but the booking page itself. */
+  { page: '/home.html', sel: 'a.callbar[data-evt]', evt: 'callbar_book_click' },
+  { page: '/privacy.html', sel: 'a.callbar[data-evt]', evt: 'callbar_book_click' },
 ];
 
 test('every designated conversion CTA carries its event', async ({ page }) => {
@@ -70,7 +55,7 @@ const LEGACY_COLLAPSED = new Set(['hero_book_call_click', 'demo_phone_click', 'c
 
 test('no new event name collapses two placements on one page', async ({ page }) => {
   const offenders = [];
-  for (const url of ['/home.html', '/pricing.html', '/demo.html', '/electricians.html', '/book.html']) {
+  for (const url of ['/home.html', '/book.html', '/privacy.html']) {
     await page.goto(url);
     const groups = await page.evaluate(() => {
       const out = {};
@@ -100,45 +85,35 @@ test('no new event name collapses two placements on one page', async ({ page }) 
 test('a dead analytics endpoint never costs a visitor their click', async ({ page }) => {
   await page.route('**/api/events', (r) => r.abort());
   await page.route('**/api/mkt/events', (r) => r.abort());
-  await page.goto('/electricians.html');
-  await page.locator('a[data-evt="trade_pricing_click"]').first().click();
-  await page.waitForURL(/pricing\.html/, { timeout: 10_000 });
-  expect(page.url(), 'navigation must survive a failed beacon').toContain('/pricing.html');
+  await page.goto(PLAIN);
+  await page.locator('#hero a[data-evt="hero_book_call_click"]').first().click();
+  await page.waitForURL(/book\.html/, { timeout: 10_000 });
+  expect(page.url(), 'navigation must survive a failed beacon').toContain('/book.html');
 });
 
 test('a tracked click records the event locally before navigating away', async ({ page }) => {
   await page.route('**/api/events', (r) => r.abort());
   await page.goto(PLAIN);
-  /* an in-page anchor: it records and then navigates within the page, so the
-     assertion is about nvTrack recording locally, not about the destination. */
-  await page.locator('a[data-evt="dayone_roi_click"]').first().scrollIntoViewIfNeeded();
-  await page.locator('a[data-evt="dayone_roi_click"]').first().click();
+  /* the demo line: on a desktop site.js opens its dial pad rather than
+     leaving the page, so the assertion is about nvTrack recording locally,
+     not about the destination. */
+  await page.locator('#hero a[data-evt="hero_live_demo_call_click"]').first().click();
   const names = await page.evaluate(() => (window.nvEvents || []).map((e) => e.event));
-  expect(names, 'nvTrack should have recorded the click').toContain('dayone_roi_click');
+  expect(names, 'nvTrack should have recorded the click').toContain('hero_live_demo_call_click');
 });
 
-/* SECTION REACH COUNTS WHAT A VISITOR SCROLLED TO (launch audit HERO-1,
-   2026-11-09). <main> opens above the film now, with the hero, so the film's
-   story blocks (section.copy: #s1, #s2, #s3, #close) are inside it. They are
-   position:fixed at mid-screen with only their opacity changing, so an
-   observer saw all four "reached" the moment the page loaded, for everyone.
-   The hero (#found) did the same: it is the first screen and 1,063 to 1,371px
-   tall, so 47% to 85% of it is on screen at load, over site.js's 0.35, and
-   section_reached_found fired for every visitor. The engine counts every
-   section_reached_* towards "Looked at the offer" (src/domain/funnel.ts), so
-   that stage read the same as "Landed" (launch review, 2026-11-09). site.js
-   leaves both out, and the RULE held here is that nothing is reached before
-   the visitor scrolls, at every first-screen size the hero is built for.
-   The second half is the control that keeps the first honest: a broken
-   observer would also report nothing on load, so the first section past the
-   film must still be reached once it is scrolled to.
-   SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09), each made to site.js of the
-   commit that introduced this rule, then restored: ":not(#found)" dropped,
-   the load half failed at 360x640 with ["section_reached_found"]; the
-   nvTrack call in the observer made a no-op, the load half passed and the
-   scroll half failed: "the first section past the film was scrolled to and
-   never counted". */
-test('section reach counts nothing on load, not the hero nor the film\'s fixed story blocks, and still counts a section scrolled to', async ({ page }) => {
+/* NOTHING IS COUNTED AS REACHED BEFORE THE VISITOR SCROLLS (launch audit
+   HERO-1, 2026-11-09). The hero is the first screen, on screen for everyone
+   at load, and the film's story blocks (section.copy) are position:fixed at
+   mid-screen, so an observer would see them all "reached" the moment the
+   page loads, and the engine counts every section_reached_* towards "Looked
+   at the offer" (src/domain/funnel.ts). site.js leaves both out. Since owner
+   decision #81 the homepage has no other section a visitor can scroll to, so
+   no section_reached_* may fire at all, scrolled or not. The control that
+   keeps that honest is scroll depth, counted by the same block of site.js: a
+   broken block would also report nothing, so scrolling to the end must still
+   be counted. */
+test('the homepage counts no section as reached, and still counts how far the visitor scrolled', async ({ page }) => {
   await page.route('**/api/events', (r) => r.abort());
   await page.route('**/api/mkt/events', (r) => r.abort());
   for (const vp of [{ width: 360, height: 640 }, { width: 390, height: 844 }, { width: 1440, height: 900 }]) {
@@ -146,17 +121,15 @@ test('section reach counts nothing on load, not the hero nor the film\'s fixed s
     await page.setViewportSize(vp);
     await page.goto(PLAIN, { waitUntil: 'load' });
     await page.waitForFunction(() => Array.isArray(window.nvEvents));
-    /* the observer reports what is already on screen in its first callback,
-       a frame or two after observe(); this is many of those */
     await page.waitForTimeout(1200);
     expect(await page.evaluate(() => scrollY), `${at}: the page has not been scrolled`).toBe(0);
     const names = await page.evaluate(() => (window.nvEvents || []).map((e) => e.event));
-    const reached = names.filter((n) => n.startsWith('section_reached_'));
-    expect(reached, `${at}: a section was counted as reached before the visitor scrolled`).toEqual([]);
+    expect(names.filter((n) => n.startsWith('section_reached_')), `${at}: a section was counted as reached before the visitor scrolled`).toEqual([]);
   }
-  /* the control, at the last size: past the film, the first section counts */
-  await page.evaluate(() => document.getElementById('recover').scrollIntoView({ block: 'start', behavior: 'instant' }));
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await expect.poll(() => page.evaluate(() => (window.nvEvents || []).map((e) => e.event)),
-    { message: 'the first section past the film was scrolled to and never counted', timeout: 10_000 })
-    .toContain('section_reached_recover');
+    { message: 'the visitor scrolled to the end and it was never counted', timeout: 10_000 })
+    .toContain('scroll_depth_100');
+  const names = await page.evaluate(() => (window.nvEvents || []).map((e) => e.event));
+  expect(names.filter((n) => n.startsWith('section_reached_'))).toEqual([]);
 });

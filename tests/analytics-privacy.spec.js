@@ -62,13 +62,13 @@ function sources(seen) {
    both of which URLSearchParams resolves. The invariant is about the KEY SET,
    so it is asserted on the parsed keys. */
 const LEAKY = [
-  { what: 'a personal name', path: '/proposal.html?to=Test%20Person', forbid: ['Test Person', 'Test%20Person'] },
-  { what: 'an email address', path: '/proposal.html?to=test%40example.com', forbid: ['test@example.com'] },
-  { what: 'an unknown parameter', path: '/proposal.html?customer_id=12345', forbid: ['customer_id', '12345'] },
-  { what: 'a percent-encoded key', path: '/proposal.html?%74%6f=Sneaky', forbid: ['Sneaky'] },
-  { what: 'a double-encoded key', path: '/proposal.html?to=%2554%2565st', forbid: ['%54%65st'] },
-  { what: 'an array-style key', path: '/proposal.html?to[]=A&to=B', forbid: ['to[]'] },
-  { what: 'a differently-cased key', path: '/proposal.html?To=Person&UTM_SOURCE=Caps', forbid: ['Person', 'Caps'] },
+  { what: 'a personal name', path: '/book.html?to=Test%20Person', forbid: ['Test Person', 'Test%20Person'] },
+  { what: 'an email address', path: '/book.html?to=test%40example.com', forbid: ['test@example.com'] },
+  { what: 'an unknown parameter', path: '/book.html?customer_id=12345', forbid: ['customer_id', '12345'] },
+  { what: 'a percent-encoded key', path: '/book.html?%74%6f=Sneaky', forbid: ['Sneaky'] },
+  { what: 'a double-encoded key', path: '/book.html?to=%2554%2565st', forbid: ['%54%65st'] },
+  { what: 'an array-style key', path: '/book.html?to[]=A&to=B', forbid: ['to[]'] },
+  { what: 'a differently-cased key', path: '/book.html?To=Person&UTM_SOURCE=Caps', forbid: ['Person', 'Caps'] },
 ];
 
 for (const c of LEAKY) {
@@ -110,7 +110,7 @@ test('the frontier-verify marker survives, so verification stays excludable', as
 
 test('allowed tags survive alongside disallowed ones rather than all-or-nothing', async ({ page }) => {
   const seen = await capture(page,
-    '/proposal.html?to=Test%20Person&utm_source=frontier-verify&customer_id=12345&utm_campaign=aug');
+    '/book.html?to=Test%20Person&utm_source=frontier-verify&customer_id=12345&utm_campaign=aug');
   const src = sources(seen).filter(Boolean);
   expect(src.length).toBeGreaterThan(0);
   const q = new URLSearchParams(src[0]);
@@ -144,7 +144,7 @@ test('a referrer with a path, query and fragment is sent as its origin only', as
   await page.addInitScript((ref) => {
     Object.defineProperty(document, 'referrer', { get: () => ref, configurable: true });
   }, REF);
-  const seen = await capture(page, '/pricing.html');
+  const seen = await capture(page, '/privacy.html');
   const refs = referrers(seen);
   expect(refs.length, 'no beacon carried a referrer field, so this test proved nothing').toBeGreaterThan(0);
   for (const r of refs) {
@@ -167,7 +167,7 @@ test('a same-site referrer carrying a name in its query is sent as the origin on
       route.abort();
     });
   }
-  await page.goto('/pricing.html?to=Test%20Person').catch(() => {});
+  await page.goto('/privacy.html?to=Test%20Person').catch(() => {});
   await page.waitForTimeout(600);
   seen.length = 0;
   /* A real same-origin navigation: the browser's document.referrer on the next
@@ -184,12 +184,12 @@ test('a same-site referrer carrying a name in its query is sent as the origin on
   for (const s of seen) {
     expect(s.body).not.toContain('Test Person');
     expect(s.body).not.toContain('Test%20Person');
-    expect(s.body).not.toContain('pricing.html');
+    expect(s.body).not.toContain('privacy.html');
   }
 });
 
 test('no referrer sends an empty referrer, not a made-up one', async ({ page }) => {
-  const seen = await capture(page, '/pricing.html');
+  const seen = await capture(page, '/privacy.html');
   const refs = referrers(seen);
   expect(refs.length).toBeGreaterThan(0);
   for (const r of refs) expect(r).toBe('');
@@ -256,7 +256,7 @@ test('events still send, and their names are unchanged', async ({ page }) => {
 /* Lead forms post source as "<label><?tags>", the shape attributionFrom parses.
    The label must survive sanitising, or every lead loses its origin page. */
 test('lead-form source keeps its label and its parseable shape', async ({ page }) => {
-  const seen = await capture(page, '/coming-soon.html?utm_campaign=aug&to=Test%20Person');
+  const seen = await capture(page, '/book.html?utm_campaign=aug&to=Test%20Person');
   const src = sources(seen).filter(Boolean);
   expect(src.length).toBeGreaterThan(0);
   for (const s of seen) expect(s.body).not.toContain('Test Person');

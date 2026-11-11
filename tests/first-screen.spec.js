@@ -108,10 +108,10 @@ const SLOW = 20_000;
 function measureFirstScreen() {
   const vw = document.documentElement.clientWidth;
   const vh = window.innerHeight;
-  const found = document.getElementById('found');
-  const h1 = found && found.querySelector('h1');
+  const hero = document.getElementById('hero');
+  const h1 = hero && hero.querySelector('h1');
   const sub = h1 && h1.nextElementSibling;
-  const book = found && found.querySelector('a[href^="/book.html"]');
+  const book = hero && hero.querySelector('a[href^="/book.html"]');
   const one = (el) => {
     if (!el) return null;
     const b = el.getBoundingClientRect();
@@ -154,7 +154,7 @@ function expectReadable(m, where) {
   }
   expect(m.h1.text.length, `${where}: the h1 has words in it`).toBeGreaterThan(10);
   expect(m.sub.text.length, `${where}: the sub has words in it`).toBeGreaterThan(20);
-  expect(m.book.text, `${where}: the hero's booking action`).toBe('Book a call');
+  expect(m.book.text, `${where}: the hero's booking action`).toBe('Book a 15-minute call');
   expect(m.book.height, `${where}: Book a call is ${m.book.height}px tall`).toBeGreaterThanOrEqual(44);
 }
 
@@ -217,7 +217,7 @@ for (const vp of VIEWPORTS) {
         if (js && vp.width <= 820) {
           /* Past the hero's action row, into the top of the film. */
           await page.evaluate(() => {
-            const row = document.querySelector('#found .ctarow');
+            const row = document.querySelector('#hero .ctarow');
             window.scrollTo(0, row.getBoundingClientRect().bottom + scrollY + 40);
           });
           await expect(bar, 'once the hero\'s action row has scrolled away, the bar is there').toBeVisible({ timeout: SLOW });
@@ -266,7 +266,7 @@ for (const vp of VIEWPORTS) {
             const at = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
             return { text: a.textContent.trim(), href: a.getAttribute('href'), opacity: o, hit: !!at && (at === a || a.contains(at)) };
           });
-          expect(end.text).toBe('Book a call');
+          expect(end.text).toBe('Book a 15-minute call');
           expect(end.href).toBe('/book.html#pick-a-time');
           expect(end.opacity, 'the ending\'s Book a call is on screen').toBeGreaterThan(0.9);
           expect(end.hit, 'the ending\'s Book a call takes the tap at its own centre').toBe(true);
@@ -308,8 +308,8 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
       for (const h of at.hidden) expect(h.visibility, `with the hero in view, ${h.what} is still in the tab order`).toBe('hidden');
 
       /* Tab from the hero's last link, the way a keyboard visitor leaves it. */
-      await page.evaluate(() => [...document.querySelectorAll('#found .hero-top a')].at(-1).focus());
-      expect(await page.evaluate(() => document.activeElement.textContent.trim())).toBe('Scan my website');
+      await page.evaluate(() => [...document.querySelectorAll('#hero .hero-top a')].at(-1).focus());
+      expect(await page.evaluate(() => document.activeElement.textContent.trim())).toBe('(587) 413-0035');
       await page.keyboard.press('Tab');
       const next = await page.evaluate((sel) => {
         const el = document.activeElement;
@@ -407,7 +407,7 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
 
       /* Focus stays where the visitor left it, on the hero's last link, while
          the page scrolls into the film; then Tab. */
-      await page.evaluate(() => [...document.querySelectorAll('#found .hero-top a')].at(-1).focus({ preventScroll: true }));
+      await page.evaluate(() => [...document.querySelectorAll('#hero .hero-top a')].at(-1).focus({ preventScroll: true }));
       for (let i = 1; i <= 3; i++) {
         await page.keyboard.press('Tab');
         await page.waitForTimeout(300);
@@ -426,16 +426,16 @@ for (const vp of VIEWPORTS.filter((v) => v.width !== 360)) {
       await expect.poll(() => page.evaluate(() => document.getElementById('close').classList.contains('on')),
         { message: 'the film never reached its ending', timeout: 90_000 }).toBe(true);
       const ending = () => page.evaluate(() => [...document.querySelectorAll('#close a')].map((a) => getComputedStyle(a).visibility));
-      expect(await ending(), 'at the ending, Book a call and Scan my website are in the tab order').toEqual(['visible', 'visible']);
+      expect(await ending(), 'at the ending, its Book a 15-minute call is in the tab order').toEqual(['visible']);
       /* ...and a pane card opened over it fades it out and takes it out. */
       await page.evaluate(() => window.NV_IX.open(document.querySelector('#paneNav button[data-pane]').getAttribute('data-pane')));
       await expect.poll(() => page.evaluate(() => document.body.classList.contains('card-open')),
         { message: 'the pane card never opened', timeout: SLOW }).toBe(true);
-      await expect.poll(ending, { message: 'with a pane card open the ending is transparent and its links are still in the tab order', timeout: SLOW })
-        .toEqual(['hidden', 'hidden']);
+      await expect.poll(ending, { message: 'with a pane card open the ending is transparent and its link is still in the tab order', timeout: SLOW })
+        .toEqual(['hidden']);
       await page.evaluate(() => window.NV_IX.close());
-      await expect.poll(ending, { message: 'the card closed and the ending\'s links did not come back', timeout: SLOW })
-        .toEqual(['visible', 'visible']);
+      await expect.poll(ending, { message: 'the card closed and the ending\'s link did not come back', timeout: SLOW })
+        .toEqual(['visible']);
     } finally {
       await ctx.close();
     }

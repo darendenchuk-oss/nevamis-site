@@ -107,11 +107,20 @@ test('on the booking page the phone bar scrolls to the scheduler and counts noth
   await page.goto('/book.html');
   const bar = page.locator('a.callbar');
   await expect(bar).toHaveCount(1);
-  await expect(bar).toBeVisible();
   await expect(bar).toHaveAttribute('href', '#pick-a-time');
   await expect(bar, 'a scroll by someone already booking is not booking intent').not.toHaveAttribute('data-evt', /.*/);
+  /* Since owner decision #81 the page is a headline, three lines and the
+     calendar, so on a phone the scheduler is on screen from the first screen
+     to the foot of the page, and the bar, which steps aside while it is,
+     never covers it. The anchor is still what the bar does, so it is
+     followed from the page's top. */
+  await expect(bar, 'the scheduler is on the first screen, so the bar steps aside').toHaveClass(/callbar-off/);
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await page.waitForTimeout(400);
+  await expect(bar, 'at the foot of the page the scheduler is still on screen').toHaveClass(/callbar-off/);
+  await page.evaluate(() => window.scrollTo(0, 0));
   const before = (await clearance(page)).events.length;
-  await bar.click();
+  await bar.evaluate((a) => a.click());
   await page.waitForTimeout(900);
   const r = await clearance(page);
   expect(r.path).toBe('/book.html');
@@ -123,10 +132,10 @@ test('on the booking page the phone bar scrolls to the scheduler and counts noth
   await ctx.close();
 });
 
-test('from a content page the phone bar lands on the scheduler, clear of the header', async ({ browser }) => {
+test('from another page the phone bar lands on the scheduler, clear of the header', async ({ browser }) => {
   const ctx = await containPhone(browser);
   const page = await ctx.newPage();
-  await page.goto('/electricians.html');
+  await page.goto('/privacy.html');
   const bar = page.locator('a.callbar');
   await expect(bar).toHaveAttribute('data-evt', 'callbar_book_click');
   await Promise.all([page.waitForURL(/\/book\.html#pick-a-time$/), bar.click()]);
@@ -156,47 +165,4 @@ test('the scheduler anchor clears the fixed header', async ({ page }) => {
     r.headingTop,
     `"${r.headingText}" lands at ${r.headingTop}px, under the header's ${r.headerBottom}px edge`,
   ).toBeGreaterThanOrEqual(r.headerBottom);
-});
-
-/* FUNNEL AUDIT ITEM 16 (2026-10-09): on pricing.html the fixed phone bar sat
-   over the first of the chooser's tick boxes as they scrolled through the
-   bottom of the screen. The bar now steps aside while an element marked
-   data-callbar-yield is in the strip it covers, and comes back once it has
-   passed. Measured, not assumed: at every position the first tick box is
-   either clear of the bar or the bar is out of the way. */
-test('on pricing the phone bar never covers the first tick box of the chooser', async ({ browser }) => {
-  const ctx = await containPhone(browser);
-  const page = await ctx.newPage();
-  await page.goto('/pricing.html');
-  await expect(page.locator('#leaks button').first()).toBeAttached();
-  /* The free-month card under the heading settles first (its answer is
-     immediate here), so the chip's position is measured after it. */
-  await page.waitForTimeout(700);
-  const where = await page.evaluate(() => {
-    const chip = document.querySelector('#leaks button');
-    return chip.getBoundingClientRect().top + scrollY;
-  });
-  const covered = [];
-  let stepped = false;
-  /* Walk the chip up through the bottom of the screen in 12px steps. */
-  for (let off = -40; off <= 120; off += 12) {
-    await page.evaluate((y) => window.scrollTo(0, y), Math.max(0, where - 844 + off));
-    await page.waitForTimeout(350);
-    const r = await page.evaluate(() => {
-      const chip = document.querySelector('#leaks button').getBoundingClientRect();
-      const bar = document.querySelector('a.callbar');
-      const b = bar.getBoundingClientRect();
-      const out = bar.classList.contains('callbar-off') || getComputedStyle(bar).visibility === 'hidden';
-      return { overlap: chip.bottom > b.top && chip.top < b.bottom && chip.top < innerHeight, out };
-    });
-    if (r.out) stepped = true;
-    if (r.overlap && !r.out) covered.push(off);
-  }
-  expect(covered, 'scroll offsets at which the bar covered the first tick box').toEqual([]);
-  expect(stepped, 'the bar stepped aside at least once on the way').toBe(true);
-  /* Once the tick boxes are mid-screen, the bar is back. */
-  await page.evaluate((y) => window.scrollTo(0, y), Math.max(0, where - 400));
-  await page.waitForTimeout(500);
-  await expect(page.locator('a.callbar')).not.toHaveClass(/callbar-off/);
-  await ctx.close();
 });

@@ -26,7 +26,7 @@ test('campaign tags survive a multi-page journey without storing anything', asyn
 
   // Clicking an internal link must carry the tags to the next page
   const href = await page.evaluate(() => {
-    const a = document.querySelector('a[href*="pricing"]');
+    const a = document.querySelector('#hero a[href^="/book.html"]');
     a.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     return a.getAttribute('href');
   });
@@ -37,7 +37,7 @@ test('campaign tags survive a multi-page journey without storing anything', asyn
 test('an untagged visit leaves links exactly as authored', async ({ page }) => {
   await page.goto('/index.html');
   await page.waitForFunction(() => typeof window.nvCampaignParams === 'function');
-  const link = page.locator('a[href$="pricing.html"], a[href*="/pricing"]').first();
+  const link = page.locator('footer a[href="/privacy.html"]').first();
   const before = await link.getAttribute('href');
   await link.evaluate((a) => a.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })));
   expect(await link.getAttribute('href'), 'no tags, no rewrite').toBe(before);
@@ -118,27 +118,27 @@ test('every link to the booking page lands at the scheduler, tagged or not, and 
     a.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     return a.getAttribute('href');
   }, sel);
-  await page.goto('/pricing.html');
+  await page.goto('/privacy.html');
   await page.waitForFunction(() => typeof window.nvCampaignParams === 'function');
   expect(await click('.main-nav a[href^="/book.html"]')).toMatch(/\/book\.html#pick-a-time$/);
-  await page.goto('/how-you-start.html?utm_source=google&utm_campaign=plumbers&gclid=G1');
+  await page.goto('/?utm_source=google&utm_campaign=plumbers&gclid=G1');
   await page.waitForFunction(() => typeof window.nvCampaignParams === 'function');
-  const hero = new URL(await click('.cta-row a[href^="/book.html"]'));
+  const hero = new URL(await click('#hero .ctarow a[href^="/book.html"]'));
   expect(hero.pathname).toBe('/book.html');
   expect(hero.hash).toBe('#pick-a-time');
   expect(hero.searchParams.get('utm_source')).toBe('google');
   expect(hero.searchParams.get('gclid'), 'site links carry the whole allowlist, click IDs included, as before').toBe('G1');
   /* Middle click opens a tab without a click event, and still carries both. */
-  await page.goto('/how-you-start.html?utm_source=google');
+  await page.goto('/?utm_source=google');
   await page.waitForFunction(() => typeof window.nvCampaignParams === 'function');
   const aux = await page.evaluate(() => {
-    const a = document.querySelector('.midcta a[href^="/book.html"]');
+    const a = document.querySelector('#hero .ctarow a[href^="/book.html"]');
     a.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
     return a.getAttribute('href');
   });
   expect(aux).toMatch(/\/book\.html\?utm_source=google#pick-a-time$/);
   /* An anchor the link chose for itself is never replaced. */
-  await page.goto('/pricing.html');
+  await page.goto('/privacy.html');
   await page.waitForFunction(() => typeof window.nvCampaignParams === 'function');
   const own = await page.evaluate(() => {
     const a = document.createElement('a');

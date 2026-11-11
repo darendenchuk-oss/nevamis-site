@@ -170,70 +170,9 @@ test('PLATFORM-1: no served surface offers the Revenue Engine, by application or
   expect(bad, bad.join('\n')).toEqual([]);
 });
 
-test('PLATFORM-1: revenue-engine.html starts nothing; its action is the Roadmap interest path for it', () => {
-  const html = read('revenue-engine.html');
-  const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(html.replace(/<!--[\s\S]*?-->/g, ' '))[1];
-  const hrefs = [...main.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({ href: m[1], text: m[2].replace(/<[^>]*>/g, '').trim() }));
-  /* A booked call is how a by-invitation service starts (DC#54); the page for
-     something not offered has no call to book about it. The site chrome's own
-     Book a call sits outside <main> and is not this page's offer. */
-  const book = hrefs.filter((a) => /\/book\.html/.test(a.href));
-  expect(book, `revenue-engine.html main links to booking: ${JSON.stringify(book)}`).toEqual([]);
-  const interest = hrefs.filter((a) => /^\/coming-soon\.html\?service=revenue-engine(?:#interest)?$/.test(a.href));
-  expect(interest.length, 'the Revenue Engine page must send its reader to the Roadmap interest form for it').toBeGreaterThan(0);
-  /* Its primary button IS that path. */
-  const primary = [...main.matchAll(/<a class="btn btn-primary[^"]*"[^>]*href="([^"]+)"/g)].map((m) => m[1]);
-  expect(primary.length).toBeGreaterThan(0);
-  for (const h of primary) expect(h, 'every primary button on the Revenue Engine page').toMatch(/^\/coming-soon\.html\?service=revenue-engine/);
-});
-
-test('PLATFORM-2: every link into the Roadmap form names an entry the form can tick', () => {
-  const R = roadmap();
-  const tickable = new Set(R.services.filter((s) => ['planned', 'researching', 'paused'].includes(s.status)).map((s) => s.slug));
-  const bad = [];
-  for (const f of fs.readdirSync(root).filter((x) => x.endsWith('.html'))) {
-    for (const m of read(f).replace(/<!--[\s\S]*?-->/g, ' ').matchAll(/href="\/coming-soon\.html\?service=([^"#&]+)/g)) {
-      if (!tickable.has(m[1])) bad.push(`${f}: ?service=${m[1]} ticks nothing on the form`);
-    }
-  }
-  expect(bad, bad.join('\n')).toEqual([]);
-});
-
-test('PLATFORM-2: the Revenue Engine page tells the Roadmap pricing story, not a per-business one', () => {
-  const text = mainText(read('revenue-engine.html'));
-  /* The Roadmap: "it gets a published price before anyone signs up for it". */
-  expect(text).toMatch(/published price before anyone signs up/i);
-  for (const re of [/\bscoped and confirmed in writing\b/i, /\bstanding offer\b/i, /\bper business\b/i, /\bno engagement\b/i]) {
-    expect(text, `revenue-engine.html prices it per business: ${re}`).not.toMatch(re);
-  }
-});
-
 /* ---------- PLATFORM-5: nothing runs, so nothing is measured today ---------- */
 
-test('PLATFORM-5: the Revenue Engine page claims no present-tense delivery, reporting included', () => {
-  const blocks = htmlBlocks(read('revenue-engine.html'));
-  const PRESENT = /\b(?:we|nevamis)\s+(?:measure|report|track|tie|attribute|deliver|show|send)s?\b|\b(?:ties|tracks|reports|measures|attributes) (?:each|every|your)\b/i;
-  const bad = blocks.filter((b) => PRESENT.test(b));
-  expect(bad, bad.join('\n')).toEqual([]);
-});
-
 /* ---------- PLATFORM-3, PLATFORM-7: one status word, the pricing page's ---------- */
-
-test('PLATFORM-3/7: every item pricing lists as coming is on the Roadmap, labelled COMING', () => {
-  const R = roadmap();
-  const labels = statusLabels();
-  /* Both of pricing's places: the catalog blurb and the rendered page line. */
-  const coming = new Set(pricing().addOns.filter((a) => /\bComing\b/.test(a.blurb || '')).map((a) => a.name));
-  for (const m of read('pricing.html').matchAll(/<li>([^<&]+?) &middot; coming &middot;/g)) coming.add(m[1].trim());
-  expect(coming.size, 'pricing lists nothing as coming: has its markup changed?').toBeGreaterThan(0);
-  for (const name of coming) {
-    const s = R.services.find((x) => x.name === name);
-    expect(s, `${name} is coming on pricing and missing from the Roadmap that says it shows everything`).toBeTruthy();
-    expect(labelOf(s, labels).toLowerCase(), `${name}: the Roadmap's word`).toBe('coming');
-    expect(['available', 'private_pilot'], `${name} is coming, so not live and not by invitation`).not.toContain(s.status);
-    expect(s.cta, `${name} has nothing to start`).toBeUndefined();
-  }
-});
 
 /* llms.txt is what an answer engine quotes, so it carries the same word.
    Its "IN DEVELOPMENT OR BEING RESEARCHED" line named Customer Reactivation
@@ -245,46 +184,7 @@ test('PLATFORM-3/7: every item pricing lists as coming is on the Roadmap, labell
    an exemption cannot outlive its fix. Empty is the steady state. */
 const LLMS_COMING_PENDING = {};
 
-test('PLATFORM-3/7: llms.txt files every item pricing lists as coming as coming, not in development', () => {
-  const coming = new Set(pricing().addOns.filter((a) => /\bComing\b/.test(a.blurb || '')).map((a) => a.name));
-  for (const m of read('pricing.html').matchAll(/<li>([^<&]+?) &middot; coming &middot;/g)) coming.add(m[1].trim());
-  expect(coming.size).toBeGreaterThan(0);
-  const text = read('llms.txt').replace(/\r/g, '');
-  const bullets = text.split(/\n(?=- )|\n\s*\n/).map((b) => b.replace(/\s+/g, ' ').trim());
-  const dev = bullets.find((b) => /^- IN DEVELOPMENT\b/.test(b));
-  expect(dev, 'llms.txt has no IN DEVELOPMENT line: has its markup changed?').toBeTruthy();
-  const sentences = (b) => b.split(/(?<=\.)\s+/);
-  const bad = [];
-  for (const name of coming) {
-    const misfiled = sentences(dev).some((x) => x.includes(name) && !/\bcoming\b/i.test(x));
-    const saidComing = bullets.some((b) => sentences(b).some((x) => x.includes(name) && /\bcoming\b/i.test(x)));
-    const wrong = misfiled || !saidComing;
-    if (wrong && !LLMS_COMING_PENDING[name]) bad.push(`${name}: llms.txt ${misfiled ? 'files it as in development or being researched' : 'never calls it coming'}`);
-    if (!wrong && LLMS_COMING_PENDING[name]) bad.push(`${name}: llms.txt now files it as coming, so delete its LLMS_COMING_PENDING entry`);
-  }
-  expect(bad, bad.join('\n')).toEqual([]);
-});
-
-test('PLATFORM-3: the Revenue Engine page grid lists Search Rankings as coming', () => {
-  const html = read('revenue-engine.html').replace(/<!--[\s\S]*?-->/g, ' ');
-  expect(html).toMatch(/<span class="chip dev">Coming<\/span><h3>Search Rankings<\/h3>/);
-});
-
 /* ---------- PLATFORM-7, PLATFORM-8: an unbuilt entry says what it WOULD do ---------- */
-
-test('PLATFORM-7/8: a Roadmap entry that is not live speaks in "would" and promises no result', () => {
-  const bad = [];
-  for (const s of roadmap().services) {
-    if (s.status === 'available' || s.status === 'private_pilot') continue;
-    const first = String(s.desc).split(/(?<=\.)\s/)[0];
-    /* "Is being built to" only for work in development, which the Roadmap
-       labels IN DEVELOPMENT; everything else would. */
-    const ok = /\bwould\b/i.test(first) || (/^Is being built to\b/.test(first) && s.statusLabel === 'IN DEVELOPMENT');
-    if (!ok) bad.push(`${s.name}: desc "${first}" says it does something`);
-    if (s.outcome !== undefined && !/^Would\b/.test(s.outcome)) bad.push(`${s.name}: outcome "${s.outcome}" promises a result`);
-  }
-  expect(bad, bad.join('\n')).toEqual([]);
-});
 
 /* ---------- PLATFORM-6: no quantity on who has it ---------- */
 
@@ -303,8 +203,9 @@ test('PLATFORM-6: the Roadmap and the pages that tell its story put no number on
      SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09): with SITE_ROOT at main
      0fb6589 this test failed on scripts/film/sections.html, home.html and
      index.html, "a few businesses" in each, and passed on this branch. */
-  const files = ['roadmap-config.js', 'coming-soon.html', 'revenue-engine.html', 'about.html',
-    'scripts/film/sections.html', 'home.html', 'index.html'];
+  /* The Roadmap, the Revenue Engine page and About redirect to the
+     homepage since owner decision #81 (2026-11-10). */
+  const files = ['roadmap-config.js', 'scripts/film/sections.html', 'scripts/film/source.html', 'home.html', 'index.html', 'book.html'];
   const bad = [];
   for (const f of files) {
     const blocks = f.endsWith('.js') ? jsStrings(read(f)) : htmlBlocks(read(f));
@@ -345,50 +246,14 @@ test('TRUTH-2: no served surface says the owner sets or approves the questions t
 
 /* ---------- COMING-4: a price is promised for what can be bought ---------- */
 
-test('COMING-4: no copy promises a published price for everything marked AVAILABLE NOW', () => {
-  /* Automatic Lead Tracking is marked AVAILABLE NOW and has no price of its
-     own: it runs off the front desk's calls. So the promise may be made about
-     what can be bought, never about the label. */
-  const labels = statusLabels();
-  const live = labels.available;
-  const re = new RegExp(`\\b${live}\\b[^.]*\\b(?:published |a )?price`, 'i');
-  const bad = [];
-  for (const [file, blocks] of surfaces()) for (const b of blocks) if (re.test(b)) bad.push(`${file}: "${b.slice(0, 160)}"`);
-  expect(bad, bad.join('\n')).toEqual([]);
-  /* And it is true that the label covers something unpriced, or this test
-     guards nothing: an AVAILABLE NOW entry whose name pricing.html never says. */
-  const priced = read('pricing.html');
-  const unpriced = roadmap().services.filter((s) => s.status === 'available' && !priced.includes(s.name));
-  expect(unpriced.length, 'every AVAILABLE NOW entry is now named on pricing.html: this rule can relax').toBeGreaterThan(0);
-});
-
 /* ---------- PLATFORM-4: About leads with the platform, in door order ---------- */
-
-test('PLATFORM-4: about.html says Lead Generation, then quotes, then the front desk, before its history', () => {
-  const text = mainText(read('about.html'));
-  const at = (re) => { const m = re.exec(text); return m ? m.index : -1; };
-  const lg = at(/\bLead Generation\b/);
-  const quotes = at(/\bquotes?\b/i);
-  const desk = at(/\bfront desk\b/i);
-  const voicemail = at(/\bvoicemail\b/i);
-  expect(lg, 'about.html never names Lead Generation').toBeGreaterThanOrEqual(0);
-  expect(quotes, 'quotes come after Lead Generation').toBeGreaterThan(lg);
-  expect(desk, 'the front desk comes after quotes').toBeGreaterThan(quotes);
-  /* The voicemail story is how the company started: history, after the
-     platform, never its opening line. */
-  if (voicemail >= 0) expect(voicemail, 'the founding story comes after the platform').toBeGreaterThan(desk);
-  expect(text).not.toMatch(/\bwe build the front desk that ends\b/i);
-});
 
 /* ---------- MACHINE-24, CHECK-RUNNER-7: one breadcrumb, a description that fits ---------- */
 
 /* Pages another leaf of the same audit owns, with the defect it is fixing.
    Each entry is skipped here, not excused: its owner's brief carries it. */
-const BREADCRUMB_PENDING = { 'book.html': 'site-live-buyer', 'how-you-start.html': 'site-live-buyer', 'demo.html': 'site-live-content' };
-const DESCRIPTION_PENDING = {
-  'home.html': 'site-live-home (scripts/film/chrome-source.html)', 'index.html': 'site-live-home (promote.mjs)',
-  'how-you-start.html': 'site-live-buyer', 'pricing.html': 'site-live-buyer', 'terms.html': 'site-live-legal', 'demo.html': 'site-live-content',
-};
+const BREADCRUMB_PENDING = {};
+const DESCRIPTION_PENDING = {};
 const rootPages = () => fs.readdirSync(root).filter((f) => f.endsWith('.html'));
 
 test('MACHINE-24: a page carries one BreadcrumbList, the generated one', () => {
@@ -420,62 +285,3 @@ test('CHECK-RUNNER-7: every search description is 160 characters or fewer', () =
 });
 
 /* ---------- the rendered Roadmap ---------- */
-
-test('COMING-2: the Roadmap a buyer meets runs Lead Generation, Quote Recovery, then the front desk', async ({ page }) => {
-  await page.goto('/coming-soon.html');
-  const names = await page.$$eval('.svc-grid .svc h3', (hs) => hs.map((h) => h.textContent.trim()));
-  /* "Front Desk" since v7: "AI Front Desk" is the largest size's name now
-     (owner amendment #67), and the card is the capability (PLATFORM-9). */
-  expect(names.slice(0, 3)).toEqual(['Lead Generation', 'Quote Recovery', 'Front Desk']);
-  const now = await page.$$eval('#gridNow .svc h3', (hs) => hs.map((h) => h.textContent.trim()));
-  expect(now.slice(0, 2), 'the LIVE TODAY shelf opens with Quote Recovery, then the front desk').toEqual(['Quote Recovery', 'Front Desk']);
-});
-
-test('PLATFORM-3/8: the rendered Roadmap carries Search Rankings as COMING and no empty outcome line', async ({ page }) => {
-  await page.goto('/coming-soon.html');
-  const card = (name) => page.locator('.svc', { has: page.locator('h3', { hasText: new RegExp(`^${name}$`) }) });
-  await expect(card('Search Rankings').locator('.status')).toHaveText('COMING');
-  await expect(card('Customer Reactivation').locator('.status')).toHaveText('COMING');
-  await expect(card('Search Rankings').locator('button.interest')).toHaveCount(1);
-  const empty = await page.$$eval('.svc .outcome', (ps) => ps.filter((p) => !p.textContent.trim()).length);
-  expect(empty, 'an outcome paragraph with nothing in it').toBe(0);
-  await expect(card('Growth System').locator('.outcome')).toHaveCount(0);
-});
-
-test('PLATFORM-1: the Revenue Engine page\'s link ticks the Revenue Engine on the Roadmap form', async ({ page }) => {
-  await page.goto('/revenue-engine.html');
-  const href = await page.locator('main a.btn-primary').first().getAttribute('href');
-  await page.goto(href);
-  await expect(page.locator('#svcChecks input[data-slug="revenue-engine"]')).toBeChecked();
-  await expect(page.locator('#svcChecks input:checked')).toHaveCount(1);
-  await page.goto('/coming-soon.html?service=seo-rankings#interest');
-  await expect(page.locator('#svcChecks input[data-slug="seo-rankings"]')).toBeChecked();
-});
-
-test('PLATFORM-3: each Revenue Engine page interest link sends the service it is for', async ({ page }) => {
-  /* site.js sends a bare [data-evt] name, so three links with one name could
-     not be told apart. Each now carries data-svc, and its click sends the slug,
-     exactly once. */
-  await page.goto('/revenue-engine.html');
-  await page.waitForFunction(() => typeof window.nvTrack === 'function');
-  const links = await page.$$eval('main a[href^="/coming-soon.html?service="]', (as) => as.map((a) => ({
-    slug: new URL(a.href).searchParams.get('service'), svc: a.getAttribute('data-svc'), evt: a.getAttribute('data-evt'),
-  })));
-  expect(links.length, 'the Revenue Engine page has its interest links').toBeGreaterThanOrEqual(3);
-  for (const l of links) {
-    expect(l.svc, `a link to ?service=${l.slug} names the same service`).toBe(l.slug);
-    expect(l.evt, 'a bare data-evt would send a second, slug-less event').toBeNull();
-  }
-  const sent = await page.evaluate(() => {
-    document.addEventListener('click', (e) => e.preventDefault());
-    const out = [];
-    for (const a of document.querySelectorAll('main a[href^="/coming-soon.html?service="]')) {
-      const before = window.nvEvents.length;
-      a.click();
-      out.push(window.nvEvents.slice(before).map((e) => [e.event, e.data && e.data.service]));
-    }
-    return out;
-  });
-  expect(sent).toEqual(links.map((l) => [['roadmap_service_interest_clicked', l.slug]]));
-  expect(sent.flat().map((e) => e[1])).toContain('seo-rankings');
-});

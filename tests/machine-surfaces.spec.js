@@ -33,19 +33,22 @@ const jsonLdIn = (page) => page.$$eval('script[type="application/ld+json"]', (ns
 
 /* ---------- MACHINE-17: the offers carry both figures ---------- */
 
-test('MACHINE-17: the homepage Service JSON-LD gives every plan and every module sold alone both figures', async ({ page }) => {
+test('MACHINE-17: the homepage Service JSON-LD gives each Front Desk size both figures, and offers nothing else', async ({ page }) => {
   await page.goto('/');
   const blocks = (await jsonLdIn(page)).map((t) => JSON.parse(t)).flat();
   const service = blocks.find((b) => b['@type'] === 'Service');
   expect(service, 'the homepage publishes a Service').toBeTruthy();
-  expect(offerFindings(service, NV)).toEqual([]);
+  /* Owner decision #81 (2026-11-10): the homepage sells the three Front Desk
+     sizes and nothing else, so those are the items held to both figures, and
+     a module sold alone has no Offer here. */
+  const tiers = NV.frontDeskTiers();
+  const sold = { ...NV, plans: tiers, addOns: NV.addOns.filter((a) => !(a.sellable === true && a.soldAlone === true)) };
+  expect(offerFindings(service, sold)).toEqual([]);
+  expect(service.offers.map((o) => o.name)).toEqual(tiers.map((t) => t.name));
   /* The rule in plain terms, for whoever reads a red run: no parser can read
-     "C$1,000" alone as the AI Front Desk's price, and Quote Recovery, door
-     two, has an Offer of its own. */
+     "C$1,000" alone as the AI Front Desk's price. */
   const fd = service.offers.find((o) => o.name === 'AI Front Desk');
   expect(fd.price).toBeUndefined();
-  const qc = service.offers.find((o) => o.name === 'Quote-Chase Engine');
-  expect(qc, 'Quote Recovery is sold alone and has its own Offer').toBeTruthy();
 });
 
 /* pricing.html renders its own Product JSON-LD at runtime, from the same
@@ -55,15 +58,6 @@ test('MACHINE-17: the homepage Service JSON-LD gives every plan and every module
    this test holds the gap open in plain sight: it is EXPECTED to fail until
    pricing.html adopts the homepage's shape, and the day it passes, Playwright
    reports it as an unexpected pass and this annotation comes out. */
-test('MACHINE-17 sibling: pricing.html\'s runtime Product offers carry both figures (owned by site-live-buyer)', async ({ page }) => {
-  test.fail(true, 'pricing.html is site-live-buyer\'s file; handed over in the site-live-machine PR');
-  await page.goto('/pricing.html');
-  const blocks = (await jsonLdIn(page)).map((t) => JSON.parse(t)).flat();
-  const product = blocks.find((b) => b['@type'] === 'Product');
-  expect(product, 'pricing.html publishes its Product').toBeTruthy();
-  expect(offerFindings({ offers: product.offers.offers }, NV)).toEqual([]);
-});
-
 /* ---------- COMPLETENESS-8: the share card says what it shows ---------- */
 
 test('COMPLETENESS-8: every page names its share card in og:image:alt and twitter:image:alt, in the card\'s own words', async ({ page }) => {
@@ -83,16 +77,15 @@ test('COMPLETENESS-8: every page names its share card in og:image:alt and twitte
   }
 });
 
-test('COMPLETENESS-8: the card is set in the site\'s typefaces, names all three doors, and is exported at 1200x630', async () => {
+test('COMPLETENESS-8: the card is set in the site\'s typefaces, says the one message, and is exported at 1200x630', async () => {
   const svg = fs.readFileSync('scripts/og-default.svg', 'utf8');
   const families = [...svg.matchAll(/font-family="([^"]+)"/g)].map((m) => m[1].split(',')[0].replace(/'/g, '').trim());
   for (const f of families) expect(['Bricolage Grotesque', 'Atkinson Hyperlegible', 'Spline Sans Mono']).toContain(f);
   const text = cardLines(svg).join(' ');
-  /* A share of a call-answering page must not show a card that is only about
-     Lead Generation: the card names the three doors, in door order. */
-  expect(text.indexOf('Lead Generation')).toBeGreaterThanOrEqual(0);
-  expect(text.indexOf('Lead Generation')).toBeLessThan(text.indexOf('Quote Recovery'));
-  expect(text.indexOf('Quote Recovery')).toBeLessThan(text.indexOf('front desk'));
+  /* Owner decision #81 (2026-11-10): the card says what the site says, the
+     answered call, and nothing of the offers that left it. */
+  expect(text).toContain('We answer the calls you miss.');
+  expect(text).not.toMatch(/Lead Generation|invitation|Quote Recovery/i);
   const png = fs.readFileSync('assets/og-default.png');
   expect(png.readUInt32BE(16), 'width').toBe(1200);
   expect(png.readUInt32BE(20), 'height').toBe(630);
@@ -105,7 +98,7 @@ test('MACHINE-18: every sitemap page matches the hash its lastmod was recorded f
   expect(sidecar, 'config/sitemap-hashes.json exists').toBeTruthy();
   const stated = readSitemapLastmods(fs.readFileSync('sitemap.xml', 'utf8').replace(/\r/g, ''));
   const pages = sitemapPages(ROOT);
-  expect(pages.length).toBeGreaterThanOrEqual(20);
+  expect(pages.length, 'every sitemap page in content-map.json').toBe(MAP.pages.filter((p) => p.url && p.sitemap !== false).length);
   for (const p of pages) {
     const rec = sidecar.pages[p.file];
     expect(rec, `${p.file} is recorded`).toBeTruthy();
@@ -126,8 +119,8 @@ test('MACHINE-26: llms.txt lists every sitemap page, one per line, and nothing e
   const locs = sitemapPages(ROOT).map((p) => p.loc);
   expect(llmsPageFindings(fs.readFileSync('llms.txt', 'utf8'), locs)).toEqual([]);
   const llms = fs.readFileSync('llms.txt', 'utf8');
-  expect(llms).toContain('https://nevamis.ca/solutions.html');
   expect(llms).toContain('https://nevamis.ca/security.html');
+  expect(llms).not.toContain('https://nevamis.ca/solutions.html');
   /* PLATFORM-6's sibling: no quantity on Lead Generation. */
   expect(llms).not.toMatch(/\ba few businesses\b/i);
 });
@@ -135,7 +128,7 @@ test('MACHINE-26: llms.txt lists every sitemap page, one per line, and nothing e
 test('COMPLETENESS-6: no page loads the dead search module, and the index stays served for machines', async ({ page }) => {
   const fetched = [];
   page.on('request', (r) => { if (/search(?:\.js|-index\.json)/.test(r.url())) fetched.push(r.url()); });
-  for (const url of ['/', '/pricing.html', '/missed-calls.html', '/about.html']) {
+  for (const url of ['/', '/book.html', '/privacy.html']) {
     await page.goto(url, { waitUntil: 'load' });
   }
   await page.waitForTimeout(500);
@@ -144,7 +137,6 @@ test('COMPLETENESS-6: no page loads the dead search module, and the index stays 
   expect(fs.readFileSync('assets/motion/main.js', 'utf8')).not.toMatch(/from ['"]\.\/search\.js['"]/);
   const res = await page.request.get('/search-index.json');
   expect(res.status()).toBe(200);
-  expect(fs.readFileSync('llms.txt', 'utf8')).toContain('https://nevamis.ca/search-index.json');
 });
 
 /* ---------- MACHINE-9 to MACHINE-16: the agent documents ---------- */

@@ -14,15 +14,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const OUT = path.resolve('artifacts/motion-proof/pages');
-const PAGES = [
-  'pricing.html', 'how-you-start.html', 'pilot.html', 'demo.html', 'book.html', 'about.html',
-  'coming-soon.html', 'privacy.html', 'terms.html', 'revenue-engine.html', '404.html',
-  /* The solutions hub and the pages it links to. They are generated from one
-     template (scripts/build-content.mjs), so an overflow in the template is an
-     overflow on all of them, and until 2026-09-25 none was measured at all. */
-  'solutions.html', 'electricians.html', 'hvac.html', 'plumbers.html', 'restoration.html',
-  'after-hours-answering.html', 'missed-calls.html', 'vs-voicemail.html', 'vs-answering-service.html',
-];
+/* Owner decision #81 (2026-11-10): the site is the homepage (measured on its
+   own below), the booking page and the legal pages. Every other page is a
+   redirect to the homepage, held by the last test in this file. */
+const PAGES = ['book.html', 'privacy.html', 'terms.html', 'security.html', '404.html'];
+const REDIRECTS = JSON.parse(fs.readFileSync('content-map.json', 'utf8')).redirects;
 
 /* The phone the site is measured on: 375 wide, the narrowest iPhone still sold
    and supported (SE, 13 mini). A page that fits here fits the 390 to 430 of the
@@ -118,7 +114,8 @@ for (const file of PAGES) {
     // canonical chrome
     await expect(page.locator('header.site-header')).toHaveCount(1);
     await expect(page.locator('footer.site-footer')).toHaveCount(1);
-    await expect(page.locator('.main-nav a', { hasText: 'Pricing' })).toHaveCount(1);
+    await expect(page.locator('.main-nav a')).toHaveCount(1);
+    await expect(page.locator('.main-nav a.btn-primary')).toHaveText('Book a 15-minute call');
 
     /* The aurora canvas assertion was here. It is deleted with the shader
        (assets/motion/aurora.js): the ground is one flat #02080D on every page
@@ -132,17 +129,17 @@ for (const file of PAGES) {
     /* PHONE. The overflow checks used to run at 1440 only, and the phone half
        of this test only opened the menu, so a page could scroll sideways on
        every phone that visited while this file reported it clean. Both checks
-       now run again at phone width, before the menu is opened (an open drawer
-       is a different page state). */
+       now run again at phone width. */
     await page.setViewportSize(PHONE);
     await page.waitForTimeout(250);
     expect(await escapees(page), `overflow on ${file} at phone width`).toEqual([]);
     expect(await sidewaysScroll(page), `${file} scrolls sideways on a phone by this many px`).toBeLessThanOrEqual(0);
     expect(await smallTextControls(page), `${file}: text fields under 16px make iPhone Safari zoom on tap`).toEqual([]);
 
-    // phone: menu opens, callbar present
-    await page.locator('.nav-toggle').click();
-    await expect(page.locator('.main-nav')).toHaveClass(/open/);
+    // phone: no menu; the header is the wordmark and the call bar books
+    await expect(page.locator('.nav-toggle')).toHaveCount(0);
+    await expect(page.locator('.main-nav')).toBeHidden();
+    await expect(page.locator('a.callbar')).toHaveCount(1);
     await page.screenshot({ path: path.join(OUT, file.replace('.html', '') + '-mobile.png') });
 
     expect(errors, `${file} errors:\n${errors.join('\n')}`).toEqual([]);
@@ -152,15 +149,15 @@ for (const file of PAGES) {
 
 /* The film homepage is not in the loop above: it is the one page with a
    <canvas>, and its header is hidden under the film's cold open. Its phone
-   contract is the same, though, and it carries the calculator, so it gets the
-   same two measurements on its own. */
-test('the film homepage fits a phone and its calculator does not zoom', async ({ browser }) => {
+   contract is the same, though, so it gets the same measurements on its own,
+   at the price list, the widest thing in its hero. */
+test('the film homepage fits a phone', async ({ browser }) => {
   const ctx = await browser.newContext({ viewport: PHONE });
   await offline(ctx);
   const page = await ctx.newPage();
   await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
-  expect(await page.locator('#roiMissed').count(), 'the calculator must be on the homepage to be measured').toBe(1);
-  await page.locator('#roiMissed').scrollIntoViewIfNeeded();
+  await expect(page.locator('#hero .prices li')).toHaveCount(3);
+  await page.locator('#hero .prices').scrollIntoViewIfNeeded();
   await page.waitForTimeout(400);
 
   expect(await escapees(page), 'overflow on the homepage at phone width').toEqual([]);
@@ -179,4 +176,18 @@ test('no page records an analytics event that is never sent', () => {
   expect(pages.length, 'the site root must be the working directory').toBeGreaterThan(10);
   const offenders = pages.filter((f) => /nvEvents\s*\.\s*push\s*\(/.test(fs.readFileSync(f, 'utf8')));
   expect(offenders, 'use window.nvTrack(name), which sends; a bare nvEvents.push counts nothing').toEqual([]);
+});
+
+/* Every retired page is a stub that sends the visitor to the homepage, so an
+   old link, an old ad or a search result never lands on a dead end. */
+test('every retired page sends the visitor to the homepage', async ({ browser }) => {
+  expect(REDIRECTS.length, 'content-map.json lists the retired pages').toBeGreaterThan(10);
+  const ctx = await browser.newContext({ viewport: PHONE });
+  await offline(ctx);
+  const page = await ctx.newPage();
+  for (const file of REDIRECTS) {
+    await page.goto('/' + file + '?to=Test%20Person');
+    await page.waitForURL((u) => u.pathname === '/' && !u.search, { timeout: 10_000 });
+  }
+  await ctx.close();
 });
