@@ -396,22 +396,29 @@ export function agentRequiredFindings(file, text, NV) {
   return out;
 }
 
-/* Door order (2026-09-12): Lead Generation, then Quote Recovery, then the
-   front desk, and never AI first. Read on the demo knowledge base's "What
-   Nevamis is" section and the test catalogue's row 1. */
+/* Door order, read on the demo knowledge base's "What Nevamis is" section
+   and the test catalogue's row 1. It was Lead Generation, then Quote
+   Recovery, then the front desk (2026-09-12). RE-POINTED 2026-11-11 (owner
+   decision #81 follow-up): Lead Generation is off the demo line. It stays
+   built and by invitation in the engine's canonical, sold only under the
+   Performance Partnership, but the line never offers it, so the doors are
+   the owner's approved wording: the phone (the front desk) first, then the
+   quotes, and never AI first. Naming Lead Generation, or offering to find
+   the owner businesses or customers they want more of, is now a finding. */
 export function doorOrderFindings(label, text) {
   /* The legal name "Nevamis AI Inc." is a name, not a positioning. "call"
-     is not a door word: "a short call with Daren" is how Lead Generation
-     starts, so the front desk is found by "front desk" or "phone". */
+     is not a door word ("a call with Daren" is how a caller reaches him),
+     so the front desk is found by "front desk" or "phone". */
   const t = String(text).replace(/\bNevamis AI Inc\.?/g, "Nevamis");
-  const lg = t.search(/Lead Generation/);
-  const q = t.search(/\bquotes?\b/i);
+  const lg = t.search(/Lead Generation|\bfinds? businesses\b|\bwants? more of\b|\bmore of the customers\b/i);
   const fd = t.search(/\b(?:front desk|phone)\b/i);
+  const q = t.search(/\bquotes?\b/i);
   const ai = t.search(/\bAI\b/);
   const out = [];
-  if (lg < 0 || q < 0 || fd < 0) out.push(`${label}: does not name all three doors (Lead Generation, quotes, the front desk)`);
-  else if (!(lg < q && q < fd)) out.push(`${label}: names the doors out of order; Lead Generation first, then Quote Recovery, then the front desk (door order 2026-09-12)`);
-  if (ai >= 0 && (lg < 0 || ai < lg)) out.push(`${label}: leads with "AI" before Lead Generation; Nevamis is not described AI-first (decision #17)`);
+  if (lg >= 0) out.push(`${label}: offers Lead Generation or finding the owner customers, which is off the demo line (decision #81, 2026-11-11)`);
+  if (fd < 0 || q < 0) out.push(`${label}: does not name both doors (the front desk, then quotes)`);
+  else if (!(fd < q)) out.push(`${label}: names the doors out of order; the front desk first, then quotes (decision #81, 2026-11-11)`);
+  if (ai >= 0 && (fd < 0 || ai < fd)) out.push(`${label}: leads with "AI" before the front desk; Nevamis is not described AI-first (decision #17)`);
   return out;
 }
 

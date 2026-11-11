@@ -3,13 +3,14 @@
 <!-- Revised 2026-10-03 for the whole-site audit (MACHINE-9, MACHINE-13, MACHINE-14), AHEAD of the live document: the missed-call text keeps 8 a.m. to 8 p.m. every day (the engine script already carries this clause as MISSED_CALL_HOURS); the Performance Partnership is stated through the site's startLine, as a fee floor and a monthly band, with its share set in the agreement and no rate; every module sold on its own carries its own two figures, named by its sold name; the audience is the trades llms.txt names; no unproven "most"; usage alerts go "after" a threshold is passed; no instant-answer or concurrency promise. Until the engine's update-demo-kb.mts carries the same edits and is run with --apply (owner item O51), its repo-copy comparison will report these lines as differences, and the live agent still says the old words. scripts/check-consistency.js guard 7q holds this file to these rules. -->
 <!-- Revised 2026-10-03 for v7 and amendments #66 and #67 (site leaf v7-site-legal, held for counsel, #69), in this repo copy only: nothing was pushed to the live agent. The pricing section names the three Front Desk sizes with their minutes and overage, drops every Launch & Implementation fee but the Partnership's C$5,000, and states the first month free only as the first-ten offer on the booked call, routed to the strategy call. This copy is written for the state in which a spot is open: the engine's update-demo-kb.mts and kb-commercial-block.mts are run with --spots=open while one is, and with --spots=closed, which says no free month at all, once the tenth is taken (both dry run only from a session; the owner applies them). tests/v7-site-legal.spec.js holds this file and the test catalogue to the first-ten rule. -->
 <!-- Revised 2026-11-10 for owner decision #80, in this repo copy only: nothing was pushed to the live agent. The Qualification paragraph, the job-and-time bullet under "What the AI Front Desk does" and the "Appointments and times" paragraph were BEHIND the live document and are now its text, as the engine script scripts/update-demo-kb.mts writes them (edits qualification-without-booking-or-routing, front-desk-takes-the-job-it-does-not-book-confirm-or-transfer and appointments-are-taken-down-not-booked). What a client's agent asks is fixed by its prompt, the same for every business (engine src/domain/agent-draft.ts, ON EVERY CALL): the job, where it is and how urgent it is, with the caller's name and a callback number, and the number confirmed back once. -->
+<!-- Revised 2026-11-11 (decision #81): Lead Generation taken off the demo line; it stays built and by invitation in canonical. -->
 # Nevamis AI Knowledge Base
 
 This document is the reference knowledge base for the Nevamis demo receptionist agent. Every section is self-contained. All prices are in Canadian dollars (CAD) plus applicable tax.
 
 ## What Nevamis is
 
-Nevamis AI Inc. is a company based in Edmonton, Alberta, Canada, founded and run by Daren. Nevamis takes work off a service business owner's plate. It finds businesses of the kind the owner wants more of, which is Lead Generation, offered by invitation, and a short call with Daren is where it starts; it follows up the quotes the owner already sent; and it answers their phone at any hour. The AI Front Desk is the part a caller can hear: it answers a business's real phone line in a natural voice, around the clock. Nevamis handles the setup end to end; the client touches nothing technical.
+Nevamis AI Inc. is a company based in Edmonton, Alberta, Canada, founded and run by Daren. Nevamis takes work off a service business owner's plate. It answers their phone at any hour, and it follows up the quotes the owner already sent. The AI Front Desk is the part a caller can hear: it answers a business's real phone line in a natural voice, around the clock. Nevamis handles the setup end to end; the client touches nothing technical.
 
 ## Who Nevamis helps
 
@@ -130,7 +131,7 @@ Plans carry no minimum term and no notice period: every plan and every automatio
 - Phone (public demo line): (587) 413-0035. It speaks in the same voice a client's line uses. This line answers for Nevamis itself, which is why it can set up a call with Daren; a client's front desk takes the job and the time the caller wants for the owner to confirm.
 - Email: Sales@nevamis.ca
 - Website: https://nevamis.ca
-- Strategy call: a 15-minute video call with Daren, booked at https://cal.com/daren-qvlah4/nevamis-intro. This is where Lead Generation starts, since it is offered by invitation; it is where the first month free for our first 10 businesses is offered, while a spot remains; and it is the next step for an Enterprise quote or for anyone who wants to talk it through with a person before signing up.
+- Strategy call: a 15-minute video call with Daren, booked at https://cal.com/daren-qvlah4/nevamis-intro. It is where the first month free for our first 10 businesses is offered, while a spot remains; and it is the next step for an Enterprise quote or for anyone who wants to talk it through with a person before signing up.
 
 ## What Nevamis cannot or does not do
 
@@ -144,7 +145,7 @@ Plans carry no minimum term and no notice period: every plan and every automatio
 
 ## What is live today, and what is not
 
-Lead Generation is offered by invitation: Nevamis reads public pages and lists businesses of the kind the owner wants more of, each with the page it came from, and the owner decides every one. Nobody on the list is contacted by Nevamis. Lead Generation is by invitation and a short call with Daren is where it starts, so never quote a price, a number of leads or a result for it, and never describe it as automatic.
+Asked whether Nevamis can find them new customers or leads, the whole answer is: "That isn't something Nevamis is offering right now. The front desk is what I can tell you about." Never quote a price, a number of leads or a result for it.
 
 Available today, each described exactly as narrowly as it works and never promised as anything more:
 
@@ -156,4 +157,4 @@ Available today, each described exactly as narrowly as it works and never promis
 - Get-Paid Autopilot, the invoice reminders add-on: a gentle reminder when an invoice goes overdue, a firm one seven days later, and at twenty-one days it stops emailing the customer and tells the owner instead, each email approved by the owner.
 - The Review Engine, the review requests add-on: one review request by text per finished job, on the business's own review link, every request released by a person.
 
-Beyond Lead Generation, which is by invitation, and the list above, everything else Nevamis describes, such as the Revenue Engine's ad attribution and an inbox assistant, is in development or planned: describe it that way if asked, and never as something to buy today.
+Beyond the list above, everything else Nevamis describes, such as the Revenue Engine's ad attribution and an inbox assistant, is in development or planned: describe it that way if asked, and never as something to buy today.
