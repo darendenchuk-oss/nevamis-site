@@ -3,27 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Sentence case, because DC#51 requires it and because this tag's own
-     og:title three lines down was already written that way: one page was
-     publishing the same sentence in two cases, and this tag is the half a
-     search result shows. -->
-<title>Nevamis | More of the customers you want</title>
-<!-- 160 characters or fewer (audit CHECK-RUNNER-7, 2026-10-03; it was 182):
-     a search result cuts a description at about that length, and the sentence
-     that gets cut is the only one a stranger reads. tests/seo.spec.js holds
-     every page under a looser 185; tests/home-door-order.spec.js holds this one
-     to 160. It leads with Lead Generation since 2026-09-12 (owner
-     ranking: customers found first, quotes second, the phone third), and it
-     therefore HAS to carry "by invitation". check-consistency's readiness
-     guard reads this attribute and fails any description naming a capability
-     roadmap-config.js does not mark available with no word saying it is not
-     here yet; lead-generation is private_pilot, so the qualifier is not
-     decoration, it is the thing that makes the sentence true. -->
-<meta name="description" content="Lead Generation, by invitation: we read public pages, list businesses you want as customers, and you decide each one. Quote Recovery and a 24/7 front desk too.">
+<!-- One message (owner decision #81, 2026-11-10). The description stays at
+     160 characters or fewer: a search result cuts it at about that length. -->
+<title>Nevamis | We answer the calls you miss</title>
+<meta name="description" content="We answer the calls you miss, 24/7, in your business's name, and text and email you the caller's name, number and what they need within seconds.">
 <meta name="robots" content="noindex, nofollow"><!-- staging: flip to index,follow at promotion -->
 <link rel="canonical" href="https://nevamis.ca/">
-<meta property="og:title" content="Nevamis | More of the customers you want.">
-<meta property="og:description" content="You tell us the kind of business you want more of, and we find them for you. Lead Generation is offered by invitation. Quote Recovery and a 24/7 front desk are available today.">
+<meta property="og:title" content="Nevamis | We answer the calls you miss.">
+<meta property="og:description" content="We answer the calls you miss, 24/7, in your business's name, and text and email you the caller's details within seconds.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nevamis.ca/">
 <meta property="og:site_name" content="Nevamis">
@@ -46,8 +33,8 @@
     "url": "https://nevamis.ca/",
     "logo": "https://nevamis.ca/icon-512.png",
     "image": "https://nevamis.ca/icon-512.png",
-    "description": "Nevamis finds a Canadian trades or service business more of the customers it wants, recovers the quotes it already sent, and answers its phone around the clock. Lead Generation is offered by invitation; quote recovery, 24/7 call answering and the free business scan are available today.",
-    "slogan": "More of the customers you want.",
+    "description": "Nevamis answers the calls a Canadian trades or service business misses, 24/7, in the business's name, and texts and emails the owner each caller's name, number and what they need within seconds.",
+    "slogan": "We answer the calls you miss.",
     "email": "Sales@nevamis.ca",
     "telephone": "+1-587-413-0035",
     "currenciesAccepted": "CAD",
@@ -75,15 +62,9 @@
     },
     "makesOffer": { "@id": "https://nevamis.ca/#service" },
     "knowsAbout": [
-      "lead generation for trades",
-      "quote follow-up",
       "call answering for service businesses",
       "after-hours call answering",
-      "missed call recovery",
-      "revenue recovery",
-      "business website scan",
-      "structured lead capture for trades",
-      "call qualification",
+      "missed call answering",
       "AI receptionist"
     ]
   },
@@ -989,18 +970,8 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
         <circle cx="32" cy="48" r="6" fill="#9FF0CE"/>
       </svg>
       <span class="wm">Ne<span class="wm-v">v</span>amis</span></a>
-    <button class="nav-toggle" aria-expanded="false" aria-controls="mainNav" aria-label="Menu">☰</button>
     <nav class="main-nav" id="mainNav" aria-label="Main">
-      <span class="navitem"><a href="/#how" data-nav>How it works</a></span>
-      <span class="navitem"><a href="/solutions.html" data-nav>Solutions</a></span>
-      <span class="navitem"><a href="/pricing.html" data-nav>Pricing</a></span>
-      <span class="navitem"><a href="/how-you-start.html" data-nav>How you start</a></span>
-      <span class="navitem"><a href="/demo.html" data-nav>Demo</a></span>
-      <span class="navitem"><a class="nav-min" href="/coming-soon.html" data-nav>Roadmap</a></span>
-      <span class="navitem"><a class="nav-min" href="/about.html" data-nav>About</a></span>
-      <span class="navitem"><a class="nav-min" href="https://app.nevamis.ca/login" data-evt="client_login_click" data-nav>Client login</a></span>
-      <span class="navitem"><a class="btn btn-ghost" href="tel:+15874130035" data-evt="demo_phone_click" data-nav title="Call (587) 413-0035 from any phone">Hear it answer</a></span>
-      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="nav_book_call_click" data-nav>Book a call <span class="arw" aria-hidden="true">›</span></a></span>
+      <span class="navitem"><a class="btn btn-primary" href="/book.html" data-evt="nav_book_call_click" data-nav>Book a 15-minute call</a></span>
     </nav>
   </div>
 </header>
@@ -1016,14 +987,11 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
        2. the skip link (asserted present, then re-emitted)
        3. the site-header element, opening tag to closing tag
        4. the site-footer element, opening tag to closing tag
-       5. the pricing-config.js tag plus the ONE inline script that follows
-          it (the priceRange patch), and anything between the two. The
-          free-month.js tag sits there (v7, owner amendment #66): it is the
-          only thing that may show the homepage's hidden data-nv-free-month
-          elements, it needs pricing-config.js before it, and guard 7u fails
-          a page that carries such an element without both, in that order.
-          It is deferred, so it reads the page after the parser has built
-          it, and it runs nothing at all on a page with no gated element.
+       5. the pricing-config.js tag and the free-month.js tag after it. The
+          free-month script is the only thing that may show the homepage's
+          hidden data-nv-free-month line, it needs pricing-config.js before
+          it, and it is deferred, so it reads the page after the parser has
+          built it.
 
      Those five are located by plain substring search, which is why this note
      spells none of them as literal markup: a comment that quoted the header
@@ -1054,26 +1022,14 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
     <div class="cols">
       <div>
         <h2 class="foot-h foot-brand">Nevamis</h2>
-        <p>Nevamis helps Canadian service businesses win more of the work they want. Lead Generation, offered by invitation, finds businesses of the kind you want more of, and you decide every one. Quote Recovery follows up the quotes you already sent, and the AI Front Desk answers the calls you cannot, inside rules you approve.</p>
-        <p style="margin-top:10px">Demo line: <a href="tel:+15874130035" class="mono">(587) 413-0035</a><br>Sales: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a><br>Edmonton, Alberta, Canada</p>
-      </div>
-      <div>
-        <h2 class="foot-h">Site</h2>
-        <a href="/#how">How it works</a>
-        <a href="/#industries">Industries</a>
-        <a href="/solutions.html">Solutions</a>
-        <a href="/pricing.html">Pricing</a>
-        <a href="/how-you-start.html">How you start</a>
-        <a href="/demo.html">Demo</a>
-        <a href="/coming-soon.html">Roadmap</a>
-        <a href="/about.html">About</a>
-        <a href="/book.html">Book a call</a>
-        <a href="https://app.nevamis.ca/login" data-evt="client_login_click">Client login</a>
+        <p>We answer the calls you miss, 24/7, in your business's name.</p>
+        <p style="margin-top:10px">Sales: <a href="mailto:Sales@nevamis.ca">Sales@nevamis.ca</a><br>Edmonton, Alberta, Canada</p>
       </div>
       <div>
         <h2 class="foot-h">Legal</h2>
         <a href="/privacy.html">Privacy</a>
         <a href="/terms.html">Terms</a>
+        <a href="/security.html">Security</a>
       </div>
     </div>
     <div class="base">
@@ -1083,7 +1039,7 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
   </div>
 </footer>
 
-<a class="callbar" href="/book.html#pick-a-time" data-evt="callbar_book_click">Book a 15-min call</a>
+<a class="callbar" href="/book.html#pick-a-time" data-evt="callbar_book_click">Book a 15-minute call</a>
 
 <!-- The .no-js class is removed by site.js, NOT here.
 
@@ -1104,44 +1060,6 @@ html.motion-off::view-transition-old(root),html.motion-off::view-transition-new(
      nothing has to be given back. -->
 <script src="pricing-config.js"></script>
 <script src="free-month.js" defer></script>
-<script>
-/* priceRange on the Organization node.
-
-   A ProfessionalService that publishes a ladder and no priceRange is a
-   local-answer result with the one field the answer wants left blank. It was
-   never set on any page - not stale, simply absent - and the evening
-   directive publishing the ladder is what makes it answerable.
-
-   Derived from NV_PRICING rather than typed, because a second copy of a
-   price in markup is a second thing to forget: this repository has a gate
-   whose whole job is catching exactly that. Same runtime-from-config shape
-   pricing.html already uses for its offers. Silent when pricing is
-   unpublished, so the unpublished page keeps saying nothing about price. */
-(function(){
-  var P = window.NV_PRICING;
-  if (!P || !P.publishedPricing || !P.plans || !P.plans.length) return;
-  var m = P.plans.map(function(x){ return x.monthly; })
-                 .filter(function(n){ return typeof n === "number"; });
-  if (!m.length) return;
-  var grp = function(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
-  var range = "C$" + grp(Math.min.apply(null, m)) + "–C$" + grp(Math.max.apply(null, m));
-  var nodes = document.querySelectorAll('script[type="application/ld+json"]');
-  for (var i = 0; i < nodes.length; i++) {
-    if (nodes[i].textContent.indexOf("#organization") === -1) continue;
-    var o; try { o = JSON.parse(nodes[i].textContent); } catch (e) { continue; }
-    var arr = [].concat(o), hit = false;
-    for (var j = 0; j < arr.length; j++) {
-      if (arr[j] && String(arr[j]["@id"] || "").indexOf("#organization") !== -1) {
-        arr[j].priceRange = range; hit = true;
-      }
-    }
-    if (hit) nodes[i].textContent = JSON.stringify(Array.isArray(o) ? arr : arr[0]);
-  }
-})();
-</script>
-<!-- The page scripts that used to stand here went with the <main> above.
-     compose.py reads the pricing-config tag and the ONE inline <script>
-     after it and stops; it emits its own site.js tag. These drove elements
-     (.art[data-bg], #pricePreview) that no longer exist in this file. -->
+<!-- compose.py reads the two tags above and emits its own site.js tag. -->
 </body>
 </html>

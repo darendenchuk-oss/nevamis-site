@@ -725,8 +725,6 @@ export function contentClaimFindings(root, pages) {
   const findings = [];
   for (const msg of selfTestFindings()) findings.push({ file: 'scripts/content/claim-rules.mjs', id: 'self-test', why: msg, excerpt: '' });
   const all = { ...pages };
-  const demo = path.join(root, 'demo.html');
-  if (fs.existsSync(demo)) all['demo.html'] = fs.readFileSync(demo, 'utf8');
   for (const [file, html] of Object.entries(all)) {
     for (const f of claimFindings(renderedText(html), file)) findings.push({ file, ...f });
     for (const f of structureFindings(file, html)) findings.push({ file, ...f });
@@ -753,11 +751,11 @@ export function formatFindings(findings) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
   const map = JSON.parse(fs.readFileSync(path.join(root, 'content-map.json'), 'utf8'));
-  const { PAGES } = await import('./pages.mjs');
+  /* The pages this layer generated are redirect stubs since owner decision
+     #81 (2026-11-10), so the CLI judges what is left of the layer: the rules'
+     own examples, content-map.json, motion.js and the assets it owned. The
+     kept pages are judged by scripts/check-consistency.js. */
   const pages = {};
-  for (const file of [...Object.keys(PAGES), 'solutions.html']) {
-    if (map.pages.some((p) => p.file === file)) pages[file] = fs.readFileSync(path.join(root, file), 'utf8');
-  }
   const findings = contentClaimFindings(root, pages);
   if (findings.length) {
     console.error(`FAIL: ${findings.length} content claim finding(s):\n${formatFindings(findings)}`);

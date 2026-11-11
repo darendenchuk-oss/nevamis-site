@@ -4,8 +4,8 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 
 # Inputs are committed files, so the composed homepage is reproducible:
 #   scripts/film/source.html        - the standalone film build (canonical)
-#   scripts/film/chrome-source.html - the pre-film homepage, for the head metas,
-#                                     header, footer, industries, ROI and FAQ
+#   scripts/film/chrome-source.html - the head metas, header and footer
+#   scripts/film/sections.html      - the hero above the film
 FILM = 'scripts/film/source.html'
 old = open('scripts/film/chrome-source.html', encoding='utf-8').read()
 film = open(FILM, encoding='utf-8').read()
@@ -131,10 +131,11 @@ assert mbrand and len(mbrand.group(0)) < 200, 'brand div not where expected'
 film_body = film_body[:mbrand.start()] + film_body[mbrand.end():]
 
 # <main id="main"> opens above the film, with the hero in it, so the skip link
-# lands on the page's first screen; the six stations keep their #how anchor.
+# lands on the page's first screen. The film's #doc stays in the document,
+# because the film reads its station cards and named dots from it, and
+# sections.css keeps it from showing as a section of the page.
 assert film_body.count('<section id="doc"') == 1
 assert film_body.count('<div id="scroll">') == 1, 'the film span not where expected'
-film_body = film_body.replace('<section id="doc"', '<div id="how"></div><section id="doc"', 1)
 # the six stations are a grid, so the run of .pane-doc articles needs one parent
 _a = film_body.find('<article class="pane-doc"')
 _z = film_body.rfind('</article>') + len('</article>')
@@ -142,28 +143,15 @@ assert 0 < _a < _z, 'pane-doc articles not found'
 film_body = film_body[:_a] + '<div class="stations">' + film_body[_a:_z] + '</div>' + film_body[_z:]
 close = re.search(r'</section>\s*(?=<script)', film_body)
 assert close, 'doc close not found before scripts'
-# The page around the film is authored in scripts/film/sections.html. It carries
-# two markers. Everything before <!--FILM--> is the hero, which goes ABOVE the
-# film (launch audit HERO-1, 2026-11-09); everything between it and <!--DOC-->
-# precedes the film's own #doc (which IS the six-station section, no longer
-# hidden); everything after <!--DOC--> follows #doc.
+# The page around the film is authored in scripts/film/sections.html: the hero,
+# then one <!--FILM--> marker, then nothing (owner decision #81, 2026-11-10:
+# one message, the price, one button).
 SECTIONS = open('scripts/film/sections.html', encoding='utf-8').read()
 assert SECTIONS.count('<!--FILM-->') == 1, 'sections.html needs exactly one <!--FILM--> marker'
-assert SECTIONS.count('<!--DOC-->') == 1, 'sections.html needs exactly one <!--DOC--> marker'
-assert SECTIONS.find('<!--FILM-->') < SECTIONS.find('<!--DOC-->'), 'the FILM marker comes before the DOC marker'
 sec_hero, sec_rest = SECTIONS.split('<!--FILM-->')
-sec_top, sec_bottom = sec_rest.split('<!--DOC-->')
-assert 'id="found"' in sec_hero and '<h1' in sec_hero, 'the hero (#found and the one h1) goes above the film'
-assert sec_bottom.count('<details') == 16, 'the FAQ must carry 16 entries'
-assert 'id="roiForm"' in sec_bottom and 'id="roiQuotePlan"' in sec_bottom, 'the calculator hooks must survive'
-# ORDER MATTERS: close.end() is an offset into the CURRENT film_body, so the
-# offset splice has to happen before any insertion that shifts it. Doing the
-# sec_top replace first moved everything right by len(sec_top) and dropped
-# sec_bottom inside #doc, which parsed as the FAQ nested in the stations wrap
-# and still satisfied every count-based assert below.
-film_body = (film_body[:close.end()] + '\n' + sec_bottom
-             + '\n</main>\n' + film_body[close.end():])
-film_body = film_body.replace('<div id="how"></div>', sec_top + '<div id="how"></div>', 1)
+assert not sec_rest.strip(), 'nothing follows the film marker in sections.html'
+assert 'id="hero"' in sec_hero and '<h1' in sec_hero, 'the hero (#hero and the one h1) goes above the film'
+film_body = film_body[:close.end()] + '\n</main>\n' + film_body[close.end():]
 film_body = film_body.replace('<div id="scroll">', '<main id="main">' + sec_hero + '\n<div id="scroll">', 1)
 
 # --- site chrome from the old page ---
@@ -177,9 +165,10 @@ footer = block(old, '<footer class="site-footer">', '</footer>')
 skip = '<a class="skip" href="#main">Skip to content</a>'
 assert skip in old
 
-# pricing-config + the inline priceRange schema patch (verbatim, incl. comment)
+# pricing-config.js, which free-month.js reads, and free-month.js itself
 i = old.find('<script src="pricing-config.js">')
-j = old.find('</script>', old.find('<script>', i)) + len('</script>')
+j = old.find('<script src="free-month.js" defer></script>', i) + len('<script src="free-month.js" defer></script>')
+assert 0 <= i < j, 'the pricing-config and free-month tags are not where expected'
 pricing_scripts = old[i:j]
 
 # THE FILM SCRIPT TAGS BELOW DO NOT MOVE, AND THAT IS DELIBERATE.
@@ -240,7 +229,7 @@ tags.append("""<script>
   addEventListener('scroll', where, { passive: true });
   addEventListener('resize', where);
   where();
-  var row = document.querySelector('#found .ctarow');
+  var row = document.querySelector('#hero .ctarow');
   if (!row || !window.IntersectionObserver) { de.classList.remove('nv-herocta'); return; }
   new IntersectionObserver(function(es){
     de.classList.toggle('nv-herocta', es[es.length - 1].isIntersecting);
@@ -267,52 +256,25 @@ assert out.count('<header class="site-header">') == 1
 assert out.count('<footer class="site-footer">') == 1
 assert '/privacy.html' in out and '/terms.html' in out
 assert 'id="paneNav"' in out and 'id="doc"' in out
-assert 'id="how"' in out and 'id="industries"' in out
 assert out.count('<h1') == 1, 'the page needs exactly one h1'
-assert out.count('<details') == 16, 'the FAQ must publish 16 entries'
-assert 'id="plansStrip"' in out and 'id="qrPrice"' in out, 'runtime price targets missing'
-for _e in ['compare_demo_click', 'dayone_roi_click', 'roi_book_click', 'hero_scan_click']:
-    assert _e in out, 'conversion surface missing: ' + _e
+assert '<!-- generated:prices --><!-- /generated:prices -->' in out, 'the hero price region is missing'
+assert 'data-evt="hero_book_call_click"' in out and 'data-evt="hero_live_demo_call_click"' in out, \
+    'the hero must carry the Book button and the demo line, each with its own event'
 assert '—' not in out[out.find('<body'):], 'em dash in page copy'
-# No money is typed into this page. Every figure renders from pricing-config.js
-# at runtime, so a retired price cannot survive here the way one did before.
+# No money is typed into this page. scripts/build-pages.mjs writes the three
+# Front Desk sizes from pricing-config.js into the generated:prices regions.
 import re as _re
 _typed = _re.findall(r'C\$[\d,]+', out[out.find('<body'):])
 assert not _typed, 'typed price literal in the page body: ' + ', '.join(_typed[:4])
-# structural, not just present: every below-film section must follow #doc's close,
-# and </main> must follow the last of them. A count-only check passed happily while
-# the whole page below the film was nested inside #doc.
-_docend = out.find('</section>', out.find('id="doc-nodes"'))
-for _id in ['id="industries"', 'id="roi"', 'id="plans"', 'id="start"', 'id="faq"', 'id="next"']:
-    assert out.find(_id) > _docend, _id + ' is not a sibling of #doc'
-assert out.find('</main>') > out.find('id="next"'), '</main> closes before the last section'
-# THE OFFER ORDER, and it is the owner's ranking of 2026-09-12: Lead
-# Generation first, then Quote Recovery, then the AI Front Desk. Asserted
-# structurally rather than trusted to sections.html, because the three are
-# separate sections in one file and a reorder there is a silent change to
-# what the first offer on the page is.
-_found = out.find('id="found"')
-_recover = out.find('id="recover"')
-_answer = out.find('id="answer"')
-assert 0 < _found < _recover < _answer < out.find('<section id="doc"'),     'the offers must read Lead Generation, then Quote Recovery, then the front desk, all above #doc'
-assert 'app.nevamis.ca/scan' in out
-# THE FIRST SCREEN IS ABOVE THE FILM (launch audit HERO-1, 2026-11-09), and it
-# is asserted here, structurally, for the same reason the offer order is: the
-# hero and the film are separate files, and the first screen of the page is the
-# one place a quiet reorder costs the most. #found, its h1, and the hero's two
-# actions all come before the film span, inside <main>; the second action is
-# the demo line, under the event the engine has allowlisted for it.
+for _gone in ['Lead Generation', 'by invitation', 'By invitation']:
+    assert _gone not in out[out.find('<body'):], 'retired offer in the page body: ' + _gone
+_found = out.find('id="hero"')
 _scroll = out.find('<div id="scroll">')
 _main = out.find('<main id="main">')
-assert 0 < _main < _found < out.find('<h1') < _scroll, 'the hero (#found and the h1) must open <main>, above the film'
+assert 0 < _main < _found < out.find('<h1') < _scroll, 'the hero (#hero and the h1) must open <main>, above the film'
+assert out.find('</main>') > out.find('id="doc-nodes"'), '</main> closes before the film documentation'
 _hero = out[_found:out.find('</section>', _found)]
-assert 'data-evt="hero_book_call_click"' in _hero and 'data-evt="hero_live_demo_call_click"' in _hero, \
-    'the hero must carry Book a call and the demo line, each with its own event'
-assert _hero.find('data-evt="hero_book_call_click"') < _hero.find('data-evt="hero_live_demo_call_click"'), 'Book a call leads the hero'
-# Nothing in the first screen waits for motion: the block above the Lead
-# Generation card carries no .reveal (tests/first-screen.spec.js measures it).
-_first = _hero[:_hero.rfind('<', 0, _hero.find('lg-head'))] if 'lg-head' in _hero else _hero
-assert not re.search(r'class="[^"]*\breveal\b', _first), 'a .reveal on the first screen makes the hero wait for motion'
+assert not re.search(r'class="[^"]*\breveal\b', _hero), 'a .reveal on the first screen makes the hero wait for motion'
 
 # THE SERVED PAGE CARRIES NO SOURCE COMMENTS (audit CHECK-RUNNER-6, 2026-10-03).
 # The three source files are written the way this codebase writes everything,
@@ -382,7 +344,8 @@ out = re.sub(r'\n[ \t]*(?:\n[ \t]*)+\n', '\n\n', out)
 assert '<!--' not in re.sub(r'<script\b.*?</script>', '', out, flags=re.S | re.I).replace(
     '<!-- generated:schema -->', '').replace('<!-- /generated:schema -->', '').replace(
     '<!-- generated:css -->', '').replace('<!-- /generated:css -->', '').replace(
-    '<!-- generated:csp -->', '').replace('<!-- /generated:csp -->', ''), 'a served comment survived'
+    '<!-- generated:csp -->', '').replace('<!-- /generated:csp -->', '').replace(
+    '<!-- generated:prices -->', '').replace('<!-- /generated:prices -->', ''), 'a served comment survived'
 for _m in ('generated:schema', 'generated:css'):
     assert out.count('<!-- ' + _m + ' -->') == 1 and out.count('<!-- /' + _m + ' -->') == 1, _m + ' marker lost'
 

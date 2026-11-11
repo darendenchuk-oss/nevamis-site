@@ -1,14 +1,13 @@
 # nevamis.ca
 
 This repository is the source of [nevamis.ca](https://nevamis.ca), the website
-of Nevamis AI Inc., a company in Edmonton, Alberta that helps Canadian trades
-and service businesses win more of the work they want.
+of Nevamis AI Inc., a company in Edmonton, Alberta that answers the calls
+Canadian trades and service businesses miss.
 
 What Nevamis offers, what it costs and the terms it is sold on are published on
 the site, and only there:
 
-- Services: [nevamis.ca](https://nevamis.ca) and [nevamis.ca/solutions.html](https://nevamis.ca/solutions.html)
-- Pricing: [nevamis.ca/pricing.html](https://nevamis.ca/pricing.html)
+- What it does and what it costs: [nevamis.ca](https://nevamis.ca)
 - Terms and privacy: [nevamis.ca/terms.html](https://nevamis.ca/terms.html), [nevamis.ca/privacy.html](https://nevamis.ca/privacy.html)
 - Contact: [Sales@nevamis.ca](mailto:Sales@nevamis.ca), or book a call at [nevamis.ca/book.html](https://nevamis.ca/book.html)
 
@@ -28,7 +27,7 @@ when a generated file no longer matches what its builder produces.
 | Source you edit | Builder | What it writes |
 |---|---|---|
 | `scripts/film/source.html`, `scripts/film/sections.html`, `scripts/film/sections.css`, `scripts/film/chrome-source.html` | `python scripts/film/compose.py` | `home.html` (the homepage, noindex) and `assets/film/*.js` |
-| `scripts/content/pages.mjs`, `content-map.json` | `node scripts/build-content.mjs` | the trade, situation and comparison pages, and `solutions.html` |
+| `content-map.json` (`redirects`) | `node scripts/build-content.mjs` | a stub for every page listed there, each redirecting to the homepage |
 | `_partials/nav.html`, `_partials/footer.html`, `assets/motion/site.css`, `assets/fonts/fonts.css` | `node scripts/build-pages.mjs` | the shared header and footer, and the inlined stylesheet, on every page |
 | page titles and descriptions, `pricing-config.js`, `scripts/og-default.svg` | `node scripts/build-schema.mjs` | structured data (JSON-LD), and each page's share-image alt text |
 | every inline script | `node scripts/build-csp.mjs` | each page's Content-Security-Policy |
@@ -45,6 +44,10 @@ hand.
 
 `content-map.json` is the list of public pages. Adding a page means adding a
 row there, which puts it in the sitemap, the search index and the checks.
+Since owner decision #81 (2026-11-10) the site is the homepage, `book.html`,
+`privacy.html`, `terms.html`, `security.html` and `404.html`; every other page
+ever published is listed under `redirects` and served as a stub that sends
+the visitor to the homepage.
 
 Prices come from `pricing-config.js`. Where a page carries a figure as text,
 `scripts/check-consistency.js` fails if it differs from that file.

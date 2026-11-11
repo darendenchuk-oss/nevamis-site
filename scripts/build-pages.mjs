@@ -55,11 +55,33 @@ const PAGES = JSON.parse(read('content-map.json')).pages
  *  be styled. */
 const CSS_PAGES = JSON.parse(read('content-map.json')).pages.map((p) => p.file);
 const CSS_BLOCK = headCssBlock(readCssSources(fs, path, root));
-/** foundingClient.active, from pricing-config.js run as the browser runs it. */
-const FREE_MONTH_ACTIVE = (() => {
+/** pricing-config.js, run as the browser runs it. */
+const NV = (() => {
   const w = {};
   vm.runInNewContext(read('pricing-config.js'), { window: w }, { timeout: 1000 });
-  return freeMonthActive(w.NV_PRICING);
+  return w.NV_PRICING;
+})();
+/** foundingClient.active. */
+const FREE_MONTH_ACTIVE = freeMonthActive(NV);
+
+/* THE PRICE, WRITTEN FROM pricing-config.js (owner decision #81, 2026-11-10).
+   The homepage says the three Front Desk sizes and nothing else: each one's
+   name, monthly and included minutes, smallest first, in a list between the
+   generated:prices markers. It is written here, at build time, so a visitor
+   with no script and a crawler both read it, and no page types a figure:
+   change pricing-config.js, run npm run build, and the drift guard fails
+   until the pages are rebuilt. */
+const PRICES_RE = /<!-- generated:prices -->[\s\S]*?<!-- \/generated:prices -->/g;
+const PRICES_BLOCK = (() => {
+  const tiers = NV && typeof NV.frontDeskTiers === 'function' ? NV.frontDeskTiers() : [];
+  if (tiers.length !== 3 || tiers.some((t) => !(t.monthly > 0) || !(t.includedMinutes > 0))) {
+    console.error('pricing-config.js did not yield three Front Desk sizes with a monthly and included minutes; refusing to write a price list from that.');
+    process.exit(1);
+  }
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const items = tiers.map((t) => `<li><b>${esc(t.name)}</b><span>${esc(NV.money(t.monthly))} a month</span>`
+    + `<span>${Number(t.includedMinutes).toLocaleString('en-CA')} minutes</span></li>`);
+  return `<!-- generated:prices --><ul class="prices">${items.join('')}</ul><!-- /generated:prices -->`;
 })();
 
 /** Mark the current page inside the primary nav only. Footer links stay
@@ -93,7 +115,8 @@ for (const file of CSS_PAGES) {
   /* The free-month hold only while the owner's switch is on: see
      scripts/lib/free-month-hold.mjs for why a switched-off offer must hold
      nothing. Same pass as the stylesheet, because it covers the same pages. */
-  const after = styled === null ? null : applyFreeMonthHold(styled, FREE_MONTH_ACTIVE);
+  const after = styled === null ? null
+    : applyFreeMonthHold(styled, FREE_MONTH_ACTIVE).replace(PRICES_RE, () => PRICES_BLOCK);
   if (after === null) {
     console.error(`\nERROR ${file}: no generated:css region and no stylesheet <link> to replace.\n` +
       `Refusing to write a page with no styles.\n`);
