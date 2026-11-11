@@ -141,15 +141,19 @@ const sentences = (text) => text.split(/(?<=[.!?])\s+(?=[A-Z(])/).map(flat).filt
 
 test('the surfaces are really read: both pages, their JSON-LD FAQ and the search index', () => {
   /* A reader that silently finds nothing would pass every rule below. */
+  /* Since owner decision #81 (2026-11-10) the page is the hero, the film and
+     the film's station cards, with no FAQ, so the search index carries one
+     record for "/" (its title, text and keywords). */
   const all = surfaces();
   for (const p of PAGES) {
-    expect(all.filter((s) => s.page === p && s.where === 'visible text').length, `${p} visible blocks`).toBeGreaterThan(100);
-    expect(all.filter((s) => s.page === p && /\.acceptedAnswer\.text$/.test(s.where)).length, `${p} FAQPage answers`).toBeGreaterThan(5);
+    expect(all.filter((s) => s.page === p && s.where === 'visible text').length, `${p} visible blocks`).toBeGreaterThan(30);
+    expect(all.filter((s) => s.page === p && /^JSON-LD /.test(s.where)).length, `${p} JSON-LD strings`).toBeGreaterThan(20);
   }
-  expect(all.filter((s) => s.page === 'search-index.json').length, 'search-index records for /').toBeGreaterThan(5);
-  expect(all.filter((s) => s.where === '/ keywords').length, "the search index's page-body keywords for /").toBeGreaterThan(5);
-  /* The film's pane docs are part of what is read. */
-  expect(all.some((s) => s.page === 'index.html' && /^Answers your line 24\/7\b/.test(s.text)), "the film's Capture pane").toBe(true);
+  expect(all.filter((s) => s.page === 'search-index.json').length, 'search-index strings for /').toBe(3);
+  expect(all.filter((s) => s.where === '/ keywords').length, "the search index's page-body keywords for /").toBe(1);
+  /* The hero and the film's pane docs are part of what is read. */
+  expect(all.some((s) => s.page === 'index.html' && s.text === 'We answer the calls you miss.'), 'the hero h1').toBe(true);
+  expect(all.some((s) => s.page === 'index.html' && /^Answers the calls you miss, 24\/7\b/.test(s.text)), "the film's Capture pane").toBe(true);
 });
 
 test('PRICING-9: no homepage sentence has the agent take the job, the time or the slot the caller wants, even beside "you confirm"', () => {
@@ -190,13 +194,20 @@ test('MACHINE-25: no homepage surface claims a speed nobody measured (within sec
      sentence (it opens "Nevamis finds" and ends on the claim) and only as a
      top-level JSON-LD node's description, so the same words in a FAQ answer,
      in any other sentence or on any other surface still fail. */
-  const PINNED_WHERE = /^JSON-LD \[\d+\]\.description$/;
-  const PINNED = /^Nevamis finds .* texting and emailing the owner each call's details within seconds\.$/i;
+  /* THE ONE SPEED THE PRODUCT STATES (owner decision #81, 2026-11-10): the
+     owner is texted and emailed the caller's details within seconds of the
+     call, the sentence pricing-config.js carries on every plan ("Texts and
+     emails you that summary within seconds of the call ending"). A sentence
+     about that text and email may say "within seconds" or "in seconds";
+     every other speed claim, and "instantly", "first ring" and "real time"
+     anywhere, still fails. */
+  const DELIVERY = (sentence) => /\btext(?:s|ed|ing)?\b/i.test(sentence) && /\bemail(?:s|ed|ing)?\b/i.test(sentence)
+    && !/\binstant(?:ly)?\b|\bfirst ring\b|\bin real[- ]time\b/i.test(sentence);
   const bad = [];
   for (const s of surfaces()) {
     for (const sentence of sentences(s.text)) {
       if (!speed.test(sentence)) continue;
-      if (PINNED_WHERE.test(s.where) && PINNED.test(sentence)) continue;
+      if (DELIVERY(sentence)) continue;
       bad.push(`${s.page} ${s.where}: "${sentence.slice(0, 200)}"`);
     }
   }

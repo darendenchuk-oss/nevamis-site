@@ -107,15 +107,3 @@ test('a definite failure still says so plainly', async ({ page }) => {
   expect(text).toMatch(/did not send/i);
   expect(text).toMatch(/587/);
 });
-
-/* The pattern this was copied from, pinned so the two cannot diverge. */
-test('the roadmap status region follows the same rule', async ({ page }) => {
-  await page.goto('/coming-soon.html');
-  const s = await page.evaluate(() => {
-    const m = document.querySelector('#ifStatus');
-    return { hidden: m.hidden, role: m.getAttribute('role'), display: getComputedStyle(m).display };
-  });
-  expect(s.hidden).toBe(false);
-  expect(s.role).toBe('status');
-  expect(s.display).not.toBe('none');
-});

@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 import { promoteHtml } from "./promote.mjs";
 import { headCssBlock, readCssSources, CSS_OPEN, CSS_CLOSE, LINK_FONTS, LINK_SITE } from "./lib/inline-css.mjs";
 import { applySelfCta } from "./lib/nav-cta.mjs";
-import { chipsOf, chipFindings, statusLabelsFrom, CHIP_FIXTURES } from "./lib/status-chips.mjs";
+import { chipsOf, chipFindings, STATUS_LABELS, CHIP_FIXTURES } from "./lib/status-chips.mjs";
 import { termFindings, TERM_FIXTURES } from "./lib/llms-terms.mjs";
 import { agentTruthFindings, agentRequiredFindings, doorOrderFindings, AGENT_FIXTURES, llmsPageFindings, LLMS_PAGE_FIXTURES, offerFindings, OFFER_FIXTURES } from "./lib/machine-surfaces.mjs";
 import { sitemapPages } from "./lib/sitemap.mjs";
@@ -33,10 +33,12 @@ import { sitemapPages } from "./lib/sitemap.mjs";
    scope rule; see scripts/check-claims-classifier.mjs for the fixtures. */
 import { DENIAL, ADDITIVE, RETIRED_OFFERS, UNBUILT_PROMISES, statesBanned, offendingClause } from "./lib/claims.mjs";
 import { stripHtmlComments, stripJsComments, jsStringLiterals, renderedProse, clauses } from "./lib/rendered-text.mjs";
-/* The two question rules of the content layer, run over every served
-   surface by guard 7k2 below rather than restated here. */
+/* The content layer's question-builder rule, run over every served surface
+   by guard 7k2 below rather than restated here, and the published set it
+   runs over, derived the way the deploy derives it. */
 import { claimFindings, renderedText } from "./content/claim-rules.mjs";
-const root =path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+import { publishedFiles } from "./lib/published-files.mjs";
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* 404.html is on both lists deliberately. It was excluded on the theory that it
    had no shared chrome, and that exemption is exactly why its hand-copied nav
    lost the Solutions link and kept the h1 -> h4 footer heading skip. A page
@@ -58,17 +60,22 @@ const excludedByJekyll = (() => {
   if (!m) return [];
   return m[1].split("\n").map((l) => l.replace(/^\s*-\s*/, "").trim()).filter(Boolean);
 })();
-const contentPages = fs.readdirSync(root)
+const publishedHtml = fs.readdirSync(root)
   .filter((f) => f.endsWith(".html"))
   .filter((f) => !excludedByJekyll.some((e) => e === f || e === "/" + f))
   .sort();
+/* The retired pages (owner decision #81, 2026-11-10) are served as redirect
+   stubs that scripts/build-content.mjs writes from content-map.json
+   `redirects`. They carry no copy, so the content rules below do not read
+   them; guard 13 holds each one to the stub's shape instead, and guard 12
+   fails a kept page that still links to one. */
+const REDIRECTS = new Set(JSON.parse(fs.readFileSync(path.join(root, "content-map.json"), "utf8")).redirects || []);
+const contentPages = publishedHtml.filter((f) => !REDIRECTS.has(f));
 
 /* Documented no-chrome exemptions. These skip the shared nav/footer check ONLY;
    every content rule (banned phrases, em dashes, pilot naming) still applies.
-   proposal.html is a standalone document sent to one prospect, so site
-   navigation on it would be wrong rather than missing. */
-const noChromePages = ["proposal.html"];
-const fullFooterPages = ["index.html", "demo.html", "book.html", "about.html", "how-you-start.html", "pilot.html", "coming-soon.html", "revenue-engine.html", "404.html"];
+   Empty since the standalone proposal page was retired (decision #81). */
+const noChromePages = [];
 const banned = [/30-day guarantee/i, /free trial/i, /risk-free launch/i, /\$397\b/, /limited spots remaining/i, /join thousands/i, /launching next month/i,
   /first ring/i, /* CLM-02: retired 2026-07-26, unsupported without uptime monitoring */
   /* Nevamis has no clients yet, so any phrasing that asserts a client base is
@@ -199,10 +206,11 @@ const navOf = (html) => {
   const m = html.match(/<nav class="main-nav"[^>]*>([\s\S]*?)<\/nav>/);
   return m ? m[1].replace(/ aria-current="page"/g, "").replace(/\s+/g, " ").trim() : null;
 };
-const siteColOf = (html) => {
-  /* Footer headings are h2 with a .foot-h class: they are peers of the page's
-     sections, and jumping h2 -> h4 broke screen-reader outline navigation. */
-  const m = html.match(/<h2 class="foot-h">Site<\/h2>([\s\S]*?)<\/div>/);
+/* The whole footer, normalised. It was the Site column alone until owner
+   decision #81 (2026-11-10) left the footer with no Site column: the brand
+   line, the sales address and the Legal column are what every page shares. */
+const footerOf = (html) => {
+  const m = html.match(/<footer class="site-footer">([\s\S]*?)<\/footer>/);
   return m ? m[1].replace(/\s+/g, " ").trim() : null;
 };
 
@@ -229,11 +237,11 @@ for (const p of contentPages) {
     else if (!refNav) refNav = nav;
     else if (nav !== navOf(applySelfCta(refNavRaw, p))) err(p + ": main-nav differs from index.html");
   }
-  if (fullFooterPages.includes(p)) {
-    const col = siteColOf(html);
-    if (!col) { err(p + ": no footer Site column"); }
+  if (!noChromePages.includes(p)) {
+    const col = footerOf(html);
+    if (!col) { err(p + ": no site footer"); }
     else if (!refCol) refCol = col;
-    else if (col !== refCol) err(p + ": footer Site column differs");
+    else if (col !== refCol) err(p + ": site footer differs from " + contentPages[0]);
   }
   const bannedHtml = bannedView(p, html);
   for (const b of banned) if (b.test(bannedHtml)) err(p + ": banned phrase " + b);
@@ -303,119 +311,6 @@ for (const p of contentPages) {
     }
   }
 }
-/* 7. The static pricing fallback on pricing.html must match pricing-config.js.
-      Every plan named in the fallback must exist in the config with identical
-      monthly, included-minute, and overage numbers. (The fallback may list
-      fewer plans than the config; it must never disagree with it.)
-
-      THE REQUIRED SHAPE IS ONE NUMBER, AND THIS RULE IS INVERTED FROM WHAT IT
-      WAS. Read this before "fixing" a failure here.
-
-      Until 2026-08-07 the rule wanted "C$250/month" beside "C$250 one-time
-      setup", which is the wording that made a Core customer believe he owed
-      C$500 on day one. It was then rewritten to REQUIRE the pair
-      "first month C$250, then C$250/month" and to fail if either was missing,
-      on the reasoning that quoting one of two numbers is worse than quoting
-      both.
-
-      That reasoning was right about a two-number offer and the offer is no
-      longer two numbers. On 2026-08-09 the price became one figure charged the
-      day they subscribe and every month after, so requiring the pair turned
-      this guard into a contract for the retired model: it would have failed
-      the correct page and passed a reverted one, which is the worst direction
-      for a guard to point.
-
-      So it now requires the single-price sentence, "Core — C$250/month", AND
-      fails on the two-number framing reappearing in the fallback. Both halves
-      matter: the first keeps the number honest, the second keeps the SHAPE
-      honest, and nothing that only compares figures can see the shape. */
-{
-  /* pricing-config.js is our own committed browser global (window.NV_PRICING = ...).
-     Execute it in an isolated vm context, exactly as the browser would. */
-  const w = {};
-  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
-  const cfg = w.NV_PRICING;
-  if (!cfg || !Array.isArray(cfg.plans)) err("pricing-config.js: NV_PRICING.plans not found");
-  else {
-    const ph = fs.readFileSync(path.join(root, "pricing.html"), "utf8");
-    const fbMatch = ph.match(/<div id="plansFallback"[\s\S]*?<\/div><\/div>/);
-    if (!fbMatch) err("pricing.html: static #plansFallback block missing");
-    else {
-      const num = (s) => Number(String(s).replace(/,/g, ""));
-      const re = /<h3[^>]*>([\s\S]*?)<\/h3>\s*<p[^>]*>([\s\S]*?)<\/p>/g;
-      let m, seen = 0;
-      while ((m = re.exec(fbMatch[0])) !== null) {
-        seen++;
-        /* "&middot;" since 2026-09-19 (fix plan A16): the fallback headings
-           moved off the em dash, which the site bans in rendered text. Both
-           separators are accepted so the heading still yields the plan name. */
-        const name = m[1].split(/&mdash;|&middot;/)[0].trim();
-        const body = m[1] + " " + m[2];
-        const plan = cfg.plans.find((p) => p.name === name);
-        if (!plan) { err('pricing fallback: plan "' + name + '" not in pricing-config.js'); continue; }
-        const monthly = body.match(/C\$([\d,]+)\/month\b/i);
-        const mins = body.match(/([\d,]+) included AI minutes/);
-        const over = body.match(/C\$([\d.]+) per extra minute/);
-        /* The retired two-number framing: an ambiguous pair with no stated
-           rule joining it. The CURRENT model is also two numbers, and that is
-           not a contradiction: the approved shape states the rule in words —
-           "C$1,000 Launch & Implementation to start, then C$750 a month" —
-           where "first month C$X" and "then C$Y/month" never did. */
-        const twoNumber = /first month\s+C\$|then\s+C\$[\d,]+\s*\/\s*month/i;
-        const approved = typeof cfg.startLine === "function" ? cfg.startLine(plan) : null;
-        if (twoNumber.test(body)) err('pricing fallback "' + name + '": uses the retired first-month/then-per-month framing. '
-          + 'State the approved shape instead: "' + approved + '"');
-        /* INVERTED THREE TIMES, most recently 2026-10-03 (v7). The morning
-           model of 2026-08-15 required NO figure ("priced after your scan");
-           the evening directive published the ladder with a one-time Launch &
-           Implementation fee on every plan, so the fallback had to state BOTH
-           halves of the offer. Since v7 only the Performance Partnership
-           carries a fee, so the fallback must state each plan's own
-           startLine() sentence, verbatim ("C$1,000 a month" on a plan with
-           no fee; the fee, "to start" and "then" on the Partnership), and a
-           plan with a fee of 0 may state no Launch & Implementation figure
-           at all. A crawler that reads only the fallback must see the whole
-           price, because half a price is the August defect again. The
-           banded-plan rules (BD-4) live on inside startLine(), which reads
-           "From" and the band off launchRange and monthlyRange. */
-        if (cfg.publishedPricing) {
-          if (!monthly || num(monthly[1]) !== plan.monthly) err('pricing fallback "' + name + '": monthly price differs from config (' + plan.monthly + '); expected "C$' + plan.monthly.toLocaleString("en-CA") + '/month"');
-          if (!approved) err("pricing-config.js: NV_PRICING.startLine is missing, so the fallback's plan sentences cannot be derived");
-          else if (!body.replace(/&amp;/g, "&").includes(approved)) {
-            err('pricing fallback "' + name + '": does not state the plan in its approved sentence from pricing-config.js startLine(); expected "'
-              + approved + '"');
-          }
-          /* Every figure written as this plan's Launch & Implementation fee
-             must be its fee: a fee of 0 is no figure, so on a plan with none
-             any such figure is a retired fee coming back. */
-          for (const x of body.matchAll(/C\$([\d,]+)\s+Launch\s+(?:&|&amp;|and)\s+Implementation/gi)) {
-            if (num(x[1]) !== plan.launch) err('pricing fallback "' + name + '": states ' + x[0] + ' while pricing-config.js charges '
-              + (plan.launch > 0 ? "C$" + plan.launch.toLocaleString("en-CA") : "no Launch & Implementation fee") + " on this plan.");
-          }
-          if (plan.selfServe === false && plan.inviteNote && !body.includes(plan.inviteNote)) {
-            err('pricing fallback "' + name + '": an invitation-only plan must say so in its config words: "' + plan.inviteNote + '"');
-          }
-        } else {
-          if (monthly) err('pricing fallback "' + name + '": still states C$' + monthly[1] + '/month. Pricing is unpublished; the fallback must carry no figure.');
-          if (!/quoted per client|priced after your scan/i.test(body)) err('pricing fallback "' + name + '": does not say how the price is arrived at, so a reader with no JavaScript is told nothing about how it is priced.');
-        }
-        if (!mins || num(mins[1]) !== plan.includedMinutes) err('pricing fallback "' + name + '": included minutes differ from config (' + plan.includedMinutes + ")");
-        if (!over || Number(over[1]) !== plan.overage) err('pricing fallback "' + name + '": overage differs from config (' + plan.overage + ")");
-      }
-      /* EVERY PLAN, not "at least three" (v7, 2026-10-03). The count was a
-         literal 3 from the three-plan ladder; amendment #67 made it five,
-         and a fallback that kept the three old cards would have passed while
-         a crawler never saw Front Desk Starter or Front Desk Plus. */
-      const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      for (const pl of cfg.plans) {
-        if (!new RegExp("<h3[^>]*>\\s*" + escRe(pl.name) + "\\s*(?:&middot;|&mdash;)").test(fbMatch[0])) {
-          err('pricing fallback: plan "' + pl.name + '" is in pricing-config.js and has no card in #plansFallback, so a reader with no JavaScript never sees it');
-        }
-      }
-    }
-  }
-}
-
 /* 16. THE TRANSFER PROMISE, AND EM DASHES IN THE STRINGS JAVASCRIPT RENDERS.
 
       llms.txt has said "there is no live transfer" since it was written. Ten
@@ -643,160 +538,6 @@ for (const p of contentPages) {
   }
 }
 
-/* 7h. THE ADD-ON CATALOG ON pricing.html IS A HAND-TYPED LIST.
-
-      Guard 7 above validates the three PLANS against pricing-config.js and
-      stops there, so the four sellable add-ons and their eight published
-      figures sat in <ul id="addOnList"> as HTML literals that nothing
-      compared to anything. Found 2026-08-27 during a truth review: the
-      figures happened to be correct, which is the only reason this reads as
-      a near miss rather than an incident. It is the repo's standing defect
-      class -- a hand-maintained list drifts the first time the config moves
-      and no guard notices.
-
-      Every expectation below is DERIVED from window.NV_PRICING.addOns. No
-      figure is written into this file: copying the literals here would only
-      move the hand-maintained list into the checker, and the checker and the
-      page would then drift together and both look green.
-
-      Two directions, because an add-on can be wrong in two ways:
-        sellable       must state its own monthly AND its own one-time launch
-                       fee, matching the config exactly
-        not sellable   must NOT state a monthly, must carry a coming/not-yet
-                       marker, and must carry no Buy control. C$2,000 per
-                       campaign is a quote, not a subscription, and a reader
-                       who sees a price beside it reads it as purchasable. */
-{
-  const w = {};
-  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
-  const cfg = w.NV_PRICING;
-  if (!cfg || !Array.isArray(cfg.addOns)) err("pricing-config.js: NV_PRICING.addOns not found");
-  else {
-    const ph = fs.readFileSync(path.join(root, "pricing.html"), "utf8");
-    const listMatch = ph.match(/<ul id="addOnList"[\s\S]*?<\/ul>/);
-    if (!listMatch) err('pricing.html: the <ul id="addOnList"> catalog is missing, so the add-on prices are unguarded');
-    else {
-      const items = listMatch[0].match(/<li>[\s\S]*?<\/li>/g) || [];
-      /* Money as the page writes it: C$1,000 not C$1000. One helper, used for
-         both the expectation and the error text, so a failure prints exactly
-         the string the page is missing. */
-      const money = (n) => "C$" + Number(n).toLocaleString("en-CA");
-      for (const a of cfg.addOns) {
-        const li = items.find((x) => x.includes(a.name));
-        if (!li) {
-          err('pricing.html #addOnList: add-on "' + a.name + '" is in pricing-config.js and not on the page. '
-            + "Every add-on the config carries must be listed, sellable or not: one that is missing is one nobody can price.");
-          continue;
-        }
-        const monthlyOnPage = li.match(/C\$([\d,]+)\/month\b/i);
-        const launchOnPage = li.match(/C\$([\d,]+)\s+launch\b/i);
-        const num = (x) => Number(String(x).replace(/,/g, ""));
-        if (a.sellable) {
-          if (!monthlyOnPage || num(monthlyOnPage[1]) !== a.monthly) {
-            err('pricing.html #addOnList "' + a.name + '": monthly differs from pricing-config.js. '
-              + 'expected "' + money(a.monthly) + '/month", page says "' + (monthlyOnPage ? monthlyOnPage[0] : "nothing") + '"');
-          }
-          /* RE-POINTED 2026-10-03 (v7). Every module carried a one-time
-             Launch & Implementation fee from v5 to v6, and this required the
-             line to state it. The modules carry none now, so a module with a
-             fee states it and its whole startLine() sentence, and a module
-             whose fee is 0 may name no Launch & Implementation fee at all:
-             on its line that is a retired fee coming back. */
-          if (a.launch > 0) {
-            if (!launchOnPage || num(launchOnPage[1]) !== a.launch) {
-              err('pricing.html #addOnList "' + a.name + '": one-time launch fee differs from pricing-config.js. '
-                + 'expected "' + money(a.launch) + ' launch", page says "' + (launchOnPage ? launchOnPage[0] : "nothing") + '"');
-            }
-            const want = typeof cfg.startLine === "function" ? cfg.startLine(a).replace(/\.$/, "") : null;
-            if (want && !li.replace(/&amp;/g, "&").includes(want)) {
-              err('pricing.html #addOnList "' + a.name + '": does not state its approved sentence from pricing-config.js startLine(); expected "' + want + '"');
-            }
-          } else if (/Launch\s+(?:&|&amp;|and)\s+Implementation/i.test(li)) {
-            err('pricing.html #addOnList "' + a.name + '": names a Launch & Implementation fee while pricing-config.js charges none on this add-on.');
-          }
-          /* EVERY figure on the line, not only the first of each kind. Since
-             2026-09-19 (fix plan A16) each sellable line also states the
-             approved sentence, "C$750 Launch & Implementation to start, then
-             C$500 a month", so the monthly is written twice. The two matches
-             above read only the first occurrence, which would have left the
-             second copy free to drift while this guard stayed green. */
-          for (const x of li.matchAll(/C\$([\d,]+)(?:\/month\b|\s+a month\b)/gi)) {
-            if (num(x[1]) !== a.monthly) err('pricing.html #addOnList "' + a.name + '": states "' + x[0] + '" while pricing-config.js says '
-              + money(a.monthly) + " a month. Every monthly figure on the line must match the config.");
-          }
-          for (const x of li.matchAll(/C\$([\d,]+)\s+launch\b/gi)) {
-            if (num(x[1]) !== a.launch) err('pricing.html #addOnList "' + a.name + '": states "' + x[0] + '" while pricing-config.js says '
-              + money(a.launch) + " Launch & Implementation. Every launch figure on the line must match the config.");
-          }
-        } else {
-          /* A price is a price whatever unit follows it. The first version of
-             this branch only knew "C$x/month", so "C$2,000 per campaign" --
-             which is the exact shape reactivation is priced in inside
-             pricing-config.js -- would have walked straight through the guard
-             written to stop it. Any money figure beside a module that has not
-             shipped reads as an offer to sell it, so all of them are caught. */
-          const anyPrice = li.match(/C\$\s?[\d,]+(?:\.\d+)?\s*(?:\/\s*(?:month|mo|campaign|call|lead|job)\b|per\s+(?:month|campaign|call|lead|job|seat)\b|\bone[- ]time\b|\blaunch\b|\ba\s+month\b)?/i);
-          if (anyPrice) {
-            err('pricing.html #addOnList "' + a.name + '": states ' + anyPrice[0].trim() + ' while pricing-config.js marks it sellable: false. '
-              + "A price beside an unshipped module is an offer to sell it, whatever unit follows the figure.");
-          }
-          if (!/\bcoming\b|\bnot sellable\b|\bnot yet\b/i.test(li)) {
-            err('pricing.html #addOnList "' + a.name + '": pricing-config.js marks it sellable: false and the page does not say so. '
-              + 'It needs a "coming" or "not sellable" marker a reader cannot miss.');
-          }
-          if (/signup\?plan=|data-evt="plan_buy_click"|>Buy now</i.test(li)) {
-            err('pricing.html #addOnList "' + a.name + '": carries a Buy control while pricing-config.js marks it sellable: false.');
-          }
-        }
-      }
-    }
-  }
-}
-
-/* 7i. THE PRICING PAGE'S SEARCH AND SHARE DESCRIPTIONS QUOTE PLAN PRICES.
-
-      The meta description and og:description are the first price a searcher
-      or a link preview reads, and until 2026-09-19 nothing compared them to
-      anything: a wrong figure there passed this file, the claims classifier
-      and the engine gate alike (proved by changing The Works' C$2,100 to
-      C$2,200 in the meta: every check stayed green). Fix plan A31 rewrote
-      both descriptions and kept their figures, so the figures are held to
-      pricing-config.js here, derived from the config and never typed.
-
-      Two rules. A plan named with a figure after it ("The Works at C$2,100")
-      must carry that plan's monthly. And any other C$ figure must be one the
-      config actually charges, so a stray retired or invented price fails
-      even where no plan name sits beside it. */
-{
-  const w = {};
-  vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
-  const cfg = w.NV_PRICING;
-  if (cfg && Array.isArray(cfg.plans)) {
-    const ph = fs.readFileSync(path.join(root, "pricing.html"), "utf8");
-    const num = (x) => Number(String(x).replace(/,/g, ""));
-    const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    /* A fee of 0 is no figure (v7): only a fee a plan actually charges, and
-       the Enterprise floor, may be quoted beside the monthlies. */
-    const charged = new Set(cfg.plans.flatMap((p) => [p.monthly, p.launch]).filter((n) => n > 0));
-    if (cfg.enterprise && cfg.enterprise.launchFrom) charged.add(cfg.enterprise.launchFrom);
-    for (const attr of ['name="description"', 'property="og:description"']) {
-      const m = ph.match(new RegExp("<meta " + attr + ' content="([^"]*)"'));
-      if (!m) { err("pricing.html: <meta " + attr + "> missing"); continue; }
-      const text = m[1].replace(/&amp;/g, "&");
-      for (const pl of cfg.plans) {
-        for (const x of text.matchAll(new RegExp(esc(pl.name) + "(?: at| is|:)? C\\$([\\d,]+)", "g"))) {
-          if (num(x[1]) !== pl.monthly) err("pricing.html <meta " + attr + '>: "' + x[0] + '" while pricing-config.js says '
-            + pl.name + " is C$" + pl.monthly.toLocaleString("en-CA") + " a month.");
-        }
-      }
-      for (const x of text.matchAll(/C\$([\d,]+)/g)) {
-        if (!charged.has(num(x[1]))) err("pricing.html <meta " + attr + ">: states " + x[0]
-          + ", which is no plan's monthly or Launch & Implementation fee in pricing-config.js.");
-      }
-    }
-  }
-}
-
 /* 7j. llms.txt STATES EVERY PLAN AND MODULE PRICE BY HAND.
 
       It is the file the answer engines read, and it carries sixteen C$ figures
@@ -889,7 +630,12 @@ for (const p of contentPages) {
        2026-09-25 this required the flat "C$launch ... then C$monthly a
        month" of every plan, which made the Partnership's flat price the
        only spelling this file would accept (BD-4). */
-    for (const p of cfg.plans) {
+    /* Since owner decision #81 (2026-11-10) llms.txt states the three Front
+       Desk sizes and nothing else, so those are the pairs it must carry. The
+       context and stray rules below still hold every figure it states to a
+       figure the config charges. */
+    const stated = typeof cfg.frontDeskTiers === "function" ? cfg.frontDeskTiers() : cfg.plans;
+    for (const p of stated) {
       if (typeof cfg.startLine !== "function") {
         err("pricing-config.js: NV_PRICING.startLine is missing, so no plan's sentence in llms.txt can be derived");
         break;
@@ -902,9 +648,6 @@ for (const p of contentPages) {
     }
     /* A module's sentence is its own startLine() too (v7): "C$350 a month"
        with no fee, the fee and "to start, then" where it has one. */
-    for (const a of modules) {
-      if (typeof cfg.startLine === "function") pair(a.name, cfg.startLine(a).replace(/\.$/, ""));
-    }
 
     for (const x of flat.matchAll(/C\$([\d,]+(?:\.\d+)?)(?= Launch (?:&|and) Implementation)/g)) {
       if (!launches.has(num(x[1]))) err(at(x.index) + ": states " + x[0]
@@ -1310,140 +1053,106 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
   }
 }
 
-/* 7k2. NO QUESTION BUILDER, AND NO DENIAL OF THE HEDGE, ON ANY SERVED SURFACE.
+/* 7k2. NO QUESTION BUILDER, AND NO HEDGE FOR ONE, ON ANY SERVED SURFACE.
 
-       Added 2026-11-09 (review of PR #65). The client agent asks about the
-       job, where it is and how urgent it is, and nothing lets a client set
-       its questions; the trade pages hedge that as "it can be set up to ask
-       what you would ask". scripts/content/claim-rules.mjs holds both edges:
-       question-builder (no "qualifying questions you approved") and
-       question-denial (no "nothing lets the owner set the questions"). Those
-       rules ran only over the pages build-content.mjs writes, and the
-       surface-wide scan of question-builder lived in
-       tests/site-live-platform.spec.js (TRUTH-2), a Playwright spec this
-       repo's CI does not run. So pricing-config.js, the homepage, How you
-       start, the proposal and llms.txt each said there was a question
-       builder while CI was green, and the TRUTH-2 rewrite of llms.txt then
-       denied the trade pages' hedge, also green. Here, in CI, both rules run
-       over every published page (its rendered text and JSON-LD, then the
-       string literals of its inline scripts), the scripts that render copy,
-       llms.txt (its "> " quote marks dropped, so a wrapped sentence reads
-       whole) and search-index.json. The rules are imported, not restated.
-       SHOWN RED BEFORE IT WAS TRUSTED (2026-11-09), this file and
-       claim-rules.mjs copied onto a checkout of each commit: on eda54f6, the
-       PR's head before the review, it fails once, llms.txt question-denial
-       ("nothing lets the owner set the questions it asks"); on main 0fb6589
-       it fails seven times, question-builder in home.html, how-you-start.html,
-       index.html, pricing.html, proposal.html, pricing-config.js and
-       llms.txt. Green on the branch that added it. With its llms.txt unit
-       deleted (mutation run on eda54f6), it still fails, on its own
-       "produced no readable text" check, so a unit that stops being read
-       cannot go quiet. */
+       Added 2026-11-09 (review of PR #65). Rewritten 2026-11-10 for owner
+       decision #80 (dev-control): nothing lets the client, or Nevamis, set
+       the questions the agent asks. On every call it asks what the caller
+       needs, the job, where it is and how urgent it is, takes a name and a
+       callback number and confirms the number back once, and answers from
+       the business's own hours, services, service area and approved FAQ
+       (engine src/domain/agent-draft.ts, ON EVERY CALL).
+       question-builder in scripts/content/claim-rules.mjs refuses every way
+       of saying otherwise, including the hedge the four trade pages carried
+       until that day ("it can be set up to ask what you would ask", "can be
+       asked when you approve the question"). This guard used to run a second
+       rule, question-denial, which refused the TRUE sentence "nothing lets
+       the owner set the questions it asks" only because it contradicted that
+       hedge; the hedge and the rule went together. The rule is imported, not
+       restated.
+
+       WHERE IT LOOKS: every file GitHub Pages publishes, derived the way the
+       deploy derives it (scripts/lib/published-files.mjs: the tracked files,
+       Jekyll's hidden-path rule, and _config.yml's exclude and include), not
+       a list kept by hand. The hand-kept list this replaced read the
+       top-level pages, six named scripts, llms.txt and search-index.json,
+       and never saw talk/index.html, talk/talk.js, free-month.js,
+       content-map.json or the three TwiML files a caller hears (ring.xml,
+       missed-line.xml, fallback.xml). Each file is read as a visitor or an
+       answer engine reads it: a page's rendered text, meta and JSON-LD, then
+       the string literals of its inline scripts; a script's string literals,
+       comments stripped; every string in a JSON file; a text file whole,
+       with llms.txt's "> " quote marks dropped so a wrapped sentence reads
+       whole; an XML or SVG file without its tags; a stylesheet's content
+       strings. Media and fonts are not read. A published file of any other
+       kind fails this guard until a reader for it is added here, so a new
+       kind of file cannot be skipped quietly.
+
+       THE SELF-CHECK, AND IT CAN FAIL. Until 2026-11-10 it asked only
+       whether a unit LABELLED index.html existed, and one always did: a
+       page pushed its unit whether or not any text came out of it. Now every
+       published text file must have been read, and each key file below must
+       be in the published set and must yield readable text. A key file
+       emptied, taken out of the published set, or skipped by the loop fails
+       here instead of going quiet.
+
+       SHOWN RED BEFORE IT WAS TRUSTED. 2026-11-09: on main 0fb6589 the first
+       version failed seven times, question-builder in home.html,
+       how-you-start.html, index.html, pricing.html, proposal.html,
+       pricing-config.js and llms.txt. 2026-11-10: this version, with the
+       widened question-builder, copied onto origin/main 09e3a95, fails four
+       times, once for each trade page (a file reports its first finding;
+       sentence by sentence the rule fires on all four intros and all four
+       "can be asked when you approve the question" cards), and is green on
+       the branch that rewrote it. */
 {
-  const QUESTION_RULES = new Set(["question-builder", "question-denial"]);
+  const QUESTION_RULES = new Set(["question-builder"]);
+  const KEY_FILES = [
+    "index.html", "electricians.html", "hvac.html", "plumbers.html", "restoration.html",
+    "talk/index.html", "talk/talk.js", "free-month.js", "pricing-config.js",
+    "llms.txt", "content-map.json", "search-index.json",
+    "ring.xml", "missed-line.xml", "fallback.xml",
+  ];
+  const MEDIA = /\.(?:png|gif|jpe?g|webp|avif|ico|mp4|webm|mp3|wav|ogg|m4a|woff2?|ttf|otf)$/i;
   const literalsOf = (js) => jsStringLiterals(stripJsComments(js)).map(renderedProse).filter(Boolean);
+  const stringsOf = (v, out = []) => {
+    if (typeof v === "string") out.push(v);
+    else if (v && typeof v === "object") for (const x of Object.values(v)) stringsOf(x, out);
+    return out;
+  };
+  const INLINE_SCRIPT = /<script\b(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/gi;
+  const READERS = [
+    [/\.html?$/i, (src) => [renderedText(src), ...[...src.matchAll(INLINE_SCRIPT)].flatMap((m) => literalsOf(m[1]))]],
+    [/\.m?js$/i, literalsOf],
+    [/\.(?:json|webmanifest)$/i, (src) => stringsOf(JSON.parse(src))],
+    [/\.(?:xml|svg)$/i, (src) => [renderedText(src)]],
+    [/\.css$/i, (src) => [...src.replace(/\/\*[\s\S]*?\*\//g, " ").matchAll(/\bcontent\s*:\s*(["'])((?:\\.|(?!\1)[^\\])*)\1/g)].map((m) => m[2])],
+    /* A text file, or a file with no extension at all (CNAME). */
+    [/(?:\.txt|(?:^|\/)[^./]+)$/i, (src) => [src.replace(/^>[ \t]?/gm, "")]],
+  ];
+  const published = publishedFiles(root);
+  const textFiles = published.filter((f) => !MEDIA.test(f));
+  const textOf = new Map();
   const units = [];
-  for (const p of contentPages) {
-    const src = fs.readFileSync(path.join(root, p), "utf8");
-    units.push({ label: p, text: renderedText(src) });
-    for (const m of src.matchAll(/<script\b(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/gi)) {
-      for (const lit of literalsOf(m[1])) units.push({ label: p + " (inline script)", text: lit });
-    }
+  for (const f of textFiles) {
+    const reader = READERS.find(([re]) => re.test(f));
+    if (!reader) { err("guard 7k2: " + f + " is published and this guard does not know how a visitor reads it, so the question rule does not reach it; add a reader for it here"); continue; }
+    let texts;
+    try { texts = reader[1](fs.readFileSync(path.join(root, f), "utf8")); }
+    catch (e) { err("guard 7k2: " + f + " could not be read (" + e.message + "), so the question rule does not reach it"); continue; }
+    textOf.set(f, texts.join(" "));
+    for (const t of texts) units.push({ label: f, text: t });
   }
-  const jsSurfaces = ["site.js", "motion.js", "pricing-config.js", "roadmap-config.js"];
-  for (const d of ["assets/motion", "assets/film"]) {
-    const abs = path.join(root, d);
-    if (fs.existsSync(abs)) for (const f of fs.readdirSync(abs)) if (f.endsWith(".js")) jsSurfaces.push(d + "/" + f);
-  }
-  for (const f of jsSurfaces) {
-    const abs = path.join(root, f);
-    if (fs.existsSync(abs)) for (const lit of literalsOf(fs.readFileSync(abs, "utf8"))) units.push({ label: f, text: lit });
-  }
-  const llms = path.join(root, "llms.txt");
-  if (fs.existsSync(llms)) units.push({ label: "llms.txt", text: fs.readFileSync(llms, "utf8").replace(/^>[ \t]?/gm, "") });
-  const index = path.join(root, "search-index.json");
-  if (fs.existsSync(index)) {
-    const strings = [];
-    const walkJson = (v) => (typeof v === "string" ? strings.push(v) : v && typeof v === "object" && Object.values(v).forEach(walkJson));
-    walkJson(JSON.parse(fs.readFileSync(index, "utf8")));
-    for (const s of strings) units.push({ label: "search-index.json", text: s });
-  }
-  for (const must of ["llms.txt", "pricing-config.js", "index.html"]) {
-    if (!units.some((u) => u.label === must)) err("guard 7k2: " + must + " produced no readable text, so the question rules do not reach it");
+  const unread = textFiles.filter((f) => !textOf.has(f));
+  if (unread.length) err("guard 7k2: " + unread.length + " published text file(s) were not read, so the question rule does not reach them: " + unread.join(", "));
+  for (const k of KEY_FILES) {
+    if (!published.includes(k)) err("guard 7k2: key file " + k + " is not in the published set, so the question rule does not reach it");
+    else if (!/[a-z]{3}/i.test(textOf.get(k) || "")) err("guard 7k2: key file " + k + " produced no readable text, so the question rule does not reach it");
   }
   for (const { label, text } of units) {
     for (const f of claimFindings(text.replace(/\s+/g, " "), label)) {
       if (!QUESTION_RULES.has(f.id)) continue;
       err(label + ": " + f.id + ".\n      near: \"" + f.excerpt.slice(0, 200) + "\"\n      Why it is false: " + f.why + ".");
-    }
-  }
-}
-
-/* 7l. HOW YOU START MUST NOT GIVE AN ADD-ON A LAUNCH FEE OF ITS OWN.
-
-       Added 2026-09-24. how-you-start.html answered "What does it cost?"
-       with "The fee pays for the build itself, once, and is never charged
-       again; past the start, the only recurring charges are the monthly,
-       any automation add-ons you chose, and any overage". Every add-on on
-       pricing-config.js carries its OWN one-time Launch & Implementation
-       fee, charged when that add-on starts, and terms 2.8 says so; a buyer
-       who read this page and then added the Quote-Chase Engine would meet
-       a launch fee the page had told them would never come again. Each
-       half of that sentence is defensible about the PLAN's fee alone, which
-       is why no figure or retired-term rule could see it.
-
-       So the rule is about what the page must SAY, not a word to ban:
-       while the page mentions automation add-ons, it must state that each
-       one has its own one-time Launch & Implementation fee, and it may not
-       say that fee "is never charged again". The phrase check is a plain
-       regex on purpose: offendingClause() reads "never" as a denial and
-       would excuse the very sentence this exists to stop.
-
-       SCOPE is this one page. terms.html said the same thing at version 2.7
-       and is rewritten to 2.8 on its own branch (sell/a-checkout-terms);
-       sweeping it here would fail this repo until that branch lands, and
-       the history note it keeps quotes the retired wording in the past
-       tense. config/elevenlabs says the plan fee "is never billed again" in
-       a CANCELLATION answer, where only the plan's fee is in question.
-
-       RE-POINTED 2026-10-03 (v7). No add-on carries a Launch & Implementation
-       fee now, so the sentence the old rule REQUIRED ("its own one-time
-       Launch & Implementation fee") is the false one, and the rule points
-       the other way: the page may not give an add-on a fee of its own, and
-       while it names automation add-ons and pricing-config.js still gives
-       one a fee, it must say so. The "never charged again" refusal stays: it
-       was only ever true of one plan's fee. Nothing here asks the page to
-       say the first month is free: that is given on a booked call, and a
-       page says it only inside a gated element (guard 7u). */
-{
-  const page = "how-you-start.html";
-  const abs = path.join(root, page);
-  if (!fs.existsSync(abs)) {
-    err("guard 7l: " + page + " is missing, so the page that answers \"What does it cost?\" is unswept");
-  } else {
-    const text = fs.readFileSync(abs, "utf8")
-      .replace(/<!--[\s\S]*?-->/g, " ")
-      .replace(/<script\b(?![^>]*application\/ld\+json)[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/&amp;/g, "&").replace(/&rsquo;/g, "'")
-      .replace(/\s+/g, " ");
-    const w = {};
-    vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
-    const addOnFee = ((w.NV_PRICING && w.NV_PRICING.addOns) || []).some((a) => a.sellable && a.launch > 0);
-    const never = text.match(/[^.]*\b(?:is|are) never (?:charged|billed) again\b[^.]*/i);
-    if (never) {
-      err(page + ": says the Launch & Implementation fee is never charged again.\n      clause: \"" + never[0].trim().slice(0, 200) + "\"\n      "
-        + "Only the Performance Partnership carries a Launch & Implementation fee since v7; say what is true of each offer instead.");
-    }
-    const own = text.match(/[^.]*\b(?:its|their) own (?:one-time )?Launch & Implementation fee\b[^.]*/i);
-    if (own && !addOnFee) {
-      err(page + ": gives an add-on a Launch & Implementation fee of its own.\n      clause: \"" + own[0].trim().slice(0, 200) + "\"\n      "
-        + "No add-on in pricing-config.js carries one since v7 (launch: 0); each is its monthly alone.");
-    }
-    if (addOnFee && /\bautomation add-ons?\b/i.test(text) && !own) {
-      err(page + ": names automation add-ons but never says an add-on carries its own one-time Launch & Implementation fee, "
-        + "which pricing-config.js gives at least one of them.");
     }
   }
 }
@@ -1518,85 +1227,6 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     const drawn = new Set(stations), named = new Set(listed);
     for (const s of stations) if (!named.has(s)) err(`${page}: the film draws a dot for "${s}" but the brain-node list does not name it (the list is the count)`);
     for (const l of listed) if (!drawn.has(l)) err(`${page}: the brain-node list names "${l}", which no station describes, so no dot is drawn for it`);
-  }
-}
-
-/* 7n. THE HOMEPAGE CALCULATOR CANNOT SHOW AN IMPOSSIBLE NUMBER, AND LOADING
-       THE PAGE IS NOT USING IT.
-
-       Added 2026-09-25. The calculator in site.js took its fields as typed:
-       -10 missed calls rendered "$-5,196", and a 150% close rate was taken at
-       face value. revenue-engine.html's copy of the same formula clamped, and
-       the homepage's did not. Its one break-even row also showed real
-       inquiries under the name "won jobs" (5 where 3 cover the plan).
-
-       This runs the real arithmetic: the ROI-MATH block of site.js, cut out
-       and evaluated here, so a change to the formula is judged by what it
-       returns, not by how it is spelled. The Playwright spec
-       tests/homepage-calculator.spec.js checks the rendered rows in a browser.
-
-       It also holds the analytics half. roi_calculator_complete was sent from
-       inside calc(), which runs on load with the defaults, so every page view
-       counted as calculator use. The math block must not send anything, and
-       site.js must send the event from a one-shot input listener only. */
-{
-  const src = fs.existsSync(path.join(root, "site.js")) ? fs.readFileSync(path.join(root, "site.js"), "utf8") : "";
-  const block = (src.match(/\/\* ROI-MATH BEGIN\.[\s\S]*?\/\* ROI-MATH END \*\//) || [])[0];
-  if (!block) err("guard 7n: site.js has no ROI-MATH BEGIN ... ROI-MATH END block, so the calculator's arithmetic is unchecked");
-  else {
-    let roi = null;
-    try {
-      const box = {};
-      vm.runInNewContext(block + "\nthis.roiFigures = roiFigures;", box, { timeout: 1000 });
-      roi = box.roiFigures;
-    } catch (e) { err(`guard 7n: the ROI-MATH block in site.js does not run on its own: ${e.message}`); }
-    if (typeof roi === "function") {
-      const base = { missed: "10", real: "60", value: "400", close: "50", quote: "1000" };
-      const run = (over) => roi(Object.assign({}, base, over));
-      const bad = (msg) => err(`site.js calculator: ${msg}`);
-      const d = run({});
-      if (d.won !== 3) bad(`at the defaults (plan 1000, job 400, 50%) 3 won jobs cover the plan; it says ${d.won}`);
-      /* 6, not 5 (BD-6, 2026-09-25): the inquiries row answers "how many to
-         win the jobs in the row above", and 3 won jobs at 50% take 6
-         inquiries. 5 was the plan divided by job value x close rate, which
-         wins 2.5 jobs. Held as a rule over a grid as well as at the
-         defaults, so a formula that only happens to agree at one point
-         still fails. */
-      if (d.inquiries !== 6) bad(`at the defaults 3 won jobs at a 50% close rate take 6 real inquiries; it says ${d.inquiries}`);
-      for (const close of ["10", "25", "30", "33.3", "50", "70", "99", "100"]) {
-        for (const value of ["150", "400", "999"]) {
-          const r = run({ close, value });
-          const c = Number(close) / 100;
-          if (!(r.inquiries * c >= r.won - 1e-9)) bad(`at ${close}% and a ${value} job, ${r.inquiries} inquiries win ${r.inquiries * c} jobs, fewer than the ${r.won} it says cover the plan`);
-          if (!((r.inquiries - 1) * c < r.won - 1e-9)) bad(`at ${close}% and a ${value} job, ${r.inquiries - 1} inquiries already win the ${r.won} jobs; it asks for one too many`);
-        }
-      }
-      for (const [name, over] of [["missed calls", { missed: "-10" }], ["the opportunity share", { real: "-60" }],
-        ["the job value", { value: "-400" }], ["the close rate", { close: "-50" }]]) {
-        const r = run(over);
-        if (!(r.opp >= 0) || !(r.recovered >= 0)) bad(`a negative ${name} gives a negative dollar figure (${r.opp}); every input must be clamped to >= 0`);
-      }
-      const q = run({ quote: "-1000" });
-      if (!(q.quote >= 0) || (q.won !== null && q.won < 0)) bad(`a negative plan price is not clamped (quote ${q.quote}, won ${q.won})`);
-      const at100 = run({ close: "100" }), over100 = run({ close: "150" });
-      if (over100.opp !== at100.opp || over100.inquiries !== at100.inquiries) bad(`a 150% close rate is accepted (opportunity ${over100.opp}, at 100% it is ${at100.opp}); percentages must be clamped to 0..100`);
-      const r100 = run({ real: "100" }), r150 = run({ real: "150" });
-      if (r150.opp !== r100.opp) bad(`a 150% opportunity share is accepted (${r150.opp} vs ${r100.opp} at 100%)`);
-      const noValue = run({ value: "0" });
-      if (noValue.won !== null || noValue.inquiries !== null) bad(`with no job value neither break-even is reachable; it says won ${noValue.won}, inquiries ${noValue.inquiries} (must be null, shown as "Not reachable")`);
-      const noClose = run({ close: "0" });
-      if (noClose.inquiries !== null) bad(`at a 0% close rate no number of inquiries is enough; it says ${noClose.inquiries}`);
-      if (noClose.won !== 3) bad(`won jobs do not depend on the close rate; at 0% it says ${noClose.won}`);
-      const junk = run({ missed: "abc", value: "" });
-      if (!(junk.opp === 0)) bad(`unreadable input gives ${junk.opp}, not 0`);
-    }
-    if (/nvTrack/.test(block)) err("guard 7n: the ROI-MATH block sends analytics; it must be pure");
-    const sends = src.match(/nvTrack\("roi_calculator_complete"\)/g) || [];
-    const oneShot = /addEventListener\("input", function (\w+)\(\) \{\s*roiForm\.removeEventListener\("input", \1\);\s*window\.nvTrack\("roi_calculator_complete"\);/.test(src);
-    if (sends.length !== 1 || !oneShot) {
-      err(`site.js: roi_calculator_complete must be sent exactly once, from a one-shot "input" listener on roiForm that removes itself.\n`
-        + `       Sent from calc(), it fires on every page load with the defaults and the funnel counts page views as calculator use.`);
-    }
   }
 }
 
@@ -1703,155 +1333,22 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
      one remaining place on the pricing page where a static copy of a config
      value can go stale without anything noticing. Same count of checks, same
      failure mode covered, aimed at live copy instead of dead copy. */
-  if (!cfg || !cfg.referral || !cfg.usagePolicy) err("pricing-config.js: referral/usagePolicy missing, cannot check pre-rendered copy");
+  /* THE FLOOR LINE (PR #62 review, item 4). book.html's calendar line carries
+     the cheapest self-serve plan's figure as no-script copy, rendered over
+     from the config at load. A typed figure nothing compares is how a price
+     drifts, so the static copy is held to the sentence the page renders; with
+     prices unpublished it may carry no figure (the page blanks it then).
+     The pricing page and the proposal, and the pre-rendered blocks this
+     guard held on them, were retired by owner decision #81 (2026-11-10). */
+  if (!cfg || !Array.isArray(cfg.plans)) err("pricing-config.js: plans missing, cannot check pre-rendered copy");
   else {
-    const ph = fs.readFileSync(path.join(root, "pricing.html"), "utf8");
-    eq("pricing.html", "referralHeadline", flat(textOf(ph, "referralHeadline")), cfg.referral.headline);
-    eq("pricing.html", "referralOffer", flat(textOf(ph, "referralOffer")), cfg.referral.offer);
-    eq("pricing.html", "referralTrigger", flat(textOf(ph, "referralTrigger")), cfg.referral.trigger);
-    eq("pricing.html", "referralHowTo", flat(textOf(ph, "referralHowTo")), cfg.referral.howTo);
-    eq("pricing.html", "minuteDef", flat(textOf(ph, "minuteDef")), cfg.usagePolicy.minuteDef);
-    eq("pricing.html", "taxNote", flat(textOf(ph, "taxNote")), cfg.taxNote);
-    eq("pricing.html", "pricingUpdated", flat(textOf(ph, "pricingUpdated")), "pricing updated " + cfg.lastUpdated);
-    const notes = items(textOf(ph, "usageNotes"));
-    if (!notes) err("pricing.html: #usageNotes not found");
-    else if (notes.join(" | ") !== cfg.usagePolicy.notes.join(" | "))
-      err("pricing.html: #usageNotes drifted from pricing-config.js\n      page:   " + notes.join(" | ") + "\n      config: " + cfg.usagePolicy.notes.join(" | "));
-
-    /* THE TWO BLOCKS W6 MADE SINGULAR (2026-09-24). The term is now stated in
-       full once, in the terms band's #termsNote, and the lines every plan
-       carries are printed once, in #everyPlan, instead of on every card. Both
-       ship as real text and are overwritten from the config after load, so
-       each is a static copy of a config value and is held to it here like
-       the blocks above. #everyPlan is compared with sharedFeatures(), the
-       same function the page calls, so the guard cannot disagree with the
-       renderer about which lines are shared. A page that loses either block
-       fails too: with the cards no longer listing the shared lines or the
-       term, a missing block would mean those lines are said nowhere. */
-    if (cfg.terms && cfg.terms.note) eq("pricing.html", "termsNote", flat(textOf(ph, "termsNote")), cfg.terms.note);
-    else err("pricing-config.js: terms.note missing, so #termsNote on pricing.html has nothing to render");
-    /* The one plan with a Launch & Implementation fee (v7, 2026-10-03): the
-       terms band names it once, in partnerNote()'s words, and the static copy
-       is held to the renderer's line like the term note above. */
-    const ptNote = typeof cfg.partnerNote === "function" ? cfg.partnerNote() : null;
-    if (ptNote === null) err("pricing-config.js: partnerNote() is missing, so #partnerNote on pricing.html has nothing to render");
-    else if (ptNote) eq("pricing.html", "partnerNote", flat(textOf(ph, "partnerNote")), ptNote);
-    /* THE FLOOR LINES (PR #62 review, item 4). pricing.html's lede and
-       book.html's cost card and calendar line carry the cheapest self-serve
-       plan's figure as no-script copy, rendered over from the config at load.
-       A typed figure nothing compares is how a price drifts, so each static
-       copy is held to the sentence its page renders; with prices unpublished
-       none may carry a figure (the pages blank them then). */
-    {
-      const bk = fs.readFileSync(path.join(root, "book.html"), "utf8");
-      const floor = cfg.plans.filter((p) => p.selfServe === true && p.monthly > 0 && !(p.launch > 0))
-        .sort((a, b) => a.monthly - b.monthly)[0];
-      const lines = [
-        ["pricing.html", ph, "pricingFrom", floor && "Plans start at " + money(floor.monthly) + " a month, with " + floor.name + "."],
-        ["book.html", bk, "bookCostFrom", floor && "Plans start at " + money(floor.monthly) + " a month, and on the call you see which plan or single automation fits, at its published price."],
-        ["book.html", bk, "bookFrom", floor && "Plans start at " + money(floor.monthly) + " a month plus GST/HST (" + floor.name + ", "
-          + Number(floor.includedMinutes).toLocaleString("en-CA") + " minutes)."],
-      ];
-      for (const [where, html, id, rendered] of lines) {
-        if (cfg.publishedPricing && rendered) eq(where, id, flat(textOf(html, id)), rendered);
-        else if (/C\$\s?\d/.test(flat(textOf(html, id)) || "")) err(where + ": #" + id + " types a figure while pricing is unpublished");
-      }
-    }
-    /* The same page quotes Enterprise's Launch & Implementation from a
-       floor, so a note calling one plan "the one plan with" a fee must also
-       name Enterprise and its floor, or a buyer reads the two as a
-       contradiction (review of PR #53). */
-    if (ptNote && cfg.enterprise && cfg.enterprise.launchFrom) {
-      const entFloor = typeof cfg.money === "function" ? cfg.money(cfg.enterprise.launchFrom) : String(cfg.enterprise.launchFrom);
-      if (/\bthe one (?:published )?plan with\b/i.test(ptNote) && !(ptNote.includes(cfg.enterprise.name) && ptNote.slice(ptNote.indexOf(cfg.enterprise.name)).includes(entFloor)))
-        err("pricing-config.js partnerNote() says \"" + ptNote + "\" while pricing.html quotes " + cfg.enterprise.name + "'s Launch & Implementation from " + entFloor + "; name " + cfg.enterprise.name + " and its floor beside it");
-    }
-    const shared = typeof cfg.sharedFeatures === "function" ? cfg.sharedFeatures() : null;
-    const everyPlan = items(textOf(ph, "everyPlan"));
-    if (!shared || !shared.length) err("pricing-config.js: sharedFeatures() is missing or empty, so pricing.html has no list of what every plan includes");
-    else if (!everyPlan) err("pricing.html: #everyPlan not found, so the lines every plan includes are printed nowhere");
-    else if (everyPlan.join(" | ") !== shared.join(" | "))
-      err("pricing.html: #everyPlan drifted from pricing-config.js sharedFeatures()\n      page:   " + everyPlan.join(" | ") + "\n      config: " + shared.join(" | "));
-
-    /* The proposal defaults to the recommended plan when no id is in the URL,
-       so that is the plan its static copy must quote. */
-    const dflt = cfg.plans.find((p) => p.recommended) || cfg.plans[0];
-    const pr = fs.readFileSync(path.join(root, "proposal.html"), "utf8");
-    /* A banded plan's figures on the proposal come from the two parts
-       NV_PRICING.startLine is built from, never from a band or a "from" the
-       page types itself (review of BD-4, 2026-09-26): a hand-built band here
-       drifts from the pricing card with nothing to catch it, and a render
-       that drops it prints the Partnership flat on the document a buyer
-       keeps. tests/site-truth.spec.js renders the proposal for each banded
-       plan; this holds the source to the same parts in CI. */
-    for (const need of ["P.launchPart(plan)", "P.monthlyBand(plan)"]) {
-      if (!pr.includes(need)) err("proposal.html: the plan's figures must come from " + need
-        + " (pricing-config.js), the part startLine() is built from, so a banded plan cannot render as a flat pair");
-    }
-    for (const typed of [/monthly band of/, /\bplan\.(?:launchRange|monthlyRange)\b/]) {
-      if (typed.test(pr)) err("proposal.html: builds a plan's band itself (" + typed.source
-        + "); use NV_PRICING.launchPart/monthlyBand so it cannot drift from the pricing card");
-    }
-    /* The proposal is the document a named prospect keeps, so its price
-       sentence is held to the exact shape of the approved model rather than
-       just to the right figure. PLAN_TERMS is written out here on purpose: it
-       is the only copy of the commitment that lives in a file a page cannot
-       edit, and a proposal that quietly regrows a setup fee or a trial fails
-       against it. If the commercial model changes, this line changes with the
-       decision, not with the page. */
-    /* REWRITTEN 2026-08-15 (evening) with the OPERATE/GROW/PARTNERSHIP model:
-       the one-time Launch & Implementation fee is real and published, so the
-       terms line now NAMES it and its default-plan amount instead of denying
-       that anything is charged to start. "Setup fee" and "activation fee"
-       remain retired names and are not used; the launch fee itself is never
-       denied. REWRITTEN 2026-08-22 (v4): the figure is the AI Front Desk's
-       launch fee because it is the default plan the static proposal renders,
-       and a minimum term existed. REWRITTEN 2026-09-08: the owner reversed
-       that directive and there is no minimum term on anything, so the pinned
-       sentence states the absence rather than a length. "No minimum term",
-       "month to month" and "cancel any time from your portal" are TRUE again;
-       what this pin must never bless again is a three-month or six-month
-       start, or months "agreed up front". REWRITTEN 2026-09-12: the owner
-       removed the notice period as well, so the pin no longer carries "30
-       days notice" either. A notice period is now as false as a minimum
-       term, and "cancel any time" is literally true. */
-    /* REWRITTEN 2026-10-03 (v7): the default plan's Launch & Implementation
-       fee is 0, so the pin names a fee only where the default plan carries
-       one, in launchPart()'s words, and never a figure the config does not
-       charge. The term half is written out as before, for the reason above. */
-    const PLAN_TERMS = (dflt.launch > 0 ? "One-time " + cfg.launchPart(dflt) + ". " : "")
-      + "Overage past your included minutes is the only other usage billing. There is no minimum term: month to month from the first month, cancel any time from your own portal, with service running to the end of the month you already paid for. Your price is locked for 12 months.";
-    /* INVERTED TWICE with the model, most recently 2026-08-15 (evening):
-       published pricing is back, so the static line a prospect reads with
-       scripts blocked states the default plan's monthly. A real quote from
-       ?quote= still overrides it at render time. */
-    /* BOTH CASES SINCE THE FUNNEL AUDIT (2026-10-09, item 3): the buyer
-       this document is sent to may hold a first-month-free spot, and
-       checkout then charges nothing until month two. The clause is written
-       out here, as PLAN_TERMS is, and only where the default plan carries a
-       free month; it promises no spot, it says what happens if one has been
-       reserved, and that the portal shows which before anything is paid. */
-    const RESERVED = dflt.freeMonths > 0
-      ? " If a first-month-free spot has been reserved for your business, nothing is charged until your second month; the portal shows which before you pay."
-      : "";
-    eq("proposal.html", "planMonthly", flat(textOf(pr, "planMonthly")),
-      (cfg.publishedPricing
-        ? money(dflt.monthly) + "/month, charged the day you start and every month after."
-        : "Your monthly amount is quoted per client, then it is charged the day you start and every month after.") + RESERVED);
-    eq("proposal.html", "planTerms", flat(textOf(pr, "planTerms")), PLAN_TERMS);
-    eq("proposal.html", "planName", flat(textOf(pr, "planName")), dflt.name.toUpperCase());
-    /* Grouped first, bare second: both are dflt.includedMinutes, and the page
-       renders the grouped one (A29). See the note on eq(). */
-    const includesLine = (mins) => mins + " included AI minutes per month, about "
-      + dflt.callRange + ". Additional minutes " + money(dflt.overage) + " each.";
-    eq("proposal.html", "planIncludes", flat(textOf(pr, "planIncludes")), [
-      includesLine(Number(dflt.includedMinutes).toLocaleString("en-CA")),
-      includesLine(String(dflt.includedMinutes)),
-    ]);
-    const feats = items(textOf(pr, "planFeatures"));
-    if (!feats) err("proposal.html: #planFeatures not found");
-    else if (feats.join(" | ") !== dflt.features.slice(0, 9).join(" | "))
-      err("proposal.html: #planFeatures drifted from pricing-config.js " + dflt.id + "\n      page:   " + feats.join(" | ") + "\n      config: " + dflt.features.slice(0, 9).join(" | "));
+    const bk = fs.readFileSync(path.join(root, "book.html"), "utf8");
+    const floor = cfg.plans.filter((p) => p.selfServe === true && p.monthly > 0 && !(p.launch > 0))
+      .sort((a, b) => a.monthly - b.monthly)[0];
+    const rendered = floor && "Plans start at " + money(floor.monthly) + " a month plus GST/HST (" + floor.name + ", "
+      + Number(floor.includedMinutes).toLocaleString("en-CA") + " minutes).";
+    if (cfg.publishedPricing && rendered) eq("book.html", "bookFrom", flat(textOf(bk, "bookFrom")), rendered);
+    else if (/C\$\s?\d/.test(flat(textOf(bk, "bookFrom")) || "")) err("book.html: #bookFrom types a figure while pricing is unpublished");
   }
 }
 
@@ -2651,11 +2148,11 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
 {
   const map = JSON.parse(fs.readFileSync(path.join(root, "content-map.json"), "utf8"));
   const mapped = new Set(map.pages.map((p) => p.file));
-  for (const page of contentPages) {
-    if (!mapped.has(page)) {
+  for (const page of publishedHtml) {
+    if (!mapped.has(page) && !REDIRECTS.has(page)) {
       err(`${page} is published but missing from content-map.json — it will not be audited, `
         + `will not appear in the sitemap or site search. Add an entry (use "sitemap": false `
-        + `if it should not be indexed).`);
+        + `if it should not be indexed), or list it under "redirects" if it is retired.`);
     }
   }
   /* And the reverse: an entry for a file that no longer exists points the
@@ -2664,6 +2161,19 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     if (!fs.existsSync(path.join(root, p.file))) {
       err(`content-map.json lists ${p.file}, which does not exist`);
     }
+  }
+  /* A retired page is a redirect to the homepage and nothing else: a refresh
+     to /, the one-line script, a canonical naming the homepage, noindex, and
+     no query string read or passed on. */
+  for (const page of REDIRECTS) {
+    if (mapped.has(page)) { err(`${page} is both a page and a redirect in content-map.json`); continue; }
+    const abs = path.join(root, page);
+    if (!fs.existsSync(abs)) { err(`content-map.json redirects ${page}, which does not exist. Run npm run build.`); continue; }
+    const html = fs.readFileSync(abs, "utf8");
+    const need = ['<meta http-equiv="refresh" content="0; url=/">', '<link rel="canonical" href="https://nevamis.ca/">',
+      '<meta name="robots" content="noindex">', '<script>location.replace("/");</script>', '<a href="/"'];
+    for (const n of need) if (!html.includes(n)) err(`${page}: the redirect stub is missing ${n}. Run npm run build.`);
+    if (/location\.(?:search|href)|\?to=|<main\b/.test(html)) err(`${page}: the redirect stub carries more than the redirect. Run npm run build.`);
   }
 }
 
@@ -3055,11 +2565,13 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
     const b = chipFindings(html, F.services, F.labels);
     if (b.length) { err("status-chips judge: refused a right chip (" + why + "): " + JSON.stringify(b)); judged = false; }
   }
-  const labels = statusLabelsFrom(fs.readFileSync(path.join(root, "coming-soon.html"), "utf8"));
+  /* The Roadmap page is a redirect since decision #81, so its labels are
+     kept in scripts/lib/status-chips.mjs. */
+  const labels = STATUS_LABELS;
   const w = {};
   vm.runInNewContext(fs.readFileSync(path.join(root, "roadmap-config.js"), "utf8"), { window: w }, { timeout: 1000 });
   const services = w.NV_ROADMAP?.services;
-  if (!labels) err("coming-soon.html: its statusLabel map was not found, so no page's roadmap chips can be checked");
+  if (!labels) err("scripts/lib/status-chips.mjs: STATUS_LABELS was not found, so no page's roadmap chips can be checked");
   else if (!Array.isArray(services) || !services.length) err("roadmap-config.js: NV_ROADMAP.services not found, so no page's roadmap chips can be checked");
   else if (judged) {
     let chips = 0;
@@ -3217,7 +2729,30 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
   }
   if (!service) err("guard 7s: index.html publishes no Service JSON-LD, so its offers are unjudged");
   else if (!w.NV_PRICING) err("guard 7s: pricing-config.js did not yield NV_PRICING");
-  else if (judged) for (const f of offerFindings(service, w.NV_PRICING)) err("index.html JSON-LD: " + f);
+  else if (judged) {
+    /* The homepage sells the three Front Desk sizes and nothing else (owner
+       decision #81, 2026-11-10), so those are the offers it must carry, each
+       with both figures, and no other plan or module may be offered there. */
+    const NV = w.NV_PRICING;
+    const tiers = typeof NV.frontDeskTiers === "function" ? NV.frontDeskTiers() : [];
+    const sold = { ...NV, plans: tiers, addOns: (NV.addOns || []).filter((a) => !(a.sellable === true && a.soldAlone === true)) };
+    for (const f of offerFindings(service, sold)) err("index.html JSON-LD: " + f);
+    const names = new Set(tiers.map((t) => t.name));
+    for (const o of service.offers || []) {
+      if (!names.has(o.name)) err(`index.html JSON-LD: offers ${o.name}, which the homepage does not sell (only the three Front Desk sizes)`);
+    }
+    /* The Organization's priceRange is typed in scripts/film/chrome-source.html,
+       so it is held here to the sizes' smallest and largest monthly. */
+    let org = null;
+    for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+      let parsed; try { parsed = JSON.parse(m[1]); } catch { continue; }
+      org = [].concat(parsed).find((x) => x && String(x["@id"] || "").endsWith("#organization")) || org;
+    }
+    const monthlies = tiers.map((t) => t.monthly);
+    const range = monthlies.length ? NV.money(Math.min(...monthlies)) + "-" + NV.money(Math.max(...monthlies)) : null;
+    if (!org) err("index.html JSON-LD: no Organization node, so its priceRange is unjudged");
+    else if (org.priceRange !== range) err(`index.html JSON-LD: the Organization's priceRange is ${JSON.stringify(org.priceRange)}; the three Front Desk sizes run ${range} (scripts/film/chrome-source.html)`);
+  }
 }
 
 /* 7t. COMMERCIAL MODEL v7 ON EVERY SURFACE THAT QUOTES IT (2026-10-03,
@@ -3248,9 +2783,10 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
                   passes, judged by the shared classifier.
          partner  every sentence that names the Partnership together with a
                   Launch & Implementation fee states its figure, written or
-                  spoken, and pricing.html and llms.txt each carry one. A
-                  sentence recording history, or a quoted caller question,
-                  is exempt. */
+                  spoken. A sentence recording history, or a quoted caller
+                  question, is exempt. (pricing.html and llms.txt had to carry
+                  one until owner decision #81 retired the pricing page and
+                  cut llms.txt to the three Front Desk sizes.) */
 {
   const w = {};
   vm.runInNewContext(fs.readFileSync(path.join(root, "pricing-config.js"), "utf8"), { window: w }, { timeout: 1000 });
@@ -3328,9 +2864,7 @@ const judgedClauses = (t) => new Set([...clauses(t), ...clauses(unwrapped(t))]);
           + sen.trim().slice(0, 200) + "\"\n      The Partnership's fee is fixed at " + money(partner.launch)
           + " (pricing-config.js); say it wherever the fee is named.");
       }
-      if ((label === "pricing.html" || label === "llms.txt") && !states) {
-        err(label + ": never states the " + partner.name + "'s " + money(partner.launch) + " Launch & Implementation fee.");
-      }
+      void states;
     }
   }
 }
@@ -3605,7 +3139,7 @@ for (const p of BANNED_PENDING) {
   else if (fs.existsSync(path.join(root, p.file))) console.log(`NOTE: ${p.file} no longer says "${p.text}". Delete its BANNED_PENDING entry in scripts/check-consistency.js.`);
 }
 
-if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, pricing fallback matches config, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan, every roadmap status chip reads its roadmap status, llms.txt states the term pricing-config.js carries, the agent documents state only what the product does, llms.txt lists every sitemap page, the homepage offers carry both figures.");
+if (fail === 0) console.log("Consistency check passed: " + contentPages.length + " pages, one nav, one footer, no banned phrases, every retired page a redirect stub, spoken prices match config, playbook table matches config, motion modules parse, every internal link and anchor resolves, index.html matches promoted home.html, no description claims a capability roadmap-config.js does not mark available, no raw query string reaches telemetry, every documented proposal link names a real plan, every roadmap status chip reads its roadmap status, llms.txt states the term pricing-config.js carries, the agent documents state only what the product does, llms.txt lists every sitemap page, the homepage offers carry both figures.");
 /* 1 = something here is broken. 2 = nothing here is broken but the live
    phone agent needs a change only the owner can make. 0 = clean. */
 if (fail === 0 && waiting > 0) console.error(`

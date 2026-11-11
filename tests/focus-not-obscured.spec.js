@@ -72,7 +72,14 @@ function judgeStop() {
   };
 }
 
-for (const url of ['/', '/pricing.html']) {
+/* The pricing page left the site with owner decision #81 (2026-11-10). The
+   homepage is the hero, the film and the footer now, so a phone tabs through
+   fewer stops on it; the privacy page, long and full of links, is the other
+   page walked. The floors below are the stops each page has (measured on
+   2026-11-10: 9 stops on each, 4 and 8 of them with the bar showing), so a
+   walk that stops early still fails. */
+const FLOORS = { '/': { stops: 9, judged: 4 }, '/privacy.html': { stops: 9, judged: 8 } };
+for (const url of Object.keys(FLOORS)) {
   test(`390x844 ${url}: no control that takes keyboard focus is behind the booking bar`, async ({ browser, baseURL }) => {
     test.setTimeout(600_000);
     const ctx = await browser.newContext({ baseURL, viewport: VIEWPORT, reducedMotion: 'no-preference' });
@@ -97,8 +104,8 @@ for (const url of ['/', '/pricing.html']) {
         if (!s.ok) bad.push(`stop ${stops}: ${s.what} at ${s.rect}, bar top ${s.barTop}, its centre shows ${s.hit}`);
       }
       test.info().annotations.push({ type: 'tab stops', description: `${stops} stops, ${judged} judged with the bar showing` });
-      expect(stops, 'Tab walked the page').toBeGreaterThan(10);
-      expect(judged, 'some stops were judged with the bar showing').toBeGreaterThan(5);
+      expect(stops, 'Tab walked the page').toBeGreaterThanOrEqual(FLOORS[url].stops);
+      expect(judged, 'some stops were judged with the bar showing').toBeGreaterThanOrEqual(FLOORS[url].judged);
       expect(bad, `focused controls behind the booking bar at 390x844 on ${url}:\n${bad.join('\n')}`).toEqual([]);
     } finally {
       await ctx.close();

@@ -604,7 +604,7 @@ var brainOf = {};
         /* The chip's own modifier class, carried through rather than collapsed
            to a dev/not-dev boolean. There are three states now (av, dev, inv)
            and a boolean can only ever repaint the third as one of the other
-           two, which is how a "By invitation" chip would have rendered in the
+           two, which is how a third chip state would have rendered in the
            node card wearing the filled mint of AVAILABLE TODAY. */
         availClass: chip ? (String(chip.className).split(/\s+/)
           .filter(function(c){ return c && c !== 'chip'; })[0] || 'dev') : '',

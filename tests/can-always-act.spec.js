@@ -84,12 +84,14 @@ test.describe('a visitor can act before the intro finishes', () => {
          to compose, since that is when the hold takes effect. */
       await page.waitForTimeout(1500);
 
-      /* Desktop books straight from the header; a phone has the menu button,
-         and booking is one tap inside it. Either way it is the header's own
-         control, so what is being proven is that the film does not hide it. */
+      /* Desktop books straight from the header. A phone has no menu since
+         owner decision #81: its header is the wordmark, and the booking action
+         on its first screen is the hero's own Book a 15-minute call (the bar
+         steps aside for it). Either way, what is being proven is that the
+         film does not hide it. */
       const action = vp.name === 'desktop'
         ? page.locator('.main-nav a.btn-primary[href="/book.html"]')
-        : page.locator('.nav-toggle');
+        : page.locator('#hero .ctarow a.btn-primary[href="/book.html"]');
       await expect(action).toHaveCount(1);
 
       const state = await tappable(action);
@@ -101,11 +103,7 @@ test.describe('a visitor can act before the intro finishes', () => {
       expect(state.onTop, 'nothing may sit on top of it').toBe(true);
 
       // And genuinely usable, not merely painted: it leads to booking.
-      if (vp.name === 'phone') {
-        await action.click();
-        await expect(page.locator('.main-nav')).toHaveClass(/open/);
-        await expect(page.locator('.main-nav a.btn-primary[href="/book.html"]')).toBeVisible();
-      }
+      await expect(action).toHaveText('Book a 15-minute call');
     });
   }
 
@@ -117,7 +115,7 @@ test.describe('a visitor can act before the intro finishes', () => {
      nav drawer, the page heroes and the footer number. */
   test('a phone visitor can reach booking from first paint', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto('/electricians.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/privacy.html', { waitUntil: 'domcontentloaded' });
 
     const bar = page.locator('.callbar');
     await expect(bar, 'the sticky booking bar must exist on a phone').toHaveCount(1);
@@ -154,7 +152,7 @@ test.describe('a visitor can act before the intro finishes', () => {
 
     const bar = page.locator('a.callbar');
     await expect(bar, 'the homepage carries exactly one sticky bar').toHaveCount(1);
-    await expect(page.locator('#found .ctarow a[href^="/book.html"]'),
+    await expect(page.locator('#hero .ctarow a[href^="/book.html"]'),
       "the premise: the hero's own Book a call is on the first screen").toBeInViewport();
     await expect(bar, "hidden while the hero's own Book a call is on screen").toBeHidden();
 
@@ -164,7 +162,7 @@ test.describe('a visitor can act before the intro finishes', () => {
       const sc = document.getElementById('scroll');
       window.scrollTo(0, sc.getBoundingClientRect().top + scrollY + innerHeight * 1.5);
     });
-    await expect(page.locator('#found .ctarow'), 'the premise: the hero is behind you').not.toBeInViewport();
+    await expect(page.locator('#hero .ctarow'), 'the premise: the hero is behind you').not.toBeInViewport();
     await expect(bar, 'present through the film').toBeVisible();
     await expect(bar).toHaveAttribute('href', '/book.html#pick-a-time');
     await expect(bar).toHaveAttribute('data-evt', 'callbar_book_click');
@@ -196,9 +194,10 @@ test.describe('a visitor can act before the intro finishes', () => {
       }).length;
     });
 
-    // Measured at 15 on 2026-07-31. The floor is deliberately well below that:
-    // this asserts "the visitor is not stranded", not an exact nav design.
-    expect(clickableCount, 'a desktop visitor must have somewhere to go within 1s').toBeGreaterThanOrEqual(6);
+    // Since owner decision #81 the first screen offers one action, booking,
+    // in the header and the hero, and the demo line: the wordmark, the two
+    // Book buttons and the number are the four this asserts.
+    expect(clickableCount, 'a desktop visitor must have somewhere to go within 1s').toBeGreaterThanOrEqual(4);
   });
 
   test('a dropped site.js still leaves the whole page readable', async ({ page }) => {
@@ -228,14 +227,18 @@ test.describe('a visitor can act before the intro finishes', () => {
       };
     });
 
-    expect(state.total, 'the page should have reveal blocks to protect').toBeGreaterThan(10);
+    /* The hero carries no .reveal at all (it paints in the first frame), so
+       what must stay readable is the hero itself, and any reveal block left. */
     expect(state.invisible, 'every content block must stay readable without site.js').toBe(0);
+    for (const sel of ['#hero h1', '#hero .prices', '#hero .ctarow a']) {
+      await expect(page.locator(sel), `${sel} without site.js`).toBeVisible();
+    }
     expect(state.hasNoJs, 'no-js must survive when site.js never ran').toBe(true);
 
     /* And the booking bar is still there, because it is plain CSS. Checked on a
        content page with site.js still blocked: the homepage hides the bar
        while its own hero Book a call is on screen, so its top cannot show it. */
-    await page.goto('/electricians.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/privacy.html', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('.callbar')).toBeVisible();
     await expect(page.locator('.callbar')).toHaveAttribute('href', '/book.html#pick-a-time');
   });
@@ -250,10 +253,10 @@ test.describe('a visitor can act before the intro finishes', () => {
 
     expect(await page.evaluate(() => document.documentElement.classList.contains('nv-rm')),
       'the film must have taken its reduced-motion path').toBe(true);
-    const toggle = await tappable(page.locator('.nav-toggle'));
-    expect(toggle.visible).toBe(true);
-    expect(toggle.opacity, 'the header is not faded for a reduced-motion visitor').toBeGreaterThan(0.9);
-    expect(toggle.onTop, 'nothing may sit on top of it').toBe(true);
+    const mark = await tappable(page.locator('.site-header .wordmark'));
+    expect(mark.visible).toBe(true);
+    expect(mark.opacity, 'the header is not faded for a reduced-motion visitor').toBeGreaterThan(0.9);
+    expect(mark.onTop, 'nothing may sit on top of it').toBe(true);
   });
 
   /* FOUND 2026-09-25 AND HELD AS AN EXPECTED FAILURE UNTIL 2026-10-03 (audit
@@ -274,9 +277,10 @@ test.describe('a visitor can act before the intro finishes', () => {
     const hidden = await page.evaluate(() => ['s1', 's2', 's3', 'close']
       .filter((id) => +getComputedStyle(document.getElementById(id)).opacity < 0.9));
     expect(hidden, 'film copy blocks a reduced-motion visitor cannot see').toEqual([]);
-    /* The ending's two actions are on screen and take the tap where they are
-       drawn: Book a call first (decision #54), the scan link under it. */
-    for (const sel of ['#close a.cta', '#close a.cta-q']) {
+    /* The ending's one action is on screen and takes the tap where it is
+       drawn: Book a 15-minute call (owner decision #81). */
+    await expect(page.locator('#close a')).toHaveCount(1);
+    for (const sel of ['#close a.cta']) {
       const a = page.locator(sel);
       await a.scrollIntoViewIfNeeded();
       const ok = await a.evaluate((el) => {
@@ -287,6 +291,5 @@ test.describe('a visitor can act before the intro finishes', () => {
       expect(ok, `${sel} is visible and takes its own tap`).toBe(true);
     }
     await expect(page.locator('#close a.cta')).toHaveAttribute('href', '/book.html#pick-a-time');
-    await expect(page.locator('#close a.cta-q')).toHaveAttribute('href', 'https://app.nevamis.ca/scan');
   });
 });

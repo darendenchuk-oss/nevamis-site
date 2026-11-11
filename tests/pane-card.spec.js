@@ -23,7 +23,13 @@ async function openScanPane(page) {
   await page.waitForTimeout(1500);
   await page.locator('#paneNav button[data-pane="scan"]').click();
   await expect(page.locator('#card')).toHaveClass(/\bon\b/);
-  await page.waitForTimeout(700); /* the slide-in transition */
+  /* The slide-in is a .55s transition on the page's animation clock, which a
+     machine drawing the film in software advances a few frames a second: a
+     fixed 700ms wait measured the card mid-slide, its close button still past
+     the right edge of the screen, about one run in three. Waited for, not
+     timed: the card has arrived when its transform is gone. */
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.getElementById('card')).transform),
+    { message: 'the pane card never finished sliding in', timeout: 15_000 }).toBe('none');
 }
 
 async function closeButtonCentre(page) {

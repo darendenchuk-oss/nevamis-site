@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
    reveal split the headline into per-character inline-blocks, so the browser
    could break between any two letters and once rendered "your busine / ss is
    losing." That hero is gone: the homepage is the film, and its one h1 is
-   Lead Generation's "More of the customers you want." in #found, below it.
+   "We answer the calls you miss." in #hero (owner decision #81), below it.
    From 2026-09 until 2026-10-03 every test here failed on a null
    `.hero h1` (audit CHECK-RUNNER-5), so the suite's red verdict hid any real
    homepage regression behind fourteen known failures.
@@ -33,7 +33,7 @@ const VIEWPORTS = [
 /** Each word of the h1, with how many line boxes its glyphs fall on and how
  *  far its right edge runs past the h1's own box and past the viewport. */
 const measure = () => {
-  const h1 = document.querySelector('#found h1');
+  const h1 = document.querySelector('#hero h1');
   if (!h1) return null;
   const box = h1.getBoundingClientRect();
   const out = [];
@@ -64,13 +64,13 @@ for (const motion of /** @type {const} */ (['no-preference', 'reduce'])) {
         await page.setViewportSize({ width: vp.width, height: vp.height });
         await page.goto('/');
         await page.evaluate(() => document.fonts.ready);
-        await page.locator('#found h1').scrollIntoViewIfNeeded();
+        await page.locator('#hero h1').scrollIntoViewIfNeeded();
         /* After the section's reveal has settled. */
         await page.waitForTimeout(900);
 
         const m = await page.evaluate(measure);
-        expect(m, 'the homepage has its h1 in #found').not.toBeNull();
-        expect(m.text).toBe('More of the customers you want.');
+        expect(m, 'the homepage has its h1 in #hero').not.toBeNull();
+        expect(m.text).toBe('We answer the calls you miss.');
         expect(m.words.length).toBeGreaterThan(3);
         for (const w of m.words) {
           expect(w.lines, `"${w.word}" broke across ${w.lines} lines at ${vp.width}px`).toBe(1);

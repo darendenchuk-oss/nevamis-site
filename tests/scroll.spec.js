@@ -30,11 +30,13 @@
 
 import { test, expect } from '@playwright/test';
 
-/* A long sales page that loads ScrollTrigger and has headings well below the
-   fold, which is what the curtain is for. */
-const LONG = '/revenue-engine.html';
+/* A long page that loads ScrollTrigger and has headings well below the
+   fold, which is what the curtain is for. The sales pages that played this
+   part left the site with owner decision #81 (2026-11-10); the Terms are the
+   longest page left. */
+const LONG = '/terms.html';
 /* The page a buyer is most likely to reach that loads the motion layer. */
-const MOTION_PAGE = '/pricing.html';
+const MOTION_PAGE = '/book.html';
 const PLAIN = '/home.html';
 
 /* site.js beacons page_view to the PRODUCTION engine; see tests/pages.spec.js.
@@ -149,21 +151,21 @@ test('secondary pages get the heading curtains too, and finish visible', async (
      finds the heading by position rather than by text, so it did not break,
      which is exactly how a comment ends up quoting a price nobody may be
      charged. */
-  await page.goto('/pricing.html');
+  await page.goto('/book.html');
   await page.waitForTimeout(700);
   const firstScreen = await page.evaluate(() => {
     const h = [...document.querySelectorAll('main h2, section h2')]
       .find((el) => el.getBoundingClientRect().top < window.innerHeight);
     return h ? { masked: h.hasAttribute('data-masked'), visible: +getComputedStyle(h).opacity > 0 } : null;
   });
-  expect(firstScreen, 'pricing.html should have a heading in the first screen').toBeTruthy();
+  expect(firstScreen, 'book.html should have a heading in the first screen').toBeTruthy();
   expect(firstScreen.masked, 'a heading already on screen must never be curtained').toBe(false);
   expect(firstScreen.visible, 'a first-screen heading must be visible without waiting for motion').toBe(true);
 
   /* And the curtain still runs where it belongs: below the fold, on a
-     secondary page. coming-soon.html loads ScrollTrigger and has headings
+     secondary page. terms.html loads ScrollTrigger and has headings
      further down. */
-  await page.goto('/coming-soon.html');
+  await page.goto('/terms.html');
   await page.waitForTimeout(700);
   const wrapped = await page.evaluate(() => document.querySelectorAll('h2[data-masked]').length);
   expect(wrapped, 'the scroll layer must run beyond the homepage').toBeGreaterThan(0);
@@ -175,5 +177,5 @@ test('secondary pages get the heading curtains too, and finish visible', async (
       const m = t.match(/matrix\(([^)]+)\)/);
       return m && Math.abs(Number(m[1].split(',')[5])) > 1;
     }).length);
-  expect(stuck, 'no word left offstage on coming-soon').toBe(0);
+  expect(stuck, 'no word left offstage on terms').toBe(0);
 });
