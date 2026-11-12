@@ -29,8 +29,9 @@
    (plans or addOns, the fields in the same order), add its key to SOLD_NOW in
    the engine's canonical.ts in the same train, and delete it here; guard 7v
    refuses a key that is in both files. The figures mirror canonical as of
-   #83. The engine's cross-repo check reads only the served file, so it does
-   not compare this one: change canonical and this file together.
+   #83. The engine's consistency check (scripts/check-consistency.mjs) runs
+   this file too, since engine train #505, and holds every record here to
+   canonical: change canonical and this file together.
    ============================================================ */
 (function () {
   var P = window.NV_PRICING;
