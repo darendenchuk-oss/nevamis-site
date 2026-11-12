@@ -39,7 +39,7 @@ This is the greeting every client agent is built with today (`approvedGreeting` 
 
 ## Nevamis demo line (Job A)
 
-The demo line's live greeting is the Nevamis line's own (`nevamisLineGreeting` in canonical.ts, chosen by the founder on 2026-10-02): "Hello, this is the Nevamis office. This call may be recorded to help us handle your requests and improve services. How can I help you?" It carries the recording notice and does not announce an AI. Change it only through the live-agent push flow, never from this file.
+The demo line's live greeting is the Nevamis line's own (`nevamisLineGreeting` in canonical.ts): "Hello, this is Nevamis. This call may be recorded to help us handle your requests and improve services. How can I help you?" The founder chose "this is the Nevamis office" on 2026-10-02; the owner changed it on 2026-11-11 (live 2026-11-12 00:52 UTC), because the line must never say whether there is an office. It carries the recording notice and does not announce an AI. Change it only through the live-agent push flow, never from this file.
 
 ## Nevamis client support line (Job B) variant
 

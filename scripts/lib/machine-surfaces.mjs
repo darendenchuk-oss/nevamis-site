@@ -272,7 +272,11 @@ const PCT = /(?:\b\d+(?:\.\d+)?\s?%|\b\d+\s?per ?cent\b|\b(?:five|ten|fifteen|tw
    under config/elevenlabs/. */
 const isClientDraft = (f) => /(?:recording-notice-greetings|vertical-plumbing-agent-template|client-agent-isolation|plumbing-agent-test-scenarios)\.md$/.test(f);
 const isDemoLine = (f) => /(?:nevamis-knowledge-base|nevamis-agent-test-cases)\.md$/.test(f);
-const isPricedKb = (f) => /(?:nevamis-knowledge-base|client-support-knowledge)\.md$/.test(f);
+/* The knowledge base that still prices the modules: the support agent's,
+   which answers clients who hold them. The demo line's knowledge base sells
+   the three Front Desk sizes only since owner decision #83 (2026-11-11) and
+   names no module, so it is no longer held to their figures. */
+const isPricedKb = (f) => /client-support-knowledge\.md$/.test(f);
 const isAudienceDoc = (f) => /(?:nevamis-knowledge-base|client-support-knowledge|nevamis-agent-test-cases)\.md$/.test(f);
 
 /* Each rule: which files, the claim's shape, an optional own excuse, and WHY
@@ -290,7 +294,13 @@ export const AGENT_RULES = [
     excuse: deniedClaim(),
     why: "a client agent has no calendar and no booking tool: it takes the job and the time the caller wants, and the owner confirms the slot" },
   { id: "front-desk-books", files: isDemoLine,
-    re: /\b(?:front desk|client'?s (?:line|agent|front desk)|receptionist)\b[^.;|]*\b(?:books?|booking|calendar|confirmations?|reminders?)\b|\b(?:books?|booking|calendar|confirmations?|reminders?)\b[^.;|,]{0,40}\b(?:front desk|client'?s (?:line|agent|front desk)|receptionist)\b/i,
+    /* A front desk that is the object of "beyond" or "other than" is not
+       the subject of what follows it: the demo line's one answer for the
+       offers decision #83 hid ("anything beyond the front desk described
+       here, such as quote follow-ups, invoice reminders, ...") names
+       "invoice reminders" as something the front desk is NOT. Only that
+       preposition, right in front of the subject, withdraws it. */
+    re: /(?<!\b(?:beyond|other than)\s+(?:the\s+)?(?:AI\s+)?)\b(?:front desk|client'?s (?:line|agent|front desk)|receptionist)\b[^.;|]*\b(?:books?|booking|calendar|confirmations?|reminders?)\b|\b(?:books?|booking|calendar|confirmations?|reminders?)\b[^.;|,]{0,40}(?<!\b(?:beyond|other than)\s+(?:the\s+)?(?:AI\s+)?)\b(?:front desk|client'?s (?:line|agent|front desk)|receptionist)\b/i,
     /* The claim is the booking word: each one in the match must be denied
        ("the AI Front Desk does not book appointments, does not send callers
        confirmations"). A booking word AFTER the subject is the subject's
@@ -361,13 +371,16 @@ export function agentTruthFindings(file, text) {
   return out;
 }
 
-/* What the priced knowledge bases must SAY, derived from pricing-config.js,
-   so a figure that changes there fails here until the agent's words follow:
+/* What the priced knowledge base must SAY, derived from pricing-config.js
+   and the catalog, so a figure that changes there fails here until the
+   agent's words follow:
      - every module sold alone, by its sold name, with its own two figures in
        the approved shape (startLine), and that it is sold on its own;
      - the Partnership through startLine: a fee floor and its monthly band;
-   and the demo knowledge base states the missed-call text's hours in the
-   clause pricing-config's blurb uses. */
+   and the demo knowledge base, wherever it names the missed-call module,
+   states the text's hours in the clause pricing-config's blurb uses. The
+   priced knowledge base is the support agent's since decision #83: the demo
+   line no longer prices or names a module (see isPricedKb). */
 export function agentRequiredFindings(file, text, NV) {
   const out = [];
   const flat = String(text).replace(/<!--[\s\S]*?-->/g, " ").replace(/\s+/g, " ");
@@ -382,7 +395,11 @@ export function agentRequiredFindings(file, text, NV) {
       if (!flat.includes(want.replace(/\.$/, ""))) out.push(`${file}: must state ${p.name} as "${want}" (pricing-config.js startLine): a fee floor and a monthly band, never a flat pair`);
     }
   }
-  if (/nevamis-knowledge-base\.md$/.test(file)) {
+  /* The missed-call text's hours, wherever the demo knowledge base describes
+     the module by name. Since decision #83 it names no module (a text back
+     to a caller the business missed is only listed among what the line
+     does not sell), so the hours are required again the moment it does. */
+  if (/nevamis-knowledge-base\.md$/.test(file) && /\b(?:Missed-Call Recovery|Instant Lead Follow-Up)\b/i.test(flat)) {
     const mcr = (NV.addOns || []).find((x) => x.id === "missed_call_recovery");
     const clause = mcr && (/\bbetween [^,]{3,40}? your time, every day\b/.exec(mcr.blurb) || [])[0];
     if (!clause) out.push("pricing-config.js: the missed_call_recovery blurb no longer states its hours as \"between ... your time, every day\", so the demo knowledge base cannot be checked against it");
@@ -404,7 +421,11 @@ export function agentRequiredFindings(file, text, NV) {
    Performance Partnership, but the line never offers it, so the doors are
    the owner's approved wording: the phone (the front desk) first, then the
    quotes, and never AI first. Naming Lead Generation, or offering to find
-   the owner businesses or customers they want more of, is now a finding. */
+   the owner businesses or customers they want more of, is now a finding.
+   NARROWED 2026-11-11 (owner decision #83): the demo line sells the front
+   desk only, and quote follow-up is one of the offers it hides, so the
+   front desk is the one door it must name. Quotes may still be named, and
+   only after the front desk. */
 export function doorOrderFindings(label, text) {
   /* The legal name "Nevamis AI Inc." is a name, not a positioning. "call"
      is not a door word ("a call with Daren" is how a caller reaches him),
@@ -416,8 +437,8 @@ export function doorOrderFindings(label, text) {
   const ai = t.search(/\bAI\b/);
   const out = [];
   if (lg >= 0) out.push(`${label}: offers Lead Generation or finding the owner customers, which is off the demo line (decision #81, 2026-11-11)`);
-  if (fd < 0 || q < 0) out.push(`${label}: does not name both doors (the front desk, then quotes)`);
-  else if (!(fd < q)) out.push(`${label}: names the doors out of order; the front desk first, then quotes (decision #81, 2026-11-11)`);
+  if (fd < 0) out.push(`${label}: does not name the front desk (the phone), the one door the demo line sells (decision #83, 2026-11-11)`);
+  else if (q >= 0 && !(fd < q)) out.push(`${label}: names the doors out of order; the front desk first, then quotes (decision #81, 2026-11-11)`);
   if (ai >= 0 && (fd < 0 || ai < fd)) out.push(`${label}: leads with "AI" before the front desk; Nevamis is not described AI-first (decision #17)`);
   return out;
 }
@@ -502,6 +523,12 @@ export const AGENT_FIXTURES = {
     ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | Failing to transfer the caller to Daren is a FAIL. | ok | P1 |"],
     ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | Must transfer the caller to Daren or it is a FAIL. | ok | P1 |"],
     ["nevamis-agent-test-cases.md", "| 24 | x | \"q\" | Not transferring the caller to Daren is a FAIL. | ok | P1 |"],
+    /* "beyond" withdraws only the front desk it stands in front of
+       (decision #83's one answer, 2026-11-11): beyond something else, or
+       with another subject after it, the claim stands. */
+    ["nevamis-knowledge-base.md", "Beyond answering, the front desk sends reminders."],
+    ["nevamis-knowledge-base.md", "Beyond the front desk, the receptionist sends reminders."],
+    ["nevamis-knowledge-base.md", "It goes beyond the phone: the front desk books the job."],
   ],
   /* [file, text] that MUST pass: the true sentences each rule sits beside. */
   mustPass: [
@@ -509,6 +536,10 @@ export const AGENT_FIXTURES = {
     ["nevamis-knowledge-base.md", "Clients get a text or email alert after they pass 50 percent, 75 percent, 90 percent or 100 percent of their included minutes."],
     ["nevamis-knowledge-base.md", "The share, the attribution window and what counts as eligible revenue are all set in the client's agreement, so never state a rate or a percentage for the share on this line."],
     ["nevamis-knowledge-base.md", "This demo line books calls with Daren through Nevamis's own scheduling on Cal.com, which is Nevamis's own calendar and not an integration, and a client's line books nothing."],
+    /* The demo line's one answer for every offer decision #83 hid: the
+       hidden offers are named as what lies beyond the front desk. */
+    ["nevamis-knowledge-base.md", "If a caller names any other plan, product, add-on, bundle, partnership or scan, or asks for anything beyond the front desk described here, such as quote follow-ups, invoice reminders, review requests, a text back to a caller the business missed, or more locations, the whole answer is one sentence."],
+    ["nevamis-knowledge-base.md", "Invoice reminders and review requests are beyond the AI Front Desk."],
     ["nevamis-agent-test-cases.md", "| 32 | Abusive caller | \"x\" | One calm attempt. | at most one de-escalation attempt before a courteous close | P1 |"],
     ["nevamis-agent-test-cases.md", "| 3 | x | \"q\" | No fabricated figures. | No unproven generalisation about callers (no \"most\"); never says the front desk books the job itself. | P1 |"],
     ["nevamis-agent-test-cases.md", "| 39 | Who is it for? | \"Is this for restaurants? I run a cafe.\" | Says plainly who Nevamis is built for: trades. | Never lists an industry outside that audience. | P2 |"],
