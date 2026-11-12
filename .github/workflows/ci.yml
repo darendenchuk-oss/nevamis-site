@@ -1,0 +1,239 @@
+name: CI
+
+# Remote quality gate for the Nevamis site. Runs on every push to main and on
+# EVERY pull request, whatever its base. It runs `npm run check`, which is the
+# same command a person runs on their laptop: claim classifier, consistency,
+# site audit, generator drift, suite collection, and the full Playwright suite.
+#
+# ============================================================
+# AN ABSENT CHECK IS NOT A PASSING CHECK
+# ============================================================
+# Until this file existed there was no `.github` directory in this repository
+# at all. Not a broken workflow, not a disabled one: none had ever been
+# written. Every guard in `scripts/` ran only where somebody remembered to
+# type `npm run check`, and the record of what that costs is in the repository
+# already — six dead CSS identifiers and a call-to-action pointing at a 404
+# reached the live site, and two public commercial contradictions sat there
+# for days. Each of those was caught by a guard that already existed and that
+# nothing automatic had run.
+#
+# GitHub reports a pull request with no failing and no pending check as
+# mergeable, mergeStateStatus CLEAN, which renders as a green page and reads
+# as "everything passed". It does not mean that. CLEAN means only that
+# NOTHING REPORTED FAILURE, and a check that never ran reports nothing. The
+# absence of a red mark is not evidence of a green one.
+#
+# Two things follow for anyone reading a pull request here:
+#   1. Read the check LIST, not the merge colour. A pull request with no
+#      `verify` check has not been verified; it has been unexamined.
+#   2. `verify` proves the head commit it actually ran against. A later push
+#      needs a later run: compare the sha printed by the first step below
+#      against the head sha on the pull request before trusting a tick.
+#
+# NO `branches:` FILTER UNDER `pull_request`. That key filters the BASE
+# branch, so a stacked pull request — one aimed at another feature branch
+# rather than at main — would match no trigger and start no run at all. That
+# is not hypothetical: on 2026-08-28 the engine repository had exactly that
+# filter, and #207 and #208 both sat at CLEAN with a check rollup containing
+# only Vercel while `gh run list` for their head branches returned nothing.
+# No failed run, no cancelled run: no run had ever existed. The trigger here
+# is DELIBERATELY unfiltered, and tests/ci-workflow.spec.js fails this build
+# if a filter is put back. Do not add one.
+#
+# NOT `pull_request_target`. That event fires with the BASE repository's
+# secrets and write token in scope while checking out UNTRUSTED head code,
+# which is the standard supply-chain hole. This repository is PUBLIC and is
+# served straight to nevamis.ca, so a fork's pull request is a realistic
+# input. `pull_request` is correct, and it is also why a fork run is handed no
+# repository secret. No step below asks for one; the guard test fails the
+# build if that changes.
+#
+# DRAFTS RUN. There is no `types:` filter and no `draft` condition anywhere,
+# so the default opened/synchronize/reopened set applies to drafts too. Work
+# here is reviewed while it is still draft, so a gate that waits for
+# ready-for-review is a gate that arrives after the decision it was meant to
+# inform.
+
+on:
+  push:
+    # The deploy commit is itself verified. This repository IS the deployment:
+    # GitHub Pages serves main directly, so a commit that reaches main is
+    # already public. A gate that only ever looked at pull requests would be
+    # examining proposals and not the thing actually being served.
+    branches: [main]
+  # NO `branches:` KEY HERE. See the block above before adding one.
+  pull_request:
+
+# GITHUB_TOKEN is a credential too. Nothing in this job pushes, comments,
+# publishes or deploys, so read is all it may have. The repository default is
+# already read, which means this line changes nothing today and keeps it that
+# way if that setting is ever flipped: a workflow's own permissions should not
+# depend on a checkbox in another screen.
+permissions:
+  contents: read
+
+# Supersede, but never discard release evidence.
+#
+# Grouping by workflow and ref gives each pull request its own lane
+# (`refs/pull/<n>/merge`) and main's pushes theirs (`refs/heads/main`), so the
+# two can never cancel one another.
+#
+# cancel-in-progress is TRUE FOR PULL REQUESTS ONLY. Pushing a fixup while an
+# older run is still going makes that older run answer a question nobody is
+# asking any more, and its result would attach to a commit that is no longer
+# the merge candidate.
+#
+# It is FALSE FOR PUSHES TO MAIN, deliberately. A main run is the record that
+# a commit now being served to the public passed; cancelling it because a
+# second merge landed a minute later would leave the first commit permanently
+# un-evidenced, and a CANCELLED conclusion reads like a failure while proving
+# nothing either way. Main runs queue instead.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # THE JOB ID IS THE PUBLISHED CHECK NAME. DO NOT RENAME IT, AND DO NOT GIVE
+  # IT A `name:`.
+  #
+  # With no `name:` key GitHub publishes the check under the job id, so this
+  # word is the string any branch-protection rule has to match. Stated plainly
+  # because it is the honest position today: this repository has NO ruleset
+  # and NO branch protection on main, so nothing yet requires this check to
+  # pass before a merge. The run is evidence, not enforcement. That makes the
+  # name matter more rather than less — whoever adds the ruleset will type
+  # this string, and a rename afterwards does not error, it simply leaves the
+  # ruleset waiting for a check that no longer exists. Which is this file's
+  # own banner arriving from the other direction.
+  verify:
+    # The site's Playwright suite runs serially (workers: 1) across ~29 spec
+    # files at a 90s per-test timeout, plus a whole-site crawl in a real
+    # browser. Generous enough that a slow runner is not read as a failure,
+    # short enough that a genuine hang does not burn an hour.
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      # WHAT THIS RUN IS ACTUALLY ABOUT, PRINTED BEFORE ANYTHING ELSE.
+      #
+      # The defect this file exists for was invisible because nobody could
+      # see, from a pull request, which commit had or had not been examined.
+      # So every run opens by naming its event, its base, its head branch and
+      # the exact head sha its result attaches to.
+      - name: Provenance and secret posture
+        run: |
+          echo "event         : ${{ github.event_name }}"
+          echo "base branch   : ${{ github.base_ref || github.ref_name }}"
+          echo "head branch   : ${{ github.head_ref || github.ref_name }}"
+          echo "head sha      : ${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "draft         : ${{ github.event.pull_request.draft || false }}"
+          echo "from a fork   : ${{ github.event.pull_request.head.repo.fork || false }}"
+          if [ "${{ github.event.pull_request.head.repo.fork }}" = "true" ]; then
+            echo "::notice::This run comes from a FORK. GitHub passes no repository secret to a pull_request run from a fork, and no step in this job asks for one, so every step below runs with the same inputs it would have anywhere."
+          fi
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.base_ref }}" != "main" ]; then
+            echo "::notice::STACKED pull request: base is '${{ github.base_ref }}', not main. This run exists because the pull_request trigger is unfiltered by base branch."
+          fi
+
+      # THE EXACT COMMIT THIS RESULT WILL BE ATTACHED TO, DETACHED ON PURPOSE.
+      #
+      # `ref: github.sha` is what checkout already does for a pull request (the
+      # merge commit), so this only changes push runs — and it changes them in
+      # the direction of honesty: a push run must verify the sha that was
+      # pushed, not whatever `main` happens to point at by the time the runner
+      # picks the job up.
+      #
+      # It also settles scripts/check-suite.mjs's second limb, which asks git
+      # whether this checkout is behind its own remote branch. That limb is a
+      # LAPTOP guard: it exists because a developer's tree once sat four
+      # commits behind origin/main, three spec files did not exist, and 15 of
+      # 18 were collected and reported as a pass. A runner clones the commit
+      # under test, so the condition it looks for cannot arise here. Left on a
+      # branch checkout it would do something worse than nothing: if a second
+      # merge lands while this run is queued, origin/main moves ahead of the
+      # commit being tested and the limb reports "behind" — a red main run
+      # that means nothing, which is exactly how a gate gets ignored. Detached,
+      # it reports "cannot tell" and says so. Its other two limbs, collection
+      # drift and generator drift, are unaffected and do fail the build.
+      #
+      # Default fetch depth. Nothing left in the chain reads history — the
+      # remaining git calls are `ls-files` and `checkout --`, both of which
+      # work against the index — and this repository carries 325 MiB of packed
+      # objects, which is not worth cloning on every run to no end.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          # 24 matches local development.
+          node-version: "24"
+          # DELIBERATELY NO `cache: npm`. That option needs a lockfile to key
+          # on and fails the step outright when there is none. See the install
+          # step for why there is none.
+
+      # `npm install`, NOT `npm ci`. package-lock.json is in .gitignore — the
+      # published site is static and this package.json exists only to hold the
+      # local test harness, so the lockfile was never tracked. `npm ci` refuses
+      # to run without one.
+      #
+      # SAY WHAT THIS COSTS RATHER THAN HIDING IT: the one dependency,
+      # @playwright/test, is floating on ^1.49.0, so this job does not install
+      # a byte-identical tree every time and a future 1.x release could change
+      # a result here without any commit doing it. Tracking a lockfile is the
+      # fix and is a separate change from adding CI at all. Until then, an
+      # unexplained failure on an untouched branch is worth checking the
+      # resolved version for; the install prints it.
+      - name: Install (no lockfile is tracked - see comment)
+        run: |
+          npm install --no-audit --no-fund
+          echo "resolved @playwright/test: $(node -p "require('@playwright/test/package.json').version")"
+
+      # Both the Playwright suite and scripts/audit-site.mjs drive a real
+      # Chromium, which the npm package does not ship. `--with-deps` also
+      # installs the system libraries the browser needs on a bare runner.
+      # Only chromium: playwright.config.js declares exactly one project,
+      # chromium-desktop, so pulling firefox and webkit would be minutes spent
+      # on browsers nothing here launches.
+      - name: Install the browser the suite actually uses
+        run: npx playwright install --with-deps chromium
+
+      # THE REAL CHAIN, AS ONE COMMAND, ON PURPOSE.
+      #
+      # `npm run check` is scripts/check-all.mjs, and it runs, in order: the
+      # claim classifier (is the judge sound?), the consistency validator, the
+      # whole-site audit against a server it starts and stops itself, the
+      # generator-drift check and the suite-collection check, and then the
+      # full Playwright suite. Every one of those runs even when an earlier
+      # one fails, and it prints a per-check pass/FAIL table at the end, so
+      # one run says everything that is wrong rather than only the first
+      # thing.
+      #
+      # IT IS NOT UNROLLED INTO ONE YAML STEP PER GUARD. Unrolling would make
+      # this file a second, hand-maintained copy of the list in check-all.mjs,
+      # and the next guard someone adds there would go green here by not being
+      # listed — which is the same failure this workflow exists to end, moved
+      # one file across. Calling the composite means a check added to
+      # check-all.mjs gates from the moment it lands.
+      #
+      # WHAT THIS DOES NOT PROVE, said out loud because check-all.mjs's
+      # verdict table distinguishes "FAIL" from "WAIT" and only FAIL exits
+      # non-zero:
+      #   * The two agent checks need the nevamis-engine checkout beside this
+      #     one and an ELEVENLABS_API_KEY. Neither exists on a runner, so
+      #     check-all.mjs prints "skipped: nevamis-engine is not beside this
+      #     repo" and the live phone agent is NOT examined here. It never was;
+      #     that check belongs to a laptop with credentials.
+      #   * The consistency validator exits 2 when every finding is about that
+      #     same live agent prompt, which is edited in a dashboard and not in
+      #     this repository. Real drift, reported loudly, not a reason to fail
+      #     a build.
+      #   * check-suite.mjs's staleness limb compares this checkout against
+      #     its own remote branch and reports "cannot tell" here, because the
+      #     checkout above is detached at the exact commit under test. That is
+      #     the right answer on a runner and the reasoning is at that step.
+      #     Its other limbs, collection drift and generator drift, do run and
+      #     do fail the build.
+      # Read the table this step prints. A WAIT line is a question for a
+      # person, not a pass.
+      - name: The site's own guard chain (npm run check)
+        run: npm run check
